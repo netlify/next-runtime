@@ -1,0 +1,30 @@
+{
+  "name": "netlify-plugin-nextjs",
+  "version": "1.0.0",
+  "description": "run Nextj.s seamlessly on netlify",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/netlify/netlify-plugin-nextjs"
+  },
+  "keywords": [
+    "nextjs",
+    "netlify",
+    "next"
+  ],
+  "author": "lindsaylevine",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/netlify/netlify-plugin-nextjs/issues"
+  },
+  "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
+  "dependencies": {
+    "@netlify/framework-info": "^0.1.3",
+    "cpx": "^1.5.0",
+    "make-dir": "^3.1.0",
+    "next-on-netlify": "github:netlify/next-on-netlify#expose-pkg-for-require"
+  }
+}
