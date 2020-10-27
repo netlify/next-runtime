@@ -1,6 +1,6 @@
 {
   "name": "netlify-plugin-nextjs",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "run Nextj.s seamlessly on netlify",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/netlify/netlify-plugin-nextjs"
+    "url": "git+https://github.com/netlify/netlify-plugin-nextjs.git"
   },
   "keywords": [
     "nextjs",
@@ -16,7 +16,7 @@
     "next"
   ],
   "author": "lindsaylevine",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/netlify/netlify-plugin-nextjs/issues"
   },
