@@ -34,7 +34,7 @@ Create a `netlify.toml` in the root of your project:
   publish = "out_publish"
 
 [[plugins]]
-  package = "netlify-plugin-nextjs"
+  package = "@netlify/plugin-nextjs"
 ```
 
 ## Custom Netlify Redirects
