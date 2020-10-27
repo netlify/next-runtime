@@ -25,9 +25,7 @@ This build plugin is a utility for enabling server-side rendering in Next.js on 
 
 ## Installation and Configuration
 
-1. `npm install netlify-plugin-nextjs`
-
-2. Create a `netlify.toml` in the root of your poject:
+Create a `netlify.toml` in the root of your project:
 
 ```toml
 [build]
