@@ -1,6 +1,6 @@
 ![Next.js on Netlify Build Plugin](nextonnetlify.png)
 
-# Next on Netlify Build Plugin
+# Next.js Build Plugin
 
 This build plugin is a utility for enabling server-side rendering in Next.js on Netlify. It wraps your application in a tiny compatibility layer, so that pages can use Netlify Functions to be server-side rendered.
 
@@ -24,65 +24,19 @@ This build plugin is a utility for enabling server-side rendering in Next.js on 
 
 ## Installation and Configuration
 
-Create a `netlify.toml`:
+1. `npm install netlify-plugin-nextjs`
+
+2. Create a `netlify.toml` in the root of your poject:
 
 ```toml
 [build]
   command   = "npm run build"
   functions = "out_functions"
-  publish   = "out_publish"
+  publish = "out_publish"
+
+[[plugins]]
+  package = "netlify-plugin-nextjs"
 ```
-
-## Setup
-
-#### 1. Set Next.js target to serverless
-
-We must build our Next.js app as a serverless app. You can read more about serverless Next.js [here](https://nextjs.org/docs/api-reference/next.config.js/build-target#serverless-target).
-
-It's super simple. Just create a `next.config.js` file and write the following:
-
-```js
-// next.config.js
-
-module.exports = {
-  // Target must be serverless
-  target: "serverless",
-}
-```
-
-If binaries are needed in the deployment the following configuration is needed ([Prisma](https://github.com/prisma/prisma) is an example):
-
-```js
-// next.config.js
-
-module.exports = {
-  // Target must be experimental-serverless-trace
-  // Your build time will be longer with this option
-  target: "experimental-serverless-trace",
-}
-```
-
-#### 2. Add postbuild hook
-
-The next-on-netlify package adds the `next-on-netlify` command. When we run this command, some magic happens to prepare our Next.js app for hosting on Netlify\*.
-
-We want the next-on-netlify command to run after we build our NextJS application. So let's add a postbuild hook to our package.json file:
-
-```json
-{
-  "name": "my-nextjs-app",
-  "scripts": {
-    "dev": "next",
-    "build": "next build",
-    "postbuild": "next-on-netlify"
-  },
-  ....
-}
-```
-
-\*If you're curious about the "magic", check out the well-documented [`next-on-netlify.js` file](https://github.com/netlify/next-on-netlify/blob/master/next-on-netlify.js).
-
-We're done. Let's deploy 🚀🚀🚀
 
 ## Optional Extras
 
@@ -149,10 +103,6 @@ The precedence of these rules are:
 SSR pages and API endpoints. It is currently not possible to create custom Netlify Functions. Let me know if you have a need for this feature and we can add it.
 
 ## Caveats
-
-### Preview Mode
-
-[Next.js Preview Mode](https://nextjs.org/docs/advanced-features/preview-mode) does not work on pages that are pre-rendered (pages with `getStaticProps`). Netlify currently does not support cookie-based redirects, which are needed for supporting preview mode on pre-rendered pages. Preview mode works correctly on any server-side-rendered pages (pages with `getInitialProps` or `getServerSideProps`). See: [Issue #10](https://github.com/netlify/next-on-netlify/issues/10)
 
 ### Fallbacks for Pages with `getStaticPaths`
 
