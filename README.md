@@ -2,6 +2,15 @@
 
 # Next.js Build Plugin
 
+<p align="center">
+  <a aria-label="npm version" href="https://www.npmjs.com/package/netlify-plugin-nextjs">
+    <img alt="" src="https://img.shields.io/npm/v/netlify-plugin-nextjs">
+  </a>
+  <a aria-label="MIT License" href="https://img.shields.io/npm/l/netlify-plugin-nextjs">
+    <img alt="" src="https://img.shields.io/npm/l/netlify-plugin-nextjs">
+  </a>
+</p>
+
 This build plugin is a utility for enabling server-side rendering in Next.js on Netlify. It wraps your application in a tiny compatibility layer, so that pages can use Netlify Functions to be server-side rendered.
 
 **TL;DR: You can enable SSR in your Next.js applications with 3 simple steps, listed [here](#setup)!**
