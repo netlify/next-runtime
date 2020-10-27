@@ -1,35 +1,17 @@
 ![Next.js on Netlify Build Plugin](nextonnetlify.png)
 
-<p align="center">
-  <a aria-label="npm version" href="https://www.npmjs.com/package/next-on-netlify">
-    <img alt="" src="https://img.shields.io/npm/v/next-on-netlify">
-  </a>
-  <a aria-label="MIT License" href="https://img.shields.io/npm/l/next-on-netlify">
-    <img alt="" src="https://img.shields.io/npm/l/next-on-netlify">
-  </a>
-  <a aria-label="npm downloads" href="https://www.npmjs.com/package/next-on-netlify">
-    <img alt="" src="https://img.shields.io/npm/dt/next-on-netlify">
-  </a>
-  <a aria-label="Tested with Cypress" href="https://www.cypress.io/">
-    <img alt="" src="https://img.shields.io/badge/tested%20with-Cypress-04C38E.svg">
-  </a>
-</p>
+# Next on Netlify Build Plugin
 
-
-`next-on-netlify` is a utility for enabling server-side rendering in Next.js on Netlify. It wraps your application in a tiny compatibility layer, so that pages can use Netlify Functions to be server-side rendered.
+This build plugin is a utility for enabling server-side rendering in Next.js on Netlify. It wraps your application in a tiny compatibility layer, so that pages can use Netlify Functions to be server-side rendered.
 
 **TL;DR: You can enable SSR in your Next.js applications with 3 simple steps, listed [here](#setup)!**
 
-- Demo: https://next-on.netlify.com/
-- Example repository: https://github.com/netlify-labs/next-on-netlify-demo
-
 ## Table of Contents
 
-- [Installation](#installation)
+- [Installation and Configuration](#installation-and-configuration)
 - [Setup](#setup)
   - [1. Set Next.js target to serverless](#1-set-nextjs-target-to-serverless)
   - [2. Add postbuild hook](#2-add-postbuild-hook)
-  - [3. Configure Netlify](#3-configure-netlify)
 - [Optional Extras](#optional-extras)
   - [Preview Locally](#preview-locally)
   - [Custom Netlify Redirects](#custom-netlify-redirects)
@@ -40,11 +22,15 @@
 - [Credits](#credits)
 - [Showcase](#showcase)
 
+## Installation and Configuration
 
-## Installation
+Create a `netlify.toml`:
 
-```
-npm install --save next-on-netlify
+```toml
+[build]
+  command   = "npm run build"
+  functions = "out_functions"
+  publish   = "out_publish"
 ```
 
 ## Setup
@@ -61,7 +47,7 @@ It's super simple. Just create a `next.config.js` file and write the following:
 module.exports = {
   // Target must be serverless
   target: "serverless",
-};
+}
 ```
 
 If binaries are needed in the deployment the following configuration is needed ([Prisma](https://github.com/prisma/prisma) is an example):
@@ -73,7 +59,7 @@ module.exports = {
   // Target must be experimental-serverless-trace
   // Your build time will be longer with this option
   target: "experimental-serverless-trace",
-};
+}
 ```
 
 #### 2. Add postbuild hook
@@ -95,17 +81,6 @@ We want the next-on-netlify command to run after we build our NextJS application
 ```
 
 \*If you're curious about the "magic", check out the well-documented [`next-on-netlify.js` file](https://github.com/netlify/next-on-netlify/blob/master/next-on-netlify.js).
-
-#### 3. Configure Netlify
-
-We're almost done! We just have to tell Netlify how to build our Next.js app, where the functions folder is located, and which folder to upload to its CDN. We do that with a `netlify.toml` file and the following instructions:
-
-```toml
-[build]
-  command   = "npm run build"
-  functions = "out_functions"
-  publish   = "out_publish"
-```
 
 We're done. Let's deploy 🚀🚀🚀
 
@@ -187,7 +162,6 @@ With `next-on-netlify`, when navigating to a path that is not defined in `getSta
 
 For more on this, see: [Issue #7](https://github.com/netlify/next-on-netlify/issues/7#issuecomment-636883539)
 
-
 ## Credits
 
 This package is maintained by [Lindsay Levine](https://github.com/lindsaylevine), [Finn Woelm](https://github.com/FinnWoelm), and [Cassidy Williams](https://github.com/cassidoo).
@@ -206,7 +180,6 @@ This package is maintained by [Lindsay Levine](https://github.com/lindsaylevine)
 - [@jonasbuntinx](https://github.com/jonasbuntinx)
 - [@joostmeijles](https://github.com/joostmeijles)
 
-
 ## Showcase
 
 The following sites are built with `next-on-netlify`:
@@ -218,4 +191,3 @@ The following sites are built with `next-on-netlify`:
 [missionbit.org](https://www.missionbit.org/) ([#18](https://github.com/netlify/next-on-netlify/pull/18#issuecomment-643828966))
 
 Are you building something awesome with `next-on-netlify`? 🔥 Let us know and we will feature it here :)
-
