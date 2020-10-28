@@ -3,11 +3,11 @@
 # Next.js Build Plugin
 
 <p align="center">
-  <a aria-label="npm version" href="https://www.npmjs.com/package/netlify-plugin-nextjs">
-    <img alt="" src="https://img.shields.io/npm/v/netlify-plugin-nextjs">
+  <a aria-label="npm version" href="https://www.npmjs.com/package/@netlify/plugin-nextjs">
+    <img alt="" src="https://img.shields.io/npm/v/@netlify/plugin-nextjs">
   </a>
-  <a aria-label="MIT License" href="https://img.shields.io/npm/l/netlify-plugin-nextjs">
-    <img alt="" src="https://img.shields.io/npm/l/netlify-plugin-nextjs">
+  <a aria-label="MIT License" href="https://img.shields.io/npm/l/@netlify/plugin-nextjs">
+    <img alt="" src="https://img.shields.io/npm/l/@netlify/plugin-nextjs">
   </a>
 </p>
 
