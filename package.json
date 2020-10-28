@@ -25,6 +25,6 @@
     "@netlify/framework-info": "^0.1.3",
     "cpx": "^1.5.0",
     "make-dir": "^3.1.0",
-    "next-on-netlify": "github:netlify/next-on-netlify#expose-pkg-for-require"
+    "next-on-netlify": "^2.6.0"
   }
 }
