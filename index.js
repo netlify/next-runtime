@@ -15,7 +15,7 @@ const isStaticExportProject = require('./helpers/isStaticExportProject');
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
-  async onPreBuild({ constants, netlifyConfig, utils }) {
+  async onPreBuild({ netlifyConfig, packageJson: { scripts = {}, dependencies = {} }, utils }) {
     if (!(await hasFramework('next'))) {
       return failBuild(`This application does not use Next.js.`);
     }
@@ -26,21 +26,6 @@ module.exports = {
       // TO-DO: Post alpha, try to remove this workaround for missing deps in
       // the next-on-netlify function template
       await utils.run.command('npm install next-on-netlify@latest');
-
-      // Require the project's package.json for access to its scripts
-      // and dependencies in order to check existing project configuration
-      let packageJson;
-      if (existsSync(path.resolve(constants.PUBLISH_DIR, 'package.json'))) {
-        packageJson = require(path.resolve(constants.PUBLISH_DIR, 'package.json'));
-      } else if (existsSync(path.resolve(constants.PUBLISH_DIR, '..', 'package.json'))) {
-        packageJson = require(path.resolve(constants.PUBLISH_DIR, '..', 'package.json'));
-      } else {
-        failBuild(`Cannot locate your package.json file. Please make sure your package.json is
-          at the root of your project or in your publish directory.`
-        );
-      }
-
-      const { scripts, dependencies } = packageJson;
 
       if (isStaticExportProject({ build, scripts })) {
         failBuild(`** Static HTML export next.js projects do not require this plugin **`);
