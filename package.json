@@ -4,6 +4,7 @@
   "description": "run Nextj.s seamlessly on netlify",
   "main": "index.js",
   "scripts": {
+    "format": "prettier --write .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,5 +27,15 @@
     "cpx": "^1.5.0",
     "make-dir": "^3.1.0",
     "next-on-netlify": "^2.6.0"
+  },
+  "devDependencies": {
+    "@netlify/eslint-config-node": "^0.3.0",
+    "husky": "^4.3.0",
+    "prettier": "^2.1.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "prettier --check ."
+    }
   }
 }

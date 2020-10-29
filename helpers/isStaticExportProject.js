@@ -3,12 +3,12 @@
 // the Next.js app uses static HTML export
 
 const isStaticExportProject = ({ build, scripts }) => {
-  const NEXT_EXPORT_COMMAND = 'next export';
-  const isSetInNetlifyConfig = build && build.command && build.command.includes(NEXT_EXPORT_COMMAND);
+  const NEXT_EXPORT_COMMAND = 'next export'
+  const isSetInNetlifyConfig = build && build.command && build.command.includes(NEXT_EXPORT_COMMAND)
   const isSetInNpmScript = Object.keys(scripts).find((script) => {
-    return scripts[script].includes(NEXT_EXPORT_COMMAND);
-  });
-  return isSetInNetlifyConfig || isSetInNpmScript;
-};
+    return scripts[script].includes(NEXT_EXPORT_COMMAND)
+  })
+  return isSetInNetlifyConfig || isSetInNpmScript
+}
 
-module.exports = isStaticExportProject;
+module.exports = isStaticExportProject
