@@ -2,7 +2,7 @@ const fs = require('fs');
 const { existsSync, readFileSync } = require('fs');
 const path = require('path');
 const { appendFile, readdir } = require('fs').promises;
-const { listFrameworks } = require('@netlify/framework-info');
+const { hasFramework } = require('@netlify/framework-info');
 const nextOnNetlify = require('next-on-netlify');
 const { PHASE_PRODUCTION_BUILD } = require('next/constants');
 const { default: loadConfig } = require('next/dist/next-server/server/config');
@@ -10,22 +10,19 @@ const makeDir = require('make-dir');
 const cpx = require('cpx');
 const isStaticExportProject = require('./helpers/isStaticExportProject');
 
-const _isNextProject = async () => {
-  const frameworks = await listFrameworks();
-  return !!frameworks.find(({ name }) => name === 'next');
-};
-
 // * Helpful Plugin Context *
 // - Between the prebuild and build steps, the project's build command is run
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
   async onPreBuild({ constants, netlifyConfig, utils }) {
-    const isNextProject = await _isNextProject();
+    if (!(await hasFramework('next'))) {
+      return failBuild(`This application does not use Next.js.`);
+    }
+
     const { build } = netlifyConfig;
     const { failBuild } = utils.build;
 
-    if (isNextProject) {
       // TO-DO: Post alpha, try to remove this workaround for missing deps in
       // the next-on-netlify function template
       await utils.run.command('npm install next-on-netlify@latest');
@@ -80,14 +77,8 @@ module.exports = {
         await appendFile('next.config.js', nextConfig);
         console.log(`** Adding next.config.js with target set to 'serverless' **`);
       }
-    } else {
-      failBuild(`This application does not use Next.js.`);
-    }
   },
   async onBuild({ constants }) {
-    const isNextProject = await _isNextProject();
-
-    if (isNextProject) {
       console.log(`** Running Next on Netlify package **`);
       nextOnNetlify();
 
@@ -107,6 +98,5 @@ module.exports = {
       // with function names that next-on-netlify can generate
       // cpx.copySync('out_functions/**/*', FUNCTIONS_SRC);
       cpx.copySync('out_publish/**/*', PUBLISH_DIR);
-    }
   }
 }
