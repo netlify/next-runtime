@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "format": "prettier --write .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -23,19 +23,27 @@
   },
   "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
-    "@netlify/framework-info": "^0.2.0",
     "cpx": "^1.5.0",
     "make-dir": "^3.1.0",
+    "next": "^10.0.1",
     "next-on-netlify": "^2.6.0"
   },
   "devDependencies": {
     "@netlify/eslint-config-node": "^0.3.0",
     "husky": "^4.3.0",
+    "jest": "^26.6.1",
+    "mock-fs": "^4.13.0",
     "prettier": "^2.1.2"
   },
   "husky": {
     "hooks": {
       "pre-commit": "prettier --check ."
     }
+  },
+  "jest": {
+    "testMatch": [
+      "**/test/**/*.js"
+    ],
+    "verbose": true
   }
 }

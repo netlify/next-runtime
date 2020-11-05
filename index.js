@@ -1,8 +1,5 @@
-const fs = require('fs')
-const { existsSync, readFileSync } = require('fs')
+const { existsSync, readFileSync, appendFileSync } = require('fs')
 const path = require('path')
-const { appendFile, readdir } = require('fs').promises
-const { hasFramework } = require('@netlify/framework-info')
 const nextOnNetlify = require('next-on-netlify')
 const { PHASE_PRODUCTION_BUILD } = require('next/constants')
 const { default: loadConfig } = require('next/dist/next-server/server/config')
@@ -15,13 +12,8 @@ const isStaticExportProject = require('./helpers/isStaticExportProject')
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
-  async onPreBuild({ netlifyConfig, packageJson: { scripts = {}, dependencies = {} }, utils }) {
+  async onPreBuild({ netlifyConfig = {}, packageJson: { scripts = {}, dependencies = {} }, utils }) {
     const { failBuild } = utils.build
-
-    if (!(await hasFramework('next'))) {
-      return failBuild(`This application does not use Next.js.`)
-    }
-
     const { build } = netlifyConfig
     // TO-DO: Post alpha, try to remove this workaround for missing deps in
     // the next-on-netlify function template
@@ -61,7 +53,7 @@ module.exports = {
             target: 'serverless'
           }
         `
-      await appendFile('next.config.js', nextConfig)
+      appendFileSync('next.config.js', nextConfig)
       console.log(`** Adding next.config.js with target set to 'serverless' **`)
     }
   },
