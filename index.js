@@ -16,13 +16,13 @@ const isStaticExportProject = require('./helpers/isStaticExportProject')
 
 module.exports = {
   async onPreBuild({ netlifyConfig, packageJson: { scripts = {}, dependencies = {} }, utils }) {
+    const { failBuild } = utils.build
+
     if (!(await hasFramework('next'))) {
       return failBuild(`This application does not use Next.js.`)
     }
 
     const { build } = netlifyConfig
-    const { failBuild } = utils.build
-
     // TO-DO: Post alpha, try to remove this workaround for missing deps in
     // the next-on-netlify function template
     await utils.run.command('npm install next-on-netlify@latest')
