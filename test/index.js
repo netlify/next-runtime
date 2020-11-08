@@ -1,6 +1,6 @@
 const path = require('path')
-// const fs = require('fs')
 const nextOnNetlify = require('next-on-netlify')
+const makef = require('makef')
 const makeDir = require('make-dir')
 const cpx = require('cpx')
 const mockFs = require('mock-fs')
@@ -23,8 +23,13 @@ afterEach(() => {
 })
 
 jest.mock('next-on-netlify')
+jest.mock('makef')
 jest.mock('make-dir')
 jest.mock('cpx')
+
+// See: https://github.com/tschaub/mock-fs/issues/234#issuecomment-377862172
+// for why this log is required
+console.log('Initializing tests')
 
 describe('preBuild()', () => {
   test('fail build if the app has static html export in npm script', async () => {
@@ -72,14 +77,13 @@ describe('preBuild()', () => {
   })
 
   test('create next.config.js with correct target if file does not exist', async () => {
-    // this is a hack right now, next.config.js shouldnt really be created in tests
-    // TO-DO: figure out how to properly mock fs.appendFileSync without it erroring
     await plugin.onPreBuild({
+      netlifyConfig: {},
       packageJson: {},
       utils,
     })
-    const nextConfig = require('../next.config.js')
-    expect(nextConfig.target).toEqual('serverless')
+
+    expect(makef.createFile.mock.calls.length).toEqual(1)
   })
 
   test(`fail build if the app's next config has an invalid target`, async () => {

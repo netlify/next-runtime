@@ -17,5 +17,5 @@ node_modules
 .next
 
 # Test
-next.config.js
 __mocks__
+sample
