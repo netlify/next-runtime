@@ -6,6 +6,8 @@ To test:
 
 `netlify build`
 
+Note: make sure netlify-cli is updated!
+
 On the first run, you'll need to link the project to a Netlify site. This will create a `state.json` file in the .netlify directory, which is .gitignored.
 
 This is strictly for the ease of developers trying to run the plugin locally while more thorough tests are written.

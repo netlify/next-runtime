@@ -15,8 +15,7 @@ const isStaticExportProject = require('./helpers/isStaticExportProject')
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
-  // TO-DO: remove default packageJson once CLI issue is diagnosed
-  async onPreBuild({ netlifyConfig, packageJson = {}, utils }) {
+  async onPreBuild({ netlifyConfig, packageJson, utils }) {
     const { failBuild } = utils.build
 
     if (!packageJson) {
