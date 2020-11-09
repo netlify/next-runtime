@@ -14,7 +14,8 @@
   "keywords": [
     "nextjs",
     "netlify",
-    "next"
+    "next",
+    "netlify-plugin"
   ],
   "author": "lindsaylevine",
   "license": "MIT",
