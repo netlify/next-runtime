@@ -1,11 +1,11 @@
 const fs = require('fs')
-const { existsSync, readFileSync } = require('fs')
+const { promisify } = require('util')
+const exists = promisify(fs.exists)
 const path = require('path')
-const { appendFile, readdir } = require('fs').promises
-const { hasFramework } = require('@netlify/framework-info')
 const nextOnNetlify = require('next-on-netlify')
 const { PHASE_PRODUCTION_BUILD } = require('next/constants')
 const { default: loadConfig } = require('next/dist/next-server/server/config')
+const makef = require('makef')
 const makeDir = require('make-dir')
 const cpx = require('cpx')
 const isStaticExportProject = require('./helpers/isStaticExportProject')
@@ -15,14 +15,22 @@ const isStaticExportProject = require('./helpers/isStaticExportProject')
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
-  async onPreBuild({ netlifyConfig, packageJson: { scripts = {}, dependencies = {} }, utils }) {
+  async onPreBuild({ netlifyConfig, packageJson, utils }) {
     const { failBuild } = utils.build
 
-    if (!(await hasFramework('next'))) {
-      return failBuild(`This application does not use Next.js.`)
+    if (!packageJson) {
+      failBuild(`Could not find a package.json for this project`)
+      return
+    }
+
+    if (!netlifyConfig) {
+      failBuild(`Could not find a Netlify configuration for this project`)
+      return
     }
 
     const { build } = netlifyConfig
+    const { scripts = {}, dependencies = {} } = packageJson
+
     // TO-DO: Post alpha, try to remove this workaround for missing deps in
     // the next-on-netlify function template
     await utils.run.command('npm install next-on-netlify@latest')
@@ -46,7 +54,8 @@ module.exports = {
       )
     }
 
-    if (existsSync('next.config.js')) {
+    const hasNextConfig = await exists('next.config.js')
+    if (hasNextConfig) {
       // If the next config exists, fail build if target isnt in acceptableTargets
       const acceptableTargets = ['serverless', 'experimental-serverless-trace']
       const nextConfig = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'))
@@ -61,7 +70,7 @@ module.exports = {
             target: 'serverless'
           }
         `
-      await appendFile('next.config.js', nextConfig)
+      makef.createFile({ 'next.config.js': nextConfig })
       console.log(`** Adding next.config.js with target set to 'serverless' **`)
     }
   },
@@ -77,7 +86,8 @@ module.exports = {
     // if (!existsSync(FUNCTIONS_DIST)) {
     //   await makeDir(FUNCTIONS_DIST);
     // }
-    if (!existsSync(PUBLISH_DIR)) {
+    const hasPublishDir = await exists(PUBLISH_DIR)
+    if (!hasPublishDir) {
       await makeDir(PUBLISH_DIR)
     }
 
