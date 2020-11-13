@@ -39,6 +39,7 @@ describe('preBuild()', () => {
       netlifyConfig: {},
       packageJson,
       utils,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
     expect(utils.build.failBuild.mock.calls[0][0]).toEqual(
@@ -54,6 +55,7 @@ describe('preBuild()', () => {
       netlifyConfig,
       packageJson,
       utils,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
     expect(utils.build.failBuild.mock.calls[0][0]).toEqual(
@@ -62,13 +64,13 @@ describe('preBuild()', () => {
   })
 
   test('fail build if the app has no functions directory defined', async () => {
-    const netlifyConfig = { build: {} }
     const packageJson = {}
 
     await plugin.onPreBuild({
-      netlifyConfig,
+      netlifyConfig: {},
       packageJson,
       utils,
+      constants: {},
     })
 
     expect(utils.build.failBuild.mock.calls[0][0]).toEqual(
@@ -81,13 +83,13 @@ describe('preBuild()', () => {
       netlifyConfig: {},
       packageJson: {},
       utils,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
     expect(makef.createFile.mock.calls.length).toEqual(1)
   })
 
   test(`fail build if the app's next config has an invalid target`, async () => {
-    const netlifyConfig = { build: { functions: path.resolve('out_functions') } }
     mockFs({
       'next.config.js': {
         target: 'nonsense',
@@ -95,9 +97,10 @@ describe('preBuild()', () => {
     })
 
     await plugin.onPreBuild({
-      netlifyConfig,
+      netlifyConfig: {},
       packageJson: {},
       utils,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
     mockFs.restore()

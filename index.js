@@ -15,7 +15,7 @@ const isStaticExportProject = require('./helpers/isStaticExportProject')
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
-  async onPreBuild({ netlifyConfig, packageJson, utils }) {
+  async onPreBuild({ netlifyConfig, packageJson, utils, constants: { FUNCTIONS_SRC } }) {
     const { failBuild } = utils.build
 
     if (!packageJson) {
@@ -46,7 +46,8 @@ module.exports = {
     //   failBuild(`This plugin cannot support apps that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`);
     // }
 
-    const isFunctionsDirectoryCorrect = build && build.functions && build.functions === path.resolve('out_functions')
+    const isFunctionsDirectoryCorrect =
+      FUNCTIONS_SRC !== undefined && path.resolve(FUNCTIONS_SRC) === path.resolve('out_functions')
     if (!isFunctionsDirectoryCorrect) {
       // to do rephrase
       failBuild(
