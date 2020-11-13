@@ -16,7 +16,7 @@ module.exports = {
   async onPreBuild({ netlifyConfig, packageJson, utils, constants: { FUNCTIONS_SRC } }) {
     const { failBuild } = utils.build
 
-    if (!packageJson) {
+    if (Object.keys(packageJson).length === 0) {
       failBuild(`Could not find a package.json for this project`)
       return
     }
