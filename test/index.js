@@ -1,10 +1,13 @@
 const path = require('path')
 const process = require('process')
+
 const nextOnNetlify = require('next-on-netlify')
-const makef = require('makef')
-const makeDir = require('make-dir')
-const cpx = require('cpx')
-const plugin = require('../index')
+const pathExists = require('path-exists')
+const { dir: getTmpDir } = require('tmp-promise')
+
+const plugin = require('..')
+
+const FIXTURES_DIR = `${__dirname}/fixtures`
 
 const utils = {
   run: {
@@ -15,31 +18,43 @@ const utils = {
   },
 }
 
-afterEach(() => {
+// Temporary switch cwd
+const changeCwd = function (cwd) {
+  const originalCwd = process.cwd()
+  process.chdir(cwd)
+  return process.chdir.bind(process, originalCwd)
+}
+
+// Switch cwd to a fixture directory
+const useFixture = function (fixtureName) {
+  const fixtureDir = `${FIXTURES_DIR}/${fixtureName}`
+  const restoreCwd = changeCwd(fixtureDir)
+  return { restoreCwd, fixtureDir }
+}
+
+// In each test, we change cwd to a temporary directory.
+// This allows us not to have to mock filesystem operations.
+beforeEach(async () => {
+  const { path, cleanup } = await getTmpDir({ unsafeCleanup: true })
+  const restoreCwd = changeCwd(path)
+  Object.assign(this, { cleanup, restoreCwd })
+})
+
+afterEach(async () => {
   utils.build.failBuild.mockReset()
   utils.run.command.mockReset()
   jest.clearAllMocks()
   jest.resetAllMocks()
+
+  // Cleans up the temporary directory from `getTmpDir()` and do not make it
+  // the current directory anymore
+  this.restoreCwd()
+  await this.cleanup()
 })
 
 jest.mock('next-on-netlify')
-jest.mock('makef')
-jest.mock('make-dir')
-jest.mock('cpx')
-
-// See: https://github.com/tschaub/mock-fs/issues/234#issuecomment-377862172
-// for why this log is required
-console.log('Initializing tests')
 
 const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0' }
-
-const FIXTURES_DIR = `${__dirname}/fixtures`
-
-const useFixture = function (fixtureName) {
-  const originalCwd = process.cwd()
-  process.chdir(`${FIXTURES_DIR}/${fixtureName}`)
-  return process.chdir.bind(process, originalCwd)
-}
 
 describe('preBuild()', () => {
   test('fail build if the app has static html export in npm script', async () => {
@@ -102,19 +117,17 @@ describe('preBuild()', () => {
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
-    expect(makef.createFile.mock.calls.length).toEqual(1)
+    expect(await pathExists('next.config.js')).toBeTruthy()
   })
 
   test(`fail build if the app's next config has an invalid target`, async () => {
-    const restoreCwd = useFixture('invalid_next_config')
-
+    const { restoreCwd } = useFixture('invalid_next_config')
     await plugin.onPreBuild({
       netlifyConfig: {},
       packageJson: DUMMY_PACKAGE_JSON,
       utils,
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
-
     restoreCwd()
 
     const acceptableTargets = ['serverless', 'experimental-serverless-trace']
@@ -143,17 +156,19 @@ describe('onBuild()', () => {
       },
     })
 
-    expect(makeDir.mock.calls[0][0]).toEqual(PUBLISH_DIR)
+    expect(await pathExists(PUBLISH_DIR)).toBeTruthy()
   })
 
   test('calls copySync with correct args', async () => {
-    const PUBLISH_DIR = 'some/path'
+    const { restoreCwd, fixtureDir } = useFixture('publish_copy_files')
+    const PUBLISH_DIR = `${fixtureDir}/publish`
     await plugin.onBuild({
       constants: {
         PUBLISH_DIR,
       },
     })
+    restoreCwd()
 
-    expect(cpx.copySync.mock.calls[0][0]).toEqual('out_publish/**/*', PUBLISH_DIR)
+    expect(await pathExists(`${PUBLISH_DIR}/subdir/dummy.txt`)).toBeTruthy()
   })
 })
