@@ -35,7 +35,6 @@
     "@netlify/eslint-config-node": "^0.3.0",
     "husky": "^4.3.0",
     "jest": "^26.6.1",
-    "mock-fs": "^4.13.0",
     "prettier": "^2.1.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
@@ -47,7 +46,8 @@
   },
   "jest": {
     "testMatch": [
-      "**/test/**/*.js"
+      "**/test/**/*.js",
+      "!**/test/fixtures/**"
     ],
     "verbose": true
   }

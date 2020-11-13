@@ -1,9 +1,9 @@
 const path = require('path')
+const process = require('process')
 const nextOnNetlify = require('next-on-netlify')
 const makef = require('makef')
 const makeDir = require('make-dir')
 const cpx = require('cpx')
-const mockFs = require('mock-fs')
 const plugin = require('../index')
 
 const utils = {
@@ -32,6 +32,14 @@ jest.mock('cpx')
 console.log('Initializing tests')
 
 const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0' }
+
+const FIXTURES_DIR = `${__dirname}/fixtures`
+
+const useFixture = function (fixtureName) {
+  const originalCwd = process.cwd()
+  process.chdir(`${FIXTURES_DIR}/${fixtureName}`)
+  return process.chdir.bind(process, originalCwd)
+}
 
 describe('preBuild()', () => {
   test('fail build if the app has static html export in npm script', async () => {
@@ -98,11 +106,7 @@ describe('preBuild()', () => {
   })
 
   test(`fail build if the app's next config has an invalid target`, async () => {
-    mockFs({
-      'next.config.js': {
-        target: 'nonsense',
-      },
-    })
+    const restoreCwd = useFixture('invalid_next_config')
 
     await plugin.onPreBuild({
       netlifyConfig: {},
@@ -111,7 +115,7 @@ describe('preBuild()', () => {
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
-    mockFs.restore()
+    restoreCwd()
 
     const acceptableTargets = ['serverless', 'experimental-serverless-trace']
     expect(utils.build.failBuild.mock.calls[0][0]).toEqual(
