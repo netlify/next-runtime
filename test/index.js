@@ -31,13 +31,13 @@ jest.mock('cpx')
 // for why this log is required
 console.log('Initializing tests')
 
+const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0' }
+
 describe('preBuild()', () => {
   test('fail build if the app has static html export in npm script', async () => {
-    const packageJson = { scripts: { build: 'next export' } }
-
     await plugin.onPreBuild({
       netlifyConfig: {},
-      packageJson,
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { build: 'next export' } },
       utils,
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
@@ -49,11 +49,10 @@ describe('preBuild()', () => {
 
   test('fail build if the app has static html export in toml/ntl config', async () => {
     const netlifyConfig = { build: { command: 'next build && next export' } }
-    const packageJson = {}
 
     await plugin.onPreBuild({
       netlifyConfig,
-      packageJson,
+      packageJson: DUMMY_PACKAGE_JSON,
       utils,
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
@@ -63,12 +62,21 @@ describe('preBuild()', () => {
     )
   })
 
-  test('fail build if the app has no functions directory defined', async () => {
-    const packageJson = {}
-
+  test('fail build if the app has no package.json', async () => {
     await plugin.onPreBuild({
       netlifyConfig: {},
-      packageJson,
+      packageJson: {},
+      utils,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
+    })
+
+    expect(utils.build.failBuild.mock.calls[0][0]).toEqual(`Could not find a package.json for this project`)
+  })
+
+  test('fail build if the app has no functions directory defined', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig: {},
+      packageJson: DUMMY_PACKAGE_JSON,
       utils,
       constants: {},
     })
@@ -81,7 +89,7 @@ describe('preBuild()', () => {
   test('create next.config.js with correct target if file does not exist', async () => {
     await plugin.onPreBuild({
       netlifyConfig: {},
-      packageJson: {},
+      packageJson: DUMMY_PACKAGE_JSON,
       utils,
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
@@ -98,7 +106,7 @@ describe('preBuild()', () => {
 
     await plugin.onPreBuild({
       netlifyConfig: {},
-      packageJson: {},
+      packageJson: DUMMY_PACKAGE_JSON,
       utils,
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
