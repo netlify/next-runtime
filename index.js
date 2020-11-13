@@ -1,12 +1,17 @@
+const fs = require('fs')
 const path = require('path')
+const util = require('util')
+
 const nextOnNetlify = require('next-on-netlify')
 const { PHASE_PRODUCTION_BUILD } = require('next/constants')
 const { default: loadConfig } = require('next/dist/next-server/server/config')
-const makef = require('makef')
 const makeDir = require('make-dir')
 const pathExists = require('path-exists')
 const cpx = require('cpx')
+
 const isStaticExportProject = require('./helpers/isStaticExportProject')
+
+const pWriteFile = util.promisify(fs.writeFile)
 
 // * Helpful Plugin Context *
 // - Between the prebuild and build steps, the project's build command is run
@@ -64,7 +69,7 @@ module.exports = {
             target: 'serverless'
           }
         `
-      makef.createFile({ 'next.config.js': nextConfig })
+      await pWriteFile('next.config.js', nextConfig)
       console.log(`** Adding next.config.js with target set to 'serverless' **`)
     }
   },
