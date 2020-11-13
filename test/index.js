@@ -117,17 +117,20 @@ describe('preBuild()', () => {
     expect(await pathExists('next.config.js')).toBeTruthy()
   })
 
-  test(`fail build if the app's next config has an invalid target`, async () => {
-    await useFixture('invalid_next_config')
-    await expect(
-      plugin.onPreBuild({
-        netlifyConfig: {},
-        packageJson: DUMMY_PACKAGE_JSON,
-        utils,
-        constants: { FUNCTIONS_SRC: 'out_functions' },
-      }),
-    ).rejects.toThrow(`next.config.js must be one of: serverless, experimental-serverless-trace`)
-  })
+  test.each(['invalid_next_config', 'deep_invalid_next_config'])(
+    `fail build if the app's next config has an invalid target`,
+    async (fixtureName) => {
+      await useFixture(fixtureName)
+      await expect(
+        plugin.onPreBuild({
+          netlifyConfig: {},
+          packageJson: DUMMY_PACKAGE_JSON,
+          utils,
+          constants: { FUNCTIONS_SRC: 'out_functions' },
+        }),
+      ).rejects.toThrow(`next.config.js must be one of: serverless, experimental-serverless-trace`)
+    },
+  )
 })
 
 describe('onBuild()', () => {

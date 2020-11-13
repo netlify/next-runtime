@@ -5,6 +5,7 @@ const util = require('util')
 const nextOnNetlify = require('next-on-netlify')
 const { PHASE_PRODUCTION_BUILD } = require('next/constants')
 const { default: loadConfig } = require('next/dist/next-server/server/config')
+const findUp = require('find-up')
 const makeDir = require('make-dir')
 const pathExists = require('path-exists')
 const cpx = require('cpx')
@@ -52,8 +53,8 @@ module.exports = {
       )
     }
 
-    const hasNextConfig = await pathExists('next.config.js')
-    if (hasNextConfig) {
+    const nextConfigPath = await findUp('next.config.js')
+    if (nextConfigPath !== undefined) {
       // If the next config exists, fail build if target isnt in acceptableTargets
       const acceptableTargets = ['serverless', 'experimental-serverless-trace']
       const nextConfig = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'))
