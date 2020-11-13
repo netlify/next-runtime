@@ -23,11 +23,6 @@ module.exports = {
       return
     }
 
-    if (!netlifyConfig) {
-      failBuild(`Could not find a Netlify configuration for this project`)
-      return
-    }
-
     const { build } = netlifyConfig
     const { scripts = {}, dependencies = {} } = packageJson
 
