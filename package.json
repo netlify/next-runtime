@@ -28,7 +28,8 @@
     "make-dir": "^3.1.0",
     "makef": "^1.0.0",
     "next": "^9.5.3",
-    "next-on-netlify": "^2.6.0"
+    "next-on-netlify": "^2.6.0",
+    "path-exists": "^4.0.0"
   },
   "devDependencies": {
     "@netlify/eslint-config-node": "^0.3.0",

@@ -1,12 +1,10 @@
-const fs = require('fs')
-const { promisify } = require('util')
-const exists = promisify(fs.exists)
 const path = require('path')
 const nextOnNetlify = require('next-on-netlify')
 const { PHASE_PRODUCTION_BUILD } = require('next/constants')
 const { default: loadConfig } = require('next/dist/next-server/server/config')
 const makef = require('makef')
 const makeDir = require('make-dir')
+const pathExists = require('path-exists')
 const cpx = require('cpx')
 const isStaticExportProject = require('./helpers/isStaticExportProject')
 
@@ -54,7 +52,7 @@ module.exports = {
       )
     }
 
-    const hasNextConfig = await exists('next.config.js')
+    const hasNextConfig = await pathExists('next.config.js')
     if (hasNextConfig) {
       // If the next config exists, fail build if target isnt in acceptableTargets
       const acceptableTargets = ['serverless', 'experimental-serverless-trace']
@@ -83,10 +81,10 @@ module.exports = {
 
     // TO-DO: use FUNCTIONS_DIST when internal bug is fixed
     const { PUBLISH_DIR } = constants
-    // if (!existsSync(FUNCTIONS_DIST)) {
-    //   await makeDir(FUNCTIONS_DIST);
+    // if (!(await pathExists(FUNCTIONS_DIST))) {
+    //   await makeDir(FUNCTIONS_DIST)
     // }
-    const hasPublishDir = await exists(PUBLISH_DIR)
+    const hasPublishDir = await pathExists(PUBLISH_DIR)
     if (!hasPublishDir) {
       await makeDir(PUBLISH_DIR)
     }
