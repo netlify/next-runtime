@@ -1,11 +1,15 @@
 const path = require('path')
 const process = require('process')
+const { promisify } = require('util')
 
+const { copy } = require('cpx')
 const nextOnNetlify = require('next-on-netlify')
 const pathExists = require('path-exists')
 const { dir: getTmpDir } = require('tmp-promise')
 
 const plugin = require('..')
+
+const pCopy = promisify(copy)
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 
@@ -27,11 +31,10 @@ const changeCwd = function (cwd) {
   return process.chdir.bind(process, originalCwd)
 }
 
-// Switch cwd to a fixture directory
-const useFixture = function (fixtureName) {
+// Copy fixture files to the current directory
+const useFixture = async function (fixtureName) {
   const fixtureDir = `${FIXTURES_DIR}/${fixtureName}`
-  const restoreCwd = changeCwd(fixtureDir)
-  return { restoreCwd, fixtureDir }
+  await pCopy(`${fixtureDir}/**`, process.cwd())
 }
 
 // In each test, we change cwd to a temporary directory.
@@ -115,7 +118,7 @@ describe('preBuild()', () => {
   })
 
   test(`fail build if the app's next config has an invalid target`, async () => {
-    const { restoreCwd } = useFixture('invalid_next_config')
+    await useFixture('invalid_next_config')
     await expect(
       plugin.onPreBuild({
         netlifyConfig: {},
@@ -124,7 +127,6 @@ describe('preBuild()', () => {
         constants: { FUNCTIONS_SRC: 'out_functions' },
       }),
     ).rejects.toThrow(`next.config.js must be one of: serverless, experimental-serverless-trace`)
-    restoreCwd()
   })
 })
 
@@ -151,14 +153,13 @@ describe('onBuild()', () => {
   })
 
   test('calls copySync with correct args', async () => {
-    const { restoreCwd, fixtureDir } = useFixture('publish_copy_files')
-    const PUBLISH_DIR = `${fixtureDir}/publish`
+    await useFixture('publish_copy_files')
+    const PUBLISH_DIR = 'publish'
     await plugin.onBuild({
       constants: {
         PUBLISH_DIR,
       },
     })
-    restoreCwd()
 
     expect(await pathExists(`${PUBLISH_DIR}/subdir/dummy.txt`)).toBeTruthy()
   })
