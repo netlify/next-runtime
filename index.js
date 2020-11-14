@@ -22,8 +22,7 @@ module.exports = {
     const { failBuild } = utils.build
 
     if (Object.keys(packageJson).length === 0) {
-      failBuild(`Could not find a package.json for this project`)
-      return
+      return failBuild(`Could not find a package.json for this project`)
     }
 
     const { build } = netlifyConfig
@@ -34,21 +33,21 @@ module.exports = {
     await utils.run.command('npm install next-on-netlify@latest')
 
     if (isStaticExportProject({ build, scripts })) {
-      failBuild(`** Static HTML export next.js projects do not require this plugin **`)
+      return failBuild(`** Static HTML export next.js projects do not require this plugin **`)
     }
 
     // TO-DO: check scripts to make sure the app isn't manually running NoN
     // For now, we'll make it clear in the README
     // const isAlreadyUsingNextOnNetlify = Object.keys(dependencies).find((dep) => dep === 'next-on-netlify');
     // if (isAlreadyUsingNextOnNetlify) {
-    //   failBuild(`This plugin cannot support apps that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`);
+    //   return failBuild(`This plugin cannot support apps that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`);
     // }
 
     const isFunctionsDirectoryCorrect =
       FUNCTIONS_SRC !== undefined && path.resolve(FUNCTIONS_SRC) === path.resolve('out_functions')
     if (!isFunctionsDirectoryCorrect) {
       // to do rephrase
-      failBuild(
+      return failBuild(
         `You must designate a functions directory named "out_functions" in your netlify.toml or in your app's build settings on Netlify. See docs for more info: https://docs.netlify.com/functions/configure-and-deploy/#configure-the-functions-folder`,
       )
     }
@@ -60,7 +59,7 @@ module.exports = {
       const nextConfig = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'))
       const isValidTarget = acceptableTargets.includes(nextConfig.target)
       if (!isValidTarget) {
-        failBuild(`next.config.js must be one of: ${acceptableTargets.join(', ')}`)
+        return failBuild(`next.config.js must be one of: ${acceptableTargets.join(', ')}`)
       }
     } else {
       // Create the next config file with target set to serverless by default
