@@ -1,6 +1,6 @@
 {
   "name": "@netlify/plugin-nextjs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "run Nextj.s seamlessly on netlify",
   "main": "index.js",
   "scripts": {
