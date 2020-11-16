@@ -137,7 +137,7 @@ describe('onBuild()', () => {
   test('runs next on netlify', async () => {
     await plugin.onBuild({
       constants: {
-        PUBLISH_DIR: '',
+        PUBLISH_DIR: '.',
       },
     })
 
@@ -155,7 +155,7 @@ describe('onBuild()', () => {
     expect(await pathExists(PUBLISH_DIR)).toBeTruthy()
   })
 
-  test('calls copySync with correct args', async () => {
+  test('copy files to the publish directory', async () => {
     await useFixture('publish_copy_files')
     const PUBLISH_DIR = 'publish'
     await plugin.onBuild({
@@ -165,5 +165,20 @@ describe('onBuild()', () => {
     })
 
     expect(await pathExists(`${PUBLISH_DIR}/subdir/dummy.txt`)).toBeTruthy()
+  })
+
+  test.each([
+    { FUNCTIONS_SRC: 'functions', resolvedFunctions: 'functions' },
+    { FUNCTIONS_SRC: undefined, resolvedFunctions: 'netlify-automatic-functions' },
+  ])('copy files to the functions directory', async ({ FUNCTIONS_SRC, resolvedFunctions }) => {
+    await useFixture('functions_copy_files')
+    await plugin.onBuild({
+      constants: {
+        FUNCTIONS_SRC,
+        PUBLISH_DIR: '.',
+      },
+    })
+
+    expect(await pathExists(`${resolvedFunctions}/next_random/next_random.js`)).toBeTruthy()
   })
 })

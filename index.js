@@ -7,12 +7,12 @@ const { PHASE_PRODUCTION_BUILD } = require('next/constants')
 const { default: loadConfig } = require('next/dist/next-server/server/config')
 const findUp = require('find-up')
 const makeDir = require('make-dir')
-const pathExists = require('path-exists')
-const cpx = require('cpx')
+const { copy } = require('cpx')
 
 const isStaticExportProject = require('./helpers/isStaticExportProject')
 
 const pWriteFile = util.promisify(fs.writeFile)
+const pCopy = util.promisify(copy)
 
 // * Helpful Plugin Context *
 // - Between the prebuild and build steps, the project's build command is run
@@ -73,26 +73,15 @@ module.exports = {
       console.log(`** Adding next.config.js with target set to 'serverless' **`)
     }
   },
-  async onBuild({ constants }) {
+  async onBuild({ constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC } }) {
     console.log(`** Running Next on Netlify package **`)
     nextOnNetlify()
 
     // Next-on-netlify puts its files into out_functions and out_publish
     // Copy files from next-on-netlify's output to the right functions/publish dirs
-
-    // TO-DO: use FUNCTIONS_DIST when internal bug is fixed
-    const { PUBLISH_DIR } = constants
-    // if (!(await pathExists(FUNCTIONS_DIST))) {
-    //   await makeDir(FUNCTIONS_DIST)
-    // }
-    const hasPublishDir = await pathExists(PUBLISH_DIR)
-    if (!hasPublishDir) {
-      await makeDir(PUBLISH_DIR)
-    }
-
-    // TO-DO: make sure FUNCTIONS_DIST doesnt have a custom function name conflict
-    // with function names that next-on-netlify can generate
-    // cpx.copySync('out_functions/**/*', FUNCTIONS_SRC);
-    cpx.copySync('out_publish/**/*', PUBLISH_DIR)
+    await makeDir(PUBLISH_DIR)
+    await Promise.all([pCopy('out_functions/**', FUNCTIONS_SRC), pCopy('out_publish/**', PUBLISH_DIR)])
   },
 }
+
+const DEFAULT_FUNCTIONS_SRC = 'netlify-automatic-functions'
