@@ -93,19 +93,6 @@ describe('preBuild()', () => {
     ).rejects.toThrow(`Could not find a package.json for this project`)
   })
 
-  test('fail build if the app has no functions directory defined', async () => {
-    await expect(
-      plugin.onPreBuild({
-        netlifyConfig: {},
-        packageJson: DUMMY_PACKAGE_JSON,
-        utils,
-        constants: {},
-      }),
-    ).rejects.toThrow(
-      `You must designate a functions directory named "out_functions" in your netlify.toml or in your app's build settings on Netlify. See docs for more info: https://docs.netlify.com/functions/configure-and-deploy/#configure-the-functions-folder`,
-    )
-  })
-
   test('create next.config.js with correct target if file does not exist', async () => {
     await plugin.onPreBuild({
       netlifyConfig: {},

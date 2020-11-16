@@ -19,7 +19,7 @@ const pCopy = util.promisify(copy)
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
-  async onPreBuild({ netlifyConfig, packageJson, utils, constants: { FUNCTIONS_SRC } }) {
+  async onPreBuild({ netlifyConfig, packageJson, utils }) {
     const { failBuild } = utils.build
 
     if (Object.keys(packageJson).length === 0) {
@@ -43,15 +43,6 @@ module.exports = {
     // if (isAlreadyUsingNextOnNetlify) {
     //   return failBuild(`This plugin cannot support apps that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`);
     // }
-
-    const isFunctionsDirectoryCorrect =
-      FUNCTIONS_SRC !== undefined && path.resolve(FUNCTIONS_SRC) === path.resolve('out_functions')
-    if (!isFunctionsDirectoryCorrect) {
-      // to do rephrase
-      return failBuild(
-        `You must designate a functions directory named "out_functions" in your netlify.toml or in your app's build settings on Netlify. See docs for more info: https://docs.netlify.com/functions/configure-and-deploy/#configure-the-functions-folder`,
-      )
-    }
 
     const nextConfigPath = await findUp('next.config.js')
     if (nextConfigPath !== undefined) {
