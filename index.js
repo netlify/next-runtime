@@ -2,14 +2,12 @@ const fs = require('fs')
 const path = require('path')
 const util = require('util')
 
-const nextOnNetlify = require('next-on-netlify')
-const { PHASE_PRODUCTION_BUILD } = require('next/constants')
-const { default: loadConfig } = require('next/dist/next-server/server/config')
 const findUp = require('find-up')
 const makeDir = require('make-dir')
 const { copy } = require('cpx')
 
 const isStaticExportProject = require('./helpers/isStaticExportProject')
+const validateNextUsage = require('./helpers/validateNextUsage')
 
 const pWriteFile = util.promisify(fs.writeFile)
 const pCopy = util.promisify(copy)
@@ -21,6 +19,8 @@ const pCopy = util.promisify(copy)
 module.exports = {
   async onPreBuild({ netlifyConfig, packageJson, utils }) {
     const { failBuild } = utils.build
+
+    validateNextUsage(failBuild)
 
     if (Object.keys(packageJson).length === 0) {
       return failBuild(`Could not find a package.json for this project`)
@@ -46,6 +46,11 @@ module.exports = {
 
     const nextConfigPath = await findUp('next.config.js')
     if (nextConfigPath !== undefined) {
+      // We cannot load `next` at the top-level because we validate whether the
+      // site is using `next` inside `onPreBuild`.
+      const { PHASE_PRODUCTION_BUILD } = require('next/constants')
+      const { default: loadConfig } = require('next/dist/next-server/server/config')
+
       // If the next config exists, fail build if target isnt in acceptableTargets
       const acceptableTargets = ['serverless', 'experimental-serverless-trace']
       const nextConfig = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'))
@@ -66,6 +71,11 @@ module.exports = {
   },
   async onBuild({ constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC } }) {
     console.log(`** Running Next on Netlify package **`)
+
+    // We cannot load `next-on-netlify` (which depends on `next`) at the
+    // top-level because we validate whether the site is using `next`
+    // inside `onPreBuild`.
+    const nextOnNetlify = require('next-on-netlify')
     nextOnNetlify()
 
     // Next-on-netlify puts its files into out_functions and out_publish
