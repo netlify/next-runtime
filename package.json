@@ -27,18 +27,21 @@
     "cpx": "^1.5.0",
     "find-up": "^4.1.0",
     "make-dir": "^3.1.0",
-    "next": "^9.5.3",
     "next-on-netlify": "^2.6.0"
   },
   "devDependencies": {
     "@netlify/eslint-config-node": "^0.3.0",
     "husky": "^4.3.0",
     "jest": "^26.6.1",
+    "next": "^9.5.3",
     "path-exists": "^4.0.0",
     "prettier": "^2.1.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "tmp-promise": "^3.0.2"
+  },
+  "peerDependencies": {
+    "next": ">=9.5.3"
   },
   "husky": {
     "hooks": {
