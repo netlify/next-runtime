@@ -24,10 +24,12 @@
   },
   "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
+    "chalk": "^4.1.0",
     "cpx": "^1.5.0",
     "find-up": "^4.1.0",
     "make-dir": "^3.1.0",
-    "next-on-netlify": "^2.6.0"
+    "next-on-netlify": "^2.6.0",
+    "semver": "^7.3.2"
   },
   "devDependencies": {
     "@netlify/eslint-config-node": "^0.3.0",
