@@ -1,3 +1,4 @@
+const fs = require('fs')
 const path = require('path')
 const process = require('process')
 const { promisify } = require('util')
@@ -121,14 +122,33 @@ describe('preBuild()', () => {
 })
 
 describe('onBuild()', () => {
-  test('runs next on netlify', async () => {
+  test('runs NoN with functions_src & publish_dir options', async () => {
+    const PUBLISH_DIR = 'some/path'
+    const FUNCTIONS_SRC = 'other/path'
     await plugin.onBuild({
       constants: {
-        PUBLISH_DIR: '.',
+        PUBLISH_DIR,
+        FUNCTIONS_SRC,
       },
     })
 
-    expect(nextOnNetlify.mock.calls.length).toEqual(1)
+    const nextOnNetlifyOptions = nextOnNetlify.mock.calls[0][0]
+    expect(nextOnNetlifyOptions.functionsDir).toEqual(FUNCTIONS_SRC)
+    expect(nextOnNetlifyOptions.publishDir).toEqual(PUBLISH_DIR)
+  })
+
+  test('runs NoN with publish_dir option only', async () => {
+    const defaultFunctionsSrc = 'netlify-automatic-functions'
+    const PUBLISH_DIR = 'some/path'
+    await plugin.onBuild({
+      constants: {
+        PUBLISH_DIR,
+      },
+    })
+
+    const nextOnNetlifyOptions = nextOnNetlify.mock.calls[0][0]
+    expect(nextOnNetlifyOptions.functionsDir).toEqual(defaultFunctionsSrc)
+    expect(nextOnNetlifyOptions.publishDir).toEqual(PUBLISH_DIR)
   })
 
   test('calls makeDir with correct path', async () => {
@@ -140,32 +160,5 @@ describe('onBuild()', () => {
     })
 
     expect(await pathExists(PUBLISH_DIR)).toBeTruthy()
-  })
-
-  test('copy files to the publish directory', async () => {
-    await useFixture('publish_copy_files')
-    const PUBLISH_DIR = 'publish'
-    await plugin.onBuild({
-      constants: {
-        PUBLISH_DIR,
-      },
-    })
-
-    expect(await pathExists(`${PUBLISH_DIR}/subdir/dummy.txt`)).toBeTruthy()
-  })
-
-  test.each([
-    { FUNCTIONS_SRC: 'functions', resolvedFunctions: 'functions' },
-    { FUNCTIONS_SRC: undefined, resolvedFunctions: 'netlify-automatic-functions' },
-  ])('copy files to the functions directory', async ({ FUNCTIONS_SRC, resolvedFunctions }) => {
-    await useFixture('functions_copy_files')
-    await plugin.onBuild({
-      constants: {
-        FUNCTIONS_SRC,
-        PUBLISH_DIR: '.',
-      },
-    })
-
-    expect(await pathExists(`${resolvedFunctions}/next_random/next_random.js`)).toBeTruthy()
   })
 })

@@ -4,13 +4,11 @@ const util = require('util')
 
 const findUp = require('find-up')
 const makeDir = require('make-dir')
-const { copy } = require('cpx')
 
 const isStaticExportProject = require('./helpers/isStaticExportProject')
 const validateNextUsage = require('./helpers/validateNextUsage')
 
 const pWriteFile = util.promisify(fs.writeFile)
-const pCopy = util.promisify(copy)
 
 // * Helpful Plugin Context *
 // - Between the prebuild and build steps, the project's build command is run
@@ -72,16 +70,13 @@ module.exports = {
   async onBuild({ constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC } }) {
     console.log(`** Running Next on Netlify package **`)
 
+    await makeDir(PUBLISH_DIR)
+
     // We cannot load `next-on-netlify` (which depends on `next`) at the
     // top-level because we validate whether the site is using `next`
     // inside `onPreBuild`.
     const nextOnNetlify = require('next-on-netlify')
-    nextOnNetlify()
-
-    // Next-on-netlify puts its files into out_functions and out_publish
-    // Copy files from next-on-netlify's output to the right functions/publish dirs
-    await makeDir(PUBLISH_DIR)
-    await Promise.all([pCopy('out_functions/**', FUNCTIONS_SRC), pCopy('out_publish/**', PUBLISH_DIR)])
+    nextOnNetlify({ functionsDir: FUNCTIONS_SRC, publishDir: PUBLISH_DIR })
   },
 }
 
