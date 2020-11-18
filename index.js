@@ -31,12 +31,15 @@ module.exports = {
       return failBuild(`** Static HTML export next.js projects do not require this plugin **`)
     }
 
-    // TO-DO: check scripts to make sure the app isn't manually running NoN
-    // For now, we'll make it clear in the README
-    // const isAlreadyUsingNextOnNetlify = Object.keys(dependencies).find((dep) => dep === 'next-on-netlify');
-    // if (isAlreadyUsingNextOnNetlify) {
-    //   return failBuild(`This plugin cannot support apps that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`);
-    // }
+    const hasNextOnNetlifyInstalled = dependencies['next-on-netlify'] !== undefined
+    const hasNextOnNetlifyPostbuildScript =
+      typeof scripts.postbuild === 'string' && scripts.postbuild.includes('next-on-netlify')
+    const isAlreadyUsingNextOnNetlify = hasNextOnNetlifyInstalled || hasNextOnNetlifyPostbuildScript
+    if (isAlreadyUsingNextOnNetlify) {
+      return failBuild(
+        `This plugin does not support sites that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`,
+      )
+    }
 
     const nextConfigPath = await findUp('next.config.js')
     if (nextConfigPath !== undefined) {

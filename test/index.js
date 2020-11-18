@@ -83,6 +83,36 @@ describe('preBuild()', () => {
     ).rejects.toThrow('** Static HTML export next.js projects do not require this plugin **')
   })
 
+  test('fail build if app has next-on-netlify installed', async () => {
+    const packageJson = {
+      dependencies: { 'next-on-netlify': '123' },
+    }
+    await expect(
+      plugin.onPreBuild({
+        netlifyConfig: {},
+        packageJson,
+        utils,
+      }),
+    ).rejects.toThrow(
+      `This plugin does not support sites that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`,
+    )
+  })
+
+  test('fail build if app has next-on-netlify postbuild script', async () => {
+    const packageJson = {
+      scripts: { postbuild: 'next-on-netlify' },
+    }
+    await expect(
+      plugin.onPreBuild({
+        netlifyConfig: {},
+        packageJson,
+        utils,
+      }),
+    ).rejects.toThrow(
+      `This plugin does not support sites that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`,
+    )
+  })
+
   test('fail build if the app has no package.json', async () => {
     await expect(
       plugin.onPreBuild({
