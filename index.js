@@ -29,10 +29,6 @@ module.exports = {
     const { build } = netlifyConfig
     const { scripts = {}, dependencies = {} } = packageJson
 
-    // TO-DO: Post alpha, try to remove this workaround for missing deps in
-    // the next-on-netlify function template
-    await utils.run.command('npm install next-aws-lambda')
-
     if (isStaticExportProject({ build, scripts })) {
       return failBuild(`** Static HTML export next.js projects do not require this plugin **`)
     }
