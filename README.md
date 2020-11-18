@@ -11,49 +11,91 @@
   </a>
 </p>
 
-This build plugin is a utility for enabling server-side rendering in Next.js on Netlify. It wraps your application in a tiny compatibility layer, so that pages can use Netlify Functions to be server-side rendered.
+This build plugin is a utility for supporting Next.js on Netlify. To enable server-side rendering and other framework-specific features in your Next.js application on Netlify, you will need to install this plugin for your app.
 
 ## Table of Contents
 
 - [Installation and Configuration](#installation-and-configuration)
-- [Custom Netlify Redirects](#custom-netlify-redirects)
 - [Custom Netlify Functions](#custom-netlify-functions)
+- [Publish Directory](#publish-directory)
+- [Custom Netlify Redirects](#custom-netlify-redirects)
 - [Caveats](#caveats)
-  - [Fallbacks for Pages with `getStaticPaths`](#fallbacks-for-pages-with-getstaticpaths)
 - [Credits](#credits)
 - [Showcase](#showcase)
 
 ## Installation and Configuration
 
-Create a `netlify.toml` in the root of your project:
+There are two ways to install the plugin in your Next.js on Netlify site.
+
+First:
+
+This plugin can be installed and managed from your site's settings on Netlify. Read more about [UI-based installation](https://docs.netlify.com/configure-builds/build-plugins/#ui-installation) in our docs.
+
+Second:
+
+Create a `netlify.toml` in the root of your project. Your file should include the plugins section below:
 
 ```toml
 [build]
   command   = "npm run build"
-  functions = "out_functions"
-  publish = "out_publish"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 ```
 
+Read more about [file-based plugin installation](https://docs.netlify.com/configure-builds/build-plugins/#file-based-installation) in our docs.
+
+## Custom Netlify Functions
+
+This plugin creates one Netlify Function for each Next.js page that requires one.
+To use custom Netlify Functions in addition to what the plugin generates, add a path to your functions folder in `netlify.toml`:
+
+```toml
+[build]
+  command   = "npm run build"
+  functions = "my_functions_dir"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+```
+
+Read more about [Netlify Functions](https://docs.netlify.com/functions/overview/) in our docs.
+
+## Publish Directory
+
+Similarly, you can customize your publish directory in your `netlify.toml` file:
+
+```toml
+[build]
+  command   = "npm run build"
+  functions = "my_functions_dir"
+  publish   = "my_publish_dir"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+```
+
+Read more about [Netlify's build settings](https://docs.netlify.com/configure-builds/get-started/#basic-build-settings) in our docs.
+
 ## Custom Netlify Redirects
 
-You can define custom redirects in a `_redirects` and/or in your `netlify.toml` file.
+You can define custom redirects in a `_redirects` file.
 The precedence of these rules are:
 
 - `_redirects`
 - `next-on-netlify` redirects
-- `netlify.toml`
 
-[Read more about Netlify redirects here](https://docs.netlify.com/routing/redirects/).
-
-## Custom Netlify Functions
-
-`next-on-netlify` creates one Netlify Function for each of your
-SSR pages and API endpoints. It is currently not possible to create custom Netlify Functions. Let me know if you have a need for this feature and we can add it.
+Read more about [Netlify redirects](https://docs.netlify.com/routing/redirects/) in our docs.
 
 ## Caveats
+
+### Versions
+
+You can check our `package.json` for supported Next and Node versions. Our support of Next 10 is currently experimental.
+
+### CLI
+
+This plugin is currently not stable for use with the Netlify CLI. Support for the plugin is in development.
 
 ### Fallbacks for Pages with `getStaticPaths`
 
@@ -65,21 +107,7 @@ For more on this, see: [Issue #7](https://github.com/netlify/next-on-netlify/iss
 
 ## Credits
 
-This package is maintained by [Lindsay Levine](https://github.com/lindsaylevine), [Finn Woelm](https://github.com/FinnWoelm), and [Cassidy Williams](https://github.com/cassidoo).
-
-📣 Shoutout to [@mottox2](https://github.com/mottox2) (a pioneer of hosting Next.js on Netlify) and [@danielcondemarin](https://github.com/danielcondemarin) (author of serverless-next.js for AWS). The two were big inspirations for this package.
-
-🙌 Big "thank you" to the following people for their contributions, support, and beta testing:
-
-- [@spencewood](https://github.com/spencewood)
-- [@alxhghs](https://github.com/alxhghs)
-- [@gamliela](https://github.com/gamliela)
-- [@wei](https://github.com/wei)
-- [@laugharn](https://github.com/laugharn)
-- [@rajington](https://github.com/rajington)
-- [@etrepum](https://github.com/etrepum)
-- [@jonasbuntinx](https://github.com/jonasbuntinx)
-- [@joostmeijles](https://github.com/joostmeijles)
+This package is maintained by [Lindsay Levine](https://github.com/lindsaylevine) and [Cassidy Williams](https://github.com/cassidoo). It extends the project [next-on-netlify](https://github.com/netlify/next-on-netlify), authored originally by [Finn Woelm](https://github.com/finnwoelm).
 
 ## Showcase
 
@@ -90,5 +118,3 @@ The following sites are built with `next-on-netlify`:
 
 ![missionbit.org](https://raw.githubusercontent.com/netlify/next-on-netlify/master/assets/showcase-missionbit.png)  
 [missionbit.org](https://www.missionbit.org/) ([#18](https://github.com/netlify/next-on-netlify/pull/18#issuecomment-643828966))
-
-Are you building something awesome with `next-on-netlify`? 🔥 Let us know and we will feature it here :)
