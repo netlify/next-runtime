@@ -31,7 +31,7 @@ const MIN_EXPERIMENTAL_VERSION = '10.0.0'
 
 const hasPackage = function (packageName) {
   try {
-    require(packageName)
+    require(`${packageName}/package.json`)
     return true
   } catch (error) {
     return false
