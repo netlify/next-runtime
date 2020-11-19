@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 (2020-11-10)
+
+- Fix React peer dependency ([#60](https://github.com/netlify/netlify-plugin-nextjs/pull/60))
+
 ## 1.0.1 (2020-11-19)
 
 - Fix: require('next') until plugin pre-installs are fixed internally ([#57](https://github.com/netlify/netlify-plugin-nextjs/pull/57))
