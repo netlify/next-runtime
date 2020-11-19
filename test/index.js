@@ -92,6 +92,7 @@ describe('preBuild()', () => {
         netlifyConfig: {},
         packageJson,
         utils,
+        constants: {},
       }),
     ).rejects.toThrow(
       `This plugin does not support sites that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`,
@@ -107,6 +108,7 @@ describe('preBuild()', () => {
         netlifyConfig: {},
         packageJson,
         utils,
+        constants: {},
       }),
     ).rejects.toThrow(
       `This plugin does not support sites that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`,

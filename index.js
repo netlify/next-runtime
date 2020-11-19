@@ -7,6 +7,7 @@ const makeDir = require('make-dir')
 
 const isStaticExportProject = require('./helpers/isStaticExportProject')
 const validateNextUsage = require('./helpers/validateNextUsage')
+const requirePeerDependency = require('./helpers/requirePeerDependency')
 
 const pWriteFile = util.promisify(fs.writeFile)
 
@@ -15,10 +16,10 @@ const pWriteFile = util.promisify(fs.writeFile)
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
-  async onPreBuild({ netlifyConfig, packageJson, utils }) {
+  async onPreBuild({ netlifyConfig, packageJson, utils, constants: { IS_LOCAL } }) {
     const { failBuild } = utils.build
 
-    validateNextUsage(failBuild)
+    validateNextUsage(failBuild, IS_LOCAL)
 
     if (Object.keys(packageJson).length === 0) {
       return failBuild(`Could not find a package.json for this project`)
@@ -45,8 +46,8 @@ module.exports = {
     if (nextConfigPath !== undefined) {
       // We cannot load `next` at the top-level because we validate whether the
       // site is using `next` inside `onPreBuild`.
-      const { PHASE_PRODUCTION_BUILD } = require('next/constants')
-      const { default: loadConfig } = require('next/dist/next-server/server/config')
+      const { PHASE_PRODUCTION_BUILD } = requirePeerDependency(IS_LOCAL, 'next/constants')
+      const { default: loadConfig } = requirePeerDependency(IS_LOCAL, 'next/dist/next-server/server/config')
 
       // If the next config exists, fail build if target isnt in acceptableTargets
       const acceptableTargets = ['serverless', 'experimental-serverless-trace']
@@ -66,7 +67,7 @@ module.exports = {
       console.log(`** Adding next.config.js with target set to 'serverless' **`)
     }
   },
-  async onBuild({ constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC } }) {
+  async onBuild({ constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, IS_LOCAL } }) {
     console.log(`** Running Next on Netlify package **`)
 
     await makeDir(PUBLISH_DIR)
@@ -75,7 +76,11 @@ module.exports = {
     // top-level because we validate whether the site is using `next`
     // inside `onPreBuild`.
     const nextOnNetlify = require('next-on-netlify')
-    nextOnNetlify({ functionsDir: FUNCTIONS_SRC, publishDir: PUBLISH_DIR })
+    nextOnNetlify({
+      functionsDir: FUNCTIONS_SRC,
+      publishDir: PUBLISH_DIR,
+      requirePeerDependency: requirePeerDependency.bind(undefined, IS_LOCAL),
+    })
   },
 }
 

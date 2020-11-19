@@ -1,11 +1,13 @@
 const { lt: ltVersion, gte: gteVersion } = require('semver')
 const { yellowBright } = require('chalk')
 
+const requirePeerDependency = require('./requirePeerDependency')
+
 // Ensure Next.js is available.
 // We use `peerDependencies` instead of `dependencies` so that users can choose
 // the Next.js version. However, this requires them to install "next" in their
 // site.
-const validateNextUsage = function (failBuild) {
+const validateNextUsage = function (failBuild, IS_LOCAL) {
   if (!hasPackage('next')) {
     return failBuild(
       'This site does not seem to be using Next.js. Please run "npm install next" or "yarn next" in the repository.',
@@ -13,7 +15,7 @@ const validateNextUsage = function (failBuild) {
   }
 
   // Old Next.js versions are not supported
-  const { version } = require('next/package.json')
+  const { version } = requirePeerDependency(IS_LOCAL, 'next/package.json')
   if (ltVersion(version, MIN_VERSION)) {
     return failBuild(`Please upgrade to Next.js ${MIN_VERSION} or later`)
   }
