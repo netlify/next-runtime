@@ -27,11 +27,15 @@ This build plugin is a utility for supporting Next.js on Netlify. To enable serv
 
 There are two ways to install the plugin in your Next.js on Netlify site.
 
-First:
+**Option 1: UI-based Installation**
 
-This plugin can be installed and managed from your site's settings on Netlify. Read more about [UI-based installation](https://docs.netlify.com/configure-builds/build-plugins/#ui-installation) in our docs.
+This plugin can be installed and managed from your site's settings on Netlify.
 
-Second:
+[👉 Click to install this plugin 👈](http://app.netlify.com/plugins/@netlify/plugin-nextjs/install)
+
+Read more about [UI-based plugin installation](https://docs.netlify.com/configure-builds/build-plugins/#ui-installation) in our docs.
+
+**Option 2: File-based Installation**
 
 Create a `netlify.toml` in the root of your project. Your file should include the plugins section below:
 
