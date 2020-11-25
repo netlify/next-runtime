@@ -2,11 +2,11 @@ const fs = require('fs-extra')
 const path = require('path')
 const process = require('process')
 const { promisify } = require('util')
-
 const { copy } = require('cpx')
 const nextOnNetlify = require('next-on-netlify')
 const pathExists = require('path-exists')
 const { dir: getTmpDir } = require('tmp-promise')
+const execa = require('execa')
 
 const plugin = require('..')
 
@@ -32,13 +32,25 @@ const changeCwd = function (cwd) {
   return process.chdir.bind(process, originalCwd)
 }
 
+// Move .next from sample project to current directory
+const moveNextDist = function () {
+  // Use copySync because cpx won't copy hidden files
+  fs.copySync(`${FIXTURES_DIR}/sample/.next`, `.next`)
+}
+
 // Copy fixture files to the current directory
 const useFixture = async function (fixtureName) {
   const fixtureDir = `${FIXTURES_DIR}/${fixtureName}`
-  // Use copySync because cpx doesn't copy hidden files
-  fs.copySync(`${FIXTURES_DIR}/.next`, `${process.cwd()}/.next`)
   await pCopy(`${fixtureDir}/**`, process.cwd())
 }
+
+// Build the sample project before running the tests
+beforeAll(async () => {
+  return await execa('next', ['build'], {
+    cwd: `${FIXTURES_DIR}/sample`,
+    preferLocal: true,
+  })
+}, 180 * 1000) // timeout after 180 seconds
 
 // In each test, we change cwd to a temporary directory.
 // This allows us not to have to mock filesystem operations.
@@ -154,10 +166,12 @@ describe('preBuild()', () => {
 describe('onBuild()', () => {
   test('copy files to the publish directory', async () => {
     await useFixture('publish_copy_files')
+    moveNextDist()
     const PUBLISH_DIR = 'publish'
     await plugin.onBuild({
       constants: {
         PUBLISH_DIR,
+        FUNCTIONS_SRC: 'functions',
       },
     })
 
@@ -170,6 +184,7 @@ describe('onBuild()', () => {
     { FUNCTIONS_SRC: undefined, resolvedFunctions: 'netlify-automatic-functions' },
   ])('copy files to the functions directory', async ({ FUNCTIONS_SRC, resolvedFunctions }) => {
     await useFixture('functions_copy_files')
+    moveNextDist()
     await plugin.onBuild({
       constants: {
         FUNCTIONS_SRC,
@@ -177,6 +192,6 @@ describe('onBuild()', () => {
       },
     })
 
-    expect(await pathExists(`${resolvedFunctions}/next_api_hello/next_api_hello.js`)).toBeTruthy()
+    expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.js`)).toBeTruthy()
   })
 })
