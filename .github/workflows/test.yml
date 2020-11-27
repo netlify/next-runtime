@@ -27,6 +27,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
-      - run: cd test/fixtures/sample && npm install
-      - run: cd test/fixtures/sample && npm run build
+      - run: cd test/sample && npm install
+      - run: cd test/sample && npm run build
       - run: npm test

@@ -57,7 +57,8 @@
   "jest": {
     "testMatch": [
       "**/test/**/*.js",
-      "!**/test/fixtures/**"
+      "!**/test/fixtures/**",
+      "!**/test/sample/**"
     ],
     "verbose": true
   }

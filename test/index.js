@@ -13,6 +13,7 @@ const plugin = require('..')
 const pCopy = promisify(copy)
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
+const SAMPLE_PROJECT_DIR = `${__dirname}/sample`
 
 const utils = {
   run: {
@@ -35,7 +36,7 @@ const changeCwd = function (cwd) {
 // Move .next from sample project to current directory
 const moveNextDist = function () {
   // Use copySync because cpx won't copy hidden files
-  fs.copySync(`${FIXTURES_DIR}/sample/.next`, `.next`)
+  fs.copySync(`${SAMPLE_PROJECT_DIR}/.next`, `.next`)
 }
 
 // Copy fixture files to the current directory
@@ -46,8 +47,8 @@ const useFixture = async function (fixtureName) {
 
 // Build the sample project before running the tests
 beforeAll(async () => {
-  return await execa('next', ['build'], {
-    cwd: `${FIXTURES_DIR}/sample`,
+  await execa('next', ['build'], {
+    cwd: SAMPLE_PROJECT_DIR,
     preferLocal: true,
   })
 }, 180 * 1000) // timeout after 180 seconds
