@@ -1,16 +1,12 @@
-const fs = require('fs-extra')
 const path = require('path')
 const process = require('process')
-const { promisify } = require('util')
-const { copy } = require('cpx')
 const nextOnNetlify = require('next-on-netlify')
 const pathExists = require('path-exists')
 const { dir: getTmpDir } = require('tmp-promise')
 const execa = require('execa')
+const cpy = require('cpy')
 
 const plugin = require('..')
-
-const pCopy = promisify(copy)
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/sample`
@@ -34,15 +30,14 @@ const changeCwd = function (cwd) {
 }
 
 // Move .next from sample project to current directory
-const moveNextDist = function () {
-  // Use copySync because cpx won't copy hidden files
-  fs.copySync(`${SAMPLE_PROJECT_DIR}/.next`, `.next`)
+const moveNextDist = async function () {
+  await cpy('.next/**', process.cwd(), { cwd: SAMPLE_PROJECT_DIR, parents: true, overwrite: false, dot: true })
 }
 
 // Copy fixture files to the current directory
 const useFixture = async function (fixtureName) {
   const fixtureDir = `${FIXTURES_DIR}/${fixtureName}`
-  await pCopy(`${fixtureDir}/**`, process.cwd())
+  await cpy('**', process.cwd(), { cwd: fixtureDir, parents: true, overwrite: false, dot: true })
 }
 
 // Build the sample project before running the tests
@@ -167,7 +162,7 @@ describe('preBuild()', () => {
 describe('onBuild()', () => {
   test('copy files to the publish directory', async () => {
     await useFixture('publish_copy_files')
-    moveNextDist()
+    await moveNextDist()
     const PUBLISH_DIR = 'publish'
     await plugin.onBuild({
       constants: {
@@ -185,7 +180,7 @@ describe('onBuild()', () => {
     { FUNCTIONS_SRC: undefined, resolvedFunctions: 'netlify-automatic-functions' },
   ])('copy files to the functions directory', async ({ FUNCTIONS_SRC, resolvedFunctions }) => {
     await useFixture('functions_copy_files')
-    moveNextDist()
+    await moveNextDist()
     await plugin.onBuild({
       constants: {
         FUNCTIONS_SRC,
