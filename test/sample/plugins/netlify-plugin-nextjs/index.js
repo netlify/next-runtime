@@ -1,2 +1,2 @@
-const plugin = require('../../../index.js')
+const plugin = require('../../../..')
 module.exports = plugin

@@ -3,7 +3,6 @@ const process = require('process')
 const nextOnNetlify = require('next-on-netlify')
 const pathExists = require('path-exists')
 const { dir: getTmpDir } = require('tmp-promise')
-const execa = require('execa')
 const cpy = require('cpy')
 
 const plugin = require('..')
@@ -39,14 +38,6 @@ const useFixture = async function (fixtureName) {
   const fixtureDir = `${FIXTURES_DIR}/${fixtureName}`
   await cpy('**', process.cwd(), { cwd: fixtureDir, parents: true, overwrite: false, dot: true })
 }
-
-// Build the sample project before running the tests
-beforeAll(async () => {
-  await execa('next', ['build'], {
-    cwd: SAMPLE_PROJECT_DIR,
-    preferLocal: true,
-  })
-}, 180 * 1000) // timeout after 180 seconds
 
 // In each test, we change cwd to a temporary directory.
 // This allows us not to have to mock filesystem operations.

@@ -1,6 +1,6 @@
 [build]
-  command = "npm run build"
+  command = "npx next build"
   publish = "my-publish-dir"
 
 [[plugins]]
-  package = "/plugins/netlify-plugin-nextjs"
+  package = "../../"
