@@ -35,7 +35,6 @@
   "devDependencies": {
     "@netlify/eslint-config-node": "^0.3.0",
     "cpy": "^8.1.1",
-    "execa": "^4.1.0",
     "husky": "^4.3.0",
     "jest": "^26.6.1",
     "path-exists": "^4.0.0",
