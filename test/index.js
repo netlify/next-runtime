@@ -1,18 +1,14 @@
-const fs = require('fs')
 const path = require('path')
 const process = require('process')
-const { promisify } = require('util')
-
-const { copy } = require('cpx')
 const nextOnNetlify = require('next-on-netlify')
 const pathExists = require('path-exists')
 const { dir: getTmpDir } = require('tmp-promise')
+const cpy = require('cpy')
 
 const plugin = require('..')
 
-const pCopy = promisify(copy)
-
 const FIXTURES_DIR = `${__dirname}/fixtures`
+const SAMPLE_PROJECT_DIR = `${__dirname}/sample`
 
 const utils = {
   run: {
@@ -32,10 +28,15 @@ const changeCwd = function (cwd) {
   return process.chdir.bind(process, originalCwd)
 }
 
+// Move .next from sample project to current directory
+const moveNextDist = async function () {
+  await cpy('.next/**', process.cwd(), { cwd: SAMPLE_PROJECT_DIR, parents: true, overwrite: false, dot: true })
+}
+
 // Copy fixture files to the current directory
 const useFixture = async function (fixtureName) {
   const fixtureDir = `${FIXTURES_DIR}/${fixtureName}`
-  await pCopy(`${fixtureDir}/**`, process.cwd())
+  await cpy('**', process.cwd(), { cwd: fixtureDir, parents: true, overwrite: false, dot: true })
 }
 
 // In each test, we change cwd to a temporary directory.
@@ -55,8 +56,6 @@ afterEach(async () => {
   this.restoreCwd()
   await this.cleanup()
 })
-
-jest.mock('next-on-netlify')
 
 const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0' }
 
@@ -152,43 +151,34 @@ describe('preBuild()', () => {
 })
 
 describe('onBuild()', () => {
-  test('runs NoN with functions_src & publish_dir options', async () => {
-    const PUBLISH_DIR = 'some/path'
-    const FUNCTIONS_SRC = 'other/path'
+  test('copy files to the publish directory', async () => {
+    await useFixture('publish_copy_files')
+    await moveNextDist()
+    const PUBLISH_DIR = 'publish'
     await plugin.onBuild({
       constants: {
         PUBLISH_DIR,
+        FUNCTIONS_SRC: 'functions',
+      },
+    })
+
+    expect(await pathExists(`${PUBLISH_DIR}/_redirects`)).toBeTruthy()
+    expect(await pathExists(`${PUBLISH_DIR}/index.html`)).toBeTruthy()
+  })
+
+  test.each([
+    { FUNCTIONS_SRC: 'functions', resolvedFunctions: 'functions' },
+    { FUNCTIONS_SRC: undefined, resolvedFunctions: 'netlify-automatic-functions' },
+  ])('copy files to the functions directory', async ({ FUNCTIONS_SRC, resolvedFunctions }) => {
+    await useFixture('functions_copy_files')
+    await moveNextDist()
+    await plugin.onBuild({
+      constants: {
         FUNCTIONS_SRC,
+        PUBLISH_DIR: '.',
       },
     })
 
-    const nextOnNetlifyOptions = nextOnNetlify.mock.calls[0][0]
-    expect(nextOnNetlifyOptions.functionsDir).toEqual(FUNCTIONS_SRC)
-    expect(nextOnNetlifyOptions.publishDir).toEqual(PUBLISH_DIR)
-  })
-
-  test('runs NoN with publish_dir option only', async () => {
-    const defaultFunctionsSrc = 'netlify-automatic-functions'
-    const PUBLISH_DIR = 'some/path'
-    await plugin.onBuild({
-      constants: {
-        PUBLISH_DIR,
-      },
-    })
-
-    const nextOnNetlifyOptions = nextOnNetlify.mock.calls[0][0]
-    expect(nextOnNetlifyOptions.functionsDir).toEqual(defaultFunctionsSrc)
-    expect(nextOnNetlifyOptions.publishDir).toEqual(PUBLISH_DIR)
-  })
-
-  test('calls makeDir with correct path', async () => {
-    const PUBLISH_DIR = 'some/path'
-    await plugin.onBuild({
-      constants: {
-        PUBLISH_DIR,
-      },
-    })
-
-    expect(await pathExists(PUBLISH_DIR)).toBeTruthy()
+    expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.js`)).toBeTruthy()
   })
 })

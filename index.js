@@ -5,6 +5,7 @@ const util = require('util')
 const findUp = require('find-up')
 const makeDir = require('make-dir')
 
+const { name: pluginName } = require('./package.json')
 const isStaticExportProject = require('./helpers/isStaticExportProject')
 const validateNextUsage = require('./helpers/validateNextUsage')
 
@@ -25,7 +26,7 @@ module.exports = {
     }
 
     const { build } = netlifyConfig
-    const { scripts = {}, dependencies = {} } = packageJson
+    const { name, scripts = {}, dependencies = {} } = packageJson
 
     if (isStaticExportProject({ build, scripts })) {
       return failBuild(`** Static HTML export next.js projects do not require this plugin **`)
@@ -34,7 +35,8 @@ module.exports = {
     const hasNextOnNetlifyInstalled = dependencies['next-on-netlify'] !== undefined
     const hasNextOnNetlifyPostbuildScript =
       typeof scripts.postbuild === 'string' && scripts.postbuild.includes('next-on-netlify')
-    const isAlreadyUsingNextOnNetlify = hasNextOnNetlifyInstalled || hasNextOnNetlifyPostbuildScript
+    const isAlreadyUsingNextOnNetlify =
+      (hasNextOnNetlifyInstalled || hasNextOnNetlifyPostbuildScript) && pluginName !== name
     if (isAlreadyUsingNextOnNetlify) {
       return failBuild(
         `This plugin does not support sites that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`,

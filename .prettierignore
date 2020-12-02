@@ -18,4 +18,5 @@ node_modules
 
 # Test
 __mocks__
-sample
+test/fixtures
+test/sample
