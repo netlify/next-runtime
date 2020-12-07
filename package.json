@@ -60,6 +60,7 @@
       "!**/test/fixtures/**",
       "!**/test/sample/**"
     ],
-    "verbose": true
+    "verbose": true,
+    "testTimeout": 60000
   }
 }
