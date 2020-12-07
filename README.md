@@ -45,7 +45,7 @@ Read more about [UI-based plugin installation](https://docs.netlify.com/configur
       package = "@netlify/plugin-nextjs"
     ```
 
-2. From your project's base directory, use `npm`, `yarn`, or any other Node.js package manager to add this plugin to `package.json` as a dependency.
+2. From your project's base directory, use `npm`, `yarn`, or any other Node.js package manager to add this plugin to `devDependencies` in `package.json`.
 
     ```
     npm install -D @netlify/plugin-nextjs
