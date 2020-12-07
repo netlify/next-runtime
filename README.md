@@ -25,27 +25,37 @@ This build plugin is a utility for supporting Next.js on Netlify. To enable serv
 
 ## Installation and Configuration
 
-There are two ways to install the plugin in your Next.js on Netlify site.
+There are two ways to install the plugin in your Next.js on Netlify site: with the Netlify UI or with file-based installation.
 
-**Option 1: UI-based Installation**
+**UI-based Installation**
 
-This plugin can be installed and managed from your site's settings on Netlify.
-
-[👉 Click to install this plugin 👈](http://app.netlify.com/plugins/@netlify/plugin-nextjs/install)
+You can install this plugin using this [direct in-app installation link](http://app.netlify.com/plugins/@netlify/plugin-nextjs/install) or from your team's [Plugins directory](https://app.netlify.com/plugins) in the Netlify UI.
 
 Read more about [UI-based plugin installation](https://docs.netlify.com/configure-builds/build-plugins/#ui-installation) in our docs.
 
-**Option 2: File-based Installation**
+**File-based Installation**
 
-Create a `netlify.toml` in the root of your project. Your file should include the plugins section below:
+1. Create a `netlify.toml` in the root of your project. Your file should include the plugins section below:
 
-```toml
-[build]
-  command   = "npm run build"
+    ```toml
+    [build]
+      command   = "npm run build"
+    
+    [[plugins]]
+      package = "@netlify/plugin-nextjs"
+    ```
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-```
+2. From your project's base directory, use `npm`, `yarn`, or any other Node.js package manager to add this plugin to `package.json` as a dependency.
+
+    ```
+    npm install -D @netlify/plugin-nextjs
+    ```
+
+    or 
+
+    ```
+    yarn add -D @netlify/plugin-nextjs
+    ```
 
 Read more about [file-based plugin installation](https://docs.netlify.com/configure-builds/build-plugins/#file-based-installation) in our docs.
 
