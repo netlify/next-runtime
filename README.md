@@ -1,4 +1,4 @@
-![Next.js on Netlify Build Plugin](nextonnetlify.png)
+![Next.js on Netlify Build Plugin](next-on-netlify.png)
 
 # Next.js Build Plugin
 
