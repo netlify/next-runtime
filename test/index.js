@@ -58,17 +58,31 @@ afterEach(async () => {
 })
 
 const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0' }
+const netlifyConfig = { build: {} }
 
 describe('preBuild()', () => {
   test('fail build if the app has static html export in npm script', async () => {
     await expect(
       plugin.onPreBuild({
-        netlifyConfig: {},
+        netlifyConfig: { build: { command: 'npm run build' } },
         packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { build: 'next export' } },
         utils,
         constants: { FUNCTIONS_SRC: 'out_functions' },
       }),
-    ).rejects.toThrow('** Static HTML export next.js projects do not require this plugin **')
+    ).rejects.toThrow(
+      `Static HTML export Next.js projects do not require this plugin. Check your project's build command for 'next export'.`,
+    )
+  })
+
+  test('do not fail build if the app has next export in an unused script', async () => {
+    await expect(
+      plugin.onPreBuild({
+        netlifyConfig,
+        packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { export: 'next export' } },
+        utils,
+        constants: {},
+      }),
+    ).resolves
   })
 
   test('fail build if the app has static html export in toml/ntl config', async () => {
@@ -79,7 +93,9 @@ describe('preBuild()', () => {
         utils,
         constants: { FUNCTIONS_SRC: 'out_functions' },
       }),
-    ).rejects.toThrow('** Static HTML export next.js projects do not require this plugin **')
+    ).rejects.toThrow(
+      `Static HTML export Next.js projects do not require this plugin. Check your project's build command for 'next export'.`,
+    )
   })
 
   test('fail build if app has next-on-netlify installed', async () => {
@@ -88,7 +104,7 @@ describe('preBuild()', () => {
     }
     await expect(
       plugin.onPreBuild({
-        netlifyConfig: {},
+        netlifyConfig,
         packageJson,
         utils,
       }),
@@ -103,7 +119,7 @@ describe('preBuild()', () => {
     }
     await expect(
       plugin.onPreBuild({
-        netlifyConfig: {},
+        netlifyConfig,
         packageJson,
         utils,
       }),
@@ -115,7 +131,7 @@ describe('preBuild()', () => {
   test('fail build if the app has no package.json', async () => {
     await expect(
       plugin.onPreBuild({
-        netlifyConfig: {},
+        netlifyConfig,
         packageJson: {},
         utils,
         constants: { FUNCTIONS_SRC: 'out_functions' },
@@ -125,7 +141,7 @@ describe('preBuild()', () => {
 
   test('create next.config.js with correct target if file does not exist', async () => {
     await plugin.onPreBuild({
-      netlifyConfig: {},
+      netlifyConfig,
       packageJson: DUMMY_PACKAGE_JSON,
       utils,
       constants: { FUNCTIONS_SRC: 'out_functions' },
@@ -140,7 +156,7 @@ describe('preBuild()', () => {
       await useFixture(fixtureName)
       await expect(
         plugin.onPreBuild({
-          netlifyConfig: {},
+          netlifyConfig,
           packageJson: DUMMY_PACKAGE_JSON,
           utils,
           constants: { FUNCTIONS_SRC: 'out_functions' },

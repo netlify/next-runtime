@@ -20,3 +20,4 @@ node_modules
 __mocks__
 test/fixtures
 test/sample
+next.config.js

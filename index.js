@@ -29,7 +29,9 @@ module.exports = {
     const { name, scripts = {}, dependencies = {} } = packageJson
 
     if (isStaticExportProject({ build, scripts })) {
-      return failBuild(`** Static HTML export next.js projects do not require this plugin **`)
+      return failBuild(
+        `Static HTML export Next.js projects do not require this plugin. Check your project's build command for 'next export'.`,
+      )
     }
 
     const hasNextOnNetlifyInstalled = dependencies['next-on-netlify'] !== undefined
