@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.3 (2020-12-21)
+
+- Fix: use site's Next.js version ([#73](https://github.com/netlify/netlify-plugin-nextjs/pull/73))
+- Fix: next export unused script mistakenly failed builds ([#72](https://github.com/netlify/netlify-plugin-nextjs/pull/72))
+- Miscellaneous testing
+- Miscellaneous README changes
+
 ## 1.0.2 (2020-11-10)
 
 - Fix React peer dependency ([#60](https://github.com/netlify/netlify-plugin-nextjs/pull/60))
