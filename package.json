@@ -28,7 +28,7 @@
     "chalk": "^4.1.0",
     "find-up": "^4.1.0",
     "make-dir": "^3.1.0",
-    "next-on-netlify": "^2.7.1",
+    "next-on-netlify": "^2.7.2",
     "semver": "^7.3.2"
   },
   "devDependencies": {
