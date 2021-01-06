@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4 (2021-01-06)
+
+- upgrade next-on-netlify version to 2.7.1 ([#76](https://github.com/netlify/netlify-plugin-nextjs/pull/76))
+
 ## 1.0.3 (2020-12-21)
 
 - Fix: use site's Next.js version ([#73](https://github.com/netlify/netlify-plugin-nextjs/pull/73))
