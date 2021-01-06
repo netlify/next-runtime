@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5 (2021-01-07)
+
+- upgrade next-on-netlify version to 2.7.2 ([#77](https://github.com/netlify/netlify-plugin-nextjs/pull/77))
+
 ## 1.0.4 (2021-01-06)
 
 - upgrade next-on-netlify version to 2.7.1 ([#76](https://github.com/netlify/netlify-plugin-nextjs/pull/76))
