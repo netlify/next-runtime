@@ -57,7 +57,9 @@ module.exports = {
       const nextConfig = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'))
       const isValidTarget = acceptableTargets.includes(nextConfig.target)
       if (!isValidTarget) {
-        return failBuild(`next.config.js must be one of: ${acceptableTargets.join(', ')}`)
+        return failBuild(
+          `Your next.config.js must set the "target" property to one of: ${acceptableTargets.join(', ')}`,
+        )
       }
     } else {
       // Create the next config file with target set to serverless by default

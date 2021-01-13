@@ -161,7 +161,9 @@ describe('preBuild()', () => {
           utils,
           constants: { FUNCTIONS_SRC: 'out_functions' },
         }),
-      ).rejects.toThrow(`next.config.js must be one of: serverless, experimental-serverless-trace`)
+      ).rejects.toThrow(
+        `Your next.config.js must set the "target" property to one of: serverless, experimental-serverless-trace`,
+      )
     },
   )
 })
