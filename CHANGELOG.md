@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.6 (2021-01-16)
+
+- upgrade NoN to 2.8.2; explain CLI usage workflow in README; add jimp ([#83](https://github.com/netlify/netlify-plugin-nextjs/pull/83))
+- update next.config.js target error message to be more clear ([78a0986](https://github.com/netlify/netlify-plugin-nextjs/commit/78a0986548af877678834f20302b2b2ee88063e4))
+
 ## 1.0.5 (2021-01-07)
 
 - upgrade next-on-netlify version to 2.7.2 ([#77](https://github.com/netlify/netlify-plugin-nextjs/pull/77))
