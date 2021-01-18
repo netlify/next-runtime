@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.7 (2021-01-18)
+
+- upgrade NoN to 2.8.3 (reverts next/image support)
+
 ## 1.0.6 (2021-01-16)
 
 - upgrade NoN to 2.8.2; explain CLI usage workflow in README; add jimp ([#83](https://github.com/netlify/netlify-plugin-nextjs/pull/83))
