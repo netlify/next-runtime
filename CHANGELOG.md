@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.8 (2021-01-18)
+
+- upgrade NoN to 2.8.4 (fixes file tracking for nonexistent dirs) ([#86](https://github.com/netlify/netlify-plugin-nextjs/pull/86))
+
 ## 1.0.7 (2021-01-18)
 
 - upgrade NoN to 2.8.3 (reverts next/image support)
