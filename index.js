@@ -85,4 +85,4 @@ module.exports = {
   },
 }
 
-const DEFAULT_FUNCTIONS_SRC = 'netlify-automatic-functions'
+const DEFAULT_FUNCTIONS_SRC = 'netlify/functions'
