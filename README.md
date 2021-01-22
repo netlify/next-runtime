@@ -41,6 +41,7 @@ Read more about [UI-based plugin installation](https://docs.netlify.com/configur
     ```toml
     [build]
       command   = "npm run build"
+      publish = "out"
 
     [[plugins]]
       package = "@netlify/plugin-nextjs"
