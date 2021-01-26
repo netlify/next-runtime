@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.9 (2021-01-26)
+
+- upgrade NoN to [2.8.5](https://github.com/netlify/next-on-netlify/releases/tag/v2.8.5)
+
 ## 1.0.8 (2021-01-18)
 
 - upgrade NoN to 2.8.4 (fixes file tracking for nonexistent dirs) ([#86](https://github.com/netlify/netlify-plugin-nextjs/pull/86))
