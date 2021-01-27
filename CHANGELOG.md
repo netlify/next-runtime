@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0 (2021-01-27)
+
+- upgrade NoN to [2.8.6](https://github.com/netlify/next-on-netlify/releases/tag/v2.8.6)
+
 ## 1.0.9 (2021-01-26)
 
 - upgrade NoN to [2.8.5](https://github.com/netlify/next-on-netlify/releases/tag/v2.8.5)
