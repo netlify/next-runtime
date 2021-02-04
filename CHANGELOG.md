@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.0 (2021-02-04)
+
+- feature: use new default functions directory ([#87](https://github.com/netlify/netlify-plugin-nextjs/pull/87))
+
 ## 1.1.1 (2021-02-02)
 
 - upgrade NoN to [2.8.7](https://github.com/netlify/next-on-netlify/releases/tag/v2.8.7)
