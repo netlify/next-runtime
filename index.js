@@ -1,8 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 const util = require('util')
-const findUp = require('find-up')
 const makeDir = require('make-dir')
+const findUp = require('find-up')
 
 const validateNextUsage = require('./helpers/validateNextUsage')
 const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
@@ -16,7 +16,6 @@ const pWriteFile = util.promisify(fs.writeFile)
 module.exports = {
   async onPreBuild({ netlifyConfig, packageJson, utils }) {
     const { failBuild } = utils.build
-    const nextConfigPath = await findUp('next.config.js')
 
     validateNextUsage(failBuild)
 
@@ -25,10 +24,11 @@ module.exports = {
       return failBuild('Could not find a package.json for this project')
     }
 
-    if (doesNotNeedPlugin({ netlifyConfig, packageJson, nextConfigPath })) {
+    if (await doesNotNeedPlugin({ netlifyConfig, packageJson })) {
       return
     }
 
+    const nextConfigPath = await findUp('next.config.js')
     if (nextConfigPath === undefined) {
       // Create the next config file with target set to serverless by default
       const nextConfig = `
@@ -40,8 +40,7 @@ module.exports = {
     }
   },
   async onBuild({ netlifyConfig, packageJson, constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC } }) {
-    const nextConfigPath = await findUp('next.config.js')
-    if (doesNotNeedPlugin({ netlifyConfig, packageJson, nextConfigPath })) {
+    if (await doesNotNeedPlugin({ netlifyConfig, packageJson })) {
       return
     }
 
