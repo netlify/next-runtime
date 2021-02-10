@@ -61,71 +61,74 @@ const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0' }
 const netlifyConfig = { build: {} }
 
 describe('preBuild()', () => {
-  test('fail build if the app has static html export in npm script', async () => {
-    await expect(
-      plugin.onPreBuild({
-        netlifyConfig: { build: { command: 'npm run build' } },
-        packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { build: 'next export' } },
-        utils,
-        constants: { FUNCTIONS_SRC: 'out_functions' },
-      }),
-    ).rejects.toThrow(
-      `Static HTML export Next.js projects do not require this plugin. Check your project's build command for 'next export'.`,
-    )
+  test('create next.config.js with correct target if file does not exist', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson: DUMMY_PACKAGE_JSON,
+      utils,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
+    })
+
+    expect(await pathExists('next.config.js')).toBeTruthy()
   })
 
-  test('do not fail build if the app has next export in an unused script', async () => {
-    await expect(
-      plugin.onPreBuild({
-        netlifyConfig,
-        packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { export: 'next export' } },
-        utils,
-        constants: {},
-      }),
-    ).resolves
+  test('do nothing if the app has static html export in npm script', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig: { build: { command: 'npm run build' } },
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { build: 'next export' } },
+      utils,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
+    })
+
+    expect(await pathExists('next.config.js')).toBeFalsy()
   })
 
-  test('fail build if the app has static html export in toml/ntl config', async () => {
-    await expect(
-      plugin.onPreBuild({
-        netlifyConfig: { build: { command: 'next build && next export' } },
-        packageJson: DUMMY_PACKAGE_JSON,
-        utils,
-        constants: { FUNCTIONS_SRC: 'out_functions' },
-      }),
-    ).rejects.toThrow(
-      `Static HTML export Next.js projects do not require this plugin. Check your project's build command for 'next export'.`,
-    )
+  test('run plugin if the app has next export in an unused script', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { export: 'next export' } },
+      utils,
+      constants: {},
+    })
+
+    expect(await pathExists('next.config.js')).toBeTruthy()
   })
 
-  test('fail build if app has next-on-netlify installed', async () => {
+  test('do nothing if app has static html export in toml/ntl config', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig: { build: { command: 'next build && next export' } },
+      packageJson: DUMMY_PACKAGE_JSON,
+      utils,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
+    })
+
+    expect(await pathExists('next.config.js')).toBeFalsy()
+  })
+
+  test('do nothing if app has next-on-netlify installed', async () => {
     const packageJson = {
       dependencies: { 'next-on-netlify': '123' },
     }
-    await expect(
-      plugin.onPreBuild({
-        netlifyConfig,
-        packageJson,
-        utils,
-      }),
-    ).rejects.toThrow(
-      `This plugin does not support sites that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`,
-    )
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson,
+      utils,
+    })
+
+    expect(await pathExists('next.config.js')).toBeFalsy()
   })
 
-  test('fail build if app has next-on-netlify postbuild script', async () => {
+  test('do nothing if app has next-on-netlify postbuild script', async () => {
     const packageJson = {
       scripts: { postbuild: 'next-on-netlify' },
     }
-    await expect(
-      plugin.onPreBuild({
-        netlifyConfig,
-        packageJson,
-        utils,
-      }),
-    ).rejects.toThrow(
-      `This plugin does not support sites that manually use next-on-netlify. Uninstall next-on-netlify as a dependency to resolve.`,
-    )
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson,
+      utils,
+    })
+
+    expect(await pathExists('next.config.js')).toBeFalsy()
   })
 
   test('fail build if the app has no package.json', async () => {
@@ -138,42 +141,48 @@ describe('preBuild()', () => {
       }),
     ).rejects.toThrow(`Could not find a package.json for this project`)
   })
-
-  test('create next.config.js with correct target if file does not exist', async () => {
-    await plugin.onPreBuild({
-      netlifyConfig,
-      packageJson: DUMMY_PACKAGE_JSON,
-      utils,
-      constants: { FUNCTIONS_SRC: 'out_functions' },
-    })
-
-    expect(await pathExists('next.config.js')).toBeTruthy()
-  })
-
-  test.each(['invalid_next_config', 'deep_invalid_next_config'])(
-    `fail build if the app's next config has an invalid target`,
-    async (fixtureName) => {
-      await useFixture(fixtureName)
-      await expect(
-        plugin.onPreBuild({
-          netlifyConfig,
-          packageJson: DUMMY_PACKAGE_JSON,
-          utils,
-          constants: { FUNCTIONS_SRC: 'out_functions' },
-        }),
-      ).rejects.toThrow(
-        `Your next.config.js must set the "target" property to one of: serverless, experimental-serverless-trace`,
-      )
-    },
-  )
 })
 
 describe('onBuild()', () => {
+  test('does not run onBuild if using next-on-netlify', async () => {
+    const packageJson = {
+      scripts: { postbuild: 'next-on-netlify' },
+    }
+    await useFixture('publish_copy_files')
+    await moveNextDist()
+    const PUBLISH_DIR = 'publish'
+    await plugin.onBuild({
+      netlifyConfig,
+      packageJson,
+      constants: {},
+    })
+
+    expect(await pathExists(`${PUBLISH_DIR}/index.html`)).toBeFalsy()
+  })
+
+  test.each(['invalid_next_config', 'deep_invalid_next_config'])(
+    `do nothing if the app's next config has an invalid target`,
+    async (fixtureName) => {
+      await useFixture(fixtureName)
+      const PUBLISH_DIR = 'publish'
+      await plugin.onBuild({
+        netlifyConfig,
+        packageJson: DUMMY_PACKAGE_JSON,
+        utils,
+        constants: { FUNCTIONS_SRC: 'out_functions' },
+      })
+
+      expect(await pathExists(`${PUBLISH_DIR}/index.html`)).toBeFalsy()
+    },
+  )
+
   test('copy files to the publish directory', async () => {
     await useFixture('publish_copy_files')
     await moveNextDist()
     const PUBLISH_DIR = 'publish'
     await plugin.onBuild({
+      netlifyConfig,
+      packageJson: DUMMY_PACKAGE_JSON,
       constants: {
         PUBLISH_DIR,
         FUNCTIONS_SRC: 'functions',
@@ -191,6 +200,8 @@ describe('onBuild()', () => {
     await useFixture('functions_copy_files')
     await moveNextDist()
     await plugin.onBuild({
+      netlifyConfig,
+      packageJson: DUMMY_PACKAGE_JSON,
       constants: {
         FUNCTIONS_SRC,
         PUBLISH_DIR: '.',
