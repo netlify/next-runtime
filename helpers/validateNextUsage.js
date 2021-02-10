@@ -27,7 +27,7 @@ const validateNextUsage = function (failBuild) {
 }
 
 const MIN_VERSION = '9.5.3'
-const MIN_EXPERIMENTAL_VERSION = '10.0.0'
+const MIN_EXPERIMENTAL_VERSION = '11.0.0'
 
 const hasPackage = function (packageName) {
   try {
