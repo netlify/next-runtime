@@ -44,9 +44,6 @@
     "react-dom": "^17.0.1",
     "tmp-promise": "^3.0.2"
   },
-  "peerDependencies": {
-    "next": ">=9.5.3"
-  },
   "husky": {
     "hooks": {
       "pre-commit": "prettier --check ."
