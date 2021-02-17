@@ -141,6 +141,19 @@ describe('preBuild()', () => {
       }),
     ).rejects.toThrow(`Could not find a package.json for this project`)
   })
+
+  test('fail build if the app cant load the next.config.js', async () => {
+    await useFixture('broken_next_config')
+
+    await expect(
+      plugin.onPreBuild({
+        netlifyConfig,
+        packageJson: DUMMY_PACKAGE_JSON,
+        utils,
+        constants: { FUNCTIONS_SRC: 'out_functions' },
+      }),
+    ).rejects.toThrow(`Error loading your next.config.js.`)
+  })
 })
 
 describe('onBuild()', () => {
@@ -155,6 +168,7 @@ describe('onBuild()', () => {
       netlifyConfig,
       packageJson,
       constants: {},
+      utils,
     })
 
     expect(await pathExists(`${PUBLISH_DIR}/index.html`)).toBeFalsy()
@@ -170,6 +184,7 @@ describe('onBuild()', () => {
         packageJson: DUMMY_PACKAGE_JSON,
         utils,
         constants: { FUNCTIONS_SRC: 'out_functions' },
+        utils,
       })
 
       expect(await pathExists(`${PUBLISH_DIR}/index.html`)).toBeFalsy()
@@ -187,6 +202,7 @@ describe('onBuild()', () => {
         PUBLISH_DIR,
         FUNCTIONS_SRC: 'functions',
       },
+      utils,
     })
 
     expect(await pathExists(`${PUBLISH_DIR}/_redirects`)).toBeTruthy()
@@ -206,6 +222,7 @@ describe('onBuild()', () => {
         FUNCTIONS_SRC,
         PUBLISH_DIR: '.',
       },
+      utils,
     })
 
     expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.js`)).toBeTruthy()

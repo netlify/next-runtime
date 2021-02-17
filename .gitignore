@@ -7,7 +7,7 @@ test/sample/netlify/functions
 test/sample/my-publish-dir
 test/sample/.next
 test/sample/.netlify
-next.config.js
+/next.config.js
 
 # Logs
 logs

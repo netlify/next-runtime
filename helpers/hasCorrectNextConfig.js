@@ -1,7 +1,7 @@
 const path = require('path')
 
 // Checks if site has the correct next.cofig.js
-const hasCorrectNextConfig = (nextConfigPath) => {
+const hasCorrectNextConfig = ({ nextConfigPath, failBuild }) => {
   // In the plugin's case, no config is valid because we'll make it ourselves
   if (nextConfigPath === undefined) return true
 
@@ -12,7 +12,12 @@ const hasCorrectNextConfig = (nextConfigPath) => {
 
   // If the next config exists, log warning if target isnt in acceptableTargets
   const acceptableTargets = ['serverless', 'experimental-serverless-trace']
-  const nextConfig = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'))
+  let nextConfig
+  try {
+    nextConfig = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'))
+  } catch (e) {
+    return failBuild('Error loading your next.config.js.')
+  }
   const isValidTarget = acceptableTargets.includes(nextConfig.target)
   if (!isValidTarget) {
     console.log(

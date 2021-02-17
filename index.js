@@ -24,7 +24,7 @@ module.exports = {
       return failBuild('Could not find a package.json for this project')
     }
 
-    if (await doesNotNeedPlugin({ netlifyConfig, packageJson })) {
+    if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
       return
     }
 
@@ -39,8 +39,13 @@ module.exports = {
       await pWriteFile('next.config.js', nextConfig)
     }
   },
-  async onBuild({ netlifyConfig, packageJson, constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC } }) {
-    if (await doesNotNeedPlugin({ netlifyConfig, packageJson })) {
+  async onBuild({
+    netlifyConfig,
+    packageJson,
+    constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC },
+    utils,
+  }) {
+    if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
       return
     }
 
