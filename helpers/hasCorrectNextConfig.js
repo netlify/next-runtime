@@ -15,8 +15,8 @@ const hasCorrectNextConfig = ({ nextConfigPath, failBuild }) => {
   let nextConfig
   try {
     nextConfig = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'))
-  } catch (e) {
-    return failBuild('Error loading your next.config.js.')
+  } catch (error) {
+    return failBuild('Error loading your next.config.js.', { error })
   }
   const isValidTarget = acceptableTargets.includes(nextConfig.target)
   if (!isValidTarget) {
