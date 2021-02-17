@@ -47,6 +47,14 @@ Read more about [UI-based plugin installation](https://docs.netlify.com/configur
       package = "@netlify/plugin-nextjs"
     ```
 
+ You can also add context-specific properties and environment variables to your `netlify.toml`. Read more about [deploy contexts](https://docs.netlify.com/configure-builds/file-based-configuration/#deploy-contexts) in our docs. For example:
+
+    ```toml
+    [context.production.environment]
+    NEXT_SERVERLESS = "true"
+    NODE_ENV = "production"
+    ```
+
 2. From your project's base directory, use `npm`, `yarn`, or any other Node.js package manager to add this plugin to `devDependencies` in `package.json`.
 
     ```
