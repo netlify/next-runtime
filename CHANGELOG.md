@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.1 (2021-02-17)
+
+- fail build if plugin cant load next.config.js ([#99](https://github.com/netlify/netlify-plugin-nextjs/pull/99))
+- chore: decrease package size ([#101](https://github.com/netlify/netlify-plugin-nextjs/pull/101))
+- remove Next as a peer dependency ([#96](https://github.com/netlify/netlify-plugin-nextjs/pull/96))
+- update failure points in plugin to do nothing instead ([#94](https://github.com/netlify/netlify-plugin-nextjs/pull/94))
+
 ## 2.0.0 (2021-02-04)
 
 - feature: use new default functions directory ([#87](https://github.com/netlify/netlify-plugin-nextjs/pull/87))
