@@ -33,7 +33,7 @@
     "find-up": "^4.1.0",
     "jimp": "^0.16.1",
     "make-dir": "^3.1.0",
-    "next-on-netlify": "2.8.7",
+    "next-on-netlify": "https://github.com/netlify/next-on-netlify#feat/fallback_to_static_html",
     "semver": "^7.3.2"
   },
   "devDependencies": {
