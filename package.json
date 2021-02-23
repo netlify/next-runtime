@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
+    "adm-zip": "^0.5.3",
     "chalk": "^4.1.0",
     "find-up": "^4.1.0",
     "jimp": "^0.16.1",
