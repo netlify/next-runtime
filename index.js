@@ -1,11 +1,12 @@
 const fs = require('fs')
-const path = require('path')
 const util = require('util')
 const makeDir = require('make-dir')
 const findUp = require('find-up')
+const cpy = require('cpy')
 
 const validateNextUsage = require('./helpers/validateNextUsage')
 const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
+const getNetlifyFunctionName = require('next-on-netlify/lib/helpers/getNetlifyFunctionName')
 
 const pWriteFile = util.promisify(fs.writeFile)
 
@@ -58,6 +59,14 @@ module.exports = {
     // inside `onPreBuild`.
     const nextOnNetlify = require('next-on-netlify')
     nextOnNetlify({ functionsDir: FUNCTIONS_SRC, publishDir: PUBLISH_DIR })
+
+    const { functions } = require(`${process.cwd()}/next.config.js`)
+    await Promise.all(
+      Object.entries(functions).map(([name, { includeFiles }]) => {
+        const functionName = getNetlifyFunctionName(name)
+        return cpy(includeFiles, `${FUNCTIONS_SRC}/${functionName}`, { parents: true })
+      }),
+    )
   },
 }
 
