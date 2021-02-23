@@ -7,6 +7,8 @@ const nextOnNetlify = require('./src/index.js')
 
 const validateNextUsage = require('./helpers/validateNextUsage')
 const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
+const getNextConfig = require('./helpers/getNextConfig')
+const copyUnstableIncludedDirs = require('./helpers/copyUnstableIncludedDirs')
 
 const pWriteFile = util.promisify(fs.writeFile)
 
@@ -57,6 +59,14 @@ module.exports = {
     await makeDir(PUBLISH_DIR)
 
     await nextOnNetlify({ functionsDir: FUNCTIONS_SRC, publishDir: PUBLISH_DIR })
+  },
+  async onPostBuild({ netlifyConfig, packageJson, constants: { FUNCTIONS_DIST }, utils }) {
+    if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
+      return
+    }
+
+    const nextConfig = await getNextConfig(utils.failBuild)
+    copyUnstableIncludedDirs({ nextConfig, functionsDist: FUNCTIONS_DIST })
   },
 }
 
