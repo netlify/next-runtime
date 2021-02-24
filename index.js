@@ -71,18 +71,19 @@ module.exports = {
 
     // any functions defined in the config need special handling
     for (const name in nextConfig.functions || {}) {
-      const includes = nextConfig.functions[name].includeDir
-      console.log('Processing included dir for ', name, includes)
+      const includeDirs = nextConfig.functions[name].includeDirs || []
+      console.log('Processing included dirs for ', name)
 
       const zipName = path.join(FUNCTIONS_DIST, getNetlifyFunctionName(name) + '.zip')
       const zip = new AdmZip(zipName)
-      if (fs.lstatSync(includes).isDirectory()) {
-        // we add the files at the root of the ZIP because process.cwd()
-        // points to `/` in serverless functions
-        zip.addLocalFolder(includes, includes)
-        console.log(`Added ${includes} to ${zipName}`)
-      }
-
+      includeDirs.forEach((includes) => {
+        if (fs.lstatSync(includes).isDirectory()) {
+          // we add the files at the root of the ZIP because process.cwd()
+          // points to `/` in serverless functions
+          zip.addLocalFolder(includes, includes)
+          console.log(`Added ${includes} to ${zipName}`)
+        }
+      })
       zip.writeZip(zipName)
     }
   },
