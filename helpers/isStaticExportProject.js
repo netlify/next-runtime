@@ -12,7 +12,16 @@ const isStaticExportProject = ({ build, scripts }) => {
     const scriptValue = scripts[script]
     return build.command.includes(script) && scriptValue.includes(NEXT_EXPORT_COMMAND)
   })
-  return isSetInNetlifyConfig || isSetInNpmScript
+
+  const isStaticExport = isSetInNetlifyConfig || isSetInNpmScript
+
+  if (isStaticExport) {
+    console.log(
+      `Static HTML export Next.js projects do not require this plugin. Check your project's build command for 'next export'.`,
+    )
+  }
+
+  return isStaticExport
 }
 
 module.exports = isStaticExportProject
