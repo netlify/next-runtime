@@ -1,6 +1,5 @@
 const path = require('path')
 const process = require('process')
-const nextOnNetlify = require('next-on-netlify')
 const pathExists = require('path-exists')
 const { dir: getTmpDir } = require('tmp-promise')
 const cpy = require('cpy')

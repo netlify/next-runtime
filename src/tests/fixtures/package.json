@@ -1,0 +1,7 @@
+{
+  "name": "next-on-netlify-test",
+  "scripts": {
+    "next-build": "next build",
+    "next-on-netlify": "node ../../../next-on-netlify"
+  }
+}

@@ -1,0 +1,10 @@
+# Ignore Netlify Site ID
+fixtures/.netlify/*
+!fixtures/.netlify/.keep
+
+# Ignore builds of NextJS that are created for testing purposes
+builds/
+
+# Ignore Cypress videos and screenshots
+videos/
+screenshots/

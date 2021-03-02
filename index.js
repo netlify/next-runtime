@@ -3,6 +3,7 @@ const path = require('path')
 const util = require('util')
 const makeDir = require('make-dir')
 const findUp = require('find-up')
+const nextOnNetlify = require('./src/index.js')
 
 const validateNextUsage = require('./helpers/validateNextUsage')
 const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
@@ -53,10 +54,6 @@ module.exports = {
 
     await makeDir(PUBLISH_DIR)
 
-    // We cannot load `next-on-netlify` (which depends on `next`) at the
-    // top-level because we validate whether the site is using `next`
-    // inside `onPreBuild`.
-    const nextOnNetlify = require('next-on-netlify')
     nextOnNetlify({ functionsDir: FUNCTIONS_SRC, publishDir: PUBLISH_DIR })
   },
 }
