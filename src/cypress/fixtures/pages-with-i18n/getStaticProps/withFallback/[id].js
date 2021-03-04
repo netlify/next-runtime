@@ -29,6 +29,8 @@ const Show = ({ show }) => {
 }
 
 export async function getStaticPaths() {
+  const cfg = require('../../../next.config')
+  console.log({ cfg })
   // Set the paths we want to pre-render
   const paths = [{ params: { id: '3' } }, { params: { id: '4' }, locale: 'fr' }]
 

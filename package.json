@@ -10,7 +10,11 @@
   "scripts": {
     "format": "prettier --write .",
     "build": "next build test/sample",
-    "test": "npm run build && jest"
+    "test": "npm run build && jest && jest --config src/tests/jest.config.js",
+    "cypress:local": "env CYPRESS_DEPLOY=local cypress run --project ./src --config-file false --config video=false",
+    "cypress:netlify": "env CYPRESS_DEPLOY=netlify cypress run --project ./src --config-file false --config video=false",
+    "cypress:local:testonly": "env CYPRESS_SKIP_DEPLOY=true npm run cypress:local",
+    "cypress:netlify:testonly": "env CYPRESS_SKIP_DEPLOY=true npm run cypress:netlify"
   },
   "repository": {
     "type": "git",
