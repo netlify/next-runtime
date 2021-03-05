@@ -26,7 +26,7 @@ This build plugin is a utility for supporting Next.js on Netlify. To enable serv
 
 ## Installation and Configuration
 
-As of v3.0.0, all new sites deployed to Netlify with Next.js will automatically build with this plugin for a seamless experience deploying Next.js on Netlify!
+As of v3.0.0, all new sites deployed to Netlify with Next.js will automatically install this plugin for a seamless experience deploying Next.js on Netlify!
 
 This means that you don't have to do anything — just build and deploy your site to Netlify as usual and we'll handle the rest.
 
