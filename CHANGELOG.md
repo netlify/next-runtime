@@ -17,6 +17,12 @@ If you've installed this plugin manually in your `netlify.toml`, you can upgrade
 1. Manually update to the latest version using `npm i @netlify/plugin-nextjs@latest`.
 2. If you prefer to automatically get updates, remove this plugin from your project and `netlify.toml`, then [install the plugin using the Netlify UI](http://app.netlify.com/plugins/@netlify/plugin-nextjs/install).
 
+### Migrating from the original `next-on-netlify` package
+
+As part of the 3.0.0 release, `next-on-netlify` has been deprecated and merged into the Essential Next.js Build Plugin. If your site is using the `next-on-netlify` package, you'll need to switch over to the plugin to get future updates.
+
+For instructions on migrating from `next-on-netlify` to the Essential Next.js Build Plugin, please see the [migration guide on the `next-on-netlify` repo](https://github.com/netlify/next-on-netlify/blob/main/MIGRATING.md).
+
 ## 2.0.1 (2021-02-17)
 
 - fail build if plugin cant load next.config.js ([#99](https://github.com/netlify/netlify-plugin-nextjs/pull/99))
