@@ -1,6 +1,6 @@
 ![Next.js on Netlify Build Plugin](next-on-netlify.png)
 
-# Next.js Build Plugin
+# Essential Next.js Build Plugin
 
 <p align="center">
   <a aria-label="npm version" href="https://www.npmjs.com/package/@netlify/plugin-nextjs">
@@ -26,46 +26,44 @@ This build plugin is a utility for supporting Next.js on Netlify. To enable serv
 
 ## Installation and Configuration
 
-There are two ways to install the plugin in your Next.js on Netlify site: with the Netlify UI or with file-based installation.
+As of v3.0.0, all new sites deployed to Netlify with Next.js will automatically build with this plugin for a seamless experience deploying Next.js on Netlify!
 
-**UI-based Installation**
+This means that you don't have to do anything — just build and deploy your site to Netlify as usual and we'll handle the rest.
 
-You can install this plugin using this [direct in-app installation link](http://app.netlify.com/plugins/@netlify/plugin-nextjs/install) or from your team's [Plugins directory](https://app.netlify.com/plugins) in the Netlify UI.
+You're able to remove the plugin at any time by visiting the Plugins tab on your site.
 
-Read more about [UI-based plugin installation](https://docs.netlify.com/configure-builds/build-plugins/#ui-installation) in our docs.
+### Manual installation
 
-**File-based Installation**
+1\. Create a `netlify.toml` in the root of your project. Your file should include the plugins section below:
 
-1. Create a `netlify.toml` in the root of your project. Your file should include the plugins section below:
+```toml
+[build]
+  command = "npm run build"
+  publish = "out"
 
-    ```toml
-    [build]
-      command = "npm run build"
-      publish = "out"
-
-    [[plugins]]
-      package = "@netlify/plugin-nextjs"
-    ```
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+```
 
  You can also add context-specific properties and environment variables to your `netlify.toml`. Read more about [deploy contexts](https://docs.netlify.com/configure-builds/file-based-configuration/#deploy-contexts) in our docs. For example:
 
-    ```toml
-    [context.production.environment]
-    NEXT_SERVERLESS = "true"
-    NODE_ENV = "production"
-    ```
+```toml
+[context.production.environment]
+NEXT_SERVERLESS = "true"
+NODE_ENV = "production"
+```
 
-2. From your project's base directory, use `npm`, `yarn`, or any other Node.js package manager to add this plugin to `devDependencies` in `package.json`.
+2\. From your project's base directory, use `npm`, `yarn`, or any other Node.js package manager to add this plugin to `devDependencies` in `package.json`.
 
-    ```
-    npm install -D @netlify/plugin-nextjs
-    ```
+```
+npm install -D @netlify/plugin-nextjs
+```
 
-    or
+or
 
-    ```
-    yarn add -D @netlify/plugin-nextjs
-    ```
+```
+yarn add -D @netlify/plugin-nextjs
+```
 
 Read more about [file-based plugin installation](https://docs.netlify.com/configure-builds/build-plugins/#file-based-installation) in our docs.
 
