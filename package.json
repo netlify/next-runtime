@@ -5,6 +5,7 @@
   "main": "index.js",
   "files": [
     "helpers/**/*.js",
+    "src",
     "manifest.yml"
   ],
   "scripts": {
