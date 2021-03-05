@@ -30,7 +30,7 @@ As of v3.0.0, all new sites deployed to Netlify with Next.js will automatically 
 
 This means that you don't have to do anything — just build and deploy your site to Netlify as usual and we'll handle the rest.
 
-You're able to remove the plugin at any time by visiting the Plugins tab on your site.
+You're able to [remove the plugin](https://docs.netlify.com/configure-builds/build-plugins/#remove-a-plugin) at any time by visiting the **Plugins** tab for your site in the Netlify UI.
 
 ### Manual installation
 
