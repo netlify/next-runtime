@@ -26,11 +26,17 @@ This build plugin is a utility for supporting Next.js on Netlify. To enable serv
 
 ## Installation and Configuration
 
+### For new Next.js sites
+
 As of v3.0.0, all new sites deployed to Netlify with Next.js will automatically install this plugin for a seamless experience deploying Next.js on Netlify!
 
 This means that you don't have to do anything — just build and deploy your site to Netlify as usual and we'll handle the rest.
 
 You're able to [remove the plugin](https://docs.netlify.com/configure-builds/build-plugins/#remove-a-plugin) at any time by visiting the **Plugins** tab for your site in the Netlify UI.
+
+### UI-based installation for existing Next.js sites
+
+If your Next.js project is already deployed to Netlify, use the Netlify UI to [install the Essential Next.js Build Plugin](http://app.netlify.com/plugins/@netlify/plugin-nextjs/install) in a few clicks.
 
 ### Manual installation
 

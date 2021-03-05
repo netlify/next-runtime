@@ -14,8 +14,8 @@ If you've installed this plugin via Netlify's UI, no action is necessary. The up
 
 If you've installed this plugin manually in your `netlify.toml`, you can upgrade two ways:
 
-1. Use the new automatic install! Remove this plugin from your project and `netlify.toml` and Netlify will automatically install it for a seamless experience working with Next.js on Netlify.
-2. Manually update to the latest version using `npm i @netlify/plugin-nextjs@latest`.
+1. Manually update to the latest version using `npm i @netlify/plugin-nextjs@latest`.
+2. If you prefer to automatically get updates, remove this plugin from your project and `netlify.toml`, then [install the plugin using the Netlify UI](http://app.netlify.com/plugins/@netlify/plugin-nextjs/install).
 
 ## 2.0.1 (2021-02-17)
 
