@@ -1,7 +1,7 @@
 {
   "name": "@netlify/plugin-nextjs",
   "version": "3.0.0-canary.2",
-  "description": "run Nextj.s seamlessly on netlify",
+  "description": "Run Next.js seamlessly on Netlify",
   "main": "index.js",
   "files": [
     "helpers/**/*.js",
