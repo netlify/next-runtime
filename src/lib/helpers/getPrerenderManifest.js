@@ -3,11 +3,12 @@ const { readJSONSync } = require('fs-extra')
 const getNextConfig = require('./getNextConfig')
 const getNextDistDir = require('./getNextDistDir')
 const getDataRouteForRoute = require('./getDataRouteForRoute')
+const asyncForEach = require('./asyncForEach')
 
-const transformManifestForI18n = (manifest) => {
+const transformManifestForI18n = async (manifest) => {
   const { routes } = manifest
   const newRoutes = {}
-  Object.entries(routes).forEach(([route, { dataRoute, srcRoute, ...params }]) => {
+  await asyncForEach(Object.entries(routes), async ([route, { dataRoute, srcRoute, ...params }]) => {
     const isDynamicRoute = !!srcRoute
     if (isDynamicRoute) {
       newRoutes[route] = routes[route]
@@ -15,7 +16,7 @@ const transformManifestForI18n = (manifest) => {
       const locale = route.split('/')[1]
       const routeWithoutLocale = `/${route.split('/').slice(2, route.split('/').length).join('/')}`
       newRoutes[route] = {
-        dataRoute: getDataRouteForRoute(routeWithoutLocale, locale),
+        dataRoute: await getDataRouteForRoute(routeWithoutLocale, locale),
         srcRoute: routeWithoutLocale,
         ...params,
       }
@@ -29,7 +30,7 @@ const getPrerenderManifest = async () => {
   const nextConfig = await getNextConfig()
   const nextDistDir = await getNextDistDir()
   const manifest = readJSONSync(join(nextDistDir, 'prerender-manifest.json'))
-  if (nextConfig.i18n) return transformManifestForI18n(manifest)
+  if (nextConfig.i18n) return await transformManifestForI18n(manifest)
   return manifest
 }
 

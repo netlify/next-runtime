@@ -10,7 +10,7 @@ const getPlainDataRoute = (route, buildId) => {
 
 const getI18nDataRoute = (route, locale, buildId) => {
   const filePath = getFilePathForRoute(route, 'json')
-  return route === '/' ? getPlainDataRoute(`/${locale}`) : `/_next/data/${buildId}/${locale}${filePath}`
+  return route === '/' ? getPlainDataRoute(`/${locale}`, buildId) : `/_next/data/${buildId}/${locale}${filePath}`
 }
 
 // Return the data route for the given route
