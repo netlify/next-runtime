@@ -103,7 +103,7 @@ class NextAppBuilder {
 
     // Run next-on-netlify as an imported module
     const nextOnNetlify = require('../..')
-    nextOnNetlify({
+    await nextOnNetlify({
       functionsDir: join(this.__appPath, options.functionsDir),
       publishDir: join(this.__appPath, options.publishDir),
     })

@@ -1,9 +1,12 @@
 const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
-const pages = require('./pages')
+const getPages = require('./pages')
 
-const redirects = pages.map(({ route, filePath }) => ({
-  route,
-  target: `/.netlify/functions/${getNetlifyFunctionName(filePath, true)}`,
-}))
+const getRedirects = async () => {
+  const pages = await getPages()
+  return pages.map(({ route, filePath }) => ({
+    route,
+    target: `/.netlify/functions/${getNetlifyFunctionName(filePath, true)}`,
+  }))
+}
 
-module.exports = redirects
+module.exports = getRedirects

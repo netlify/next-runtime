@@ -11,7 +11,9 @@
   "scripts": {
     "format": "prettier --write .",
     "build": "next build test/sample",
-    "test": "npm run build && jest && jest --config src/tests/jest.config.js",
+    "test:plugin": "npm run build && jest",
+    "test:src": "jest --config src/tests/jest.config.js",
+    "test": "npm run test:plugin && npm run test:src",
     "cypress:local": "env CYPRESS_DEPLOY=local cypress run --project ./src --config-file false --config video=false",
     "cypress:netlify": "env CYPRESS_DEPLOY=netlify cypress run --project ./src --config-file false --config video=false",
     "cypress:local:testonly": "env CYPRESS_SKIP_DEPLOY=true npm run cypress:local",

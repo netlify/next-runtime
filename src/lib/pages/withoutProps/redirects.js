@@ -1,8 +1,7 @@
 const addDefaultLocaleRedirect = require('../../helpers/addDefaultLocaleRedirect')
 const isDynamicRoute = require('../../helpers/isDynamicRoute')
-const pages = require('./pages')
-
-let redirects = []
+const asyncForEach = require('../../helpers/asyncForEach')
+const getPages = require('./pages')
 
 /** withoutProps pages
  *
@@ -17,18 +16,24 @@ let redirects = []
  * }
  **/
 
-pages.forEach(({ route, filePath }) => {
-  const target = filePath.replace(/pages/, '')
+const getRedirects = async () => {
+  const redirects = []
+  const pages = await getPages()
 
-  addDefaultLocaleRedirect(redirects)(route, target)
+  await asyncForEach(pages, async ({ route, filePath }) => {
+    const target = filePath.replace(/pages/, '')
 
-  // Only create normal redirects for pages with dynamic routing
-  if (!isDynamicRoute(route)) return
+    await addDefaultLocaleRedirect(redirects, route, target)
 
-  redirects.push({
-    route,
-    target: filePath.replace(/pages/, ''),
+    // Only create normal redirects for pages with dynamic routing
+    if (!isDynamicRoute(route)) return
+
+    redirects.push({
+      route,
+      target: filePath.replace(/pages/, ''),
+    })
   })
-})
+  return redirects
+}
 
-module.exports = redirects
+module.exports = getRedirects

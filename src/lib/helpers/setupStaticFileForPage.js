@@ -1,14 +1,16 @@
 const { copySync } = require('fs-extra')
 const { join } = require('path')
-const { NEXT_DIST_DIR } = require('../config')
+const getNextDistDir = require('./getNextDistDir')
 
 // Copy the static asset from pages/inputPath to out_publish/outputPath
-const setupStaticFileForPage = ({ inputPath, outputPath = null, publishPath }) => {
+const setupStaticFileForPage = async ({ inputPath, outputPath = null, publishPath }) => {
   // If no outputPath is set, default to the same as inputPath
   outputPath = outputPath || inputPath
 
+  const nextDistDir = await getNextDistDir()
+
   // Perform copy operation
-  copySync(join(NEXT_DIST_DIR, 'serverless', 'pages', inputPath), join(publishPath, outputPath), {
+  copySync(join(nextDistDir, 'serverless', 'pages', inputPath), join(publishPath, outputPath), {
     overwrite: false,
     errorOnExist: true,
   })

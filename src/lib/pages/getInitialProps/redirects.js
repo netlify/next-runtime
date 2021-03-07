@@ -1,19 +1,25 @@
 const addLocaleRedirects = require('../../helpers/addLocaleRedirects')
 const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
-const pages = require('./pages')
+const asyncForEach = require('../../helpers/asyncForEach')
+const getPages = require('./pages')
 
-const redirects = []
+const getRedirects = async () => {
+  const redirects = []
+  const pages = await getPages()
 
-pages.forEach(({ route, filePath }) => {
-  const functionName = getNetlifyFunctionName(filePath)
-  const target = `/.netlify/functions/${functionName}`
+  await asyncForEach(pages, async ({ route, filePath }) => {
+    const functionName = getNetlifyFunctionName(filePath)
+    const target = `/.netlify/functions/${functionName}`
 
-  addLocaleRedirects(redirects)(route, target)
+    await addLocaleRedirects(redirects, route, target)
 
-  redirects.push({
-    route,
-    target,
+    redirects.push({
+      route,
+      target,
+    })
   })
-})
 
-module.exports = redirects
+  return redirects
+}
+
+module.exports = getRedirects

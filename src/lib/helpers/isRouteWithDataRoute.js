@@ -1,9 +1,9 @@
 const getRoutesManifest = require('./getRoutesManifest')
 
-const { dataRoutes } = getRoutesManifest()
-
 // Return true if the route has a data route in the routes manifest
-const isRouteWithDataRoute = (route) => {
+const isRouteWithDataRoute = async (route) => {
+  const { dataRoutes } = await getRoutesManifest()
+
   // If no data routes exist, return false
   if (dataRoutes == null) return false
 

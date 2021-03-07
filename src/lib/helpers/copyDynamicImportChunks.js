@@ -1,11 +1,12 @@
 const { join } = require('path')
 const { copySync, readdirSync } = require('fs-extra')
 const { logTitle } = require('../helpers/logger')
-const { NEXT_DIST_DIR } = require('../config')
+const getNextDistDir = require('./getNextDistDir')
 
 // Check if there are dynamic import chunks and copy to the necessary function dir
-const copyDynamicImportChunks = (functionPath) => {
-  const chunksPath = join(NEXT_DIST_DIR, 'serverless')
+const copyDynamicImportChunks = async (functionPath) => {
+  const nextDistDir = await getNextDistDir()
+  const chunksPath = join(nextDistDir, 'serverless')
   const files = readdirSync(chunksPath)
   const chunkRegex = new RegExp(/^(\.?[-_$~A-Z0-9a-z]+){1,}\.js$/g)
   const excludeFiles = ['init-server.js.js', 'on-error-server.js.js']

@@ -1,21 +1,23 @@
 const getPrerenderManifest = require('../../helpers/getPrerenderManifest')
 
-// Collect pages
-const pages = []
-
 // Get pages using getStaticProps
-const { routes } = getPrerenderManifest()
+const getPages = async () => {
+  const { routes } = await getPrerenderManifest()
 
-// Parse static pages
-Object.entries(routes).forEach(([route, { dataRoute, initialRevalidateSeconds, srcRoute }]) => {
-  // Ignore pages with revalidate, these will need to be SSRed
-  if (initialRevalidateSeconds) return
+  // Collect pages
+  const pages = []
 
-  pages.push({
-    route,
-    dataRoute,
-    srcRoute,
+  Object.entries(routes).forEach(([route, { dataRoute, initialRevalidateSeconds, srcRoute }]) => {
+    // Ignore pages with revalidate, these will need to be SSRed
+    if (initialRevalidateSeconds) return
+
+    pages.push({
+      route,
+      dataRoute,
+      srcRoute,
+    })
   })
-})
+  return pages
+}
 
-module.exports = pages
+module.exports = getPages

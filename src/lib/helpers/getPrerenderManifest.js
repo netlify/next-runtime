@@ -1,12 +1,11 @@
 const { join } = require('path')
 const { readJSONSync } = require('fs-extra')
-const { NEXT_DIST_DIR } = require('../config')
-const nextConfig = require('./getNextConfig')()
+const getNextConfig = require('./getNextConfig')
+const getNextDistDir = require('./getNextDistDir')
 const getDataRouteForRoute = require('./getDataRouteForRoute')
 
 const transformManifestForI18n = (manifest) => {
   const { routes } = manifest
-  const { defaultLocale, locales } = nextConfig.i18n
   const newRoutes = {}
   Object.entries(routes).forEach(([route, { dataRoute, srcRoute, ...params }]) => {
     const isDynamicRoute = !!srcRoute
@@ -26,8 +25,10 @@ const transformManifestForI18n = (manifest) => {
   return { ...manifest, routes: newRoutes }
 }
 
-const getPrerenderManifest = () => {
-  const manifest = readJSONSync(join(NEXT_DIST_DIR, 'prerender-manifest.json'))
+const getPrerenderManifest = async () => {
+  const nextConfig = await getNextConfig()
+  const nextDistDir = await getNextDistDir()
+  const manifest = readJSONSync(join(nextDistDir, 'prerender-manifest.json'))
   if (nextConfig.i18n) return transformManifestForI18n(manifest)
   return manifest
 }

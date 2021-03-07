@@ -1,9 +1,8 @@
 const addLocaleRedirects = require('../../helpers/addLocaleRedirects')
 const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
 const getDataRouteForRoute = require('../../helpers/getDataRouteForRoute')
-const pages = require('./pages')
-
-const redirects = []
+const asyncForEach = require('../../helpers/asyncForEach')
+const getPages = require('./pages')
 
 /** getServerSideProps pages
  *
@@ -13,26 +12,32 @@ const redirects = []
  * }
  **/
 
-pages.forEach(({ route, filePath }) => {
-  const functionName = getNetlifyFunctionName(filePath)
-  const target = `/.netlify/functions/${functionName}`
+const getRedirects = async () => {
+  const redirects = []
+  const pages = await getPages()
 
-  addLocaleRedirects(redirects)(route, target)
+  await asyncForEach(pages, async ({ route, filePath }) => {
+    const functionName = getNetlifyFunctionName(filePath)
+    const target = `/.netlify/functions/${functionName}`
 
-  // Add one redirect for the naked route
-  // i.e. /ssr
-  redirects.push({
-    route,
-    target,
+    await addLocaleRedirects(redirects, route, target)
+
+    // Add one redirect for the naked route
+    // i.e. /ssr
+    redirects.push({
+      route,
+      target,
+    })
+
+    // Add one redirect for the data route;
+    // pages-manifest doesn't provide the dataRoute for us so we
+    // construct it ourselves with getDataRouteForRoute
+    redirects.push({
+      route: await getDataRouteForRoute(route),
+      target,
+    })
   })
+  return redirects
+}
 
-  // Add one redirect for the data route;
-  // pages-manifest doesn't provide the dataRoute for us so we
-  // construct it ourselves with getDataRouteForRoute
-  redirects.push({
-    route: getDataRouteForRoute(route),
-    target,
-  })
-})
-
-module.exports = redirects
+module.exports = getRedirects
