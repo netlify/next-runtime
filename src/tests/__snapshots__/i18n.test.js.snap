@@ -4,6 +4,7 @@ exports[`Routing creates Netlify redirects 1`] = `
 "# Next-on-Netlify Redirects
 /  /.netlify/functions/next_index  200
 /404  /en/404.html  200
+/500  /en/500.html  200
 /_next/data/%BUILD_ID%/en.json  /.netlify/functions/next_index  200
 /_next/data/%BUILD_ID%/en/getServerSideProps/static.json  /.netlify/functions/next_getServerSideProps_static  200
 /_next/data/%BUILD_ID%/en/getStaticProps/1.json  /.netlify/functions/next_getStaticProps_id  200!  Cookie=__prerender_bypass,__next_preview_data

@@ -39,8 +39,6 @@ const setupRedirects = async (publishPath) => {
     ...(await getWithoutPropsRedirects()),
   ]
 
-  console.log('NEXT REDIRECTS', nextRedirects)
-
   // Add _redirect section heading
   redirects.push('# Next-on-Netlify Redirects')
 
@@ -79,7 +77,6 @@ const setupRedirects = async (publishPath) => {
     redirects.splice(rootCatchAllIndex, 0, '/_next/*  /_next/:splat  200')
   }
 
-  console.log('hELLO???????')
   // Write redirects to _redirects file
   writeFileSync(join(publishPath, '_redirects'), redirects.join('\n'))
 }
