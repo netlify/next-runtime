@@ -1,0 +1,2 @@
+# Custom Redirect Rules
+https://old.example.com/* https://new.example.com/:splat 301!

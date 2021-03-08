@@ -1,0 +1,2 @@
+# Ignore builds of NextJS that are created for testing purposes
+builds/

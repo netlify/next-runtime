@@ -1,6 +1,5 @@
 const path = require('path')
 const process = require('process')
-const nextOnNetlify = require('next-on-netlify')
 const pathExists = require('path-exists')
 const { dir: getTmpDir } = require('tmp-promise')
 const cpy = require('cpy')
@@ -25,7 +24,9 @@ const utils = {
 const changeCwd = function (cwd) {
   const originalCwd = process.cwd()
   process.chdir(cwd)
-  return process.chdir.bind(process, originalCwd)
+  return () => {
+    process.chdir(originalCwd)
+  }
 }
 
 // Move .next from sample project to current directory

@@ -13,7 +13,7 @@ const doesNotNeedPlugin = async ({ netlifyConfig, packageJson, utils }) => {
   return (
     isStaticExportProject({ build, scripts }) ||
     doesSiteUseNextOnNetlify({ packageJson }) ||
-    !hasCorrectNextConfig({ nextConfigPath, failBuild: utils.build.failBuild })
+    !(await hasCorrectNextConfig({ nextConfigPath, failBuild: utils.build.failBuild }))
   )
 }
 

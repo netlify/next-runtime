@@ -1,0 +1,8 @@
+/templates/index.html
+  # headers for that path:
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+
+/templates/index2.html
+  # headers for that path:
+  X-Frame-Options: SAMEORIGIN
