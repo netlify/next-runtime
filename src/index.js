@@ -54,7 +54,6 @@ const watch = (functionsPath, publishPath) => {
     },
   )
 
-  // TO-DO: uhhhhhhhh
   chokidar.watch(SRC_FILES).on('all', runBuild)
 }
 
