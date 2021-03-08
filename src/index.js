@@ -14,7 +14,7 @@ const setupRedirects = require('./lib/steps/setupRedirects')
 const setupHeaders = require('./lib/steps/setupHeaders')
 const { NETLIFY_PUBLISH_PATH, NETLIFY_FUNCTIONS_PATH, SRC_FILES } = require('./lib/config')
 
-const build = (functionsPath, publishPath) => {
+const build = async (functionsPath, publishPath) => {
   const trackNextOnNetlifyFiles = prepareFolders({
     functionsPath,
     publishPath,
@@ -22,13 +22,13 @@ const build = (functionsPath, publishPath) => {
 
   copyPublicFiles(publishPath)
 
-  copyNextAssets(publishPath)
+  await copyNextAssets(publishPath)
 
-  setupPages({ functionsPath, publishPath })
+  await setupPages({ functionsPath, publishPath })
 
   setupImageFunction(functionsPath)
 
-  setupRedirects(publishPath)
+  await setupRedirects(publishPath)
 
   setupHeaders(publishPath)
 
@@ -41,10 +41,10 @@ const watch = (functionsPath, publishPath) => {
   logTitle(`👀 Watching source code for changes`)
 
   const runBuild = debounceFn(
-    () => {
+    async () => {
       try {
         execa.sync('next', ['build'], { stdio: 'inherit' })
-        build(functionsPath, publishPath)
+        await build(functionsPath, publishPath)
       } catch (e) {
         console.log(e)
       }
@@ -65,11 +65,15 @@ const watch = (functionsPath, publishPath) => {
  * }
  */
 
-const nextOnNetlify = (options = {}) => {
+const nextOnNetlify = async (options = {}) => {
   const functionsPath = normalize(options.functionsDir || NETLIFY_FUNCTIONS_PATH)
   const publishPath = normalize(options.publishDir || NETLIFY_PUBLISH_PATH)
 
-  options.watch ? watch(functionsPath, publishPath) : build(functionsPath, publishPath)
+  if (options.watch) {
+    watch(functionsPath, publishPath)
+  } else {
+    await build(functionsPath, publishPath)
+  }
 }
 
 module.exports = nextOnNetlify

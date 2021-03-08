@@ -1,19 +1,22 @@
 const getPagesManifest = require('../../helpers/getPagesManifest')
 const isApiRoute = require('../../helpers/isApiRoute')
 
-// Collect pages
-const pages = []
+const getPages = async () => {
+  // Get HTML and SSR pages and API endpoints from the NextJS pages manifest
+  const pagesManifest = await getPagesManifest()
 
-// Get HTML and SSR pages and API endpoints from the NextJS pages manifest
-const pagesManifest = getPagesManifest()
+  // Collect pages
+  const pages = []
 
-// Parse pages
-Object.entries(pagesManifest).forEach(([route, filePath]) => {
-  // Skip non-API endpoints
-  if (!isApiRoute(route)) return
+  // Parse pages
+  Object.entries(pagesManifest).forEach(([route, filePath]) => {
+    // Skip non-API endpoints
+    if (!isApiRoute(route)) return
 
-  // Add page
-  pages.push({ route, filePath })
-})
+    // Add page
+    pages.push({ route, filePath })
+  })
+  return pages
+}
 
-module.exports = pages
+module.exports = getPages

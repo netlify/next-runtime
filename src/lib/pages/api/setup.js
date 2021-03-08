@@ -1,15 +1,18 @@
 const { logTitle, logItem } = require('../../helpers/logger')
 const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
-const pages = require('./pages')
+const asyncForEach = require('../../helpers/asyncForEach')
+const getPages = require('./pages')
 
 // Create a Netlify Function for every API endpoint
-const setup = (functionsPath) => {
+const setup = async (functionsPath) => {
   logTitle('💫 Setting up API endpoints as Netlify Functions in', functionsPath)
 
+  const pages = await getPages()
+
   // Create Netlify Function for every page
-  pages.forEach(({ filePath }) => {
+  await asyncForEach(pages, async ({ filePath }) => {
     logItem(filePath)
-    setupNetlifyFunctionForPage({ filePath, functionsPath, isApiPage: true })
+    await setupNetlifyFunctionForPage({ filePath, functionsPath, isApiPage: true })
   })
 }
 

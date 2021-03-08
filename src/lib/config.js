@@ -17,9 +17,6 @@ const PUBLIC_PATH = join('.', 'public/')
 // This is the file where NextJS can be configured
 const NEXT_CONFIG_PATH = join('.', 'next.config.js')
 
-// This is the folder that NextJS builds to; default is .next
-const NEXT_DIST_DIR = getNextDistDir()
-
 const NEXT_SRC_DIRS = getNextSrcDirs()
 
 // This is the folder with templates for Netlify Functions
@@ -45,7 +42,6 @@ module.exports = {
   NETLIFY_FUNCTIONS_PATH,
   PUBLIC_PATH,
   NEXT_CONFIG_PATH,
-  NEXT_DIST_DIR,
   TEMPLATES_DIR,
   FUNCTION_TEMPLATE_PATH,
   CUSTOM_REDIRECTS_PATH,

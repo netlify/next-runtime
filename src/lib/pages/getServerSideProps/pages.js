@@ -1,36 +1,43 @@
 const getPagesManifest = require('../../helpers/getPagesManifest')
+const asyncForEach = require('../../helpers/asyncForEach')
 const isHtmlFile = require('../../helpers/isHtmlFile')
 const isFrameworkRoute = require('../../helpers/isFrameworkRoute')
 const isApiRoute = require('../../helpers/isApiRoute')
 const isRouteInPrerenderManifest = require('../../helpers/isRouteInPrerenderManifest')
 const isRouteWithDataRoute = require('../../helpers/isRouteWithDataRoute')
 
-// Collect pages
-const pages = []
+const getPages = async () => {
+  // Collect pages
+  const pages = []
 
-// Get HTML and SSR pages and API endpoints from the NextJS pages manifest
-const pagesManifest = getPagesManifest()
+  // Get HTML and SSR pages and API endpoints from the NextJS pages manifest
+  const pagesManifest = await getPagesManifest()
 
-// Parse pages
-Object.entries(pagesManifest).forEach(([route, filePath]) => {
-  // Ignore HTML files
-  if (isHtmlFile(filePath)) return
+  // Parse pages
+  await asyncForEach(Object.entries(pagesManifest), async ([route, filePath]) => {
+    // Ignore HTML files
+    if (isHtmlFile(filePath)) return
 
-  // Skip framework pages, such as _app and _error
-  if (isFrameworkRoute(route)) return
+    // Skip framework pages, such as _app and _error
+    if (isFrameworkRoute(route)) return
 
-  // Skip API endpoints
-  if (isApiRoute(route)) return
+    // Skip API endpoints
+    if (isApiRoute(route)) return
 
-  // Skip page if it is actually used with getStaticProps
-  if (isRouteInPrerenderManifest(route)) return
+    // Skip page if it is actually used with getStaticProps
+    const isInPrerenderManifest = await isRouteInPrerenderManifest(route)
+    if (isInPrerenderManifest) return
 
-  // Skip page if it has no data route (because then it is a page with
-  // getInitialProps)
-  if (!isRouteWithDataRoute(route)) return
+    // Skip page if it has no data route (because then it is a page with
+    // getInitialProps)
+    const hasDataRoute = await isRouteWithDataRoute(route)
+    if (!hasDataRoute) return
 
-  // Add page
-  pages.push({ route, filePath })
-})
+    // Add page
+    pages.push({ route, filePath })
+  })
 
-module.exports = pages
+  return pages
+}
+
+module.exports = getPages

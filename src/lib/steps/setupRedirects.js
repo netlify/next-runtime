@@ -10,7 +10,7 @@ const removeFileExtension = require('../helpers/removeFileExtension')
 
 // Setup _redirects file that routes all requests to the appropriate location,
 // such as one of the Netlify functions or one of the static files.
-const setupRedirects = (publishPath) => {
+const setupRedirects = async (publishPath) => {
   logTitle('🔀 Setting up redirects')
 
   // Collect custom redirects defined by the user
@@ -21,14 +21,22 @@ const setupRedirects = (publishPath) => {
   }
 
   // Collect redirects for NextJS pages
+  const getApiRedirects = require('../pages/api/redirects')
+  const getInitialPropsRedirects = require('../pages/getInitialProps/redirects')
+  const getServerSidePropsRedirects = require('../pages/getServerSideProps/redirects')
+  const getStaticPropsRedirects = require('../pages/getStaticProps/redirects')
+  const getSPFallbackRedirects = require('../pages/getStaticPropsWithFallback/redirects')
+  const getSPRevalidateRedirects = require('../pages/getStaticPropsWithRevalidate/redirects')
+  const getWithoutPropsRedirects = require('../pages/withoutProps/redirects')
+
   const nextRedirects = [
-    ...require('../pages/api/redirects'),
-    ...require('../pages/getInitialProps/redirects'),
-    ...require('../pages/getServerSideProps/redirects'),
-    ...require('../pages/getStaticProps/redirects'),
-    ...require('../pages/getStaticPropsWithFallback/redirects'),
-    ...require('../pages/getStaticPropsWithRevalidate/redirects'),
-    ...require('../pages/withoutProps/redirects'),
+    ...(await getApiRedirects()),
+    ...(await getInitialPropsRedirects()),
+    ...(await getServerSidePropsRedirects()),
+    ...(await getStaticPropsRedirects()),
+    ...(await getSPFallbackRedirects()),
+    ...(await getSPRevalidateRedirects()),
+    ...(await getWithoutPropsRedirects()),
   ]
 
   // Add _redirect section heading

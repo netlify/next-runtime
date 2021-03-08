@@ -2,8 +2,8 @@
 const { join } = require('path')
 const getNextConfig = require('./getNextConfig')
 
-const getNextDistDir = () => {
-  const nextConfig = getNextConfig()
+const getNextDistDir = async () => {
+  const nextConfig = await getNextConfig()
 
   return join('.', nextConfig.distDir)
 }

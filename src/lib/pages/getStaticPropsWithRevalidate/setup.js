@@ -2,10 +2,11 @@ const { join } = require('path')
 const { logTitle, logItem } = require('../../helpers/logger')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
 const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
-const pages = require('./pages')
+const asyncForEach = require('../../helpers/asyncForEach')
+const getPages = require('./pages')
 
 // Create a Netlify Function for every page with getStaticProps and revalidate
-const setup = (functionsPath) => {
+const setup = async (functionsPath) => {
   logTitle(
     '💫 Setting up pages with getStaticProps and revalidation interval',
     'as Netlify Functions in',
@@ -16,8 +17,10 @@ const setup = (functionsPath) => {
   // a function for the same file path twice
   const filePathsDone = []
 
+  const pages = await getPages()
+
   // Create Netlify Function for every page
-  pages.forEach(({ route, srcRoute }) => {
+  await asyncForEach(pages, async ({ route, srcRoute }) => {
     const relativePath = getFilePathForRoute(srcRoute || route, 'js')
     const filePath = join('pages', relativePath)
 
@@ -26,7 +29,7 @@ const setup = (functionsPath) => {
 
     // Set up the function
     logItem(filePath)
-    setupNetlifyFunctionForPage({ filePath, functionsPath })
+    await setupNetlifyFunctionForPage({ filePath, functionsPath })
     filePathsDone.push(filePath)
   })
 }

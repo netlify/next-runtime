@@ -1,14 +1,16 @@
-const i18n = require('./getI18n')()
+const getI18n = require('./getI18n')
 const getDataRouteForRoute = require('./getDataRouteForRoute')
+const asyncForEach = require('./asyncForEach')
 
-const addLocaleRedirects = (redirects) => (route, target) => {
-  i18n.locales.forEach((locale) => {
+const addLocaleRedirects = async (redirects, route, target) => {
+  const i18n = await getI18n()
+  await asyncForEach(i18n.locales, async (locale) => {
     redirects.push({
       route: `/${locale}${route === '/' ? '' : route}`,
       target,
     })
     redirects.push({
-      route: getDataRouteForRoute(route, locale),
+      route: await getDataRouteForRoute(route, locale),
       target,
     })
   })

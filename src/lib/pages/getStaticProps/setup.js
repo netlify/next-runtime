@@ -1,31 +1,32 @@
 const { join } = require('path')
 const { logTitle, logItem } = require('../../helpers/logger')
+const asyncForEach = require('../../helpers/asyncForEach')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
-const getDataRouteForRoute = require('../../helpers/getDataRouteForRoute')
-const i18n = require('../../helpers/getI18n')()
 const isRouteWithFallback = require('../../helpers/isRouteWithFallback')
 const setupStaticFileForPage = require('../../helpers/setupStaticFileForPage')
 const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
-const pages = require('./pages')
+const getPages = require('./pages')
 
 // Copy pre-rendered SSG pages
-const setup = ({ functionsPath, publishPath }) => {
+const setup = async ({ functionsPath, publishPath }) => {
   logTitle('🔥 Copying pre-rendered pages with getStaticProps and JSON data to', publishPath)
 
   // Keep track of the functions that have been set up, so that we do not set up
   // a function for the same file path twice
   const filePathsDone = []
 
-  pages.forEach(({ route, dataRoute, srcRoute }) => {
+  const pages = await getPages()
+
+  await asyncForEach(pages, async ({ route, dataRoute, srcRoute }) => {
     logItem(route)
 
     // Copy pre-rendered HTML page
     const htmlPath = getFilePathForRoute(route, 'html')
-    setupStaticFileForPage({ inputPath: htmlPath, publishPath })
+    await setupStaticFileForPage({ inputPath: htmlPath, publishPath })
 
     // Copy page's JSON data
     const jsonPath = getFilePathForRoute(route, 'json')
-    setupStaticFileForPage({
+    await setupStaticFileForPage({
       inputPath: jsonPath,
       outputPath: dataRoute,
       publishPath,
@@ -40,7 +41,7 @@ const setup = ({ functionsPath, publishPath }) => {
     if (filePathsDone.includes(filePath) || isRouteWithFallback(srcRoute)) return
 
     logItem(filePath)
-    setupNetlifyFunctionForPage({ filePath, functionsPath })
+    await setupNetlifyFunctionForPage({ filePath, functionsPath })
     filePathsDone.push(filePath)
   })
 }

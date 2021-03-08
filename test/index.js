@@ -24,7 +24,9 @@ const utils = {
 const changeCwd = function (cwd) {
   const originalCwd = process.cwd()
   process.chdir(cwd)
-  return process.chdir.bind(process, originalCwd)
+  return () => {
+    process.chdir(originalCwd)
+  }
 }
 
 // Move .next from sample project to current directory

@@ -54,7 +54,7 @@ module.exports = {
 
     await makeDir(PUBLISH_DIR)
 
-    nextOnNetlify({ functionsDir: FUNCTIONS_SRC, publishDir: PUBLISH_DIR })
+    await nextOnNetlify({ functionsDir: FUNCTIONS_SRC, publishDir: PUBLISH_DIR })
   },
 }
 

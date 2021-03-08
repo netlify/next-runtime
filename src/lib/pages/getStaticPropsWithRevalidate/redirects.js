@@ -2,9 +2,8 @@ const { join } = require('path')
 const addDefaultLocaleRedirect = require('../../helpers/addDefaultLocaleRedirect')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
 const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
-const pages = require('./pages')
-
-const redirects = []
+const asyncForEach = require('../../helpers/asyncForEach')
+const getPages = require('./pages')
 
 /** getStaticProps with revalidate pages
  *
@@ -21,25 +20,32 @@ const redirects = []
  * }
  **/
 
-pages.forEach(({ route, srcRoute, dataRoute }) => {
-  const relativePath = getFilePathForRoute(srcRoute || route, 'js')
-  const filePath = join('pages', relativePath)
-  const functionName = getNetlifyFunctionName(filePath)
-  const target = `/.netlify/functions/${functionName}`
+const getRedirects = async () => {
+  const redirects = []
+  const pages = await getPages()
 
-  // Add one redirect for the page
-  redirects.push({
-    route,
-    target,
+  await asyncForEach(pages, async ({ route, srcRoute, dataRoute }) => {
+    const relativePath = getFilePathForRoute(srcRoute || route, 'js')
+    const filePath = join('pages', relativePath)
+    const functionName = getNetlifyFunctionName(filePath)
+    const target = `/.netlify/functions/${functionName}`
+
+    // Add one redirect for the page
+    redirects.push({
+      route,
+      target,
+    })
+
+    // Add one redirect for the data route
+    redirects.push({
+      route: dataRoute,
+      target,
+    })
+
+    await addDefaultLocaleRedirect(redirects, route, target)
   })
 
-  // Add one redirect for the data route
-  redirects.push({
-    route: dataRoute,
-    target,
-  })
+  return redirects
+}
 
-  addDefaultLocaleRedirect(redirects)(route, target)
-})
-
-module.exports = redirects
+module.exports = getRedirects
