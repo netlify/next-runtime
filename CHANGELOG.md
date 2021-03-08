@@ -1,12 +1,14 @@
 # Changelog
 
-## 3.0.0 (2021-03-??)
+## 3.0.0 (2021-03-08)
 
 - feat: merge `next-on-netlify` into `@netlify/plugin-nextjs`
-  
+
   This improves our ability to maintain the plugin, reduces confusion about how to configure Next.js support for Netlify builds, and prepares the plugin for something we're pretty dang excited about: automatic installation for new Next.js projects!
 
 > **NOTE: There are no breaking changes for existing plugin users.** This is a major release because we're bringing an external package into the plugin _and_ turning on automatic installation for new Next.js projects on Netlify. This doesn't break anything, but it's a big enough change that we wanted to treat it as a major release.
+
+- fix: next 10.0.8 changes loadConfig to be async ([#105](https://github.com/netlify/netlify-plugin-nextjs/pull/105))
 
 ### Migrating from v2 to v3
 
