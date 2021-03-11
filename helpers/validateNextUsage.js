@@ -12,6 +12,8 @@ const validateNextUsage = function (failBuild) {
     )
   }
 
+  // We cannot load `next` at the top-level because we validate whether the
+  // site is using `next` inside `onPreBuild`.
   // Old Next.js versions are not supported
   const { version } = require('next/package.json')
   if (ltVersion(version, MIN_VERSION)) {
