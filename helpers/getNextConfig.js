@@ -3,7 +3,7 @@ const { resolve } = require('path')
 let nextConfig
 
 // Load next.config.js
-const getNextConfig = async function (failBuild) {
+const getNextConfig = async function (failBuild = defaultFailBuild) {
   // Memoizes `nextConfig`
   if (nextConfig !== undefined) {
     return nextConfig
@@ -21,6 +21,10 @@ const getNextConfig = async function (failBuild) {
   }
 
   return nextConfig
+}
+
+const defaultFailBuild = function (message, { error }) {
+  throw new Error(`${message}\n${error.stack}`)
 }
 
 module.exports = getNextConfig
