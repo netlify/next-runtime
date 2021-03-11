@@ -38,7 +38,7 @@ const setup = async ({ functionsPath, publishPath }) => {
 
     // Skip if we have already set up a function for this file
     // or if the source route has a fallback (handled by getStaticPropsWithFallback)
-    if (filePathsDone.includes(filePath) || isRouteWithFallback(srcRoute)) return
+    if (filePathsDone.includes(filePath) || (await isRouteWithFallback(srcRoute))) return
 
     logItem(filePath)
     await setupNetlifyFunctionForPage({ filePath, functionsPath })
