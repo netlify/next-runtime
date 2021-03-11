@@ -1,4 +1,3 @@
-const { getSortedRoutes: getSortedRoutesFromNext } = require('next/dist/next-server/lib/router/utils/sorted-routes')
 const removeFileExtension = require('./removeFileExtension')
 
 // Return an array of redirects sorted in order of specificity, i.e., more generic
@@ -9,8 +8,11 @@ const getSortedRedirects = (redirects) => {
   // after sorting
   const routesWithoutExtensions = redirects.map(({ route }) => removeFileExtension(route))
 
+  // We cannot load `next` at the top-level because we validate whether the
+  // site is using `next` inside `onPreBuild`.
   // Sort the "naked" routes
-  const sortedRoutes = getSortedRoutesFromNext(routesWithoutExtensions)
+  const { getSortedRoutes } = require('next/dist/next-server/lib/router/utils/sorted-routes')
+  const sortedRoutes = getSortedRoutes(routesWithoutExtensions)
 
   // Return original routes in the sorted order
   return redirects.sort((a, b) => {
