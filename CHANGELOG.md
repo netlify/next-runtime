@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.2 (2021-03-11)
+
+### Bug fixes
+
+- Fix missing `find-cache-dir` ([#127](https://github.com/netlify/netlify-plugin-nextjs/pull/127))
+
 ## 3.0.1 (2021-03-11)
 
 ### Bug fixes
