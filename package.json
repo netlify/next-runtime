@@ -6,7 +6,9 @@
   "files": [
     "helpers/**/*.js",
     "src",
-    "manifest.yml"
+    "manifest.yml",
+    "!src/cypress",
+    "!src/tests"
   ],
   "scripts": {
     "format": "prettier --write .",
