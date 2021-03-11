@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.0.1 (2021-03-11)
+
+### Bug fixes
+
+- Fix errors while loading `next.config.js` ([#124](https://github.com/netlify/netlify-plugin-nextjs/pull/124))
+- Fix errors when `next` is not installed ([#123](https://github.com/netlify/netlify-plugin-nextjs/pull/123))
+- Fix missing `await` keyword ([#122](https://github.com/netlify/netlify-plugin-nextjs/pull/122))
+
+### Chore
+
+- Reduce the npm package size ([#109](https://github.com/netlify/netlify-plugin-nextjs/pull/109))
+
 ## 3.0.0 (2021-03-08)
 
 - feat: merge `next-on-netlify` into `@netlify/plugin-nextjs`
