@@ -25,7 +25,7 @@ module.exports = {
       return failBuild('Could not find a package.json for this project')
     }
 
-    if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
+    if (await doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })) {
       return
     }
 
@@ -46,7 +46,9 @@ module.exports = {
     constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC },
     utils,
   }) {
-    if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
+    const { failBuild } = utils.build
+
+    if (await doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })) {
       return
     }
 

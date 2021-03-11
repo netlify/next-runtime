@@ -1,6 +1,6 @@
 const { join } = require('path')
 const { readJSONSync } = require('fs-extra')
-const getNextConfig = require('./getNextConfig')
+const getNextConfig = require('../../../helpers/getNextConfig')
 const getNextDistDir = require('./getNextDistDir')
 const getDataRouteForRoute = require('./getDataRouteForRoute')
 const asyncForEach = require('./asyncForEach')

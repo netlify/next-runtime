@@ -5,7 +5,7 @@ const isStaticExportProject = require('./isStaticExportProject')
 const doesSiteUseNextOnNetlify = require('./doesSiteUseNextOnNetlify')
 const hasCorrectNextConfig = require('./hasCorrectNextConfig')
 
-const doesNotNeedPlugin = async ({ netlifyConfig, packageJson, utils }) => {
+const doesNotNeedPlugin = async ({ netlifyConfig, packageJson, failBuild }) => {
   const { build } = netlifyConfig
   const { name, scripts = {} } = packageJson
   const nextConfigPath = await findUp('next.config.js')
@@ -13,7 +13,7 @@ const doesNotNeedPlugin = async ({ netlifyConfig, packageJson, utils }) => {
   return (
     isStaticExportProject({ build, scripts }) ||
     doesSiteUseNextOnNetlify({ packageJson }) ||
-    !(await hasCorrectNextConfig({ nextConfigPath, failBuild: utils.build.failBuild }))
+    !(await hasCorrectNextConfig({ nextConfigPath, failBuild }))
   )
 }
 
