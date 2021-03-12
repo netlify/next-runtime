@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.3 (2021-03-12)
+
+### Bug fixes
+
+- Fix memoization when retrieving `next.config.js` ([#128](https://github.com/netlify/netlify-plugin-nextjs/pull/128))
+
 ## 3.0.2 (2021-03-11)
 
 ### Bug fixes
