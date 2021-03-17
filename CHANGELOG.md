@@ -60,6 +60,10 @@ For instructions on migrating from `next-on-netlify` to the Essential Next.js Bu
 
 - feature: use new default functions directory ([#87](https://github.com/netlify/netlify-plugin-nextjs/pull/87))
 
+## 1.1.2 (2021-03-16)
+
+- backport `update failure points in plugin to do nothing instead` to v1 ([#146](https://github.com/netlify/netlify-plugin-nextjs/pull/146))
+
 ## 1.1.1 (2021-02-02)
 
 - upgrade NoN to [2.8.7](https://github.com/netlify/next-on-netlify/releases/tag/v2.8.7)
