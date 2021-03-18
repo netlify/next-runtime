@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.3 (2021-03-18)
+
+### Bug fixes
+
+- remove `next` as a peer dependency ([#159](https://github.com/netlify/netlify-plugin-nextjs/pull/159))
+
+### Chore
+
+- use `netlify/functions` instead of `netlify-automatic-functions` ([#159](https://github.com/netlify/netlify-plugin-nextjs/pull/159))
+- decrease npm package size ([#159](https://github.com/netlify/netlify-plugin-nextjs/pull/159))
+
 ## 1.1.2 (2021-03-16)
 
 - backport `update failure points in plugin to do nothing instead` to v1 ([#146](https://github.com/netlify/netlify-plugin-nextjs/pull/146))
