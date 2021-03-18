@@ -195,7 +195,7 @@ describe('onBuild()', () => {
 
   test.each([
     { FUNCTIONS_SRC: 'functions', resolvedFunctions: 'functions' },
-    { FUNCTIONS_SRC: undefined, resolvedFunctions: 'netlify-automatic-functions' },
+    { FUNCTIONS_SRC: undefined, resolvedFunctions: 'netlify/functions' },
   ])('copy files to the functions directory', async ({ FUNCTIONS_SRC, resolvedFunctions }) => {
     await useFixture('functions_copy_files')
     await moveNextDist()

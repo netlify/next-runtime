@@ -3,7 +3,7 @@
 # Test
 test/sample/node_modules
 test/sample/out_functions
-test/sample/netlify-automatic-functions
+test/sample/netlify/functions
 test/sample/my-publish-dir
 test/sample/.next
 test/sample/.netlify

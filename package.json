@@ -3,6 +3,10 @@
   "version": "1.1.2",
   "description": "run Nextj.s seamlessly on netlify",
   "main": "index.js",
+  "files": [
+    "helpers/**/*.js",
+    "manifest.yml"
+  ],
   "scripts": {
     "format": "prettier --write .",
     "build": "next build test/sample",
@@ -43,9 +47,6 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "tmp-promise": "^3.0.2"
-  },
-  "peerDependencies": {
-    "next": ">=9.5.3"
   },
   "husky": {
     "hooks": {

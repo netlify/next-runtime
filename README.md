@@ -69,7 +69,7 @@ If you'd like to build and deploy your project using the [Netlify CLI](https://d
 2. Run any number of builds and deploys freely (i.e. `netlify build`, `netlify deploy --build`, `netlify deploy --prod`)
 3. Run `git stash --include-unstaged` to easily ignore plugin-generated files
 
-Plugin-generated files will output into either (a) the default functions and publish directories (`netlify-automatic-functions` and `.`, respectively) or (b) whichever custom functions and publish directories you configure. See below for custom directory configuration. It's important to note that, in both cases (a) and (b), the CLI may mix your project's source code and plugin-generated files; this is why we recommend committing all project source files before running CLI builds.
+Plugin-generated files will output into either (a) the default functions and publish directories (`netlify/functions` and `.`, respectively) or (b) whichever custom functions and publish directories you configure. See below for custom directory configuration. It's important to note that, in both cases (a) and (b), the CLI may mix your project's source code and plugin-generated files; this is why we recommend committing all project source files before running CLI builds.
 
 **Debugging CLI builds:**
 - If you're seeing a `{FILE_NAME} already exists` error running a CLI build, this may be because your `node_modules` got purged between builds or because of lingering unstashed files from outdated builds. To resolve, you need to manually remove any plugin-generated files from your project directory.
