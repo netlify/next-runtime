@@ -134,7 +134,11 @@ Read more about [Netlify redirects](https://docs.netlify.com/routing/redirects/)
 
 ### Versions
 
-You can check our `package.json` for supported Next and Node versions. Our support of Next 10 is currently experimental.
+You can check our `package.json` for supported Node versions.
+
+For breaking Next.js releases, all Next.js versions before the breaking release will be locked to the last working plugin version:
+
+Next.js < 10.0.6 is locked to plugin version 1.1.3. To use the latest plugin version, upgrade to Next.js >= 10.0.6.
 
 ### Fallbacks for Pages with `getStaticPaths`
 
@@ -146,14 +150,4 @@ For more on this, see: [Issue #7](https://github.com/netlify/next-on-netlify/iss
 
 ## Credits
 
-This package is maintained by [Lindsay Levine](https://github.com/lindsaylevine) and [Cassidy Williams](https://github.com/cassidoo). It extends the project [next-on-netlify](https://github.com/netlify/next-on-netlify), authored originally by [Finn Woelm](https://github.com/finnwoelm).
-
-## Showcase
-
-The following sites are built with `next-on-netlify`:
-
-![opinionatedreact.com](https://raw.githubusercontent.com/netlify/next-on-netlify/master/assets/showcase-opinionatedreact.png)  
-[opinionatedreact.com](https://opinionatedreact.com/) ([via Twitter](https://twitter.com/NikkitaFTW/status/1302667952920162309))
-
-![missionbit.org](https://raw.githubusercontent.com/netlify/next-on-netlify/master/assets/showcase-missionbit.png)  
-[missionbit.org](https://www.missionbit.org/) ([#18](https://github.com/netlify/next-on-netlify/pull/18#issuecomment-643828966))
+This package extends the project [next-on-netlify](https://github.com/netlify/next-on-netlify), authored originally by [Finn Woelm](https://github.com/finnwoelm).
