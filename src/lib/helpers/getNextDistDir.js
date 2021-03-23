@@ -5,7 +5,7 @@ const getNextConfig = require('../../../helpers/getNextConfig')
 const { defaultFailBuild } = require('../../../helpers/defaultFailBuild')
 
 const getNextDistDir = async (publishPath) => {
-  const nextConfig = await getNextConfig(defaultFailBuild, publishPath)
+  const nextConfig = await getNextConfig({ failBuild: defaultFailBuild, publishPath })
 
   return join('.', nextConfig.distDir)
 }

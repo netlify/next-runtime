@@ -5,7 +5,7 @@ const hasCorrectNextConfig = async ({ nextConfigPath, failBuild }) => {
   // In the plugin's case, no config is valid because we'll make it ourselves
   if (nextConfigPath === undefined) return true
 
-  const { target } = await getNextConfig(failBuild)
+  const { target } = await getNextConfig({ failBuild })
 
   // If the next config exists, log warning if target isnt in acceptableTargets
   const acceptableTargets = ['serverless', 'experimental-serverless-trace']

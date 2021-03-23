@@ -6,7 +6,9 @@ const { defaultFailBuild } = require('./defaultFailBuild')
 const moize = require('moize')
 
 // Load next.config.js
-const getNextConfig = async function (failBuild = defaultFailBuild, publishPath = '.') {
+const getNextConfig = async function (params = {}) {
+  const { failBuild = defaultFailBuild, publishPath = '.' } = params
+
   // We cannot load `next` at the top-level because we validate whether the
   // site is using `next` inside `onPreBuild`.
   const { PHASE_PRODUCTION_BUILD } = require('next/constants')
