@@ -16,14 +16,14 @@ const getPages = require('./pages')
  * }
  **/
 
-const getRedirects = async () => {
+const getRedirects = async ({ publishPath }) => {
   const redirects = []
-  const pages = await getPages()
+  const pages = await getPages({ publishPath })
 
   await asyncForEach(pages, async ({ route, filePath }) => {
     const target = filePath.replace(/pages/, '')
 
-    await addDefaultLocaleRedirect(redirects, route, target)
+    await addDefaultLocaleRedirect({ redirects, route, target, publishPath })
 
     // Only create normal redirects for pages with dynamic routing
     if (!isDynamicRoute(route)) return

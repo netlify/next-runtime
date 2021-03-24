@@ -15,7 +15,7 @@ const setup = async ({ functionsPath, publishPath }) => {
   // a function for the same file path twice
   const filePathsDone = []
 
-  const pages = await getPages()
+  const pages = await getPages({ publishPath })
 
   await asyncForEach(pages, async ({ route, dataRoute, srcRoute }) => {
     logItem(route)
@@ -38,10 +38,10 @@ const setup = async ({ functionsPath, publishPath }) => {
 
     // Skip if we have already set up a function for this file
     // or if the source route has a fallback (handled by getStaticPropsWithFallback)
-    if (filePathsDone.includes(filePath) || (await isRouteWithFallback(srcRoute))) return
+    if (filePathsDone.includes(filePath) || (await isRouteWithFallback({ route: srcRoute, publishPath }))) return
 
     logItem(filePath)
-    await setupNetlifyFunctionForPage({ filePath, functionsPath })
+    await setupNetlifyFunctionForPage({ filePath, functionsPath, publishPath })
     filePathsDone.push(filePath)
   })
 }

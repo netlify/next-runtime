@@ -6,12 +6,12 @@ const isApiRoute = require('../../helpers/isApiRoute')
 const isRouteInPrerenderManifest = require('../../helpers/isRouteInPrerenderManifest')
 const isRouteWithDataRoute = require('../../helpers/isRouteWithDataRoute')
 
-const getPages = async () => {
+const getPages = async ({ publishPath }) => {
   // Collect pages
   const pages = []
 
   // Get HTML and SSR pages and API endpoints from the NextJS pages manifest
-  const pagesManifest = await getPagesManifest()
+  const pagesManifest = await getPagesManifest({ publishPath })
 
   // Parse pages
   await asyncForEach(Object.entries(pagesManifest), async ([route, filePath]) => {
@@ -25,12 +25,12 @@ const getPages = async () => {
     if (isApiRoute(route)) return
 
     // Skip page if it is actually used with getStaticProps
-    const isInPrerenderManifest = await isRouteInPrerenderManifest(route)
+    const isInPrerenderManifest = await isRouteInPrerenderManifest({ route, publishPath })
     if (isInPrerenderManifest) return
 
     // Skip page if it has no data route (because then it is a page with
     // getInitialProps)
-    const hasDataRoute = await isRouteWithDataRoute(route)
+    const hasDataRoute = await isRouteWithDataRoute({ route, publishPath })
     if (!hasDataRoute) return
 
     // Add page

@@ -4,8 +4,8 @@ const { logTitle } = require('../helpers/logger')
 const getNextDistDir = require('./getNextDistDir')
 
 // Check if there are dynamic import chunks and copy to the necessary function dir
-const copyDynamicImportChunks = async (functionPath) => {
-  const nextDistDir = await getNextDistDir()
+const copyDynamicImportChunks = async ({ functionPath, publishPath }) => {
+  const nextDistDir = await getNextDistDir({ publishPath })
   const chunksPath = join(nextDistDir, 'serverless')
   const files = readdirSync(chunksPath)
   const chunkRegex = new RegExp(/^(\.?[-_$~A-Z0-9a-z]+){1,}\.js$/g)

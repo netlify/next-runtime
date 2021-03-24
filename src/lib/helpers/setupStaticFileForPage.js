@@ -7,7 +7,7 @@ const setupStaticFileForPage = async ({ inputPath, outputPath = null, publishPat
   // If no outputPath is set, default to the same as inputPath
   outputPath = outputPath || inputPath
 
-  const nextDistDir = await getNextDistDir()
+  const nextDistDir = await getNextDistDir({ publishPath })
 
   // Perform copy operation
   copySync(join(nextDistDir, 'serverless', 'pages', inputPath), join(publishPath, outputPath), {

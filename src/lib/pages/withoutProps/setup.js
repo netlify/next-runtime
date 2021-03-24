@@ -9,12 +9,12 @@ const getPages = require('./pages')
 
 // Identify all pages that have been pre-rendered and copy each one to the
 // Netlify publish directory.
-const setup = async (publishPath) => {
+const setup = async ({ publishPath }) => {
   logTitle('🔥 Copying pre-rendered pages without props to', publishPath)
 
-  const i18n = await getI18n()
-  const nextDistDir = await getNextDistDir()
-  const pages = await getPages()
+  const i18n = await getI18n({ publishPath })
+  const nextDistDir = await getNextDistDir({ publishPath })
+  const pages = await getPages({ publishPath })
 
   // Copy each page to the Netlify publish directory
   await asyncForEach(pages, async ({ filePath }) => {

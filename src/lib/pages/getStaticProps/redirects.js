@@ -23,9 +23,9 @@ const getPages = require('./pages')
 
 // Pages with getStaticProps (without fallback or revalidation) only need
 // redirects for i18n and handling preview mode
-const getRedirects = async () => {
+const getRedirects = async ({ publishPath }) => {
   const redirects = []
-  const pages = await getPages()
+  const pages = await getPages({ publishPath })
 
   await asyncForEach(pages, async ({ route, dataRoute, srcRoute }) => {
     const relativePath = getFilePathForRoute(srcRoute || route, 'js')
@@ -50,8 +50,8 @@ const getRedirects = async () => {
     })
 
     // Preview mode default locale redirect must precede normal default locale redirect
-    await addDefaultLocaleRedirect(redirects, route, target, previewModeRedirect)
-    await addDefaultLocaleRedirect(redirects, route)
+    await addDefaultLocaleRedirect({ redirects, route, target, additionalParams: previewModeRedirect, publishPath })
+    await addDefaultLocaleRedirect({ redirects, route, publishPath })
   })
 
   return redirects

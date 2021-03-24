@@ -1,9 +1,9 @@
 const getPagesManifest = require('../../helpers/getPagesManifest')
 const isApiRoute = require('../../helpers/isApiRoute')
 
-const getPages = async () => {
+const getPages = async ({ publishPath }) => {
   // Get HTML and SSR pages and API endpoints from the NextJS pages manifest
-  const pagesManifest = await getPagesManifest()
+  const pagesManifest = await getPagesManifest({ publishPath })
 
   // Collect pages
   const pages = []

@@ -3,8 +3,8 @@ const getPrerenderManifest = require('../../helpers/getPrerenderManifest')
 const asyncForEach = require('../../helpers/asyncForEach')
 
 // Get pages using getStaticProps
-const getPages = async () => {
-  const { routes } = await getPrerenderManifest()
+const getPages = async ({ publishPath }) => {
+  const { routes } = await getPrerenderManifest({ publishPath })
 
   // Collect pages
   const pages = []
@@ -15,7 +15,7 @@ const getPages = async () => {
 
     // Skip pages with fallback, these are handled by
     // getStaticPropsWithFallback/pages
-    if (await isRouteWithFallback(srcRoute)) return
+    if (await isRouteWithFallback({ route: srcRoute, publishPath })) return
 
     // Add the page
     pages.push({

@@ -1,8 +1,8 @@
 const getPrerenderManifest = require('../../helpers/getPrerenderManifest')
 
 // Get pages using getStaticProps
-const getPages = async () => {
-  const { routes } = await getPrerenderManifest()
+const getPages = async ({ publishPath }) => {
+  const { routes } = await getPrerenderManifest({ publishPath })
 
   // Collect pages
   const pages = []

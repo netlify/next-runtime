@@ -5,8 +5,8 @@ const getNextDistDir = require('../helpers/getNextDistDir')
 
 // Copy the NextJS' static assets from NextJS distDir to Netlify publish folder.
 // These need to be available for NextJS to work.
-const copyNextAssets = async (publishPath) => {
-  const nextDistDir = await getNextDistDir(publishPath)
+const copyNextAssets = async ({ publishPath }) => {
+  const nextDistDir = await getNextDistDir({ publishPath })
   const staticAssetsPath = join(nextDistDir, 'static')
   if (!existsSync(staticAssetsPath)) {
     throw new Error(

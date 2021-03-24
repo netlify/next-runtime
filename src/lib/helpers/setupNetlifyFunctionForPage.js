@@ -7,7 +7,7 @@ const copyDynamicImportChunks = require('./copyDynamicImportChunks')
 const { logItem } = require('./logger')
 
 // Create a Netlify Function for the page with the given file path
-const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage }) => {
+const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage, publishPath }) => {
   // Set function name based on file path
   const functionName = getNetlifyFunctionName(filePath, isApiPage)
   const functionDirectory = join(functionsPath, functionName)
@@ -33,11 +33,11 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage 
   })
 
   // Copy any dynamic import chunks
-  await copyDynamicImportChunks(functionDirectory)
+  await copyDynamicImportChunks({ functionPath: functionDirectory, publishPath })
 
   // Copy page
   const nextPageCopyPath = join(functionDirectory, 'nextPage', 'index.js')
-  const nextDistDir = await getNextDistDir()
+  const nextDistDir = await getNextDistDir({ publishPath })
   copySync(join(nextDistDir, 'serverless', filePath), nextPageCopyPath, {
     overwrite: false,
     errorOnExist: true,

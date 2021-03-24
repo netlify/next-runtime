@@ -6,7 +6,7 @@ const asyncForEach = require('../../helpers/asyncForEach')
 const getPages = require('./pages')
 
 // Create a Netlify Function for every page with getStaticProps and revalidate
-const setup = async (functionsPath) => {
+const setup = async ({ functionsPath, publishPath }) => {
   logTitle(
     '💫 Setting up pages with getStaticProps and revalidation interval',
     'as Netlify Functions in',
@@ -17,7 +17,7 @@ const setup = async (functionsPath) => {
   // a function for the same file path twice
   const filePathsDone = []
 
-  const pages = await getPages()
+  const pages = await getPages({ publishPath })
 
   // Create Netlify Function for every page
   await asyncForEach(pages, async ({ route, srcRoute }) => {
@@ -29,7 +29,7 @@ const setup = async (functionsPath) => {
 
     // Set up the function
     logItem(filePath)
-    await setupNetlifyFunctionForPage({ filePath, functionsPath })
+    await setupNetlifyFunctionForPage({ filePath, functionsPath, publishPath })
     filePathsDone.push(filePath)
   })
 }

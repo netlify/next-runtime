@@ -30,13 +30,13 @@ const setupRedirects = async (publishPath) => {
   const getWithoutPropsRedirects = require('../pages/withoutProps/redirects')
 
   const nextRedirects = [
-    ...(await getApiRedirects()),
-    ...(await getInitialPropsRedirects()),
-    ...(await getServerSidePropsRedirects()),
-    ...(await getStaticPropsRedirects()),
-    ...(await getSPFallbackRedirects()),
-    ...(await getSPRevalidateRedirects()),
-    ...(await getWithoutPropsRedirects()),
+    ...(await getApiRedirects({ publishPath })),
+    ...(await getInitialPropsRedirects({ publishPath })),
+    ...(await getServerSidePropsRedirects({ publishPath })),
+    ...(await getStaticPropsRedirects({ publishPath })),
+    ...(await getSPFallbackRedirects({ publishPath })),
+    ...(await getSPRevalidateRedirects({ publishPath })),
+    ...(await getWithoutPropsRedirects({ publishPath })),
   ]
 
   // Add _redirect section heading

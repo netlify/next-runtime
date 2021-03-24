@@ -12,15 +12,15 @@ const getPages = require('./pages')
  * }
  **/
 
-const getRedirects = async () => {
+const getRedirects = async ({ publishPath }) => {
   const redirects = []
-  const pages = await getPages()
+  const pages = await getPages({ publishPath })
 
   await asyncForEach(pages, async ({ route, filePath }) => {
     const functionName = getNetlifyFunctionName(filePath)
     const target = `/.netlify/functions/${functionName}`
 
-    await addLocaleRedirects(redirects, route, target)
+    await addLocaleRedirects({ redirects, route, target, publishPath })
 
     // Add one redirect for the naked route
     // i.e. /ssr
@@ -33,7 +33,7 @@ const getRedirects = async () => {
     // pages-manifest doesn't provide the dataRoute for us so we
     // construct it ourselves with getDataRouteForRoute
     redirects.push({
-      route: await getDataRouteForRoute(route),
+      route: await getDataRouteForRoute({ route, publishPath }),
       target,
     })
   })

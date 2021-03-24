@@ -4,11 +4,11 @@ const isRouteInPrerenderManifest = require('../../helpers/isRouteInPrerenderMani
 const asyncForEach = require('../../helpers/asyncForEach')
 
 // Collect pages
-const getPages = async () => {
+const getPages = async ({ publishPath }) => {
   const pages = []
 
   // Get HTML and SSR pages and API endpoints from the NextJS pages manifest
-  const pagesManifest = await getPagesManifest()
+  const pagesManifest = await getPagesManifest({ publishPath })
 
   // Parse HTML pages
   await asyncForEach(Object.entries(pagesManifest), async ([route, filePath]) => {
@@ -16,7 +16,7 @@ const getPages = async () => {
     if (!isHtmlFile(filePath)) return
 
     // Skip page if it is actually used with getStaticProps
-    if (await isRouteInPrerenderManifest(route)) return
+    if (await isRouteInPrerenderManifest({ route, publishPath })) return
 
     // Add the HTML page
     pages.push({ route, filePath })

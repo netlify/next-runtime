@@ -20,9 +20,9 @@ const getPages = require('./pages')
  * }
  **/
 
-const getRedirects = async () => {
+const getRedirects = async ({ publishPath }) => {
   const redirects = []
-  const pages = await getPages()
+  const pages = await getPages({ publishPath })
 
   await asyncForEach(pages, async ({ route, srcRoute, dataRoute }) => {
     const relativePath = getFilePathForRoute(srcRoute || route, 'js')
@@ -42,7 +42,7 @@ const getRedirects = async () => {
       target,
     })
 
-    await addDefaultLocaleRedirect(redirects, route, target)
+    await addDefaultLocaleRedirect({ redirects, route, target, publishPath })
   })
 
   return redirects

@@ -14,8 +14,8 @@ const getI18nDataRoute = (route, locale, buildId) => {
 }
 
 // Return the data route for the given route
-const getDataRouteForRoute = async (route, locale) => {
-  const nextDistDir = await getNextDistDir()
+const getDataRouteForRoute = async ({ route, locale, publishPath }) => {
+  const nextDistDir = await getNextDistDir({ publishPath })
 
   // Get build ID that is used for data routes, e.g. /_next/data/BUILD_ID/...
   const fileContents = readFileSync(join(nextDistDir, 'BUILD_ID'))

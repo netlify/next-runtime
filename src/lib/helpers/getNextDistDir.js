@@ -3,7 +3,7 @@ const { join } = require('path')
 
 const getNextConfig = require('../../../helpers/getNextConfig')
 
-const getNextDistDir = async (publishPath) => {
+const getNextDistDir = async ({ publishPath }) => {
   const nextConfig = await getNextConfig({ publishPath })
 
   return join('.', nextConfig.distDir)

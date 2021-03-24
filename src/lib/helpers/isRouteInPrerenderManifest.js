@@ -2,10 +2,10 @@ const getPrerenderManifest = require('./getPrerenderManifest')
 const getI18n = require('./getI18n')
 
 // Return true if the route is defined in the prerender manifest
-const isRouteInPrerenderManifest = async (route) => {
-  const i18n = await getI18n()
+const isRouteInPrerenderManifest = async ({ route, publishPath }) => {
+  const i18n = await getI18n({ publishPath })
   const { defaultLocale, locales } = i18n
-  const { routes, dynamicRoutes } = await getPrerenderManifest()
+  const { routes, dynamicRoutes } = await getPrerenderManifest({ publishPath })
 
   const isRouteInManifestWithI18n = () => {
     let isStaticRoute = false
@@ -16,7 +16,7 @@ const isRouteInPrerenderManifest = async (route) => {
     return isStaticRoute || route in dynamicRoutes
   }
 
-  if (i18n.defaultLocale) return isRouteInManifestWithI18n(route)
+  if (i18n.defaultLocale) return isRouteInManifestWithI18n()
   return route in routes || route in dynamicRoutes
 }
 

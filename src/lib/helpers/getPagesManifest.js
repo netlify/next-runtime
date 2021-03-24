@@ -2,8 +2,8 @@ const { join } = require('path')
 const { existsSync, readJSONSync } = require('fs-extra')
 const getNextDistDir = require('./getNextDistDir')
 
-const getPagesManifest = async () => {
-  const nextDistDir = await getNextDistDir()
+const getPagesManifest = async ({ publishPath }) => {
+  const nextDistDir = await getNextDistDir({ publishPath })
   const manifestPath = join(nextDistDir, 'serverless', 'pages-manifest.json')
   if (!existsSync(manifestPath)) return {}
   const contents = readJSONSync(manifestPath)

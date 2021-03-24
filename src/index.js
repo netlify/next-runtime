@@ -22,7 +22,7 @@ const build = async (functionsPath, publishPath) => {
 
   copyPublicFiles(publishPath)
 
-  await copyNextAssets(publishPath)
+  await copyNextAssets({ publishPath })
 
   await setupPages({ functionsPath, publishPath })
 
