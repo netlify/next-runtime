@@ -2,7 +2,7 @@ const { join } = require('path')
 
 const { copySync } = require('fs-extra')
 
-const { TEMPLATES_DIR, FUNCTION_TEMPLATE_PATH } = require('../config')
+const { TEMPLATES_DIR, FUNCTION_TEMPLATE_PATH, BUILDER_TEMPLATE_PATH } = require('../config')
 
 const copyDynamicImportChunks = require('./copyDynamicImportChunks')
 const getNetlifyFunctionName = require('./getNetlifyFunctionName')
@@ -10,7 +10,7 @@ const getNextDistDir = require('./getNextDistDir')
 const { logItem } = require('./logger')
 
 // Create a Netlify Function for the page with the given file path
-const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage }) => {
+const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage, isISR }) => {
   // Set function name based on file path
   const functionName = getNetlifyFunctionName(filePath, isApiPage)
   const functionDirectory = join(functionsPath, functionName)
@@ -21,13 +21,14 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage 
 
   // Copy function templates
   const functionTemplateCopyPath = join(functionDirectory, `${functionName}.js`)
-  copySync(FUNCTION_TEMPLATE_PATH, functionTemplateCopyPath, {
+  const srcTemplatePath = isISR ? BUILDER_TEMPLATE_PATH : FUNCTION_TEMPLATE_PATH
+  copySync(srcTemplatePath, functionTemplateCopyPath, {
     overwrite: false,
     errorOnExist: true,
   })
 
   // Copy function helpers
-  const functionHelpers = ['renderNextPage.js', 'createRequestObject.js', 'createResponseObject.js']
+  const functionHelpers = ['functionBase.js', 'renderNextPage.js', 'createRequestObject.js', 'createResponseObject.js']
   functionHelpers.forEach((helper) => {
     copySync(join(TEMPLATES_DIR, helper), join(functionDirectory, helper), {
       overwrite: false,

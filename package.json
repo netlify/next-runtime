@@ -54,6 +54,7 @@
   },
   "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
+    "@netlify/functions": "^0.6.0",
     "@sls-next/lambda-at-edge": "1.8.0",
     "adm-zip": "^0.5.4",
     "chalk": "^4.1.0",
@@ -64,10 +65,12 @@
     "find-cache-dir": "^3.3.1",
     "find-up": "^5.0.0",
     "fs-extra": "^9.1.0",
-    "jimp": "^0.16.1",
     "make-dir": "^3.1.0",
+    "mime-types": "^2.1.30",
     "moize": "^6.0.0",
-    "semver": "^7.3.2"
+    "node-fetch": "^2.6.1",
+    "semver": "^7.3.2",
+    "sharp": "^0.28.1"
   },
   "devDependencies": {
     "@netlify/eslint-config-node": "^2.6.7",

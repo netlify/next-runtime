@@ -68,8 +68,6 @@ describe('Routing', () => {
 
     // Check that no redirects are present
     expect(redirects[0]).toEqual('# Next-on-Netlify Redirects')
-    expect(redirects[1]).toEqual(
-      '/_next/image*  url=:url w=:width q=:quality  /.netlify/functions/next_image?url=:url&w=:width&q=:quality  200',
-    )
+    expect(redirects[1]).toEqual('/_next/image*  url=:url w=:width q=:quality  /nextimg/:url/:width/:quality  301!')
   })
 })

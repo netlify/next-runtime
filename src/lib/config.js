@@ -26,6 +26,9 @@ const TEMPLATES_DIR = join(__dirname, 'templates')
 // This is the Netlify Function template that wraps all SSR pages
 const FUNCTION_TEMPLATE_PATH = join(TEMPLATES_DIR, 'netlifyFunction.js')
 
+// This is the Netlify Builder template that wraps ISR pages
+const BUILDER_TEMPLATE_PATH = join(TEMPLATES_DIR, 'netlifyOnDemandBuilder.js')
+
 // This is the file where custom redirects can be configured
 const CUSTOM_REDIRECTS_PATH = join('.', '_redirects')
 
@@ -45,6 +48,7 @@ module.exports = {
   NEXT_CONFIG_PATH,
   TEMPLATES_DIR,
   FUNCTION_TEMPLATE_PATH,
+  BUILDER_TEMPLATE_PATH,
   CUSTOM_REDIRECTS_PATH,
   CUSTOM_HEADERS_PATH,
   NEXT_IMAGE_FUNCTION_NAME,

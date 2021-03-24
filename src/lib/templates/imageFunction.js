@@ -1,24 +1,56 @@
-const jimp = require('jimp')
+const path = require('path')
+const { builder } = require('@netlify/functions')
+const sharp = require('sharp')
+const fetch = require('node-fetch')
 
 // Function used to mimic next/image and sharp
-exports.handler = async (event) => {
-  const { url, w = 500, q = 75 } = event.queryStringParameters
+const handler = async (event) => {
+  const [, , url, w = 500, q = 75] = event.path.split('/')
+  const parsedUrl = decodeURIComponent(url)
   const width = parseInt(w)
   const quality = parseInt(q)
 
-  const imageUrl = url.startsWith('/') ? `${process.env.DEPLOY_URL || `http://${event.headers.host}`}${url}` : url
-  const image = await jimp.read(imageUrl)
+  const imageUrl = parsedUrl.startsWith('/')
+    ? `${process.env.DEPLOY_URL || `http://${event.headers.host}`}${parsedUrl}`
+    : parsedUrl
+  const imageData = await fetch(imageUrl)
+  const bufferData = await imageData.buffer()
+  const ext = path.extname(imageUrl)
+  const mimeType = ext === 'jpg' ? `image/jpeg` : `image/${ext}`
 
-  image.resize(width, jimp.AUTO).quality(quality)
+  let image
+  let imageBuffer
 
-  const imageBuffer = await image.getBufferAsync(image.getMIME())
+  if (mimeType === 'image/gif') {
+    image = await sharp(bufferData, { animated: true })
+    // gif resizing in sharp seems unstable (https://github.com/lovell/sharp/issues/2275)
+    imageBuffer = await image.toBuffer()
+  } else {
+    image = await sharp(bufferData)
+    if (mimeType === 'image/webp') {
+      image = image.webp({ quality })
+    } else if (mimeType === 'image/jpeg') {
+      image = image.jpeg({ quality })
+    } else if (mimeType === 'image/png') {
+      image = image.png({ quality })
+    } else if (mimeType === 'image/avif') {
+      image = image.avif({ quality })
+    } else if (mimeType === 'image/tiff') {
+      image = image.tiff({ quality })
+    } else if (mimeType === 'image/heif') {
+      image = image.heif({ quality })
+    }
+    imageBuffer = await image.resize(width).toBuffer()
+  }
 
   return {
     statusCode: 200,
     headers: {
-      'Content-Type': image.getMIME(),
+      'Content-Type': mimeType,
     },
     body: imageBuffer.toString('base64'),
     isBase64Encoded: true,
   }
 }
+
+exports.handler = builder(handler)
