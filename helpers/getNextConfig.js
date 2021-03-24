@@ -21,6 +21,6 @@ const getNextConfig = async function (params = {}) {
   }
 }
 
-const moizedGetNextConfig = moize(getNextConfig, { maxSize: 1e3, isPromise: true })
+const moizedGetNextConfig = moize(getNextConfig, { maxSize: 1e3, isPromise: true, isDeepEqual: true })
 
 module.exports = moizedGetNextConfig
