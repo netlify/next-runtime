@@ -27,7 +27,7 @@ const transformManifestForI18n = async (manifest) => {
 }
 
 const getPrerenderManifest = async () => {
-  const nextConfig = await getNextConfig()
+  const nextConfig = await getNextConfig(process.cwd())
   const nextDistDir = await getNextDistDir()
   const manifest = readJSONSync(join(nextDistDir, 'prerender-manifest.json'))
   if (nextConfig.i18n) return await transformManifestForI18n(manifest)

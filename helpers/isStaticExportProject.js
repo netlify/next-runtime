@@ -17,7 +17,7 @@ const isStaticExportProject = ({ build, scripts }) => {
 
   if (isStaticExport) {
     console.log(
-      `Static HTML export Next.js projects do not require this plugin. Check your project's build command for 'next export'.`,
+      'NOTE: Static HTML export Next.js projects (projects that use `next export`) do not require most of this plugin. For these sites, this plugin *only* caches builds.',
     )
   }
 
