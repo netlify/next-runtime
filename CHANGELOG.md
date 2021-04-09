@@ -1,5 +1,14 @@
 # Changelog
 
+### [3.0.4](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.0.3...v3.0.4) (2021-04-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency find-up to v5 ([#138](https://www.github.com/netlify/netlify-plugin-nextjs/issues/138)) ([757ba52](https://www.github.com/netlify/netlify-plugin-nextjs/commit/757ba52b041f0cc31fe7749a200dbcfa9e1f8551))
+* **deps:** update dependency semver to v7.3.5 ([5a92dd2](https://www.github.com/netlify/netlify-plugin-nextjs/commit/5a92dd22a45bc3037f3b966cc0cf4eeee52936d6))
+* fix minimum Next.js version ([54c2b1e](https://www.github.com/netlify/netlify-plugin-nextjs/commit/54c2b1e0f5da908106abdad3716abb15b6da168d))
+
 ## 3.0.3 (2021-03-12)
 
 ### Bug fixes
