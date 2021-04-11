@@ -10,7 +10,7 @@ const logTitle = (...args) => {
   finishLogForBuildStep()
 
   // Print title
-  log(`\x1b[1m${args.join(' ')}\x1b[22m`)
+  log(`\u001B[1m${args.join(' ')}\u001B[22m`)
 }
 
 // Indent by three spaces

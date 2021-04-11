@@ -2,7 +2,9 @@
 // See: https://github.com/netlify/next-on-netlify/issues/25
 
 const { parse, join } = require('path')
+
 const { existsSync, readdirSync, readFileSync } = require('fs-extra')
+
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)
@@ -40,7 +42,7 @@ describe('next-on-netlify', () => {
 
   test('copies chunk files to ', () => {
     const functionFiles = readdirSync(join(functionsDir, 'next_index'))
-    const chunkRegex = new RegExp(/(\.?[-_$~A-Z0-9a-z]+){1,}\.js$/g)
+    const chunkRegex = new RegExp(/(\.?[-$~\w]+)+\.js$/g)
     let chunkFileExists
     functionFiles.forEach((file) => {
       chunkFileExists = chunkRegex.test(file)

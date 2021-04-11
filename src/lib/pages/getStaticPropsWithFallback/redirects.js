@@ -1,9 +1,11 @@
 const { join } = require('path')
+
 const addLocaleRedirects = require('../../helpers/addLocaleRedirects')
+const asyncForEach = require('../../helpers/asyncForEach')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
 const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
+
 const getPages = require('./pages')
-const asyncForEach = require('../../helpers/asyncForEach')
 
 const getRedirects = async () => {
   const redirects = []
@@ -18,16 +20,16 @@ const getRedirects = async () => {
     await addLocaleRedirects(redirects, route, target)
 
     // Add one redirect for the page
-    redirects.push({
-      route,
-      target,
-    })
-
-    // Add one redirect for the data route
-    redirects.push({
-      route: dataRoute,
-      target,
-    })
+    redirects.push(
+      {
+        route,
+        target,
+      },
+      {
+        route: dataRoute,
+        target,
+      },
+    )
   })
   return redirects
 }

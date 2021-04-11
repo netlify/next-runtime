@@ -1,15 +1,15 @@
 const fs = require('fs')
-const path = require('path')
 const util = require('util')
-const makeDir = require('make-dir')
-const findUp = require('find-up')
-const nextOnNetlify = require('./src/index.js')
 
-const validateNextUsage = require('./helpers/validateNextUsage')
+const findUp = require('find-up')
+const makeDir = require('make-dir')
+
+const { restoreCache, saveCache } = require('./helpers/cacheBuild')
+const copyUnstableIncludedDirs = require('./helpers/copyUnstableIncludedDirs')
 const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
 const getNextConfig = require('./helpers/getNextConfig')
-const copyUnstableIncludedDirs = require('./helpers/copyUnstableIncludedDirs')
-const { restoreCache, saveCache } = require('./helpers/cacheBuild')
+const validateNextUsage = require('./helpers/validateNextUsage')
+const nextOnNetlify = require('./src/index.js')
 
 const pWriteFile = util.promisify(fs.writeFile)
 

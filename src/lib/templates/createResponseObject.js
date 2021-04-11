@@ -45,15 +45,9 @@ const createResponseObject = ({ onResEnd }) => {
   res.removeHeader = (name) => {
     delete res.headers[name.toLowerCase()]
   }
-  res.getHeader = (name) => {
-    return res.headers[name.toLowerCase()]
-  }
-  res.getHeaders = () => {
-    return res.headers
-  }
-  res.hasHeader = (name) => {
-    return !!res.getHeader(name)
-  }
+  res.getHeader = (name) => res.headers[name.toLowerCase()]
+  res.getHeaders = () => res.headers
+  res.hasHeader = (name) => Boolean(res.getHeader(name))
   res.end = (text) => {
     if (text) res.write(text)
     if (!res.statusCode) {

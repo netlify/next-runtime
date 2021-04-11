@@ -1,5 +1,7 @@
 const { join } = require('path')
+
 const { existsSync, readJSONSync } = require('fs-extra')
+
 const getNextDistDir = require('./getNextDistDir')
 
 const getPagesManifest = async () => {

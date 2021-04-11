@@ -1,4 +1,5 @@
 const { join } = require('path')
+
 const { readJsonSync } = require('fs-extra')
 
 // Set baseurl, either localhost:8888 or based on deployed Netlify URL
@@ -8,7 +9,7 @@ const getBaseUrl = ({ project }, config) => {
     return 'http://localhost:8888/'
   }
   // Deployment on Netlify
-  else if (config.env.DEPLOY == 'netlify') {
+  if (config.env.DEPLOY == 'netlify') {
     const { deploy_url } = readJsonSync(join(config.buildsFolder, project, 'deployment.json'))
     return deploy_url
   }

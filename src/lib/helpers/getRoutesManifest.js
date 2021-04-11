@@ -1,5 +1,7 @@
 const { join } = require('path')
+
 const { readJSONSync } = require('fs-extra')
+
 const getNextDistDir = require('./getNextDistDir')
 
 const getRoutesManifest = async () => {

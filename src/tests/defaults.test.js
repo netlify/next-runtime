@@ -1,7 +1,9 @@
 // Test default next-on-netlify configuration
 
 const { parse, join, sep } = require('path')
+
 const { existsSync, readdirSync, readFileSync, readJsonSync } = require('fs-extra')
+
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)
@@ -190,7 +192,7 @@ describe('Routing', () => {
     let redirects = contents.toString()
 
     // Replace non-persistent build ID with placeholder
-    redirects = redirects.replace(/\/_next\/data\/[^\/]+\//g, '/_next/data/%BUILD_ID%/')
+    redirects = redirects.replace(/\/_next\/data\/[^/]+\//g, '/_next/data/%BUILD_ID%/')
 
     // Check that redirects match
     expect(redirects).toMatchSnapshot()
@@ -201,7 +203,7 @@ describe('Headers', () => {
   test('creates Netlify headers', async () => {
     // Read _headers file
     const contents = readFileSync(join(PROJECT_PATH, 'out_publish', '_headers'))
-    let headers = contents.toString()
+    const headers = contents.toString()
 
     // Check that headers match
     expect(headers).toMatchSnapshot()

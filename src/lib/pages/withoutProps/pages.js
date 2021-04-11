@@ -1,7 +1,7 @@
+const asyncForEach = require('../../helpers/asyncForEach')
 const getPagesManifest = require('../../helpers/getPagesManifest')
 const isHtmlFile = require('../../helpers/isHtmlFile')
 const isRouteInPrerenderManifest = require('../../helpers/isRouteInPrerenderManifest')
-const asyncForEach = require('../../helpers/asyncForEach')
 
 // Collect pages
 const getPages = async () => {

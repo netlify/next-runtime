@@ -1,4 +1,5 @@
 const { join } = require('path')
+
 const { emptyDirSync } = require('fs-extra')
 
 // Clear the project

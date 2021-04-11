@@ -1,7 +1,9 @@
+const { join } = require('path')
+
+const execa = require('execa')
 const { removeSync } = require('fs-extra')
 const waitOn = require('wait-on')
-const execa = require('execa')
-const { join } = require('path')
+
 const getBaseUrl = require('./getBaseUrl')
 
 // Deploy the project locally, using netlify dev
@@ -62,7 +64,7 @@ const deployProject = ({ project }, config) => {
     return deployLocally({ project }, config)
   }
   // Deployment on Netlify
-  else if (config.env.DEPLOY == 'netlify') {
+  if (config.env.DEPLOY == 'netlify') {
     return deployOnNetlify({ project }, config)
   }
 }

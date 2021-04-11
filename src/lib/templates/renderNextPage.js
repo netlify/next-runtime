@@ -1,7 +1,7 @@
 // Load the NextJS page
-const nextPage = require('./nextPage')
 const createRequestObject = require('./createRequestObject')
 const createResponseObject = require('./createResponseObject')
+const nextPage = require('./nextPage')
 
 // Render the Next.js page
 const renderNextPage = ({ event, context }) => {

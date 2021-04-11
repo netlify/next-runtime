@@ -2,7 +2,9 @@
 // See: https://github.com/netlify/next-on-netlify/issues/25
 
 const { parse, join } = require('path')
+
 const { existsSync, readdirSync, readFileSync } = require('fs-extra')
+
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)
@@ -82,11 +84,7 @@ describe('clean up of NoN files', () => {
     // had to test equality this way because of windows :)
     const isSameList = (arr1, arr2) =>
       arr1.reduce((isSame, func) => {
-        if (arr2.includes(func)) {
-          isSame = true
-        } else {
-          isSame = false
-        }
+        isSame = Boolean(arr2.includes(func))
         return isSame
       }, true)
     const nextFunctions = [

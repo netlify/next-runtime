@@ -5,12 +5,12 @@
 
 const { join } = require('path')
 
+const buildProject = require('./buildProject')
+const clearDeployment = require('./clearDeployment')
 const clearProject = require('./clearProject')
 const copyFixture = require('./copyFixture')
-const buildProject = require('./buildProject')
 const deployProject = require('./deployProject')
 const getBaseUrl = require('./getBaseUrl')
-const clearDeployment = require('./clearDeployment')
 
 const tasks = [clearProject, copyFixture, buildProject, deployProject, getBaseUrl, clearDeployment]
 

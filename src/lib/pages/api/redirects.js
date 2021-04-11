@@ -1,4 +1,5 @@
 const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
+
 const getPages = require('./pages')
 
 const getRedirects = async () => {

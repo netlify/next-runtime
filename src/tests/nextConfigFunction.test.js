@@ -2,6 +2,7 @@
 // See: https://github.com/netlify/next-on-netlify/issues/25
 
 const { parse, join } = require('path')
+
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)

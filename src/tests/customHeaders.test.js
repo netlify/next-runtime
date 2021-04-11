@@ -2,7 +2,9 @@
 
 const { EOL } = require('os')
 const { parse, join } = require('path')
+
 const { readFileSync } = require('fs-extra')
+
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)

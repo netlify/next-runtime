@@ -2,7 +2,9 @@
 // with getStaticProps.
 
 const { parse, join } = require('path')
+
 const { existsSync, readdirSync, readFileSync } = require('fs-extra')
+
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)
@@ -66,7 +68,7 @@ describe('Routing', () => {
     let contents = readFileSync(join(PROJECT_PATH, 'out_publish', '_redirects')).toString()
 
     // Replace non-persistent build ID with placeholder
-    contents = contents.replace(/\/_next\/data\/[^\/]+\//g, '/_next/data/%BUILD_ID%/')
+    contents = contents.replace(/\/_next\/data\/[^/]+\//g, '/_next/data/%BUILD_ID%/')
 
     const redirects = contents.trim().split(/\n/)
 

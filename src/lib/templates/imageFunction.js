@@ -3,8 +3,8 @@ const jimp = require('jimp')
 // Function used to mimic next/image and sharp
 exports.handler = async (event) => {
   const { url, w = 500, q = 75 } = event.queryStringParameters
-  const width = parseInt(w)
-  const quality = parseInt(q)
+  const width = Number.parseInt(w)
+  const quality = Number.parseInt(q)
 
   const imageUrl = url.startsWith('/') ? `${process.env.DEPLOY_URL || `http://${event.headers.host}`}${url}` : url
   const image = await jimp.read(imageUrl)

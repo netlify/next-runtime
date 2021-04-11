@@ -2,7 +2,9 @@
 // See: https://github.com/netlify/next-on-netlify/issues/2#issuecomment-636415494
 
 const { parse, join } = require('path')
+
 const { readFileSync } = require('fs-extra')
+
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)
@@ -47,7 +49,7 @@ describe('Routing', () => {
     let redirects = contents.toString()
 
     // Replace non-persistent build ID with placeholder
-    redirects = redirects.replace(/\/_next\/data\/[^\/]+\//g, '/_next/data/%BUILD_ID%/')
+    redirects = redirects.replace(/\/_next\/data\/[^/]+\//g, '/_next/data/%BUILD_ID%/')
 
     // Check that redirects match
     expect(redirects).toMatchSnapshot()

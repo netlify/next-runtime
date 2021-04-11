@@ -3,10 +3,12 @@
 // https://github.com/netlify/cli/blob/master/tests/utils/siteBuilder.js
 
 const { join, parse } = require('path')
-const { copySync, emptyDirSync, existsSync } = require('fs-extra')
+
 const { hashElement } = require('folder-hash')
-const npmRun = require('./npmRun')
+const { copySync, emptyDirSync, existsSync } = require('fs-extra')
+
 const { NEXT_VERSION } = require('./nextVersion')
+const npmRun = require('./npmRun')
 
 // The NextAppBuilder has three phases:
 // 1. Adding files (NextJS pages, config files, etc...) to a staging folder
@@ -110,9 +112,9 @@ class NextAppBuilder {
     return 'Built successfully!'
   }
 
-  /*****************************************************************************
-   * Private functions
-   ****************************************************************************/
+  // ***************************************************************************
+  // Private functions
+  // **************************************************************************
 
   // The path where we stage pages and config files prior to invoking next build
   get __stagingPath() {
@@ -128,8 +130,6 @@ class NextAppBuilder {
   }
 }
 
-const buildNextApp = () => {
-  return new NextAppBuilder()
-}
+const buildNextApp = () => new NextAppBuilder()
 
 module.exports = buildNextApp

@@ -1,7 +1,9 @@
 // Test next-on-netlify when i18n is set in next.config.js (Next 10+)
 
 const { parse, join, sep } = require('path')
+
 const { existsSync, readdirSync, readFileSync, readJsonSync } = require('fs-extra')
+
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)
@@ -189,7 +191,7 @@ describe('Routing', () => {
 
     // Replace non-persistent build ID with placeholder
 
-    redirects = redirects.replace(/\/_next\/data\/[^\/]+\//g, '/_next/data/%BUILD_ID%/')
+    redirects = redirects.replace(/\/_next\/data\/[^/]+\//g, '/_next/data/%BUILD_ID%/')
 
     // Check that redirects match
     expect(redirects).toMatchSnapshot()

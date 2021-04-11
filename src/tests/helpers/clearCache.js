@@ -1,6 +1,7 @@
 // Clear the build cache
 
 const { join } = require('path')
+
 const { emptyDirSync } = require('fs-extra')
 
 const CACHE_PATH = join(__dirname, '..', 'builds')

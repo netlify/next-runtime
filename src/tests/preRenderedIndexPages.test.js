@@ -2,7 +2,9 @@
 // See: https://github.com/netlify/next-on-netlify/issues/2#issuecomment-636415494
 
 const { parse, join } = require('path')
+
 const { existsSync, readdirSync, readFileSync } = require('fs-extra')
+
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)

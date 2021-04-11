@@ -1,6 +1,7 @@
 // Test next-on-netlify when a custom distDir is set in next.config.js
 
 const { parse, join } = require('path')
+
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)

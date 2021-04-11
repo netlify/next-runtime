@@ -1,4 +1,5 @@
 const { join } = require('path')
+
 const { copySync } = require('fs-extra')
 
 // Copy the fixture files from fixtures/ to the project folder

@@ -8,7 +8,7 @@ exports.handler = async (event, context, callback) => {
   // x-forwarded-host is undefined on Netlify for proxied apps that need it
   // fixes https://github.com/netlify/next-on-netlify/issues/46
   if (!event.multiValueHeaders.hasOwnProperty('x-forwarded-host')) {
-    event.multiValueHeaders['x-forwarded-host'] = [event.headers['host']]
+    event.multiValueHeaders['x-forwarded-host'] = [event.headers.host]
   }
 
   // Get the request URL

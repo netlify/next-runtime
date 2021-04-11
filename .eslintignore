@@ -1,0 +1,16 @@
+### Node ###
+
+.next
+/next.config.js
+node_modules
+src/cypress
+src/lib/helpers/logger.js
+src/lib/helpers/asyncForEach.js
+src/lib/templates
+src/tests
+test/sample/node_modules
+test/sample/out_functions
+test/sample/netlify/functions
+test/sample/my-publish-dir
+test/sample/.next
+test/sample/.netlify

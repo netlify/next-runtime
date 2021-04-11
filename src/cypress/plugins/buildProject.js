@@ -1,4 +1,5 @@
 const { join } = require('path')
+
 const execa = require('execa')
 
 // Build the given NextJS project

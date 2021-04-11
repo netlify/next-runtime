@@ -1,10 +1,13 @@
 const { join, relative } = require('path')
+
 const { copySync } = require('fs-extra')
-const { logTitle, logItem } = require('../../helpers/logger')
-const getNextDistDir = require('../../helpers/getNextDistDir')
-const getI18n = require('../../helpers/getI18n')
-const setupStaticFileForPage = require('../../helpers/setupStaticFileForPage')
+
 const asyncForEach = require('../../helpers/asyncForEach')
+const getI18n = require('../../helpers/getI18n')
+const getNextDistDir = require('../../helpers/getNextDistDir')
+const { logTitle, logItem } = require('../../helpers/logger')
+const setupStaticFileForPage = require('../../helpers/setupStaticFileForPage')
+
 const getPages = require('./pages')
 
 // Identify all pages that have been pre-rendered and copy each one to the

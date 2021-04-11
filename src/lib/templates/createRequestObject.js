@@ -1,6 +1,6 @@
-const Stream = require('stream')
-const queryString = require('querystring')
 const http = require('http')
+const queryString = require('querystring')
+const Stream = require('stream')
 
 // Mock a HTTP IncomingMessage object from the Netlify Function event parameters
 // Based on API Gateway Lambda Compat
@@ -20,7 +20,7 @@ const createRequestObject = ({ event, context }) => {
 
   const newStream = new Stream.Readable()
   const req = Object.assign(newStream, http.IncomingMessage.prototype)
-  req.url = (requestContext.path || path || '').replace(new RegExp('^/' + requestContext.stage), '') || '/'
+  req.url = (requestContext.path || path || '').replace(new RegExp(`^/${requestContext.stage}`), '') || '/'
 
   let qs = ''
 
@@ -31,14 +31,10 @@ const createRequestObject = ({ event, context }) => {
   if (pathParameters) {
     const pathParametersQs = queryString.stringify(pathParameters)
 
-    if (qs.length > 0) {
-      qs += `&${pathParametersQs}`
-    } else {
-      qs += pathParametersQs
-    }
+    qs += qs.length !== 0 ? `&${pathParametersQs}` : pathParametersQs
   }
 
-  const hasQueryString = qs.length > 0
+  const hasQueryString = qs.length !== 0
 
   if (hasQueryString) {
     req.url += `?${qs}`
@@ -58,18 +54,13 @@ const createRequestObject = ({ event, context }) => {
 
   for (const key of Object.keys(multiValueHeaders)) {
     for (const value of multiValueHeaders[key]) {
-      req.rawHeaders.push(key)
-      req.rawHeaders.push(value)
+      req.rawHeaders.push(key, value)
     }
     req.headers[key.toLowerCase()] = multiValueHeaders[key].toString()
   }
 
-  req.getHeader = (name) => {
-    return req.headers[name.toLowerCase()]
-  }
-  req.getHeaders = () => {
-    return req.headers
-  }
+  req.getHeader = (name) => req.headers[name.toLowerCase()]
+  req.getHeaders = () => req.headers
 
   req.connection = {}
 
