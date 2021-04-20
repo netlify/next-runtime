@@ -283,6 +283,6 @@ describe('onPostBuild', () => {
 
     expect(spy).toHaveBeenCalled()
     expect(path.normalize(distPath)).toBe(path.normalize('build/cache'))
-    expect(manifestPath.digests[0]).toBe('build/build-manifest.json')
+    expect(path.normalize(manifestPath.digests[0])).toBe(path.normalize('build/build-manifest.json'))
   })
 })
