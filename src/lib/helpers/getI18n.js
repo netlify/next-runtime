@@ -2,7 +2,7 @@
 const getNextConfig = require('../../../helpers/getNextConfig')
 
 const getI18n = async () => {
-  const nextConfig = await getNextConfig(process.cwd())
+  const nextConfig = await getNextConfig()
 
   return nextConfig.i18n || { locales: [] }
 }

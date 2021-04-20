@@ -28,7 +28,7 @@ module.exports = {
       return failBuild('Could not find a package.json for this project')
     }
 
-    const nextConfig = await getNextConfig(process.cwd(), utils.failBuild)
+    const nextConfig = await getNextConfig(utils.failBuild)
     await restoreCache({ cache: utils.cache, distDir: nextConfig.distDir })
 
     if (await doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })) {
@@ -70,7 +70,7 @@ module.exports = {
       return
     }
 
-    const nextConfig = await getNextConfig(process.cwd(), utils.failBuild)
+    const nextConfig = await getNextConfig(utils.failBuild)
     await saveCache({ cache: utils.cache, distDir: nextConfig.distDir })
     copyUnstableIncludedDirs({ nextConfig, functionsDist: FUNCTIONS_DIST })
   },

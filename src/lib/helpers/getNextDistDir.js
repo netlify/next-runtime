@@ -3,7 +3,7 @@ const { join } = require('path')
 const getNextConfig = require('../../../helpers/getNextConfig')
 
 const getNextDistDir = async () => {
-  const nextConfig = await getNextConfig(process.cwd())
+  const nextConfig = await getNextConfig()
 
   return join('.', nextConfig.distDir)
 }
