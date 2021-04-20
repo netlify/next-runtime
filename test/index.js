@@ -180,7 +180,7 @@ describe('preBuild()', () => {
     })
 
     expect(spy).toHaveBeenCalled()
-    expect(distPath).toBe('build/cache')
+    expect(path.normalize(distPath)).toBe(path.normalize('build/cache'))
   })
 })
 
@@ -282,7 +282,7 @@ describe('onPostBuild', () => {
     })
 
     expect(spy).toHaveBeenCalled()
-    expect(distPath).toBe('build/cache')
+    expect(path.normalize(distPath)).toBe(path.normalize('build/cache'))
     expect(manifestPath.digests[0]).toBe('build/build-manifest.json')
   })
 })
