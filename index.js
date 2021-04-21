@@ -9,6 +9,7 @@ const validateNextUsage = require('./helpers/validateNextUsage')
 const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
 const getNextConfig = require('./helpers/getNextConfig')
 const copyUnstableIncludedDirs = require('./helpers/copyUnstableIncludedDirs')
+const { restoreCache, saveCache } = require('./helpers/cacheBuild')
 
 const pWriteFile = util.promisify(fs.writeFile)
 
@@ -26,6 +27,9 @@ module.exports = {
     if (hasNoPackageJson) {
       return failBuild('Could not find a package.json for this project')
     }
+
+    const nextConfig = await getNextConfig(utils.failBuild)
+    await restoreCache({ cache: utils.cache, distDir: nextConfig.distDir })
 
     if (await doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })) {
       return
@@ -60,12 +64,14 @@ module.exports = {
 
     await nextOnNetlify({ functionsDir: FUNCTIONS_SRC, publishDir: PUBLISH_DIR })
   },
+
   async onPostBuild({ netlifyConfig, packageJson, constants: { FUNCTIONS_DIST }, utils }) {
     if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
       return
     }
 
     const nextConfig = await getNextConfig(utils.failBuild)
+    await saveCache({ cache: utils.cache, distDir: nextConfig.distDir })
     copyUnstableIncludedDirs({ nextConfig, functionsDist: FUNCTIONS_DIST })
   },
 }

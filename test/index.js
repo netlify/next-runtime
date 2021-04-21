@@ -18,6 +18,10 @@ const utils = {
       throw new Error(message)
     },
   },
+  cache: {
+    save() {},
+    restore() {},
+  },
 }
 
 // Temporary switch cwd
@@ -155,6 +159,29 @@ describe('preBuild()', () => {
       }),
     ).rejects.toThrow(`Error loading your next.config.js.`)
   })
+
+  test('restores cache with right paths', async () => {
+    await useFixture('dist_dir_next_config')
+
+    let distPath
+    const utils_ = {
+      ...utils,
+      cache: {
+        restore: (x) => (distPath = x),
+      },
+    }
+    const spy = jest.spyOn(utils_.cache, 'restore')
+
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson: DUMMY_PACKAGE_JSON,
+      utils: utils_,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
+    })
+
+    expect(spy).toHaveBeenCalled()
+    expect(path.normalize(distPath)).toBe(path.normalize('build/cache'))
+  })
 })
 
 describe('onBuild()', () => {
@@ -227,5 +254,35 @@ describe('onBuild()', () => {
     })
 
     expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.js`)).toBeTruthy()
+  })
+})
+
+describe('onPostBuild', () => {
+  test('saves cache with right paths', async () => {
+    await useFixture('dist_dir_next_config')
+
+    let distPath
+    let manifestPath
+    const utils_ = {
+      ...utils,
+      cache: {
+        save: (x, y) => {
+          distPath = x
+          manifestPath = y
+        },
+      },
+    }
+    const spy = jest.spyOn(utils_.cache, 'save')
+
+    await plugin.onPostBuild({
+      netlifyConfig,
+      packageJson: DUMMY_PACKAGE_JSON,
+      utils: utils_,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
+    })
+
+    expect(spy).toHaveBeenCalled()
+    expect(path.normalize(distPath)).toBe(path.normalize('build/cache'))
+    expect(path.normalize(manifestPath.digests[0])).toBe(path.normalize('build/build-manifest.json'))
   })
 })
