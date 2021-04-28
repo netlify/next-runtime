@@ -1,24 +1,26 @@
 const { join } = require('path')
+
 const addDefaultLocaleRedirect = require('../../helpers/addDefaultLocaleRedirect')
+const asyncForEach = require('../../helpers/asyncForEach')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
 const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
-const asyncForEach = require('../../helpers/asyncForEach')
+
 const getPages = require('./pages')
 
-/** getStaticProps with revalidate pages
- *
- * Page params: {
- *    route -> '/getStaticProps', '/getStaticProps/3'
- *    dataRoute -> '/_next/data/{BUILD_ID}/getStaticProps.json', '_next/data/{BUILD_ID}/getStaticProps/3.json'
- *    srcRoute -> null, /getStaticProps/[id]
- * }
- *
- * Page params in i18n {
- *    route -> '/getStaticProps', '/en/getStaticProps/3'
- *    dataRoute -> '/_next/data/{BUILD_ID}/getStaticProps.json', '_next/data/{BUILD_ID}/en/getStaticProps/3.json'
- *    srcRoute -> null, /getStaticProps/[id]
- * }
- **/
+// getStaticProps with revalidate pages
+//
+// Page params: {
+//     route -> '/getStaticProps', '/getStaticProps/3'
+//     dataRoute -> '/_next/data/{BUILD_ID}/getStaticProps.json', '_next/data/{BUILD_ID}/getStaticProps/3.json'
+//     srcRoute -> null, /getStaticProps/[id]
+// }
+//
+// Page params in i18n {
+//     route -> '/getStaticProps', '/en/getStaticProps/3'
+//     dataRoute -> '/_next/data/{BUILD_ID}/getStaticProps.json', '_next/data/{BUILD_ID}/en/getStaticProps/3.json'
+//     srcRoute -> null, /getStaticProps/[id]
+// }
+//
 
 const getRedirects = async () => {
   const redirects = []

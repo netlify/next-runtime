@@ -1,5 +1,7 @@
 const { join } = require('path')
+
 const { readFileSync } = require('fs-extra')
+
 const getFilePathForRoute = require('./getFilePathForRoute')
 const getNextDistDir = require('./getNextDistDir')
 

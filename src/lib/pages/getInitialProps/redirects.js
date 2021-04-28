@@ -1,6 +1,7 @@
 const addLocaleRedirects = require('../../helpers/addLocaleRedirects')
-const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
 const asyncForEach = require('../../helpers/asyncForEach')
+const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
+
 const getPages = require('./pages')
 
 const getRedirects = async () => {

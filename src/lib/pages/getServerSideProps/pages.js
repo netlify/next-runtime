@@ -1,8 +1,8 @@
-const getPagesManifest = require('../../helpers/getPagesManifest')
 const asyncForEach = require('../../helpers/asyncForEach')
-const isHtmlFile = require('../../helpers/isHtmlFile')
-const isFrameworkRoute = require('../../helpers/isFrameworkRoute')
+const getPagesManifest = require('../../helpers/getPagesManifest')
 const isApiRoute = require('../../helpers/isApiRoute')
+const isFrameworkRoute = require('../../helpers/isFrameworkRoute')
+const isHtmlFile = require('../../helpers/isHtmlFile')
 const isRouteInPrerenderManifest = require('../../helpers/isRouteInPrerenderManifest')
 const isRouteWithDataRoute = require('../../helpers/isRouteWithDataRoute')
 

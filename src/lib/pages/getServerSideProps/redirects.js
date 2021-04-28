@@ -1,16 +1,17 @@
 const addLocaleRedirects = require('../../helpers/addLocaleRedirects')
-const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
-const getDataRouteForRoute = require('../../helpers/getDataRouteForRoute')
 const asyncForEach = require('../../helpers/asyncForEach')
+const getDataRouteForRoute = require('../../helpers/getDataRouteForRoute')
+const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
+
 const getPages = require('./pages')
 
-/** getServerSideProps pages
- *
- * Page params {
- *    route -> '/ssr', '/ssr/[id]'
- *    filePath -> 'pages/ssr.js', 'pages/ssr/[id].js'
- * }
- **/
+// getServerSideProps pages
+//
+// Page params {
+//     route -> '/ssr', '/ssr/[id]'
+//     filePath -> 'pages/ssr.js', 'pages/ssr/[id].js'
+// }
+//
 
 const getRedirects = async () => {
   const redirects = []

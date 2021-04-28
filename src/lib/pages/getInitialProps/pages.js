@@ -1,10 +1,10 @@
+const asyncForEach = require('../../helpers/asyncForEach')
 const getPagesManifest = require('../../helpers/getPagesManifest')
-const isHtmlFile = require('../../helpers/isHtmlFile')
-const isFrameworkRoute = require('../../helpers/isFrameworkRoute')
 const isApiRoute = require('../../helpers/isApiRoute')
+const isFrameworkRoute = require('../../helpers/isFrameworkRoute')
+const isHtmlFile = require('../../helpers/isHtmlFile')
 const isRouteInPrerenderManifest = require('../../helpers/isRouteInPrerenderManifest')
 const isRouteWithDataRoute = require('../../helpers/isRouteWithDataRoute')
-const asyncForEach = require('../../helpers/asyncForEach')
 
 const getPages = async () => {
   // Get HTML and SSR pages and API endpoints from the NextJS pages manifest

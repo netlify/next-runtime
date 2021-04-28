@@ -1,9 +1,12 @@
 const { join } = require('path')
-const { existsSync, readdirSync, readFileSync, rmdirSync, removeSync, writeFileSync } = require('fs-extra')
+
 const findCacheDir = require('find-cache-dir')
+const { existsSync, readdirSync, readFileSync, rmdirSync, removeSync, writeFileSync } = require('fs-extra')
+
 const { NETLIFY_PUBLISH_PATH, NETLIFY_FUNCTIONS_PATH } = require('../config')
 
 const TRACKING_FILE_SEPARATOR = '---'
+const getDifference = (before, after) => after.filter((filePath) => !before.includes(filePath))
 
 // Clean configured publish and functions folders and track next-on-netlify files
 // for future cleans
@@ -47,7 +50,6 @@ const handleFileTracking = ({ functionsPath, publishPath }) => {
       isConfiguredFunctionsDir && existsSync(functionsPath) ? readdirSync(functionsPath) : functionsBeforeRun
     const publishAfterRun =
       isConfiguredPublishDir && existsSync(publishPath) ? readdirSync(publishPath) : publishBeforeRun
-    const getDifference = (before, after) => after.filter((filePath) => !before.includes(filePath))
     const newFunctionsFiles = getDifference(functionsBeforeRun, functionsAfterRun)
     const newPublishFiles = getDifference(publishBeforeRun, publishAfterRun)
 

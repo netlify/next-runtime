@@ -1,4 +1,5 @@
 const { join } = require('path')
+
 const getNextDistDir = require('./helpers/getNextDistDir')
 const getNextSrcDirs = require('./helpers/getNextSrcDir')
 

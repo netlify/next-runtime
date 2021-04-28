@@ -1,7 +1,9 @@
 const { join } = require('path')
+
 const { copySync, existsSync } = require('fs-extra')
-const { logTitle } = require('../helpers/logger')
+
 const getNextDistDir = require('../helpers/getNextDistDir')
+const { logTitle } = require('../helpers/logger')
 
 // Copy the NextJS' static assets from NextJS distDir to Netlify publish folder.
 // These need to be available for NextJS to work.

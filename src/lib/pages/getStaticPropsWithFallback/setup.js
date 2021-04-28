@@ -1,8 +1,10 @@
 const { join } = require('path')
-const { logTitle, logItem } = require('../../helpers/logger')
-const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
-const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
+
 const asyncForEach = require('../../helpers/asyncForEach')
+const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
+const { logTitle, logItem } = require('../../helpers/logger')
+const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
+
 const getPages = require('./pages')
 
 // Create a Netlify Function for every page with getStaticProps and fallback

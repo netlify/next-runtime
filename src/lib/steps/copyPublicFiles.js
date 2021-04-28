@@ -1,6 +1,7 @@
 const { existsSync, copySync } = require('fs-extra')
-const { logTitle } = require('../helpers/logger')
+
 const { PUBLIC_PATH } = require('../config')
+const { logTitle } = require('../helpers/logger')
 
 // Copy files from public folder to Netlify publish folder
 const copyPublicFiles = (publishPath) => {

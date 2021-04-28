@@ -1,10 +1,12 @@
 const { join } = require('path')
-const { logTitle, logItem } = require('../../helpers/logger')
+
 const asyncForEach = require('../../helpers/asyncForEach')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
 const isRouteWithFallback = require('../../helpers/isRouteWithFallback')
-const setupStaticFileForPage = require('../../helpers/setupStaticFileForPage')
+const { logTitle, logItem } = require('../../helpers/logger')
 const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
+const setupStaticFileForPage = require('../../helpers/setupStaticFileForPage')
+
 const getPages = require('./pages')
 
 // Copy pre-rendered SSG pages

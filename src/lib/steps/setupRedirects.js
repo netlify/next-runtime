@@ -1,11 +1,13 @@
 const { join } = require('path')
+
 const { existsSync, readFileSync, writeFileSync } = require('fs-extra')
-const { logTitle, logItem } = require('../helpers/logger')
+
 const { CUSTOM_REDIRECTS_PATH, NEXT_IMAGE_FUNCTION_NAME } = require('../config')
-const getSortedRedirects = require('../helpers/getSortedRedirects')
 const getNetlifyRoutes = require('../helpers/getNetlifyRoutes')
-const isRootCatchAllRedirect = require('../helpers/isRootCatchAllRedirect')
+const getSortedRedirects = require('../helpers/getSortedRedirects')
 const isDynamicRoute = require('../helpers/isDynamicRoute')
+const isRootCatchAllRedirect = require('../helpers/isRootCatchAllRedirect')
+const { logTitle, logItem } = require('../helpers/logger')
 const removeFileExtension = require('../helpers/removeFileExtension')
 
 // Setup _redirects file that routes all requests to the appropriate location,
@@ -58,7 +60,7 @@ const setupRedirects = async (publishPath) => {
   ;[...sortedStaticRedirects, ...sortedDynamicRedirects].forEach((nextRedirect) => {
     // One route may map to multiple Netlify routes: e.g., catch-all pages
     // require two Netlify routes in the _redirects file
-    getNetlifyRoutes(nextRedirect.route).map((netlifyRoute) => {
+    getNetlifyRoutes(nextRedirect.route).forEach((netlifyRoute) => {
       const { conditions = [], force = false, statusCode = '200', target } = nextRedirect
       const redirectPieces = [netlifyRoute, target, `${statusCode}${force ? '!' : ''}`, conditions.join('  ')]
       const redirect = redirectPieces.join('  ').trim()
