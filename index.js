@@ -28,6 +28,8 @@ module.exports = {
       return failBuild('Could not find a package.json for this project')
     }
 
+    console.log('test')
+
     const nextConfig = await getNextConfig(utils.failBuild)
     await restoreCache({ cache: utils.cache, distDir: nextConfig.distDir })
 
