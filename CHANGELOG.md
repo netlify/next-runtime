@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.2.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.1.0...v3.2.0) (2021-04-29)
+
+
+### Features
+
+* add eslint ([#249](https://www.github.com/netlify/netlify-plugin-nextjs/issues/249)) ([70ee184](https://www.github.com/netlify/netlify-plugin-nextjs/commit/70ee18449286b7fb07d9f07753103a88a18a4ece))
+* cache .next/cache between builds ([#185](https://www.github.com/netlify/netlify-plugin-nextjs/issues/185)) ([1c686e2](https://www.github.com/netlify/netlify-plugin-nextjs/commit/1c686e2b0183bec758e6fb149010dbd80c6780f3))
+
+
+### Bug Fixes
+
+* **deps:** update dependency chalk to v4.1.1 ([eda3d1f](https://www.github.com/netlify/netlify-plugin-nextjs/commit/eda3d1f3f07ab17d2b6be7b0b19eec0e48da0ac5))
+* **deps:** update dependency moize to v6.0.2 ([24702ab](https://www.github.com/netlify/netlify-plugin-nextjs/commit/24702abc586ca2b013e10243dff80c2e1b2febf0))
+
 ## [3.1.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.0.3...v3.1.0) (2021-04-11)
 
 
