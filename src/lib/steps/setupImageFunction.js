@@ -1,5 +1,7 @@
-const { copySync } = require('fs-extra')
 const { join } = require('path')
+
+const { copySync } = require('fs-extra')
+
 const { NEXT_IMAGE_FUNCTION_NAME, TEMPLATES_DIR } = require('../config')
 
 // Move our next/image function into the correct functions directory

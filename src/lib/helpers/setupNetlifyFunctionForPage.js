@@ -1,9 +1,12 @@
-const { copySync } = require('fs-extra')
 const { join } = require('path')
+
+const { copySync } = require('fs-extra')
+
 const { TEMPLATES_DIR, FUNCTION_TEMPLATE_PATH } = require('../config')
-const getNextDistDir = require('./getNextDistDir')
-const getNetlifyFunctionName = require('./getNetlifyFunctionName')
+
 const copyDynamicImportChunks = require('./copyDynamicImportChunks')
+const getNetlifyFunctionName = require('./getNetlifyFunctionName')
+const getNextDistDir = require('./getNextDistDir')
 const { logItem } = require('./logger')
 
 // Create a Netlify Function for the page with the given file path

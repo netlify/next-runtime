@@ -11,7 +11,7 @@ const addDefaultLocaleRedirect = async (redirects, route, target, additionalPara
   if (!defaultLocale) return
 
   const routePieces = route.split('/')
-  const routeLocale = routePieces[1]
+  const [, routeLocale] = routePieces
   if (routeLocale === defaultLocale) {
     const nakedRoute = route === `/${routeLocale}` ? '/' : route.replace(`/${routeLocale}`, '')
     redirects.push({

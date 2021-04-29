@@ -1,19 +1,22 @@
 const { join } = require('path')
+
 const { readJSONSync } = require('fs-extra')
+
 const getNextConfig = require('../../../helpers/getNextConfig')
-const getNextDistDir = require('./getNextDistDir')
-const getDataRouteForRoute = require('./getDataRouteForRoute')
+
 const asyncForEach = require('./asyncForEach')
+const getDataRouteForRoute = require('./getDataRouteForRoute')
+const getNextDistDir = require('./getNextDistDir')
 
 const transformManifestForI18n = async (manifest) => {
   const { routes } = manifest
   const newRoutes = {}
   await asyncForEach(Object.entries(routes), async ([route, { dataRoute, srcRoute, ...params }]) => {
-    const isDynamicRoute = !!srcRoute
+    const isDynamicRoute = Boolean(srcRoute)
     if (isDynamicRoute) {
       newRoutes[route] = routes[route]
     } else {
-      const locale = route.split('/')[1]
+      const [, locale] = route.split('/')
       const routeWithoutLocale = `/${route.split('/').slice(2, route.split('/').length).join('/')}`
       newRoutes[route] = {
         dataRoute: await getDataRouteForRoute(routeWithoutLocale, locale),

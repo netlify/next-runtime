@@ -1,7 +1,11 @@
 const { join } = require('path')
+
 const { existsSync, readFileSync, writeFileSync } = require('fs-extra')
-const { logTitle, logItem } = require('../helpers/logger')
+
 const { CUSTOM_HEADERS_PATH } = require('../config')
+const { logTitle, logItem } = require('../helpers/logger')
+
+const indentNewLine = (s) => `\n  ${s}`
 
 // Setup _headers file to override specific header rules for next assets
 const setupHeaders = (publishPath) => {
@@ -18,7 +22,6 @@ const setupHeaders = (publishPath) => {
   headers.push('# Next-on-Netlify Headers')
 
   // Add rule to override cache control for static chunks
-  const indentNewLine = (s) => `\n  ${s}`
   const staticChunkRule = [
     `/_next/static/chunks/*`,
     indentNewLine(`cache-control: public`),

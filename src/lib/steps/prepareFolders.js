@@ -1,9 +1,11 @@
 const { join } = require('path')
-const { emptyDirSync } = require('fs-extra')
+
 const findCacheDir = require('find-cache-dir')
-const { logTitle, log } = require('../helpers/logger')
+const { emptyDirSync } = require('fs-extra')
+
 const { NETLIFY_PUBLISH_PATH, NETLIFY_FUNCTIONS_PATH } = require('../config')
 const handleFileTracking = require('../helpers/handleFileTracking')
+const { logTitle, log } = require('../helpers/logger')
 
 // Clean existing publish and functions folders
 const prepareFolders = ({ functionsPath, publishPath }) => {

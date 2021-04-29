@@ -1,6 +1,6 @@
-const getI18n = require('./getI18n')
-const getDataRouteForRoute = require('./getDataRouteForRoute')
 const asyncForEach = require('./asyncForEach')
+const getDataRouteForRoute = require('./getDataRouteForRoute')
+const getI18n = require('./getI18n')
 
 const addLocaleRedirects = async (redirects, route, target) => {
   const i18n = await getI18n()

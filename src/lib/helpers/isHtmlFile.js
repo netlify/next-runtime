@@ -1,6 +1,4 @@
 // Return true if the file path is an HTML file
-const isHtmlFile = (filePath) => {
-  return filePath.endsWith('.html')
-}
+const isHtmlFile = (filePath) => filePath.endsWith('.html')
 
 module.exports = isHtmlFile

@@ -1,6 +1,7 @@
+const asyncForEach = require('../../helpers/asyncForEach')
 const { logTitle, logItem } = require('../../helpers/logger')
 const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
-const asyncForEach = require('../../helpers/asyncForEach')
+
 const getPages = require('./pages')
 
 // Create a Netlify Function for every page with getInitialProps

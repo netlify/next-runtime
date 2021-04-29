@@ -11,20 +11,31 @@
     "!src/tests"
   ],
   "scripts": {
-    "format": "prettier --write .",
     "build": "next build test/sample",
-    "test:plugin": "npm run build && jest",
-    "test:src": "jest --config src/tests/jest.config.js",
-    "test": "npm run test:plugin && npm run test:src",
     "cypress:local": "env CYPRESS_DEPLOY=local cypress run --project ./src --config-file false --config video=false",
     "cypress:netlify": "env CYPRESS_DEPLOY=netlify cypress run --project ./src --config-file false --config video=false",
     "cypress:local:testonly": "env CYPRESS_SKIP_DEPLOY=true npm run cypress:local",
     "cypress:netlify:testonly": "env CYPRESS_SKIP_DEPLOY=true npm run cypress:netlify",
+    "format": "run-s format:check-fix:*",
+    "format:ci": "run-s format:check:*",
+    "format:check-fix:lint": "run-e format:check:lint format:fix:lint",
+    "format:check:lint": "cross-env-shell eslint $npm_package_config_eslint",
+    "format:fix:lint": "cross-env-shell eslint --fix $npm_package_config_eslint",
+    "format:check-fix:prettier": "run-e format:check:prettier format:fix:prettier",
+    "format:check:prettier": "cross-env-shell prettier --check $npm_package_config_prettier",
+    "format:fix:prettier": "cross-env-shell prettier --write $npm_package_config_prettier",
     "prepublishOnly": "run-s prepublishOnly:*",
     "prepublishOnly:checkout": "git checkout main",
     "prepublishOnly:pull": "git pull",
     "prepublishOnly:install": "npm ci",
-    "prepublishOnly:test": "npm test"
+    "prepublishOnly:test": "npm test",
+    "test:plugin": "npm run build && jest",
+    "test:src": "jest --config src/tests/jest.config.js",
+    "test": "npm run test:plugin && npm run test:src"
+  },
+  "config": {
+    "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{js,md,html}\" \"*.{js,md,html}\" \".*.{js,md,html}\"",
+    "prettier": "--loglevel=warn \"{src,scripts,tests,.github}/**/*.{js,md,yml,json,html}\" \"*.{js,yml,json,html}\" \".*.{js,yml,json,html}\" \"!package-lock.json\""
   },
   "repository": {
     "type": "git",
@@ -77,7 +88,7 @@
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "prettier --check ."
+      "pre-push": "npm run format"
     }
   },
   "engines": {

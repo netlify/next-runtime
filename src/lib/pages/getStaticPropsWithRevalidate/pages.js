@@ -1,6 +1,6 @@
-const isRouteWithFallback = require('../../helpers/isRouteWithFallback')
-const getPrerenderManifest = require('../../helpers/getPrerenderManifest')
 const asyncForEach = require('../../helpers/asyncForEach')
+const getPrerenderManifest = require('../../helpers/getPrerenderManifest')
+const isRouteWithFallback = require('../../helpers/isRouteWithFallback')
 
 // Get pages using getStaticProps
 const getPages = async () => {

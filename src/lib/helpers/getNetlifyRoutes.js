@@ -13,7 +13,7 @@ const getNetlifyRoutes = (nextRoute) => {
   // If the route is an optional catch-all route, we need to add a second
   // Netlify route for the base path (when no parameters are present).
   // The file ending must be present!
-  if (nextRoute.match(OPTIONAL_CATCH_ALL_REGEX)) {
+  if (OPTIONAL_CATCH_ALL_REGEX.test(nextRoute)) {
     let netlifyRoute = nextRoute.replace(OPTIONAL_CATCH_ALL_REGEX, '$2')
 
     // When optional catch-all route is at top-level, the regex on line 19 will
