@@ -1,5 +1,13 @@
 # Changelog
 
+### [3.2.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.2.0...v3.2.1) (2021-05-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency moize to v6.0.3 ([bef04fd](https://www.github.com/netlify/netlify-plugin-nextjs/commit/bef04fd47d34385eb3d771ba020821a010a89ab3))
+* nextConfig was memoized too early ([#264](https://www.github.com/netlify/netlify-plugin-nextjs/issues/264)) ([c5d88a4](https://www.github.com/netlify/netlify-plugin-nextjs/commit/c5d88a46aced7be580d3aa8b86dd9fdbbb384373))
+
 ## [3.2.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.1.0...v3.2.0) (2021-04-29)
 
 
