@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.2.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.2.1...v3.2.2) (2021-05-03)
+
+
+### Bug Fixes
+
+* support isDynamicRoute in sls-next >=1.8.0 ([#266](https://www.github.com/netlify/netlify-plugin-nextjs/issues/266)) ([3901302](https://www.github.com/netlify/netlify-plugin-nextjs/commit/39013024d3f21f52c2d743a18c7258c3c7e8815a))
+
 ### [3.2.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.2.0...v3.2.1) (2021-05-03)
 
 
