@@ -20,6 +20,7 @@ This build plugin is a utility for supporting Next.js on Netlify. To enable serv
 - [Custom Netlify Functions](#custom-netlify-functions)
 - [Publish Directory](#publish-directory)
 - [Custom Netlify Redirects](#custom-netlify-redirects)
+- [FAQ](#faq)
 - [Caveats](#caveats)
 - [Credits](#credits)
 - [Showcase](#showcase)
@@ -129,6 +130,12 @@ The precedence of these rules are:
 - `next-on-netlify` redirects
 
 Read more about [Netlify redirects](https://docs.netlify.com/routing/redirects/) in our docs.
+
+## FAQ
+
+**Q: What can I do if my builds fail suddenly from a broken plugin release or plugin dependency?**
+A: Check out the plugin's [releases](https://github.com/netlify/netlify-plugin-nextjs/releases). You can manually install `npm install -D @netlify/plugin-nextjs@3.x.x` at the last working version.
+Once a new working release is out, you can uninstall the plugin at this locked version (`npm uninstall -D @netlify/plugin-nextjs`), which will re-enable Netlify's build system to use the latest plugin version by default.
 
 ## Caveats
 
