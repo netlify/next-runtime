@@ -11,6 +11,7 @@ const getSortedRedirects = (redirects) => {
   // We cannot load `next` at the top-level because we validate whether the
   // site is using `next` inside `onPreBuild`.
   // Sort the "naked" routes
+  // eslint-disable-next-line node/no-unpublished-require
   const { getSortedRoutes } = require('next/dist/next-server/lib/router/utils/sorted-routes')
   const sortedRoutes = getSortedRoutes(routesWithoutExtensions)
 
