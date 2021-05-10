@@ -33,7 +33,7 @@
     "find-up": "^4.1.0",
     "jimp": "^0.16.1",
     "make-dir": "^3.1.0",
-    "next-on-netlify": "3.0.0",
+    "next-on-netlify": "3.0.1",
     "semver": "^7.3.2"
   },
   "devDependencies": {
