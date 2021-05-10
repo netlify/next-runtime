@@ -13,7 +13,6 @@ module.exports = {
     'no-await-in-loop': 0,
     'node/exports-style': 0,
     'node/global-require': 0,
-    'node/no-unpublished-require': 0,
     'node/prefer-global/process': 0,
     'no-magic-numbers': 0,
     'no-promise-executor-return': 0,
