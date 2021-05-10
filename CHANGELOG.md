@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.5 (2021-05-10)
+
+- update NoN to 3.0.1 (move execa to prod dep)
+
 ## 1.1.4 (2021-05-09)
 
 - update NoN to 3.0.0 to fix isDynamicRoute [issue](https://answers.netlify.com/t/all-my-nextjs-projects-are-failed-due-to-plugin-netlify-plugin-nextjs-internal-error-typeerror-isdynamicroute-is-not-a-function/37240/2)
