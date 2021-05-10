@@ -69,7 +69,7 @@
     "semver": "^7.3.2"
   },
   "devDependencies": {
-    "@netlify/eslint-config-node": "^2.6.5",
+    "@netlify/eslint-config-node": "^2.6.6",
     "cpy": "^8.1.1",
     "cypress": "^7.0.0",
     "execa": "^5.0.0",
