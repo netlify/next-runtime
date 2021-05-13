@@ -38,8 +38,9 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage 
   // Copy any dynamic import chunks
   await copyDynamicImportChunks(functionDirectory)
 
-  // Copy page
-  const nextPageCopyPath = join(functionDirectory, 'nextPage', 'index.js')
+  // Copy page to our custom path
+  // (hack needed for dynamic imports, see: copyDynamicImportChunks.js)
+  const nextPageCopyPath = join(functionDirectory, 'nextPage', 'nextPage', 'index.js')
   const nextDistDir = await getNextDistDir()
   copySync(join(nextDistDir, 'serverless', filePath), nextPageCopyPath, {
     overwrite: false,
