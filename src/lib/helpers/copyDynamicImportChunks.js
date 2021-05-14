@@ -28,10 +28,9 @@ const copyDynamicImportChunks = async (functionPath) => {
   const chunksPathWebpack5 = join(nextDistDir, 'serverless', 'chunks')
   const filesWP5 = existsSync(chunksPathWebpack5) ? readdirSync(chunksPathWebpack5) : []
   filesWP5.forEach((file) => {
-    // WP5 files are looked for two levels up (../../chunks) in runtime
-    // This is a hack to make the file one level up i.e. with
-    // nextPage/nextPage/index.js, the chunk is moved to outer nextPage in a /chunks dir
-    const copyPath = join(functionPath, 'chunks')
+    // Chunks are copied into the nextPage directory, as a sibling to pages or api.
+    // This matches the Next output, so that imports work correctly
+    const copyPath = join(functionPath, 'nextPage', 'chunks')
     logTitle('💼 Copying WB5 dynamic import chunks to', copyPath)
     copySync(join(chunksPathWebpack5, file), join(copyPath, file), {
       overwrite: false,

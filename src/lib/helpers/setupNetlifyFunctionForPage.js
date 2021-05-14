@@ -1,6 +1,6 @@
 const { join } = require('path')
 
-const { copySync } = require('fs-extra')
+const { copySync, writeFile } = require('fs-extra')
 
 const { TEMPLATES_DIR, FUNCTION_TEMPLATE_PATH } = require('../config')
 
@@ -39,13 +39,16 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage 
   await copyDynamicImportChunks(functionDirectory)
 
   // Copy page to our custom path
-  // (hack needed for dynamic imports, see: copyDynamicImportChunks.js)
-  const nextPageCopyPath = join(functionDirectory, 'nextPage', 'nextPage', 'index.js')
+  const nextPageCopyPath = join(functionDirectory, 'nextPage', filePath)
   const nextDistDir = await getNextDistDir()
+
   copySync(join(nextDistDir, 'serverless', filePath), nextPageCopyPath, {
     overwrite: false,
     errorOnExist: true,
   })
+
+  // Write the import entry point
+  await writeFile(join(functionDirectory, 'nextPage', 'index.js'), `module.exports = require("./${filePath}")`)
 }
 
 module.exports = setupNetlifyFunctionForPage
