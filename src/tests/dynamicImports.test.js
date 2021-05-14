@@ -38,13 +38,9 @@ describe('next-on-netlify', () => {
     expect(buildOutput).toMatch('Success! All done!')
   })
 
-  test('copies chunk files to ', () => {
-    const functionFiles = readdirSync(join(functionsDir, 'next_index'))
-    const chunkRegex = new RegExp(/(\.?[-_$~A-Z0-9a-z]+){1,}\.js$/g)
-    let chunkFileExists
-    functionFiles.forEach((file) => {
-      chunkFileExists = chunkRegex.test(file)
-    })
-    expect(chunkFileExists).toBe(true)
+  test('copies chunk files to functions dir', () => {
+    // This only tests WP5 as Next is -D installed @ 10.2.0
+    const chunkFiles = readdirSync(join(functionsDir, 'next_index', 'nextPage', 'chunks'))
+    expect(chunkFiles.length).toEqual(1) // just the header
   })
 })
