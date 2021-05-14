@@ -1,5 +1,13 @@
 # Changelog
 
+### [3.2.3](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.2.2...v3.2.3) (2021-05-14)
+
+
+### Bug Fixes
+
+* **deps:** move execa to prod ([#283](https://www.github.com/netlify/netlify-plugin-nextjs/issues/283)) ([7e02782](https://www.github.com/netlify/netlify-plugin-nextjs/commit/7e02782bf3bd6d0a38267a1dde73737ddbc7c346))
+* dynamic imports with webpack 5 ([#294](https://www.github.com/netlify/netlify-plugin-nextjs/issues/294)) ([ec62ee3](https://www.github.com/netlify/netlify-plugin-nextjs/commit/ec62ee392be436798b1fd3da68b52f7887be111c))
+
 ### [3.2.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.2.1...v3.2.2) (2021-05-03)
 
 
