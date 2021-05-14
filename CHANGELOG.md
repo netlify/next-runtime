@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.3.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.2.2...v3.3.0) (2021-05-14)
+
+
+### Features
+
+* next/image improvements (sharp + on demand builders) ([#295](https://www.github.com/netlify/netlify-plugin-nextjs/issues/295)) ([088f267](https://www.github.com/netlify/netlify-plugin-nextjs/commit/088f267120ec1caa04da23491d7b3c3612878a04))
+
+
+### Bug Fixes
+
+* **deps:** move execa to prod ([#283](https://www.github.com/netlify/netlify-plugin-nextjs/issues/283)) ([7e02782](https://www.github.com/netlify/netlify-plugin-nextjs/commit/7e02782bf3bd6d0a38267a1dde73737ddbc7c346))
+* dynamic imports with webpack 5 ([ce4308a](https://www.github.com/netlify/netlify-plugin-nextjs/commit/ce4308a54bd911e7c90e86ea7f297c08fe5f5ae1))
+* dynamic imports with webpack 5 ([#294](https://www.github.com/netlify/netlify-plugin-nextjs/issues/294)) ([ec62ee3](https://www.github.com/netlify/netlify-plugin-nextjs/commit/ec62ee392be436798b1fd3da68b52f7887be111c))
+* preserve function directory structure ([4847929](https://www.github.com/netlify/netlify-plugin-nextjs/commit/48479295dcafdc5d1dad0f22faeb01ea8b919dc8))
+
 ### [3.2.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.2.1...v3.2.2) (2021-05-03)
 
 
