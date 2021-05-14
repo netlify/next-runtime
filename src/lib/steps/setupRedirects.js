@@ -47,10 +47,16 @@ const setupRedirects = async (publishPath) => {
   const staticRedirects = nextRedirects.filter(({ route }) => !isDynamicRoute(removeFileExtension(route)))
   const dynamicRedirects = nextRedirects.filter(({ route }) => isDynamicRoute(removeFileExtension(route)))
 
-  // Add next/image redirect to our image function
+  // Add necessary next/image redirects for our image function
   dynamicRedirects.push({
     route: '/_next/image*  url=:url w=:width q=:quality',
-    target: `/.netlify/functions/${NEXT_IMAGE_FUNCTION_NAME}?url=:url&w=:width&q=:quality`,
+    target: `/nextimg/:url/:width/:quality`,
+    statusCode: '301',
+    force: true,
+  })
+  dynamicRedirects.push({
+    route: '/nextimg/*',
+    target: `/.netlify/functions/${NEXT_IMAGE_FUNCTION_NAME}`,
   })
 
   const sortedStaticRedirects = getSortedRedirects(staticRedirects)

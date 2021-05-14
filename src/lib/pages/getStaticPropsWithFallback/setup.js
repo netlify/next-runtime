@@ -18,7 +18,7 @@ const setup = async (functionsPath) => {
     const relativePath = getFilePathForRoute(route, 'js')
     const filePath = join('pages', relativePath)
     logItem(filePath)
-    await setupNetlifyFunctionForPage({ filePath, functionsPath })
+    await setupNetlifyFunctionForPage({ filePath, functionsPath, isISR: true })
   })
 }
 
