@@ -1,52 +1,95 @@
-const path = require('path')
 const { builder } = require('@netlify/functions')
 const sharp = require('sharp')
 const fetch = require('node-fetch')
+const imageType = require('image-type')
+const isSvg = require('is-svg')
 
-// Function used to mimic next/image and sharp
+function getImageType(buffer) {
+  const type = imageType(buffer)
+  if (type) {
+    return type
+  }
+  if (isSvg(buffer)) {
+    return { ext: 'svg', mime: 'image/svg' }
+  }
+  return null
+}
+
+const IGNORED_FORMATS = new Set(['svg', 'gif'])
+const OUTPUT_FORMATS = new Set(['png', 'jpg', 'webp', 'avif'])
+
+// Function used to mimic next/image
 const handler = async (event) => {
   const [, , url, w = 500, q = 75] = event.path.split('/')
-  const parsedUrl = decodeURIComponent(url)
+  // Work-around a bug in redirect handling. Remove when fixed.
+  const parsedUrl = decodeURIComponent(url).replace('+', '%20')
   const width = parseInt(w)
-  const quality = parseInt(q)
+
+  if (!width) {
+    return {
+      statusCode: 400,
+      body: 'Invalid image parameters',
+    }
+  }
+
+  const quality = parseInt(q) || 60
 
   const imageUrl = parsedUrl.startsWith('/')
     ? `${process.env.DEPLOY_URL || `http://${event.headers.host}`}${parsedUrl}`
     : parsedUrl
+
   const imageData = await fetch(imageUrl)
-  const bufferData = await imageData.buffer()
-  const ext = path.extname(imageUrl)
-  const mimeType = ext === 'jpg' ? `image/jpeg` : `image/${ext}`
 
-  let image
-  let imageBuffer
-
-  if (mimeType === 'image/gif') {
-    image = await sharp(bufferData, { animated: true })
-    // gif resizing in sharp seems unstable (https://github.com/lovell/sharp/issues/2275)
-    imageBuffer = await image.toBuffer()
-  } else {
-    image = await sharp(bufferData)
-    if (mimeType === 'image/webp') {
-      image = image.webp({ quality })
-    } else if (mimeType === 'image/jpeg') {
-      image = image.jpeg({ quality })
-    } else if (mimeType === 'image/png') {
-      image = image.png({ quality })
-    } else if (mimeType === 'image/avif') {
-      image = image.avif({ quality })
-    } else if (mimeType === 'image/tiff') {
-      image = image.tiff({ quality })
-    } else if (mimeType === 'image/heif') {
-      image = image.heif({ quality })
+  if (!imageData.ok) {
+    console.error(`Failed to download image ${imageUrl}. Status ${imageData.status} ${imageData.statusText}`)
+    return {
+      statusCode: imageData.status,
+      body: imageData.statusText,
     }
-    imageBuffer = await image.resize(width).toBuffer()
   }
+
+  const bufferData = await imageData.buffer()
+
+  const type = getImageType(bufferData)
+
+  if (!type) {
+    return { statusCode: 400, body: 'Source does not appear to be an image' }
+  }
+
+  let { ext } = type
+
+  // For unsupported formats (gif, svg) we redirect to the original
+  if (IGNORED_FORMATS.has(ext)) {
+    return {
+      statusCode: 302,
+      headers: {
+        Location: imageUrl,
+      },
+    }
+  }
+
+  if (process.env.FORCE_WEBP_OUTPUT) {
+    ext = 'webp'
+  }
+
+  if (!OUTPUT_FORMATS.has(ext)) {
+    ext = 'jpg'
+  }
+
+  // The format methods are just to set options: they don't
+  // make it return that format.
+  const { info, data: imageBuffer } = await sharp(bufferData)
+    .jpeg({ quality, force: ext === 'jpg' })
+    .webp({ quality, force: ext === 'webp' })
+    .png({ quality, force: ext === 'png' })
+    .avif({ quality, force: ext === 'avif' })
+    .resize(width)
+    .toBuffer({ resolveWithObject: true })
 
   return {
     statusCode: 200,
     headers: {
-      'Content-Type': mimeType,
+      'Content-Type': `image/${info.format}`,
     },
     body: imageBuffer.toString('base64'),
     isBase64Encoded: true,
