@@ -35,9 +35,11 @@ This means that you don't have to do anything — just build and deploy your si
 
 You're able to [remove the plugin](https://docs.netlify.com/configure-builds/build-plugins/#remove-a-plugin) at any time by visiting the **Plugins** tab for your site in the Netlify UI.
 
-### UI-based installation for existing Next.js sites
+### For existing Next.js sites
 
-If your Next.js project is already deployed to Netlify, use the Netlify UI to [install the Essential Next.js Build Plugin](http://app.netlify.com/plugins/@netlify/plugin-nextjs/install) in a few clicks.
+### UI Installation
+
+If your Next.js project was already deployed to Netlify pre-3.0.0, use the Netlify UI to [install the Essential Next.js Build Plugin](http://app.netlify.com/plugins/@netlify/plugin-nextjs/install) in a few clicks.
 
 ### Manual installation
 
@@ -52,6 +54,8 @@ If your Next.js project is already deployed to Netlify, use the Netlify UI to [i
   package = "@netlify/plugin-nextjs"
 ```
 
+Note: the plugin does not run for statically exported Next.js sites (aka sites that use `next export`). To use the plugin, you should use the `[build]` config in the .toml snippet above. Be sure to exclude `next export` from your build script.
+
  You can also add context-specific properties and environment variables to your `netlify.toml`. Read more about [deploy contexts](https://docs.netlify.com/configure-builds/file-based-configuration/#deploy-contexts) in our docs. For example:
 
 ```toml
@@ -63,13 +67,13 @@ NODE_ENV = "production"
 2\. From your project's base directory, use `npm`, `yarn`, or any other Node.js package manager to add this plugin to `devDependencies` in `package.json`.
 
 ```
-npm install -D @netlify/plugin-nextjs
+npm install --save @netlify/plugin-nextjs
 ```
 
 or
 
 ```
-yarn add -D @netlify/plugin-nextjs
+yarn add @netlify/plugin-nextjs
 ```
 
 Read more about [file-based plugin installation](https://docs.netlify.com/configure-builds/build-plugins/#file-based-installation) in our docs.
@@ -148,13 +152,13 @@ For breaking Next.js releases, all Next.js versions before the breaking release 
 
 Next.js < 10.0.6 is locked to plugin version 1.1.3. To use the latest plugin version, upgrade to Next.js >= 10.0.6.
 
-### Fallbacks for Pages with `getStaticPaths`
+### Fallback Pages
 
-[Fallback pages](https://nextjs.org/docs/basic-features/data-fetching#fallback-true) behave differently with this plugin than they do with Next.js. On Next.js, when navigating to a path that is not defined in `getStaticPaths`, it first displays the fallback page. Next.js then generates the HTML in the background and caches it for future requests.
+As of v3.3.0, this plugin uses Netlify's [On-Demand Builders](https://docs.netlify.com/configure-builds/on-demand-builders/) for pages that use `fallback: true` or `fallback: blocking` in getStaticPaths. This means the page is built once and then cached until a future deploy. This is Netlify's first step towards solving the problem ISR originally set out to solve.
 
-With this plugin, when navigating to a path that is not defined in `getStaticPaths`, it server-side renders the page and sends it directly to the user. The user never sees the fallback page. The page is not cached for future requests.
+### Incremental Static Regeneration
 
-For more on this, see: [Issue #7](https://github.com/netlify/next-on-netlify/issues/7#issuecomment-636883539)
+Using the `revalidate` flag in getStaticProps is not fully supported on Netlify. Currently, this plugin will SSR these pages instead of serving any prerendered/incrementally built HTML. See [this issue](https://github.com/netlify/netlify-plugin-nextjs/issues/151) for more info.
 
 ## Credits
 
