@@ -20,6 +20,7 @@ This build plugin is a utility for supporting Next.js on Netlify. To enable serv
 - [Custom Netlify Functions](#custom-netlify-functions)
 - [Publish Directory](#publish-directory)
 - [Custom Netlify Redirects](#custom-netlify-redirects)
+- [Local Files in Runtime](#local-files-in-runtime)
 - [FAQ](#faq)
 - [Caveats](#caveats)
 - [Credits](#credits)
@@ -134,6 +135,23 @@ The precedence of these rules are:
 - `next-on-netlify` redirects
 
 Read more about [Netlify redirects](https://docs.netlify.com/routing/redirects/) in our docs.
+
+## Local Files in Runtime
+
+A common requirement for Next.js projects is to require local files in Next.js pages (see [markdown issue](https://github.com/netlify/netlify-plugin-nextjs/issues/153) and [i18next issue](https://github.com/netlify/netlify-plugin-nextjs/issues/223) as examples).
+
+In this case, you can configure your netlify.toml to make sure these files are included in the function runtime environment. This is necessary for pages that use fallback: true, SSR, preview mode, etc. For example:
+
+```toml
+[build]
+  command = "npm run build"
+
+[functions]
+  # Includes all Markdown files inside the "files/" directory.
+  included_files = ["files/*.md"]
+```
+
+Read more about functions configuration and `included_files` in our [docs](https://docs.netlify.com/configure-builds/file-based-configuration/#functions).
 
 ## FAQ
 
