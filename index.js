@@ -46,6 +46,14 @@ module.exports = {
 
     // Because we memoize nextConfig, we need to do this after the write file
     const nextConfig = await getNextConfig(utils.failBuild)
+
+    if (nextConfig.images.domains.length !== 0 && !process.env.NEXT_IMAGE_ALLOWED_DOMAINS) {
+      console.log(
+        `Image domains set in next.config.js are ignored.\nPlease set the env variable NEXT_IMAGE_ALLOWED_DOMAINS to "${nextConfig.images.domains.join(
+          ',',
+        )}" instead`,
+      )
+    }
     await restoreCache({ cache: utils.cache, distDir: nextConfig.distDir })
   },
   async onBuild({
