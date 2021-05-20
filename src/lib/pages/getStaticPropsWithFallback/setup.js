@@ -1,9 +1,7 @@
 const { join } = require('path')
 
-const asyncForEach = require('../../helpers/asyncForEach')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
-const { logTitle, logItem } = require('../../helpers/logger')
-const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
+const { logTitle } = require('../../helpers/logger')
 
 const getPages = require('./pages')
 
@@ -14,11 +12,10 @@ const setup = async (functionsPath) => {
   const pages = await getPages()
 
   // Create Netlify Function for every page
-  await asyncForEach(pages, async ({ route }) => {
+  return pages.map(({ route }) => {
     const relativePath = getFilePathForRoute(route, 'js')
     const filePath = join('pages', relativePath)
-    logItem(filePath)
-    await setupNetlifyFunctionForPage({ filePath, functionsPath, isISR: true })
+    return { type: 'function', filePath, functionsPath, isISR: true }
   })
 }
 

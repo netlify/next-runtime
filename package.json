@@ -62,6 +62,7 @@
     "commander": "^7.1.0",
     "debounce-fn": "^4.0.0",
     "execa": "^5.0.0",
+    "fastq": "^1.11.0",
     "find-cache-dir": "^3.3.1",
     "find-up": "^5.0.0",
     "fs-extra": "^9.1.0",

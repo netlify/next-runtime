@@ -18,7 +18,7 @@ const copyDynamicImportChunks = async (functionPath) => {
       // This is a hack to make the file one level up i.e. with
       // nextPage/nextPage/index.js, the chunk is moved to the inner nextPage
       const copyPath = join(functionPath, 'nextPage')
-      logTitle('💼 Copying WP4 dynamic import chunks to', copyPath)
+      // logTitle('💼 Copying WP4 dynamic import chunks to', copyPath)
       copySync(join(chunksPathWebpack4, file), join(copyPath, file), {
         overwrite: false,
         errorOnExist: true,
@@ -31,7 +31,7 @@ const copyDynamicImportChunks = async (functionPath) => {
     // Chunks are copied into the nextPage directory, as a sibling to pages or api.
     // This matches the Next output, so that imports work correctly
     const copyPath = join(functionPath, 'nextPage', 'chunks')
-    logTitle('💼 Copying WB5 dynamic import chunks to', copyPath)
+    // logTitle('💼 Copying WB5 dynamic import chunks to', copyPath)
     copySync(join(chunksPathWebpack5, file), join(copyPath, file), {
       overwrite: false,
       errorOnExist: true,
