@@ -34,9 +34,24 @@ const handler = async (event) => {
 
   const quality = parseInt(q) || 60
 
-  const imageUrl = parsedUrl.startsWith('/')
-    ? `${process.env.DEPLOY_URL || `http://${event.headers.host}`}${parsedUrl}`
-    : parsedUrl
+  let imageUrl
+  // Relative image
+  if (parsedUrl.startsWith('/')) {
+    imageUrl = `${process.env.DEPLOY_URL || `http://${event.headers.host}`}${parsedUrl}`
+  } else {
+    // Remote images need to be in the allowlist
+    const allowedDomains = process.env.NEXT_IMAGE_ALLOWED_DOMAINS
+      ? process.env.NEXT_IMAGE_ALLOWED_DOMAINS.split(',').map((domain) => domain.trim())
+      : []
+
+    if (!allowedDomains.includes(new URL(parsedUrl).hostname)) {
+      return {
+        statusCode: 403,
+        body: 'Image is not from a permitted domain',
+      }
+    }
+    imageUrl = parsedUrl
+  }
 
   const imageData = await fetch(imageUrl)
 
@@ -68,7 +83,7 @@ const handler = async (event) => {
     }
   }
 
-  if (process.env.FORCE_WEBP_OUTPUT) {
+  if (process.env.FORCE_WEBP_OUTPUT === 'true' || process.env.FORCE_WEBP_OUTPUT === '1') {
     ext = 'webp'
   }
 
