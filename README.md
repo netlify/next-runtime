@@ -19,12 +19,12 @@ This build plugin is a utility for supporting Next.js on Netlify. To enable serv
 - [CLI Usage](#cli-usage)
 - [Custom Netlify Functions](#custom-netlify-functions)
 - [Publish Directory](#publish-directory)
+- [Image Handling](#image-handling)
 - [Custom Netlify Redirects](#custom-netlify-redirects)
 - [Local Files in Runtime](#local-files-in-runtime)
 - [FAQ](#faq)
 - [Caveats](#caveats)
 - [Credits](#credits)
-- [Showcase](#showcase)
 
 ## Installation and Configuration
 
@@ -126,7 +126,7 @@ Similarly, you can customize your publish directory in your `netlify.toml` file:
 
 Read more about [Netlify's build settings](https://docs.netlify.com/configure-builds/get-started/#basic-build-settings) in our docs.
 
-## Image handling
+## Image Handling
 
 The plugin includes a function to generate images for `next/image`. The images are resized on the fly, so the first request will have a short delay. However because the function uses [On-Demand Builders](https://docs.netlify.com/configure-builds/on-demand-builders/), any subsequent requests for that image are served from the edge cache and are super-fast.
 
