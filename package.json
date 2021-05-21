@@ -76,7 +76,7 @@
     "sharp": "^0.28.1"
   },
   "devDependencies": {
-    "@netlify/eslint-config-node": "^2.6.11",
+    "@netlify/eslint-config-node": "^3.0.0",
     "cpy": "^8.1.1",
     "cypress": "^7.0.0",
     "folder-hash": "^4.0.0",
