@@ -4,6 +4,9 @@ const fetch = require('node-fetch')
 const imageType = require('image-type')
 const isSvg = require('is-svg')
 
+// 6MB is hard max Lambda response size
+const MAX_RESPONSE_SIZE = 6291456
+
 function getImageType(buffer) {
   const type = imageType(buffer)
   if (type) {
@@ -100,6 +103,13 @@ const handler = async (event) => {
     .avif({ quality, force: ext === 'avif' })
     .resize(width)
     .toBuffer({ resolveWithObject: true })
+
+  if (imageBuffer.length > MAX_RESPONSE_SIZE) {
+    return {
+      statusCode: 400,
+      body: 'Requested image is too large. Maximum size is 6MB.',
+    }
+  }
 
   return {
     statusCode: 200,
