@@ -94,9 +94,9 @@ const handler = async (event) => {
   // The format methods are just to set options: they don't
   // make it return that format.
   const { info, data: imageBuffer } = await sharp(bufferData)
-    .jpeg({ quality, force: ext === 'jpg' })
+    .jpeg({ quality, mozjpeg: true, force: ext === 'jpg' })
+    .png({ quality, palette: true, force: ext === 'png' })
     .webp({ quality, force: ext === 'webp' })
-    .png({ quality, force: ext === 'png' })
     .avif({ quality, force: ext === 'avif' })
     .resize(width)
     .toBuffer({ resolveWithObject: true })
