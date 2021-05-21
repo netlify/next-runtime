@@ -1,6 +1,4 @@
-const asyncForEach = require('../../helpers/asyncForEach')
-const { logTitle, logItem } = require('../../helpers/logger')
-const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
+const { logTitle } = require('../../helpers/logger')
 
 const getPages = require('./pages')
 
@@ -11,10 +9,7 @@ const setup = async (functionsPath) => {
   const pages = await getPages()
 
   // Create Netlify Function for every page
-  await asyncForEach(pages, async ({ filePath }) => {
-    logItem(filePath)
-    await setupNetlifyFunctionForPage({ filePath, functionsPath })
-  })
+  return pages.map(({ filePath }) => ({ type: 'function', filePath, functionsPath }))
 }
 
 module.exports = setup

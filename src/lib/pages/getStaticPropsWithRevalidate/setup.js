@@ -1,9 +1,7 @@
 const { join } = require('path')
 
-const asyncForEach = require('../../helpers/asyncForEach')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
-const { logTitle, logItem } = require('../../helpers/logger')
-const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
+const { logTitle } = require('../../helpers/logger')
 
 const getPages = require('./pages')
 
@@ -17,23 +15,24 @@ const setup = async (functionsPath) => {
 
   // Keep track of the functions that have been set up, so that we do not set up
   // a function for the same file path twice
-  const filePathsDone = []
+  const filePathsDone = new Set()
 
   const pages = await getPages()
 
   // Create Netlify Function for every page
-  await asyncForEach(pages, async ({ route, srcRoute }) => {
+
+  const jobs = []
+
+  pages.forEach(({ route, srcRoute }) => {
     const relativePath = getFilePathForRoute(srcRoute || route, 'js')
     const filePath = join('pages', relativePath)
-
-    // Skip if we have already set up a function for this file
-    if (filePathsDone.includes(filePath)) return
-
-    // Set up the function
-    logItem(filePath)
-    await setupNetlifyFunctionForPage({ filePath, functionsPath })
-    filePathsDone.push(filePath)
+    if (filePathsDone.has(filePath)) {
+      return
+    }
+    filePathsDone.add(filePath)
+    jobs.push({ type: 'function', filePath, functionsPath })
   })
+  return jobs
 }
 
 module.exports = setup

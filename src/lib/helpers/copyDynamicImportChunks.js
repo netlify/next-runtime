@@ -12,27 +12,30 @@ const copyDynamicImportChunks = async (functionPath) => {
   const filesWP4 = readdirSync(chunksPathWebpack4)
   const chunkRegexWP4 = new RegExp(/^(\.?[-$~\w]+)+\.js$/g)
   const excludeFiles = new Set(['init-server.js.js', 'on-error-server.js.js'])
+  const copyPathWP4 = join(functionPath, 'nextPage')
+  if (filesWP4.length !== 0) {
+    logTitle('💼 Copying WP4 dynamic import chunks to', copyPathWP4)
+  }
   filesWP4.forEach((file) => {
     if (!excludeFiles.has(file) && chunkRegexWP4.test(file)) {
-      // WP4 files are looked for one level up (../) in runtime
-      // This is a hack to make the file one level up i.e. with
-      // nextPage/nextPage/index.js, the chunk is moved to the inner nextPage
-      const copyPath = join(functionPath, 'nextPage')
-      logTitle('💼 Copying WP4 dynamic import chunks to', copyPath)
-      copySync(join(chunksPathWebpack4, file), join(copyPath, file), {
+      copySync(join(chunksPathWebpack4, file), join(copyPathWP4, file), {
         overwrite: false,
         errorOnExist: true,
       })
     }
   })
+
+  // Chunks are copied into the nextPage directory, as a sibling to "pages" or "api".
+  // This matches the Next output, so that imports work correctly
   const chunksPathWebpack5 = join(nextDistDir, 'serverless', 'chunks')
   const filesWP5 = existsSync(chunksPathWebpack5) ? readdirSync(chunksPathWebpack5) : []
+  const copyPathWP5 = join(functionPath, 'nextPage', 'chunks')
+  if (filesWP5.length !== 0) {
+    logTitle('💼 Copying WB5 dynamic import chunks to', copyPathWP5)
+  }
+
   filesWP5.forEach((file) => {
-    // Chunks are copied into the nextPage directory, as a sibling to pages or api.
-    // This matches the Next output, so that imports work correctly
-    const copyPath = join(functionPath, 'nextPage', 'chunks')
-    logTitle('💼 Copying WB5 dynamic import chunks to', copyPath)
-    copySync(join(chunksPathWebpack5, file), join(copyPath, file), {
+    copySync(join(chunksPathWebpack5, file), join(copyPathWP5, file), {
       overwrite: false,
       errorOnExist: true,
     })

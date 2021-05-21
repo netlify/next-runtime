@@ -1,51 +1,56 @@
 const { join } = require('path')
 
-const asyncForEach = require('../../helpers/asyncForEach')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
 const isRouteWithFallback = require('../../helpers/isRouteWithFallback')
-const { logTitle, logItem } = require('../../helpers/logger')
-const setupNetlifyFunctionForPage = require('../../helpers/setupNetlifyFunctionForPage')
-const setupStaticFileForPage = require('../../helpers/setupStaticFileForPage')
+const { logTitle } = require('../../helpers/logger')
 
 const getPages = require('./pages')
 
 // Copy pre-rendered SSG pages
 const setup = async ({ functionsPath, publishPath }) => {
   logTitle('🔥 Copying pre-rendered pages with getStaticProps and JSON data to', publishPath)
-
   // Keep track of the functions that have been set up, so that we do not set up
   // a function for the same file path twice
-  const filePathsDone = []
-
+  const filePathsDone = new Set()
   const pages = await getPages()
 
-  await asyncForEach(pages, async ({ route, dataRoute, srcRoute }) => {
-    logItem(route)
+  const jobs = []
 
-    // Copy pre-rendered HTML page
-    const htmlPath = getFilePathForRoute(route, 'html')
-    await setupStaticFileForPage({ inputPath: htmlPath, publishPath })
+  await Promise.all(
+    pages.map(async ({ route, dataRoute, srcRoute }) => {
+      // Copy pre-rendered HTML page
+      const htmlPath = getFilePathForRoute(route, 'html')
 
-    // Copy page's JSON data
-    const jsonPath = getFilePathForRoute(route, 'json')
-    await setupStaticFileForPage({
-      inputPath: jsonPath,
-      outputPath: dataRoute,
-      publishPath,
-    })
+      jobs.push({ type: 'static', inputPath: htmlPath, publishPath })
 
-    // Set up the Netlify function (this is ONLY for preview mode)
-    const relativePath = getFilePathForRoute(srcRoute || route, 'js')
-    const filePath = join('pages', relativePath)
+      // Copy page's JSON data
+      const jsonPath = getFilePathForRoute(route, 'json')
+      jobs.push({
+        type: 'static',
+        inputPath: jsonPath,
+        outputPath: dataRoute,
+        publishPath,
+      })
 
-    // Skip if we have already set up a function for this file
-    // or if the source route has a fallback (handled by getStaticPropsWithFallback)
-    if (filePathsDone.includes(filePath) || (await isRouteWithFallback(srcRoute))) return
+      // Set up the Netlify function (this is ONLY for preview mode)
+      const relativePath = getFilePathForRoute(srcRoute || route, 'js')
+      const filePath = join('pages', relativePath)
 
-    logItem(filePath)
-    await setupNetlifyFunctionForPage({ filePath, functionsPath })
-    filePathsDone.push(filePath)
-  })
+      // Skip if we have already set up a function for this file
+
+      if (filePathsDone.has(filePath)) {
+        return
+      }
+      filePathsDone.add(filePath)
+
+      // or if the source route has a fallback (handled by getStaticPropsWithFallback)
+      if (await isRouteWithFallback(srcRoute)) {
+        return
+      }
+      jobs.push({ type: 'function', filePath, functionsPath })
+    }),
+  )
+  return jobs
 }
 
 module.exports = setup
