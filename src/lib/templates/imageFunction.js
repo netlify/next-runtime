@@ -94,6 +94,7 @@ const handler = async (event) => {
   // The format methods are just to set options: they don't
   // make it return that format.
   const { info, data: imageBuffer } = await sharp(bufferData)
+    .rotate()
     .jpeg({ quality, mozjpeg: true, force: ext === 'jpg' })
     .png({ quality, palette: true, force: ext === 'png' })
     .webp({ quality, force: ext === 'webp' })
