@@ -1,7 +1,6 @@
 'use strict'
 
 const { cwd: getCwd } = require('process')
-const { resolve } = require('path')
 
 const moize = require('moize')
 
