@@ -28,21 +28,8 @@ module.exports = {
     if (hasNoPackageJson) {
       return failBuild('Could not find a package.json for this project')
     }
-
-    const pluginNotNeeded = await doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })
-
-    if (!pluginNotNeeded) {
-      const nextConfigPath = await findUp('next.config.js')
-      if (nextConfigPath === undefined) {
-        // Create the next config file with target set to serverless by default
-        const nextConfig = `
-            module.exports = {
-              target: 'serverless'
-            }
-          `
-        await pWriteFile('next.config.js', nextConfig)
-      }
-    }
+    // Populates the correct config if needed
+    await doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })
 
     // Because we memoize nextConfig, we need to do this after the write file
     const nextConfig = await getNextConfig(utils.failBuild)
