@@ -30,7 +30,6 @@ module.exports = {
     // Populates the correct config if needed
     await verifyBuildTarget({ netlifyConfig, packageJson, failBuild })
 
-    // Because we memoize nextConfig, we need to do this after the write file
     const nextConfig = await getNextConfig(utils.failBuild)
 
     if (nextConfig.images.domains.length !== 0 && !process.env.NEXT_IMAGE_ALLOWED_DOMAINS) {

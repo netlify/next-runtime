@@ -49,6 +49,7 @@ const useFixture = async function (fixtureName) {
 // In each test, we change cwd to a temporary directory.
 // This allows us not to have to mock filesystem operations.
 beforeEach(async () => {
+  // This is so we can test the target setting code
   delete process.env.NEXT_PRIVATE_TARGET
   delete require.cache[require.resolve('next/dist/telemetry/ci-info')]
   delete require.cache[require.resolve('next/dist/next-server/server/config')]
@@ -85,7 +86,6 @@ describe('preBuild()', () => {
   })
 
   test('run plugin if the app has next export in an unused script', async () => {
-    process.env.hi = 'ok'
     await plugin.onPreBuild({
       netlifyConfig,
       packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { export: 'next export' } },
@@ -93,7 +93,6 @@ describe('preBuild()', () => {
       constants: {},
     })
     expect(process.env.NEXT_PRIVATE_TARGET).toBe('serverless')
-    // expect(await pathExists('next.config.js')).toBeTruthy()
   })
 
   test('do nothing if app has static html export in toml/ntl config', async () => {
