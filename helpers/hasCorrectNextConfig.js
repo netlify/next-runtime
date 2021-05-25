@@ -11,7 +11,9 @@ const hasCorrectNextConfig = async ({ nextConfigPath, failBuild }) => {
   const isValidTarget = acceptableTargets.includes(target)
   if (!isValidTarget) {
     console.log(
-      `The "target" config property must be one of "${acceptableTargets.join('", "')}". Setting it to "serverless".`,
+      `The "target" config property must be one of "${acceptableTargets.join(
+        '", "',
+      )}". Building with "serverless" target.`,
     )
 
     /* eslint-disable fp/no-delete, node/no-unpublished-require */
