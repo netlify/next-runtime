@@ -1,5 +1,23 @@
 # Changelog
 
+### [3.3.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.3.0...v3.3.1) (2021-05-25)
+
+
+### Bug Fixes
+
+* add sharp optimisations ([75de7f2](https://www.github.com/netlify/netlify-plugin-nextjs/commit/75de7f2f181bb39a0897f14fe86d9742626d394d))
+* catch oversize image response ([7ab5aa0](https://www.github.com/netlify/netlify-plugin-nextjs/commit/7ab5aa052233607e201faf883a9edc9e3544924b))
+* changes from review ([b27f30d](https://www.github.com/netlify/netlify-plugin-nextjs/commit/b27f30d3749e9bf36f99fb330c6fa488b58f7a69))
+* **deps:** update dependency @netlify/functions to ^0.7.2 ([10dc8d2](https://www.github.com/netlify/netlify-plugin-nextjs/commit/10dc8d247dbcba63437308a54a8aa9a418b69bdb))
+* handle image rotation ([e6938da](https://www.github.com/netlify/netlify-plugin-nextjs/commit/e6938da03dd2921d82f509877cd5968cf426ae66))
+* refactor image function ([6b2e413](https://www.github.com/netlify/netlify-plugin-nextjs/commit/6b2e41329145f4515cab5a58deeff1f87e098adb))
+* use allowlist for remote images ([20b1288](https://www.github.com/netlify/netlify-plugin-nextjs/commit/20b12882fdd46623a0cbe34156680692899a3377))
+
+
+### Performance Improvements
+
+* parallelize page processing ([7184379](https://www.github.com/netlify/netlify-plugin-nextjs/commit/7184379e8bcf7703fde743f73d77a41c8dcf5b68))
+
 ## [3.3.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.2.2...v3.3.0) (2021-05-14)
 
 
