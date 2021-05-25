@@ -1,10 +1,12 @@
 const path = require('path')
 const process = require('process')
+
+const cpy = require('cpy')
 const pathExists = require('path-exists')
 const { dir: getTmpDir } = require('tmp-promise')
-const cpy = require('cpy')
 
 const plugin = require('..')
+const getNextConfig = require('../helpers/getNextConfig')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/sample`
@@ -47,6 +49,12 @@ const useFixture = async function (fixtureName) {
 // In each test, we change cwd to a temporary directory.
 // This allows us not to have to mock filesystem operations.
 beforeEach(async () => {
+  // This is so we can test the target setting code
+  delete process.env.NEXT_PRIVATE_TARGET
+  delete require.cache[require.resolve('next/dist/telemetry/ci-info')]
+  delete require.cache[require.resolve('next/dist/next-server/server/config')]
+
+  getNextConfig.clear()
   const { path, cleanup } = await getTmpDir({ unsafeCleanup: true })
   const restoreCwd = changeCwd(path)
   Object.assign(this, { cleanup, restoreCwd })
@@ -66,17 +74,6 @@ const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0' }
 const netlifyConfig = { build: {} }
 
 describe('preBuild()', () => {
-  test('create next.config.js with correct target if file does not exist', async () => {
-    await plugin.onPreBuild({
-      netlifyConfig,
-      packageJson: DUMMY_PACKAGE_JSON,
-      utils,
-      constants: { FUNCTIONS_SRC: 'out_functions' },
-    })
-
-    expect(await pathExists('next.config.js')).toBeTruthy()
-  })
-
   test('do nothing if the app has static html export in npm script', async () => {
     await plugin.onPreBuild({
       netlifyConfig: { build: { command: 'npm run build' } },
@@ -95,8 +92,7 @@ describe('preBuild()', () => {
       utils,
       constants: {},
     })
-
-    expect(await pathExists('next.config.js')).toBeTruthy()
+    expect(process.env.NEXT_PRIVATE_TARGET).toBe('serverless')
   })
 
   test('do nothing if app has static html export in toml/ntl config', async () => {
@@ -107,7 +103,7 @@ describe('preBuild()', () => {
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
-    expect(await pathExists('next.config.js')).toBeFalsy()
+    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
   })
 
   test('do nothing if app has next-on-netlify installed', async () => {
@@ -120,7 +116,7 @@ describe('preBuild()', () => {
       utils,
     })
 
-    expect(await pathExists('next.config.js')).toBeFalsy()
+    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
   })
 
   test('do nothing if app has next-on-netlify postbuild script', async () => {
@@ -133,7 +129,7 @@ describe('preBuild()', () => {
       utils,
     })
 
-    expect(await pathExists('next.config.js')).toBeFalsy()
+    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
   })
 
   test('fail build if the app has no package.json', async () => {
@@ -185,6 +181,7 @@ describe('preBuild()', () => {
 })
 
 describe('onBuild()', () => {
+  // eslint-disable-next-line max-lines
   test('does not run onBuild if using next-on-netlify', async () => {
     const packageJson = {
       scripts: { postbuild: 'next-on-netlify' },
@@ -201,23 +198,6 @@ describe('onBuild()', () => {
 
     expect(await pathExists(`${PUBLISH_DIR}/index.html`)).toBeFalsy()
   })
-
-  test.each(['invalid_next_config', 'deep_invalid_next_config'])(
-    `do nothing if the app's next config has an invalid target`,
-    async (fixtureName) => {
-      await useFixture(fixtureName)
-      const PUBLISH_DIR = 'publish'
-      await plugin.onBuild({
-        netlifyConfig,
-        packageJson: DUMMY_PACKAGE_JSON,
-        utils,
-        constants: { FUNCTIONS_SRC: 'out_functions' },
-        utils,
-      })
-
-      expect(await pathExists(`${PUBLISH_DIR}/index.html`)).toBeFalsy()
-    },
-  )
 
   test('copy files to the publish directory', async () => {
     await useFixture('publish_copy_files')

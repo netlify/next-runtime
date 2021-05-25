@@ -1,8 +1,3 @@
-const fs = require('fs')
-const path = require('path')
-const util = require('util')
-
-const findUp = require('find-up')
 const makeDir = require('make-dir')
 
 const { restoreCache, saveCache } = require('./helpers/cacheBuild')
@@ -10,9 +5,8 @@ const copyUnstableIncludedDirs = require('./helpers/copyUnstableIncludedDirs')
 const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
 const getNextConfig = require('./helpers/getNextConfig')
 const validateNextUsage = require('./helpers/validateNextUsage')
+const verifyBuildTarget = require('./helpers/verifyBuildTarget')
 const nextOnNetlify = require('./src/index.js')
-
-const pWriteFile = util.promisify(fs.writeFile)
 
 // * Helpful Plugin Context *
 // - Between the prebuild and build steps, the project's build command is run
@@ -29,22 +23,13 @@ module.exports = {
       return failBuild('Could not find a package.json for this project')
     }
 
-    const pluginNotNeeded = await doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })
-
-    if (!pluginNotNeeded) {
-      const nextConfigPath = await findUp('next.config.js')
-      if (nextConfigPath === undefined) {
-        // Create the next config file with target set to serverless by default
-        const nextConfig = `
-            module.exports = {
-              target: 'serverless'
-            }
-          `
-        await pWriteFile('next.config.js', nextConfig)
-      }
+    if (doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })) {
+      return
     }
 
-    // Because we memoize nextConfig, we need to do this after the write file
+    // Populates the correct config if needed
+    await verifyBuildTarget({ netlifyConfig, packageJson, failBuild })
+
     const nextConfig = await getNextConfig(utils.failBuild)
 
     if (nextConfig.images.domains.length !== 0 && !process.env.NEXT_IMAGE_ALLOWED_DOMAINS) {
@@ -64,7 +49,7 @@ module.exports = {
   }) {
     const { failBuild } = utils.build
 
-    if (await doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })) {
+    if (doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })) {
       return
     }
 
@@ -76,7 +61,7 @@ module.exports = {
   },
 
   async onPostBuild({ netlifyConfig, packageJson, constants: { FUNCTIONS_DIST }, utils }) {
-    if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
+    if (doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
       return
     }
 
