@@ -43,7 +43,7 @@ const watch = (functionsPath, publishPath) => {
   const runBuild = debounceFn(
     async () => {
       try {
-        execa.sync('next', ['build'], { stdio: 'inherit' })
+        execa.sync('next', ['build'], { stdio: 'inherit', preferLocal: true })
         await build(functionsPath, publishPath)
       } catch (error) {
         console.log(error)
