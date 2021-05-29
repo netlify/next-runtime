@@ -2,7 +2,10 @@ const { join } = require('path')
 
 const { existsSync, readFileSync, writeFileSync } = require('fs-extra')
 
+const getNextConfig = require('../../../helpers/getNextConfig')
 const { CUSTOM_REDIRECTS_PATH, NEXT_IMAGE_FUNCTION_NAME } = require('../config')
+const { DYNAMIC_PARAMETER_REGEX } = require('../constants/regex')
+const convertToBasePathRedirects = require('../helpers/convertToBasePathRedirects')
 const getNetlifyRoutes = require('../helpers/getNetlifyRoutes')
 const getSortedRedirects = require('../helpers/getSortedRedirects')
 const isDynamicRoute = require('../helpers/isDynamicRoute')
@@ -31,7 +34,7 @@ const setupRedirects = async (publishPath) => {
   const getSPRevalidateRedirects = require('../pages/getStaticPropsWithRevalidate/redirects')
   const getWithoutPropsRedirects = require('../pages/withoutProps/redirects')
 
-  const nextRedirects = [
+  let nextRedirects = [
     ...(await getApiRedirects()),
     ...(await getInitialPropsRedirects()),
     ...(await getServerSidePropsRedirects()),
@@ -44,12 +47,18 @@ const setupRedirects = async (publishPath) => {
   // Add _redirect section heading
   redirects.push('# Next-on-Netlify Redirects')
 
+  const { basePath } = await getNextConfig()
+  const hasBasePath = basePath !== ''
+  if (hasBasePath) {
+    nextRedirects = convertToBasePathRedirects({ basePath, nextRedirects })
+  }
+
   const staticRedirects = nextRedirects.filter(({ route }) => !isDynamicRoute(removeFileExtension(route)))
   const dynamicRedirects = nextRedirects.filter(({ route }) => isDynamicRoute(removeFileExtension(route)))
 
   // Add necessary next/image redirects for our image function
   dynamicRedirects.push({
-    route: '/_next/image*  url=:url w=:width q=:quality',
+    route: `${basePath || ''}/_next/image*  url=:url w=:width q=:quality`,
     target: `/nextimg/:url/:width/:quality`,
     statusCode: '301',
     force: true,
@@ -62,13 +71,22 @@ const setupRedirects = async (publishPath) => {
   const sortedStaticRedirects = getSortedRedirects(staticRedirects)
   const sortedDynamicRedirects = getSortedRedirects(dynamicRedirects)
 
+  const basePathSortFunc = (a, b) => (a.target.includes(basePath) ? -1 : 1)
+  const allRedirects = hasBasePath
+    ? [...sortedStaticRedirects.sort(basePathSortFunc), ...sortedDynamicRedirects.sort(basePathSortFunc)]
+    : [...sortedStaticRedirects, ...sortedDynamicRedirects]
+
   // Assemble redirects for each route
-  ;[...sortedStaticRedirects, ...sortedDynamicRedirects].forEach((nextRedirect) => {
+  allRedirects.forEach((nextRedirect) => {
     // One route may map to multiple Netlify routes: e.g., catch-all pages
     // require two Netlify routes in the _redirects file
     getNetlifyRoutes(nextRedirect.route).forEach((netlifyRoute) => {
       const { conditions = [], force = false, statusCode = '200', target } = nextRedirect
-      const redirectPieces = [netlifyRoute, target, `${statusCode}${force ? '!' : ''}`, conditions.join('  ')]
+      const formattedTarget =
+        hasBasePath && target.includes(basePath)
+          ? target.replace(DYNAMIC_PARAMETER_REGEX, '/:$1').replace('...', '')
+          : target
+      const redirectPieces = [netlifyRoute, formattedTarget, `${statusCode}${force ? '!' : ''}`, conditions.join('  ')]
       const redirect = redirectPieces.join('  ').trim()
       logItem(redirect)
       redirects.push(redirect)
