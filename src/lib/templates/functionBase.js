@@ -4,7 +4,7 @@
 // Render function for the Next.js page
 const renderNextPage = require('./renderNextPage')
 
-const base = async (event, context, callback) => {
+const base = async (event, context) => {
   // x-forwarded-host is undefined on Netlify for proxied apps that need it
   // fixes https://github.com/netlify/next-on-netlify/issues/46
   if (!event.multiValueHeaders.hasOwnProperty('x-forwarded-host')) {
@@ -26,7 +26,7 @@ const base = async (event, context, callback) => {
 
   response.multiValueHeaders['Cache-Control'] = ['no-cache']
 
-  callback(null, response)
+  return response
 }
 
 module.exports = base
