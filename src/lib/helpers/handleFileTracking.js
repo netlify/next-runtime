@@ -1,7 +1,7 @@
 const { join } = require('path')
 
 const findCacheDir = require('find-cache-dir')
-const { existsSync, readdirSync, readFileSync, rmdirSync, removeSync, writeFileSync } = require('fs-extra')
+const { existsSync, readdirSync, readFileSync, removeSync, writeFileSync } = require('fs-extra')
 
 const { NETLIFY_PUBLISH_PATH, NETLIFY_FUNCTIONS_PATH } = require('../config')
 
@@ -22,15 +22,13 @@ const handleFileTracking = ({ functionsPath, publishPath }) => {
     const trackingFile = readFileSync(trackingFilePath, 'utf8')
     const [trackedFunctions, trackedPublish] = trackingFile.split(TRACKING_FILE_SEPARATOR)
     const cleanConfiguredFiles = (trackedFiles, dirPath) => {
-      trackedFiles.forEach((file) => {
-        const filePath = join(dirPath, file.trim('\r'))
-        if (file !== '') {
-          if (process.platform === 'win32') {
-            rmdirSync(filePath, { recursive: true })
-          }
+      trackedFiles
+        .map((file) => file.trim())
+        .filter(Boolean)
+        .forEach((file) => {
+          const filePath = join(dirPath, file)
           removeSync(filePath)
-        }
-      })
+        })
     }
 
     if (isConfiguredPublishDir) {
