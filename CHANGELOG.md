@@ -1,5 +1,17 @@
 # Changelog
 
+### [3.3.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.3.1...v3.3.2) (2021-06-01)
+
+
+### Bug Fixes
+
+* changes from review ([09642bd](https://www.github.com/netlify/netlify-plugin-nextjs/commit/09642bdf9806588ddb58a7871eab1184818860cf))
+* **deps:** update dependency execa to v5.0.1 ([28df64f](https://www.github.com/netlify/netlify-plugin-nextjs/commit/28df64f0f951ea6433f268afb8a3a438ba47cbf7))
+* **deps:** update dependency sharp to v0.28.3 ([a3d4b20](https://www.github.com/netlify/netlify-plugin-nextjs/commit/a3d4b20ceaf988eb341045674b4a7489b64a6c26))
+* extract target checks ([a1ab7bf](https://www.github.com/netlify/netlify-plugin-nextjs/commit/a1ab7bf2c6ba172bdcae6ae3052abb2ba1528193))
+* fix tests ([630cb1a](https://www.github.com/netlify/netlify-plugin-nextjs/commit/630cb1a52982c1bb40de3e92e5b09b4af9097d36))
+* **watch:** add missing bin property ([#355](https://www.github.com/netlify/netlify-plugin-nextjs/issues/355)) ([5a70c61](https://www.github.com/netlify/netlify-plugin-nextjs/commit/5a70c6151382cde1c80c15d528326c86a719f6f9))
+
 ### [3.3.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.3.0...v3.3.1) (2021-05-25)
 
 
