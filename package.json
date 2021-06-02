@@ -64,6 +64,7 @@
     "chokidar": "^3.5.1",
     "commander": "^7.1.0",
     "debounce-fn": "^4.0.0",
+    "etag": "^1.8.1",
     "execa": "^5.0.0",
     "fastq": "^1.11.0",
     "find-cache-dir": "^3.3.1",
