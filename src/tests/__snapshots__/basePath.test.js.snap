@@ -2,12 +2,6 @@
 
 exports[`Routing creates Netlify redirects 1`] = `
 "# Next-on-Netlify Redirects
-/getStaticProps/withRevalidate/2  /foo/getStaticProps/withRevalidate/2  301!
-/getStaticProps/withRevalidate/1  /foo/getStaticProps/withRevalidate/1  301!
-/getStaticProps/with-revalidate  /foo/getStaticProps/with-revalidate  301!
-/getServerSideProps/static  /foo/getServerSideProps/static  301!
-/api/static  /foo/api/static  301!
-/api/hello-background  /foo/api/hello-background  301!
 /  /foo  301!
 /_next/data/%BUILD_ID%/getServerSideProps/static.json  /.netlify/functions/next_getServerSideProps_static  200
 /_next/data/%BUILD_ID%/getStaticProps/1.json  /.netlify/functions/next_getStaticProps_id  200!  Cookie=__prerender_bypass,__next_preview_data
@@ -22,34 +16,40 @@ exports[`Routing creates Netlify redirects 1`] = `
 /_next/data/%BUILD_ID%/getStaticProps/withFallbackBlocking/4.json  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /_next/data/%BUILD_ID%/getStaticProps/withRevalidate/1.json  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
 /_next/data/%BUILD_ID%/getStaticProps/withRevalidate/2.json  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
+/api/hello-background  /foo/api/hello-background  301!
+/api/static  /foo/api/static  301!
 /foo  /.netlify/functions/next_index  200
+/foo/404  /404  200
 /foo/_next/*  /_next/:splat  301!
 /foo/api/hello-background  /.netlify/functions/next_api_hello-background  200
 /foo/api/static  /.netlify/functions/next_api_static  200
 /foo/getServerSideProps/static  /.netlify/functions/next_getServerSideProps_static  200
-/foo/getStaticProps/1  /.netlify/functions/next_getStaticProps_id  200  Cookie=__prerender_bypass,__next_preview_data
-/foo/getStaticProps/2  /.netlify/functions/next_getStaticProps_id  200  Cookie=__prerender_bypass,__next_preview_data
-/foo/getStaticProps/static  /.netlify/functions/next_getStaticProps_static  200  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/1  /.netlify/functions/next_getStaticProps_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/1  /getStaticProps/1  200
+/foo/getStaticProps/2  /.netlify/functions/next_getStaticProps_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/2  /getStaticProps/2  200
+/foo/getStaticProps/static  /.netlify/functions/next_getStaticProps_static  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/static  /getStaticProps/static  200
 /foo/getStaticProps/with-revalidate  /.netlify/functions/next_getStaticProps_withrevalidate  200
-/foo/getStaticProps/withFallback/3  /.netlify/functions/next_getStaticProps_withFallback_id  200  Cookie=__prerender_bypass,__next_preview_data
-/foo/getStaticProps/withFallback/4  /.netlify/functions/next_getStaticProps_withFallback_id  200  Cookie=__prerender_bypass,__next_preview_data
-/foo/getStaticProps/withFallback/my/path/1  /.netlify/functions/next_getStaticProps_withFallback_slug  200  Cookie=__prerender_bypass,__next_preview_data
-/foo/getStaticProps/withFallback/my/path/2  /.netlify/functions/next_getStaticProps_withFallback_slug  200  Cookie=__prerender_bypass,__next_preview_data
-/foo/getStaticProps/withFallbackBlocking/3  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200  Cookie=__prerender_bypass,__next_preview_data
-/foo/getStaticProps/withFallbackBlocking/4  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/3  /.netlify/functions/next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/3  /getStaticProps/withFallback/3  200
+/foo/getStaticProps/withFallback/4  /.netlify/functions/next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/4  /getStaticProps/withFallback/4  200
+/foo/getStaticProps/withFallback/my/path/1  /.netlify/functions/next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/my/path/1  /getStaticProps/withFallback/my/path/1  200
+/foo/getStaticProps/withFallback/my/path/2  /.netlify/functions/next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/my/path/2  /getStaticProps/withFallback/my/path/2  200
+/foo/getStaticProps/withFallbackBlocking/3  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallbackBlocking/3  /getStaticProps/withFallbackBlocking/3  200
+/foo/getStaticProps/withFallbackBlocking/4  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallbackBlocking/4  /getStaticProps/withFallbackBlocking/4  200
 /foo/getStaticProps/withRevalidate/1  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
 /foo/getStaticProps/withRevalidate/2  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
-/shows/:params/*  /foo/shows/:params  301!
-/shows/:id  /foo/shows/:id  301!
-/getStaticProps/withRevalidate/withFallback/:id  /foo/getStaticProps/withRevalidate/withFallback/:id  301!
-/getStaticProps/withFallbackBlocking/:id  /foo/getStaticProps/withFallbackBlocking/:id  301!
-/getStaticProps/withFallback/:slug/*  /foo/getStaticProps/withFallback/:slug  301!
-/getStaticProps/withFallback/:id  /foo/getStaticProps/withFallback/:id  301!
-/getServerSideProps/:id  /foo/getServerSideProps/:id  301!
-/getServerSideProps/all  /foo/getServerSideProps/all/:[slug]  301!
-/getServerSideProps/all/*  /foo/getServerSideProps/all/:[slug]  301!
-/api/shows/:params/*  /foo/api/shows/:params  301!
-/api/shows/:id  /foo/api/shows/:id  301!
+/foo/static  /static  200
+/getServerSideProps/static  /foo/getServerSideProps/static  301!
+/getStaticProps/with-revalidate  /foo/getStaticProps/with-revalidate  301!
+/getStaticProps/withRevalidate/1  /foo/getStaticProps/withRevalidate/1  301!
+/getStaticProps/withRevalidate/2  /foo/getStaticProps/withRevalidate/2  301!
 /_next/data/%BUILD_ID%/getServerSideProps/all.json  /.netlify/functions/next_getServerSideProps_all_slug  200
 /_next/data/%BUILD_ID%/getServerSideProps/all/*  /.netlify/functions/next_getServerSideProps_all_slug  200
 /_next/data/%BUILD_ID%/getServerSideProps/:id.json  /.netlify/functions/next_getServerSideProps_id  200
@@ -57,6 +57,8 @@ exports[`Routing creates Netlify redirects 1`] = `
 /_next/data/%BUILD_ID%/getStaticProps/withFallback/:slug/*  /.netlify/functions/next_getStaticProps_withFallback_slug  200
 /_next/data/%BUILD_ID%/getStaticProps/withFallbackBlocking/:id.json  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200
 /_next/data/%BUILD_ID%/getStaticProps/withRevalidate/withFallback/:id.json  /.netlify/functions/next_getStaticProps_withRevalidate_withFallback_id  200
+/api/shows/:id  /foo/api/shows/:id  301!
+/api/shows/:params/*  /foo/api/shows/:params  301!
 /foo/_next/image*  url=:url w=:width q=:quality  /nextimg/:url/:width/:quality  301!
 /foo/api/shows/:id  /.netlify/functions/next_api_shows_id  200
 /foo/api/shows/:params/*  /.netlify/functions/next_api_shows_params  200
@@ -69,6 +71,16 @@ exports[`Routing creates Netlify redirects 1`] = `
 /foo/getStaticProps/withRevalidate/withFallback/:id  /.netlify/functions/next_getStaticProps_withRevalidate_withFallback_id  200
 /foo/shows/:id  /.netlify/functions/next_shows_id  200
 /foo/shows/:params/*  /.netlify/functions/next_shows_params  200
+/foo/static/:id  /static/[id]  200
+/getServerSideProps/all  /foo/getServerSideProps/all/:slug  301!
+/getServerSideProps/all/*  /foo/getServerSideProps/all/:slug  301!
+/getServerSideProps/:id  /foo/getServerSideProps/:id  301!
+/getStaticProps/withFallback/:id  /foo/getStaticProps/withFallback/:id  301!
+/getStaticProps/withFallback/:slug/*  /foo/getStaticProps/withFallback/:slug  301!
+/getStaticProps/withFallbackBlocking/:id  /foo/getStaticProps/withFallbackBlocking/:id  301!
+/getStaticProps/withRevalidate/withFallback/:id  /foo/getStaticProps/withRevalidate/withFallback/:id  301!
 /nextimg/*  /.netlify/functions/next_image  200
+/shows/:id  /foo/shows/:id  301!
+/shows/:params/*  /foo/shows/:params  301!
 /static/:id  /static/[id].html  200"
 `;
