@@ -2,7 +2,10 @@ const { join } = require('path')
 
 const { existsSync, readFileSync, writeFileSync } = require('fs-extra')
 
+const getNextConfig = require('../../../helpers/getNextConfig')
 const { CUSTOM_REDIRECTS_PATH, NEXT_IMAGE_FUNCTION_NAME } = require('../config')
+const convertToBasePathRedirects = require('../helpers/convertToBasePathRedirects')
+const formatRedirectTarget = require('../helpers/formatRedirectTarget')
 const getNetlifyRoutes = require('../helpers/getNetlifyRoutes')
 const getSortedRedirects = require('../helpers/getSortedRedirects')
 const isDynamicRoute = require('../helpers/isDynamicRoute')
@@ -31,7 +34,7 @@ const setupRedirects = async (publishPath) => {
   const getSPRevalidateRedirects = require('../pages/getStaticPropsWithRevalidate/redirects')
   const getWithoutPropsRedirects = require('../pages/withoutProps/redirects')
 
-  const nextRedirects = [
+  let nextRedirects = [
     ...(await getApiRedirects()),
     ...(await getInitialPropsRedirects()),
     ...(await getServerSidePropsRedirects()),
@@ -44,12 +47,17 @@ const setupRedirects = async (publishPath) => {
   // Add _redirect section heading
   redirects.push('# Next-on-Netlify Redirects')
 
+  const { basePath } = await getNextConfig()
+  if (basePath !== '') {
+    nextRedirects = convertToBasePathRedirects({ basePath, nextRedirects })
+  }
+
   const staticRedirects = nextRedirects.filter(({ route }) => !isDynamicRoute(removeFileExtension(route)))
   const dynamicRedirects = nextRedirects.filter(({ route }) => isDynamicRoute(removeFileExtension(route)))
 
   // Add necessary next/image redirects for our image function
   dynamicRedirects.push({
-    route: '/_next/image*  url=:url w=:width q=:quality',
+    route: `${basePath || ''}/_next/image*  url=:url w=:width q=:quality`,
     target: `/nextimg/:url/:width/:quality`,
     statusCode: '301',
     force: true,
@@ -68,7 +76,12 @@ const setupRedirects = async (publishPath) => {
     // require two Netlify routes in the _redirects file
     getNetlifyRoutes(nextRedirect.route).forEach((netlifyRoute) => {
       const { conditions = [], force = false, statusCode = '200', target } = nextRedirect
-      const redirectPieces = [netlifyRoute, target, `${statusCode}${force ? '!' : ''}`, conditions.join('  ')]
+      const redirectPieces = [
+        netlifyRoute,
+        formatRedirectTarget({ basePath, target }),
+        `${statusCode}${force ? '!' : ''}`,
+        conditions.join('  '),
+      ]
       const redirect = redirectPieces.join('  ').trim()
       logItem(redirect)
       redirects.push(redirect)

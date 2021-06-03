@@ -1,6 +1,5 @@
 const { join } = require('path')
 
-const getNextDistDir = require('./helpers/getNextDistDir')
 const getNextSrcDirs = require('./helpers/getNextSrcDir')
 
 // This is where next-on-netlify will place all static files.
