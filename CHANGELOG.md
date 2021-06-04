@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.4.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.4.0...v3.4.1) (2021-06-04)
+
+
+### Bug Fixes
+
+* basePath is undefined when a site has no config file ([#385](https://www.github.com/netlify/netlify-plugin-nextjs/issues/385)) ([7d01aba](https://www.github.com/netlify/netlify-plugin-nextjs/commit/7d01abaaefe86983319438b9a6bec22b90763ce6))
+
 ## [3.4.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.3.1...v3.4.0) (2021-06-03)
 
 
