@@ -48,7 +48,7 @@ const setupRedirects = async (publishPath) => {
   redirects.push('# Next-on-Netlify Redirects')
 
   const { basePath } = await getNextConfig()
-  if (basePath !== '') {
+  if (basePath && basePath !== '') {
     nextRedirects = convertToBasePathRedirects({ basePath, nextRedirects })
   }
 

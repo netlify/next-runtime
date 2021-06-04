@@ -3,7 +3,7 @@
 // NOTE: /withoutProps/redirects.js has some of its own contained basePath logic
 
 const getBasePathDefaultRedirects = ({ basePath, nextRedirects }) => {
-  if (basePath === '') return []
+  if (!basePath) return []
   // In a basePath-configured site, all _next assets are fetched with the prepended basePath
   return [
     {
@@ -16,7 +16,7 @@ const getBasePathDefaultRedirects = ({ basePath, nextRedirects }) => {
 }
 
 const convertToBasePathRedirects = ({ basePath, nextRedirects }) => {
-  if (basePath === '') return nextRedirects
+  if (!basePath) return nextRedirects
   const basePathRedirects = getBasePathDefaultRedirects({ basePath, nextRedirects })
   nextRedirects.forEach((r) => {
     if (r.route === '/') {
