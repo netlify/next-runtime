@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.4.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.4.1...v3.4.2) (2021-06-04)
+
+
+### Bug Fixes
+
+* revert fix force serverless target ([#388](https://www.github.com/netlify/netlify-plugin-nextjs/issues/388)) ([ee376a8](https://www.github.com/netlify/netlify-plugin-nextjs/commit/ee376a8764c178c2bc6d7ec1e7fa5d3cd905f94d))
+
 ### [3.4.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.4.0...v3.4.1) (2021-06-04)
 
 
