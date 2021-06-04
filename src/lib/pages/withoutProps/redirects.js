@@ -30,7 +30,7 @@ const getRedirects = async () => {
 
     // For sites that use basePath, manually add necessary redirects here specific
     // only to this page type (which excludes static route redirects by default)
-    if (basePath !== '') {
+    if (basePath && basePath !== '') {
       redirects.push({
         route: `${basePath}${route}`,
         target: route,
