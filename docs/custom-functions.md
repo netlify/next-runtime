@@ -1,6 +1,6 @@
 ## Custom Netlify Functions
 
-This plugin creates one Netlify Function for each Next.js page that requires one.
+This Essential Next.js plugin creates one Netlify Function for each Next.js page that requires one.
 To use custom Netlify Functions in addition to what the plugin generates, add a path to your functions folder in `netlify.toml`:
 
 ```toml

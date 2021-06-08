@@ -2,7 +2,7 @@
 
 ### Versions
 
-You can check our `package.json` for supported Node versions.
+You can check the Essential Next.js plugin's `package.json` for supported Node versions.
 
 For breaking Next.js releases, all Next.js versions before the breaking release will be locked to the last working plugin version:
 

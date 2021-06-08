@@ -1,6 +1,7 @@
 ## Custom Netlify Redirects
 
-You can define custom redirects in a `_redirects` file.
+You can define custom redirects in a `_redirects` file for apps using the Essential Next.js plugin.
+
 The precedence of these rules are:
 
 - `_redirects`
