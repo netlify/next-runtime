@@ -1,5 +1,13 @@
 # Changelog
 
+### [3.4.3](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.4.2...v3.4.3) (2021-06-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency execa to v5.1.1 ([b5a2f27](https://www.github.com/netlify/netlify-plugin-nextjs/commit/b5a2f270998fe074bddfc55ee7c7f68947a1ec24))
+* **deps:** update dependency mime-types to v2.1.31 ([0c77233](https://www.github.com/netlify/netlify-plugin-nextjs/commit/0c772331b09c341eb6b6422aa648fab1a23e11e1))
+
 ### [3.4.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.4.1...v3.4.2) (2021-06-04)
 
 
