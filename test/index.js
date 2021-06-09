@@ -22,6 +22,9 @@ const utils = {
     save() {},
     restore() {},
   },
+  status: {
+    show() {},
+  },
 }
 
 // Temporary switch cwd
