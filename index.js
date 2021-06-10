@@ -10,7 +10,7 @@ const copyUnstableIncludedDirs = require('./helpers/copyUnstableIncludedDirs')
 const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
 const getNextConfig = require('./helpers/getNextConfig')
 const validateNextUsage = require('./helpers/validateNextUsage')
-const nextOnNetlify = require('./src/index.js')
+const nextOnNetlify = require('./src')
 
 const pWriteFile = util.promisify(fs.writeFile)
 

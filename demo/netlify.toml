@@ -1,0 +1,11 @@
+[build]
+command = "npm run build"
+publish = "out/"
+# Build for updates outside of the site
+ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF .."
+
+[[plugins]]
+package = ".."
+
+[[plugins]]
+package = "@netlify/plugin-local-install-core"
