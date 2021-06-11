@@ -1,4 +1,8 @@
 const getNextConfig = require('./getNextConfig')
+const findUp = require('find-up')
+const { writeFile, unlink } = require('fs-extra')
+const path = require('path')
+
 // Checks if site has the correct next.config.js
 const verifyBuildTarget = async ({ failBuild }) => {
   const { target } = await getNextConfig(failBuild)
@@ -32,6 +36,16 @@ const verifyBuildTarget = async ({ failBuild }) => {
   // Clear memoized cache
   getNextConfig.clear()
 
+  // Creating a config file, because otherwise Next won't reload the config and pick up the new target
+
+  if (!(await findUp('next.config.js'))) {
+    await writeFile(path.resolve('next.config.js'), `module.exports = {}`)
+  }
+  // Force the new config to be generated
+  await getNextConfig(failBuild)
+
+  // Reset the value in case something else is looking for it
+  process.env.NOW_BUILDER = false
   /* eslint-enable fp/no-delete, node/no-unpublished-require */
 }
 
