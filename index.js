@@ -5,8 +5,8 @@ const copyUnstableIncludedDirs = require('./helpers/copyUnstableIncludedDirs')
 const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
 const getNextConfig = require('./helpers/getNextConfig')
 const validateNextUsage = require('./helpers/validateNextUsage')
-const nextOnNetlify = require('./src')
 const verifyBuildTarget = require('./helpers/verifyBuildTarget')
+const nextOnNetlify = require('./src')
 
 // * Helpful Plugin Context *
 // - Between the prebuild and build steps, the project's build command is run

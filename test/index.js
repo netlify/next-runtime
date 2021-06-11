@@ -85,7 +85,6 @@ describe('preBuild()', () => {
   })
 
   test('run plugin if the app has next export in an unused script', async () => {
-    process.env.hi = 'ok'
     await plugin.onPreBuild({
       netlifyConfig,
       packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { export: 'next export' } },
@@ -93,7 +92,6 @@ describe('preBuild()', () => {
       constants: {},
     })
     expect(process.env.NEXT_PRIVATE_TARGET).toBe('serverless')
-    // expect(await pathExists('next.config.js')).toBeTruthy()
   })
 
   test('do nothing if app has static html export in toml/ntl config', async () => {
@@ -182,7 +180,6 @@ describe('preBuild()', () => {
 })
 
 describe('onBuild()', () => {
-  // eslint-disable-next-line max-lines
   test('does not run onBuild if using next-on-netlify', async () => {
     const packageJson = {
       scripts: { postbuild: 'next-on-netlify' },

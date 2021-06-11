@@ -39,7 +39,13 @@ const verifyBuildTarget = async ({ failBuild }) => {
   // Creating a config file, because otherwise Next won't reload the config and pick up the new target
 
   if (!(await findUp('next.config.js'))) {
-    await writeFile(path.resolve('next.config.js'), `module.exports = {}`)
+    await writeFile(
+      path.resolve('next.config.js'),
+      `module.exports = {
+  // Supported targets are "serverless" and "experimental-serverless-trace"
+  target: "serverless"
+}`,
+    )
   }
   // Force the new config to be generated
   await getNextConfig(failBuild)
