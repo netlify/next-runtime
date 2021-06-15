@@ -6,27 +6,24 @@ const getBaseUrl = require('./getBaseUrl')
 
 // Deploy the project locally, using netlify dev
 const deployLocally = ({ project }, config) => {
-  process.stdout.write(`Deploying project: ${project}...`)
+  console.log(`Deploying project: ${project}...`)
 
-  // Start server. Must start in detached mode, so that we can kill it later.
-  // Otherwise, we seem unable to kill it.
-  // See: https://medium.com/@almenon214/killing-processes-with-node-772ffdd19aad
   const server = execa('npm', ['run', 'preview'], {
     cwd: join(config.buildsFolder, project),
-    detached: true,
-    localDir: true,
   })
-
+  server.stdout.pipe(process.stdout)
+  server.stderr.pipe(process.stderr)
+  console.log("Started preview")
   // Set deployment
   config.activeDeployment = {
-    serverPID: server.pid,
+    server
   }
 
   // wait for server to start
   return new Promise((resolve) => {
     const url = getBaseUrl({ project }, config)
-
-    waitOn({ resources: [url] }).then(() => {
+    console.log(`Waiting for ${url}`)
+    waitOn({ resources: [url], timeout: 10000, verbose: true }).then(() => {
       console.log(' Done! ✅')
       resolve(true)
     })
@@ -35,10 +32,10 @@ const deployLocally = ({ project }, config) => {
 
 // Deploy the project on Netlify
 const deployOnNetlify = ({ project }, config) => {
-  process.stdout.write(`Deploying project: ${project}...`)
+  console.log(`Deploying project: ${project}...`)
 
   // Trigger deploy
-  const deploy = execa.sync('npm', ['run', 'deploy'], {
+  const deploy = execa.sync('netlify', ['dev'], {
     cwd: join(config.buildsFolder, project),
     localDir: true,
   })
@@ -48,7 +45,7 @@ const deployOnNetlify = ({ project }, config) => {
   if (!url) throw 'Deployment failed'
 
   config.activeDeployment = {
-    serverPID: null,
+    server: null,
   }
 
   console.log(' Done! ✅')
@@ -57,6 +54,7 @@ const deployOnNetlify = ({ project }, config) => {
 }
 
 const deployProject = ({ project }, config) => {
+  console.log(`Deploying with profile ${config.env.DEPLOY}`)
   // Local deployment
   if (config.env.DEPLOY === 'local') {
     return deployLocally({ project }, config)

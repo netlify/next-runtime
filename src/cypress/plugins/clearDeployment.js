@@ -1,11 +1,11 @@
 // Clears the active deployment and shuts down servers
-const clearDeployment = (_params, config) => {
-  // Shut down server. Must use -PID for some reason.
-  // See: https://medium.com/@almenon214/killing-processes-with-node-772ffdd19aad
+const clearDeployment = async (_params, config) => {
+
   const { activeDeployment } = config
-  if (activeDeployment && activeDeployment.serverPID) {
-    process.stdout.write('Shutting down server...')
-    process.kill(-activeDeployment.serverPID)
+  if (activeDeployment && activeDeployment.server) {
+    process.stdout.write('Shutting down server...', activeDeployment.server)
+    activeDeployment.server.kill()
+    // await activeDeployment.server
     console.log(' Done! ✅')
   }
 
