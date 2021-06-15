@@ -61,7 +61,7 @@ const Index = ({ shows }) => (
     <h1>3. Catch-All Routes? Included ✔</h1>
     <p>
       You can even take advantage of{' '}
-      <a href="https://nextjs.org/docs/routing/dynamic-routes#catch-all-routes">NextJS' catch-all routes feature</a>
+      <a href="https://nextjs.org/docs/routing/dynamic-routes#catch-all-routes">NextJS catch-all routes feature</a>
       .
       <br />
       Here are three examples:
@@ -90,7 +90,7 @@ const Index = ({ shows }) => (
       <br />
       Only dynamic pages are server-side rendered.
       <br />
-      Static pages are pre-rendered and served directly by Netlify's CDN.
+      Static pages are pre-rendered and served directly by Netlify&apos;s CDN.
     </p>
 
     <ul>
