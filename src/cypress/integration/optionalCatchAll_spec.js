@@ -43,7 +43,7 @@ before(() => {
     })
 
     // Build
-    cy.task('buildProject', { project })
+    cy.task('buildProject', { project }, { timeout: 300 * 1000 })
 
     // Deploy
     cy.task('deployProject', { project }, { timeout: 180 * 1000 })

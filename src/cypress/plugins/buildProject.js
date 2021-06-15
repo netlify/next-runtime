@@ -1,16 +1,16 @@
 const { join } = require('path')
-const execa = require('execa')
+const build = require('@netlify/build')
 
 // Build the given NextJS project
-const buildProject = ({ project }, config) => {
+const buildProject = async ({ project }, config) => {
   process.stdout.write(`Building project: ${project}...`)
-
   // Build project
-  execa.sync('npm', ['run', 'build'], {
-    cwd: join(config.buildsFolder, project),
-    preferLocal: true,
-  })
+  const { success } = await build({ cwd: join(config.buildsFolder, project), testOpts: { testEnv: false } })
 
+  if (!success) {
+    console.error('Failed to build!')
+    return false
+  }
   console.log(' Done! ✅')
   return true
 }

@@ -2,7 +2,6 @@
   "name": "next-on-netlify-test",
   "scripts": {
     "build": "next build",
-    "postbuild": "node ../../../next-on-netlify",
     "preview": "netlify dev",
     "predeploy": "mkdir -p .git",
     "deploy": "netlify deploy --json > deployment.json"
