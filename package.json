@@ -80,13 +80,13 @@
     "sharp": "^0.28.1"
   },
   "devDependencies": {
-    "@netlify/eslint-config-node": "^3.1.1",
+    "@netlify/eslint-config-node": "^3.1.4",
     "cpy": "^8.1.1",
     "cypress": "^7.0.0",
     "folder-hash": "^4.0.0",
     "husky": "^4.3.0",
     "jest": "^26.6.1",
-    "netlify-cli": "^3.32.2",
+    "netlify-cli": "^3.37.31",
     "next": "^10.2.0",
     "path-exists": "^4.0.0",
     "prettier": "^2.1.2",
