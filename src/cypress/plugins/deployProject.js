@@ -11,9 +11,7 @@ const deployLocally = ({ project }, config) => {
   const server = execa('npm', ['run', 'serve'], {
     cwd: join(config.buildsFolder, project),
   })
-  server.stdout.pipe(process.stdout)
-  server.stderr.pipe(process.stderr)
-  console.log("Started preview")
+
   // Set deployment
   config.activeDeployment = {
     server
@@ -22,8 +20,7 @@ const deployLocally = ({ project }, config) => {
   // wait for server to start
   return new Promise((resolve) => {
     const url = getBaseUrl({ project }, config)
-    console.log(`Waiting for ${url}`)
-    waitOn({ resources: [url], timeout: 30000, verbose: true }).then(() => {
+    waitOn({ resources: [url], timeout: 30000 }).then(() => {
       console.log(' Done! ✅')
       resolve(true)
     })
