@@ -39,7 +39,7 @@ describe('next-on-netlify', () => {
   })
 
   test('copies chunk files to functions dir', () => {
-    const headerChunkExists = existsSync(join(functionsDir, 'next_index', 'nextPage', 'chunks', 'headers.js'))
+    const headerChunkExists = existsSync(join(functionsDir, 'next_index', 'nextPage', 'chunks', 'header.js'))
     expect(headerChunkExists).toBeTruthy()
   })
 })
