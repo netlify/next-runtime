@@ -2,5 +2,8 @@ module.exports = {
   target: 'serverless',
   experimental: {
     optionalCatchAll: true
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   }
 };

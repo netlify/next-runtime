@@ -35,7 +35,7 @@ const deployOnNetlify = ({ project }, config) => {
   console.log(`Deploying project: ${project}...`)
 
   // Trigger deploy
-  const deploy = execa.sync('netlify', ['dev'], {
+  const deploy = execa.sync('npm', ['run','deploy'], {
     cwd: join(config.buildsFolder, project),
     localDir: true,
   })
