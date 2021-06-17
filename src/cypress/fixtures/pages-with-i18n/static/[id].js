@@ -9,7 +9,7 @@ const StaticWithID = (props) => (
       <br />
       It is never server-side rendered.
       <br />
-      It is served directly by Netlify's CDN.
+      It is served directly by Netlify&apos;s CDN.
       <br />
       <br />
       But it has a dynamic URL parameter: /static/:id.
@@ -18,7 +18,7 @@ const StaticWithID = (props) => (
       <br />
       I am not sure what this is useful for.
       <br />
-      But it's a feature of NextJS, so... I'm supporting it.
+      But it&apos;s a feature of NextJS, so... I&apos;m supporting it.
     </p>
 
     <hr />
