@@ -8,7 +8,7 @@ const getBaseUrl = require('./getBaseUrl')
 const deployLocally = ({ project }, config) => {
   console.log(`Deploying project: ${project}...`)
 
-  const server = execa('npm', ['run', 'preview'], {
+  const server = execa('npm', ['run', 'serve'], {
     cwd: join(config.buildsFolder, project),
   })
   server.stdout.pipe(process.stdout)

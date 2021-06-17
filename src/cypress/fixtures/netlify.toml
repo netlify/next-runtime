@@ -1,10 +1,9 @@
 [build]
+  framework   = "#static"
   command     = "npm run build"
   publish     = "out"
 
 [dev]
-  # We manually set the framework to static because we don't want to run `next dev`
-  # as we're testing the production version
   framework   = "#static"
   publish     = "out"
 
