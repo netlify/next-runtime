@@ -39,8 +39,7 @@ describe('next-on-netlify', () => {
   })
 
   test('copies chunk files to functions dir', () => {
-    // This only tests WP5 as Next is -D installed @ 10.2.0
-    const chunkFiles = readdirSync(join(functionsDir, 'next_index', 'nextPage', 'chunks'))
-    expect(chunkFiles.length).toEqual(1) // just the header
+    const headerChunkExists = existsSync(join(functionsDir, 'next_index', 'nextPage', 'chunks', 'headers.js'))
+    expect(headerChunkExists).toBeTruthy()
   })
 })
