@@ -3,7 +3,7 @@
   "scripts": {
     "build": "next build",
     "preview": "netlify dev",
-    "serve": "netlify dev --dir out --offline",
+    "serve": "netlify dev --dir out --offline --port 9999",
     "predeploy": "mkdir -p .git",
     "deploy": "netlify deploy --json > deployment.json"
   }

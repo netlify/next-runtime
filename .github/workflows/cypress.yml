@@ -6,11 +6,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v3
+      #   timeout-minutes: 10
       # Install NPM dependencies, cache them correctly
       # and run all Cypress tests
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 10
       - name: Cypress run
         uses: cypress-io/github-action@v2
         env:

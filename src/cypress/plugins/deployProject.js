@@ -23,7 +23,7 @@ const deployLocally = ({ project }, config) => {
   return new Promise((resolve) => {
     const url = getBaseUrl({ project }, config)
     console.log(`Waiting for ${url}`)
-    waitOn({ resources: [url], timeout: 10000, verbose: true }).then(() => {
+    waitOn({ resources: [url], timeout: 30000, verbose: true }).then(() => {
       console.log(' Done! ✅')
       resolve(true)
     })
