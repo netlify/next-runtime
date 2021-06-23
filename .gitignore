@@ -150,3 +150,5 @@ Temporary Items
 
 # End of https://www.toptal.com/developers/gitignore/api/osx,node
 demo/package-lock.json
+
+.netlify
