@@ -1,5 +1,5 @@
-const { lt: ltVersion, gte: gteVersion } = require('semver')
 const { yellowBright } = require('chalk')
+const { lt: ltVersion, gte: gteVersion } = require('semver')
 
 // Ensure Next.js is available.
 // We use `peerDependencies` instead of `dependencies` so that users can choose

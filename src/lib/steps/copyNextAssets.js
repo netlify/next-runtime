@@ -12,7 +12,7 @@ const copyNextAssets = async (publishPath) => {
   const staticAssetsPath = join(nextDistDir, 'static')
   if (!existsSync(staticAssetsPath)) {
     throw new Error(
-      'No static assets found in .next dist (aka no /.next/static). Please check your project configuration. Your next.config.js must be one of `serverless` or `experimental-serverless-trace`. Your build command should include `next build`.',
+      `No static assets found in distDir "${staticAssetsPath}". Please check your project configuration. Your next.config.js must be one of "serverless" or "experimental-serverless-trace". Your build command should include "next build".`,
     )
   }
   logTitle('💼 Copying static NextJS assets to', publishPath)

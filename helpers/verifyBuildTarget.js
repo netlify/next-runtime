@@ -1,11 +1,16 @@
-const getNextConfig = require('./getNextConfig')
-const findUp = require('find-up')
-const { writeFile, unlink } = require('fs-extra')
 const path = require('path')
 
+const { writeFile } = require('fs-extra')
+
+const getNextConfig = require('./getNextConfig')
+const getNextRoot = require('./getNextRoot')
+
 // Checks if site has the correct next.config.js
-const verifyBuildTarget = async ({ failBuild }) => {
-  const { target } = await getNextConfig(failBuild)
+const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
+  const nextRoot = getNextRoot({ netlifyConfig })
+
+  const { target, configFile, ...rest } = await getNextConfig(failBuild, nextRoot)
+  console.log({ target, rest, configFile, nextRoot })
 
   // If the next config exists, log warning if target isnt in acceptableTargets
   const acceptableTargets = ['serverless', 'experimental-serverless-trace']
@@ -19,8 +24,6 @@ const verifyBuildTarget = async ({ failBuild }) => {
     )}". Building with "serverless" target.`,
   )
 
-  /* eslint-disable fp/no-delete, node/no-unpublished-require */
-
   // We emulate Vercel so that we can set target to serverless if needed
   process.env.NOW_BUILDER = true
   // If no valid target is set, we use an internal Next env var to force it
@@ -29,30 +32,31 @@ const verifyBuildTarget = async ({ failBuild }) => {
   // 🐉 We need Next to recalculate "isZeitNow" var so we can set the target, but it's
   // set as an import side effect so we need to clear the require cache first. 🐲
   // https://github.com/vercel/next.js/blob/canary/packages/next/telemetry/ci-info.ts
+  /* eslint-disable node/no-unpublished-require */
 
   delete require.cache[require.resolve('next/dist/telemetry/ci-info')]
   delete require.cache[require.resolve('next/dist/next-server/server/config')]
+
+  /* eslint-enable node/no-unpublished-require */
 
   // Clear memoized cache
   getNextConfig.clear()
 
   // Creating a config file, because otherwise Next won't reload the config and pick up the new target
 
-  if (!(await findUp('next.config.js'))) {
+  if (!configFile) {
     await writeFile(
       path.resolve('next.config.js'),
       `module.exports = {
-  // Supported targets are "serverless" and "experimental-serverless-trace"
-  target: "serverless"
-}`,
+    // Supported targets are "serverless" and "experimental-serverless-trace"
+    target: "serverless"
+  }`,
     )
   }
   // Force the new config to be generated
-  await getNextConfig(failBuild)
-
+  await getNextConfig(failBuild, nextRoot)
   // Reset the value in case something else is looking for it
   process.env.NOW_BUILDER = false
-  /* eslint-enable fp/no-delete, node/no-unpublished-require */
 }
 
 module.exports = verifyBuildTarget
