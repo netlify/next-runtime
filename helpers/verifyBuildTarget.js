@@ -10,7 +10,6 @@ const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
   const nextRoot = getNextRoot({ netlifyConfig })
 
   const { target, configFile, ...rest } = await getNextConfig(failBuild, nextRoot)
-  console.log({ target, rest, configFile, nextRoot })
 
   // If the next config exists, log warning if target isnt in acceptableTargets
   const acceptableTargets = ['serverless', 'experimental-serverless-trace']
