@@ -75,7 +75,7 @@ const watch = (functionsPath, publishPath, nextRoot) => {
 const nextOnNetlify = async (options = {}) => {
   const functionsPath = normalize(options.functionsDir || NETLIFY_FUNCTIONS_PATH)
   const publishPath = normalize(options.publishDir || NETLIFY_PUBLISH_PATH)
-  const nextRoot = normalize(options.nextRoot) || process.cwd()
+  const nextRoot = normalize(options.nextRoot || process.cwd())
 
   if (options.watch) {
     watch(functionsPath, publishPath, nextRoot)

@@ -80,16 +80,17 @@ module.exports = {
     })
   },
 
-  async onPostBuild({ netlifyConfig, packageJson, constants: { FUNCTIONS_DIST }, utils }) {
+  async onPostBuild({ netlifyConfig, packageJson, constants: { FUNCTIONS_DIST = DEFAULT_FUNCTIONS_DIST }, utils }) {
     if (doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
       return
     }
     const nextRoot = getNextRoot({ netlifyConfig })
 
     const nextConfig = await getNextConfig(utils.failBuild, nextRoot)
-    await saveCache({ cache: utils.cache, distDir: path.join(nextRoot, nextConfig.distDir) })
+    await saveCache({ cache: utils.cache, distDir: nextConfig.distDir })
     copyUnstableIncludedDirs({ nextConfig, functionsDist: path.resolve(FUNCTIONS_DIST) })
   },
 }
 
 const DEFAULT_FUNCTIONS_SRC = 'netlify/functions'
+const DEFAULT_FUNCTIONS_DIST = '.netlify/functions/'
