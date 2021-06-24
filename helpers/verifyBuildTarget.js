@@ -9,7 +9,7 @@ const getNextRoot = require('./getNextRoot')
 const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
   const nextRoot = getNextRoot({ netlifyConfig })
 
-  const { target, configFile, ...rest } = await getNextConfig(failBuild, nextRoot)
+  const { target, configFile } = await getNextConfig(failBuild, nextRoot)
 
   // If the next config exists, log warning if target isnt in acceptableTargets
   const acceptableTargets = ['serverless', 'experimental-serverless-trace']
@@ -46,10 +46,11 @@ const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
   if (!configFile) {
     await writeFile(
       path.resolve('next.config.js'),
-      `module.exports = {
-    // Supported targets are "serverless" and "experimental-serverless-trace"
-    target: "serverless"
-  }`,
+      `
+module.exports = {
+  // Supported targets are "serverless" and "experimental-serverless-trace"
+  target: "serverless"
+}`,
     )
   }
   // Force the new config to be generated

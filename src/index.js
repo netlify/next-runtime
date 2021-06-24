@@ -19,6 +19,8 @@ const build = async (functionsPath, publishPath, nextRoot) => {
     functionsPath,
     publishPath,
   })
+
+  // If we're in a monorepo we need to move into the Next site root
   const oldCwd = process.cwd()
   if (nextRoot !== oldCwd) {
     process.chdir(nextRoot)
@@ -35,6 +37,7 @@ const build = async (functionsPath, publishPath, nextRoot) => {
 
   setupHeaders(publishPath)
 
+  // ...and move back after
   if (nextRoot !== oldCwd) {
     process.chdir(oldCwd)
   }

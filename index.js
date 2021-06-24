@@ -37,6 +37,7 @@ module.exports = {
     // Because we memoize nextConfig, we need to do this after the write file
     const nextConfig = await getNextConfig(utils.failBuild, nextRoot)
 
+    // Nx needs special config handling, so check for it specifically
     const isNx = Boolean(
       (packageJson.devDependencies && packageJson.devDependencies['@nrwl/next']) ||
         (packageJson.dependencies && packageJson.dependencies['@nrwl/next']),

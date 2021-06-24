@@ -9,12 +9,13 @@ const checkNxConfig = ({ netlifyConfig, nextConfig, failBuild, constants: { PUBL
       "- When using Nx you must set a value for 'distDir' in your next.config.js, and the value cannot be '.next'",
     )
   }
-  if (!PUBLISH_DIR.startsWith('apps')) {
+  // The PUBLISH_DIR constant is normalized, so no leading slash is needed
+  if (!PUBLISH_DIR.startsWith('apps/')) {
     errors.push(
       "Please set the 'publish' value in your Netlify build config to a folder inside your app directory. e.g. 'apps/myapp/out'",
     )
   }
-
+  // Look for the config file as a sibling of the publish dir
   const expectedConfigFile = path.resolve(netlifyConfig.build.publish, '..', 'next.config.js')
 
   if (expectedConfigFile !== nextConfig.configFile) {
