@@ -74,7 +74,13 @@ Read more about [file-based plugin installation](https://docs.netlify.com/config
 
 ## Docs
 
-You can find more documentation on the Essential Next.js plugin [here](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs).
+- [CLI Usage](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/cli-usage.md)
+- [Custom Netlify Functions](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/custom-functions.md)
+- [Image Handling](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/image-handling.md)
+- [Custom Netlify Redirects](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/custom-redirects.md)
+- [Local Files in Runtime](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/local-files-in-runtime.md)
+- [FAQ](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/faq.md)
+- [Caveats](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/caveats.md)
 
 ## Credits
 
