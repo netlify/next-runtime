@@ -3,6 +3,7 @@ const path = require('path')
 const makeDir = require('make-dir')
 
 const { restoreCache, saveCache } = require('./helpers/cacheBuild')
+const checkNxConfig = require('./helpers/checkNxConfig')
 const copyUnstableIncludedDirs = require('./helpers/copyUnstableIncludedDirs')
 const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
 const getNextConfig = require('./helpers/getNextConfig')
@@ -15,7 +16,7 @@ const nextOnNetlify = require('./src')
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
-  async onPreBuild({ netlifyConfig, packageJson, utils }) {
+  async onPreBuild({ netlifyConfig, packageJson, utils, constants }) {
     const { failBuild } = utils.build
 
     validateNextUsage(failBuild)
@@ -35,6 +36,15 @@ module.exports = {
 
     // Because we memoize nextConfig, we need to do this after the write file
     const nextConfig = await getNextConfig(utils.failBuild, nextRoot)
+
+    const isNx = Boolean(
+      (packageJson.devDependencies && packageJson.devDependencies['@nrwl/next']) ||
+        (packageJson.dependencies && packageJson.dependencies['@nrwl/next']),
+    )
+
+    if (isNx) {
+      checkNxConfig({ netlifyConfig, packageJson, nextConfig, failBuild, constants })
+    }
 
     if (nextConfig.images.domains.length !== 0 && !process.env.NEXT_IMAGE_ALLOWED_DOMAINS) {
       console.log(
