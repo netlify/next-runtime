@@ -33,8 +33,10 @@ const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
   // https://github.com/vercel/next.js/blob/canary/packages/next/telemetry/ci-info.ts
   /* eslint-disable node/no-unpublished-require */
 
-  delete require.cache[require.resolve('next/dist/telemetry/ci-info')]
-  delete require.cache[require.resolve('next/dist/next-server/server/config')]
+  const paths = [nextRoot, process.cwd()]
+
+  delete require.cache[require.resolve('next/dist/telemetry/ci-info', { paths })]
+  delete require.cache[require.resolve('next/dist/next-server/server/config', { paths })]
 
   /* eslint-enable node/no-unpublished-require */
 
@@ -45,7 +47,7 @@ const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
 
   if (!configFile) {
     await writeFile(
-      path.resolve('next.config.js'),
+      path.resolve(nextRoot, 'next.config.js'),
       `
 module.exports = {
   // Supported targets are "serverless" and "experimental-serverless-trace"

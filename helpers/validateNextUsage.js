@@ -1,12 +1,17 @@
 const { yellowBright } = require('chalk')
 const { lt: ltVersion, gte: gteVersion } = require('semver')
 
+const getNextRoot = require('./getNextRoot')
+
 // Ensure Next.js is available.
 // We use `peerDependencies` instead of `dependencies` so that users can choose
 // the Next.js version. However, this requires them to install "next" in their
 // site.
-const validateNextUsage = function (failBuild) {
-  if (!hasPackage('next')) {
+const validateNextUsage = function ({ failBuild, netlifyConfig }) {
+  const nextRoot = getNextRoot({ netlifyConfig })
+  //  Because we don't know the monorepo structure, we try to resolve next both locally and in the next root
+  const paths = [nextRoot, process.cwd()]
+  if (!hasPackage('next', paths)) {
     return failBuild(
       'This site does not seem to be using Next.js. Please run "npm install next" or "yarn next" in the repository.',
     )
@@ -15,9 +20,12 @@ const validateNextUsage = function (failBuild) {
   // We cannot load `next` at the top-level because we validate whether the
   // site is using `next` inside `onPreBuild`.
   // Old Next.js versions are not supported
-  const { version } = require('next/package.json')
+  // eslint-disable-next-line node/no-unpublished-require
+  const pkg = require.resolve(`next/package.json`, { paths })
+  // eslint-disable-next-line import/no-dynamic-require
+  const { version } = require(pkg)
   if (ltVersion(version, MIN_VERSION)) {
-    return failBuild(`Please upgrade to Next.js ${MIN_VERSION} or later`)
+    return failBuild(`Please upgrade to Next.js ${MIN_VERSION} or later. Found ${version}.`)
   }
 
   // Recent Next.js versions are sometimes unstable and we might not officially
@@ -31,9 +39,9 @@ const validateNextUsage = function (failBuild) {
 const MIN_VERSION = '10.0.6'
 const MIN_EXPERIMENTAL_VERSION = '11.0.0'
 
-const hasPackage = function (packageName) {
+const hasPackage = function (packageName, paths) {
   try {
-    require(`${packageName}/package.json`)
+    require.resolve(`${packageName}/package.json`, { paths })
     return true
   } catch (error) {
     return false

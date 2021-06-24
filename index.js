@@ -19,7 +19,7 @@ module.exports = {
   async onPreBuild({ netlifyConfig, packageJson, utils, constants }) {
     const { failBuild } = utils.build
 
-    validateNextUsage(failBuild)
+    validateNextUsage({ failBuild, netlifyConfig })
 
     const hasNoPackageJson = Object.keys(packageJson).length === 0
     if (hasNoPackageJson) {
