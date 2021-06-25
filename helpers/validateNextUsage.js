@@ -13,7 +13,8 @@ const validateNextUsage = function ({ failBuild, netlifyConfig }) {
   //  Because we don't know the monorepo structure, we try to resolve next both locally and in the next root
   if (!hasPackage('next', nextRoot)) {
     return failBuild(
-      `This site does not seem to be using Next.js. Please run "npm install next" or "yarn next" in the repository. ${nextRoot} ${process.cwd()}`,
+      // TODO: add `If you are using a monorepo, see the docs on how to configure your site:`
+      `This site does not seem to be using Next.js. Please run "npm install next" in the repository.`,
     )
   }
 
