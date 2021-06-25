@@ -27,7 +27,7 @@ class NextAppBuilder {
     emptyDirSync(this.__stagingPath)
     emptyDirSync(this.__appPath)
 
-    return this
+    return this.withFile('.eslintrc')
   }
 
   // Copy the fixture folder with the pagesFolder name to
