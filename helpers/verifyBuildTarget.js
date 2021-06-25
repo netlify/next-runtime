@@ -4,6 +4,7 @@ const { writeFile } = require('fs-extra')
 
 const getNextConfig = require('./getNextConfig')
 const getNextRoot = require('./getNextRoot')
+const resolveNextModule = require('./resolveNextModule')
 
 // Checks if site has the correct next.config.js
 const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
@@ -31,14 +32,9 @@ const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
   // 🐉 We need Next to recalculate "isZeitNow" var so we can set the target, but it's
   // set as an import side effect so we need to clear the require cache first. 🐲
   // https://github.com/vercel/next.js/blob/canary/packages/next/telemetry/ci-info.ts
-  /* eslint-disable node/no-unpublished-require */
 
-  const paths = [nextRoot, process.cwd()]
-
-  delete require.cache[require.resolve('next/dist/telemetry/ci-info', { paths })]
-  delete require.cache[require.resolve('next/dist/next-server/server/config', { paths })]
-
-  /* eslint-enable node/no-unpublished-require */
+  delete require.cache[resolveNextModule('next/dist/telemetry/ci-info', nextRoot)]
+  delete require.cache[resolveNextModule('next/dist/next-server/server/config', nextRoot)]
 
   // Clear memoized cache
   getNextConfig.clear()

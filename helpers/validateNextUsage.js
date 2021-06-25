@@ -2,6 +2,7 @@ const { yellowBright } = require('chalk')
 const { lt: ltVersion, gte: gteVersion } = require('semver')
 
 const getNextRoot = require('./getNextRoot')
+const resolveNextModule = require('./resolveNextModule')
 
 // Ensure Next.js is available.
 // We use `peerDependencies` instead of `dependencies` so that users can choose
@@ -10,20 +11,17 @@ const getNextRoot = require('./getNextRoot')
 const validateNextUsage = function ({ failBuild, netlifyConfig }) {
   const nextRoot = getNextRoot({ netlifyConfig })
   //  Because we don't know the monorepo structure, we try to resolve next both locally and in the next root
-  const paths = [nextRoot, process.cwd()]
-  if (!hasPackage('next', paths)) {
+  if (!hasPackage('next', nextRoot)) {
     return failBuild(
-      'This site does not seem to be using Next.js. Please run "npm install next" or "yarn next" in the repository.',
+      `This site does not seem to be using Next.js. Please run "npm install next" or "yarn next" in the repository. ${nextRoot} ${process.cwd()}`,
     )
   }
 
   // We cannot load `next` at the top-level because we validate whether the
   // site is using `next` inside `onPreBuild`.
   // Old Next.js versions are not supported
-  // eslint-disable-next-line node/no-unpublished-require
-  const pkg = require.resolve(`next/package.json`, { paths })
   // eslint-disable-next-line import/no-dynamic-require
-  const { version } = require(pkg)
+  const { version } = require(resolveNextModule(`next/package.json`, nextRoot))
   if (ltVersion(version, MIN_VERSION)) {
     return failBuild(`Please upgrade to Next.js ${MIN_VERSION} or later. Found ${version}.`)
   }
@@ -39,9 +37,9 @@ const validateNextUsage = function ({ failBuild, netlifyConfig }) {
 const MIN_VERSION = '10.0.6'
 const MIN_EXPERIMENTAL_VERSION = '11.0.0'
 
-const hasPackage = function (packageName, paths) {
+const hasPackage = function (packageName, nextRoot) {
   try {
-    require.resolve(`${packageName}/package.json`, { paths })
+    resolveNextModule(`${packageName}/package.json`, nextRoot)
     return true
   } catch (error) {
     return false

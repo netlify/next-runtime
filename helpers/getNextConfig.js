@@ -4,15 +4,17 @@ const { cwd: getCwd } = require('process')
 
 const moize = require('moize')
 
-const requireNextModule = require('./requireNextModule')
+const resolveNextModule = require('./resolveNextModule')
 
 // We used to cache nextConfig for any cwd. Now we pass process.cwd() to cache
 // (or memoize) nextConfig per cwd.
 const getNextConfig = async function (failBuild = defaultFailBuild, cwd = getCwd()) {
   // We cannot load `next` at the top-level because we validate whether the
   // site is using `next` inside `onPreBuild`.
-  const { PHASE_PRODUCTION_BUILD } = requireNextModule('next/constants', cwd)
-  const loadConfig = requireNextModule('next/dist/next-server/server/config', cwd).default
+  /* eslint-disable import/no-dynamic-require */
+  const { PHASE_PRODUCTION_BUILD } = require(resolveNextModule('next/constants', cwd))
+  const loadConfig = require(resolveNextModule('next/dist/next-server/server/config', cwd)).default
+  /* eslint-enable import/no-dynamic-require */
 
   try {
     return await loadConfig(PHASE_PRODUCTION_BUILD, cwd)

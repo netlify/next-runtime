@@ -1,4 +1,4 @@
-const requireNextModule = require('../../../helpers/requireNextModule')
+const resolveNextModule = require('../../../helpers/resolveNextModule')
 
 const removeFileExtension = require('./removeFileExtension')
 
@@ -11,7 +11,11 @@ const getSortedRedirects = (redirects) => {
   const routesWithoutExtensions = redirects.map(({ route }) => removeFileExtension(route))
 
   // Sort the "naked" routes
-  const { getSortedRoutes } = requireNextModule('next/dist/next-server/lib/router/utils/sorted-routes', process.cwd())
+  // eslint-disable-next-line import/no-dynamic-require
+  const { getSortedRoutes } = require(resolveNextModule(
+    'next/dist/next-server/lib/router/utils/sorted-routes',
+    process.cwd(),
+  ))
   const sortedRoutes = getSortedRoutes(routesWithoutExtensions)
 
   // Return original routes in the sorted order
