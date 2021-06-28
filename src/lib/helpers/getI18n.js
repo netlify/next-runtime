@@ -1,4 +1,4 @@
-// Get the ii8n details specified in next.config.js, if any
+// Get the i18n details specified in next.config.js, if any
 const getNextConfig = require('../../../helpers/getNextConfig')
 
 const getI18n = async () => {

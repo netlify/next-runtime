@@ -44,6 +44,7 @@ module.exports = {
     )
 
     if (isNx) {
+      console.log('Detected Nx site. Checking configuration...')
       checkNxConfig({ netlifyConfig, packageJson, nextConfig, failBuild, constants })
     }
 

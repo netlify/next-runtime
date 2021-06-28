@@ -43,7 +43,11 @@ const checkNxConfig = ({ netlifyConfig, nextConfig, failBuild, constants: { PUBL
   if (errors.length !== 0) {
     failBuild(
       // TODO: Add ntl.fyi link to docs
-      ['Invalid configuration', ...errors, 'See the docs on using Nx with Netlify for more information'].join(EOL),
+      [
+        'Invalid configuration',
+        ...errors,
+        'See the docs on using Nx with Netlify for more information: https://ntl.fyi/nx-next',
+      ].join(EOL),
     )
   }
 }
