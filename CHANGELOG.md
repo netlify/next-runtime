@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.5.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.4.2...v3.5.0) (2021-06-28)
+
+
+### Features
+
+* add demo site ([7b6e628](https://www.github.com/netlify/netlify-plugin-nextjs/commit/7b6e6283f1170478c6dec21748b9e9bb48f48518))
+* don't upscale images ([#441](https://www.github.com/netlify/netlify-plugin-nextjs/issues/441)) ([e622e1a](https://www.github.com/netlify/netlify-plugin-nextjs/commit/e622e1af6daa23686a01903b8efa7a659bb55574))
+* monorepo handling ([#434](https://www.github.com/netlify/netlify-plugin-nextjs/issues/434)) ([e920cc6](https://www.github.com/netlify/netlify-plugin-nextjs/commit/e920cc674ce72fb232c513d8fddd42cb9f1d42f1))
+
+
+### Bug Fixes
+
+* changes from review ([625a2c0](https://www.github.com/netlify/netlify-plugin-nextjs/commit/625a2c000ef1cc548b4851446957e7ed92c198cf))
+* changes from review ([0456d6c](https://www.github.com/netlify/netlify-plugin-nextjs/commit/0456d6c90524e01d3abfd9b80f955d2c25bd401a))
+* clearer error messaging ([#410](https://www.github.com/netlify/netlify-plugin-nextjs/issues/410)) ([1c06d13](https://www.github.com/netlify/netlify-plugin-nextjs/commit/1c06d1323312bf7b4ff7f4c228978b96a73f2917))
+* create temporary config file ([af78226](https://www.github.com/netlify/netlify-plugin-nextjs/commit/af782268803ff5e07641171c4b6c4056d2dbe7fb))
+* **deps:** update dependency execa to v5.1.1 ([b5a2f27](https://www.github.com/netlify/netlify-plugin-nextjs/commit/b5a2f270998fe074bddfc55ee7c7f68947a1ec24))
+* **deps:** update dependency mime-types to v2.1.31 ([0c77233](https://www.github.com/netlify/netlify-plugin-nextjs/commit/0c772331b09c341eb6b6422aa648fab1a23e11e1))
+* extract target checks ([d9451e8](https://www.github.com/netlify/netlify-plugin-nextjs/commit/d9451e841174267237ef7b0645fea26dda0070d8))
+* fix tests ([edcc653](https://www.github.com/netlify/netlify-plugin-nextjs/commit/edcc653659a8e64c414753012c3cf936793fa36a))
+* force serverless target ([5876ab5](https://www.github.com/netlify/netlify-plugin-nextjs/commit/5876ab5f4ba6a9d4ffbf02d5c312dce79ae481b6))
+
 ### [3.4.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.4.1...v3.4.2) (2021-06-04)
 
 
