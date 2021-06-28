@@ -74,6 +74,10 @@ First, you need to make the `publish` directory point at a dirctory called `out`
 [build]
   command = "npm run build"
   publish = "apps/myapp/out"
+
+[dev]
+  command = "npm run start"
+  targetPort = 4200
   
 [[plugins]]
   package = "@netlify/plugin-nextjs"

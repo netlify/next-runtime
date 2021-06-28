@@ -1,5 +1,3 @@
-const findUp = require('find-up')
-
 // Checks all the cases for which the plugin should do nothing
 const doesSiteUseNextOnNetlify = require('./doesSiteUseNextOnNetlify')
 const isStaticExportProject = require('./isStaticExportProject')
