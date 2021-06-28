@@ -14,12 +14,17 @@ const setupImageFunction = require('./lib/steps/setupImageFunction')
 const setupPages = require('./lib/steps/setupPages')
 const setupRedirects = require('./lib/steps/setupRedirects')
 
-const build = async (functionsPath, publishPath) => {
+const build = async (functionsPath, publishPath, nextRoot) => {
   const trackNextOnNetlifyFiles = prepareFolders({
     functionsPath,
     publishPath,
   })
 
+  // If we're in a monorepo we need to move into the Next site root
+  const oldCwd = process.cwd()
+  if (nextRoot !== oldCwd) {
+    process.chdir(nextRoot)
+  }
   copyPublicFiles(publishPath)
 
   await copyNextAssets(publishPath)
@@ -32,19 +37,24 @@ const build = async (functionsPath, publishPath) => {
 
   setupHeaders(publishPath)
 
+  // ...and move back after
+  if (nextRoot !== oldCwd) {
+    process.chdir(oldCwd)
+  }
+
   trackNextOnNetlifyFiles()
 
   logTitle('✅ Success! All done!')
 }
 
-const watch = (functionsPath, publishPath) => {
+const watch = (functionsPath, publishPath, nextRoot) => {
   logTitle(`👀 Watching source code for changes`)
 
   const runBuild = debounceFn(
     async () => {
       try {
-        execa.sync('next', ['build'], { stdio: 'inherit', preferLocal: true })
-        await build(functionsPath, publishPath)
+        execa.sync('next', ['build'], { stdio: 'inherit', preferLocal: true, cwd: nextRoot })
+        await build(functionsPath, publishPath, nextRoot)
       } catch (error) {
         console.log(error)
       }
@@ -68,11 +78,12 @@ const watch = (functionsPath, publishPath) => {
 const nextOnNetlify = async (options = {}) => {
   const functionsPath = normalize(options.functionsDir || NETLIFY_FUNCTIONS_PATH)
   const publishPath = normalize(options.publishDir || NETLIFY_PUBLISH_PATH)
+  const nextRoot = normalize(options.nextRoot || process.cwd())
 
   if (options.watch) {
-    watch(functionsPath, publishPath)
+    watch(functionsPath, publishPath, nextRoot)
   } else {
-    await build(functionsPath, publishPath)
+    await build(functionsPath, publishPath, nextRoot)
   }
 }
 

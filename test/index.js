@@ -202,7 +202,7 @@ describe('onBuild()', () => {
     await moveNextDist()
     const PUBLISH_DIR = 'publish'
     await plugin.onBuild({
-      netlifyConfig,
+      netlifyConfig: { build: { publish: path.resolve(PUBLISH_DIR) } },
       packageJson: DUMMY_PACKAGE_JSON,
       constants: {
         PUBLISH_DIR,
