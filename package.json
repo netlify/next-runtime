@@ -90,7 +90,7 @@
     "folder-hash": "^4.0.0",
     "husky": "^4.3.0",
     "jest": "^26.6.1",
-    "netlify-cli": "^3.39.1",
+    "netlify-cli": "^3.39.2",
     "next": "^11.0.0",
     "path-exists": "^4.0.0",
     "prettier": "^2.1.2",
