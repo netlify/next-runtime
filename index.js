@@ -84,6 +84,10 @@ module.exports = {
 
   async onPostBuild({ netlifyConfig, packageJson, constants: { FUNCTIONS_DIST = DEFAULT_FUNCTIONS_DIST }, utils }) {
     if (doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
+      utils.status.show({
+        title: 'Essential Next.js Build Plugin did not run',
+        summary: 'The site either uses static export, or manually runs next-on-netlify',
+      })
       return
     }
     const nextRoot = getNextRoot({ netlifyConfig })
@@ -91,6 +95,10 @@ module.exports = {
     const nextConfig = await getNextConfig(utils.failBuild, nextRoot)
     await saveCache({ cache: utils.cache, distDir: nextConfig.distDir })
     copyUnstableIncludedDirs({ nextConfig, functionsDist: path.resolve(FUNCTIONS_DIST) })
+    utils.status.show({
+      title: 'Essential Next.js Build Plugin ran successfully',
+      summary: 'Generated serverless functions and stored the Next.js cache',
+    })
   },
 }
 
