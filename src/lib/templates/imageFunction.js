@@ -4,7 +4,7 @@ const fetch = require('node-fetch')
 const imageType = require('image-type')
 const isSvg = require('is-svg')
 const etag = require('etag')
-
+const imageSize = require('image-size')
 // 6MB is hard max Lambda response size
 const MAX_RESPONSE_SIZE = 6291456
 
@@ -75,6 +75,20 @@ const handler = async (event) => {
     return { statusCode: 400, body: 'Source does not appear to be an image' }
   }
 
+  const dimensions = imageSize(bufferData)
+
+  if (width > dimensions.width) {
+    // We won't upsize images, and to avoid downloading the same size multiple times,
+    // we redirect to the largest available size
+    const Location = `/nextimg/${url}/${dimensions.width}/${q}`
+    return {
+      statusCode: 302,
+      headers: {
+        Location,
+      },
+    }
+  }
+
   let { ext } = type
 
   // For unsupported formats (gif, svg) we redirect to the original
@@ -103,7 +117,7 @@ const handler = async (event) => {
     .png({ quality, palette: true, force: ext === 'png' })
     .webp({ quality, force: ext === 'webp' })
     .avif({ quality, force: ext === 'avif' })
-    .resize(width)
+    .resize(width, null, { withoutEnlargement: true })
     .toBuffer({ resolveWithObject: true })
 
   if (imageBuffer.length > MAX_RESPONSE_SIZE) {

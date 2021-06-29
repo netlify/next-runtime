@@ -3,4 +3,11 @@
   ignorePresets: [':prHourlyLimit2'],
   semanticCommits: true,
   dependencyDashboard: true,
+  // Those cannot be upgraded until we drop support for Node 10
+  packageRules: [
+    {
+      matchPackageNames: ['fs-extra'],
+      allowedVersions: '<10',
+    },
+  ],
 }
