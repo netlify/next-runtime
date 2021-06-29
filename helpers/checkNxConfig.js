@@ -2,7 +2,7 @@ const { existsSync } = require('fs')
 const { EOL } = require('os')
 const path = require('path')
 
-const checkNxConfig = ({ netlifyConfig, nextConfig, failBuild, constants: { PUBLISH_DIR } }) => {
+const checkNxConfig = ({ netlifyConfig, nextConfig, failBuild, constants: { PUBLISH_DIR = 'out' } }) => {
   const errors = []
   if (nextConfig.distDir === '.next') {
     errors.push(
@@ -15,8 +15,9 @@ const checkNxConfig = ({ netlifyConfig, nextConfig, failBuild, constants: { PUBL
       "Please set the 'publish' value in your Netlify build config to a folder inside your app directory. e.g. 'apps/myapp/out'",
     )
   }
+
   // Look for the config file as a sibling of the publish dir
-  const expectedConfigFile = path.resolve(netlifyConfig.build.publish, '..', 'next.config.js')
+  const expectedConfigFile = path.resolve(netlifyConfig.build.publish || PUBLISH_DIR, '..', 'next.config.js')
 
   if (expectedConfigFile !== nextConfig.configFile) {
     const confName = path.relative(process.cwd(), nextConfig.configFile)
