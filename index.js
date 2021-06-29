@@ -1,3 +1,4 @@
+const { readdirSync } = require('fs')
 const path = require('path')
 
 const makeDir = require('make-dir')
@@ -60,7 +61,7 @@ module.exports = {
   async onBuild({
     netlifyConfig,
     packageJson,
-    constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC },
+    constants: { PUBLISH_DIR = DEFAULT_PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC },
     utils,
   }) {
     const { failBuild } = utils.build
@@ -74,10 +75,9 @@ module.exports = {
     console.log(`** Running Next on Netlify package **`)
 
     await makeDir(PUBLISH_DIR)
-
     await nextOnNetlify({
       functionsDir: path.resolve(FUNCTIONS_SRC),
-      publishDir: netlifyConfig.build.publish,
+      publishDir: netlifyConfig.build.publish || PUBLISH_DIR,
       nextRoot,
     })
   },
@@ -96,3 +96,4 @@ module.exports = {
 
 const DEFAULT_FUNCTIONS_SRC = 'netlify/functions'
 const DEFAULT_FUNCTIONS_DIST = '.netlify/functions/'
+const DEFAULT_PUBLISH_DIR = 'out'

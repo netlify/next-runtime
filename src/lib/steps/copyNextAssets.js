@@ -1,4 +1,4 @@
-const { join } = require('path')
+const { join, resolve } = require('path')
 
 const { copySync, existsSync } = require('fs-extra')
 
@@ -16,7 +16,9 @@ const copyNextAssets = async (publishPath) => {
   const staticAssetsPath = join(nextDistDir, 'static')
   if (!existsSync(staticAssetsPath)) {
     throw new Error(
-      `No static assets found in your distDir (missing /static in ${nextDistDir}). Please check your project configuration. Your next.config.js must be one of \`serverless\` or \`experimental-serverless-trace\`. Your build command should include \`next build\`.`,
+      `No static assets found in your distDir (missing /static in ${resolve(
+        nextDistDir,
+      )}). Please check your project configuration. Your next.config.js must be one of \`serverless\` or \`experimental-serverless-trace\`. Your build command should include \`next build\`.`,
     )
   }
   logTitle('💼 Copying static NextJS assets to', publishPath)
