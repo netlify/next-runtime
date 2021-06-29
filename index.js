@@ -88,7 +88,6 @@ module.exports = {
         title: 'Essential Next.js Build Plugin did not run',
         summary: 'The site either uses static export, or manually runs next-on-netlify',
       })
-    if (doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
       return
     }
     const nextRoot = getNextRoot({ netlifyConfig })
