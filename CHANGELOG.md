@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.6.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.5.0...v3.6.0) (2021-06-29)
+
+
+### Features
+
+* show summary build status ([#400](https://www.github.com/netlify/netlify-plugin-nextjs/issues/400)) ([1b739e8](https://www.github.com/netlify/netlify-plugin-nextjs/commit/1b739e8a802eccd94a1f538e26ccae7323eb454e))
+
+
+### Bug Fixes
+
+* use default publish dir ([#457](https://www.github.com/netlify/netlify-plugin-nextjs/issues/457)) ([5064aa3](https://www.github.com/netlify/netlify-plugin-nextjs/commit/5064aa3a99bedd4524158c3d8b7dd2ad3e8b70fa))
+
 ## [3.5.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.4.2...v3.5.0) (2021-06-28)
 
 
