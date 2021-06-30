@@ -64,7 +64,7 @@
     "adm-zip": "^0.5.4",
     "chalk": "^4.1.0",
     "chokidar": "^3.5.1",
-    "commander": "^7.1.0",
+    "commander": "^8.0.0",
     "debounce-fn": "^4.0.0",
     "etag": "^1.8.1",
     "execa": "^5.0.0",
