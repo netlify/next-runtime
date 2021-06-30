@@ -97,7 +97,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "tmp-promise": "^3.0.2",
-    "wait-on": "^5.2.1"
+    "wait-on": "^6.0.0"
   },
   "husky": {
     "hooks": {
