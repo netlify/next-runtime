@@ -39,10 +39,13 @@ const handler = async (event) => {
   const quality = parseInt(q) || 60
 
   let imageUrl
+  let isRemoteImage = false
   // Relative image
   if (parsedUrl.startsWith('/')) {
-    imageUrl = `${process.env.DEPLOY_URL || `http://${event.headers.host}`}${parsedUrl}`
+    const protocol = event.headers['x-nf-connection-proto'] || event.headers['x-forwarded-proto'] || 'http'
+    imageUrl = `${protocol}://${event.headers.host || event.hostname}${parsedUrl}`
   } else {
+    isRemoteImage = true
     // Remote images need to be in the allowlist
     const allowedDomains = process.env.NEXT_IMAGE_ALLOWED_DOMAINS
       ? process.env.NEXT_IMAGE_ALLOWED_DOMAINS.split(',').map((domain) => domain.trim())
@@ -96,7 +99,7 @@ const handler = async (event) => {
     return {
       statusCode: 302,
       headers: {
-        Location: imageUrl,
+        Location: isRemoteImage ? imageUrl : parsedUrl,
       },
     }
   }
