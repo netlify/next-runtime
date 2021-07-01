@@ -86,7 +86,9 @@ module.exports = {
     if (doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
       utils.status.show({
         title: 'Essential Next.js Build Plugin did not run',
-        summary: 'The site either uses static export, or manually runs next-on-netlify',
+        summary: netlifyConfig.build.command
+          ? 'The site either uses static export, or manually runs next-on-netlify'
+          : 'The site config does not specify a build command',
       })
       return
     }
