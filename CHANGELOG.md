@@ -1,5 +1,15 @@
 # Changelog
 
+### [3.6.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.6.0...v3.6.1) (2021-07-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency commander to v8 ([#447](https://www.github.com/netlify/netlify-plugin-nextjs/issues/447)) ([18a789a](https://www.github.com/netlify/netlify-plugin-nextjs/commit/18a789a0037899831570c18f19261da0f32efd32))
+* skip plugin if build command is empty ([#471](https://www.github.com/netlify/netlify-plugin-nextjs/issues/471)) ([4d0524b](https://www.github.com/netlify/netlify-plugin-nextjs/commit/4d0524b0016cf69fcc28234ce6a056c181c3f0bc))
+* update min Next.js version, and log current ([#472](https://www.github.com/netlify/netlify-plugin-nextjs/issues/472)) ([fcb06fe](https://www.github.com/netlify/netlify-plugin-nextjs/commit/fcb06fe46da74a09bc75b9e0c452b7bcafd81a80))
+* use correct protocol for image source ([#467](https://www.github.com/netlify/netlify-plugin-nextjs/issues/467)) ([4edbc73](https://www.github.com/netlify/netlify-plugin-nextjs/commit/4edbc73e15b4041a3fd322c8feede726fb3d8ccf))
+
 ## [3.6.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.5.0...v3.6.0) (2021-06-29)
 
 
