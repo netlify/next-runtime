@@ -73,9 +73,20 @@ afterEach(async () => {
 })
 
 const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0' }
-const netlifyConfig = { build: {} }
+const netlifyConfig = { build: { command: 'next build' } }
 
 describe('preBuild()', () => {
+  test('do nothing if the app has no build command', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig: { build: { command: '' } },
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { build: 'next build' } },
+      utils,
+      constants: { FUNCTIONS_SRC: 'out_functions' },
+    })
+
+    expect(await pathExists('next.config.js')).toBeFalsy()
+  })
+
   test('do nothing if the app has static html export in npm script', async () => {
     await plugin.onPreBuild({
       netlifyConfig: { build: { command: 'npm run build' } },
@@ -205,7 +216,7 @@ describe('onBuild()', () => {
     await moveNextDist()
     const PUBLISH_DIR = 'publish'
     await plugin.onBuild({
-      netlifyConfig: { build: { publish: path.resolve(PUBLISH_DIR) } },
+      netlifyConfig: { build: { publish: path.resolve(PUBLISH_DIR), command: 'next build' } },
       packageJson: DUMMY_PACKAGE_JSON,
       constants: {
         PUBLISH_DIR,
