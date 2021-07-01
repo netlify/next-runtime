@@ -23,20 +23,23 @@ If you are using a monorepo, please see the docs on configuring your site: https
   // Old Next.js versions are not supported
   // eslint-disable-next-line import/no-dynamic-require
   const { version } = require(resolveNextModule(`next/package.json`, nextRoot))
+
+  console.log(`Using Next.js ${yellowBright(version)}`)
+
   if (ltVersion(version, MIN_VERSION)) {
-    return failBuild(`Please upgrade to Next.js ${MIN_VERSION} or later. Found ${version}.`)
+    return failBuild(`Please upgrade to Next.js ${MIN_VERSION} or later.`)
   }
 
   // Recent Next.js versions are sometimes unstable and we might not officially
   // support them yet. However, they might still work for some users, so we
   // only print a warning
   if (gteVersion(version, MIN_EXPERIMENTAL_VERSION)) {
-    console.log(yellowBright(`** Warning: support for Next.js >=${MIN_EXPERIMENTAL_VERSION} is experimental **`))
+    console.log(yellowBright(`Warning: support for Next.js >=${MIN_EXPERIMENTAL_VERSION} is experimental`))
   }
 }
 
 const MIN_VERSION = '10.0.6'
-const MIN_EXPERIMENTAL_VERSION = '11.0.0'
+const MIN_EXPERIMENTAL_VERSION = '11.1.0'
 
 const hasPackage = function (packageName, nextRoot) {
   try {
