@@ -13,7 +13,15 @@ const getNextConfig = async function (failBuild = defaultFailBuild, cwd = getCwd
   // site is using `next` inside `onPreBuild`.
   /* eslint-disable import/no-dynamic-require */
   const { PHASE_PRODUCTION_BUILD } = require(resolveNextModule('next/constants', cwd))
-  const loadConfig = require(resolveNextModule('next/dist/next-server/server/config', cwd)).default
+  const loadConfig = require(resolveNextModule(
+    [
+      // next <= 11.0.1
+      'next/dist/next-server/server/config',
+      // next > 11.0.1
+      'next/dist/server/config',
+    ],
+    cwd,
+  )).default
   /* eslint-enable import/no-dynamic-require */
 
   try {

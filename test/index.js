@@ -7,6 +7,7 @@ const { dir: getTmpDir } = require('tmp-promise')
 
 const plugin = require('..')
 const getNextConfig = require('../helpers/getNextConfig')
+const resolveNextModule = require('../helpers/resolveNextModule')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/sample`
@@ -53,8 +54,18 @@ const useFixture = async function (fixtureName) {
 // This allows us not to have to mock filesystem operations.
 beforeEach(async () => {
   delete process.env.NEXT_PRIVATE_TARGET
-  delete require.cache[require.resolve('next/dist/telemetry/ci-info')]
-  delete require.cache[require.resolve('next/dist/next-server/server/config')]
+  delete require.cache[resolveNextModule('next/dist/telemetry/ci-info', process.cwd())]
+  delete require.cache[
+    resolveNextModule(
+      [
+        //  next <= 11.0.1
+        'next/dist/next-server/server/config',
+        // next > 11.0.1
+        'next/dist/server/config',
+      ],
+      process.cwd(),
+    )
+  ]
 
   getNextConfig.clear()
   const { path, cleanup } = await getTmpDir({ unsafeCleanup: true })

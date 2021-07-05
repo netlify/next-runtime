@@ -34,7 +34,17 @@ const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
   // https://github.com/vercel/next.js/blob/canary/packages/next/telemetry/ci-info.ts
 
   delete require.cache[resolveNextModule('next/dist/telemetry/ci-info', nextRoot)]
-  delete require.cache[resolveNextModule('next/dist/next-server/server/config', nextRoot)]
+  delete require.cache[
+    resolveNextModule(
+      [
+        // next <= 11.0.1
+        'next/dist/next-server/server/config',
+        // next > 11.0.1
+        'next/dist/server/config',
+      ],
+      nextRoot,
+    )
+  ]
 
   // Clear memoized cache
   getNextConfig.clear()

@@ -28,7 +28,13 @@ jobs:
           node-version: ${{ matrix.node-version }}
           check-latest: true
       - run: npm ci
+        name: NPM Install
       - name: Linting
         run: npm run format:ci
         if: "${{ matrix.node-version == '*' }}"
-      - run: npm test
+      - name: Run tests against next@latest
+        run: npm test
+      - name: Install Next.js Canary
+        run: npm install -D next@canary --legacy-peer-deps
+      - name: Run tests against next@canary
+        run: npm test

@@ -13,7 +13,12 @@ const getSortedRedirects = (redirects) => {
   // Sort the "naked" routes
   // eslint-disable-next-line import/no-dynamic-require
   const { getSortedRoutes } = require(resolveNextModule(
-    'next/dist/next-server/lib/router/utils/sorted-routes',
+    [
+      // next <= 11.0.1
+      'next/dist/next-server/lib/router/utils/sorted-routes',
+      // next > 11.0.1
+      'next/dist/shared/lib/router/utils/sorted-routes',
+    ],
     process.cwd(),
   ))
   const sortedRoutes = getSortedRoutes(routesWithoutExtensions)
