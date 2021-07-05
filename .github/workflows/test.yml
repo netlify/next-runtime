@@ -35,6 +35,6 @@ jobs:
       - name: Run tests against next@latest
         run: npm test
       - name: Install Next.js Canary
-        run: npm install -D next@canary
+        run: npm install -D next@canary --legacy-peer-deps
       - name: Run tests against next@canary
         run: npm test
