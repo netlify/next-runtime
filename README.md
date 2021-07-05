@@ -58,7 +58,7 @@ NEXT_SERVERLESS = "true"
 NODE_ENV = "production"
 ```
 
-2\. From your project's base directory, use `npm`, `yarn`, or any other Node.js package manager to add this plugin to `devDependencies` in `package.json`.
+2\. From your project's base directory, use `npm`, `yarn`, or any other Node.js package manager to add this plugin to `dependencies` in `package.json`.
 
 ```
 npm install --save @netlify/plugin-nextjs
