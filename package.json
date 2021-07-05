@@ -36,7 +36,7 @@
     "prepublishOnly:test": "npm test",
     "test:plugin": "npm run build && jest",
     "test:src": "jest --config src/tests/jest.config.js",
-    "test": "npm run test:plugin && npm run test:src"
+    "test": "run-s test:plugin test:src"
   },
   "config": {
     "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{js,md,html}\" \"*.{js,md,html}\" \".*.{js,md,html}\"",
