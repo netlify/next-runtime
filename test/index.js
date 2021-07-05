@@ -54,8 +54,10 @@ const useFixture = async function (fixtureName) {
 // This allows us not to have to mock filesystem operations.
 beforeEach(async () => {
   delete process.env.NEXT_PRIVATE_TARGET
-  delete require.cache[resolveNextModule('next/dist/telemetry/ci-info')]
-  delete require.cache[resolveNextModule(['next/dist/next-server/server/config', 'next/dist/server/config'])]
+  delete require.cache[resolveNextModule('next/dist/telemetry/ci-info', process.cwd())]
+  delete require.cache[
+    resolveNextModule(['next/dist/next-server/server/config', 'next/dist/server/config'], process.cwd())
+  ]
 
   getNextConfig.clear()
   const { path, cleanup } = await getTmpDir({ unsafeCleanup: true })
