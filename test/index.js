@@ -56,7 +56,15 @@ beforeEach(async () => {
   delete process.env.NEXT_PRIVATE_TARGET
   delete require.cache[resolveNextModule('next/dist/telemetry/ci-info', process.cwd())]
   delete require.cache[
-    resolveNextModule(['next/dist/next-server/server/config', 'next/dist/server/config'], process.cwd())
+    resolveNextModule(
+      [
+        //  next <= 11.0.1
+        'next/dist/next-server/server/config',
+        // next > 11.0.1
+        'next/dist/server/config',
+      ],
+      process.cwd(),
+    )
   ]
 
   getNextConfig.clear()
