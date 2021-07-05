@@ -83,7 +83,7 @@
     "sharp": "^0.28.1"
   },
   "devDependencies": {
-    "@netlify/eslint-config-node": "^3.1.6",
+    "@netlify/eslint-config-node": "^3.1.7",
     "cpy": "^8.1.1",
     "cypress": "^7.0.0",
     "eslint-config-next": "^11.0.0",
