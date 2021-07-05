@@ -1,5 +1,13 @@
 # Changelog
 
+### [3.6.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.6.1...v3.6.2) (2021-07-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency fastq to v1.11.1 ([#476](https://www.github.com/netlify/netlify-plugin-nextjs/issues/476)) ([ca8549f](https://www.github.com/netlify/netlify-plugin-nextjs/commit/ca8549f1b3be6fef498439ed4a63035c4b799e56))
+* try to resolve next modules via multiple paths ([#479](https://www.github.com/netlify/netlify-plugin-nextjs/issues/479)) ([7d208c3](https://www.github.com/netlify/netlify-plugin-nextjs/commit/7d208c378551de3b2b6c5a1f2c666f1f117b74db))
+
 ### [3.6.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.6.0...v3.6.1) (2021-07-01)
 
 
