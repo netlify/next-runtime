@@ -20,7 +20,7 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage,
   }
 
   // Copy function templates
-  const functionTemplateCopyPath = join(functionDirectory, `${functionName}.js`)
+  const functionTemplateCopyPath = join(functionDirectory, `${functionName}.ts`)
   const srcTemplatePath = isISR ? BUILDER_TEMPLATE_PATH : FUNCTION_TEMPLATE_PATH
   copySync(srcTemplatePath, functionTemplateCopyPath, {
     overwrite: false,
@@ -28,7 +28,7 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage,
   })
 
   // Copy function helpers
-  const functionHelpers = ['functionBase.js', 'renderNextPage.js', 'createRequestObject.js', 'createResponseObject.js']
+  const functionHelpers = ['getHandlerFunction.js']
   functionHelpers.forEach((helper) => {
     copySync(join(TEMPLATES_DIR, helper), join(functionDirectory, helper), {
       overwrite: false,

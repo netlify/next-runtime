@@ -2,7 +2,8 @@
 //           running next-on-netlify
 
 // Render function for the Next.js page
-const renderNextPage = require('./renderNextPage')
-const functionBase = require('./functionBase')
 
-exports.handler = functionBase
+import { getHandlerFunction } from './getHandlerFunction'
+import * as nextPage from './nextPage'
+
+export const handler = getHandlerFunction(nextPage)
