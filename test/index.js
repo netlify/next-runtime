@@ -287,7 +287,7 @@ describe('onBuild()', () => {
       utils,
     })
 
-    expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.js`)).toBeTruthy()
+    expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.ts`)).toBeTruthy()
   })
 })
 
