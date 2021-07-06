@@ -17,7 +17,6 @@ const resolveNextModule = (modules, nextRoot) => {
     try {
       const resolved = require.resolve(module, { paths })
       if (resolved) {
-        console.log('resolved', resolved)
         return resolved
       }
     } catch (error) {
