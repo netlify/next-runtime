@@ -1,4 +1,4 @@
-const { readdirSync } = require('fs')
+const { readdirSync, existsSync } = require('fs')
 const path = require('path')
 
 const makeDir = require('make-dir')
@@ -71,6 +71,19 @@ module.exports = {
     if (doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })) {
       return
     }
+    console.log('Detected Next.js site. Copying files...')
+
+    const { distDir } = await getNextConfig(failBuild, nextRoot)
+
+    const dist = path.resolve(nextRoot, distDir)
+    if (!existsSync(dist)) {
+      failBuild(`
+Could not find "${distDir}" after building the site, which indicates that "next build" was not run. 
+Check that your build command includes "next build". If the site is a monorepo, see https://ntl.fyi/next-monorepo 
+for information on configuring the site. If this is not a Next.js site you should remove the Essential Next.js plugin. 
+See https://ntl.fyi/remove-plugin for instructions.
+      `)
+    }
 
     console.log(`** Running Next on Netlify package **`)
 
@@ -87,7 +100,7 @@ module.exports = {
       utils.status.show({
         title: 'Essential Next.js Build Plugin did not run',
         summary: netlifyConfig.build.command
-          ? 'The site either uses static export, or manually runs next-on-netlify'
+          ? 'The site either uses static export, manually runs next-on-netlify, or is not a Next.js site'
           : 'The site config does not specify a build command',
       })
       return
