@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.6.3](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.6.2...v3.6.3) (2021-07-07)
+
+
+### Bug Fixes
+
+* handle Storybook and other sites that don't build ([#496](https://www.github.com/netlify/netlify-plugin-nextjs/issues/496)) ([9deacfb](https://www.github.com/netlify/netlify-plugin-nextjs/commit/9deacfb66b12c5a373253d61d37a8269636c8f8b))
+
 ### [3.6.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.6.1...v3.6.2) (2021-07-05)
 
 
