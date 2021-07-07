@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+/* eslint-disable max-lines-per-function */
 const path = require('path')
 const process = require('process')
 
@@ -156,6 +158,33 @@ describe('preBuild()', () => {
     expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
   })
 
+  test('do nothing if build command includes "build-storybook"', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { build: 'build-storybook' } },
+      utils,
+    })
+    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
+  })
+
+  test('do nothing if build command calls a script that includes "build-storybook"', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig: { build: { command: 'npm run storybook' } },
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { storybook: 'build-storybook' } },
+      utils,
+    })
+    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
+  })
+
+  test('run plugin if app has build-storybook in an unused script', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { storybook: 'build-storybook' } },
+      utils,
+    })
+    expect(process.env.NEXT_PRIVATE_TARGET).toBe('serverless')
+  })
+
   test('fail build if the app has no package.json', async () => {
     await expect(
       plugin.onPreBuild({
@@ -289,3 +318,6 @@ describe('onPostBuild', () => {
     expect(path.normalize(manifestPath.digests[0])).toBe(path.normalize('build/build-manifest.json'))
   })
 })
+
+/* eslint-enable max-lines */
+/* eslint-enable max-lines-per-function */
