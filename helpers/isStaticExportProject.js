@@ -6,7 +6,9 @@ const usesBuildCommand = require('./usesBuildCommand')
 const isStaticExportProject = ({ build, scripts }) => {
   const NEXT_EXPORT_COMMAND = 'next export'
 
-  const isStaticExport = usesBuildCommand({ build, scripts, command: NEXT_EXPORT_COMMAND })
+  const isStaticExport =
+    usesBuildCommand({ build, scripts, command: NEXT_EXPORT_COMMAND }) ||
+    (process.env.NEXT_IS_STATIC_EXPORT && process.env.NEXT_IS_STATIC_EXPORT !== 'false')
 
   if (isStaticExport) {
     console.log(

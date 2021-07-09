@@ -10,6 +10,7 @@ const { dir: getTmpDir } = require('tmp-promise')
 const plugin = require('..')
 const getNextConfig = require('../helpers/getNextConfig')
 const resolveNextModule = require('../helpers/resolveNextModule')
+const usesBuildCommand = require('../helpers/usesBuildCommand')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/sample`
@@ -316,6 +317,23 @@ describe('onPostBuild', () => {
     expect(spy).toHaveBeenCalled()
     expect(path.normalize(distPath)).toBe(path.normalize('build/cache'))
     expect(path.normalize(manifestPath.digests[0])).toBe(path.normalize('build/build-manifest.json'))
+  })
+})
+
+describe('script parser', () => {
+  test('detects export commands', () => {
+    const fixtures = require('./fixtures/static.json')
+    fixtures.forEach(({ command, scripts }) => {
+      const isStatic = usesBuildCommand({ command: 'next export', build: { command }, scripts })
+      expect(isStatic).toBe(true)
+    })
+  })
+  test('ignores non export commands', () => {
+    const fixtures = require('./fixtures/not-static.json')
+    fixtures.forEach(({ command, scripts }) => {
+      const isStatic = usesBuildCommand({ command: 'next export', build: { command }, scripts })
+      expect(isStatic).toBe(false)
+    })
   })
 })
 
