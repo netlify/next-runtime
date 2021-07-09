@@ -79,21 +79,21 @@ beforeEach(async () => {
 afterEach(async () => {
   jest.clearAllMocks()
   jest.resetAllMocks()
-
+  delete process.env.NEXT_PRIVATE_TARGET
   // Cleans up the temporary directory from `getTmpDir()` and do not make it
   // the current directory anymore
   this.restoreCwd()
   await this.cleanup()
 })
 
-const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0' }
-const netlifyConfig = { build: { command: 'next build' } }
+const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0', scripts: { build: 'next build' } }
+const netlifyConfig = { build: { command: 'npm run build' } }
 
 describe('preBuild()', () => {
   test('do nothing if the app has no build command', async () => {
     await plugin.onPreBuild({
       netlifyConfig: { build: { command: '' } },
-      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { build: 'next build' } },
+      packageJson: DUMMY_PACKAGE_JSON,
       utils,
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
@@ -115,7 +115,7 @@ describe('preBuild()', () => {
   test('run plugin if the app has next export in an unused script', async () => {
     await plugin.onPreBuild({
       netlifyConfig,
-      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { export: 'next export' } },
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { export: 'next export', build: 'next build' } },
       utils,
       constants: {},
     })
@@ -135,6 +135,7 @@ describe('preBuild()', () => {
 
   test('do nothing if app has next-on-netlify installed', async () => {
     const packageJson = {
+      ...DUMMY_PACKAGE_JSON,
       dependencies: { 'next-on-netlify': '123' },
     }
     await plugin.onPreBuild({
@@ -148,7 +149,7 @@ describe('preBuild()', () => {
 
   test('do nothing if app has next-on-netlify postbuild script', async () => {
     const packageJson = {
-      scripts: { postbuild: 'next-on-netlify' },
+      scripts: { build: 'next build', postbuild: 'next-on-netlify' },
     }
     await plugin.onPreBuild({
       netlifyConfig,
@@ -180,7 +181,7 @@ describe('preBuild()', () => {
   test('run plugin if app has build-storybook in an unused script', async () => {
     await plugin.onPreBuild({
       netlifyConfig,
-      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { storybook: 'build-storybook' } },
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { storybook: 'build-storybook', build: 'next build' } },
       utils,
     })
     expect(process.env.NEXT_PRIVATE_TARGET).toBe('serverless')
@@ -237,7 +238,7 @@ describe('preBuild()', () => {
 describe('onBuild()', () => {
   test('does not run onBuild if using next-on-netlify', async () => {
     const packageJson = {
-      scripts: { postbuild: 'next-on-netlify' },
+      scripts: { postbuild: 'next-on-netlify', build: 'next build' },
     }
     await useFixture('publish_copy_files')
     await moveNextDist()
