@@ -4,6 +4,8 @@ const chokidar = require('chokidar')
 const debounceFn = require('debounce-fn')
 const execa = require('execa')
 
+const getNextConfig = require('../helpers/getNextConfig')
+
 const { NETLIFY_PUBLISH_PATH, NETLIFY_FUNCTIONS_PATH, SRC_FILES } = require('./lib/config')
 const { logTitle } = require('./lib/helpers/logger')
 const copyNextAssets = require('./lib/steps/copyNextAssets')
@@ -31,7 +33,9 @@ const build = async (functionsPath, publishPath, nextRoot) => {
 
   await setupPages({ functionsPath, publishPath })
 
-  setupImageFunction(functionsPath)
+  const { images } = await getNextConfig()
+
+  await setupImageFunction(functionsPath, images)
 
   await setupRedirects(publishPath)
 
