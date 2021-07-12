@@ -1,18 +1,17 @@
 const { join } = require('path')
 
-const { copySync } = require('fs-extra')
+const { copyFile, writeJSON, ensureDir } = require('fs-extra')
 
 const { NEXT_IMAGE_FUNCTION_NAME, TEMPLATES_DIR } = require('../config')
 
 // Move our next/image function into the correct functions directory
-const setupImageFunction = (functionsPath) => {
+const setupImageFunction = async (functionsPath, imageconfig = {}) => {
   const functionName = `${NEXT_IMAGE_FUNCTION_NAME}.js`
-  const functionDirectory = join(functionsPath, functionName)
+  const functionDirectory = join(functionsPath, NEXT_IMAGE_FUNCTION_NAME)
 
-  copySync(join(TEMPLATES_DIR, 'imageFunction.js'), functionDirectory, {
-    overwrite: false,
-    errorOnExist: true,
-  })
+  await ensureDir(functionDirectory)
+  await writeJSON(join(functionDirectory, 'imageconfig.json'), imageconfig)
+  await copyFile(join(TEMPLATES_DIR, 'imageFunction.js'), join(functionDirectory, functionName))
 }
 
 module.exports = setupImageFunction
