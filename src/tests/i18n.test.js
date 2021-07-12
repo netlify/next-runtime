@@ -1,6 +1,6 @@
 // Test next-on-netlify when i18n is set in next.config.js (Next 10+)
 
-const { parse, join, sep } = require('path')
+const { parse, join } = require('path')
 const { existsSync, readdirSync, readFileSync, readJsonSync } = require('fs-extra')
 const buildNextApp = require('./helpers/buildNextApp')
 
@@ -40,18 +40,18 @@ describe('next-on-netlify', () => {
 describe('next-on-netlify', () => {
   test('builds successfully', () => {
     expect(buildOutput).toMatch('Next on Netlify')
-    expect(buildOutput).toMatch(`Copying static NextJS assets to out_publish${sep}`)
-    expect(buildOutput).toMatch(`Setting up API endpoints as Netlify Functions in out_functions${sep}`)
-    expect(buildOutput).toMatch(`Setting up pages with getInitialProps as Netlify Functions in out_functions${sep}`)
-    expect(buildOutput).toMatch(`Setting up pages with getServerSideProps as Netlify Functions in out_functions${sep}`)
-    expect(buildOutput).toMatch(`Copying pre-rendered pages with getStaticProps and JSON data to out_publish${sep}`)
+    expect(buildOutput).toMatch(`Copying static NextJS assets to out_publish`)
+    expect(buildOutput).toMatch(`Setting up API endpoints as Netlify Functions in out_functions`)
+    expect(buildOutput).toMatch(`Setting up pages with getInitialProps as Netlify Functions in out_functions`)
+    expect(buildOutput).toMatch(`Setting up pages with getServerSideProps as Netlify Functions in out_functions`)
+    expect(buildOutput).toMatch(`Copying pre-rendered pages with getStaticProps and JSON data to out_publish`)
     expect(buildOutput).toMatch(
-      `Setting up pages with getStaticProps and fallback: true as Netlify Functions in out_functions${sep}`,
+      `Setting up pages with getStaticProps and fallback: true as Netlify Functions in out_functions`,
     )
     expect(buildOutput).toMatch(
-      `Setting up pages with getStaticProps and revalidation interval as Netlify Functions in out_functions${sep}`,
+      `Setting up pages with getStaticProps and revalidation interval as Netlify Functions in out_functions`,
     )
-    expect(buildOutput).toMatch(`Copying pre-rendered pages without props to out_publish${sep}`)
+    expect(buildOutput).toMatch(`Copying pre-rendered pages without props to out_publish`)
     expect(buildOutput).toMatch('Setting up redirects')
     expect(buildOutput).toMatch('Success! All done!')
   })

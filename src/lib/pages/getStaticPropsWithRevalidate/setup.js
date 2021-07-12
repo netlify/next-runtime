@@ -1,5 +1,7 @@
 const { join } = require('path')
 
+const slash = require('slash')
+
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
 const { logTitle } = require('../../helpers/logger')
 
@@ -25,7 +27,7 @@ const setup = async (functionsPath) => {
 
   pages.forEach(({ route, srcRoute }) => {
     const relativePath = getFilePathForRoute(srcRoute || route, 'js')
-    const filePath = join('pages', relativePath)
+    const filePath = slash(join('pages', relativePath))
     if (filePathsDone.has(filePath)) {
       return
     }
