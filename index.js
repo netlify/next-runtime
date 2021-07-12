@@ -49,11 +49,9 @@ module.exports = {
       checkNxConfig({ netlifyConfig, packageJson, nextConfig, failBuild, constants })
     }
 
-    if (nextConfig.images.domains.length !== 0 && !process.env.NEXT_IMAGE_ALLOWED_DOMAINS) {
+    if (process.env.NEXT_IMAGE_ALLOWED_DOMAINS) {
       console.log(
-        `Image domains set in next.config.js are ignored.\nPlease set the env variable NEXT_IMAGE_ALLOWED_DOMAINS to "${nextConfig.images.domains.join(
-          ',',
-        )}" instead`,
+        `The Essential Next.js plugin now supports reading image domains from your Next config, so using NEXT_IMAGE_ALLOWED_DOMAINS is now deprecated. Please set images.domains in next.config.js instead, and remove the NEXT_IMAGE_ALLOWED_DOMAINS variable.`,
       )
     }
     await restoreCache({ cache: utils.cache, distDir: nextConfig.distDir })
