@@ -5,6 +5,7 @@ const imageType = require('image-type')
 const isSvg = require('is-svg')
 const etag = require('etag')
 const imageSize = require('image-size')
+const config = require('./imageconfig.json')
 // 6MB is hard max Lambda response size
 const MAX_RESPONSE_SIZE = 6291456
 
@@ -47,9 +48,14 @@ const handler = async (event) => {
   } else {
     isRemoteImage = true
     // Remote images need to be in the allowlist
-    const allowedDomains = process.env.NEXT_IMAGE_ALLOWED_DOMAINS
-      ? process.env.NEXT_IMAGE_ALLOWED_DOMAINS.split(',').map((domain) => domain.trim())
-      : []
+    let allowedDomains = config.images?.domains || []
+
+    if (process.env.NEXT_IMAGE_ALLOWED_DOMAINS) {
+      console.log('Combining `NEXT_IMAGE_ALLOWED_DOMAINS` with any domains found in `next.config.js`')
+      allowedDomains = allowedDomains.concat(
+        process.env.NEXT_IMAGE_ALLOWED_DOMAINS.split(',').map((domain) => domain.trim()),
+      )
+    }
 
     if (!allowedDomains.includes(new URL(parsedUrl).hostname)) {
       return {
