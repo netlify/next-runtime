@@ -48,7 +48,7 @@ const handler = async (event) => {
   } else {
     isRemoteImage = true
     // Remote images need to be in the allowlist
-    let allowedDomains = config.images?.domains || []
+    let allowedDomains = config.domains || []
 
     if (process.env.NEXT_IMAGE_ALLOWED_DOMAINS) {
       console.log('Combining `NEXT_IMAGE_ALLOWED_DOMAINS` with any domains found in `next.config.js`')
@@ -84,20 +84,6 @@ const handler = async (event) => {
     return { statusCode: 400, body: 'Source does not appear to be an image' }
   }
 
-  const dimensions = imageSize(bufferData)
-
-  if (width > dimensions.width) {
-    // We won't upsize images, and to avoid downloading the same size multiple times,
-    // we redirect to the largest available size
-    const Location = `/nextimg/${url}/${dimensions.width}/${q}`
-    return {
-      statusCode: 302,
-      headers: {
-        Location,
-      },
-    }
-  }
-
   let { ext } = type
 
   // For unsupported formats (gif, svg) we redirect to the original
@@ -122,8 +108,8 @@ const handler = async (event) => {
   // make it return that format.
   const { info, data: imageBuffer } = await sharp(bufferData)
     .rotate()
-    .jpeg({ quality, mozjpeg: true, force: ext === 'jpg' })
-    .png({ quality, palette: true, force: ext === 'png' })
+    .jpeg({ quality, force: ext === 'jpg' })
+    .png({ quality, force: ext === 'png' })
     .webp({ quality, force: ext === 'webp' })
     .avif({ quality, force: ext === 'avif' })
     .resize(width, null, { withoutEnlargement: true })
