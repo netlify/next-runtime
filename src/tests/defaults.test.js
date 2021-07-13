@@ -1,7 +1,7 @@
 // Test default next-on-netlify configuration
 
 const { parse, join } = require('path')
-const { existsSync, readdirSync, readFileSync } = require('fs-extra')
+const { existsSync, readdirSync, readFileSync, readJsonSync } = require('fs-extra')
 const buildNextApp = require('./helpers/buildNextApp')
 
 // The name of this test file (without extension)
