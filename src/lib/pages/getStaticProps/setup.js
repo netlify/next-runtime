@@ -1,5 +1,7 @@
 const { join } = require('path')
 
+const slash = require('slash')
+
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
 const isRouteWithFallback = require('../../helpers/isRouteWithFallback')
 const { logTitle } = require('../../helpers/logger')
@@ -34,7 +36,7 @@ const setup = async ({ functionsPath, publishPath }) => {
 
       // Set up the Netlify function (this is ONLY for preview mode)
       const relativePath = getFilePathForRoute(srcRoute || route, 'js')
-      const filePath = join('pages', relativePath)
+      const filePath = slash(join('pages', relativePath))
 
       // Skip if we have already set up a function for this file
 

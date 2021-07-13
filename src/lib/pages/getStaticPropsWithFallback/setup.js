@@ -1,5 +1,7 @@
 const { join } = require('path')
 
+const slash = require('slash')
+
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
 const { logTitle } = require('../../helpers/logger')
 
@@ -14,7 +16,7 @@ const setup = async (functionsPath) => {
   // Create Netlify Function for every page
   return pages.map(({ route }) => {
     const relativePath = getFilePathForRoute(route, 'js')
-    const filePath = join('pages', relativePath)
+    const filePath = slash(join('pages', relativePath))
     return { type: 'function', filePath, functionsPath, isISR: true }
   })
 }

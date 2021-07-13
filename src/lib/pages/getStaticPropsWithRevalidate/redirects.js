@@ -1,5 +1,7 @@
 const { join } = require('path')
 
+const slash = require('slash')
+
 const addDefaultLocaleRedirect = require('../../helpers/addDefaultLocaleRedirect')
 const asyncForEach = require('../../helpers/asyncForEach')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
@@ -28,7 +30,7 @@ const getRedirects = async () => {
 
   await asyncForEach(pages, async ({ route, srcRoute, dataRoute }) => {
     const relativePath = getFilePathForRoute(srcRoute || route, 'js')
-    const filePath = join('pages', relativePath)
+    const filePath = slash(join('pages', relativePath))
     const functionName = getNetlifyFunctionName(filePath)
     const target = `/.netlify/functions/${functionName}`
 
