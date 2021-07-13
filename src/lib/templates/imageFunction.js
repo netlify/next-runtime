@@ -122,8 +122,8 @@ const handler = async (event) => {
   // make it return that format.
   const { info, data: imageBuffer } = await sharp(bufferData)
     .rotate()
-    .jpeg({ quality, mozjpeg: true, force: ext === 'jpg' })
-    .png({ quality, palette: true, force: ext === 'png' })
+    .jpeg({ quality, force: ext === 'jpg' })
+    .png({ quality, force: ext === 'png' })
     .webp({ quality, force: ext === 'webp' })
     .avif({ quality, force: ext === 'avif' })
     .resize(width, null, { withoutEnlargement: true })
