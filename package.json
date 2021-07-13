@@ -81,7 +81,8 @@
     "moize": "^6.0.0",
     "node-fetch": "^2.6.1",
     "semver": "^7.3.2",
-    "sharp": "^0.28.1"
+    "sharp": "^0.28.1",
+    "slash": "^2.0.0"
   },
   "devDependencies": {
     "@netlify/eslint-config-node": "^3.1.7",
@@ -91,7 +92,7 @@
     "folder-hash": "^4.0.0",
     "husky": "^4.3.0",
     "jest": "^27.0.0",
-    "netlify-cli": "^4.2.1",
+    "netlify-cli": "^4.2.2",
     "next": "^11.0.0",
     "path-exists": "^4.0.0",
     "prettier": "^2.1.2",
