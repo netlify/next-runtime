@@ -84,20 +84,6 @@ const handler = async (event) => {
     return { statusCode: 400, body: 'Source does not appear to be an image' }
   }
 
-  const dimensions = imageSize(bufferData)
-
-  if (width > dimensions.width) {
-    // We won't upsize images, and to avoid downloading the same size multiple times,
-    // we redirect to the largest available size
-    const Location = `/nextimg/${url}/${dimensions.width}/${q}`
-    return {
-      statusCode: 302,
-      headers: {
-        Location,
-      },
-    }
-  }
-
   let { ext } = type
 
   // For unsupported formats (gif, svg) we redirect to the original
