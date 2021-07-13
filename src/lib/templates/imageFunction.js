@@ -48,7 +48,7 @@ const handler = async (event) => {
   } else {
     isRemoteImage = true
     // Remote images need to be in the allowlist
-    let allowedDomains = config.images?.domains || []
+    let allowedDomains = config.domains || []
 
     if (process.env.NEXT_IMAGE_ALLOWED_DOMAINS) {
       console.log('Combining `NEXT_IMAGE_ALLOWED_DOMAINS` with any domains found in `next.config.js`')
