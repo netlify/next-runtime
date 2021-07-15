@@ -72,7 +72,7 @@ yarn add @netlify/plugin-nextjs
 
 Read more about [file-based plugin installation](https://docs.netlify.com/configure-builds/build-plugins/#file-based-installation) in our docs.
 
-## Docs
+## Further Reading
 
 - [CLI Usage](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/cli-usage.md)
 - [Custom Netlify Functions](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/custom-functions.md)
@@ -83,6 +83,22 @@ Read more about [file-based plugin installation](https://docs.netlify.com/config
 - [FAQ](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/faq.md)
 - [Caveats](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/caveats.md)
 
+## Getting Help
+
+We'd love to hear from you! So, if you have any questions, comments, or bugs, let us know! You can either:
+
+- Open an issue on this repository
+- Tweet us! We're [@netlify](https://twitter.com/Netlify) on Twitter
+- Or, [join the community forums](https://answers.netlify.com)
+
+## Contributing
+
+We welcome contributions ❤️ - see the [CONTRIBUTING.md](CONTRIBUTING.md) file for details.
+
 ## Credits
 
 This package extends the project [next-on-netlify](https://github.com/netlify/next-on-netlify), authored originally by [Finn Woelm](https://github.com/finnwoelm).
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
