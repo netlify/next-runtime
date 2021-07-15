@@ -75,13 +75,13 @@
     "fs-extra": "^9.1.0",
     "image-size": "^1.0.0",
     "image-type": "^4.1.0",
+    "ipx": "^0.7.2",
     "is-svg": "^4.3.1",
     "make-dir": "^3.1.0",
     "mime-types": "^2.1.30",
     "moize": "^6.0.0",
     "node-fetch": "^2.6.1",
     "semver": "^7.3.5",
-    "sharp": "^0.28.1",
     "slash": "^2.0.0"
   },
   "devDependencies": {

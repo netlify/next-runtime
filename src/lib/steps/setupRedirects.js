@@ -58,12 +58,12 @@ const setupRedirects = async (publishPath) => {
   // Add necessary next/image redirects for our image function
   dynamicRedirects.push({
     route: `${basePath || ''}/_next/image*  url=:url w=:width q=:quality`,
-    target: `/nextimg/:url/:width/:quality`,
+    target: `/_ipx/w_:width,q_:quality/:url?=`,
     statusCode: '301',
     force: true,
   })
   dynamicRedirects.push({
-    route: '/nextimg/*',
+    route: '/_ipx/*',
     target: `/.netlify/functions/${NEXT_IMAGE_FUNCTION_NAME}`,
   })
 
