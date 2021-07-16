@@ -1,8 +1,9 @@
 const { join } = require('path')
 
-const { copySync, writeFile } = require('fs-extra')
+const { copySync, writeFile, ensureDir, copy } = require('fs-extra')
 
-const { TEMPLATES_DIR, FUNCTION_TEMPLATE_PATH, BUILDER_TEMPLATE_PATH } = require('../config')
+const { TEMPLATES_DIR } = require('../config')
+const getTemplate = require('../templates/getTemplate')
 
 const copyDynamicImportChunks = require('./copyDynamicImportChunks')
 const getNetlifyFunctionName = require('./getNetlifyFunctionName')
@@ -15,26 +16,18 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage,
   const functionName = getNetlifyFunctionName(filePath, isApiPage)
   const functionDirectory = join(functionsPath, functionName)
 
+  await ensureDir(functionDirectory)
+
   if (isApiPage && functionName.endsWith('-background')) {
     logItem(`👁 Setting up API page ${functionName} as a Netlify background function`)
   }
 
-  // Copy function templates
-  const functionTemplateCopyPath = join(functionDirectory, `${functionName}.ts`)
-  const srcTemplatePath = isISR ? BUILDER_TEMPLATE_PATH : FUNCTION_TEMPLATE_PATH
-  copySync(srcTemplatePath, functionTemplateCopyPath, {
-    overwrite: false,
-    errorOnExist: true,
-  })
+  // Write entry point to function directory
+  const entryPointPath = join(functionDirectory, `${functionName}.ts`)
+  await writeFile(entryPointPath, getTemplate({ filePath, isISR }))
 
-  // Copy function helpers
-  const functionHelpers = ['getHandlerFunction.js']
-  functionHelpers.forEach((helper) => {
-    copySync(join(TEMPLATES_DIR, helper), join(functionDirectory, helper), {
-      overwrite: false,
-      errorOnExist: true,
-    })
-  })
+  // Copy function helper
+  await copy(join(TEMPLATES_DIR, 'getHandlerFunction.js'), join(functionDirectory, 'getHandlerFunction.js'))
 
   // Copy any dynamic import chunks
   await copyDynamicImportChunks(functionDirectory)
@@ -43,13 +36,7 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage,
   const nextPageCopyPath = join(functionDirectory, 'nextPage', filePath)
   const nextDistDir = await getNextDistDir()
 
-  copySync(join(nextDistDir, 'serverless', filePath), nextPageCopyPath, {
-    overwrite: false,
-    errorOnExist: true,
-  })
-
-  // Write the import entry point
-  await writeFile(join(functionDirectory, 'nextPage', 'index.js'), `module.exports = require("./${filePath}")`)
+  copySync(join(nextDistDir, 'serverless', filePath), nextPageCopyPath)
 }
 
 module.exports = setupNetlifyFunctionForPage
