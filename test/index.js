@@ -90,6 +90,27 @@ const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0', scripts: { build: 
 const netlifyConfig = { build: { command: 'npm run build' } }
 
 describe('preBuild()', () => {
+  test('fails if the build version is too old', async () => {
+    expect(
+      plugin.onPreBuild({
+        netlifyConfig,
+        packageJson: DUMMY_PACKAGE_JSON,
+        utils,
+        constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '15.11.4' },
+      }),
+    ).rejects.toThrow('This version of the Essential Next.js plugin requires netlify-cli@4.4.2 or higher')
+  })
+
+  test('passes if the build version is new enough', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson: DUMMY_PACKAGE_JSON,
+      utils,
+      constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '15.12.0' },
+    })
+    expect(process.env.NEXT_PRIVATE_TARGET).toBe('serverless')
+  })
+
   test('do nothing if the app has no build command', async () => {
     await plugin.onPreBuild({
       netlifyConfig: { build: { command: '' } },
@@ -287,7 +308,7 @@ describe('onBuild()', () => {
       utils,
     })
 
-    expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.js`)).toBeTruthy()
+    expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.ts`)).toBeTruthy()
   })
 })
 

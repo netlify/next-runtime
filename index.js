@@ -2,6 +2,7 @@ const { readdirSync, existsSync } = require('fs')
 const path = require('path')
 
 const makeDir = require('make-dir')
+const { satisfies } = require('semver')
 
 const { restoreCache, saveCache } = require('./helpers/cacheBuild')
 const checkNxConfig = require('./helpers/checkNxConfig')
@@ -12,12 +13,16 @@ const getNextRoot = require('./helpers/getNextRoot')
 const validateNextUsage = require('./helpers/validateNextUsage')
 const verifyBuildTarget = require('./helpers/verifyBuildTarget')
 const nextOnNetlify = require('./src')
+
+// This is when the esbuild dynamic import support was added
+const REQUIRED_BUILD_VERSION = '>=15.11.5'
+
 // * Helpful Plugin Context *
 // - Between the prebuild and build steps, the project's build command is run
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
-  async onPreBuild({ netlifyConfig, packageJson, utils, constants }) {
+  async onPreBuild({ netlifyConfig, packageJson, utils, constants = {} }) {
     const { failBuild } = utils.build
 
     validateNextUsage({ failBuild, netlifyConfig })
@@ -29,6 +34,13 @@ module.exports = {
 
     if (doesNotNeedPlugin({ netlifyConfig, packageJson, failBuild })) {
       return
+    }
+    // We check for build version because that's what's available to us, but prompt about the cli because that's what they can upgrade
+    if (constants.IS_LOCAL && !satisfies(constants.NETLIFY_BUILD_VERSION, REQUIRED_BUILD_VERSION)) {
+      return failBuild(
+        `This version of the Essential Next.js plugin requires netlify-cli@4.4.2 or higher. Please upgrade and try again.
+You can do this by running: "npm install -g netlify-cli@latest" or "yarn global add netlify-cli@latest"`,
+      )
     }
 
     // Populates the correct config if needed
@@ -71,14 +83,15 @@ module.exports = {
     }
     console.log('Detected Next.js site. Copying files...')
 
-    const { distDir } = await getNextConfig(failBuild, nextRoot)
-
+    const { distDir, configFile } = await getNextConfig(failBuild, nextRoot)
     const dist = path.resolve(nextRoot, distDir)
+
     if (!existsSync(dist)) {
       failBuild(`
-Could not find "${distDir}" after building the site, which indicates that "next build" was not run. 
-Check that your build command includes "next build". If the site is a monorepo, see https://ntl.fyi/next-monorepo 
-for information on configuring the site. If this is not a Next.js site you should remove the Essential Next.js plugin. 
+Could not find "${distDir}" after building the site, which indicates that "next build" was not run or that we're looking in the wrong place. 
+We're using the config file ${configFile}, and looking for the dist directory at ${dist}. If this is incorrect, try deleting the config file, or
+moving it to the correct place. Check that your build command includes "next build". If the site is a monorepo, see https://ntl.fyi/next-monorepo 
+for information on configuring the site. If this is not a Next.js site, or if it uses static export, you should remove the Essential Next.js plugin. 
 See https://ntl.fyi/remove-plugin for instructions.
       `)
     }
