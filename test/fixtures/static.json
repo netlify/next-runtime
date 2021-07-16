@@ -13,6 +13,19 @@
         }
     },
     {
+        "command": "npm run build && npm run export",
+        "scripts": {
+            "export": "next export",
+            "build": "next build"
+        }
+    },
+    {
+        "command": "npm run build && next export",
+        "scripts": {
+            "build": "next build"
+        }
+    },
+    {
         "command": "npm run build",
         "scripts": {
             "build:export": "next export",
