@@ -45,13 +45,13 @@ describe('next-on-netlify', () => {
   })
 
   test('creates a Netlify Function for each SSR page', () => {
-    expect(existsSync(join(functionsDir, 'next_index', 'next_index.js'))).toBe(true)
-    expect(existsSync(join(functionsDir, 'next_shows_id', 'next_shows_id.js'))).toBe(true)
-    expect(existsSync(join(functionsDir, 'next_shows_params', 'next_shows_params.js'))).toBe(true)
-    expect(existsSync(join(functionsDir, 'next_getServerSideProps_static', 'next_getServerSideProps_static.js'))).toBe(
+    expect(existsSync(join(functionsDir, 'next_index', 'next_index.ts'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_shows_id', 'next_shows_id.ts'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_shows_params', 'next_shows_params.ts'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_getServerSideProps_static', 'next_getServerSideProps_static.ts'))).toBe(
       true,
     )
-    expect(existsSync(join(functionsDir, 'next_getServerSideProps_id', 'next_getServerSideProps_id.js'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_getServerSideProps_id', 'next_getServerSideProps_id.ts'))).toBe(true)
   })
 
   test('copies static pages to output directory', () => {
