@@ -68,9 +68,8 @@ describe('SSR Pages', () => {
       true,
     )
     expect(
-      readFileSync(join(functionsDir, 'next_getServerSideProps_id', 'nextPage', 'index.js'), 'utf-8'),
-    ).toBe(`module.exports = require("./pages/getServerSideProps/[id].js")`)
-    expect(existsSync(join(functionsDir, 'next_getServerSideProps_id', 'next_getServerSideProps_id.ts'))).toBe(true)
+      readFileSync(join(functionsDir, 'next_getServerSideProps_id', 'next_getServerSideProps_id.ts'), 'utf-8'),
+    ).toMatch(`require("./nextPage/pages/getServerSideProps/[id].js")`)
   })
 })
 
