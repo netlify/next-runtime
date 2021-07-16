@@ -22,7 +22,7 @@ const REQUIRED_BUILD_VERSION = '>=15.11.5'
 // - Between the build and postbuild steps, any functions are bundled
 
 module.exports = {
-  async onPreBuild({ netlifyConfig, packageJson, utils, constants }) {
+  async onPreBuild({ netlifyConfig, packageJson, utils, constants = {} }) {
     const { failBuild } = utils.build
 
     validateNextUsage({ failBuild, netlifyConfig })
