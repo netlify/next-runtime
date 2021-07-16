@@ -53,5 +53,12 @@
             "build:types": "tsc",
             "build": "run-p build:types"
         }
+    },
+    {
+        "command": "npm run build && npm run export",
+        "scripts": {
+            "export": "echo export",
+            "build": "next build"
+        }
     }
 ]

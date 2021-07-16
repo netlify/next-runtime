@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.7.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.7.0...v3.7.1) (2021-07-15)
+
+
+### Bug Fixes
+
+* catch more export cases ([#529](https://www.github.com/netlify/netlify-plugin-nextjs/issues/529)) ([41184bc](https://www.github.com/netlify/netlify-plugin-nextjs/commit/41184bc6895a1e4b8f5a72ffd97ab81d86da5492))
+
 ## [3.7.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.6.3...v3.7.0) (2021-07-13)
 
 
