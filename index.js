@@ -31,13 +31,6 @@ module.exports = {
       return
     }
 
-    // This doesn't seem to work yet, but should once support is in the CLI
-    // eslint-disable-next-line no-param-reassign
-    netlifyConfig.functions['*'].external_node_modules = [
-      ...(netlifyConfig.functions['*'].external_node_modules || []),
-      '@ampproject/toolbox-optimizer',
-    ]
-
     // Populates the correct config if needed
     await verifyBuildTarget({ netlifyConfig, packageJson, failBuild })
     const nextRoot = getNextRoot({ netlifyConfig })
