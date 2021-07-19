@@ -1,5 +1,5 @@
-/* eslint-disable max-lines */
-/* eslint-disable max-lines-per-function */
+/* eslint-disable max-lines, max-nested-callbacks,  max-lines-per-function */
+const { readdirSync } = require('fs')
 const path = require('path')
 const process = require('process')
 
@@ -90,7 +90,7 @@ const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0', scripts: { build: 
 const netlifyConfig = { build: { command: 'npm run build' } }
 
 describe('preBuild()', () => {
-  test('fails if the build version is too old', async () => {
+  test('fails if the build version is too old', () => {
     expect(
       plugin.onPreBuild({
         netlifyConfig,
@@ -320,23 +320,17 @@ describe('onBuild()', () => {
     expect(await pathExists(`${PUBLISH_DIR}/index.html`)).toBeTruthy()
   })
 
-  test.each([
-    { FUNCTIONS_SRC: 'functions', resolvedFunctions: 'functions' },
-    { FUNCTIONS_SRC: undefined, resolvedFunctions: 'netlify/functions' },
-  ])('copy files to the functions directory', async ({ FUNCTIONS_SRC, resolvedFunctions }) => {
+  test('copy files to the functions directory', async () => {
     await useFixture('functions_copy_files')
     await moveNextDist()
     await plugin.onBuild({
       netlifyConfig,
       packageJson: DUMMY_PACKAGE_JSON,
-      constants: {
-        FUNCTIONS_SRC,
-        PUBLISH_DIR: '.',
-      },
+      constants: {},
       utils,
     })
 
-    expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.js`)).toBeTruthy()
+    expect(await pathExists(path.resolve(`.netlify/internal-functions/next_api_test/next_api_test.js`))).toBeTruthy()
   })
 })
 
@@ -376,5 +370,4 @@ describe('script parser', () => {
   })
 })
 
-/* eslint-enable max-lines */
-/* eslint-enable max-lines-per-function */
+/* eslint-enable max-lines, max-nested-callbacks,  max-lines-per-function */
