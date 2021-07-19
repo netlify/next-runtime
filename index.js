@@ -66,7 +66,7 @@ You can do this by running: "npm install -g netlify-cli@latest" or "yarn global 
         `The Essential Next.js plugin now supports reading image domains from your Next config, so using NEXT_IMAGE_ALLOWED_DOMAINS is now deprecated. Please set images.domains in next.config.js instead, and remove the NEXT_IMAGE_ALLOWED_DOMAINS variable.`,
       )
     }
-    await restoreCache({ cache: utils.cache, distDir: nextConfig.distDir })
+    await restoreCache({ cache: utils.cache, distDir: nextConfig.distDir, nextRoot })
   },
   async onBuild({
     netlifyConfig,
@@ -119,7 +119,7 @@ See https://ntl.fyi/remove-plugin for instructions.
     const nextRoot = getNextRoot({ netlifyConfig })
 
     const nextConfig = await getNextConfig(utils.failBuild, nextRoot)
-    await saveCache({ cache: utils.cache, distDir: nextConfig.distDir })
+    await saveCache({ cache: utils.cache, distDir: nextConfig.distDir, nextRoot })
     copyUnstableIncludedDirs({ nextConfig, functionsDist: path.resolve(FUNCTIONS_DIST) })
     utils.status.show({
       title: 'Essential Next.js Build Plugin ran successfully',
