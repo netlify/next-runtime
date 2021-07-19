@@ -1,5 +1,26 @@
 # Changelog
 
+### [3.7.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.7.0...v3.7.1) (2021-07-15)
+
+
+### Bug Fixes
+
+* catch more export cases ([#529](https://www.github.com/netlify/netlify-plugin-nextjs/issues/529)) ([41184bc](https://www.github.com/netlify/netlify-plugin-nextjs/commit/41184bc6895a1e4b8f5a72ffd97ab81d86da5492))
+
+## [3.7.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.6.3...v3.7.0) (2021-07-13)
+
+
+### Features
+
+* add support for using image config from next.config.js ([#518](https://www.github.com/netlify/netlify-plugin-nextjs/issues/518)) ([bc7695d](https://www.github.com/netlify/netlify-plugin-nextjs/commit/bc7695df698202d77ff65facf101e13a2f318997))
+
+
+### Bug Fixes
+
+* disable png palette ([#525](https://www.github.com/netlify/netlify-plugin-nextjs/issues/525)) ([e0b4bf7](https://www.github.com/netlify/netlify-plugin-nextjs/commit/e0b4bf76d2b010ebacd6c544064c439051aee1ef))
+* more robust static site detection ([#505](https://www.github.com/netlify/netlify-plugin-nextjs/issues/505)) ([b1fd513](https://www.github.com/netlify/netlify-plugin-nextjs/commit/b1fd513c8ac142c335bc3ae950bd093da20466fe))
+* use POSIX paths for Windows require()s ([#520](https://www.github.com/netlify/netlify-plugin-nextjs/issues/520)) ([c34dbb0](https://www.github.com/netlify/netlify-plugin-nextjs/commit/c34dbb0a81c282efd4e49248cf1f383dde7c11e1))
+
 ### [3.6.3](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.6.2...v3.6.3) (2021-07-07)
 
 

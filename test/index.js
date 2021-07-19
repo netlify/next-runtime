@@ -90,6 +90,27 @@ const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0', scripts: { build: 
 const netlifyConfig = { build: { command: 'npm run build' } }
 
 describe('preBuild()', () => {
+  test('fails if the build version is too old', async () => {
+    expect(
+      plugin.onPreBuild({
+        netlifyConfig,
+        packageJson: DUMMY_PACKAGE_JSON,
+        utils,
+        constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '15.11.4' },
+      }),
+    ).rejects.toThrow('This version of the Essential Next.js plugin requires netlify-cli@4.4.2 or higher')
+  })
+
+  test('passes if the build version is new enough', async () => {
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson: DUMMY_PACKAGE_JSON,
+      utils,
+      constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '15.12.0' },
+    })
+    expect(process.env.NEXT_PRIVATE_TARGET).toBe('serverless')
+  })
+
   test('do nothing if the app has no build command', async () => {
     await plugin.onPreBuild({
       netlifyConfig: { build: { command: '' } },
@@ -214,24 +235,16 @@ describe('preBuild()', () => {
   test('restores cache with right paths', async () => {
     await useFixture('dist_dir_next_config')
 
-    let distPath
-    const utils_ = {
-      ...utils,
-      cache: {
-        restore: (x) => (distPath = x),
-      },
-    }
-    const spy = jest.spyOn(utils_.cache, 'restore')
+    const restore = jest.fn()
 
     await plugin.onPreBuild({
       netlifyConfig,
       packageJson: DUMMY_PACKAGE_JSON,
-      utils: utils_,
+      utils: { ...utils, cache: { restore } },
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
-    expect(spy).toHaveBeenCalled()
-    expect(path.normalize(distPath)).toBe(path.normalize('build/cache'))
+    expect(restore).toHaveBeenCalledWith(path.resolve('build/cache'))
   })
 })
 
@@ -287,7 +300,7 @@ describe('onBuild()', () => {
       utils,
     })
 
-    expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.js`)).toBeTruthy()
+    expect(await pathExists(`${resolvedFunctions}/next_api_test/next_api_test.ts`)).toBeTruthy()
   })
 })
 
@@ -295,29 +308,18 @@ describe('onPostBuild', () => {
   test('saves cache with right paths', async () => {
     await useFixture('dist_dir_next_config')
 
-    let distPath
-    let manifestPath
-    const utils_ = {
-      ...utils,
-      cache: {
-        save: (x, y) => {
-          distPath = x
-          manifestPath = y
-        },
-      },
-    }
-    const spy = jest.spyOn(utils_.cache, 'save')
+    const save = jest.fn()
 
     await plugin.onPostBuild({
       netlifyConfig,
       packageJson: DUMMY_PACKAGE_JSON,
-      utils: utils_,
+      utils: { ...utils, cache: { save } },
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
-    expect(spy).toHaveBeenCalled()
-    expect(path.normalize(distPath)).toBe(path.normalize('build/cache'))
-    expect(path.normalize(manifestPath.digests[0])).toBe(path.normalize('build/build-manifest.json'))
+    expect(save).toHaveBeenCalledWith(path.resolve('build/cache'), {
+      digests: [path.resolve('build/build-manifest.json')],
+    })
   })
 })
 

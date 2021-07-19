@@ -1,11 +1,10 @@
 const { builder } = require('@netlify/functions')
-const sharp = require('sharp')
-const fetch = require('node-fetch')
+const etag = require('etag')
+const config = require('./imageconfig.json')
 const imageType = require('image-type')
 const isSvg = require('is-svg')
-const etag = require('etag')
-const imageSize = require('image-size')
-const config = require('./imageconfig.json')
+const fetch = require('node-fetch')
+const sharp = require('sharp')
 // 6MB is hard max Lambda response size
 const MAX_RESPONSE_SIZE = 6291456
 
@@ -28,7 +27,7 @@ const handler = async (event) => {
   const [, , url, w = 500, q = 75] = event.path.split('/')
   // Work-around a bug in redirect handling. Remove when fixed.
   const parsedUrl = decodeURIComponent(url).replace('+', '%20')
-  const width = parseInt(w)
+  const width = Number.parseInt(w)
 
   if (!width) {
     return {
@@ -37,7 +36,7 @@ const handler = async (event) => {
     }
   }
 
-  const quality = parseInt(q) || 60
+  const quality = Number.parseInt(q) || 60
 
   let imageUrl
   let isRemoteImage = false
@@ -48,7 +47,7 @@ const handler = async (event) => {
   } else {
     isRemoteImage = true
     // Remote images need to be in the allowlist
-    let allowedDomains = config.images?.domains || []
+    let allowedDomains = config.domains || []
 
     if (process.env.NEXT_IMAGE_ALLOWED_DOMAINS) {
       console.log('Combining `NEXT_IMAGE_ALLOWED_DOMAINS` with any domains found in `next.config.js`')
@@ -84,20 +83,6 @@ const handler = async (event) => {
     return { statusCode: 400, body: 'Source does not appear to be an image' }
   }
 
-  const dimensions = imageSize(bufferData)
-
-  if (width > dimensions.width) {
-    // We won't upsize images, and to avoid downloading the same size multiple times,
-    // we redirect to the largest available size
-    const Location = `/nextimg/${url}/${dimensions.width}/${q}`
-    return {
-      statusCode: 302,
-      headers: {
-        Location,
-      },
-    }
-  }
-
   let { ext } = type
 
   // For unsupported formats (gif, svg) we redirect to the original
@@ -122,8 +107,8 @@ const handler = async (event) => {
   // make it return that format.
   const { info, data: imageBuffer } = await sharp(bufferData)
     .rotate()
-    .jpeg({ quality, mozjpeg: true, force: ext === 'jpg' })
-    .png({ quality, palette: true, force: ext === 'png' })
+    .jpeg({ quality, force: ext === 'jpg' })
+    .png({ quality, force: ext === 'png' })
     .webp({ quality, force: ext === 'webp' })
     .avif({ quality, force: ext === 'avif' })
     .resize(width, null, { withoutEnlargement: true })
