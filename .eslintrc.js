@@ -25,5 +25,8 @@ module.exports = {
     'unicorn/filename-case': 0,
     'unicorn/no-array-push-push': 0,
   },
+  env: {
+    jest: true,
+  },
   overrides: [...overrides],
 }

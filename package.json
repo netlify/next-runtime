@@ -60,7 +60,7 @@
   "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
     "@netlify/functions": "^0.7.2",
-    "@netlify/parse-npm-script": "^0.1.1",
+    "@netlify/parse-npm-script": "^0.1.2",
     "@sls-next/lambda-at-edge": "1.8.0",
     "adm-zip": "^0.5.4",
     "chalk": "^4.1.0",
@@ -85,14 +85,14 @@
     "slash": "^2.0.0"
   },
   "devDependencies": {
-    "@netlify/eslint-config-node": "^3.1.7",
+    "@netlify/eslint-config-node": "^3.1.8",
     "cpy": "^8.1.1",
     "cypress": "^7.0.0",
     "eslint-config-next": "^11.0.0",
     "folder-hash": "^4.0.0",
     "husky": "^4.3.0",
     "jest": "^27.0.0",
-    "netlify-cli": "^4.2.2",
+    "netlify-cli": "^4.4.3",
     "next": "^11.0.0",
     "path-exists": "^4.0.0",
     "prettier": "^2.1.2",
