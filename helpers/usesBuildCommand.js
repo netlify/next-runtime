@@ -24,11 +24,12 @@ const usesBuildCommand = ({ build, scripts, command }) => {
     return raw.some((script) => script.includes(command))
   } catch (error) {
     console.error(
-      'There was an error parsing your build command:',
-      error.message,
-      `\n\nThe build command is "${build.command}" and the available npm scripts are: ${Object.keys(scripts)
+      `Static export detection disabled because we could not parse your build command: ${error.message}
+The build command is "${build.command}" and the available npm scripts are: ${Object.keys(scripts)
         .map((script) => `"${script}"`)
-        .join(', ')}`,
+        .join(', ')}
+
+If the site does use static export then you can set the env var NEXT_PLUGIN_FORCE_RUN to "false" or uninstall the plugin. See https://ntl.fyi/remove-plugin for instructions.`,
     )
   }
 }

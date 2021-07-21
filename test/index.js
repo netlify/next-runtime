@@ -143,6 +143,42 @@ describe('preBuild()', () => {
     expect(process.env.NEXT_PRIVATE_TARGET).toBe('serverless')
   })
 
+  test('run plugin if `NEXT_PLUGIN_FORCE_RUN` is set to true, even if next export is in script', async () => {
+    process.env.NEXT_PLUGIN_FORCE_RUN = 'true'
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { build: 'next export' } },
+      utils,
+      constants: {},
+    })
+    expect(process.env.NEXT_PRIVATE_TARGET).toBe('serverless')
+    process.env.NEXT_PLUGIN_FORCE_RUN = undefined
+  })
+
+  test('run plugin if `NEXT_PLUGIN_FORCE_RUN` is set to true, even if build-storybook is in script', async () => {
+    process.env.NEXT_PLUGIN_FORCE_RUN = 'true'
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson: { ...DUMMY_PACKAGE_JSON, scripts: { build: 'build-storybook' } },
+      utils,
+      constants: {},
+    })
+    expect(process.env.NEXT_PRIVATE_TARGET).toBe('serverless')
+    process.env.NEXT_PLUGIN_FORCE_RUN = undefined
+  })
+
+  test('not run plugin if `NEXT_PLUGIN_FORCE_RUN` is set to false', async () => {
+    process.env.NEXT_PLUGIN_FORCE_RUN = 'false'
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson: DUMMY_PACKAGE_JSON,
+      utils,
+      constants: {},
+    })
+    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
+    process.env.NEXT_PLUGIN_FORCE_RUN = undefined
+  })
+
   test('do nothing if app has static html export in toml/ntl config', async () => {
     await plugin.onPreBuild({
       netlifyConfig: { build: { command: 'next build && next export' } },
