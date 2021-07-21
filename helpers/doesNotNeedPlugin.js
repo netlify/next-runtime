@@ -6,6 +6,26 @@ const isStaticExportProject = require('./isStaticExportProject')
 const usesBuildCommand = require('./usesBuildCommand')
 
 const doesNotNeedPlugin = ({ netlifyConfig, packageJson }) => {
+  // The env var skips the auto-detection
+  const envVar = process.env.NEXT_PLUGIN_FORCE_RUN
+  if (envVar === 'false' || envVar === '0' || envVar === false) {
+    console.log(
+      yellowBright`The env var NEXT_PLUGIN_FORCE_RUN was set to ${JSON.stringify(
+        envVar,
+      )}, so auto-detection is disabled and the plugin will not run`,
+    )
+    return true
+  }
+  if (envVar === 'true' || envVar === '1' || envVar === true) {
+    console.log(
+      yellowBright`The env var NEXT_PLUGIN_FORCE_RUN was set to ${JSON.stringify(
+        envVar,
+      )}, so auto-detection is disabled and the plugin will run regardless`,
+    )
+    return false
+  }
+  // Otherwise use auto-detection
+
   const { build } = netlifyConfig
   const { scripts = {} } = packageJson
 
@@ -18,7 +38,7 @@ const doesNotNeedPlugin = ({ netlifyConfig, packageJson }) => {
 
   if (usesBuildCommand({ build, scripts, command: 'build-storybook' })) {
     console.log(
-      yellowBright`Site seems to be building a Storybook rather than the Next.js site, so the Essential Next.js plugin will not run.`,
+      yellowBright`Site seems to be building a Storybook rather than the Next.js site, so the Essential Next.js plugin will not run. If this is incorrect, set NEXT_PLUGIN_FORCE_RUN to true`,
     )
     return true
   }
