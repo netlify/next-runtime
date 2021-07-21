@@ -29,7 +29,7 @@ The build command is "${build.command}" and the available npm scripts are: ${Obj
         .map((script) => `"${script}"`)
         .join(', ')}
 
-If the site does use static export then you can set the env var NEXT_PLUGIN_FORCE_RUN to "false"`,
+If the site does use static export then you can set the env var NEXT_PLUGIN_FORCE_RUN to "false" or uninstall the plugin. See https://ntl.fyi/remove-plugin for instructions.`,
     )
   }
 }
