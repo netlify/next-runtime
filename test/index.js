@@ -323,10 +323,13 @@ describe('onBuild()', () => {
   test('copy files to the functions directory', async () => {
     await useFixture('functions_copy_files')
     await moveNextDist()
+
+    const INTERNAL_FUNCTIONS_SRC = path.resolve(`.netlify/internal-functions`)
+
     await plugin.onBuild({
       netlifyConfig,
       packageJson: DUMMY_PACKAGE_JSON,
-      constants: {},
+      constants: { INTERNAL_FUNCTIONS_SRC },
       utils,
     })
 
