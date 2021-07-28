@@ -23,7 +23,7 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage,
   }
 
   // Write entry point to function directory
-  const entryPointPath = join(functionDirectory, `${functionName}.ts`)
+  const entryPointPath = join(functionDirectory, `${functionName}.js`)
   await writeFile(entryPointPath, getTemplate({ filePath, isISR }))
 
   // Copy function helper
