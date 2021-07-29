@@ -61,14 +61,14 @@ describe('SSR Pages', () => {
   const functionsDir = join(PROJECT_PATH, 'out_functions')
 
   test('creates a Netlify Function for each SSR page', () => {
-    expect(existsSync(join(functionsDir, 'next_index', 'next_index.ts'))).toBe(true)
-    expect(existsSync(join(functionsDir, 'next_shows_id', 'next_shows_id.ts'))).toBe(true)
-    expect(existsSync(join(functionsDir, 'next_shows_params', 'next_shows_params.ts'))).toBe(true)
-    expect(existsSync(join(functionsDir, 'next_getServerSideProps_static', 'next_getServerSideProps_static.ts'))).toBe(
+    expect(existsSync(join(functionsDir, 'next_index', 'next_index.js'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_shows_id', 'next_shows_id.js'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_shows_params', 'next_shows_params.js'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_getServerSideProps_static', 'next_getServerSideProps_static.js'))).toBe(
       true,
     )
     expect(
-      readFileSync(join(functionsDir, 'next_getServerSideProps_id', 'next_getServerSideProps_id.ts'), 'utf-8'),
+      readFileSync(join(functionsDir, 'next_getServerSideProps_id', 'next_getServerSideProps_id.js'), 'utf-8'),
     ).toMatch(`require("./nextPage/pages/getServerSideProps/[id].js")`)
   })
 })
@@ -77,10 +77,10 @@ describe('API Pages', () => {
   const functionsDir = join(PROJECT_PATH, 'out_functions')
 
   test('creates a Netlify Function for each API endpoint', () => {
-    expect(existsSync(join(functionsDir, 'next_api_static', 'next_api_static.ts'))).toBe(true)
-    expect(existsSync(join(functionsDir, 'next_api_shows_id', 'next_api_shows_id.ts'))).toBe(true)
-    expect(existsSync(join(functionsDir, 'next_api_shows_params', 'next_api_shows_params.ts'))).toBe(true)
-    expect(existsSync(join(functionsDir, 'next_api_hello-background', 'next_api_hello-background.ts'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_api_static', 'next_api_static.js'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_api_shows_id', 'next_api_shows_id.js'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_api_shows_params', 'next_api_shows_params.js'))).toBe(true)
+    expect(existsSync(join(functionsDir, 'next_api_hello-background', 'next_api_hello-background.js'))).toBe(true)
   })
 })
 
@@ -126,10 +126,10 @@ describe('SSG Pages with getStaticProps', () => {
   })
 
   test('creates Netlify Functions for pages with fallback', () => {
-    const functionPath1 = 'next_getStaticProps_withFallback_id/next_getStaticProps_withFallback_id.ts'
+    const functionPath1 = 'next_getStaticProps_withFallback_id/next_getStaticProps_withFallback_id.js'
     expect(existsSync(join(PROJECT_PATH, 'out_functions', functionPath1))).toBe(true)
 
-    const functionPath2 = 'next_getStaticProps_withFallback_slug/next_getStaticProps_withFallback_slug.ts'
+    const functionPath2 = 'next_getStaticProps_withFallback_slug/next_getStaticProps_withFallback_slug.js'
     expect(existsSync(join(PROJECT_PATH, 'out_functions', functionPath2))).toBe(true)
   })
 })
@@ -139,11 +139,11 @@ describe('SSG Pages with getStaticProps and revalidate', () => {
 
   test('creates a Netlify Function for each page', () => {
     expect(
-      existsSync(join(functionsDir, 'next_getStaticProps_withrevalidate', 'next_getStaticProps_withrevalidate.ts')),
+      existsSync(join(functionsDir, 'next_getStaticProps_withrevalidate', 'next_getStaticProps_withrevalidate.js')),
     ).toBe(true)
     expect(
       existsSync(
-        join(functionsDir, 'next_getStaticProps_withRevalidate_id', 'next_getStaticProps_withRevalidate_id.ts'),
+        join(functionsDir, 'next_getStaticProps_withRevalidate_id', 'next_getStaticProps_withRevalidate_id.js'),
       ),
     ).toBe(true)
     expect(
@@ -151,7 +151,7 @@ describe('SSG Pages with getStaticProps and revalidate', () => {
         join(
           functionsDir,
           'next_getStaticProps_withRevalidate_withFallback_id',
-          'next_getStaticProps_withRevalidate_withFallback_id.ts',
+          'next_getStaticProps_withRevalidate_withFallback_id.js',
         ),
       ),
     ).toBe(true)
