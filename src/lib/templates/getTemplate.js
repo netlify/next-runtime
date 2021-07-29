@@ -1,5 +1,5 @@
-const getTemplate = ({ filePath, isISR }) => {
-  if (isISR) {
+const getTemplate = ({ filePath, isODB }) => {
+  if (isODB) {
     return `// Auto-generated file. DO NOT MODIFY.
 const { getHandlerFunction } = require('./getHandlerFunction')
 const { builder } = require('@netlify/functions')

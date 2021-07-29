@@ -11,7 +11,7 @@ const getNextDistDir = require('./getNextDistDir')
 const { logItem } = require('./logger')
 
 // Create a Netlify Function for the page with the given file path
-const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage, isISR }) => {
+const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage, isODB, forFallbackPreviewMode }) => {
   // Set function name based on file path
   const functionName = getNetlifyFunctionName(filePath, isApiPage)
   const functionDirectory = join(functionsPath, functionName)
@@ -23,8 +23,9 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage,
   }
 
   // Write entry point to function directory
-  const entryPointPath = join(functionDirectory, `${functionName}.js`)
-  await writeFile(entryPointPath, getTemplate({ filePath, isISR }))
+  const fileName = forFallbackPreviewMode ? `preview-${functionName}` : functionName
+  const entryPointPath = join(functionDirectory, `${fileName}.js`)
+  await writeFile(entryPointPath, getTemplate({ filePath, isODB }))
 
   // Copy function helper
   await copy(join(TEMPLATES_DIR, 'getHandlerFunction.js'), join(functionDirectory, 'getHandlerFunction.js'))
