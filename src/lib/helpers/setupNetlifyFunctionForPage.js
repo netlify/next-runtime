@@ -14,7 +14,8 @@ const { logItem } = require('./logger')
 // Create a Netlify Function for the page with the given file path
 const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage, isODB, forFallbackPreviewMode }) => {
   // Set function name based on file path
-  const functionName = getNetlifyFunctionName(filePath, isApiPage)
+  const defaultFunctionName = getNetlifyFunctionName(filePath, isApiPage)
+  const functionName = forFallbackPreviewMode ? getPreviewModeFunctionName(defaultFunctionName) : defaultFunctionName
   const functionDirectory = join(functionsPath, functionName)
 
   await ensureDir(functionDirectory)
@@ -24,8 +25,7 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage,
   }
 
   // Write entry point to function directory
-  const fileName = forFallbackPreviewMode ? getPreviewModeFunctionName(functionName) : functionName
-  const entryPointPath = join(functionDirectory, `${fileName}.js`)
+  const entryPointPath = join(functionDirectory, `${functionName}.js`)
   await writeFile(entryPointPath, getTemplate({ filePath, isODB }))
 
   // Copy function helper
