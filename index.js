@@ -67,6 +67,10 @@ You can do this by running: "npm install -g netlify-cli@latest" or "yarn global 
       )
     }
     await restoreCache({ cache: utils.cache, distDir: nextConfig.distDir, nextRoot })
+
+    // Exit the build process on unhandled promise rejection. This is the default in Node 15+, but earlier versions just warn.
+    // This causes problems as it doesn't then know the build has failed until we try to copy the assets.
+    process.env.NODE_OPTIONS = [process.env.NODE_OPTIONS, '--unhandled-rejections=strict'].filter(Boolean).join(' ')
   },
   async onBuild({
     netlifyConfig,
