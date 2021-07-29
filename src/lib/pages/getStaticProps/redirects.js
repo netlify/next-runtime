@@ -6,6 +6,7 @@ const addDefaultLocaleRedirect = require('../../helpers/addDefaultLocaleRedirect
 const asyncForEach = require('../../helpers/asyncForEach')
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
 const getNetlifyFunctionName = require('../../helpers/getNetlifyFunctionName')
+const getPreviewModeFunctionName = require('../../helpers/getPreviewModeFunctionName')
 const isRouteWithFallback = require('../../helpers/isRouteWithFallback')
 
 const getPages = require('./pages')
@@ -43,7 +44,7 @@ const getRedirects = async () => {
     // ODB pages' preview mode needs a special flagged standard function because
     // their default function (an ODB) is not functional for preview mode
     const target = `/.netlify/functions/${functionName}`
-    const previewModeTarget = isODB ? `/.netlify/functions/preview-${functionName}` : target
+    const previewModeTarget = isODB ? `/.netlify/functions/${getPreviewModeFunctionName(functionName)}` : target
     const previewModeRedirect = { conditions, force: true, target: previewModeTarget }
 
     // Add a preview mode redirect for the standard route

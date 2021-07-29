@@ -38,6 +38,8 @@ const CUSTOM_HEADERS_PATH = join('.', '_headers')
 // creating the next/image redirect
 const NEXT_IMAGE_FUNCTION_NAME = 'next_image'
 
+const PREVIEW_MODE_COOKIES = ['Cookie=__prerender_bypass,__next_preview_data']
+
 const SRC_FILES = [PUBLIC_PATH, NEXT_CONFIG_PATH, CUSTOM_REDIRECTS_PATH, CUSTOM_HEADERS_PATH, ...NEXT_SRC_DIRS]
 
 module.exports = {
@@ -52,4 +54,5 @@ module.exports = {
   CUSTOM_HEADERS_PATH,
   NEXT_IMAGE_FUNCTION_NAME,
   SRC_FILES,
+  PREVIEW_MODE_COOKIES,
 }

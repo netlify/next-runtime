@@ -8,6 +8,7 @@ const getTemplate = require('../templates/getTemplate')
 const copyDynamicImportChunks = require('./copyDynamicImportChunks')
 const getNetlifyFunctionName = require('./getNetlifyFunctionName')
 const getNextDistDir = require('./getNextDistDir')
+const getPreviewModeFunctionName = require('./getPreviewModeFunctionName')
 const { logItem } = require('./logger')
 
 // Create a Netlify Function for the page with the given file path
@@ -23,7 +24,7 @@ const setupNetlifyFunctionForPage = async ({ filePath, functionsPath, isApiPage,
   }
 
   // Write entry point to function directory
-  const fileName = forFallbackPreviewMode ? `preview-${functionName}` : functionName
+  const fileName = forFallbackPreviewMode ? getPreviewModeFunctionName(functionName) : functionName
   const entryPointPath = join(functionDirectory, `${fileName}.js`)
   await writeFile(entryPointPath, getTemplate({ filePath, isODB }))
 

@@ -65,9 +65,17 @@ exports[`Routing creates Netlify redirects 1`] = `
 /foo/getServerSideProps/all  /.netlify/functions/next_getServerSideProps_all_slug  200
 /foo/getServerSideProps/all/*  /.netlify/functions/next_getServerSideProps_all_slug  200
 /foo/getServerSideProps/:id  /.netlify/functions/next_getServerSideProps_id  200
+/foo/getStaticProps/withFallback/:id  /.netlify/functions/preview-next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/:id  /getStaticProps/withFallback/[id]  200
 /foo/getStaticProps/withFallback/:id  /.netlify/functions/next_getStaticProps_withFallback_id  200
+/foo/getStaticProps/withFallback/:slug/*  /.netlify/functions/preview-next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/:slug/*  /getStaticProps/withFallback/[...slug]  200
 /foo/getStaticProps/withFallback/:slug/*  /.netlify/functions/next_getStaticProps_withFallback_slug  200
+/foo/getStaticProps/withFallbackBlocking/:id  /.netlify/functions/preview-next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallbackBlocking/:id  /getStaticProps/withFallbackBlocking/[id]  200
 /foo/getStaticProps/withFallbackBlocking/:id  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200
+/foo/getStaticProps/withRevalidate/withFallback/:id  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withRevalidate/withFallback/:id  /getStaticProps/withRevalidate/withFallback/[id]  200
 /foo/getStaticProps/withRevalidate/withFallback/:id  /.netlify/functions/next_getStaticProps_withRevalidate_withFallback_id  200
 /foo/shows/:id  /.netlify/functions/next_shows_id  200
 /foo/shows/:params/*  /.netlify/functions/next_shows_params  200
