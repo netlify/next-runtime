@@ -30,6 +30,7 @@ const getRedirects = async () => {
       target: previewModeTarget,
       conditions: PREVIEW_MODE_COOKIES,
       force: true,
+      specialPreviewMode: true,
     })
 
     // Add one redirect pointing to the ODB
