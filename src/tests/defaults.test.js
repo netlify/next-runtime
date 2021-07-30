@@ -129,8 +129,14 @@ describe('SSG Pages with getStaticProps', () => {
     const functionPath1 = 'next_getStaticProps_withFallback_id/next_getStaticProps_withFallback_id.js'
     expect(existsSync(join(PROJECT_PATH, 'out_functions', functionPath1))).toBe(true)
 
+    const previewFunctionPath1 = 'preview-next_getStaticProps_withFallback_id/preview-next_getStaticProps_withFallback_id.js'
+    expect(existsSync(join(PROJECT_PATH, 'out_functions', previewFunctionPath1))).toBe(true)
+
     const functionPath2 = 'next_getStaticProps_withFallback_slug/next_getStaticProps_withFallback_slug.js'
     expect(existsSync(join(PROJECT_PATH, 'out_functions', functionPath2))).toBe(true)
+
+    const previewFunctionPath2 = 'preview-next_getStaticProps_withFallback_slug/preview-next_getStaticProps_withFallback_slug.js'
+    expect(existsSync(join(PROJECT_PATH, 'out_functions', previewFunctionPath2))).toBe(true)
   })
 })
 
