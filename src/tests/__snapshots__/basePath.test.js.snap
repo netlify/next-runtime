@@ -16,6 +16,8 @@ exports[`Routing creates Netlify redirects 1`] = `
 /_next/data/%BUILD_ID%/getStaticProps/withFallbackBlocking/4.json  /.netlify/functions/preview-next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /_next/data/%BUILD_ID%/getStaticProps/withRevalidate/1.json  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
 /_next/data/%BUILD_ID%/getStaticProps/withRevalidate/2.json  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
+/_next/data/%BUILD_ID%/getStaticProps/withRevalidate/withFallback/1.json  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/_next/data/%BUILD_ID%/getStaticProps/withRevalidate/withFallback/2.json  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /api/hello-background  /foo/api/hello-background  301!
 /api/static  /foo/api/static  301!
 /foo  /.netlify/functions/next_index  200
@@ -45,6 +47,10 @@ exports[`Routing creates Netlify redirects 1`] = `
 /foo/getStaticProps/withFallbackBlocking/4  /getStaticProps/withFallbackBlocking/4  200
 /foo/getStaticProps/withRevalidate/1  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
 /foo/getStaticProps/withRevalidate/2  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
+/foo/getStaticProps/withRevalidate/withFallback/1  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withRevalidate/withFallback/1  /getStaticProps/withRevalidate/withFallback/1  200
+/foo/getStaticProps/withRevalidate/withFallback/2  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withRevalidate/withFallback/2  /getStaticProps/withRevalidate/withFallback/2  200
 /foo/static  /static  200
 /getServerSideProps/static  /foo/getServerSideProps/static  301!
 /getStaticProps/with-revalidate  /foo/getStaticProps/with-revalidate  301!

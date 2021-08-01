@@ -19,6 +19,8 @@ exports[`Routing creates Netlify redirects 1`] = `
 /_next/data/%BUILD_ID%/en/getStaticProps/withFallbackBlocking/4.json  /.netlify/functions/preview-next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /_next/data/%BUILD_ID%/en/getStaticProps/withRevalidate/1.json  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
 /_next/data/%BUILD_ID%/en/getStaticProps/withRevalidate/2.json  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
+/_next/data/%BUILD_ID%/en/getStaticProps/withRevalidate/withFallback/1.json  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/_next/data/%BUILD_ID%/en/getStaticProps/withRevalidate/withFallback/2.json  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /_next/data/%BUILD_ID%/es.json  /.netlify/functions/next_index  200
 /_next/data/%BUILD_ID%/es/getServerSideProps/static.json  /.netlify/functions/next_getServerSideProps_static  200
 /_next/data/%BUILD_ID%/es/getStaticProps/static.json  /.netlify/functions/next_getStaticProps_static  200!  Cookie=__prerender_bypass,__next_preview_data
@@ -40,6 +42,8 @@ exports[`Routing creates Netlify redirects 1`] = `
 /en/getStaticProps/withFallbackBlocking/4  /.netlify/functions/preview-next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /en/getStaticProps/withRevalidate/1  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
 /en/getStaticProps/withRevalidate/2  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
+/en/getStaticProps/withRevalidate/withFallback/1  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/en/getStaticProps/withRevalidate/withFallback/2  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /es  /.netlify/functions/next_index  200
 /es/getServerSideProps/static  /.netlify/functions/next_getServerSideProps_static  200
 /es/getStaticProps/static  /.netlify/functions/next_getStaticProps_static  200!  Cookie=__prerender_bypass,__next_preview_data
@@ -66,6 +70,10 @@ exports[`Routing creates Netlify redirects 1`] = `
 /getStaticProps/withFallbackBlocking/4  /en/getStaticProps/withFallbackBlocking/4  200
 /getStaticProps/withRevalidate/1  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
 /getStaticProps/withRevalidate/2  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
+/getStaticProps/withRevalidate/withFallback/1  /.netlify/functions/next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/getStaticProps/withRevalidate/withFallback/1  /en/getStaticProps/withRevalidate/withFallback/1  200
+/getStaticProps/withRevalidate/withFallback/2  /.netlify/functions/next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/getStaticProps/withRevalidate/withFallback/2  /en/getStaticProps/withRevalidate/withFallback/2  200
 /static  /en/static.html  200
 /_next/data/%BUILD_ID%/en/getServerSideProps/all.json  /.netlify/functions/next_getServerSideProps_all_slug  200
 /_next/data/%BUILD_ID%/en/getServerSideProps/all/*  /.netlify/functions/next_getServerSideProps_all_slug  200
