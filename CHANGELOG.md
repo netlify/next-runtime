@@ -2,15 +2,10 @@
 
 ## [3.8.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.7.1...v3.8.0) (2021-08-02)
 
-
-### ⚠ BREAKING CHANGES
-
-* switch function bundling to esbuild (#490)
-
 ### Features
 
 * add NEXT_PLUGIN_FORCE_RUN to skip auto-detection ([#547](https://www.github.com/netlify/netlify-plugin-nextjs/issues/547)) ([e3e7cd1](https://www.github.com/netlify/netlify-plugin-nextjs/commit/e3e7cd1c863d48eeea77e5c4197b80db8392243d))
-* switch function bundling to esbuild ([#490](https://www.github.com/netlify/netlify-plugin-nextjs/issues/490)) ([4aff708](https://www.github.com/netlify/netlify-plugin-nextjs/commit/4aff70829952ce72aa6382c247dc9c78f4d1b17d))
+* support function bundling with esbuild ([#490](https://www.github.com/netlify/netlify-plugin-nextjs/issues/490)) ([4aff708](https://www.github.com/netlify/netlify-plugin-nextjs/commit/4aff70829952ce72aa6382c247dc9c78f4d1b17d))
 
 
 ### Bug Fixes
