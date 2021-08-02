@@ -85,7 +85,7 @@
     "slash": "^2.0.0"
   },
   "devDependencies": {
-    "@netlify/eslint-config-node": "^3.1.9",
+    "@netlify/eslint-config-node": "^3.1.10",
     "cpy": "^8.1.1",
     "cypress": "^7.0.0",
     "eslint-config-next": "^11.0.0",
