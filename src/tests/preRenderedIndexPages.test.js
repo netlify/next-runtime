@@ -63,11 +63,13 @@ describe('404 Page', () => {
 describe('Routing', () => {
   test('adds next_image redirect only', async () => {
     // Read _redirects file
-    const contents = readFileSync(join(PROJECT_PATH, 'out_publish', '_redirects'))
-    const redirects = contents.toString().trim().split(/\n/)
+    const contents = readFileSync(join(PROJECT_PATH, 'out_publish', '_redirects'), 'utf-8')
 
     // Check that no redirects are present
-    expect(redirects[0]).toEqual('# Next-on-Netlify Redirects')
-    expect(redirects[1]).toEqual('/_next/image*  url=:url w=:width q=:quality  /nextimg/:url/:width/:quality  301!')
+    expect(contents).toMatchInlineSnapshot(`
+      "# Next-on-Netlify Redirects
+      /_ipx/*  /.netlify/functions/next_image  200
+      /_next/image*  url=:url w=:width q=:quality  /_ipx/w_:width,q_:quality/:url?=  301!"
+    `)
   })
 })

@@ -43,6 +43,7 @@ exports[`Routing creates Netlify redirects 1`] = `
 /getStaticProps/withRevalidate/2  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
 /getStaticProps/withRevalidate/withFallback/1  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /getStaticProps/withRevalidate/withFallback/2  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/_ipx/*  /.netlify/functions/next_image  200
 /_next/data/%BUILD_ID%/getServerSideProps/all.json  /.netlify/functions/next_getServerSideProps_all_slug  200
 /_next/data/%BUILD_ID%/getServerSideProps/all/*  /.netlify/functions/next_getServerSideProps_all_slug  200
 /_next/data/%BUILD_ID%/getServerSideProps/:id.json  /.netlify/functions/next_getServerSideProps_id  200
@@ -50,7 +51,7 @@ exports[`Routing creates Netlify redirects 1`] = `
 /_next/data/%BUILD_ID%/getStaticProps/withFallback/:slug/*  /.netlify/functions/next_getStaticProps_withFallback_slug  200
 /_next/data/%BUILD_ID%/getStaticProps/withFallbackBlocking/:id.json  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200
 /_next/data/%BUILD_ID%/getStaticProps/withRevalidate/withFallback/:id.json  /.netlify/functions/next_getStaticProps_withRevalidate_withFallback_id  200
-/_next/image*  url=:url w=:width q=:quality  /nextimg/:url/:width/:quality  301!
+/_next/image*  url=:url w=:width q=:quality  /_ipx/w_:width,q_:quality/:url?=  301!
 /api/shows/:id  /.netlify/functions/next_api_shows_id  200
 /api/shows/:params/*  /.netlify/functions/next_api_shows_params  200
 /getServerSideProps/all  /.netlify/functions/next_getServerSideProps_all_slug  200
@@ -64,7 +65,6 @@ exports[`Routing creates Netlify redirects 1`] = `
 /getStaticProps/withFallbackBlocking/:id  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200
 /getStaticProps/withRevalidate/withFallback/:id  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /getStaticProps/withRevalidate/withFallback/:id  /.netlify/functions/next_getStaticProps_withRevalidate_withFallback_id  200
-/nextimg/*  /.netlify/functions/next_image  200
 /shows/:id  /.netlify/functions/next_shows_id  200
 /shows/:params/*  /.netlify/functions/next_shows_params  200
 /static/:id  /static/[id].html  200"

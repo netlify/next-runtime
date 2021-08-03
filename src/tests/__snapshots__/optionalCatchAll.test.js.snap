@@ -4,10 +4,10 @@ exports[`Routing creates Netlify redirects 1`] = `
 "# Next-on-Netlify Redirects
 /_next/data/%BUILD_ID%/page.json  /.netlify/functions/next_page  200
 /page  /.netlify/functions/next_page  200
+/_ipx/*  /.netlify/functions/next_image  200
 /_next/data/%BUILD_ID%/index.json  /.netlify/functions/next_all  200
 /_next/data/%BUILD_ID%/*  /.netlify/functions/next_all  200
-/_next/image*  url=:url w=:width q=:quality  /nextimg/:url/:width/:quality  301!
-/nextimg/*  /.netlify/functions/next_image  200
+/_next/image*  url=:url w=:width q=:quality  /_ipx/w_:width,q_:quality/:url?=  301!
 /  /.netlify/functions/next_all  200
 /_next/*  /_next/:splat  200
 /*  /.netlify/functions/next_all  200"

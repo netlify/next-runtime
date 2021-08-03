@@ -56,6 +56,7 @@ exports[`Routing creates Netlify redirects 1`] = `
 /getStaticProps/with-revalidate  /foo/getStaticProps/with-revalidate  301!
 /getStaticProps/withRevalidate/1  /foo/getStaticProps/withRevalidate/1  301!
 /getStaticProps/withRevalidate/2  /foo/getStaticProps/withRevalidate/2  301!
+/_ipx/*  /.netlify/functions/next_image  200
 /_next/data/%BUILD_ID%/getServerSideProps/all.json  /.netlify/functions/next_getServerSideProps_all_slug  200
 /_next/data/%BUILD_ID%/getServerSideProps/all/*  /.netlify/functions/next_getServerSideProps_all_slug  200
 /_next/data/%BUILD_ID%/getServerSideProps/:id.json  /.netlify/functions/next_getServerSideProps_id  200
@@ -65,7 +66,7 @@ exports[`Routing creates Netlify redirects 1`] = `
 /_next/data/%BUILD_ID%/getStaticProps/withRevalidate/withFallback/:id.json  /.netlify/functions/next_getStaticProps_withRevalidate_withFallback_id  200
 /api/shows/:id  /foo/api/shows/:id  301!
 /api/shows/:params/*  /foo/api/shows/:params  301!
-/foo/_next/image*  url=:url w=:width q=:quality  /nextimg/:url/:width/:quality  301!
+/foo/_next/image*  url=:url w=:width q=:quality  /_ipx/w_:width,q_:quality/:url?=  301!
 /foo/api/shows/:id  /.netlify/functions/next_api_shows_id  200
 /foo/api/shows/:params/*  /.netlify/functions/next_api_shows_params  200
 /foo/getServerSideProps/all  /.netlify/functions/next_getServerSideProps_all_slug  200
@@ -89,7 +90,6 @@ exports[`Routing creates Netlify redirects 1`] = `
 /getStaticProps/withFallback/:slug/*  /foo/getStaticProps/withFallback/:slug  301!
 /getStaticProps/withFallbackBlocking/:id  /foo/getStaticProps/withFallbackBlocking/:id  301!
 /getStaticProps/withRevalidate/withFallback/:id  /foo/getStaticProps/withRevalidate/withFallback/:id  301!
-/nextimg/*  /.netlify/functions/next_image  200
 /shows/:id  /foo/shows/:id  301!
 /shows/:params/*  /foo/shows/:params  301!
 /static/:id  /static/[id].html  200"
