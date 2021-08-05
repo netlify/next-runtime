@@ -8,7 +8,7 @@ body:
       value: |
         Thanks for taking the time to fill out this bug report!
   - type: textarea
-    id: what-happened
+    id: steps-to-reproduce
     attributes:
       label: Steps to reproduce
       description: Steps to reproduce the behavior
@@ -20,7 +20,7 @@ body:
     validations:
       required: true
   - type: input
-    id: reproduction
+    id: link-to-reproduction
     attributes:
       label: A link to a reproduction repository
       description: The fastest way to describe your bug is to provide a reproduction repository.
@@ -53,8 +53,8 @@ body:
       label: Your `netlify.toml` file
       description: ***If you're using file-based configuration***, please provide a copy of your `netlify.toml` file.
       render: shell
-  validations:
-    required: true
+    validations:
+      required: true
   - type: textarea
     id: logs
     attributes:
