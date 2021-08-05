@@ -41,7 +41,7 @@ body:
     id: which-os
     attributes:
       label: What OS are you using?
-      description: ***If you're using the CLI***, what OS are you using?
+      description: (If you're using the CLI) What OS are you using?
       options:
         - Windows
         - Mac OS
@@ -51,7 +51,7 @@ body:
     id: netlify-toml
     attributes:
       label: Your `netlify.toml` file
-      description: ***If you're using file-based configuration***, please provide a copy of your `netlify.toml` file.
+      description: (If you're using file-based config) Please provide a copy of your `netlify.toml` file.
       render: shell
     validations:
       required: true
@@ -59,4 +59,3 @@ body:
     id: logs
     attributes:
       label: Relevant log output (or link to your logs)
-      render: shell
