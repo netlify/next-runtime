@@ -8,17 +8,27 @@ Please note, we have a [code of conduct](CODE_OF_CONDUCT.md). Please follow it i
 
 These guidelines will help you send a pull request.
 
+- [Code of Conduct](#code-of-conduct)
+- [How Can I Contribute?](#how-can-i-contribute)
+  - [Reporting Bugs](#reporting-bugs)
+    - [Before Submitting A Bug Report](#before-submitting-a-bug-report)
+    - [How Do I Submit A (Good) Bug Report?](#how-do-i-submit-a-good-bug-report)
+      - [What is a reproducible test case?](#what-is-a-reproducible-test-case)
+      - [Why should you create a reproducible test case?](#why-should-you-create-a-reproducible-test-case)
+      - [Steps to create a reproducible test case](#steps-to-create-a-reproducible-test-case)
+      - [Benefits of reproducible test cases](#benefits-of-reproducible-test-cases)
+  - [Suggesting Enhancements](#suggesting-enhancements)
+    - [Before Submitting An Enhancement Suggestion](#before-submitting-an-enhancement-suggestion)
+    - [How Do I Submit A (Good) Enhancement Suggestion?](#how-do-i-submit-a-good-enhancement-suggestion)
+  - [Pull Requests](#pull-requests)
+- [Styleguides](#styleguides)
+  - [Git Commit Messages](#git-commit-messages)
+  - [JavaScript Styleguide](#javascript-styleguide)
+  - [Documentation Styleguide](#documentation-styleguide)
+
 ## Code of Conduct
 
 This project and everyone participating in it is governed by the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to the Netlify team.
-
-## I don't want to read this whole thing I just have a question!!!
-
-> **Note:** Please don't file an issue to ask a question. You'll get faster results by using the resources below.
-
-We have an official message board with a detailed FAQ and where the community chimes in with helpful advice if you have questions.
-
-* [The official Netlify community forum](https://answers.netlify.com/)
 
 ## How Can I Contribute?
 
@@ -39,9 +49,10 @@ Before creating bug reports, please check [this list](#before-submitting-a-bug-r
 
 Bugs are tracked as [GitHub issues](https://guides.github.com/features/issues/). Create an issue and provide the following information by filling in [the template](https://github.com/netlify/netlify-plugin-nextjs/blob/main/.github/ISSUE_TEMPLATE/bug_report.md).
 
-Explain the problem and include additional details to help maintainers reproduce the problem:
+Explain the problem and include a reproduction where possible, or additional details to help maintainers reproduce the problem.
 
 * **Use a clear and descriptive title** for the issue to identify the problem.
+* **A link to a reproduction** where possible. [Follow these steps to produce a reproduction](#what-is-a-reproducible-test-case)
 * **Describe the exact steps which reproduce the problem** in as many details as possible. When listing steps, **don't just say what you did, but explain how you did it**.
 * **Provide specific examples to demonstrate the steps**. Include links to files or GitHub projects, or copy/pasteable snippets, which you use in those examples. If you're providing snippets in the issue, use [Markdown code blocks](https://help.github.com/articles/markdown-basics/#multiple-lines).
 * **Describe the behavior you observed after following the steps** and point out what exactly is the problem with that behavior.
@@ -52,6 +63,32 @@ Provide more context by answering these questions:
 
 * **Did the problem start happening recently** (e.g. after updating to a new version) or was this always a problem?
 * **Can you reliably reproduce the issue?** If not, provide details about how often the problem happens and under which conditions it normally happens.
+
+##### What is a reproducible test case?
+
+A reproducible test case is a small site built to demonstrate a problem - often this problem is caused by a bug in the plugin. Your reproducible test case should contain the bare minimum features needed to clearly demonstrate the bug.
+
+##### Why should you create a reproducible test case?
+
+A reproducible test case lets you isolate the cause of a problem, which is the first step towards fixing it!
+
+The [most important part of any bug report](https://developer.mozilla.org/en-US/docs/Mozilla/QA/Bug_writing_guidelines#Writing_precise_steps_to_reproduce) is to describe the exact steps needed to reproduce the bug.
+
+A reproducible test case is a great way to share a specific environment that causes a bug. Your reproducible test case is the best way to help people that want to help _you_.
+
+##### Steps to create a reproducible test case
+
+- Create a new site with a starter, like the Next.js
+- Add our plugin and other plugins that are needed to demonstrate the problem.
+- Add the code needed to recreate the error you've seen.
+- Publish the code (your GitHub account is a good place to do this) and then link to it when creating an issue.
+
+##### Benefits of reproducible test cases
+
+- Smaller surface area: By removing everything but the error, you don't have to dig to find the bug.
+- No need to publish secret code: You might not be able to publish your main site (for many reasons). Remaking a small part of it as a reproducible test case allows you to publicly demonstrate a problem without exposing any secret code.
+- Proof of the bug: Sometimes a bug is caused by some combination of settings on your machine. A reproducible test case allows contributors to pull down your build and test it on their machines as well. This helps verify and narrow down the cause of a problem.
+- Get help with fixing your bug: If someone else can reproduce your problem, they often have a good chance of fixing the problem. It's almost impossible to fix a bug without first being able to reproduce it.
  
 ### Suggesting Enhancements
 
@@ -115,11 +152,7 @@ For your commit message description consider these points:
 All JavaScript code is linted with [Prettier](https://prettier.io/).
 
 * Prefer the object spread operator (`{...anotherObj}`) to `Object.assign()`
-* Place requires in the following order:
-    * Built in Node Modules (such as `path`)
-    * Other NPM Installed Node Modules (such as `fs-extra`)
-    * Local Modules (using relative paths)
 
 ### Documentation Styleguide
 
-* Use [Markdown](https://daringfireball.net/projects/markdown).
+* Use [Markdown](https://github.github.com/gfm). 
