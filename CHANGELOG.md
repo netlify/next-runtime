@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.8.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.7.1...v3.8.0) (2021-08-02)
+
+### Features
+
+* add NEXT_PLUGIN_FORCE_RUN to skip auto-detection ([#547](https://www.github.com/netlify/netlify-plugin-nextjs/issues/547)) ([e3e7cd1](https://www.github.com/netlify/netlify-plugin-nextjs/commit/e3e7cd1c863d48eeea77e5c4197b80db8392243d))
+* support function bundling with esbuild ([#490](https://www.github.com/netlify/netlify-plugin-nextjs/issues/490)) ([4aff708](https://www.github.com/netlify/netlify-plugin-nextjs/commit/4aff70829952ce72aa6382c247dc9c78f4d1b17d))
+
+
+### Bug Fixes
+
+* **deps:** update dependency chalk to v4.1.2 ([#572](https://www.github.com/netlify/netlify-plugin-nextjs/issues/572)) ([fc943bb](https://www.github.com/netlify/netlify-plugin-nextjs/commit/fc943bb943375b6621f9c28c2279d39677daf4cc))
+* **deps:** update dependency commander to v8.1.0 ([#574](https://www.github.com/netlify/netlify-plugin-nextjs/issues/574)) ([81788c7](https://www.github.com/netlify/netlify-plugin-nextjs/commit/81788c74abfc453d7df6c975f1072eff8d1f140f))
+* **deps:** update dependency mime-types to v2.1.32 ([#573](https://www.github.com/netlify/netlify-plugin-nextjs/issues/573)) ([b6bc749](https://www.github.com/netlify/netlify-plugin-nextjs/commit/b6bc749ad6949c402f8cd278660b3acb925fc131))
+* exit on unhandled promsie rejection ([#566](https://www.github.com/netlify/netlify-plugin-nextjs/issues/566)) ([b78c8c5](https://www.github.com/netlify/netlify-plugin-nextjs/commit/b78c8c5ea040b0653529b6a923acfe08edc77fdc))
+* handle monorepo caching ([#538](https://www.github.com/netlify/netlify-plugin-nextjs/issues/538)) ([9477e0e](https://www.github.com/netlify/netlify-plugin-nextjs/commit/9477e0ed70db533ae7d8e6f33c9069c48aa6a9b3))
+* handle workspace commands ([4de9f1e](https://www.github.com/netlify/netlify-plugin-nextjs/commit/4de9f1eaba72fa2d3d2d41d375f0c2f894bc2482))
+* preview mode for odb/fallback pages ([#564](https://www.github.com/netlify/netlify-plugin-nextjs/issues/564)) ([0732219](https://www.github.com/netlify/netlify-plugin-nextjs/commit/07322195d21719fee7a57e2f5f672a1af777071f))
+
+
+### Miscellaneous Chores
+
+* release 3.8.0 ([41de73c](https://www.github.com/netlify/netlify-plugin-nextjs/commit/41de73c12aba0c7cb8e2d97bad15ab4c52482fe1))
+
+### [3.7.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.7.0...v3.7.1) (2021-07-15)
+
+
+### Bug Fixes
+
+* catch more export cases ([#529](https://www.github.com/netlify/netlify-plugin-nextjs/issues/529)) ([41184bc](https://www.github.com/netlify/netlify-plugin-nextjs/commit/41184bc6895a1e4b8f5a72ffd97ab81d86da5492))
+
 ## [3.7.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.6.3...v3.7.0) (2021-07-13)
 
 

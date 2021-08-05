@@ -14,11 +14,16 @@ const setup = async (functionsPath) => {
   const pages = await getPages()
 
   // Create Netlify Function for every page
-  return pages.map(({ route }) => {
+  return pages.reduce((jobs, { route }) => {
     const relativePath = getFilePathForRoute(route, 'js')
     const filePath = slash(join('pages', relativePath))
-    return { type: 'function', filePath, functionsPath, isISR: true }
-  })
+    // Need two different functions - one ODB for normal pages, one standard for preview mode
+    return [
+      ...jobs,
+      { type: 'function', filePath, functionsPath, isODB: true },
+      { type: 'function', filePath, functionsPath, forFallbackPreviewMode: true },
+    ]
+  }, [])
 }
 
 module.exports = setup

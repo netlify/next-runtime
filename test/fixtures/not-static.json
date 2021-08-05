@@ -60,5 +60,27 @@
             "export": "echo export",
             "build": "next build"
         }
+    },
+    {
+        "command": "npm run build:ci:frontend",
+        "scripts": {
+            "build": "tsc --build",
+            "build:ci:frontend": "npm ci && npm run build && npm run -w frontend build"
+        }
+    },
+    {
+        "command": "npm run build:ci:frontend",
+        "scripts": {
+            "build": "tsc --build",
+            "build:ci:frontend": "npm ci && npm run build && npm run build:local -w frontend"
+        }
+    },
+    {
+        "command": "yarn build:ci:frontend",
+        "scripts": {
+            "build": "tsc --build",
+            "build:ci:frontend": "npm ci && npm run build && yarn workspace frontend build"
+        }
     }
+
 ]

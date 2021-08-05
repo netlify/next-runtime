@@ -1,6 +1,6 @@
 {
   "name": "@netlify/plugin-nextjs",
-  "version": "3.7.0",
+  "version": "3.8.0",
   "description": "Run Next.js seamlessly on Netlify",
   "main": "index.js",
   "bin": {
@@ -60,7 +60,7 @@
   "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
     "@netlify/functions": "^0.7.2",
-    "@netlify/parse-npm-script": "^0.1.1",
+    "@netlify/parse-npm-script": "^0.1.2",
     "@sls-next/lambda-at-edge": "1.8.0",
     "adm-zip": "^0.5.4",
     "chalk": "^4.1.0",
@@ -80,19 +80,20 @@
     "mime-types": "^2.1.30",
     "moize": "^6.0.0",
     "node-fetch": "^2.6.1",
-    "semver": "^7.3.2",
+    "semver": "^7.3.5",
     "sharp": "^0.28.1",
-    "slash": "^2.0.0"
+    "slash": "^2.0.0",
+    "tiny-glob": "^0.2.9"
   },
   "devDependencies": {
-    "@netlify/eslint-config-node": "^3.1.7",
+    "@netlify/eslint-config-node": "^3.1.10",
     "cpy": "^8.1.1",
     "cypress": "^7.0.0",
     "eslint-config-next": "^11.0.0",
     "folder-hash": "^4.0.0",
     "husky": "^4.3.0",
     "jest": "^27.0.0",
-    "netlify-cli": "^4.2.2",
+    "netlify-cli": "^5.4.16",
     "next": "^11.0.0",
     "path-exists": "^4.0.0",
     "prettier": "^2.1.2",

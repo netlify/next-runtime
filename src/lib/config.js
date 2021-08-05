@@ -23,10 +23,10 @@ const NEXT_SRC_DIRS = getNextSrcDirs()
 const TEMPLATES_DIR = join(__dirname, 'templates')
 
 // This is the Netlify Function template that wraps all SSR pages
-const FUNCTION_TEMPLATE_PATH = join(TEMPLATES_DIR, 'netlifyFunction.js')
+const FUNCTION_TEMPLATE_PATH = join(TEMPLATES_DIR, 'netlifyFunction.ts')
 
 // This is the Netlify Builder template that wraps ISR pages
-const BUILDER_TEMPLATE_PATH = join(TEMPLATES_DIR, 'netlifyOnDemandBuilder.js')
+const BUILDER_TEMPLATE_PATH = join(TEMPLATES_DIR, 'netlifyOnDemandBuilder.ts')
 
 // This is the file where custom redirects can be configured
 const CUSTOM_REDIRECTS_PATH = join('.', '_redirects')
@@ -37,6 +37,8 @@ const CUSTOM_HEADERS_PATH = join('.', '_headers')
 // This is the name used for copying our imageFunction template and for
 // creating the next/image redirect
 const NEXT_IMAGE_FUNCTION_NAME = 'next_image'
+
+const PREVIEW_MODE_COOKIES = ['Cookie=__prerender_bypass,__next_preview_data']
 
 const SRC_FILES = [PUBLIC_PATH, NEXT_CONFIG_PATH, CUSTOM_REDIRECTS_PATH, CUSTOM_HEADERS_PATH, ...NEXT_SRC_DIRS]
 
@@ -52,4 +54,5 @@ module.exports = {
   CUSTOM_HEADERS_PATH,
   NEXT_IMAGE_FUNCTION_NAME,
   SRC_FILES,
+  PREVIEW_MODE_COOKIES,
 }

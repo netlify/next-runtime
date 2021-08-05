@@ -1,11 +1,10 @@
 const { builder } = require('@netlify/functions')
-const sharp = require('sharp')
-const fetch = require('node-fetch')
+const etag = require('etag')
+const config = require('./imageconfig.json')
 const imageType = require('image-type')
 const isSvg = require('is-svg')
-const etag = require('etag')
-const imageSize = require('image-size')
-const config = require('./imageconfig.json')
+const fetch = require('node-fetch')
+const sharp = require('sharp')
 // 6MB is hard max Lambda response size
 const MAX_RESPONSE_SIZE = 6291456
 
@@ -28,7 +27,7 @@ const handler = async (event) => {
   const [, , url, w = 500, q = 75] = event.path.split('/')
   // Work-around a bug in redirect handling. Remove when fixed.
   const parsedUrl = decodeURIComponent(url).replace('+', '%20')
-  const width = parseInt(w)
+  const width = Number.parseInt(w)
 
   if (!width) {
     return {
@@ -37,7 +36,7 @@ const handler = async (event) => {
     }
   }
 
-  const quality = parseInt(q) || 60
+  const quality = Number.parseInt(q) || 60
 
   let imageUrl
   let isRemoteImage = false
