@@ -149,6 +149,9 @@ Temporary Items
 .apdisk
 
 # End of https://www.toptal.com/developers/gitignore/api/osx,node
+
 demo/package-lock.json
+# We generate this on build in the demo
+demo/next.config.js
 
 .netlify
