@@ -12,7 +12,18 @@ const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
 
   const { target, configFile } = await getNextConfig(failBuild, nextRoot)
 
-  // If the next config exists, log warning if target isnt in acceptableTargets
+  if (!configFile) {
+    await writeFile(
+      path.resolve(nextRoot, 'next.config.js'),
+      `module.exports = {
+  // Supported targets are "serverless" and "experimental-serverless-trace"
+  target: "serverless",
+  generateBuildId: () => "build"
+}`,
+    )
+  }
+
+  // If the next config exists, log warning if target isn't in acceptableTargets
   const acceptableTargets = ['serverless', 'experimental-serverless-trace']
   const isValidTarget = acceptableTargets.includes(target)
   if (isValidTarget) {
@@ -49,18 +60,6 @@ const verifyBuildTarget = async ({ failBuild, netlifyConfig }) => {
   // Clear memoized cache
   getNextConfig.clear()
 
-  // Creating a config file, because otherwise Next won't reload the config and pick up the new target
-
-  if (!configFile) {
-    await writeFile(
-      path.resolve(nextRoot, 'next.config.js'),
-      `
-module.exports = {
-  // Supported targets are "serverless" and "experimental-serverless-trace"
-  target: "serverless"
-}`,
-    )
-  }
   // Force the new config to be generated
   await getNextConfig(failBuild, nextRoot)
   // Reset the value in case something else is looking for it
