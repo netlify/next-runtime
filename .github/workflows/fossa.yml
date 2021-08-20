@@ -3,8 +3,8 @@ name: Dependency License Scanning
 on:
   push:
     branches:
-      - main
-      - chore/fossa-workflow # convenience branch for future fossa tweaks
+      - master
+      - chore/fossa-workflow
 
 defaults:
   run:
@@ -18,11 +18,10 @@ jobs:
         uses: actions/checkout@v2
       - name: Download fossa cli
         run: |-
-          curl -L https://github.com/fossas/fossa-cli/releases/download/v1.1.2/fossa-cli_1.1.2_linux_amd64.tar.gz > fossa-cli.tar.gz
-              tar -xvzf fossa-cli.tar.gz
-              mkdir -p $HOME/.local/bin
-              echo "$HOME/.local/bin" >> $GITHUB_PATH
-              mv fossa $HOME/.local/bin/fossa
+          mkdir -p $HOME/.local/bin
+          curl https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | bash -s -- -b $HOME/.local/bin
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
       - name: Fossa init
         run: fossa init
       - name: Set env
