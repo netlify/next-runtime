@@ -86,7 +86,7 @@
     "tiny-glob": "^0.2.9"
   },
   "devDependencies": {
-    "@netlify/eslint-config-node": "^3.2.3",
+    "@netlify/eslint-config-node": "^3.2.4",
     "cpy": "^8.1.1",
     "cypress": "^7.0.0",
     "eslint-config-next": "^11.0.0",
