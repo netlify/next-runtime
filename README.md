@@ -1,5 +1,7 @@
 ![Next.js on Netlify Build Plugin](next-on-netlify.png)
 
+
+
 # Essential Next.js Build Plugin
 
 <p align="center">
