@@ -59,6 +59,7 @@
   },
   "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
+    "@babel/core": "^7.15.0",
     "@netlify/functions": "^0.7.2",
     "@netlify/parse-npm-script": "^0.1.2",
     "@sls-next/lambda-at-edge": "1.8.0",
