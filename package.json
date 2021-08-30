@@ -95,7 +95,7 @@
     "jest": "^27.0.0",
     "netlify-cli": "^5.4.16",
     "next": "^11.0.0",
-    "path-exists": "^4.0.0",
+    "path-exists": "^5.0.0",
     "prettier": "^2.1.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
