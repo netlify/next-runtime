@@ -1,0 +1,9 @@
+[build]
+command = "npm run build:demo"
+functions = "demo/netlify/functions"
+publish = "demo/.next"
+framework="#custom"
+base="."
+
+[[plugins]]
+package="."

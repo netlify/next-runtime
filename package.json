@@ -1,0 +1,92 @@
+{
+  "name": "@netlify/plugin-nextjs-experimental",
+  "version": "0.0.1",
+  "description": "Run Next.js seamlessly on Netlify",
+  "main": "src/index.js",
+  "files": [
+    "src",
+    "manifest.yml"
+  ],
+  "scripts": {
+    "build": "next build test/sample",
+    "build:demo": "next build demo",
+    "dev:demo": "next dev demo",
+    "format": "run-s format:check-fix:*",
+    "format:ci": "run-s format:check:*",
+    "format:check-fix:lint": "run-e format:check:lint format:fix:lint",
+    "format:check:lint": "cross-env-shell eslint $npm_package_config_eslint",
+    "format:fix:lint": "cross-env-shell eslint --fix $npm_package_config_eslint",
+    "format:check-fix:prettier": "run-e format:check:prettier format:fix:prettier",
+    "format:check:prettier": "cross-env-shell prettier --check $npm_package_config_prettier",
+    "format:fix:prettier": "cross-env-shell prettier --write $npm_package_config_prettier",
+    "prepublishOnly": "run-s prepublishOnly:*",
+    "prepublishOnly:checkout": "git checkout main",
+    "prepublishOnly:pull": "git pull",
+    "prepublishOnly:install": "npm ci",
+    "prepublishOnly:test": "npm test"
+  },
+  "config": {
+    "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{js,md,html}\" \"*.{js,md,html}\" \".*.{js,md,html}\"",
+    "prettier": "--loglevel=warn \"{src,scripts,tests,.github}/**/*.{js,md,yml,json,html}\" \"*.{js,yml,json,html}\" \".*.{js,yml,json,html}\" \"!package-lock.json\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/netlify/netlify-plugin-nextjs-experimental.git"
+  },
+  "keywords": [
+    "nextjs",
+    "netlify",
+    "next",
+    "netlify-plugin"
+  ],
+  "author": "lindsaylevine",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/netlify/netlify-plugin-nextjs-expeimental/issues"
+  },
+  "homepage": "https://github.com/netlify/netlify-plugin-nextjs-experimental#readme",
+  "dependencies": {
+    "@babel/core": "^7.15.0",
+    "@netlify/functions": "^0.7.2",
+    "@netlify/parse-npm-script": "^0.1.2",
+    "@vercel/node": "^1.11.2-canary.4",
+    "find-up": "^5.0.0",
+    "fs-extra": "^9.1.0",
+    "image-size": "^1.0.0",
+    "image-type": "^4.1.0",
+    "is-svg": "^4.3.1",
+    "mime-types": "^2.1.30",
+    "moize": "^6.0.0",
+    "node-fetch": "^2.6.1",
+    "semver": "^7.3.5",
+    "sharp": "^0.29.0"
+  },
+  "devDependencies": {
+    "@netlify/eslint-config-node": "^3.2.6",
+    "eslint-config-next": "^11.0.0",
+    "husky": "^4.3.0",
+    "jest": "^27.0.0",
+    "next": "^11.1.0",
+    "prettier": "^2.1.2",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-push": "npm run format"
+    }
+  },
+  "engines": {
+    "node": ">=10.13.0"
+  },
+  "jest": {
+    "testMatch": [
+      "**/test/**/*.js",
+      "!**/test/fixtures/**",
+      "!**/test/sample/**"
+    ],
+    "verbose": true,
+    "testTimeout": 60000
+  }
+}
