@@ -1,7 +1,7 @@
 // @ts-check
-const { writeFile } = require("fs").promises;
-const { readJSON } = require("fs-extra");
 const path = require("path");
+
+const { readJSON, writeFile } = require("fs-extra");
 
 const ODB_FUNCTION_PATH = "/.netlify/functions/___netlify-odb-handler";
 const HANDLER_FUNCTION_PATH = "/.netlify/functions/___netlify-handler";
@@ -27,41 +27,26 @@ const getNetlifyRoutes = (nextRoute) => {
     // create an incorrect route for the data route. For example, it creates
     // /_next/data/%BUILDID%.json, but NextJS looks for
     // /_next/data/%BUILDID%/index.json
-    netlifyRoute = netlifyRoute.replace(
-      /(\/_next\/data\/[^/]+).json/,
-      "$1/index.json"
-    );
+    netlifyRoute = netlifyRoute.replace(/(\/_next\/data\/[^/]+).json/, "$1/index.json");
 
     // Add second route to the front of the array
     netlifyRoutes.unshift(netlifyRoute);
   }
 
   // Replace catch-all, e.g., [...slug]
-  netlifyRoutes = netlifyRoutes.map((route) =>
-    route.replace(CATCH_ALL_REGEX, "/:$1/*")
-  );
+  netlifyRoutes = netlifyRoutes.map((route) => route.replace(CATCH_ALL_REGEX, "/:$1/*"));
 
   // Replace optional catch-all, e.g., [[...slug]]
-  netlifyRoutes = netlifyRoutes.map((route) =>
-    route.replace(OPTIONAL_CATCH_ALL_REGEX, "/*")
-  );
+  netlifyRoutes = netlifyRoutes.map((route) => route.replace(OPTIONAL_CATCH_ALL_REGEX, "/*"));
 
   // Replace dynamic parameters, e.g., [id]
-  netlifyRoutes = netlifyRoutes.map((route) =>
-    route.replace(DYNAMIC_PARAMETER_REGEX, "/:$1")
-  );
+  netlifyRoutes = netlifyRoutes.map((route) => route.replace(DYNAMIC_PARAMETER_REGEX, "/:$1"));
 
   return netlifyRoutes;
 };
 
-exports.writeRedirects = async function ({
-  publishDir = "out",
-  nextRoot = process.cwd(),
-  netlifyConfig,
-}) {
-  const { dynamicRoutes } = await readJSON(
-    path.join(nextRoot, ".next", "prerender-manifest.json")
-  );
+const writeRedirects = async ({ publishDir = "out", nextRoot = process.cwd(), netlifyConfig }) => {
+  const { dynamicRoutes } = await readJSON(path.join(nextRoot, ".next", "prerender-manifest.json"));
 
   const redirects = [];
   Object.entries(dynamicRoutes).forEach(([route, { dataRoute, fallback }]) => {
@@ -93,3 +78,5 @@ exports.writeRedirects = async function ({
   //     `;
   // await writeFile(path.join(nextRoot, publishDir, "_redirects"), odbRedirects);
 };
+
+module.exports = writeRedirects;

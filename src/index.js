@@ -1,12 +1,13 @@
 // @ts-check
-const { getHandler } = require("./getHandler");
-const fs = require("fs").promises;
-const { ensureDir, existsSync, remove } = require("fs-extra");
 const path = require("path");
+
+const { copyFile, ensureDir, writeFile } = require("fs-extra");
+
 const DEFAULT_FUNCTIONS_SRC = "netlify/functions";
-const { writeRedirects } = require("./writeRedirects");
-const getNextRoot = require("./getNextRoot")
-const copyNextDist = require("./copyNextDist")
+const copyNextDist = require("./copyNextDist");
+const getHandler = require("./getHandler");
+const getNextRoot = require("./getNextRoot");
+const writeRedirects = require("./writeRedirects");
 
 const HANDLER_FUNCTION_NAME = "___netlify-handler";
 const ODB_FUNCTION_NAME = "___netlify-odb-handler";
@@ -22,11 +23,7 @@ module.exports = {
         netlifyConfig.functions[functionName].included_files = [];
       }
       // TO-DO: get distDir from next.config.js
-      netlifyConfig.functions[functionName].included_files.push(
-        `.next/server/**`,
-        `.next/*.json`,
-        `.next/BUILD_ID`
-      );
+      netlifyConfig.functions[functionName].included_files.push(`.next/server/**`, `.next/*.json`, `.next/BUILD_ID`);
     });
 
     console.log({ netlifyConfig });
@@ -34,11 +31,7 @@ module.exports = {
 
   async onBuild({
     netlifyConfig,
-    constants: {
-      PUBLISH_DIR,
-      FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC,
-      INTERNAL_FUNCTIONS_SRC,
-    },
+    constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC },
   }) {
     const FUNCTION_DIR = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC;
     const bridgeFile = require.resolve("@vercel/node/dist/bridge");
@@ -46,11 +39,8 @@ module.exports = {
     const writeHandler = async (func, isODB) => {
       const handlerSource = await getHandler(isODB);
       await ensureDir(path.join(FUNCTION_DIR, func));
-      await fs.writeFile(
-        path.join(FUNCTION_DIR, func, `${func}.js`),
-        handlerSource
-      );
-      await fs.copyFile(bridgeFile, path.join(FUNCTION_DIR, func, "bridge.js"));
+      await writeFile(path.join(FUNCTION_DIR, func, `${func}.js`), handlerSource);
+      await copyFile(bridgeFile, path.join(FUNCTION_DIR, func, "bridge.js"));
     };
 
     await writeHandler(HANDLER_FUNCTION_NAME, false);

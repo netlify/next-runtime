@@ -1,10 +1,13 @@
 const { Server } = require("http");
+
 const { Bridge } = require("@vercel/node/dist/bridge");
 // This path is specific to next@canary. In a live version we'd resolve various versions of next
 const NextServer = require("next/dist/server/next-server").default;
-function makeHandler() {
+
+const makeHandler =
+  () =>
   // We return a function and then call `toString()` on it to serialise it as the launcher function
-  return (conf) => {
+  (conf) => {
     const nextServer = new NextServer({
       conf,
       dir: ".",
@@ -14,16 +17,16 @@ function makeHandler() {
     const server = new Server(async (req, res) => {
       try {
         await requestHandler(req, res);
-      } catch (err) {
-        console.error(err);
-        process.exit(1);
+      } catch (error) {
+        console.error(error);
+        throw new Error("server function error");
       }
     });
     const bridge = new Bridge(server);
     bridge.listen();
 
     return async (event, context) => {
-      let result = await bridge.launcher(event, context);
+      const result = await bridge.launcher(event, context);
       /** @type import("@netlify/functions").HandlerResponse */
       return {
         ...result,
@@ -31,10 +34,8 @@ function makeHandler() {
       };
     };
   };
-}
 
-exports.getHandler = async function (isODB = false) {
-  return `
+const getHandler = (isODB = false) => `
 const { Server } = require("http");
 // We copy the file here rather than requiring from the node module
 const { Bridge } = require("./bridge");
@@ -45,9 +46,8 @@ const { builder } = require("@netlify/functions");
 const { config }  = require(process.cwd() + "/.next/required-server-files.json")
 
 exports.handler = ${
-   isODB
-      ? `builder((${makeHandler().toString()})(config));`
-      : `(${makeHandler().toString()})(config);`
-  }
+  isODB ? `builder((${makeHandler().toString()})(config));` : `(${makeHandler().toString()})(config);`
+}
 `;
-};
+
+module.exports = getHandler;
