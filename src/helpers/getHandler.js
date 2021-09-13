@@ -1,8 +1,8 @@
-const { Server } = require("http");
+const { Server } = require('http')
 
-const { Bridge } = require("@vercel/node/dist/bridge");
+const { Bridge } = require('@vercel/node/dist/bridge')
 // This path is specific to next@canary. In a live version we'd resolve various versions of next
-const NextServer = require("next/dist/server/next-server").default;
+const NextServer = require('next/dist/server/next-server').default
 
 const makeHandler =
   () =>
@@ -10,30 +10,30 @@ const makeHandler =
   (conf) => {
     const nextServer = new NextServer({
       conf,
-      dir: ".",
+      dir: '.',
       customServer: false,
-    });
-    const requestHandler = nextServer.getRequestHandler();
+    })
+    const requestHandler = nextServer.getRequestHandler()
     const server = new Server(async (req, res) => {
       try {
-        await requestHandler(req, res);
+        await requestHandler(req, res)
       } catch (error) {
-        console.error(error);
-        throw new Error("server function error");
+        console.error(error)
+        throw new Error('server function error')
       }
-    });
-    const bridge = new Bridge(server);
-    bridge.listen();
+    })
+    const bridge = new Bridge(server)
+    bridge.listen()
 
     return async (event, context) => {
-      const result = await bridge.launcher(event, context);
+      const result = await bridge.launcher(event, context)
       /** @type import("@netlify/functions").HandlerResponse */
       return {
         ...result,
-        isBase64Encoded: result.encoding === "base64",
-      };
-    };
-  };
+        isBase64Encoded: result.encoding === 'base64',
+      }
+    }
+  }
 
 const getHandler = (isODB = false) => `
 const { Server } = require("http");
@@ -48,6 +48,6 @@ const { config }  = require(process.cwd() + "/.next/required-server-files.json")
 exports.handler = ${
   isODB ? `builder((${makeHandler().toString()})(config));` : `(${makeHandler().toString()})(config);`
 }
-`;
+`
 
-module.exports = getHandler;
+module.exports = getHandler
