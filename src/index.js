@@ -8,6 +8,7 @@ const copyNextDist = require('./helpers/copyNextDist')
 const getHandler = require('./helpers/getHandler')
 const getNextConfig = require('./helpers/getNextConfig')
 const getNextRoot = require('./helpers/getNextRoot')
+const verifyBuildTarget = require('./helpers/verifyBuildTarget')
 const writeRedirects = require('./helpers/writeRedirects')
 
 const HANDLER_FUNCTION_NAME = '___netlify-handler'
@@ -16,7 +17,9 @@ const ODB_FUNCTION_NAME = '___netlify-odb-handler'
 module.exports = {
   async onPreBuild({ netlifyConfig, utils: { failBuild } }) {
     const siteRoot = getNextRoot({ netlifyConfig })
-    const { distDir } = await getNextConfig(failBuild, siteRoot)
+    const { distDir, target } = await getNextConfig(failBuild, siteRoot)
+
+    verifyBuildTarget(target)
 
     // This could technically be done in onBuild, too
     ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
@@ -33,8 +36,6 @@ module.exports = {
         `${distDir}/BUILD_ID`,
       )
     })
-
-    console.log({ netlifyConfig })
   },
 
   async onBuild({
