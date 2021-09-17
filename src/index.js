@@ -1,67 +1,55 @@
 // @ts-check
 const path = require('path')
 
-const { copyFile, ensureDir, writeFile } = require('fs-extra')
+const { satisfies } = require('semver')
 
-const DEFAULT_FUNCTIONS_SRC = 'netlify/functions'
 const copyNextDist = require('./helpers/copyNextDist')
-const getHandler = require('./helpers/getHandler')
+const generateFunctions = require('./helpers/generateFunctions')
 const getNextConfig = require('./helpers/getNextConfig')
 const getNextRoot = require('./helpers/getNextRoot')
+const setIncludedFiles = require('./helpers/setIncludedFiles')
+const skipPlugin = require('./helpers/skipPlugin')
 const verifyBuildTarget = require('./helpers/verifyBuildTarget')
+const verifyNetlifyBuildVersion = require('./helpers/verifyNetlifyBuildVersion')
+const verifyPublishDir = require('./helpers/verifyPublishDir')
 const writeRedirects = require('./helpers/writeRedirects')
 
-const HANDLER_FUNCTION_NAME = '___netlify-handler'
-const ODB_FUNCTION_NAME = '___netlify-odb-handler'
-
 module.exports = {
-  async onPreBuild({ netlifyConfig, utils: { failBuild } }) {
+  async onPreBuild({
+    constants,
+    netlifyConfig,
+    packageJson,
+    utils: {
+      build: { failBuild },
+    },
+  }) {
+    if (skipPlugin({ netlifyConfig, packageJson, failBuild })) {
+      return
+    }
+
+    verifyNetlifyBuildVersion({ failBuild, ...constants })
+
     const siteRoot = getNextRoot({ netlifyConfig })
     const { distDir, target } = await getNextConfig(failBuild, siteRoot)
 
+    verifyPublishDir({ netlifyConfig, siteRoot, distDir, failBuild })
+
     verifyBuildTarget(target)
 
-    // This could technically be done in onBuild, too
-    ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
-      if (!netlifyConfig.functions[functionName]) {
-        netlifyConfig.functions[functionName] = {}
-      }
-      if (!netlifyConfig.functions[functionName].included_files) {
-        netlifyConfig.functions[functionName].included_files = []
-      }
-      // TO-DO: get distDir from next.config.js
-      netlifyConfig.functions[functionName].included_files.push(
-        `${distDir}/server/**`,
-        `${distDir}/*.json`,
-        `${distDir}/BUILD_ID`,
-      )
-    })
+    setIncludedFiles({ netlifyConfig, distDir })
   },
 
-  async onBuild({
-    netlifyConfig,
-    constants: { PUBLISH_DIR, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC },
-  }) {
-    const FUNCTION_DIR = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
-    const bridgeFile = require.resolve('@vercel/node/dist/bridge')
+  async onBuild({ netlifyConfig, constants }) {
+    await generateFunctions(constants)
 
-    const writeHandler = async (func, isODB) => {
-      const handlerSource = await getHandler(isODB)
-      await ensureDir(path.join(FUNCTION_DIR, func))
-      await writeFile(path.join(FUNCTION_DIR, func, `${func}.js`), handlerSource)
-      await copyFile(bridgeFile, path.join(FUNCTION_DIR, func, 'bridge.js'))
-    }
-
-    await writeHandler(HANDLER_FUNCTION_NAME, false)
-    await writeHandler(ODB_FUNCTION_NAME, true)
+    const siteRoot = getNextRoot({ netlifyConfig })
 
     await writeRedirects({
-      publishDir: PUBLISH_DIR,
-      nextRoot: path.dirname(PUBLISH_DIR),
+      siteRoot,
       netlifyConfig,
     })
 
-    const siteRoot = getNextRoot({ netlifyConfig })
+    // Some type of monorepo setup
     if (siteRoot !== process.cwd()) {
       copyNextDist(siteRoot)
     }
