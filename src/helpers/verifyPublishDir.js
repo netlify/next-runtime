@@ -7,11 +7,11 @@ const verifyPublishDir = ({ netlifyConfig, siteRoot, distDir, failBuild }) => {
   // Publish dir needs to match distDir
   if (
     !publish ||
-    (nextSiteNotInProjectRoot && publish !== `${siteRoot}/${distDir}`) ||
-    (!nextSiteNotInProjectRoot && publish !== `${process.cwd()}/${distDir}`)
+    (nextSiteNotInProjectRoot && publish !== path.join(siteRoot, distDir)) ||
+    (!nextSiteNotInProjectRoot && publish !== path.join(process.cwd(), distDir))
   ) {
     return failBuild(
-      'Your publish directory should be set to `distDir` or `{yourSiteRoot}/{distDir}` - where `yourSiteRoot` only matters if you have a monorepo setup and `distDir` is either specifically configured by you in your next.config.js or defaulted to `.next`.',
+      `You set your publish directory to "${publish}". Your publish directory should be set to your distDir (defaults to .next or is configured in your next.config.js). If your site is rooted in a subdirectory, your publish directory should be {yourSiteRoot}/{distDir}.`,
     )
   }
 }

@@ -241,7 +241,7 @@ describe('preBuild()', () => {
         constants: {},
         utils,
       })
-    ).rejects.toThrow('Your publish directory should be set to `distDir` or `{yourSiteRoot}/{distDir}` - where `yourSiteRoot` only matters if you have a monorepo setup and `distDir` is either specifically configured by you in your next.config.js or defaulted to `.next`.')
+    ).rejects.toThrow(`You set your publish directory to "${wrongPublishDir}". Your publish directory should be set to your distDir (defaults to .next or is configured in your next.config.js). If your site is rooted in a subdirectory, your publish directory should be {yourSiteRoot}/{distDir}.`)
   })
 
   test('fail build if no  publish dir', async () => {
@@ -252,7 +252,7 @@ describe('preBuild()', () => {
         constants: {},
         utils,
       })
-    ).rejects.toThrow('Your publish directory should be set to `distDir` or `{yourSiteRoot}/{distDir}` - where `yourSiteRoot` only matters if you have a monorepo setup and `distDir` is either specifically configured by you in your next.config.js or defaulted to `.next`.')
+    ).rejects.toThrow('You set your publish directory to "null". Your publish directory should be set to your distDir (defaults to .next or is configured in your next.config.js). If your site is rooted in a subdirectory, your publish directory should be {yourSiteRoot}/{distDir}.')
   })
 
   // test('restores cache with right paths', async () => {
