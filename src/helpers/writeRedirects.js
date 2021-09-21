@@ -45,8 +45,8 @@ const getNetlifyRoutes = (nextRoute) => {
   return netlifyRoutes
 }
 
-const writeRedirects = async ({ publishDir = 'out', nextRoot = process.cwd(), netlifyConfig }) => {
-  const { dynamicRoutes } = await readJSON(path.join(nextRoot, '.next', 'prerender-manifest.json'))
+const writeRedirects = async ({ siteRoot = process.cwd(), netlifyConfig }) => {
+  const { dynamicRoutes } = await readJSON(path.join(siteRoot, '.next', 'prerender-manifest.json'))
 
   const redirects = []
   Object.entries(dynamicRoutes).forEach(([route, { dataRoute, fallback }]) => {
@@ -76,7 +76,7 @@ const writeRedirects = async ({ publishDir = 'out', nextRoot = process.cwd(), ne
   // /_next/static/* /static/:splat 200
   // /* ${HANDLER_FUNCTION_PATH} 200
   //     `;
-  // await writeFile(path.join(nextRoot, publishDir, "_redirects"), odbRedirects);
+  // await writeFile(path.join(siteRoot, publishDir, "_redirects"), odbRedirects);
 }
 
 module.exports = writeRedirects

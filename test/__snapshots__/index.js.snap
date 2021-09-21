@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`onBuild() writes correct redirects to netlifyConfig 1`] = `
+"/_next/static/* /static/:splat 200
+/* /.netlify/functions/___netlify-handler 200
+/_next/static/* /static/:splat 200
+/* /.netlify/functions/___netlify-handler 200
+"
+`;

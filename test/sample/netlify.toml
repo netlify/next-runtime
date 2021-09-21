@@ -1,0 +1,6 @@
+[build]
+  command = "npx next build"
+  publish = ".next"
+
+[[plugins]]
+  package = "../../"

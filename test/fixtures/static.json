@@ -1,0 +1,142 @@
+[
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build": "next export"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build": "npm run build:export"
+    }
+  },
+  {
+    "command": "npm run build && npm run export",
+    "scripts": {
+      "export": "next export",
+      "build": "next build"
+    }
+  },
+  {
+    "command": "npm run build && next export",
+    "scripts": {
+      "build": "next build"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build": "FORCE_COLOR=1 npm run build:export"
+    }
+  },
+  {
+    "command": "FORCE_COLOR=1 npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build": "npm run build:export"
+    }
+  },
+  {
+    "command": "FORCE_COLOR=1 SILENT=1 npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build": "npm run build:export"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "FORCE_COLOR=1 next export",
+      "build": "npm run build:export"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build": "yarn run build:export"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build": "yarn build:export"
+    }
+  },
+  {
+    "command": "yarn run build",
+    "scripts": {
+      "build:export": "next export",
+      "build": "yarn build:export"
+    }
+  },
+  {
+    "command": "yarn build",
+    "scripts": {
+      "build:export": "next export",
+      "build": "yarn build:export"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build:types": "tsc",
+      "build:stuff": "tsc",
+      "build": "run-s build:*"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build:stuff": "tsc",
+      "build": "run-p build:*"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build:stuff": "tsc",
+      "build": "npm-run-all -s build:*"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build:types": "tsc",
+      "build": "run-s build:export build:types"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build:types": "tsc",
+      "build": "run-p build:export build:types"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:types": "tsc",
+
+      "build:export": "next export",
+      "build": "npm-run-all -p build:export -p build:types"
+    }
+  },
+  {
+    "command": "npm run netlify:build",
+    "scripts": {
+      "build": "next build",
+      "export": "next export",
+      "netlify:build": "npm run build && npm run export"
+    }
+  }
+]

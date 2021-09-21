@@ -1,0 +1,86 @@
+[
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build": "export"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build:types": "tsc",
+      "build": "npm run build:types"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "export": "next export",
+      "build:types": "tsc",
+      "build:stuff": "tsc",
+      "build": "run-s build:*"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "export": "next export",
+      "build:stuff": "tsc",
+      "build": "run-p build:*"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "export": "next export",
+      "build:stuff": "tsc",
+      "build": "npm-run-all -s build:*"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build:types": "tsc",
+      "build": "run-s build:types"
+    }
+  },
+  {
+    "command": "npm run build",
+    "scripts": {
+      "build:export": "next export",
+      "build:types": "tsc",
+      "build": "run-p build:types"
+    }
+  },
+  {
+    "command": "npm run build && npm run export",
+    "scripts": {
+      "export": "echo export",
+      "build": "next build"
+    }
+  },
+  {
+    "command": "npm run build:ci:frontend",
+    "scripts": {
+      "build": "tsc --build",
+      "build:ci:frontend": "npm ci && npm run build && npm run -w frontend build"
+    }
+  },
+  {
+    "command": "npm run build:ci:frontend",
+    "scripts": {
+      "build": "tsc --build",
+      "build:ci:frontend": "npm ci && npm run build && npm run build:local -w frontend"
+    }
+  },
+  {
+    "command": "yarn build:ci:frontend",
+    "scripts": {
+      "build": "tsc --build",
+      "build:ci:frontend": "npm ci && npm run build && yarn workspace frontend build"
+    }
+  }
+
+]
