@@ -4,7 +4,7 @@ const { redBright, yellowBright } = require('chalk')
 const isStaticExportProject = require('./isStaticExportProject')
 const usesBuildCommand = require('./usesBuildCommand')
 
-const skipPlugin = ({ netlifyConfig, packageJson, failBuild }) => {
+const shouldSkipPlugin = ({ netlifyConfig, packageJson, failBuild }) => {
   const hasNoPackageJson = Object.keys(packageJson).length === 0
   if (hasNoPackageJson) {
     return failBuild('Could not find a package.json for this project')
@@ -50,4 +50,4 @@ const skipPlugin = ({ netlifyConfig, packageJson, failBuild }) => {
   return isStaticExportProject({ build, scripts })
 }
 
-module.exports = skipPlugin
+module.exports = shouldSkipPlugin

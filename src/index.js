@@ -8,7 +8,7 @@ const generateFunctions = require('./helpers/generateFunctions')
 const getNextConfig = require('./helpers/getNextConfig')
 const getNextRoot = require('./helpers/getNextRoot')
 const setIncludedFiles = require('./helpers/setIncludedFiles')
-const skipPlugin = require('./helpers/skipPlugin')
+const shouldSkipPlugin = require('./helpers/shouldSkipPlugin')
 const verifyBuildTarget = require('./helpers/verifyBuildTarget')
 const verifyNetlifyBuildVersion = require('./helpers/verifyNetlifyBuildVersion')
 const verifyPublishDir = require('./helpers/verifyPublishDir')
@@ -23,7 +23,7 @@ module.exports = {
       build: { failBuild },
     },
   }) {
-    if (skipPlugin({ netlifyConfig, packageJson, failBuild })) {
+    if (shouldSkipPlugin({ netlifyConfig, packageJson, failBuild })) {
       return
     }
 
@@ -39,7 +39,18 @@ module.exports = {
     setIncludedFiles({ netlifyConfig, distDir })
   },
 
-  async onBuild({ netlifyConfig, constants }) {
+  async onBuild({
+    constants,
+    netlifyConfig,
+    packageJson,
+    utils: {
+      build: { failBuild },
+    },
+  }) {
+    if (shouldSkipPlugin({ netlifyConfig, packageJson, failBuild })) {
+      return
+    }
+
     await generateFunctions(constants)
 
     const siteRoot = getNextRoot({ netlifyConfig })

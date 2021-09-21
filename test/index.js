@@ -284,8 +284,10 @@ describe('onBuild()', () => {
       utils,
     })
 
-    expect(await pathExists(path.resolve(`.netlify/internal-functions/___netlify-handler`))).toBeTruthy()
-    expect(await pathExists(path.resolve(`.netlify/internal-functions/___netlify-odb-handler`))).toBeTruthy()
+    expect(await pathExists(path.resolve(`.netlify/internal-functions/___netlify-handler/___netlify-handler.js`))).toBeTruthy()
+    expect(await pathExists(path.resolve(`.netlify/internal-functions/___netlify-handler/bridge.js`))).toBeTruthy()
+    expect(await pathExists(path.resolve(`.netlify/internal-functions/___netlify-odb-handler/___netlify-odb-handler.js`))).toBeTruthy()
+    expect(await pathExists(path.resolve(`.netlify/internal-functions/___netlify-odb-handler/bridge.js`))).toBeTruthy()
   })
 
   test('writes correct redirects to netlifyConfig', async () => {
