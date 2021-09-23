@@ -144,3 +144,5 @@ Temporary Items
 # CLI
 .netlify
 demo/.next
+.parcel-cache
+lib

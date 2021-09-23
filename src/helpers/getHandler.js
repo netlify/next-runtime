@@ -1,4 +1,5 @@
 const { Server } = require('http')
+const path = require('path')
 
 const { Bridge } = require('@vercel/node/dist/bridge')
 // This path is specific to next@canary. In a live version we'd resolve various versions of next
@@ -10,7 +11,7 @@ const makeHandler =
   (conf) => {
     const nextServer = new NextServer({
       conf,
-      dir: '.',
+      dir: path.resolve(__dirname, '../../..'),
       customServer: false,
     })
     const requestHandler = nextServer.getRequestHandler()
@@ -43,8 +44,8 @@ const { Bridge } = require("./bridge");
 const NextServer = require("next/dist/server/next-server").default;
 const { builder } = require("@netlify/functions");
 // We shouldn't hard-code ".next" as the path, and should extract it from the next config
-const { config }  = require(process.cwd() + "/.next/required-server-files.json")
-
+const { config }  = require("../../../.next/required-server-files.json")
+const path = require("path");
 exports.handler = ${
   isODB ? `builder((${makeHandler().toString()})(config));` : `(${makeHandler().toString()})(config);`
 }

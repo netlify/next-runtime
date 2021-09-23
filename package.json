@@ -2,13 +2,12 @@
   "name": "@netlify/plugin-nextjs-experimental",
   "version": "0.0.1",
   "description": "Run Next.js seamlessly on Netlify",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "files": [
-    "src",
+    "lib/**/*",
     "manifest.yml"
   ],
   "scripts": {
-    "build": "next build test/sample",
     "build:demo": "next build demo",
     "dev:demo": "next dev demo",
     "format": "run-s format:check-fix:*",
@@ -19,12 +18,16 @@
     "format:check-fix:prettier": "run-e format:check:prettier format:fix:prettier",
     "format:check:prettier": "cross-env-shell prettier --check $npm_package_config_prettier",
     "format:fix:prettier": "cross-env-shell prettier --write $npm_package_config_prettier",
-    "prepublishOnly": "run-s prepublishOnly:*",
+    "prepublishOnly": "prepublishOnly:*",
+    "prepublishOnly:transpile": "npm-run-all -l -s clean build",
     "prepublishOnly:checkout": "git checkout main",
     "prepublishOnly:pull": "git pull",
     "prepublishOnly:install": "npm ci",
     "prepublishOnly:test": "npm test",
-    "test": "next build test/sample && jest"
+    "test": "next build test/sample && jest",
+    "prepare": "npm run build",
+    "clean": "rimraf lib",
+    "build": "unbuild"
   },
   "config": {
     "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{js,md,html}\" \"*.{js,md,html}\" \".*.{js,md,html}\"",
@@ -70,11 +73,14 @@
     "eslint-config-next": "^11.0.0",
     "husky": "^4.3.0",
     "jest": "^27.0.0",
+    "npm-run-all": "^4.1.5",
     "path-exists": "^4.0.0",
     "prettier": "^2.1.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "tmp-promise": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "tmp-promise": "^3.0.2",
+    "unbuild": "^0.4.2"
   },
   "husky": {
     "hooks": {
