@@ -1,14 +1,14 @@
-const getTemplate = ({ filePath, isISR }) => {
-  if (isISR) {
+const getTemplate = ({ filePath, isODB }) => {
+  if (isODB) {
     return `// Auto-generated file. DO NOT MODIFY.
-import { getHandlerFunction } from './getHandlerFunction'
-import { builder } from '@netlify/functions'
-export const handler = builder(getHandlerFunction(require("./nextPage/${filePath}")))
+const { getHandlerFunction } = require('./getHandlerFunction')
+const { builder } = require('@netlify/functions')
+exports.handler = builder(getHandlerFunction(require("./nextPage/${filePath}")))
 `
   }
   return `// Auto-generated file. DO NOT MODIFY.
-import { getHandlerFunction } from './getHandlerFunction'
-export const handler = getHandlerFunction(require("./nextPage/${filePath}"))
+const { getHandlerFunction } = require('./getHandlerFunction')
+exports.handler = getHandlerFunction(require("./nextPage/${filePath}"))
   `
 }
 

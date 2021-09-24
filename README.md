@@ -48,15 +48,9 @@ If your Next.js project was already deployed to Netlify pre-3.0.0, use the Netli
   package = "@netlify/plugin-nextjs"
 ```
 
-Note: the plugin does not run for statically exported Next.js sites (aka sites that use `next export`). To use the plugin, you should use the `[build]` config in the .toml snippet above. Be sure to exclude `next export` from your build script.
-
- You can also add context-specific properties and environment variables to your `netlify.toml`. Read more about [deploy contexts](https://docs.netlify.com/configure-builds/file-based-configuration/#deploy-contexts) in our docs. For example:
-
-```toml
-[context.production.environment]
-NEXT_SERVERLESS = "true"
-NODE_ENV = "production"
-```
+Note: the plugin does not run for statically exported Next.js sites (aka sites that use `next export`). To use the plugin, you should use the `[build]` config in the .toml snippet above. Be sure to exclude `next export` from your build script. 
+The plugin will attempt to detect if the site uses static export or Storybook, and will not run for either. If you want to disable the auto-detection, you can set the `NEXT_PLUGIN_FORCE_RUN` environment variable to `true` or `false`. 
+Setting it to `true` or `1` will mean the plugin always runs, and setting it to `false` or `0` will mean it never runs. If unset, auto-detection will be used. This variable should be set in the Netlify UI or in the `netlify.toml` file.
 
 2\. From your project's base directory, use `npm`, `yarn`, or any other Node.js package manager to add this plugin to `dependencies` in `package.json`.
 

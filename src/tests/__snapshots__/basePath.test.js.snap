@@ -3,22 +3,26 @@
 exports[`Routing creates Netlify redirects 1`] = `
 "# Next-on-Netlify Redirects
 /  /foo  301!
+/_next/data/%BUILD_ID%/404.json  /.netlify/functions/next_404  200!  Cookie=__prerender_bypass,__next_preview_data
 /_next/data/%BUILD_ID%/getServerSideProps/static.json  /.netlify/functions/next_getServerSideProps_static  200
 /_next/data/%BUILD_ID%/getStaticProps/1.json  /.netlify/functions/next_getStaticProps_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /_next/data/%BUILD_ID%/getStaticProps/2.json  /.netlify/functions/next_getStaticProps_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /_next/data/%BUILD_ID%/getStaticProps/static.json  /.netlify/functions/next_getStaticProps_static  200!  Cookie=__prerender_bypass,__next_preview_data
 /_next/data/%BUILD_ID%/getStaticProps/with-revalidate.json  /.netlify/functions/next_getStaticProps_withrevalidate  200
-/_next/data/%BUILD_ID%/getStaticProps/withFallback/3.json  /.netlify/functions/next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
-/_next/data/%BUILD_ID%/getStaticProps/withFallback/4.json  /.netlify/functions/next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
-/_next/data/%BUILD_ID%/getStaticProps/withFallback/my/path/1.json  /.netlify/functions/next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
-/_next/data/%BUILD_ID%/getStaticProps/withFallback/my/path/2.json  /.netlify/functions/next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
-/_next/data/%BUILD_ID%/getStaticProps/withFallbackBlocking/3.json  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
-/_next/data/%BUILD_ID%/getStaticProps/withFallbackBlocking/4.json  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/_next/data/%BUILD_ID%/getStaticProps/withFallback/3.json  /.netlify/functions/preview-next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/_next/data/%BUILD_ID%/getStaticProps/withFallback/4.json  /.netlify/functions/preview-next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/_next/data/%BUILD_ID%/getStaticProps/withFallback/my/path/1.json  /.netlify/functions/preview-next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
+/_next/data/%BUILD_ID%/getStaticProps/withFallback/my/path/2.json  /.netlify/functions/preview-next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
+/_next/data/%BUILD_ID%/getStaticProps/withFallbackBlocking/3.json  /.netlify/functions/preview-next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/_next/data/%BUILD_ID%/getStaticProps/withFallbackBlocking/4.json  /.netlify/functions/preview-next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /_next/data/%BUILD_ID%/getStaticProps/withRevalidate/1.json  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
 /_next/data/%BUILD_ID%/getStaticProps/withRevalidate/2.json  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
+/_next/data/%BUILD_ID%/getStaticProps/withRevalidate/withFallback/1.json  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/_next/data/%BUILD_ID%/getStaticProps/withRevalidate/withFallback/2.json  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /api/hello-background  /foo/api/hello-background  301!
 /api/static  /foo/api/static  301!
 /foo  /.netlify/functions/next_index  200
+/foo/404  /.netlify/functions/next_404  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/404  /404  200
 /foo/_next/*  /_next/:splat  301!
 /foo/api/hello-background  /.netlify/functions/next_api_hello-background  200
@@ -31,20 +35,24 @@ exports[`Routing creates Netlify redirects 1`] = `
 /foo/getStaticProps/static  /.netlify/functions/next_getStaticProps_static  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/static  /getStaticProps/static  200
 /foo/getStaticProps/with-revalidate  /.netlify/functions/next_getStaticProps_withrevalidate  200
-/foo/getStaticProps/withFallback/3  /.netlify/functions/next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/3  /.netlify/functions/preview-next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/withFallback/3  /getStaticProps/withFallback/3  200
-/foo/getStaticProps/withFallback/4  /.netlify/functions/next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/4  /.netlify/functions/preview-next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/withFallback/4  /getStaticProps/withFallback/4  200
-/foo/getStaticProps/withFallback/my/path/1  /.netlify/functions/next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/my/path/1  /.netlify/functions/preview-next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/withFallback/my/path/1  /getStaticProps/withFallback/my/path/1  200
-/foo/getStaticProps/withFallback/my/path/2  /.netlify/functions/next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallback/my/path/2  /.netlify/functions/preview-next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/withFallback/my/path/2  /getStaticProps/withFallback/my/path/2  200
-/foo/getStaticProps/withFallbackBlocking/3  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallbackBlocking/3  /.netlify/functions/preview-next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/withFallbackBlocking/3  /getStaticProps/withFallbackBlocking/3  200
-/foo/getStaticProps/withFallbackBlocking/4  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withFallbackBlocking/4  /.netlify/functions/preview-next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/withFallbackBlocking/4  /getStaticProps/withFallbackBlocking/4  200
 /foo/getStaticProps/withRevalidate/1  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
 /foo/getStaticProps/withRevalidate/2  /.netlify/functions/next_getStaticProps_withRevalidate_id  200
+/foo/getStaticProps/withRevalidate/withFallback/1  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withRevalidate/withFallback/1  /getStaticProps/withRevalidate/withFallback/1  200
+/foo/getStaticProps/withRevalidate/withFallback/2  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
+/foo/getStaticProps/withRevalidate/withFallback/2  /getStaticProps/withRevalidate/withFallback/2  200
 /foo/static  /static  200
 /getServerSideProps/static  /foo/getServerSideProps/static  301!
 /getStaticProps/with-revalidate  /foo/getStaticProps/with-revalidate  301!
@@ -65,9 +73,13 @@ exports[`Routing creates Netlify redirects 1`] = `
 /foo/getServerSideProps/all  /.netlify/functions/next_getServerSideProps_all_slug  200
 /foo/getServerSideProps/all/*  /.netlify/functions/next_getServerSideProps_all_slug  200
 /foo/getServerSideProps/:id  /.netlify/functions/next_getServerSideProps_id  200
+/foo/getStaticProps/withFallback/:id  /.netlify/functions/preview-next_getStaticProps_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/withFallback/:id  /.netlify/functions/next_getStaticProps_withFallback_id  200
+/foo/getStaticProps/withFallback/:slug/*  /.netlify/functions/preview-next_getStaticProps_withFallback_slug  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/withFallback/:slug/*  /.netlify/functions/next_getStaticProps_withFallback_slug  200
+/foo/getStaticProps/withFallbackBlocking/:id  /.netlify/functions/preview-next_getStaticProps_withFallbackBlocking_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/withFallbackBlocking/:id  /.netlify/functions/next_getStaticProps_withFallbackBlocking_id  200
+/foo/getStaticProps/withRevalidate/withFallback/:id  /.netlify/functions/preview-next_getStaticProps_withRevalidate_withFallback_id  200!  Cookie=__prerender_bypass,__next_preview_data
 /foo/getStaticProps/withRevalidate/withFallback/:id  /.netlify/functions/next_getStaticProps_withRevalidate_withFallback_id  200
 /foo/shows/:id  /.netlify/functions/next_shows_id  200
 /foo/shows/:params/*  /.netlify/functions/next_shows_params  200

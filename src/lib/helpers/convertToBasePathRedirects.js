@@ -34,6 +34,13 @@ const convertToBasePathRedirects = ({ basePath, nextRedirects }) => {
         },
       ]
       basePathRedirects.push(...indexRedirects)
+    } else if (r.specialPreviewMode) {
+      basePathRedirects.push({
+        route: `${basePath}${r.route}`,
+        target: r.target,
+        force: true,
+        conditions: r.conditions,
+      })
     } else if (!r.route.includes('_next/') && r.target.includes('/.netlify/functions') && r.conditions) {
       // If this is a preview mode redirect, we need different behavior than other function targets below
       // because the conditions prevent us from doing a route -> basePath/route force
