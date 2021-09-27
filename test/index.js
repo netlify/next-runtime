@@ -245,7 +245,7 @@ describe('preBuild()', () => {
     ).rejects.toThrow(`You set your publish directory to "${wrongPublishDir}". Your publish directory should be set to your distDir (defaults to .next or is configured in your next.config.js). If your site is rooted in a subdirectory, your publish directory should be {yourSiteRoot}/{distDir}.`)
   })
 
-  test('fail build if no  publish dir', async () => {
+  test('fail build if no publish dir', async () => {
     expect(
       plugin.onPreBuild({
         netlifyConfig: { build: { command: 'npm run build', publish: null } },
@@ -256,20 +256,21 @@ describe('preBuild()', () => {
     ).rejects.toThrow('You set your publish directory to "null". Your publish directory should be set to your distDir (defaults to .next or is configured in your next.config.js). If your site is rooted in a subdirectory, your publish directory should be {yourSiteRoot}/{distDir}.')
   })
 
-  // test('restores cache with right paths', async () => {
-  //   await useFixture('dist_dir_next_config')
+  test('restores cache with right paths', async () => {
+    await useFixture('dist_dir_next_config')
+    netlifyConfig.build.publish = path.join(process.cwd(), 'build')
 
-  //   const restore = jest.fn()
+    const restore = jest.fn()
 
-  //   await plugin.onPreBuild({
-  //     netlifyConfig,
-  //     packageJson: DUMMY_PACKAGE_JSON,
-  //     utils: { ...utils, cache: { restore } },
-  //     constants: { FUNCTIONS_SRC: 'out_functions' },
-  //   })
+    await plugin.onPreBuild({
+      netlifyConfig,
+      packageJson,
+      utils: { ...utils, cache: { restore } },
+      constants: { FUNCTIONS_SRC: 'out_functions' },
+    })
 
-  //   expect(restore).toHaveBeenCalledWith(path.resolve('build/cache'))
-  // })
+    expect(restore).toHaveBeenCalledWith(path.resolve('build/cache'))
+  })
 })
 
 describe('onBuild()', () => {
@@ -322,22 +323,22 @@ describe('onBuild()', () => {
 })
 
 describe('onPostBuild', () => {
-  // test('saves cache with right paths', async () => {
-  //   await useFixture('dist_dir_next_config')
+  test('saves cache with right paths', async () => {
+    await useFixture('dist_dir_next_config')
 
-  //   const save = jest.fn()
+    const save = jest.fn()
 
-  //   await plugin.onPostBuild({
-  //     netlifyConfig,
-  //     packageJson: DUMMY_PACKAGE_JSON,
-  //     utils: { ...utils, cache: { save } },
-  //     constants: { FUNCTIONS_SRC: 'out_functions' },
-  //   })
+    await plugin.onPostBuild({
+      netlifyConfig,
+      packageJson,
+      utils: { ...utils, cache: { save } },
+      constants: { FUNCTIONS_SRC: 'out_functions' },
+    })
 
-  //   expect(save).toHaveBeenCalledWith(path.resolve('build/cache'), {
-  //     digests: [path.resolve('build/build-manifest.json')],
-  //   })
-  // })
+    expect(save).toHaveBeenCalledWith(path.resolve('build/cache'), {
+      digests: [path.resolve('build/build-manifest.json')],
+    })
+  })
 })
 
 describe('script parser', () => {
