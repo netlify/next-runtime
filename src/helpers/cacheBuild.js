@@ -1,9 +1,6 @@
 const path = require('path')
 
-const DEFAULT_DIST_DIR = '.next'
-
-// Account for possible custom distDir
-const getPath = (siteRoot, distDir, source) => path.join(siteRoot, distDir || DEFAULT_DIST_DIR, source)
+const getPath = (siteRoot, distDir, source) => path.join(siteRoot, distDir, source)
 
 const restoreCache = async ({ cache, distDir, siteRoot }) => {
   const cacheDir = getPath(siteRoot, distDir, 'cache')
