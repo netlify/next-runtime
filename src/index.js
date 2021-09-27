@@ -1,6 +1,7 @@
 // @ts-check
 const path = require('path')
 
+const { restoreCache, saveCache } = require('./helpers/cacheBuild')
 const copyNextDist = require('./helpers/copyNextDist')
 const generateFunctions = require('./helpers/generateFunctions')
 const getNextConfig = require('./helpers/getNextConfig')
@@ -20,6 +21,7 @@ module.exports = {
     packageJson,
     utils: {
       build: { failBuild },
+      cache,
     },
   }) {
     if (shouldSkipPlugin({ netlifyConfig, packageJson, failBuild })) {
@@ -36,6 +38,8 @@ module.exports = {
     verifyBuildTarget(target)
 
     setIncludedFiles({ netlifyConfig, distDir })
+
+    await restoreCache({ cache, distDir, siteRoot })
   },
 
   async onBuild({
@@ -67,5 +71,17 @@ module.exports = {
     if (siteRoot !== process.cwd()) {
       copyNextDist(siteRoot)
     }
+  },
+
+  async onPostBuild({
+    netlifyConfig,
+    utils: {
+      build: { failBuild },
+      cache,
+    },
+  }) {
+    const siteRoot = getNextRoot({ netlifyConfig })
+    const { distDir } = await getNextConfig(failBuild, siteRoot)
+    await saveCache({ cache, distDir, siteRoot })
   },
 }
