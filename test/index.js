@@ -73,6 +73,7 @@ beforeEach(async () => {
   const restoreCwd = changeCwd(tmpPath)
   Object.assign(this, { cleanup, restoreCwd })
   netlifyConfig.build.publish = path.join(process.cwd(), '.next')
+  netlifyConfig.redirects = []
   await useFixture('serverless_next_config')
 })
 

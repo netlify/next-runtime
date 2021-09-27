@@ -1,13 +1,12 @@
 // @ts-check
 const path = require('path')
 
-const { satisfies } = require('semver')
-
 const copyNextDist = require('./helpers/copyNextDist')
 const generateFunctions = require('./helpers/generateFunctions')
 const getNextConfig = require('./helpers/getNextConfig')
 const getNextRoot = require('./helpers/getNextRoot')
 const setIncludedFiles = require('./helpers/setIncludedFiles')
+const setupImageFunction = require('./helpers/setupImageFunction')
 const shouldSkipPlugin = require('./helpers/shouldSkipPlugin')
 const verifyBuildTarget = require('./helpers/verifyBuildTarget')
 const verifyNetlifyBuildVersion = require('./helpers/verifyNetlifyBuildVersion')
@@ -54,6 +53,10 @@ module.exports = {
     await generateFunctions(constants)
 
     const siteRoot = getNextRoot({ netlifyConfig })
+
+    const { images } = await getNextConfig(failBuild, siteRoot)
+
+    await setupImageFunction({ constants, imageconfig: images, netlifyConfig })
 
     await writeRedirects({
       siteRoot,
