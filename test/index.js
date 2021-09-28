@@ -302,10 +302,14 @@ describe('onBuild()', () => {
       utils,
     })
 
-    const redirects = netlifyConfig.redirects.reduce((acc, curr) => {
+    let redirects = netlifyConfig.redirects.reduce((acc, curr) => {
       const { from, to, status } = curr
       return acc + `${from} ${to} ${status}\n`
     }, '')
+
+    // Replace non-persistent build ID with placeholder
+    redirects = redirects.replace(/\/_next\/data\/[^\/]+\//g, '/_next/data/%BUILD_ID%/')
+
     expect(redirects).toMatchSnapshot()
   })
 
