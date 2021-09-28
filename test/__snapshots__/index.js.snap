@@ -3,6 +3,14 @@
 exports[`onBuild() writes correct redirects to netlifyConfig 1`] = `
 "/_next/image* /_ipx/w_:width,q_:quality/:url 301
 /_ipx/* /.netlify/functions/_ipx 200
+/_next/data/%BUILD_ID%/getStaticProps/withFallback/:id.json /.netlify/functions/___netlify-odb-handler 200
+/_next/data/%BUILD_ID%/getStaticProps/withFallback/:slug/* /.netlify/functions/___netlify-odb-handler 200
+/_next/data/%BUILD_ID%/getStaticProps/withFallbackBlocking/:id.json /.netlify/functions/___netlify-odb-handler 200
+/_next/data/%BUILD_ID%/getStaticProps/withRevalidate/withFallback/:id.json /.netlify/functions/___netlify-odb-handler 200
+/getStaticProps/withFallback/:id /.netlify/functions/___netlify-odb-handler 200
+/getStaticProps/withFallback/:slug/* /.netlify/functions/___netlify-odb-handler 200
+/getStaticProps/withFallbackBlocking/:id /.netlify/functions/___netlify-odb-handler 200
+/getStaticProps/withRevalidate/withFallback/:id /.netlify/functions/___netlify-odb-handler 200
 /_next/static/* /static/:splat 200
 /* /.netlify/functions/___netlify-handler 200
 "

@@ -13,7 +13,7 @@ const getNextConfig = require('../src/helpers/getNextConfig')
 const usesBuildCommand = require('../src/helpers/usesBuildCommand')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
-const SAMPLE_PROJECT_DIR = `${__dirname}/sample`
+const SAMPLE_PROJECT_DIR = `${__dirname}/../demo`
 
 const utils = {
   build: {
@@ -302,10 +302,14 @@ describe('onBuild()', () => {
       utils,
     })
 
-    const redirects = netlifyConfig.redirects.reduce((acc, curr) => {
+    let redirects = netlifyConfig.redirects.reduce((acc, curr) => {
       const { from, to, status } = curr
       return acc + `${from} ${to} ${status}\n`
     }, '')
+
+    // Replace non-persistent build ID with placeholder
+    redirects = redirects.replace(/\/_next\/data\/[^\/]+\//g, '/_next/data/%BUILD_ID%/')
+
     expect(redirects).toMatchSnapshot()
   })
 
