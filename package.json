@@ -24,8 +24,8 @@
     "prepublishOnly:pull": "git pull",
     "prepublishOnly:install": "npm ci",
     "prepublishOnly:test": "npm test",
-    "test": "next build demo && jest",
-    "test:withoutbuild": "jest",
+    "test": "run-s build:demo test:jest",
+    "test:jest": "jest",
     "prepare": "npm run build",
     "clean": "rimraf lib",
     "build": "unbuild"
