@@ -13,7 +13,7 @@ const getNextConfig = require('../src/helpers/getNextConfig')
 const usesBuildCommand = require('../src/helpers/usesBuildCommand')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
-const SAMPLE_PROJECT_DIR = `${__dirname}/sample`
+const SAMPLE_PROJECT_DIR = `${__dirname}/../demo`
 
 const utils = {
   build: {
