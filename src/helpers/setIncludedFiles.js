@@ -11,6 +11,7 @@ const setIncludedFiles = ({ netlifyConfig, distDir }) => {
     }
     netlifyConfig.functions[functionName].included_files.push(
       `${distDir}/server/**`,
+      `${distDir}/serverless/**`,
       `${distDir}/*.json`,
       `${distDir}/BUILD_ID`,
     )

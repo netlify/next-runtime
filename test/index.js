@@ -12,6 +12,8 @@ const getNextConfig = require('../src/helpers/getNextConfig')
 // const resolveNextModule = require('../src/helpers/resolveNextModule')
 const usesBuildCommand = require('../src/helpers/usesBuildCommand')
 
+const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../src/constants')
+
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demo`
 
@@ -35,6 +37,9 @@ const changeCwd = function (cwd) {
     process.chdir(originalCwd)
   }
 }
+
+const prebuildHasRun = (netlifyConfig) =>
+  netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files.some((file) => file.includes('BUILD_ID'))
 
 // Move .next from sample project to current directory
 const moveNextDist = async function () {
@@ -74,6 +79,8 @@ beforeEach(async () => {
   Object.assign(this, { cleanup, restoreCwd })
   netlifyConfig.build.publish = path.join(process.cwd(), '.next')
   netlifyConfig.redirects = []
+  netlifyConfig.functions[HANDLER_FUNCTION_NAME] && (netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files = [])
+  netlifyConfig.functions[ODB_FUNCTION_NAME] && (netlifyConfig.functions[ODB_FUNCTION_NAME].included_files = [])
   await useFixture('serverless_next_config')
 })
 
@@ -106,7 +113,7 @@ describe('preBuild()', () => {
       utils,
       constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '15.12.0' },
     })
-    expect(process.env.NEXT_PRIVATE_TARGET).toBe('server')
+    expect(prebuildHasRun(netlifyConfig)).toBeTruthy()
   })
 
   test('do nothing if the app has no build command', async () => {
@@ -117,7 +124,7 @@ describe('preBuild()', () => {
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
-    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
+    expect(prebuildHasRun(netlifyConfig)).toBeFalsy()
   })
 
   test('do nothing if the app has static html export in npm script', async () => {
@@ -128,7 +135,7 @@ describe('preBuild()', () => {
       constants: { FUNCTIONS_SRC: 'out_functions' },
     })
 
-    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
+    expect(prebuildHasRun(netlifyConfig)).toBeFalsy()
   })
 
   test('run plugin if `NEXT_PLUGIN_FORCE_RUN` is set to true, even if next export is in script', async () => {
@@ -139,7 +146,7 @@ describe('preBuild()', () => {
       utils,
       constants: {},
     })
-    expect(process.env.NEXT_PRIVATE_TARGET).toBe('server')
+    expect(prebuildHasRun(netlifyConfig)).toBeTruthy()
     process.env.NEXT_PLUGIN_FORCE_RUN = undefined
   })
 
@@ -151,7 +158,7 @@ describe('preBuild()', () => {
       utils,
       constants: {},
     })
-    expect(process.env.NEXT_PRIVATE_TARGET).toBe('server')
+    expect(prebuildHasRun(netlifyConfig)).toBeTruthy()
     process.env.NEXT_PLUGIN_FORCE_RUN = undefined
   })
 
@@ -163,7 +170,7 @@ describe('preBuild()', () => {
       utils,
       constants: {},
     })
-    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
+    expect(prebuildHasRun(netlifyConfig)).toBeFalsy()
     process.env.NEXT_PLUGIN_FORCE_RUN = undefined
   })
 
@@ -174,7 +181,7 @@ describe('preBuild()', () => {
       utils,
       constants: {},
     })
-    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
+    expect(prebuildHasRun(netlifyConfig)).toBeFalsy()
   })
 
   test('do nothing if build command calls a script that includes "build-storybook"', async () => {
@@ -184,7 +191,7 @@ describe('preBuild()', () => {
       utils,
       constants: {},
     })
-    expect(process.env.NEXT_PRIVATE_TARGET).toBeUndefined()
+    expect(prebuildHasRun(netlifyConfig)).toBeFalsy()
   })
 
   test('run plugin if app has build-storybook in an unused script', async () => {
@@ -194,7 +201,7 @@ describe('preBuild()', () => {
       utils,
       constants: {},
     })
-    expect(process.env.NEXT_PRIVATE_TARGET).toBe('server')
+    expect(prebuildHasRun(netlifyConfig)).toBeTruthy()
   })
 
   test('fail build if the app has no package.json', async () => {
@@ -229,7 +236,7 @@ describe('preBuild()', () => {
       utils,
     })
 
-    expect(process.env.NEXT_PRIVATE_TARGET).toBe('server')
+    expect(prebuildHasRun(netlifyConfig)).toBeTruthy()
   })
 
   test('fail build if wrong custom publish dir', async () => {
@@ -241,8 +248,10 @@ describe('preBuild()', () => {
         packageJson,
         constants: {},
         utils,
-      })
-    ).rejects.toThrow(`You set your publish directory to "${wrongPublishDir}". Your publish directory should be set to your distDir (defaults to .next or is configured in your next.config.js). If your site is rooted in a subdirectory, your publish directory should be {yourSiteRoot}/{distDir}.`)
+      }),
+    ).rejects.toThrow(
+      `You set your publish directory to "${wrongPublishDir}". Your publish directory should be set to your distDir (defaults to .next or is configured in your next.config.js). If your site is rooted in a subdirectory, your publish directory should be {yourSiteRoot}/{distDir}.`,
+    )
   })
 
   test('fail build if no publish dir', async () => {
@@ -252,8 +261,10 @@ describe('preBuild()', () => {
         packageJson,
         constants: {},
         utils,
-      })
-    ).rejects.toThrow('You set your publish directory to "null". Your publish directory should be set to your distDir (defaults to .next or is configured in your next.config.js). If your site is rooted in a subdirectory, your publish directory should be {yourSiteRoot}/{distDir}.')
+      }),
+    ).rejects.toThrow(
+      'You set your publish directory to "null". Your publish directory should be set to your distDir (defaults to .next or is configured in your next.config.js). If your site is rooted in a subdirectory, your publish directory should be {yourSiteRoot}/{distDir}.',
+    )
   })
 
   test('restores cache with right paths', async () => {
@@ -286,9 +297,13 @@ describe('onBuild()', () => {
       utils,
     })
 
-    expect(await pathExists(path.resolve(`.netlify/internal-functions/___netlify-handler/___netlify-handler.js`))).toBeTruthy()
+    expect(
+      await pathExists(path.resolve(`.netlify/internal-functions/___netlify-handler/___netlify-handler.js`)),
+    ).toBeTruthy()
     expect(await pathExists(path.resolve(`.netlify/internal-functions/___netlify-handler/bridge.js`))).toBeTruthy()
-    expect(await pathExists(path.resolve(`.netlify/internal-functions/___netlify-odb-handler/___netlify-odb-handler.js`))).toBeTruthy()
+    expect(
+      await pathExists(path.resolve(`.netlify/internal-functions/___netlify-odb-handler/___netlify-odb-handler.js`)),
+    ).toBeTruthy()
     expect(await pathExists(path.resolve(`.netlify/internal-functions/___netlify-odb-handler/bridge.js`))).toBeTruthy()
   })
 
