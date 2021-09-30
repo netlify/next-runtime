@@ -22,7 +22,7 @@
     "publish:pull": "git pull",
     "publish:install": "npm ci",
     "publish:test": "npm test",
-    "test": "run-s build:demo test:jest",
+    "test": "run-s build build:demo test:jest",
     "test:jest": "jest",
     "prepare": "npm run build",
     "clean": "rimraf lib",

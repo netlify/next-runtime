@@ -58,12 +58,13 @@ module.exports = {
 
     const siteRoot = getNextRoot({ netlifyConfig })
 
-    const { images } = await getNextConfig(failBuild, siteRoot)
+    const { distDir, images } = await getNextConfig(failBuild, siteRoot)
 
     await setupImageFunction({ constants, imageconfig: images, netlifyConfig })
 
     await writeRedirects({
       siteRoot,
+      distDir,
       netlifyConfig,
     })
 

@@ -27,10 +27,31 @@ const makeHandler =
     bridge.listen()
 
     return async (event, context) => {
-      const result = await bridge.launcher(event, context)
+      const { headers, ...result } = await bridge.launcher(event, context)
       /** @type import("@netlify/functions").HandlerResponse */
+
+      // Convert all headers to multiValueHeaders
+      const multiValueHeaders = {}
+      for (const key of Object.keys(headers)) {
+        if (Array.isArray(headers[key])) {
+          multiValueHeaders[key] = headers[key]
+        } else {
+          multiValueHeaders[key] = [headers[key]]
+        }
+      }
+
+      if (
+        multiValueHeaders['set-cookie'] &&
+        multiValueHeaders['set-cookie'][0] &&
+        multiValueHeaders['set-cookie'][0].includes('__prerender_bypass')
+      ) {
+        delete multiValueHeaders.etag
+        multiValueHeaders['cache-control'] = ['no-cache']
+      }
+
       return {
         ...result,
+        multiValueHeaders,
         isBase64Encoded: result.encoding === 'base64',
       }
     }

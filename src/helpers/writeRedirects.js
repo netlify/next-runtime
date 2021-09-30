@@ -45,38 +45,39 @@ const getNetlifyRoutes = (nextRoute) => {
   return netlifyRoutes
 }
 
-const writeRedirects = async ({ siteRoot = process.cwd(), netlifyConfig }) => {
-  const { dynamicRoutes } = await readJSON(path.join(siteRoot, '.next', 'prerender-manifest.json'))
+const writeRedirects = async ({ siteRoot = process.cwd(), distDir, netlifyConfig }) => {
+  const { dynamicRoutes } = await readJSON(path.join(siteRoot, distDir, 'prerender-manifest.json'))
 
   const redirects = []
-  Object.entries(dynamicRoutes).forEach(([route, { dataRoute, fallback }]) => {
-    // We want to add redirects if the fallback is "null" or true
+
+  const dynamicRouteEntries = Object.entries(dynamicRoutes)
+  dynamicRouteEntries.sort((a, b) => a[0].localeCompare(b[0]))
+
+  dynamicRouteEntries.forEach(([route, { dataRoute, fallback }]) => {
+    // Add redirects if fallback is "null" (aka blocking) or true/a string
     if (fallback === false) {
       return
     }
     redirects.push(...getNetlifyRoutes(route), ...getNetlifyRoutes(dataRoute))
   })
-  redirects.sort()
 
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
+    { from: '/_next/static/*', to: '/static/:splat', status: 200 },
+    {
+      from: '/*',
+      to: HANDLER_FUNCTION_PATH,
+      status: 200,
+      force: true,
+      conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
+    },
     ...redirects.map((redirect) => ({
       from: redirect,
       to: ODB_FUNCTION_PATH,
       status: 200,
     })),
-    { from: '/_next/static/*', to: '/static/:splat', status: 200 },
     { from: '/*', to: HANDLER_FUNCTION_PATH, status: 200 },
   )
-  // If we want to use the Netlify functions handler we'd need to do it like this,
-  // as `ntl dev` doesn't support mutating redirects at the moment. Maybe this should be an env var, to make testing easier?
-  // const odbRedirects = `${redirects
-  //   .map((redir) => `${redir} ${ODB_FUNCTION_PATH} 200`)
-  //   .join("\n")}
-  // /_next/static/* /static/:splat 200
-  // /* ${HANDLER_FUNCTION_PATH} 200
-  //     `;
-  // await writeFile(path.join(siteRoot, publishDir, "_redirects"), odbRedirects);
 }
 
 module.exports = writeRedirects
