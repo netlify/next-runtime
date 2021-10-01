@@ -1,98 +1,72 @@
 // @ts-check
-const path = require('path')
+
+const { join } = require('path')
+
+const { copy } = require('fs-extra')
 
 const { ODB_FUNCTION_NAME, HANDLER_FUNCTION_NAME } = require('./constants')
-const { restoreCache, saveCache } = require('./helpers/cacheBuild')
-const copyNextDist = require('./helpers/copyNextDist')
-const generateFunctions = require('./helpers/generateFunctions')
-const getNextConfig = require('./helpers/getNextConfig')
-const getNextRoot = require('./helpers/getNextRoot')
-const setIncludedFiles = require('./helpers/setIncludedFiles')
-const setupImageFunction = require('./helpers/setupImageFunction')
-const shouldSkipPlugin = require('./helpers/shouldSkipPlugin')
-const verifyBuildTarget = require('./helpers/verifyBuildTarget')
-const verifyNetlifyBuildVersion = require('./helpers/verifyNetlifyBuildVersion')
-const verifyPublishDir = require('./helpers/verifyPublishDir')
-const writeRedirects = require('./helpers/writeRedirects')
+const { restoreCache, saveCache } = require('./helpers/cache')
+const { getNextConfig, setIncludedFiles, generateRedirects } = require('./helpers/config')
+const { generateFunctions, setupImageFunction } = require('./helpers/functions')
+const {
+  verifyNetlifyBuildVersion,
+  checkNextSiteHasBuilt,
+  verifyBuildTarget,
+  checkForRootPublish,
+} = require('./helpers/verification')
 
 module.exports = {
   async onPreBuild({
     constants,
     netlifyConfig,
-    packageJson,
     utils: {
       build: { failBuild },
       cache,
     },
   }) {
-    if (shouldSkipPlugin({ netlifyConfig, packageJson, failBuild })) {
-      return
-    }
-
+    const { publish } = netlifyConfig.build
+    checkForRootPublish({ publish, failBuild })
     verifyNetlifyBuildVersion({ failBuild, ...constants })
 
-    const siteRoot = getNextRoot({ netlifyConfig })
-    const { distDir, target } = await getNextConfig(failBuild, siteRoot)
-
-    verifyPublishDir({ netlifyConfig, siteRoot, distDir, failBuild })
-
-    verifyBuildTarget(target)
-
-    setIncludedFiles({ netlifyConfig, distDir })
-
-    await restoreCache({ cache, distDir, siteRoot })
+    await restoreCache({ cache, publish })
   },
 
   async onBuild({
     constants,
     netlifyConfig,
-    packageJson,
     utils: {
       build: { failBuild },
     },
   }) {
-    if (shouldSkipPlugin({ netlifyConfig, packageJson, failBuild })) {
-      return
-    }
+    const { publish } = netlifyConfig.build
 
-    await generateFunctions(constants)
+    checkNextSiteHasBuilt({ publish, failBuild })
 
-    const siteRoot = getNextRoot({ netlifyConfig })
+    const { images, target, appDir } = await getNextConfig({ publish, failBuild })
 
-    const { distDir, images } = await getNextConfig(failBuild, siteRoot)
+    verifyBuildTarget(target)
+
+    setIncludedFiles({ netlifyConfig, publish })
+
+    await generateFunctions(constants, appDir)
+
+    await copy(`${appDir}/public`, `${publish}/`)
 
     await setupImageFunction({ constants, imageconfig: images, netlifyConfig })
 
-    await writeRedirects({
-      siteRoot,
-      distDir,
+    await generateRedirects({
       netlifyConfig,
     })
-
-    // Some type of monorepo setup
-    if (siteRoot !== process.cwd()) {
-      copyNextDist(siteRoot)
-    }
   },
 
-  async onPostBuild({
-    netlifyConfig,
-    constants: { FUNCTIONS_DIST = '.netlify/functions' },
-    utils: {
-      build: { failBuild },
-      run,
-      cache,
-    },
-  }) {
+  async onPostBuild({ netlifyConfig, constants: { FUNCTIONS_DIST = '.netlify/functions' }, utils: { run, cache } }) {
     // Remove swc binaries from the zipfile if present. Yes, it's a hack, but it drops >10MB from the zipfile when bundling with zip-it-and-ship-it
     for (const func of [ODB_FUNCTION_NAME, HANDLER_FUNCTION_NAME]) {
-      await run(`zip`, [`-d`, path.join(FUNCTIONS_DIST, `${func}.zip`), '*node_modules/@next/swc-*']).catch(() => {
+      await run(`zip`, [`-d`, join(FUNCTIONS_DIST, `${func}.zip`), '*node_modules/@next/swc-*']).catch(() => {
         // This throws if there's none of these in the zipfile
       })
     }
 
-    const siteRoot = getNextRoot({ netlifyConfig })
-    const { distDir } = await getNextConfig(failBuild, siteRoot)
-    await saveCache({ cache, distDir, siteRoot })
+    return saveCache({ cache, publish: netlifyConfig.build.publish })
   },
 }

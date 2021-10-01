@@ -1,10 +1,16 @@
 // @ts-check
-const path = require('path')
+const { join } = require('path')
 
-const { readJSON, writeFile } = require('fs-extra')
+const { readJSON } = require('fs-extra')
 
-const ODB_FUNCTION_PATH = '/.netlify/functions/___netlify-odb-handler'
-const HANDLER_FUNCTION_PATH = '/.netlify/functions/___netlify-handler'
+const defaultFailBuild = (message, { error }) => {
+  throw new Error(`${message}\n${error && error.stack}`)
+}
+
+const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, HIDDEN_PATHS } = require('../constants')
+
+const ODB_FUNCTION_PATH = `/.netlify/functions/${ODB_FUNCTION_NAME}`
+const HANDLER_FUNCTION_PATH = `/.netlify/functions/${HANDLER_FUNCTION_NAME}`
 
 const CATCH_ALL_REGEX = /\/\[\.{3}(.*)](.json)?$/
 const OPTIONAL_CATCH_ALL_REGEX = /\/\[{2}\.{3}(.*)]{2}(.json)?$/
@@ -45,10 +51,19 @@ const getNetlifyRoutes = (nextRoute) => {
   return netlifyRoutes
 }
 
-const writeRedirects = async ({ siteRoot = process.cwd(), distDir, netlifyConfig }) => {
-  const { dynamicRoutes } = await readJSON(path.join(siteRoot, distDir, 'prerender-manifest.json'))
+exports.generateRedirects = async ({ netlifyConfig }) => {
+  const { dynamicRoutes } = await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
 
   const redirects = []
+
+  netlifyConfig.redirects.push(
+    ...HIDDEN_PATHS.map((path) => ({
+      from: path,
+      to: '/404.html',
+      status: 404,
+      force: true,
+    })),
+  )
 
   const dynamicRouteEntries = Object.entries(dynamicRoutes)
   dynamicRouteEntries.sort((a, b) => a[0].localeCompare(b[0]))
@@ -80,4 +95,32 @@ const writeRedirects = async ({ siteRoot = process.cwd(), distDir, netlifyConfig
   )
 }
 
-module.exports = writeRedirects
+exports.getNextConfig = async function getNextConfig({ publish, failBuild = defaultFailBuild }) {
+  try {
+    const { config, appDir } = await readJSON(join(publish, 'required-server-files.json'))
+    if (!config) {
+      return failBuild('Error loading your Next config')
+    }
+    return { ...config, appDir }
+  } catch (error) {
+    return failBuild('Error loading your Next config', { error })
+  }
+}
+
+exports.setIncludedFiles = ({ netlifyConfig, publish }) => {
+  // Serverless functions need parts of build dist in runtime env
+  ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
+    if (!netlifyConfig.functions[functionName]) {
+      netlifyConfig.functions[functionName] = {}
+    }
+    if (!netlifyConfig.functions[functionName].included_files) {
+      netlifyConfig.functions[functionName].included_files = []
+    }
+    netlifyConfig.functions[functionName].included_files.push(
+      `${publish}/server/**`,
+      `${publish}/serverless/**`,
+      `${publish}/*.json`,
+      `${publish}/BUILD_ID`,
+    )
+  })
+}

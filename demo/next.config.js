@@ -1,5 +1,5 @@
 module.exports = {
-  generateBuildId: () => 'build',
+  generateBuildId: () => 'build-id',
   // Configurable site features to support:
   // i18n: {
   //   defaultLocale: 'en',

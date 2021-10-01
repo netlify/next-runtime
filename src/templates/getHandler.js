@@ -8,10 +8,10 @@ const NextServer = require('next/dist/server/next-server').default
 const makeHandler =
   () =>
   // We return a function and then call `toString()` on it to serialise it as the launcher function
-  (conf) => {
+  (conf, app) => {
     const nextServer = new NextServer({
       conf,
-      dir: path.resolve(__dirname, '../../..'),
+      dir: path.resolve(__dirname, app),
       customServer: false,
     })
     const requestHandler = nextServer.getRequestHandler()
@@ -57,18 +57,17 @@ const makeHandler =
     }
   }
 
-const getHandler = (isODB = false) => `
+const getHandler = ({ isODB = false, publishDir = '../../../.next', appDir = '../../..' }) => `
 const { Server } = require("http");
 // We copy the file here rather than requiring from the node module
 const { Bridge } = require("./bridge");
 // Specific to this Next version
 const NextServer = require("next/dist/server/next-server").default;
 const { builder } = require("@netlify/functions");
-// We shouldn't hard-code ".next" as the path, and should extract it from the next config
-const { config }  = require("../../../.next/required-server-files.json")
+const { config }  = require("${publishDir}/required-server-files.json")
 const path = require("path");
 exports.handler = ${
-  isODB ? `builder((${makeHandler().toString()})(config));` : `(${makeHandler().toString()})(config);`
+  isODB ? `builder((${makeHandler().toString()})(config));` : `(${makeHandler().toString()})(config, "${appDir}");`
 }
 `
 
