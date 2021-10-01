@@ -1,6 +1,7 @@
 // @ts-check
 const path = require('path')
 
+const { ODB_FUNCTION_NAME, HANDLER_FUNCTION_NAME } = require('./constants')
 const { restoreCache, saveCache } = require('./helpers/cacheBuild')
 const copyNextDist = require('./helpers/copyNextDist')
 const generateFunctions = require('./helpers/generateFunctions')
@@ -76,11 +77,20 @@ module.exports = {
 
   async onPostBuild({
     netlifyConfig,
+    constants: { FUNCTIONS_DIST = '.netlify/functions' },
     utils: {
       build: { failBuild },
+      run,
       cache,
     },
   }) {
+    // Remove swc binaries from the zipfile if present. Yes, it's a hack, but it drops >10MB from the zipfile when bundling with zip-it-and-ship-it
+    for (const func of [ODB_FUNCTION_NAME, HANDLER_FUNCTION_NAME]) {
+      await run(`zip`, [`-d`, path.join(FUNCTIONS_DIST, `${func}.zip`), '*node_modules/@next/swc-*']).catch(() => {
+        // This throws if there's none of these in the zipfile
+      })
+    }
+
     const siteRoot = getNextRoot({ netlifyConfig })
     const { distDir } = await getNextConfig(failBuild, siteRoot)
     await saveCache({ cache, distDir, siteRoot })

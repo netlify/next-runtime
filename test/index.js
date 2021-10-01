@@ -23,9 +23,10 @@ const utils = {
       throw new Error(message)
     },
   },
+  run: async () => void 0,
   cache: {
-    save() {},
-    restore() {},
+    save: jest.fn(),
+    restore: jest.fn(),
   },
 }
 
