@@ -26,7 +26,8 @@
     "test:jest": "jest",
     "prepare": "npm run build",
     "clean": "rimraf lib",
-    "build": "unbuild"
+    "build": "tsc",
+    "watch": "tsc --watch"
   },
   "config": {
     "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{js,md,html}\" \"*.{js,md,html}\" \".*.{js,md,html}\"",
@@ -73,7 +74,7 @@
     "react-dom": "^17.0.1",
     "rimraf": "^3.0.2",
     "tmp-promise": "^3.0.2",
-    "unbuild": "^0.4.2"
+    "typescript": "^4.3.4"
   },
   "husky": {
     "hooks": {
