@@ -119,6 +119,7 @@ exports.setIncludedFiles = ({ netlifyConfig, publish }) => {
     netlifyConfig.functions[functionName].included_files.push(
       `${publish}/server/**`,
       `${publish}/serverless/**`,
+      `${publish}/static/**`,
       `${publish}/*.json`,
       `${publish}/BUILD_ID`,
     )
