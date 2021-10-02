@@ -2,13 +2,24 @@ const { Server } = require('http')
 const path = require('path')
 
 const { Bridge } = require('@vercel/node/dist/bridge')
-// This path is specific to next@canary. In a live version we'd resolve various versions of next
-const NextServer = require('next/dist/server/next-server').default
 
 const makeHandler =
   () =>
   // We return a function and then call `toString()` on it to serialise it as the launcher function
   (conf, app) => {
+    let nextServerPath
+
+    try {
+      // next >= 11.0.1. Yay breaking changes in patch releases!
+      nextServerPath = require.resolve('next/dist/server/next-server')
+    } catch {
+      // next < 11.0.1
+      // eslint-disable-next-line node/no-missing-require
+      nextServerPath = require.resolve('next/dist/next-server/server/next-server')
+    }
+    // eslint-disable-next-line import/no-dynamic-require
+    const { default: NextServer } = require(nextServerPath)
+
     const nextServer = new NextServer({
       conf,
       dir: path.resolve(__dirname, app),
@@ -61,8 +72,6 @@ const getHandler = ({ isODB = false, publishDir = '../../../.next', appDir = '..
 const { Server } = require("http");
 // We copy the file here rather than requiring from the node module
 const { Bridge } = require("./bridge");
-// Specific to this Next version
-const NextServer = require("next/dist/server/next-server").default;
 const { builder } = require("@netlify/functions");
 const { config }  = require("${publishDir}/required-server-files.json")
 const path = require("path");
