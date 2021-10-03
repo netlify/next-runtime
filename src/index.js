@@ -6,7 +6,7 @@ const { copy } = require('fs-extra')
 
 const { ODB_FUNCTION_NAME, HANDLER_FUNCTION_NAME } = require('./constants')
 const { restoreCache, saveCache } = require('./helpers/cache')
-const { getNextConfig, setIncludedFiles, generateRedirects } = require('./helpers/config')
+const { getNextConfig, setIncludedFiles, generateRedirects, setBundler } = require('./helpers/config')
 const { generateFunctions, setupImageFunction } = require('./helpers/functions')
 const {
   verifyNetlifyBuildVersion,
@@ -43,6 +43,8 @@ module.exports = {
     checkNextSiteHasBuilt({ publish, failBuild })
 
     const { images, target, appDir } = await getNextConfig({ publish, failBuild })
+
+    setBundler({ netlifyConfig, target })
 
     verifyBuildTarget(target)
 

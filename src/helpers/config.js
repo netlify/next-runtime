@@ -124,3 +124,26 @@ exports.setIncludedFiles = ({ netlifyConfig, publish }) => {
     )
   })
 }
+
+exports.setBundler = ({ netlifyConfig, target }) => {
+  if (target === 'serverless') {
+    // Any bundler works with serverless
+    return
+  }
+
+  // Not quite such a simple a check, as we need to check both the default bundler
+  // and whether any of the individual functions are using the esbuild bundler.
+  const handlers = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME]
+  const defaultIsEsbuild = Boolean(netlifyConfig.functions['*']?.node_bundler === 'esbuild')
+  const handlerBundlers = handlers.map((func) => netlifyConfig.functions[func]?.node_bundler)
+  if (
+    (defaultIsEsbuild && !handlerBundlers.every((bundler) => bundler === 'zisi')) ||
+    handlerBundlers.includes('esbuild')
+  ) {
+    console.warn(`esbuild is not supported for target=${target}. Setting to "zisi"`)
+  }
+  handlers.forEach((func) => {
+    netlifyConfig.functions[func] ||= {}
+    netlifyConfig.functions[func].node_bundler = 'zisi'
+  })
+}

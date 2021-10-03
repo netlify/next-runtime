@@ -8,6 +8,7 @@ const { dir: getTmpDir } = require('tmp-promise')
 const plugin = require('../src')
 
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../src/constants')
+const { setBundler } = require('../src/helpers/config')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demo`
@@ -189,5 +190,86 @@ describe('onPostBuild', () => {
     expect(save).toHaveBeenCalledWith(path.resolve('.next/cache'), {
       digests: [path.resolve('.next/build-manifest.json')],
     })
+  })
+})
+
+describe('target checking', () => {
+  const warn = jest.spyOn(global.console, 'warn')
+  beforeEach(() => {
+    warn.mockReset()
+  })
+  test('changes nothing if target is serverless', () => {
+    const netlifyConfig = {
+      functions: {
+        [HANDLER_FUNCTION_NAME]: {
+          node_bundler: 'esbuild',
+        },
+      },
+    }
+    setBundler({ target: 'serverless', netlifyConfig })
+    expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toBe('esbuild')
+  })
+
+  test('changes both bundlers if target is server and default is esbuild', () => {
+    const netlifyConfig = {
+      functions: {
+        '*': {
+          node_bundler: 'esbuild',
+        },
+      },
+    }
+    setBundler({ target: 'server', netlifyConfig })
+    expect(warn).toHaveBeenCalledWith(`esbuild is not supported for target=server. Setting to "zisi"`)
+    expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toBe('zisi')
+    expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toBe('zisi')
+  })
+
+  test('does not warn if default bundler is zisi and target is server', () => {
+    const netlifyConfig = {
+      functions: {
+        '*': {
+          node_bundler: 'zisi',
+        },
+      },
+    }
+    setBundler({ target: 'server', netlifyConfig })
+    expect(warn).not.toHaveBeenCalled()
+  })
+
+  test('changes both bundlers if default is undefined and both are esbuild', () => {
+    const netlifyConfig = {
+      functions: {
+        '*': {},
+        [HANDLER_FUNCTION_NAME]: {
+          node_bundler: 'esbuild',
+        },
+        [ODB_FUNCTION_NAME]: {
+          node_bundler: 'esbuild',
+        },
+      },
+    }
+    setBundler({ target: 'server', netlifyConfig })
+    expect(warn).toHaveBeenCalledWith(`esbuild is not supported for target=server. Setting to "zisi"`)
+
+    expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toBe('zisi')
+    expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toBe('zisi')
+  })
+
+  test('does not warn if default is esbuild but others are both zisi', () => {
+    const netlifyConfig = {
+      functions: {
+        '*': {
+          node_bundler: 'esbuild',
+        },
+        [HANDLER_FUNCTION_NAME]: {
+          node_bundler: 'zisi',
+        },
+        [ODB_FUNCTION_NAME]: {
+          node_bundler: 'zisi',
+        },
+      },
+    }
+    setBundler({ target: 'server', netlifyConfig })
+    expect(warn).not.toHaveBeenCalled()
   })
 })
