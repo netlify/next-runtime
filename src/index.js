@@ -42,7 +42,7 @@ module.exports = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { images, target, appDir } = await getNextConfig({ publish, failBuild })
+    const { images, target, appDir, basePath } = await getNextConfig({ publish, failBuild })
 
     setBundler({ netlifyConfig, target })
 
@@ -54,10 +54,11 @@ module.exports = {
 
     await copy(`${appDir}/public`, `${publish}/`)
 
-    await setupImageFunction({ constants, imageconfig: images, netlifyConfig })
+    await setupImageFunction({ constants, imageconfig: images, netlifyConfig, basePath })
 
     await generateRedirects({
       netlifyConfig,
+      basePath,
     })
   },
 
@@ -65,7 +66,7 @@ module.exports = {
     // Remove swc binaries from the zipfile if present. Yes, it's a hack, but it drops >10MB from the zipfile when bundling with zip-it-and-ship-it
     for (const func of [ODB_FUNCTION_NAME, HANDLER_FUNCTION_NAME]) {
       await run(`zip`, [`-d`, join(FUNCTIONS_DIST, `${func}.zip`), '*node_modules/@next/swc-*']).catch(() => {
-        // This throws if there's none of these in the zipfile
+        // This throws if there's none of these in the zipfile, so ignore it
       })
     }
 

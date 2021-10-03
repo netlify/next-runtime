@@ -51,14 +51,14 @@ const getNetlifyRoutes = (nextRoute) => {
   return netlifyRoutes
 }
 
-exports.generateRedirects = async ({ netlifyConfig }) => {
+exports.generateRedirects = async ({ netlifyConfig, basePath }) => {
   const { dynamicRoutes } = await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
 
   const redirects = []
 
   netlifyConfig.redirects.push(
     ...HIDDEN_PATHS.map((path) => ({
-      from: path,
+      from: `${basePath}${path}`,
       to: '/404.html',
       status: 404,
       force: true,
@@ -78,20 +78,20 @@ exports.generateRedirects = async ({ netlifyConfig }) => {
 
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
-    { from: '/_next/static/*', to: '/static/:splat', status: 200 },
+    { from: `${basePath}/_next/static/*`, to: '/static/:splat', status: 200 },
     {
-      from: '/*',
+      from: `${basePath}/*`,
       to: HANDLER_FUNCTION_PATH,
       status: 200,
       force: true,
       conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
     },
     ...redirects.map((redirect) => ({
-      from: redirect,
+      from: `${basePath}${redirect}`,
       to: ODB_FUNCTION_PATH,
       status: 200,
     })),
-    { from: '/*', to: HANDLER_FUNCTION_PATH, status: 200 },
+    { from: `${basePath}/*`, to: HANDLER_FUNCTION_PATH, status: 200 },
   )
 }
 
