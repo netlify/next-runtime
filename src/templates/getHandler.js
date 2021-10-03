@@ -7,18 +7,23 @@ const makeHandler =
   () =>
   // We return a function and then call `toString()` on it to serialise it as the launcher function
   (conf, app) => {
-    let nextServerPath
-
+    let NextServer
     try {
       // next >= 11.0.1. Yay breaking changes in patch releases!
-      nextServerPath = require.resolve('next/dist/server/next-server')
+      NextServer = require('next/dist/server/next-server').default
     } catch {
-      // next < 11.0.1
-      // eslint-disable-next-line node/no-missing-require
-      nextServerPath = require.resolve('next/dist/next-server/server/next-server')
+      // Probably an old version of next
     }
-    // eslint-disable-next-line import/no-dynamic-require
-    const { default: NextServer } = require(nextServerPath)
+
+    if (!NextServer) {
+      try {
+        // next < 11.0.1
+        // eslint-disable-next-line node/no-missing-require, import/no-unresolved
+        NextServer = require('next/dist/next-server/server/next-server').default
+      } catch {
+        throw new Error('Could not find Next.js server')
+      }
+    }
 
     const nextServer = new NextServer({
       conf,
