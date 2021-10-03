@@ -26,7 +26,8 @@
     "test:jest": "jest",
     "prepare": "npm run build",
     "clean": "rimraf lib",
-    "build": "unbuild"
+    "build": "tsc",
+    "watch": "tsc --watch"
   },
   "config": {
     "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{js,md,html}\" \"*.{js,md,html}\" \".*.{js,md,html}\"",
@@ -54,14 +55,14 @@
     "@netlify/ipx": "^0.0.5",
     "@vercel/node": "^1.11.2-canary.4",
     "chalk": "^4.1.2",
-    "fs-extra": "^9.1.0",
+    "fs-extra": "^10.0.0",
     "moize": "^6.1.0",
     "next": "^11.1.0",
     "outdent": "^0.8.0",
     "semver": "^7.3.5"
   },
   "devDependencies": {
-    "@netlify/eslint-config-node": "^3.2.6",
+    "@netlify/eslint-config-node": "^3.2.11",
     "@types/jest": "^27.0.2",
     "cpy": "^8.1.2",
     "eslint-config-next": "^11.0.0",
@@ -73,7 +74,7 @@
     "react-dom": "^17.0.1",
     "rimraf": "^3.0.2",
     "tmp-promise": "^3.0.2",
-    "unbuild": "^0.4.2"
+    "typescript": "^4.3.4"
   },
   "husky": {
     "hooks": {

@@ -20,3 +20,5 @@ node_modules
 
 # Test
 demo
+lib
+tsconfig.json

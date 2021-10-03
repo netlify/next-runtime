@@ -33,13 +33,17 @@ exports.setupImageFunction = async ({
   constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC },
   imageconfig = {},
   netlifyConfig,
+  basePath,
 }) => {
   const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
   const functionName = `${IMAGE_FUNCTION_NAME}.js`
   const functionDirectory = join(functionsPath, IMAGE_FUNCTION_NAME)
 
   await ensureDir(functionDirectory)
-  await writeJSON(join(functionDirectory, 'imageconfig.json'), imageconfig)
+  await writeJSON(join(functionDirectory, 'imageconfig.json'), {
+    ...imageconfig,
+    basePath: [basePath, IMAGE_FUNCTION_NAME].join('/'),
+  })
   await copyFile(join(__dirname, '..', 'templates', 'ipx.js'), join(functionDirectory, functionName))
 
   const imagePath = imageconfig.path || '/_next/image'
@@ -48,13 +52,22 @@ exports.setupImageFunction = async ({
     {
       from: `${imagePath}*`,
       query: { url: ':url', w: ':width', q: ':quality' },
-      to: `/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
+      to: `${basePath}/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
       status: 301,
     },
     {
-      from: `/${IMAGE_FUNCTION_NAME}/*`,
+      from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,
       to: `/.netlify/functions/${IMAGE_FUNCTION_NAME}`,
       status: 200,
     },
   )
+
+  if (basePath) {
+    // next/image generates image static URLs that still point at the site root
+    netlifyConfig.redirects.push({
+      from: '/_next/static/image/*',
+      to: '/static/image/:splat',
+      status: 200,
+    })
+  }
 }
