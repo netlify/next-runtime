@@ -1,10 +1,12 @@
 module.exports = {
-  generateBuildId: () => 'build-id',
-  // Configurable site features to support:
-  // i18n: {
-  //   defaultLocale: 'en',
-  //   locales: ['en', 'es', 'fr']
-  // },
-  // basePath: '/docs',
+  // Configurable site features we support:
   // distDir: 'build',
+  generateBuildId: () => 'build-id',
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'es', 'fr']
+  },
+  // trailingSlash: true,
+  // Configurable site features _to_ support:
+  // basePath: '/docs',
 }

@@ -1,8 +1,12 @@
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
+const Header = dynamic(() => import(/* webpackChunkName: 'header' */ '../components/Header'), { ssr: true })
 
 const Index = ({ shows }) => (
   <div>
     <img src="/next-on-netlify.png" alt="NextJS on Netlify Banner" style={{ maxWidth: '100%' }} />
+    
+    <Header/>
 
     <h1>NextJS on Netlify</h1>
     <p>

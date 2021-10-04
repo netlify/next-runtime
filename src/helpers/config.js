@@ -51,7 +51,7 @@ const getNetlifyRoutes = (nextRoute) => {
   return netlifyRoutes
 }
 
-exports.generateRedirects = async ({ netlifyConfig, basePath }) => {
+exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
   const { dynamicRoutes } = await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
 
   const redirects = []
@@ -76,9 +76,12 @@ exports.generateRedirects = async ({ netlifyConfig, basePath }) => {
     redirects.push(...getNetlifyRoutes(route), ...getNetlifyRoutes(dataRoute))
   })
 
+  // Needed only for /_next/static
+  const i18nSplat = i18n ? '/:locale' : ''
+
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
-    { from: `${basePath}/_next/static/*`, to: '/static/:splat', status: 200 },
+    { from: `${basePath}${i18nSplat}/_next/static/*`, to: `${i18nSplat}/static/:splat`, status: 200 },
     {
       from: `${basePath}/*`,
       to: HANDLER_FUNCTION_PATH,

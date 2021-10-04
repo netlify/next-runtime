@@ -72,9 +72,9 @@ Array [
     "to": "/404.html",
   },
   Object {
-    "from": "/_next/static/*",
+    "from": "/:locale/_next/static/*",
     "status": 200,
-    "to": "/static/:splat",
+    "to": "/:locale/static/:splat",
   },
   Object {
     "conditions": Object {
