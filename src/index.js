@@ -2,7 +2,7 @@
 
 const { join } = require('path')
 
-const { copy } = require('fs-extra')
+const { copy, existsSync } = require('fs-extra')
 
 const { ODB_FUNCTION_NAME, HANDLER_FUNCTION_NAME } = require('./constants')
 const { restoreCache, saveCache } = require('./helpers/cache')
@@ -51,9 +51,10 @@ module.exports = {
     setIncludedFiles({ netlifyConfig, publish })
 
     await generateFunctions(constants, appDir)
-
-    await copy(`${appDir}/public`, `${publish}/`)
-
+    const publicDir = join(appDir, 'public')
+    if (existsSync(publicDir)) {
+      await copy(publicDir, `${publish}/`)
+    }
     await setupImageFunction({ constants, imageconfig: images, netlifyConfig, basePath })
 
     await generateRedirects({
