@@ -42,7 +42,7 @@ module.exports = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { images, target, appDir, basePath } = await getNextConfig({ publish, failBuild })
+    const { appDir, basePath, i18n, images, target } = await getNextConfig({ publish, failBuild })
 
     setBundler({ netlifyConfig, target })
 
@@ -59,6 +59,7 @@ module.exports = {
     await generateRedirects({
       netlifyConfig,
       basePath,
+      i18n,
     })
   },
 
