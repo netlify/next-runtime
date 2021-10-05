@@ -28,6 +28,9 @@ module.exports = {
     'unicorn/filename-case': 0,
     'unicorn/no-array-push-push': 0,
   },
+  parserOptions: {
+    sourceType: 'module',
+  },
   env: {
     jest: true,
   },
