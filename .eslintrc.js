@@ -29,7 +29,7 @@ module.exports = {
     'unicorn/no-array-push-push': 0,
   },
   parserOptions: {
-    sourceType: "module"
+    sourceType: 'module',
   },
   env: {
     jest: true,
