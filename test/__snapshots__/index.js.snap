@@ -74,7 +74,12 @@ Array [
   Object {
     "from": "/:locale/_next/static/*",
     "status": 200,
-    "to": "/:locale/static/:splat",
+    "to": "/static/:splat",
+  },
+  Object {
+    "from": "/_next/static/*",
+    "status": 200,
+    "to": "/static/:splat",
   },
   Object {
     "conditions": Object {
