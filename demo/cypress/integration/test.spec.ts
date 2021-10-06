@@ -1,5 +1,9 @@
 describe('TypeScript spec', () => {
-  it('works', () => {
-    cy.wrap('foo').should('equal', 'foo')
+  beforeEach(() => {
+    cy.visit('/')
+  })
+
+  it('loads home page', () => {
+    cy.findByText('Next Demo!')
   })
 })
