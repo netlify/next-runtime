@@ -4,6 +4,6 @@ describe('TypeScript spec', () => {
   })
 
   it('loads home page', () => {
-    cy.findByText('Next Demo!')
+    cy.get('h1')
   })
 })
