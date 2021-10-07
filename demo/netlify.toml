@@ -3,6 +3,11 @@ command = "next build"
 publish = ".next"
 ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF . ../"
 
+[build.environment]
+# cache Cypress binary in local "node_modules" folder
+# so Netlify caches it
+CYPRESS_CACHE_FOLDER = "../node_modules/CypressBinary"
+
 [dev]
 framework = "#static"
 
@@ -11,3 +16,8 @@ package = "./local-plugin"
 
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
+
+[[plugins]]
+package = "netlify-plugin-cypress"
+  [plugins.inputs]
+  configFile = "cypress/config/all.json"
