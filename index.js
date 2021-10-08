@@ -125,6 +125,15 @@ See https://ntl.fyi/remove-plugin for instructions.
       publishDir: netlifyConfig.build.publish || PUBLISH_DIR,
       nextRoot,
     })
+
+    if (!netlifyConfig.functions['*'].included_files) {
+      // eslint-disable-next-line no-param-reassign
+      netlifyConfig.functions['*'].included_files = []
+    }
+    netlifyConfig.functions['*'].included_files.push(
+      '!node_modules/@next/swc-*/**/*',
+      '!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
+    )
   },
 
   async onPostBuild({ netlifyConfig, packageJson, constants: { FUNCTIONS_DIST = DEFAULT_FUNCTIONS_DIST }, utils }) {

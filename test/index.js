@@ -87,7 +87,7 @@ afterEach(async () => {
 })
 
 const DUMMY_PACKAGE_JSON = { name: 'dummy', version: '1.0.0', scripts: { build: 'next build' } }
-const netlifyConfig = { build: { command: 'npm run build' } }
+const netlifyConfig = { build: { command: 'npm run build' }, functions: { '*': {} } }
 
 describe('preBuild()', () => {
   test('fails if the build version is too old', () => {
@@ -307,7 +307,7 @@ describe('onBuild()', () => {
     await moveNextDist()
     const PUBLISH_DIR = 'publish'
     await plugin.onBuild({
-      netlifyConfig: { build: { publish: path.resolve(PUBLISH_DIR), command: 'next build' } },
+      netlifyConfig: { ...netlifyConfig, build: { publish: path.resolve(PUBLISH_DIR), command: 'next build' } },
       packageJson: DUMMY_PACKAGE_JSON,
       constants: {
         PUBLISH_DIR,
