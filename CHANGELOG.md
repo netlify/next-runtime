@@ -1,5 +1,39 @@
 # Changelog
 
+### [3.9.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.9.0...v3.9.1) (2021-10-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @babel/core to v7.15.5 ([#636](https://www.github.com/netlify/netlify-plugin-nextjs/issues/636)) ([e123cac](https://www.github.com/netlify/netlify-plugin-nextjs/commit/e123cacf657c801e03a413b3142f5e996b48f995))
+* **deps:** update dependency adm-zip to v0.5.6 ([#647](https://www.github.com/netlify/netlify-plugin-nextjs/issues/647)) ([75faf8f](https://www.github.com/netlify/netlify-plugin-nextjs/commit/75faf8f71fab35c5978cecb7211c939ac3b34a0a))
+* **deps:** update dependency adm-zip to v0.5.7 ([#675](https://www.github.com/netlify/netlify-plugin-nextjs/issues/675)) ([0dcac24](https://www.github.com/netlify/netlify-plugin-nextjs/commit/0dcac242a3505526ac9327145cf2e64447dac81e))
+* **deps:** update dependency commander to v8.2.0 ([#651](https://www.github.com/netlify/netlify-plugin-nextjs/issues/651)) ([812ab3e](https://www.github.com/netlify/netlify-plugin-nextjs/commit/812ab3e8bb97c04335f50729ef8a3ded302be97b))
+* **deps:** update dependency fastq to v1.13.0 ([#652](https://www.github.com/netlify/netlify-plugin-nextjs/issues/652)) ([aec9e71](https://www.github.com/netlify/netlify-plugin-nextjs/commit/aec9e7109330814e08585adb4e9eff7da69eea7b))
+* **deps:** update dependency node-fetch to v2.6.2 ([#648](https://www.github.com/netlify/netlify-plugin-nextjs/issues/648)) ([6718ef2](https://www.github.com/netlify/netlify-plugin-nextjs/commit/6718ef25bcbe45f2e08be3b1fb080977aa81e4fd))
+* **deps:** update dependency node-fetch to v2.6.5 ([#669](https://www.github.com/netlify/netlify-plugin-nextjs/issues/669)) ([25ca9d6](https://www.github.com/netlify/netlify-plugin-nextjs/commit/25ca9d692311f3d9290ba27e6fcd31b2abdc93b6))
+* **deps:** update dependency sharp to v0.29.1 ([#649](https://www.github.com/netlify/netlify-plugin-nextjs/issues/649)) ([8d45205](https://www.github.com/netlify/netlify-plugin-nextjs/commit/8d45205e6fc5a2ffeeaeed34fb714e054d68fe41))
+* remove swc binaries ([#681](https://www.github.com/netlify/netlify-plugin-nextjs/issues/681)) ([8244f28](https://www.github.com/netlify/netlify-plugin-nextjs/commit/8244f2833a12a833dc3c7c4e3ad65be26be2c1af))
+
+## [3.9.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.8.0...v3.9.0) (2021-08-30)
+
+
+### Features
+
+* try to generate stable build ids ([#606](https://www.github.com/netlify/netlify-plugin-nextjs/issues/606)) ([92e0990](https://www.github.com/netlify/netlify-plugin-nextjs/commit/92e099015ce4d95c2817d95d35d0b828ee463be4))
+* use internal functions dir ([#549](https://www.github.com/netlify/netlify-plugin-nextjs/issues/549)) ([1d2861b](https://www.github.com/netlify/netlify-plugin-nextjs/commit/1d2861b68f3aca098531ad68d6284393221d97ad))
+
+
+### Bug Fixes
+
+* **deps:** update dependency fastq to v1.12.0 ([#610](https://www.github.com/netlify/netlify-plugin-nextjs/issues/610)) ([0aa644a](https://www.github.com/netlify/netlify-plugin-nextjs/commit/0aa644a749c59bfb6c64b02f3d53f112e73a911b))
+* **deps:** update dependency find-cache-dir to v3.3.2 ([#624](https://www.github.com/netlify/netlify-plugin-nextjs/issues/624)) ([12e6907](https://www.github.com/netlify/netlify-plugin-nextjs/commit/12e69073f25ea27e1165be99bbeb4f2a71b305bf))
+* **deps:** update dependency moize to v6.1.0 ([#626](https://www.github.com/netlify/netlify-plugin-nextjs/issues/626)) ([17e566c](https://www.github.com/netlify/netlify-plugin-nextjs/commit/17e566cb387803f5a3b8d8ad1916b7fca6c3d860))
+* **deps:** update dependency sharp to ^0.29.0 ([#611](https://www.github.com/netlify/netlify-plugin-nextjs/issues/611)) ([aea3bd3](https://www.github.com/netlify/netlify-plugin-nextjs/commit/aea3bd3624762bed8e1474a622ed5e42ec9da6f9))
+* inline isDynamicRoute & uninstall sls-next ([#622](https://www.github.com/netlify/netlify-plugin-nextjs/issues/622)) ([f062b36](https://www.github.com/netlify/netlify-plugin-nextjs/commit/f062b36c05025cdb4c29391eb9775e13d5dd0f43))
+* missing @babel/core dep in 11.1.0 ([#621](https://www.github.com/netlify/netlify-plugin-nextjs/issues/621)) ([863a577](https://www.github.com/netlify/netlify-plugin-nextjs/commit/863a57754d9b0595c14e8c833744a9afc65d10db))
+* move locale/404 to publishPath/404 if custom 404 ([#616](https://www.github.com/netlify/netlify-plugin-nextjs/issues/616)) ([cbb71e7](https://www.github.com/netlify/netlify-plugin-nextjs/commit/cbb71e763d7fca0555573c449a31048c674e058b))
+
 ## [3.8.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.7.1...v3.8.0) (2021-08-02)
 
 ### Features

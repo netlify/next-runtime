@@ -94,6 +94,12 @@ describe('SSG Pages with getStaticProps', () => {
     expect(existsSync(join(OUTPUT_PATH, 'getStaticProps', 'withFallback', 'my', 'path', '2.html'))).toBe(true)
   })
 
+  test('moves defaultLocale/404.html to top level for custom 404', () => {
+    const OUTPUT_PATH = join(PROJECT_PATH, 'out_publish')
+
+    expect(existsSync(join(OUTPUT_PATH, '404.html'))).toBe(true)
+  })
+
   test('creates data .json file in /_next/data/ directory', () => {
     // Get path to data files
     const dirs = readdirSync(join(PROJECT_PATH, 'out_publish', '_next', 'data'))

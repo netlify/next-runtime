@@ -1,7 +1,7 @@
 const { readdirSync, existsSync } = require('fs')
 const path = require('path')
 
-const { yellowBright, greenBright } = require('chalk')
+const { yellowBright, greenBright, green } = require('chalk')
 const makeDir = require('make-dir')
 const { satisfies } = require('semver')
 const glob = require('tiny-glob')
@@ -125,6 +125,15 @@ See https://ntl.fyi/remove-plugin for instructions.
       publishDir: netlifyConfig.build.publish || PUBLISH_DIR,
       nextRoot,
     })
+
+    if (!netlifyConfig.functions['*'].included_files) {
+      // eslint-disable-next-line no-param-reassign
+      netlifyConfig.functions['*'].included_files = []
+    }
+    netlifyConfig.functions['*'].included_files.push(
+      '!node_modules/@next/swc-*/**/*',
+      '!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
+    )
   },
 
   async onPostBuild({ netlifyConfig, packageJson, constants: { FUNCTIONS_DIST = DEFAULT_FUNCTIONS_DIST }, utils }) {
@@ -140,12 +149,24 @@ See https://ntl.fyi/remove-plugin for instructions.
     const nextRoot = getNextRoot({ netlifyConfig })
 
     const nextConfig = await getNextConfig(utils.failBuild, nextRoot)
-    await saveCache({ cache: utils.cache, distDir: nextConfig.distDir, nextRoot })
+    const { distDir, generateBuildId } = nextConfig
+    await saveCache({ cache: utils.cache, distDir, nextRoot })
     copyUnstableIncludedDirs({ nextConfig, functionsDist: path.resolve(FUNCTIONS_DIST) })
     utils.status.show({
       title: 'Essential Next.js Build Plugin ran successfully',
       summary: 'Generated serverless functions and stored the Next.js cache',
     })
+
+    // The default generateBuildId function returns null, which causes it to use a random value from nanoid
+    // eslint-disable-next-line no-self-compare
+    if (generateBuildId() === null || generateBuildId() !== generateBuildId()) {
+      console.warn(
+        yellowBright`
+For faster deploy times, build IDs should be set to a static value.
+To do this, set ${green`generateBuildId: () => 'build'`} in your next.config.js`,
+        // TODO: add shortlink when docs are updated
+      )
+    }
   },
 }
 

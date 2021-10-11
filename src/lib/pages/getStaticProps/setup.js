@@ -1,8 +1,11 @@
 const { join } = require('path')
 
+const { copySync } = require('fs-extra')
 const slash = require('slash')
 
 const getFilePathForRoute = require('../../helpers/getFilePathForRoute')
+const getI18n = require('../../helpers/getI18n')
+const getNextDistDir = require('../../helpers/getNextDistDir')
 const isRouteWithFallback = require('../../helpers/isRouteWithFallback')
 const { logTitle } = require('../../helpers/logger')
 
@@ -15,6 +18,8 @@ const setup = async ({ functionsPath, publishPath }) => {
   // a function for the same file path twice
   const filePathsDone = new Set()
   const pages = await getPages()
+  const nextDistDir = await getNextDistDir()
+  const i18n = await getI18n()
 
   const jobs = []
 
@@ -33,6 +38,11 @@ const setup = async ({ functionsPath, publishPath }) => {
         outputPath: dataRoute,
         publishPath,
       })
+
+      // HACK: If i18n, 404.html needs to be at the top level of the publish directory
+      if (i18n.defaultLocale && route === `/${i18n.defaultLocale}/404`) {
+        copySync(join(nextDistDir, 'serverless', 'pages', htmlPath), join(publishPath, '404.html'))
+      }
 
       // Set up the Netlify function (this is ONLY for preview mode)
       const relativePath = getFilePathForRoute(srcRoute || route, 'js')
