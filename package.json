@@ -88,7 +88,7 @@
   "devDependencies": {
     "@netlify/eslint-config-node": "^3.3.0",
     "cpy": "^8.1.1",
-    "cypress": "^7.0.0",
+    "cypress": "^8.0.0",
     "eslint-config-next": "^11.0.0",
     "folder-hash": "^4.0.0",
     "husky": "^4.3.0",
