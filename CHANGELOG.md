@@ -1,5 +1,20 @@
 # Changelog
 
+### [3.9.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.9.0...v3.9.1) (2021-10-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @babel/core to v7.15.5 ([#636](https://www.github.com/netlify/netlify-plugin-nextjs/issues/636)) ([e123cac](https://www.github.com/netlify/netlify-plugin-nextjs/commit/e123cacf657c801e03a413b3142f5e996b48f995))
+* **deps:** update dependency adm-zip to v0.5.6 ([#647](https://www.github.com/netlify/netlify-plugin-nextjs/issues/647)) ([75faf8f](https://www.github.com/netlify/netlify-plugin-nextjs/commit/75faf8f71fab35c5978cecb7211c939ac3b34a0a))
+* **deps:** update dependency adm-zip to v0.5.7 ([#675](https://www.github.com/netlify/netlify-plugin-nextjs/issues/675)) ([0dcac24](https://www.github.com/netlify/netlify-plugin-nextjs/commit/0dcac242a3505526ac9327145cf2e64447dac81e))
+* **deps:** update dependency commander to v8.2.0 ([#651](https://www.github.com/netlify/netlify-plugin-nextjs/issues/651)) ([812ab3e](https://www.github.com/netlify/netlify-plugin-nextjs/commit/812ab3e8bb97c04335f50729ef8a3ded302be97b))
+* **deps:** update dependency fastq to v1.13.0 ([#652](https://www.github.com/netlify/netlify-plugin-nextjs/issues/652)) ([aec9e71](https://www.github.com/netlify/netlify-plugin-nextjs/commit/aec9e7109330814e08585adb4e9eff7da69eea7b))
+* **deps:** update dependency node-fetch to v2.6.2 ([#648](https://www.github.com/netlify/netlify-plugin-nextjs/issues/648)) ([6718ef2](https://www.github.com/netlify/netlify-plugin-nextjs/commit/6718ef25bcbe45f2e08be3b1fb080977aa81e4fd))
+* **deps:** update dependency node-fetch to v2.6.5 ([#669](https://www.github.com/netlify/netlify-plugin-nextjs/issues/669)) ([25ca9d6](https://www.github.com/netlify/netlify-plugin-nextjs/commit/25ca9d692311f3d9290ba27e6fcd31b2abdc93b6))
+* **deps:** update dependency sharp to v0.29.1 ([#649](https://www.github.com/netlify/netlify-plugin-nextjs/issues/649)) ([8d45205](https://www.github.com/netlify/netlify-plugin-nextjs/commit/8d45205e6fc5a2ffeeaeed34fb714e054d68fe41))
+* remove swc binaries ([#681](https://www.github.com/netlify/netlify-plugin-nextjs/issues/681)) ([8244f28](https://www.github.com/netlify/netlify-plugin-nextjs/commit/8244f2833a12a833dc3c7c4e3ad65be26be2c1af))
+
 ## [3.9.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v3.8.0...v3.9.0) (2021-08-30)
 
 
