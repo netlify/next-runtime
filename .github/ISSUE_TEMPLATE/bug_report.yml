@@ -1,0 +1,60 @@
+name: Bug Report
+description: Create a report to help us improve
+title: '[Bug]: '
+labels: ['type: bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: input
+    id: link-to-reproduction
+    attributes:
+      label: A link to a reproduction repository
+      description: The fastest way to describe your bug is to provide a reproduction repository.
+      placeholder: https://github.com/project/link-to-your-reproduction-repo
+  - type: markdown
+    attributes:
+      value: |
+        Check out [CONTRIBUTING.md](https://github.com/netlify/netlify-plugin-nextjs/blob/main/CONTRIBUTING.md#what-is-a-reproducible-test-case) for advice on producing a reproduction repo.
+  - type: checkboxes
+    id: more-info
+    attributes:
+      label: More information about your build
+      options:
+        - label: I am building using the CLI
+        - label: I am building using file-based configuration (netlify.toml)
+  - type: dropdown
+    id: which-os
+    attributes:
+      label: What OS are you using?
+      description: (If you're using the CLI) What OS are you using?
+      options:
+        - Windows
+        - Mac OS
+        - Linux
+        - Other
+  - type: textarea
+    id: netlify-toml
+    attributes:
+      label: Your `netlify.toml` file
+      description: (If you're using file-based config) Please provide a copy of your `netlify.toml` file.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output (or link to your logs)
