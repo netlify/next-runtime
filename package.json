@@ -37,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/netlify/netlify-plugin-nextjs-experimental.git"
+    "url": "git+https://github.com/netlify/netlify-plugin-nextjs.git"
   },
   "keywords": [
     "nextjs",
@@ -48,9 +48,9 @@
   "author": "lindsaylevine",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/netlify/netlify-plugin-nextjs-expeimental/issues"
+    "url": "https://github.com/netlify/netlify-plugin-nextjs/issues"
   },
-  "homepage": "https://github.com/netlify/netlify-plugin-nextjs-experimental#readme",
+  "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
     "@babel/core": "^7.15.0",
     "@netlify/functions": "^0.7.2",
