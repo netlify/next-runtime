@@ -52,7 +52,6 @@
   },
   "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
-    "@babel/core": "^7.15.0",
     "@netlify/functions": "^0.7.2",
     "@netlify/ipx": "^0.0.7",
     "@vercel/node": "^1.11.2-canary.4",
@@ -66,10 +65,13 @@
     "tiny-glob": "^0.2.9"
   },
   "devDependencies": {
+    "@babel/core": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
     "@netlify/eslint-config-node": "^3.3.0",
     "@testing-library/cypress": "^8.0.1",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^9.0.0",
+    "babel-jest": "^27.2.5",
     "cpy": "^8.1.2",
     "cypress": "^8.5.0",
     "eslint-config-next": "^11.0.0",
@@ -99,6 +101,9 @@
       "!**/test/fixtures/**",
       "!**/test/sample/**"
     ],
+    "transform": {
+      "\\.[jt]sx?$": "babel-jest"
+    },
     "verbose": true,
     "testTimeout": 60000
   }

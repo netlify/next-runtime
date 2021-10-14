@@ -57,14 +57,17 @@ const defaultArgs = {
   utils,
   constants,
 }
+
+let restoreCwd
+let cleanup
+
 // In each test, we change cwd to a temporary directory.
 // This allows us not to have to mock filesystem operations.
 beforeEach(async () => {
-  delete process.env.NEXT_PRIVATE_TARGET
+  const tmpDir = await getTmpDir({ unsafeCleanup: true })
+  restoreCwd = changeCwd(tmpDir.path)
+  cleanup = tmpDir.cleanup
 
-  const { path: tmpPath, cleanup } = await getTmpDir({ unsafeCleanup: true })
-  const restoreCwd = changeCwd(tmpPath)
-  Object.assign(this, { cleanup, restoreCwd })
   netlifyConfig.build.publish = path.posix.resolve('.next')
   netlifyConfig.redirects = []
   netlifyConfig.functions[HANDLER_FUNCTION_NAME] && (netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files = [])
@@ -78,8 +81,8 @@ afterEach(async () => {
   delete process.env.NEXT_PRIVATE_TARGET
   // Cleans up the temporary directory from `getTmpDir()` and do not make it
   // the current directory anymore
-  this.restoreCwd()
-  await this.cleanup()
+  restoreCwd()
+  await cleanup()
 })
 
 describe('preBuild()', () => {
