@@ -1,4 +1,4 @@
-const { writeJSON, unlink, existsSync } = require('fs-extra')
+const { writeJSON, unlink, existsSync, readFileSync, copy } = require('fs-extra')
 const path = require('path')
 const process = require('process')
 
@@ -8,7 +8,6 @@ const { dir: getTmpDir } = require('tmp-promise')
 const plugin = require('../src')
 
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../src/constants')
-const { setBundler } = require('../src/helpers/config')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demo`
@@ -43,7 +42,7 @@ const onBuildHasRun = (netlifyConfig) =>
 
 // Move .next from sample project to current directory
 const moveNextDist = async function () {
-  await cpy('.next/**', process.cwd(), { cwd: SAMPLE_PROJECT_DIR, parents: true, overwrite: false, dot: true })
+  await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), '.next'))
 }
 
 // Copy fixture files to the current directory
@@ -66,7 +65,7 @@ beforeEach(async () => {
   const { path: tmpPath, cleanup } = await getTmpDir({ unsafeCleanup: true })
   const restoreCwd = changeCwd(tmpPath)
   Object.assign(this, { cleanup, restoreCwd })
-  netlifyConfig.build.publish = path.join(process.cwd(), '.next')
+  netlifyConfig.build.publish = path.posix.resolve('.next')
   netlifyConfig.redirects = []
   netlifyConfig.functions[HANDLER_FUNCTION_NAME] && (netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files = [])
   netlifyConfig.functions[ODB_FUNCTION_NAME] && (netlifyConfig.functions[ODB_FUNCTION_NAME].included_files = [])
@@ -85,7 +84,7 @@ afterEach(async () => {
 
 describe('preBuild()', () => {
   test('fails if publishing the root of the project', () => {
-    defaultArgs.netlifyConfig.build.publish = process.cwd()
+    defaultArgs.netlifyConfig.build.publish = path.resolve('.')
     expect(plugin.onPreBuild(defaultArgs)).rejects.toThrowError(
       /Your publish directory is pointing to the base directory of your site/,
     )
@@ -111,7 +110,6 @@ describe('preBuild()', () => {
 
   it('restores cache with right paths', async () => {
     await useFixture('dist_dir_next_config')
-    netlifyConfig.build.publish = path.join(process.cwd(), 'build')
 
     const restore = jest.fn()
 
@@ -120,7 +118,7 @@ describe('preBuild()', () => {
       utils: { ...utils, cache: { restore } },
     })
 
-    expect(restore).toHaveBeenCalledWith(path.resolve('build/cache'))
+    expect(restore).toHaveBeenCalledWith(path.posix.resolve('.next/cache'))
   })
 })
 
@@ -174,6 +172,44 @@ describe('onBuild()', () => {
     await plugin.onBuild(defaultArgs)
     expect(existsSync(path.resolve('.next/BUILD_ID'))).toBeTruthy()
   })
+
+  test('sets correct config', async () => {
+    await moveNextDist()
+
+    await plugin.onBuild(defaultArgs)
+    const includes = [
+      '.next/server/**',
+      '.next/serverless/**',
+      '.next/*.json',
+      '.next/BUILD_ID',
+      '!node_modules/@next/swc-*/**/*',
+      '!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
+      '!node_modules/next/dist/pages/**/*',
+      `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
+      `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
+      '!node_modules/next/dist/compiled/webpack/(bundle4|bundle5).js',
+      '!node_modules/react/**/*.development.js',
+      '!node_modules/react-dom/**/*.development.js',
+      '!node_modules/use-subscription/**/*.development.js',
+      '!node_modules/sharp/**/*',
+    ]
+    expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files).toEqual(includes)
+    expect(netlifyConfig.functions[ODB_FUNCTION_NAME].included_files).toEqual(includes)
+    expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toEqual('nft')
+    expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toEqual('nft')
+  })
+
+  test('generates a file referencing all page sources', async () => {
+    await moveNextDist()
+    await plugin.onBuild(defaultArgs)
+    const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
+    const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
+    expect(existsSync(handlerPagesFile)).toBeTruthy()
+    expect(existsSync(odbHandlerPagesFile)).toBeTruthy()
+
+    expect(readFileSync(handlerPagesFile, 'utf8')).toMatchSnapshot()
+    expect(readFileSync(odbHandlerPagesFile, 'utf8')).toMatchSnapshot()
+  })
 })
 
 describe('onPostBuild', () => {
@@ -187,89 +223,8 @@ describe('onPostBuild', () => {
       utils: { ...utils, cache: { save } },
     })
 
-    expect(save).toHaveBeenCalledWith(path.resolve('.next/cache'), {
-      digests: [path.resolve('.next/build-manifest.json')],
+    expect(save).toHaveBeenCalledWith(path.posix.resolve('.next/cache'), {
+      digests: [path.posix.resolve('.next/build-manifest.json')],
     })
-  })
-})
-
-describe('target checking', () => {
-  const warn = jest.spyOn(global.console, 'warn')
-  beforeEach(() => {
-    warn.mockReset()
-  })
-  test('changes nothing if target is serverless', () => {
-    const netlifyConfig = {
-      functions: {
-        [HANDLER_FUNCTION_NAME]: {
-          node_bundler: 'esbuild',
-        },
-      },
-    }
-    setBundler({ target: 'serverless', netlifyConfig })
-    expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toBe('esbuild')
-  })
-
-  test('changes both bundlers if target is server and default is esbuild', () => {
-    const netlifyConfig = {
-      functions: {
-        '*': {
-          node_bundler: 'esbuild',
-        },
-      },
-    }
-    setBundler({ target: 'server', netlifyConfig })
-    expect(warn).toHaveBeenCalledWith(`esbuild is not supported for target=server. Setting to "zisi"`)
-    expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toBe('zisi')
-    expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toBe('zisi')
-  })
-
-  test('does not warn if default bundler is zisi and target is server', () => {
-    const netlifyConfig = {
-      functions: {
-        '*': {
-          node_bundler: 'zisi',
-        },
-      },
-    }
-    setBundler({ target: 'server', netlifyConfig })
-    expect(warn).not.toHaveBeenCalled()
-  })
-
-  test('changes both bundlers if default is undefined and both are esbuild', () => {
-    const netlifyConfig = {
-      functions: {
-        '*': {},
-        [HANDLER_FUNCTION_NAME]: {
-          node_bundler: 'esbuild',
-        },
-        [ODB_FUNCTION_NAME]: {
-          node_bundler: 'esbuild',
-        },
-      },
-    }
-    setBundler({ target: 'server', netlifyConfig })
-    expect(warn).toHaveBeenCalledWith(`esbuild is not supported for target=server. Setting to "zisi"`)
-
-    expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toBe('zisi')
-    expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toBe('zisi')
-  })
-
-  test('does not warn if default is esbuild but others are both zisi', () => {
-    const netlifyConfig = {
-      functions: {
-        '*': {
-          node_bundler: 'esbuild',
-        },
-        [HANDLER_FUNCTION_NAME]: {
-          node_bundler: 'zisi',
-        },
-        [ODB_FUNCTION_NAME]: {
-          node_bundler: 'zisi',
-        },
-      },
-    }
-    setBundler({ target: 'server', netlifyConfig })
-    expect(warn).not.toHaveBeenCalled()
   })
 })

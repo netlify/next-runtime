@@ -46,7 +46,7 @@ exports.checkNextSiteHasBuilt = ({ publish, failBuild }) => {
 }
 
 exports.checkForRootPublish = ({ publish, failBuild }) => {
-  if (path.normalize(publish) === path.normalize(process.cwd())) {
+  if (path.resolve(publish) === path.resolve('.')) {
     failBuild(outdent`
       Your publish directory is pointing to the base directory of your site. This is not supported for Next.js sites, and is probably a mistake. 
       In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config, or the Next site is in a subdirectory.`)

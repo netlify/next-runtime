@@ -1,5 +1,71 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`onBuild() generates a file referencing all page sources 1`] = `
+"// This file is purely to allow nft to know about these pages. It should be temporary.
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/pages/api/hello.js')
+        require.resolve('../../../.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../.next/server/pages/deep/import.js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/index.js')
+        require.resolve('../../../.next/server/pages/previewTest.js')
+        require.resolve('../../../.next/server/pages/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/shows/[id].js')
+    } catch {}
+}"
+`;
+
+exports[`onBuild() generates a file referencing all page sources 2`] = `
+"// This file is purely to allow nft to know about these pages. It should be temporary.
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/pages/api/hello.js')
+        require.resolve('../../../.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../.next/server/pages/deep/import.js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/index.js')
+        require.resolve('../../../.next/server/pages/previewTest.js')
+        require.resolve('../../../.next/server/pages/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/shows/[id].js')
+    } catch {}
+}"
+`;
+
 exports[`onBuild() writes correct redirects to netlifyConfig 1`] = `
 Array [
   Object {

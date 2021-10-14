@@ -4,6 +4,7 @@ const { copyFile, ensureDir, writeFile, writeJSON } = require('fs-extra')
 
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../constants')
 const getHandler = require('../templates/getHandler')
+const { getPageResolver } = require('../templates/getPageResolver')
 
 const DEFAULT_FUNCTIONS_SRC = 'netlify/functions'
 
@@ -26,6 +27,26 @@ exports.generateFunctions = async (
 
   await writeHandler(HANDLER_FUNCTION_NAME, false)
   await writeHandler(ODB_FUNCTION_NAME, true)
+}
+
+/**
+ * Writes a file in each function directory that contains references to every page entrypoint.
+ * This is just so that the nft bundler knows about them. We'll eventually do this better.
+ */
+exports.generatePagesResolver = async ({
+  constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC },
+  netlifyConfig,
+  target,
+}) => {
+  const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
+
+  const jsSource = await getPageResolver({
+    netlifyConfig,
+    target,
+  })
+
+  await writeFile(join(functionsPath, ODB_FUNCTION_NAME, 'pages.js'), jsSource)
+  await writeFile(join(functionsPath, HANDLER_FUNCTION_NAME, 'pages.js'), jsSource)
 }
 
 // Move our next/image function into the correct functions directory

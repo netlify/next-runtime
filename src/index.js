@@ -1,13 +1,12 @@
 // @ts-check
 
-const { join } = require('path')
+const { join, relative } = require('path')
 
 const { copy, existsSync } = require('fs-extra')
 
-const { ODB_FUNCTION_NAME, HANDLER_FUNCTION_NAME } = require('./constants')
 const { restoreCache, saveCache } = require('./helpers/cache')
-const { getNextConfig, setIncludedFiles, generateRedirects, setBundler } = require('./helpers/config')
-const { generateFunctions, setupImageFunction } = require('./helpers/functions')
+const { getNextConfig, configureHandlerFunctions, generateRedirects } = require('./helpers/config')
+const { generateFunctions, setupImageFunction, generatePagesResolver } = require('./helpers/functions')
 const {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
@@ -44,13 +43,13 @@ module.exports = {
 
     const { appDir, basePath, i18n, images, target } = await getNextConfig({ publish, failBuild })
 
-    setBundler({ netlifyConfig, target })
-
     verifyBuildTarget(target)
 
-    setIncludedFiles({ netlifyConfig, publish })
+    configureHandlerFunctions({ netlifyConfig, publish: relative(process.cwd(), publish) })
 
     await generateFunctions(constants, appDir)
+    await generatePagesResolver({ netlifyConfig, target, constants })
+
     const publicDir = join(appDir, 'public')
     if (existsSync(publicDir)) {
       await copy(publicDir, `${publish}/`)
@@ -64,14 +63,7 @@ module.exports = {
     })
   },
 
-  async onPostBuild({ netlifyConfig, constants: { FUNCTIONS_DIST = '.netlify/functions' }, utils: { run, cache } }) {
-    // Remove swc binaries from the zipfile if present. Yes, it's a hack, but it drops >10MB from the zipfile when bundling with zip-it-and-ship-it
-    for (const func of [ODB_FUNCTION_NAME, HANDLER_FUNCTION_NAME]) {
-      await run(`zip`, [`-d`, join(FUNCTIONS_DIST, `${func}.zip`), '*node_modules/@next/swc-*']).catch(() => {
-        // This throws if there's none of these in the zipfile, so ignore it
-      })
-    }
-
+  async onPostBuild({ netlifyConfig, utils: { cache } }) {
     return saveCache({ cache, publish: netlifyConfig.build.publish })
   },
 }

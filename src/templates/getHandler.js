@@ -15,6 +15,12 @@ const makeHandler =
       // Probably an old version of next
     }
 
+    // This is just so nft knows about the page entrypoints
+    try {
+      // eslint-disable-next-line node/no-missing-require
+      require.resolve('./pages.js')
+    } catch {}
+
     if (!NextServer) {
       try {
         // next < 11.0.1
