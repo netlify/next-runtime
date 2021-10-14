@@ -1,4 +1,6 @@
-const { join } = require('path')
+const {
+  posix: { join },
+} = require('path')
 
 exports.restoreCache = async ({ cache, publish }) => {
   const cacheDir = join(publish, 'cache')

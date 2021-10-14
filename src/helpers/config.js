@@ -110,43 +110,26 @@ exports.getNextConfig = async function getNextConfig({ publish, failBuild = defa
   }
 }
 
-exports.setIncludedFiles = ({ netlifyConfig, publish }) => {
-  // Serverless functions need parts of build dist in runtime env
+exports.configureHandlerFunctions = ({ netlifyConfig, publish }) => {
   ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
-    if (!netlifyConfig.functions[functionName]) {
-      netlifyConfig.functions[functionName] = {}
-    }
-    if (!netlifyConfig.functions[functionName].included_files) {
-      netlifyConfig.functions[functionName].included_files = []
-    }
+    netlifyConfig.functions[functionName] ||= { included_files: [], external_node_modules: [] }
+    netlifyConfig.functions[functionName].node_bundler = 'nft'
+    netlifyConfig.functions[functionName].included_files ||= []
     netlifyConfig.functions[functionName].included_files.push(
       `${publish}/server/**`,
       `${publish}/serverless/**`,
       `${publish}/*.json`,
       `${publish}/BUILD_ID`,
+      '!node_modules/@next/swc-*/**/*',
+      '!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
+      '!node_modules/next/dist/pages/**/*',
+      `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
+      `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
+      '!node_modules/next/dist/compiled/webpack/(bundle4|bundle5).js',
+      '!node_modules/react/**/*.development.js',
+      '!node_modules/react-dom/**/*.development.js',
+      '!node_modules/use-subscription/**/*.development.js',
+      '!node_modules/sharp/**/*',
     )
-  })
-}
-
-exports.setBundler = ({ netlifyConfig, target }) => {
-  if (target === 'serverless') {
-    // Any bundler works with serverless
-    return
-  }
-
-  // Not quite such a simple a check, as we need to check both the default bundler
-  // and whether any of the individual functions are using the esbuild bundler.
-  const handlers = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME]
-  const defaultIsEsbuild = Boolean(netlifyConfig.functions['*']?.node_bundler === 'esbuild')
-  const handlerBundlers = handlers.map((func) => netlifyConfig.functions[func]?.node_bundler)
-  if (
-    (defaultIsEsbuild && !handlerBundlers.every((bundler) => bundler === 'zisi')) ||
-    handlerBundlers.includes('esbuild')
-  ) {
-    console.warn(`esbuild is not supported for target=${target}. Setting to "zisi"`)
-  }
-  handlers.forEach((func) => {
-    netlifyConfig.functions[func] ||= {}
-    netlifyConfig.functions[func].node_bundler = 'zisi'
   })
 }
