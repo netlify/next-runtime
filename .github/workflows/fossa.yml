@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - chore/fossa-workflow
-      - main
+      - v4
 
 defaults:
   run:
