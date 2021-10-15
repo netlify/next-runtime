@@ -87,7 +87,9 @@ const { builder } = require("@netlify/functions");
 const { config }  = require("${publishDir}/required-server-files.json")
 const path = require("path");
 exports.handler = ${
-  isODB ? `builder((${makeHandler().toString()})(config));` : `(${makeHandler().toString()})(config, "${appDir}");`
+  isODB
+    ? `builder((${makeHandler().toString()})(config, "${appDir}"));`
+    : `(${makeHandler().toString()})(config, "${appDir}");`
 }
 `
 
