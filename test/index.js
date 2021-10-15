@@ -97,16 +97,16 @@ describe('preBuild()', () => {
     expect(
       plugin.onPreBuild({
         ...defaultArgs,
-        constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '15.11.4' },
+        constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.15.0' },
       }),
-    ).rejects.toThrow('This version of the Essential Next.js plugin requires netlify-cli@4.4.2 or higher')
+    ).rejects.toThrow('This version of the Essential Next.js plugin requires netlify-cli')
   })
 
   test('passes if the build version is new enough', async () => {
     expect(
       plugin.onPreBuild({
         ...defaultArgs,
-        constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '15.12.2' },
+        constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.16.1' },
       }),
     ).resolves.not.toThrow()
   })
