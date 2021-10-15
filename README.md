@@ -32,3 +32,7 @@ package = "@netlify/plugin-nextjs"
 ```
 
 If you previously set `target: "serverless"` in your `next.config.js` this is no longer needed and can be removed.
+
+## Beta feedback
+
+Please share any thoughts, feedback or questions about the beta in our discussion [here](https://github.com/netlify/netlify-plugin-nextjs/discussions/706).
