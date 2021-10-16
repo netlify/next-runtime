@@ -52,8 +52,6 @@ body:
       label: Your `netlify.toml` file
       description: (If you're using file-based config) Please provide a copy of your `netlify.toml` file.
       render: shell
-    validations:
-      required: true
   - type: textarea
     id: logs
     attributes:
