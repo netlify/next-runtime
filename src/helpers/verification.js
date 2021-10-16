@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { yellowBright } = require('chalk')
+const { yellowBright, greenBright, blueBright } = require('chalk')
 const { existsSync } = require('fs-extra')
 const outdent = require('outdent')
 const { satisfies } = require('semver')
@@ -52,3 +52,13 @@ exports.checkForRootPublish = ({ publish, failBuild }) => {
       In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config, or the Next site is in a subdirectory.`)
   }
 }
+
+exports.logBetaMessage = () =>
+  console.log(
+    greenBright(
+      outdent`
+        Thank you for trying the Essential Next.js beta plugin. 
+        Please share feedback at ${blueBright`https://ntl.fyi/next-beta-feedback`}
+      `,
+    ),
+  )

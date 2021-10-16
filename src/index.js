@@ -12,6 +12,7 @@ const {
   checkNextSiteHasBuilt,
   verifyBuildTarget,
   checkForRootPublish,
+  logBetaMessage,
 } = require('./helpers/verification')
 
 module.exports = {
@@ -23,6 +24,7 @@ module.exports = {
       cache,
     },
   }) {
+    logBetaMessage()
     const { publish } = netlifyConfig.build
     checkForRootPublish({ publish, failBuild })
     verifyNetlifyBuildVersion({ failBuild, ...constants })
@@ -65,5 +67,8 @@ module.exports = {
 
   async onPostBuild({ netlifyConfig, utils: { cache } }) {
     return saveCache({ cache, publish: netlifyConfig.build.publish })
+  },
+  onEnd() {
+    logBetaMessage()
   },
 }
