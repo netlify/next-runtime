@@ -35,4 +35,4 @@ If you previously set `target: "serverless"` in your `next.config.js` this is no
 
 ## Beta feedback
 
-Please share any thoughts, feedback or questions about the beta in our discussion [here](https://github.com/netlify/netlify-plugin-nextjs/discussions/706).
+Please share any thoughts, feedback or questions about the beta [in our discussion](https://github.com/netlify/netlify-plugin-nextjs/discussions/706).
