@@ -61,7 +61,7 @@
     "moize": "^6.1.0",
     "outdent": "^0.8.0",
     "semver": "^7.3.5",
-    "slash": "^3.0.0",
+    "slash": "^4.0.0",
     "tiny-glob": "^0.2.9"
   },
   "devDependencies": {
