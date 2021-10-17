@@ -7,9 +7,9 @@ const defaultFailBuild = (message, { error }) => {
   throw new Error(`${message}\n${error && error.stack}`)
 }
 
-const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, HIDDEN_PATHS, ODB_PATH } = require('../constants')
+const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, HIDDEN_PATHS } = require('../constants')
 
-const ODB_FUNCTION_PATH = `/.netlify/${ODB_PATH}/${ODB_FUNCTION_NAME}`
+const ODB_FUNCTION_PATH = `/.netlify/builders/${ODB_FUNCTION_NAME}`
 const HANDLER_FUNCTION_PATH = `/.netlify/functions/${HANDLER_FUNCTION_NAME}`
 
 const CATCH_ALL_REGEX = /\/\[\.{3}(.*)](.json)?$/

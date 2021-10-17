@@ -2,7 +2,7 @@ const { join, relative } = require('path')
 
 const { copyFile, ensureDir, writeFile, writeJSON } = require('fs-extra')
 
-const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, ODB_PATH } = require('../constants')
+const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../constants')
 const getHandler = require('../templates/getHandler')
 const { getPageResolver } = require('../templates/getPageResolver')
 
@@ -78,7 +78,7 @@ exports.setupImageFunction = async ({
     },
     {
       from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,
-      to: `/.netlify/${ODB_PATH}/${IMAGE_FUNCTION_NAME}`,
+      to: `/.netlify/builders/${IMAGE_FUNCTION_NAME}`,
       status: 200,
     },
   )
