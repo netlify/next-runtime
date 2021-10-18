@@ -1,4 +1,4 @@
-const { writeJSON, unlink, existsSync, readFileSync, copy } = require('fs-extra')
+const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir } = require('fs-extra')
 const path = require('path')
 const process = require('process')
 
@@ -42,7 +42,16 @@ const onBuildHasRun = (netlifyConfig) =>
 
 // Move .next from sample project to current directory
 const moveNextDist = async function () {
+  await stubModules(['next', 'react', 'react-dom', 'sharp'])
   await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), '.next'))
+}
+
+const stubModules = async function (modules) {
+  for (const mod of modules) {
+    const dir = path.join(process.cwd(), 'node_modules', mod)
+    await ensureDir(dir)
+    await writeJSON(path.join(dir, 'package.json'), { name: mod })
+  }
 }
 
 // Copy fixture files to the current directory
@@ -185,15 +194,15 @@ describe('onBuild()', () => {
       '.next/serverless/**',
       '.next/*.json',
       '.next/BUILD_ID',
-      '!node_modules/@next/swc-*/**/*',
-      '!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
+      '!../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       '!node_modules/next/dist/pages/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
-      '!node_modules/next/dist/compiled/webpack/(bundle4|bundle5).js',
+      '!node_modules/next/dist/compiled/webpack/bundle4.js',
+      '!node_modules/next/dist/compiled/webpack/bundle5.js',
+      '!node_modules/next/dist/compiled/terser/bundle.min.js',
       '!node_modules/react/**/*.development.js',
       '!node_modules/react-dom/**/*.development.js',
-      '!node_modules/use-subscription/**/*.development.js',
       '!node_modules/sharp/**/*',
     ]
     expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files).toEqual(includes)

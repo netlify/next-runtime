@@ -112,7 +112,7 @@ exports.getNextConfig = async function getNextConfig({ publish, failBuild = defa
 
 const resolveModuleRoot = (moduleName) => {
   try {
-    return dirname(relative(process.cwd(), require.resolve(`${moduleName}/package.json`)))
+    return dirname(relative(process.cwd(), require.resolve(`${moduleName}/package.json`, { paths: [process.cwd()] })))
   } catch (error) {
     return null
   }
