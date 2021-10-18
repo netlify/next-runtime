@@ -1,5 +1,5 @@
 // @ts-check
-const { join } = require('path')
+const { join, dirname, relative } = require('path')
 
 const { readJSON } = require('fs-extra')
 
@@ -100,17 +100,29 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
 
 exports.getNextConfig = async function getNextConfig({ publish, failBuild = defaultFailBuild }) {
   try {
-    const { config, appDir } = await readJSON(join(publish, 'required-server-files.json'))
+    const { config, appDir, ignore } = await readJSON(join(publish, 'required-server-files.json'))
     if (!config) {
       return failBuild('Error loading your Next config')
     }
-    return { ...config, appDir }
+    return { ...config, appDir, ignore }
   } catch (error) {
     return failBuild('Error loading your Next config', { error })
   }
 }
 
-exports.configureHandlerFunctions = ({ netlifyConfig, publish }) => {
+const resolveModuleRoot = (moduleName) => {
+  try {
+    return dirname(relative(process.cwd(), require.resolve(`${moduleName}/package.json`)))
+  } catch (error) {
+    return null
+  }
+}
+
+exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) => {
+  /* eslint-disable no-underscore-dangle */
+  netlifyConfig.functions._ipx ||= {}
+  netlifyConfig.functions._ipx.node_bundler = 'esbuild'
+  /* eslint-enable no-underscore-dangle */
   ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
     netlifyConfig.functions[functionName] ||= { included_files: [], external_node_modules: [] }
     netlifyConfig.functions[functionName].node_bundler = 'nft'
@@ -120,16 +132,33 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish }) => {
       `${publish}/serverless/**`,
       `${publish}/*.json`,
       `${publish}/BUILD_ID`,
-      '!node_modules/@next/swc-*/**/*',
-      '!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
-      '!node_modules/next/dist/pages/**/*',
-      `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
-      `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
-      '!node_modules/next/dist/compiled/webpack/(bundle4|bundle5).js',
-      '!node_modules/react/**/*.development.js',
-      '!node_modules/react-dom/**/*.development.js',
-      '!node_modules/use-subscription/**/*.development.js',
-      '!node_modules/sharp/**/*',
+      ...ignore.map((path) => `!${path}`),
     )
+
+    const nextRoot = resolveModuleRoot('next')
+    if (nextRoot) {
+      netlifyConfig.functions[functionName].included_files.push(
+        `!${nextRoot}/dist/pages/**/*`,
+        `!${nextRoot}/dist/server/lib/squoosh/**/*.wasm`,
+        `!${nextRoot}/dist/next-server/server/lib/squoosh/**/*.wasm`,
+        `!${nextRoot}/dist/compiled/webpack/bundle4.js`,
+        `!${nextRoot}/dist/compiled/webpack/bundle5.js`,
+        `!${nextRoot}/dist/compiled/terser/bundle.min.js`,
+      )
+    }
+
+    const reactRoot = resolveModuleRoot('react')
+    if (reactRoot) {
+      netlifyConfig.functions[functionName].included_files.push(`!${reactRoot}/**/*.development.js`)
+    }
+    const reactDomRoot = resolveModuleRoot('react-dom')
+    if (reactDomRoot) {
+      netlifyConfig.functions[functionName].included_files.push(`!${reactDomRoot}/**/*.development.js`)
+    }
+
+    const sharpRoot = resolveModuleRoot('sharp')
+    if (sharpRoot) {
+      netlifyConfig.functions[functionName].included_files.push(`!${sharpRoot}/**/*`)
+    }
   })
 }

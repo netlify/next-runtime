@@ -43,11 +43,11 @@ module.exports = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target } = await getNextConfig({ publish, failBuild })
+    const { appDir, basePath, i18n, images, target, ignore } = await getNextConfig({ publish, failBuild })
 
     verifyBuildTarget(target)
 
-    configureHandlerFunctions({ netlifyConfig, publish: relative(process.cwd(), publish) })
+    configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
 
     await generateFunctions(constants, appDir)
     await generatePagesResolver({ netlifyConfig, target, constants })
