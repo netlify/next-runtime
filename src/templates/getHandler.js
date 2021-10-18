@@ -49,6 +49,10 @@ const makeHandler =
     bridge.listen()
 
     return async (event, context) => {
+      // Next expects to be able to parse the query from the URL
+      const query = new URLSearchParams(event.queryStringParameters).toString()
+      event.path = query ? `${event.path}?${query}` : event.path
+
       const { headers, ...result } = await bridge.launcher(event, context)
       /** @type import("@netlify/functions").HandlerResponse */
 
