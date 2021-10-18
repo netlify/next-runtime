@@ -1,7 +1,6 @@
 // @ts-check
-const { join, dirname, relative } = require('path')
-
 const { readJSON } = require('fs-extra')
+const { join, dirname, relative } = require('pathe')
 
 const defaultFailBuild = (message, { error }) => {
   throw new Error(`${message}\n${error && error.stack}`)
