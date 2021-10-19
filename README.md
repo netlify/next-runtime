@@ -31,7 +31,7 @@ publish = ".next"
 package = "@netlify/plugin-nextjs"
 ```
 
-If you previously set `target: "serverless"`, or set `node_bundler` or `external_node_modules` in your `next.config.js` these are longer needed and can be removed.
+If you previously set `target: "serverless"`, `node_bundler` or `external_node_modules` in your `next.config.js` these are longer needed and can be removed.
 
 ## Beta feedback
 
