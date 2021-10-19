@@ -146,15 +146,6 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) =>
       )
     }
 
-    const reactRoot = resolveModuleRoot('react')
-    if (reactRoot) {
-      netlifyConfig.functions[functionName].included_files.push(`!${reactRoot}/**/*.development.js`)
-    }
-    const reactDomRoot = resolveModuleRoot('react-dom')
-    if (reactDomRoot) {
-      netlifyConfig.functions[functionName].included_files.push(`!${reactDomRoot}/**/*.development.js`)
-    }
-
     const sharpRoot = resolveModuleRoot('sharp')
     if (sharpRoot) {
       netlifyConfig.functions[functionName].included_files.push(`!${sharpRoot}/**/*`)
