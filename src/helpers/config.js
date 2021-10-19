@@ -1,6 +1,6 @@
 // @ts-check
 const { readJSON } = require('fs-extra')
-const { join, dirname, relative } = require('pathe')
+const { join, dirname, relative, normalize } = require('pathe')
 
 const defaultFailBuild = (message, { error }) => {
   throw new Error(`${message}\n${error && error.stack}`)
@@ -137,7 +137,6 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) =>
     const nextRoot = resolveModuleRoot('next')
     if (nextRoot) {
       netlifyConfig.functions[functionName].included_files.push(
-        `!${nextRoot}/dist/pages/**/*`,
         `!${nextRoot}/dist/server/lib/squoosh/**/*.wasm`,
         `!${nextRoot}/dist/next-server/server/lib/squoosh/**/*.wasm`,
         `!${nextRoot}/dist/compiled/webpack/bundle4.js`,
