@@ -7,26 +7,33 @@ const makeHandler =
   () =>
   // We return a function and then call `toString()` on it to serialise it as the launcher function
   (conf, app) => {
-    let NextServer
-    try {
-      // next >= 11.0.1. Yay breaking changes in patch releases!
-      NextServer = require('next/dist/server/next-server').default
-    } catch {
-      // Probably an old version of next
-    }
-
     // This is just so nft knows about the page entrypoints
     try {
       // eslint-disable-next-line node/no-missing-require
       require.resolve('./pages.js')
     } catch {}
 
+    let NextServer
+    try {
+      // next >= 11.0.1. Yay breaking changes in patch releases!
+      NextServer = require('next/dist/server/next-server').default
+    } catch (error) {
+      if (!error.message.includes("Cannot find module 'next/dist/server/next-server'")) {
+        // A different error, so rethrow it
+        throw error
+      }
+      // Probably an old version of next
+    }
+
     if (!NextServer) {
       try {
         // next < 11.0.1
         // eslint-disable-next-line node/no-missing-require, import/no-unresolved
         NextServer = require('next/dist/next-server/server/next-server').default
-      } catch {
+      } catch (error) {
+        if (!error.message.includes("Cannot find module 'next/dist/next-server/server/next-server'")) {
+          throw error
+        }
         throw new Error('Could not find Next.js server')
       }
     }
@@ -66,11 +73,7 @@ const makeHandler =
         }
       }
 
-      if (
-        multiValueHeaders['set-cookie'] &&
-        multiValueHeaders['set-cookie'][0] &&
-        multiValueHeaders['set-cookie'][0].includes('__prerender_bypass')
-      ) {
+      if (multiValueHeaders['set-cookie']?.[0]?.includes('__prerender_bypass')) {
         delete multiValueHeaders.etag
         multiValueHeaders['cache-control'] = ['no-cache']
       }
