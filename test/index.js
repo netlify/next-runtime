@@ -42,7 +42,7 @@ const onBuildHasRun = (netlifyConfig) =>
 
 // Move .next from sample project to current directory
 const moveNextDist = async function () {
-  await stubModules(['next', 'react', 'react-dom', 'sharp'])
+  await stubModules(['next', 'sharp'])
   await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), '.next'))
 }
 
