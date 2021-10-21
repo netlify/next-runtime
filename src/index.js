@@ -4,6 +4,7 @@ const { join, relative } = require('path')
 
 const { copy, existsSync } = require('fs-extra')
 
+const { ODB_FUNCTION_NAME } = require('./constants')
 const { restoreCache, saveCache } = require('./helpers/cache')
 const { getNextConfig, configureHandlerFunctions, generateRedirects } = require('./helpers/config')
 const { generateFunctions, setupImageFunction, generatePagesResolver } = require('./helpers/functions')
@@ -13,6 +14,7 @@ const {
   verifyBuildTarget,
   checkForRootPublish,
   logBetaMessage,
+  checkZipSize,
 } = require('./helpers/verification')
 
 module.exports = {
@@ -65,8 +67,9 @@ module.exports = {
     })
   },
 
-  async onPostBuild({ netlifyConfig, utils: { cache } }) {
-    return saveCache({ cache, publish: netlifyConfig.build.publish })
+  async onPostBuild({ netlifyConfig, utils: { cache }, constants }) {
+    await saveCache({ cache, publish: netlifyConfig.build.publish })
+    await checkZipSize(join(process.cwd(), constants.FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
   },
   onEnd() {
     logBetaMessage()

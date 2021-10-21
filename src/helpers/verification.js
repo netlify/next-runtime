@@ -1,8 +1,11 @@
+const { existsSync, promises } = require('fs')
 const path = require('path')
+const { relative } = require('path')
 
-const { yellowBright, greenBright, blueBright } = require('chalk')
-const { existsSync } = require('fs-extra')
+const { yellowBright, greenBright, blueBright, redBright } = require('chalk')
+const { async: StreamZip } = require('node-stream-zip')
 const outdent = require('outdent')
+const prettyBytes = require('pretty-bytes')
 const { satisfies } = require('semver')
 
 exports.verifyBuildTarget = (target) => {
@@ -51,6 +54,42 @@ exports.checkForRootPublish = ({ publish, failBuild }) => {
       Your publish directory is pointing to the base directory of your site. This is not supported for Next.js sites, and is probably a mistake. 
       In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config, or the Next site is in a subdirectory.`)
   }
+}
+
+// 50MB, which is the documented max, though the hard max seems to be higher
+const LAMBDA_MAX_SIZE = 1024 * 1024 * 50
+
+exports.checkZipSize = async (file) => {
+  const size = await promises.stat(file).then(({ size }) => size)
+  if (size < LAMBDA_MAX_SIZE) {
+    return
+  }
+  // We don't fail the build, because the actual hard max size is larger so it might still succeed
+  console.log(
+    redBright(outdent`
+
+    The function zip ${yellowBright(relative(process.cwd(), file))} size is ${prettyBytes(
+      size,
+    )}, which is larger than the maximum supported size of ${prettyBytes(LAMBDA_MAX_SIZE)}.
+    There are a few reasons this could happen. You may have accidentally bundled a large dependency, or you might have a
+    large number of pre-rendered pages included.
+  
+    `),
+  )
+  const zip = new StreamZip({ file })
+  console.log(`Contains ${await zip.entriesCount} files`)
+  const sortedFiles = Object.values(await zip.entries()).sort((a, b) => b.size - a.size)
+
+  const largest = {}
+  for (let i = 0; i < 10; i++) {
+    largest[`${i + 1}`] = {
+      File: sortedFiles[i].name,
+      'Compressed Size': prettyBytes(sortedFiles[i].compressedSize),
+      'Uncompressed Size': prettyBytes(sortedFiles[i].size),
+    }
+  }
+  console.log(yellowBright`\n\nThese are the largest files in the zip:`)
+  console.table(largest)
 }
 
 exports.logBetaMessage = () =>

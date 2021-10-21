@@ -58,8 +58,10 @@
     "chalk": "^4.1.2",
     "fs-extra": "^10.0.0",
     "moize": "^6.1.0",
+    "node-stream-zip": "^1.15.0",
     "outdent": "^0.8.0",
     "pathe": "^0.2.0",
+    "pretty-bytes": "^5.6.0",
     "semver": "^7.3.5",
     "slash": "^3.0.0",
     "tiny-glob": "^0.2.9"

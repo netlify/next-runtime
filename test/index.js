@@ -14,6 +14,7 @@ const SAMPLE_PROJECT_DIR = `${__dirname}/../demo`
 const constants = {
   INTERNAL_FUNCTIONS_SRC: '.netlify/internal-functions',
   PUBLISH_DIR: '.next',
+  FUNCTIONS_DIST: '.netlify/functions',
 }
 const utils = {
   build: {
