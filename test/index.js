@@ -1,4 +1,4 @@
-const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir } = require('fs-extra')
+const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson } = require('fs-extra')
 const path = require('path')
 const process = require('process')
 const os = require('os')
@@ -41,10 +41,19 @@ const changeCwd = function (cwd) {
 const onBuildHasRun = (netlifyConfig) =>
   Boolean(netlifyConfig.functions[HANDLER_FUNCTION_NAME]?.included_files?.some((file) => file.includes('BUILD_ID')))
 
+const rewriteAppDir = async function () {
+  const manifest = path.join('.next', 'required-server-files.json')
+  const manifestContent = await readJson(manifest)
+  manifestContent.appDir = process.cwd()
+
+  await writeJSON(manifest, manifestContent)
+}
+
 // Move .next from sample project to current directory
 const moveNextDist = async function () {
   await stubModules(['next', 'sharp'])
   await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), '.next'))
+  await rewriteAppDir()
 }
 
 const stubModules = async function (modules) {
@@ -225,20 +234,15 @@ describe('onBuild()', () => {
   })
 
   test('generates entrypoints with correct references', async () => {
+    await moveNextDist()
+    await plugin.onBuild(defaultArgs)
+
     const handlerFile = path.join(
-      SAMPLE_PROJECT_DIR,
-      '.netlify',
-      'functions-internal',
+      constants.INTERNAL_FUNCTIONS_SRC,
       HANDLER_FUNCTION_NAME,
       `${HANDLER_FUNCTION_NAME}.js`,
     )
-    const odbHandlerFile = path.join(
-      SAMPLE_PROJECT_DIR,
-      '.netlify',
-      'functions-internal',
-      ODB_FUNCTION_NAME,
-      `${ODB_FUNCTION_NAME}.js`,
-    )
+    const odbHandlerFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, `${ODB_FUNCTION_NAME}.js`)
     expect(existsSync(handlerFile)).toBeTruthy()
     expect(existsSync(odbHandlerFile)).toBeTruthy()
 

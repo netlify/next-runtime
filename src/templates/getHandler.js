@@ -136,6 +136,11 @@ const makeHandler =
         multiValueHeaders['cache-control'] = ['no-cache']
       }
 
+      // Sending SWR headers causes undefined behaviour with the Netlify CDN
+      if (multiValueHeaders['cache-control']?.[0]?.includes('stale-while-revalidate')) {
+        multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
+      }
+
       return {
         ...result,
         multiValueHeaders,
