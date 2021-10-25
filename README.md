@@ -31,7 +31,11 @@ publish = ".next"
 package = "@netlify/plugin-nextjs"
 ```
 
-If you previously set `target: "serverless"`, `node_bundler` or `external_node_modules` in your `next.config.js` these are no longer needed and can be removed.
+If you previously set `target: "serverless"` or a custom `distDir` in your `next.config.js`, or set `node_bundler` or `external_node_modules` in your `netlify.toml` these are no longer needed and can be removed.
+
+If you are using a monorepo you will need to change `publish` to point to the full path to the built `.next` directory, which may be in a subdirectory. If you have changed your `distDir` then it will need to match that. 
+
+If you are using Nx, then you will need to point `publish` to the folder inside `dist`, e.g. `dist/apps/myapp/.next`. 
 
 ## Beta feedback
 
