@@ -7,6 +7,7 @@ const { copy, existsSync } = require('fs-extra')
 const { ODB_FUNCTION_NAME } = require('./constants')
 const { restoreCache, saveCache } = require('./helpers/cache')
 const { getNextConfig, configureHandlerFunctions, generateRedirects } = require('./helpers/config')
+const { moveStaticPages, movePublicFiles } = require('./helpers/files')
 const { generateFunctions, setupImageFunction, generatePagesResolver } = require('./helpers/functions')
 const {
   verifyNetlifyBuildVersion,
@@ -54,10 +55,12 @@ module.exports = {
     await generateFunctions(constants, appDir)
     await generatePagesResolver({ netlifyConfig, target, constants })
 
-    const publicDir = join(appDir, 'public')
-    if (existsSync(publicDir)) {
-      await copy(publicDir, `${publish}/`)
+    await movePublicFiles({ appDir, publish })
+
+    if (process.env.EXPERIMENTAL_MOVE_STATIC_PAGES) {
+      await moveStaticPages({ target, failBuild, netlifyConfig, i18n })
     }
+
     await setupImageFunction({ constants, imageconfig: images, netlifyConfig, basePath })
 
     await generateRedirects({
