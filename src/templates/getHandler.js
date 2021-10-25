@@ -1,18 +1,71 @@
+const { promises, createWriteStream, existsSync } = require('fs')
 const { Server } = require('http')
+const { tmpdir } = require('os')
 const path = require('path')
+const { promisify } = require('util')
 
+const streamPipeline = promisify(require('stream').pipeline)
 const { Bridge } = require('@vercel/node/dist/bridge')
+const fetch = require('node-fetch')
 
 const makeHandler =
   () =>
   // We return a function and then call `toString()` on it to serialise it as the launcher function
-  (conf, app) => {
-    // This is just so nft knows about the page entrypoints
+  (conf, app, pageRoot, staticManifest = []) => {
+    // This is just so nft knows about the page entrypoints. It's not actually used
     try {
       // eslint-disable-next-line node/no-missing-require
       require.resolve('./pages.js')
     } catch {}
 
+    // Set during the request as it needs the host header. Hoisted so we can define the function once
+    let base
+
+    // Only do this if we have some static files moved to the CDN
+    if (staticManifest.length !== 0) {
+      // These are static page files that have been removed from the function bundle
+      // In most cases these are served from the CDN, but for rewrites Next may try to read them
+      // from disk. We need to intercept these and load them from the CDN instead
+      // Sadly the only way to do this is to monkey-patch fs.promises. Yeah, I know.
+      const staticFiles = new Set(staticManifest)
+
+      // Yes, you can cache stuff locally in a Lambda
+      const cacheDir = path.join(tmpdir(), 'next-static-cache')
+      // Grab the real fs.promises.readFile...
+      const readfileOrig = promises.readFile
+      // ...then money-patch it to see if it's requesting a CDN file
+      promises.readFile = async (file, options) => {
+        // We only care about page files
+        if (file.startsWith(pageRoot)) {
+          // We only want the part after `pages/`
+          const filePath = file.slice(pageRoot.length + 1)
+          // Is it in the CDN and not local?
+          if (staticFiles.has(filePath) && !existsSync(file)) {
+            // This name is safe to use, because it's one that was already created by Next
+            const cacheFile = path.join(cacheDir, filePath)
+            // Have we already cached it? We ignore the cache if running locally to avoid staleness
+            if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && base) {
+              await promises.mkdir(path.dirname(cacheFile), { recursive: true })
+
+              // Append the path to our host and we can load it like a regular page
+              const url = `${base}/${filePath}`
+              console.log(`Downloading ${url} to ${cacheFile}`)
+              const response = await fetch(url)
+              if (!response.ok) {
+                // Next catches this and returns it as a not found file
+                throw new Error(`Failed to fetch ${url}`)
+              }
+              // Stream it to disk
+              await streamPipeline(response.body, createWriteStream(cacheFile))
+            }
+            // Return the cache file
+            return readfileOrig(cacheFile, options)
+          }
+        }
+
+        return readfileOrig(file, options)
+      }
+    }
     let NextServer
     try {
       // next >= 11.0.1. Yay breaking changes in patch releases!
@@ -59,7 +112,12 @@ const makeHandler =
       // Next expects to be able to parse the query from the URL
       const query = new URLSearchParams(event.queryStringParameters).toString()
       event.path = query ? `${event.path}?${query}` : event.path
-
+      // Only needed if we're intercepting static files
+      if (staticManifest.length !== 0) {
+        const { host } = event.headers
+        const protocol = event.headers['x-forwarded-proto'] || 'http'
+        base = `${protocol}://${host}`
+      }
       const { headers, ...result } = await bridge.launcher(event, context)
       /** @type import("@netlify/functions").HandlerResponse */
 
@@ -88,15 +146,26 @@ const makeHandler =
 
 const getHandler = ({ isODB = false, publishDir = '../../../.next', appDir = '../../..' }) => `
 const { Server } = require("http");
+const { tmpdir } = require('os')
+const { promises, createWriteStream, existsSync } = require("fs");
+const { promisify } = require('util')
+const streamPipeline = promisify(require('stream').pipeline)
 // We copy the file here rather than requiring from the node module
 const { Bridge } = require("./bridge");
+const fetch = require('node-fetch')
+
 const { builder } = require("@netlify/functions");
 const { config }  = require("${publishDir}/required-server-files.json")
+let staticManifest 
+try {
+  staticManifest = require("${publishDir}/static-manifest.json")
+} catch {}
 const path = require("path");
+const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", config.target === "server" ? "server" : "serverless", "pages"));
 exports.handler = ${
   isODB
-    ? `builder((${makeHandler().toString()})(config, "${appDir}"));`
-    : `(${makeHandler().toString()})(config, "${appDir}");`
+    ? `builder((${makeHandler().toString()})(config, "${appDir}", pageRoot, staticManifest));`
+    : `(${makeHandler().toString()})(config, "${appDir}", pageRoot, staticManifest);`
 }
 `
 

@@ -9,4 +9,14 @@ module.exports = {
   // trailingSlash: true,
   // Configurable site features _to_ support:
   // basePath: '/docs',
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: '/old/:path*',
+          destination: '/:path*',
+        }
+      ]
+    }
+  }
 }
