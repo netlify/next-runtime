@@ -227,8 +227,6 @@ describe('onBuild()', () => {
 
 describe('onPostBuild', () => {
   test('saves cache with right paths', async () => {
-    await useFixture('dist_dir_next_config')
-
     const save = jest.fn()
 
     await plugin.onPostBuild({

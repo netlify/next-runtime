@@ -60,6 +60,10 @@ exports.checkForRootPublish = ({ publish, failBuild }) => {
 const LAMBDA_MAX_SIZE = 1024 * 1024 * 50
 
 exports.checkZipSize = async (file) => {
+  if (!existsSync(file)) {
+    console.warn(`Could not check zip size because ${file} does not exist`)
+    return
+  }
   const size = await promises.stat(file).then(({ size }) => size)
   if (size < LAMBDA_MAX_SIZE) {
     return
