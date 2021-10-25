@@ -59,13 +59,13 @@ exports.checkForRootPublish = ({ publish, failBuild }) => {
 // 50MB, which is the documented max, though the hard max seems to be higher
 const LAMBDA_MAX_SIZE = 1024 * 1024 * 50
 
-exports.checkZipSize = async (file) => {
+exports.checkZipSize = async (file, maxSize = LAMBDA_MAX_SIZE) => {
   if (!existsSync(file)) {
     console.warn(`Could not check zip size because ${file} does not exist`)
     return
   }
   const size = await promises.stat(file).then(({ size }) => size)
-  if (size < LAMBDA_MAX_SIZE) {
+  if (size < maxSize) {
     return
   }
   // We don't fail the build, because the actual hard max size is larger so it might still succeed
@@ -74,7 +74,7 @@ exports.checkZipSize = async (file) => {
 
     The function zip ${yellowBright(relative(process.cwd(), file))} size is ${prettyBytes(
       size,
-    )}, which is larger than the maximum supported size of ${prettyBytes(LAMBDA_MAX_SIZE)}.
+    )}, which is larger than the maximum supported size of ${prettyBytes(maxSize)}.
     There are a few reasons this could happen. You may have accidentally bundled a large dependency, or you might have a
     large number of pre-rendered pages included.
   
@@ -85,7 +85,7 @@ exports.checkZipSize = async (file) => {
   const sortedFiles = Object.values(await zip.entries()).sort((a, b) => b.size - a.size)
 
   const largest = {}
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 10 && i < sortedFiles.length; i++) {
     largest[`${i + 1}`] = {
       File: sortedFiles[i].name,
       'Compressed Size': prettyBytes(sortedFiles[i].compressedSize),
@@ -94,6 +94,9 @@ exports.checkZipSize = async (file) => {
   }
   console.log(yellowBright`\n\nThese are the largest files in the zip:`)
   console.table(largest)
+  console.log(
+    greenBright`\n\nFor more information on fixing this, see ${blueBright`https://ntl.fyi/large-next-functions`}`,
+  )
 }
 
 exports.logBetaMessage = () =>
@@ -101,7 +104,7 @@ exports.logBetaMessage = () =>
     greenBright(
       outdent`
         Thank you for trying the Essential Next.js beta plugin. 
-        Please share feedback at ${blueBright`https://ntl.fyi/next-beta-feedback`}
+        Please share feedback (both good and bad) at ${blueBright`https://ntl.fyi/next-beta-feedback`}
       `,
     ),
   )
