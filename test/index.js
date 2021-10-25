@@ -223,6 +223,30 @@ describe('onBuild()', () => {
     expect(readFileSync(handlerPagesFile, 'utf8')).toMatchSnapshot()
     expect(readFileSync(odbHandlerPagesFile, 'utf8')).toMatchSnapshot()
   })
+
+  test('generates entrypoints with correct references', async () => {
+    const handlerFile = path.join(
+      SAMPLE_PROJECT_DIR,
+      '.netlify',
+      'functions-internal',
+      HANDLER_FUNCTION_NAME,
+      `${HANDLER_FUNCTION_NAME}.js`,
+    )
+    const odbHandlerFile = path.join(
+      SAMPLE_PROJECT_DIR,
+      '.netlify',
+      'functions-internal',
+      ODB_FUNCTION_NAME,
+      `${ODB_FUNCTION_NAME}.js`,
+    )
+    expect(existsSync(handlerFile)).toBeTruthy()
+    expect(existsSync(odbHandlerFile)).toBeTruthy()
+
+    expect(readFileSync(handlerFile, 'utf8')).toMatch(`(config, "../../..", pageRoot, staticManifest)`)
+    expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`(config, "../../..", pageRoot, staticManifest)`)
+    expect(readFileSync(handlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
+    expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
+  })
 })
 
 describe('onPostBuild', () => {

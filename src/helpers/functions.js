@@ -1,6 +1,5 @@
-const { join, relative } = require('path')
-
 const { copyFile, ensureDir, writeFile, writeJSON } = require('fs-extra')
+const { join, relative } = require('pathe')
 
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../constants')
 const getHandler = require('../templates/getHandler')
