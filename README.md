@@ -31,7 +31,9 @@ publish = ".next"
 package = "@netlify/plugin-nextjs"
 ```
 
-If you previously set `target: "serverless"` or a custom `distDir` in your `next.config.js`, or set `node_bundler` or `external_node_modules` in your `netlify.toml` these are no longer needed and can be removed.
+If you previously set `target: "serverless"` or a custom `distDir` in your `next.config.js`, or set `node_bundler` or `external_node_modules` in your `netlify.toml` these are no longer needed and can be removed. 
+
+The `serverless` and `experimental-serverless-trace` targets are deprecated in Next 12, and all builds with this plugin will now use the default `server` target.
 
 If you are using a monorepo you will need to change `publish` to point to the full path to the built `.next` directory, which may be in a subdirectory. If you have changed your `distDir` then it will need to match that. 
 

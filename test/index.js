@@ -79,6 +79,8 @@ beforeEach(async () => {
   cleanup = tmpDir.cleanup
 
   netlifyConfig.build.publish = path.posix.resolve('.next')
+  netlifyConfig.build.environment = {}
+
   netlifyConfig.redirects = []
   netlifyConfig.functions[HANDLER_FUNCTION_NAME] && (netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files = [])
   netlifyConfig.functions[ODB_FUNCTION_NAME] && (netlifyConfig.functions[ODB_FUNCTION_NAME].included_files = [])
@@ -88,7 +90,6 @@ beforeEach(async () => {
 afterEach(async () => {
   jest.clearAllMocks()
   jest.resetAllMocks()
-  delete process.env.NEXT_PRIVATE_TARGET
   // Cleans up the temporary directory from `getTmpDir()` and do not make it
   // the current directory anymore
   restoreCwd()
@@ -132,6 +133,13 @@ describe('preBuild()', () => {
     })
 
     expect(restore).toHaveBeenCalledWith(path.posix.resolve('.next/cache'))
+  })
+
+  it('forces the target to "server"', async () => {
+    const netlifyConfig = { ...defaultArgs.netlifyConfig }
+
+    await plugin.onPreBuild({ ...defaultArgs, netlifyConfig })
+    expect(netlifyConfig.build.environment.NEXT_PRIVATE_TARGET).toBe('server')
   })
 })
 

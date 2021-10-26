@@ -12,7 +12,6 @@ const { generateFunctions, setupImageFunction, generatePagesResolver } = require
 const {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
-  verifyBuildTarget,
   checkForRootPublish,
   logBetaMessage,
   checkZipSize,
@@ -33,6 +32,10 @@ module.exports = {
     verifyNetlifyBuildVersion({ failBuild, ...constants })
 
     await restoreCache({ cache, publish })
+
+    netlifyConfig.build.environment ||= {}
+    // eslint-disable-next-line unicorn/consistent-destructuring
+    netlifyConfig.build.environment.NEXT_PRIVATE_TARGET = 'server'
   },
 
   async onBuild({
@@ -47,8 +50,6 @@ module.exports = {
     checkNextSiteHasBuilt({ publish, failBuild })
 
     const { appDir, basePath, i18n, images, target, ignore } = await getNextConfig({ publish, failBuild })
-
-    verifyBuildTarget(target)
 
     configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
 
