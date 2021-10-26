@@ -10,7 +10,9 @@ There are two possible causes for this, each with its own solution. The list of 
     [functions]
     excluded_files = "node_modules/electron/**/*"
     ```
-    If you do need large modules (e.g. if you are running Puppeteer in a Next API route), consider changing to a Netlify function.
+    If you do need large modules (e.g. if you are running Puppeteer in a Next API route), consider changing to a Netlify function which will have less overhead than the equivalent Next.js function.
 
 - **Large numbers of pre-rendered pages**
-If you have a very large number of pre-rendered pages, these can take up a lot of space in the function. There are two approaches to fixing this. One is to consider deferring the building of the pages. If you set `fallback = "blocking"`, the rendering will be deferred until the first user requests the page. This is a good choice for low-traffic pages. It reduces build and deploy time, and can make your bundle a lot smaller. The other option is to enable an experimental feature that moves static files out of the function bundle. To do this, set the environment variable `EXPERIMENTAL_MOVE_STATIC_PAGES` to true.
+  If you have a very large number of pre-rendered pages, these can take up a lot of space in the function. There are two approaches to fixing this. One is to consider deferring the building of the pages. If you return `fallback: "blocking"` from `getStaticPaths` the rendering will be deferred until the first user requests the page. This is a good choice for low-traffic pages. It reduces build and deploy time, and can make your bundle a lot smaller. 
+  
+  The other option is to enable an experimental feature that moves static files out of the function bundle. To do this, set the environment variable `EXPERIMENTAL_MOVE_STATIC_PAGES` to true.
