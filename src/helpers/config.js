@@ -1,6 +1,7 @@
 // @ts-check
 const { readJSON } = require('fs-extra')
 const { join, dirname, relative } = require('pathe')
+const slash = require('slash')
 
 const defaultFailBuild = (message, { error }) => {
   throw new Error(`${message}\n${error && error.stack}`)
@@ -131,7 +132,7 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) =>
       `${publish}/serverless/**`,
       `${publish}/*.json`,
       `${publish}/BUILD_ID`,
-      ...ignore.map((path) => `!${path}`),
+      ...ignore.map((path) => `!${slash(path)}`),
     )
 
     const nextRoot = resolveModuleRoot('next')
