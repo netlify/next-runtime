@@ -8,14 +8,6 @@ const outdent = require('outdent')
 const prettyBytes = require('pretty-bytes')
 const { satisfies } = require('semver')
 
-exports.verifyBuildTarget = (target) => {
-  if (target !== 'server') {
-    console.log(
-      yellowBright`Setting target to ${target} is no longer required. You should check if target=server works for you.`,
-    )
-  }
-}
-
 // This is when nft support was added
 const REQUIRED_BUILD_VERSION = '>=18.16.0'
 
