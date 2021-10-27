@@ -71,9 +71,9 @@ module.exports = {
     })
   },
 
-  async onPostBuild({ netlifyConfig, utils: { cache }, constants }) {
+  async onPostBuild({ netlifyConfig, utils: { cache }, constants: { FUNCTIONS_DIST } }) {
     await saveCache({ cache, publish: netlifyConfig.build.publish })
-    await checkZipSize(join(process.cwd(), constants.FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
+    await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
   },
   onEnd() {
     logBetaMessage()
