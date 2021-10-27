@@ -14,6 +14,9 @@
   </a>
 </p>
 
+## What's new in this version
+
+Version 4 is a complete rewrite of the Essential Next.js plugin. For full details of everything that's new, see [the v4 release notes](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/release-notes/v4.md)
 
 ## Installing the beta
 
