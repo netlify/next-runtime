@@ -150,5 +150,10 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) =>
     if (sharpRoot) {
       netlifyConfig.functions[functionName].included_files.push(`!${sharpRoot}/**/*`)
     }
+
+    const electronRoot = resolveModuleRoot('electron')
+    if (electronRoot) {
+      netlifyConfig.functions[functionName].included_files.push(`!${electronRoot}/**/*`)
+    }
   })
 }
