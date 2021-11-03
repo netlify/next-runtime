@@ -133,6 +133,8 @@ const resolveModuleRoot = (moduleName) => {
   }
 }
 
+const DEFAULT_EXCLUDED_MODULES = ['sharp', 'electron']
+
 exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) => {
   /* eslint-disable no-underscore-dangle */
   netlifyConfig.functions._ipx ||= {}
@@ -147,6 +149,7 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) =>
       `${publish}/serverless/**`,
       `${publish}/*.json`,
       `${publish}/BUILD_ID`,
+      `${publish}/static/chunks/webpack-middleware*.js`,
       ...ignore.map((path) => `!${slash(path)}`),
     )
 
@@ -161,14 +164,11 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) =>
       )
     }
 
-    const sharpRoot = resolveModuleRoot('sharp')
-    if (sharpRoot) {
-      netlifyConfig.functions[functionName].included_files.push(`!${sharpRoot}/**/*`)
-    }
-
-    const electronRoot = resolveModuleRoot('electron')
-    if (electronRoot) {
-      netlifyConfig.functions[functionName].included_files.push(`!${electronRoot}/**/*`)
-    }
+    DEFAULT_EXCLUDED_MODULES.forEach((moduleName) => {
+      const moduleRoot = resolveModuleRoot(moduleName)
+      if (moduleRoot) {
+        netlifyConfig.functions[functionName].included_files.push(`!${moduleRoot}/**/*`)
+      }
+    })
   })
 }

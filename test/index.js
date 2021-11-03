@@ -212,6 +212,7 @@ describe('onBuild()', () => {
       '.next/serverless/**',
       '.next/*.json',
       '.next/BUILD_ID',
+      '.next/static/chunks/webpack-middleware*.js',
       '!../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
