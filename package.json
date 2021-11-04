@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build:demo": "next build demo",
-    "cy:open": "cypress open --config-file ../cypress/config/all.json",
+    "cy:open": "cypress open --config-file cypress/config/all.json",
     "cy:run": "cypress run --config-file ../cypress/config/ci.json",
     "dev:demo": "next dev demo",
     "format": "run-s format:check-fix:*",
