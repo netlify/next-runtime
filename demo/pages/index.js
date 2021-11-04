@@ -31,7 +31,7 @@ const Index = ({ shows }) => (
       Refresh this page to see it change.
     </p>
 
-    <ul>
+    <ul data-testid="list-server-side">
       {shows.map(({ id, name }) => (
         <li key={id}>
           <Link href="/shows/[id]" as={`/shows/${id}`}>
@@ -50,7 +50,7 @@ const Index = ({ shows }) => (
       Click on a show to check out a server-side rendered page with dynamic routing (/shows/:id).
     </p>
 
-    <ul>
+    <ul data-testid="list-dynamic-pages">
       {shows.slice(0, 3).map(({ id, name }) => (
         <li key={id}>
           <Link href="/shows/[id]" as={`/shows/${id}`}>
@@ -70,7 +70,7 @@ const Index = ({ shows }) => (
       <br />
       Here are three examples:
     </p>
-    <ul>
+    <ul data-testid="list-catch-all">
       <li>
         <Link href="/shows/[...params]" as={`/shows/73/whatever/path/you/want`}>
           <a>/shows/73/whatever/path/you/want</a>
@@ -97,7 +97,7 @@ const Index = ({ shows }) => (
       Static pages are pre-rendered and served directly by Netlify&apos;s CDN.
     </p>
 
-    <ul>
+    <ul data-testid="list-static">
       <li>
         <Link href="/static">
           <a>Static NextJS page: /static</a>
