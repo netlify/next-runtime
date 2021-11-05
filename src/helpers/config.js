@@ -150,6 +150,7 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) =>
       `${publish}/*.json`,
       `${publish}/BUILD_ID`,
       `${publish}/static/chunks/webpack-middleware*.js`,
+      `!${publish}/server/**/*.js.nft.json`,
       ...ignore.map((path) => `!${slash(path)}`),
     )
 

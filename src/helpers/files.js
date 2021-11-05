@@ -23,7 +23,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n, failBuild }) => 
     await move(source, dest)
   }
   // Move all static files, except error documents and nft manifests
-  const pages = await glob('**/!(500|404|*.nft).{html,json}', {
+  const pages = await glob('**/!(500|404|*.js.nft).{html,json}', {
     cwd: root,
     dot: true,
   })
