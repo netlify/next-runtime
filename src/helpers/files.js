@@ -4,6 +4,7 @@ const { cpus } = require('os')
 const { existsSync, readJson, move, cpSync, copy, writeJson } = require('fs-extra')
 const pLimit = require('p-limit')
 const { join } = require('pathe')
+const slash = require('slash')
 const glob = require('tiny-glob')
 
 const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
@@ -30,7 +31,8 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n, failBuild }) => 
 
   // Limit concurrent file moves to number of cpus or 2 if there is only 1
   const limit = pLimit(Math.max(2, cpus().length))
-  const promises = pages.map(async (filePath) => {
+  const promises = pages.map(async (rawPath) => {
+    const filePath = slash(rawPath)
     if (isDynamicRoute(filePath)) {
       return
     }
