@@ -46,7 +46,10 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n, failBuild }) => 
 
   if (i18n?.defaultLocale) {
     // Copy the default locale into the root
-    await copy(join(netlifyConfig.build.publish, i18n.defaultLocale), `${netlifyConfig.build.publish}/`)
+    const defaultLocaleDir = join(netlifyConfig.build.publish, i18n.defaultLocale)
+    if (existsSync(defaultLocaleDir)) {
+      await copy(defaultLocaleDir, `${netlifyConfig.build.publish}/`)
+    }
   }
 }
 
