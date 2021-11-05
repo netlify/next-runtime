@@ -118,11 +118,14 @@ const Index = ({ shows }) => (
 )
 
 Index.getInitialProps = async function () {
+  const dev = process.env.CONTEXT !== 'production';
+
   // Set a random page between 1 and 100
   const randomPage = Math.floor(Math.random() * 100) + 1
+  const server = dev ? 'http://localhost:3000/shows1.json' : `https://api.tvmaze.com/shows?page=${randomPage}`;
 
   // Get the data
-  const res = await fetch(`https://api.tvmaze.com/shows?page=${randomPage}`)
+  const res = await fetch(server);
   const data = await res.json()
 
   return { shows: data.slice(0, 5) }
