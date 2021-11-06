@@ -62,25 +62,18 @@ exports.setupImageFunction = async ({
   await ensureDir(functionDirectory)
   await writeJSON(join(functionDirectory, 'imageconfig.json'), {
     ...imageconfig,
-    basePath: [basePath, IMAGE_FUNCTION_NAME].join('/'),
+    basePath: `/.netlify/builders/${IMAGE_FUNCTION_NAME}`,
   })
   await copyFile(join(__dirname, '..', 'templates', 'ipx.js'), join(functionDirectory, functionName))
 
   const imagePath = imageconfig.path || '/_next/image'
 
-  netlifyConfig.redirects.push(
-    {
-      from: `${imagePath}*`,
-      query: { url: ':url', w: ':width', q: ':quality' },
-      to: `${basePath}/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
-      status: 301,
-    },
-    {
-      from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,
-      to: `/.netlify/builders/${IMAGE_FUNCTION_NAME}`,
-      status: 200,
-    },
-  )
+  netlifyConfig.redirects.push({
+    from: `${imagePath}*`,
+    query: { url: ':url', w: ':width', q: ':quality' },
+    to: `/.netlify/builders/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
+    status: 200,
+  })
 
   if (basePath) {
     // next/image generates image static URLs that still point at the site root

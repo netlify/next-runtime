@@ -22,3 +22,14 @@ package = "netlify-plugin-cypress"
 
 [context.deploy-preview.plugins.inputs]
 configFile = "../cypress/config/ci.json"
+
+# [[redirects]]
+# from = '/_next/image*'
+# query = { url = ':url', w = ':width', q = ':quality' }
+# to = '/.netlify/builders/_ipx/w_:width,q_:quality/:url'
+# status = 200
+
+# [[redirects]]
+# from = "/*"
+# to = "/.netlify/functions/___netlify-handler/:splat"
+# status = 200
