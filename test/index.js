@@ -208,7 +208,7 @@ describe('onBuild()', () => {
     process.env.EXPERIMENTAL_MOVE_STATIC_PAGES = 'true'
     await plugin.onBuild(defaultArgs)
     expect(existsSync(path.resolve('.next/static-manifest.json'))).toBeTruthy()
-    const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
+    const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8')).sort()
     expect(data).toMatchSnapshot()
     delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
   })
