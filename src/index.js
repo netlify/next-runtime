@@ -2,8 +2,6 @@
 
 const { join, relative } = require('path')
 
-const { copy, existsSync } = require('fs-extra')
-
 const { ODB_FUNCTION_NAME } = require('./constants')
 const { restoreCache, saveCache } = require('./helpers/cache')
 const { getNextConfig, configureHandlerFunctions, generateRedirects } = require('./helpers/config')
