@@ -2,7 +2,7 @@
 Version 4 of the Essential Next.js build plugin adds support for native Next.js [rewrites](https://nextjs.org/docs/api-reference/next.config.js/rewrites) and [redirects](https://nextjs.org/docs/api-reference/next.config.js/redirects). These are defined in your `next.config.js` file and include support for some features that are not included in Netlify redirects and rewrites.
 
 ## Using Netlify redirects and rewrites on a Next.js site
-Every site on Netlify supports [redirects and rewrites](https://docs.netlify.com/routing/redirects/), which are defined in a `_redirects` file or `netlify.toml`, and sites that use this plugin are no exceptions. However there are some caveats to bear in mind when using them. The plugin generates several rewrites of its own, which are used to map paths from the site to different Netlify functions which handle SSR, preview mode and images, as well as assets in `/_next/static`. Any Netlify redirects or rewrites that you create take precedence over these rewrites, so you should avoid adding a root level rewrite, because that would override the rewrites required by the plugin.
+Every site on Netlify supports [redirects and rewrites](https://docs.netlify.com/routing/redirects/), which are defined in a `_redirects` file or `netlify.toml`, and sites that use this plugin are no exceptions. However there are some caveats to bear in mind when using them. The plugin generates several rewrites of its own, which are used to map paths from the site to different Netlify functions which handle SSR, preview mode and images, as well as assets in `/_next/static`. Any Netlify redirects or rewrites that you create [take precedence over these rewrites](#Redirect-and-rewrite-precedence), so you should avoid adding a root level rewrite, because that would override the rewrites required by the plugin.
 
 ## Redirect and rewrite precedence
 Rewrites and redirects are applied in the following order:
@@ -10,7 +10,7 @@ Rewrites and redirects are applied in the following order:
 1. Redirects and rewrites in the `_redirects` file. These are read in order until a match is found, and then processing stops.
 2. Redirects and rewrites in the `netlify.toml` file. None of these are read if one previous rules has already matched.
 3. At this point, if the request targets a static file then it will be returned, without the Next.js redirects or rewrites being evaluated.
-4. Any request that does not target a static file will then be passed to Next.js, which will then evaluate redirects and rewrites. These are defined in the `next.config.js` file.
+4. Any request that does not target a static file will then be passed to Next.js, and then will evaluate redirects and rewrites (which are defined in the `next.config.js` file).
 
 ## General principles
 
@@ -18,7 +18,7 @@ Netlify and Next.js redirects support different features and are evaluated at di
 
 ### When to use Netlify redirects or rewrites:
 - Generally if your redirect can be handled with Netlify redirects, these are faster to evaluate and should be preferred.
-- Features such as identity, proxying and country-based redirects are Netlify-specific and must use Netlify redirects.
+- [Identity](https://docs.netlify.com/visitor-access/identity/), [proxying](https://docs.netlify.com/routing/redirects/rewrites-proxies/) and [country-based redirects](https://docs.netlify.com/routing/redirects/) are Netlify-specific features and must use Netlify redirects.
 - If you need redirects or rewrites to be applied before loading static files, you must use Netlify redirects and rewrites.
 
 ### When to use Next.js redirects or rewrites:
