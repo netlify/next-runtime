@@ -203,6 +203,49 @@ describe('onBuild()', () => {
     expect(existsSync(path.resolve('.next/BUILD_ID'))).toBeTruthy()
   })
 
+  test('generates static files manifest', async () => {
+    await moveNextDist()
+    process.env.EXPERIMENTAL_MOVE_STATIC_PAGES = 'true'
+    await plugin.onBuild(defaultArgs)
+    expect(existsSync(path.resolve('.next/static-manifest.json'))).toBeTruthy()
+    const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8')).sort()
+    expect(data).toMatchSnapshot()
+    delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
+  })
+
+  test('moves static files to root', async () => {
+    await moveNextDist()
+    process.env.EXPERIMENTAL_MOVE_STATIC_PAGES = 'true'
+    await plugin.onBuild(defaultArgs)
+    const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
+
+    data.forEach((file) => {
+      expect(existsSync(path.resolve(path.join('.next', file)))).toBeTruthy()
+      expect(existsSync(path.resolve(path.join('.next', 'server', 'pages', file)))).toBeFalsy()
+    })
+
+    delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
+  })
+
+  test('copies default locale files to top level', async () => {
+    await moveNextDist()
+    process.env.EXPERIMENTAL_MOVE_STATIC_PAGES = 'true'
+    await plugin.onBuild(defaultArgs)
+    const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
+
+    const locale = 'en/'
+
+    data.forEach((file) => {
+      if (!file.startsWith(locale)) {
+        return
+      }
+      const trimmed = file.substring(locale.length)
+      expect(existsSync(path.resolve(path.join('.next', trimmed)))).toBeTruthy()
+    })
+
+    delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
+  })
+
   test('sets correct config', async () => {
     await moveNextDist()
 
@@ -213,6 +256,7 @@ describe('onBuild()', () => {
       '.next/*.json',
       '.next/BUILD_ID',
       '.next/static/chunks/webpack-middleware*.js',
+      '!.next/server/**/*.js.nft.json',
       '!../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
