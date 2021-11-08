@@ -2,10 +2,10 @@
 const { cpus } = require('os')
 
 const { existsSync, readJson, move, cpSync, copy, writeJson } = require('fs-extra')
+const globby = require('globby')
 const pLimit = require('p-limit')
 const { join } = require('pathe')
 const slash = require('slash')
-const glob = require('tiny-glob')
 
 const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
 
@@ -24,7 +24,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n, failBuild }) => 
     await move(source, dest)
   }
   // Move all static files, except error documents and nft manifests
-  const pages = await glob('**/!(500|404|*.js.nft).{html,json}', {
+  const pages = await globby(['**/*.{html,json}', '!**/(500|404|*.js.nft).{html,json}'], {
     cwd: root,
     dot: true,
   })
