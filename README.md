@@ -42,7 +42,7 @@ If you are using a monorepo you will need to change `publish` to point to the fu
 
 If you are using Nx, then you will need to point `publish` to the folder inside `dist`, e.g. `dist/apps/myapp/.next`. 
 
-If you currently use redirects or rewrites on your site, see [the Rewrites and Redirects guide](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/rewrites-and-redirects.md) for information on changes to how they are handled in this version.
+If you currently use redirects or rewrites on your site, see [the Rewrites and Redirects guide](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/redirects-rewrites.md) for information on changes to how they are handled in this version.
 
 ## Beta feedback
 
