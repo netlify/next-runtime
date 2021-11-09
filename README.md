@@ -68,14 +68,14 @@ Read more about [file-based plugin installation](https://docs.netlify.com/config
 
 ## Docs
 
-- [CLI Usage](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/cli-usage.md)
-- [Custom Netlify Functions](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/custom-functions.md)
-- [Image Handling](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/image-handling.md)
-- [Monorepos and Nx](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/monorepos.md)
-- [Custom Netlify Redirects](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/custom-redirects.md)
-- [Local Files in Runtime](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/local-files-in-runtime.md)
-- [FAQ](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/faq.md)
-- [Caveats](https://github.com/netlify/netlify-plugin-nextjs/tree/main/docs/caveats.md)
+- [CLI Usage](https://github.com/netlify/netlify-plugin-nextjs/tree/v3/docs/cli-usage.md)
+- [Custom Netlify Functions](https://github.com/netlify/netlify-plugin-nextjs/tree/v3/docs/custom-functions.md)
+- [Image Handling](https://github.com/netlify/netlify-plugin-nextjs/tree/v3/docs/image-handling.md)
+- [Monorepos and Nx](https://github.com/netlify/netlify-plugin-nextjs/tree/v3/docs/monorepos.md)
+- [Custom Netlify Redirects](https://github.com/netlify/netlify-plugin-nextjs/tree/v3/docs/custom-redirects.md)
+- [Local Files in Runtime](https://github.com/netlify/netlify-plugin-nextjs/tree/v3/docs/local-files-in-runtime.md)
+- [FAQ](https://github.com/netlify/netlify-plugin-nextjs/tree/v3/docs/faq.md)
+- [Caveats](https://github.com/netlify/netlify-plugin-nextjs/tree/main/v3/caveats.md)
 
 ## Credits
 
