@@ -1,4 +1,3 @@
-/* eslint-disable eslint-comments/disable-enable-pair, max-nested-callbacks */
 describe('Default site', () => {
   beforeEach(() => {
     cy.visit('/')

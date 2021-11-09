@@ -1,4 +1,3 @@
-/* eslint-disable eslint-comments/disable-enable-pair, max-nested-callbacks */
 describe('Dynamic Routing', () => {
   it('loads page', () => {
     cy.visit('/shows/250')
