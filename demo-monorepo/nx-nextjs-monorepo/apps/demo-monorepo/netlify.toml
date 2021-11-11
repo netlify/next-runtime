@@ -1,0 +1,10 @@
+ [build]
+  command = "npm run build"
+  publish = "apps/demo-monorepo/out"
+
+[dev]
+  command = "npm run start"
+  targetPort = 4200
+
+[[plugins]]
+package = "../../local-plugin"

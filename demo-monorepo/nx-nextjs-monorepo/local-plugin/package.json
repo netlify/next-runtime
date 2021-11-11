@@ -1,0 +1,11 @@
+{
+  "name": "local-plugin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "preinstall": "cd ../.. && npm i"
+  },
+  "author": "",
+  "license": "ISC"
+}
