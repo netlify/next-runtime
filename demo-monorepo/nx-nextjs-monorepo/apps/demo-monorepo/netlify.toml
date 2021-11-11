@@ -1,6 +1,6 @@
  [build]
   command = "npm run build"
-  publish = "apps/demo-monorepo/out"
+  publish = "apps/demo-monorepo/.dist"
 
 [dev]
   command = "npm run start"
