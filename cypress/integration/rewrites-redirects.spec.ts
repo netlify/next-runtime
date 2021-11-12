@@ -3,7 +3,7 @@ describe('Rewrites and Redirects', () => {
     // preview mode is off by default
     cy.visit('/old')
     cy.findByText('Next Demo!')
-    cy.url().should('eq', `${Cypress.config().baseUrl}/old`)
+    cy.url().should('eq', `${Cypress.config().baseUrl}/old/`)
 
     // ensure headers are still set
     cy.request('/api/enterPreview').then(
