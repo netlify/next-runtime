@@ -212,6 +212,7 @@ Array [
         "__next_preview_data",
       ],
     },
+    "force": true,
     "from": "/*",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",

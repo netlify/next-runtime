@@ -80,21 +80,6 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
     netlifyConfig.redirects.push({ from: `${basePath}/:locale/_next/static/*`, to: `/static/:splat`, status: 200 })
   }
 
-  const staticManifest = join(netlifyConfig.build.publish, 'static-manifest.json')
-  if (process.env.EXPERIMENTAL_MOVE_STATIC_PAGES && existsSync(staticManifest)) {
-    // Static page files need to have a forced redirect for preview mode. Otherwise it's non-forced
-    const staticFiles = await readJSON(staticManifest)
-    netlifyConfig.redirects.push(
-      ...staticFiles.map((file) => ({
-        from: `${basePath}/${file}`,
-        to: HANDLER_FUNCTION_PATH,
-        status: 200,
-        force: true,
-        conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
-      })),
-    )
-  }
-
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
     { from: `${basePath}/_next/static/*`, to: `/static/:splat`, status: 200 },
@@ -103,6 +88,7 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
       to: HANDLER_FUNCTION_PATH,
       status: 200,
       conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
+      force: true,
     },
     ...redirects.map((redirect) => ({
       from: `${basePath}${redirect}`,
