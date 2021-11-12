@@ -2,7 +2,7 @@
 
 # Essential Next.js Build Plugin (beta)
 
-:warning: This is the beta version of the Essential Next.js plugin. For the stable version, see
+:warning: This is the beta version of the Essential Next.js plugin. For the stable version, refer to
 [Essential Next.js plugin v3](https://github.com/netlify/netlify-plugin-nextjs/tree/v3#readme) :warning:
 
 <p align="center">
@@ -16,7 +16,7 @@
 
 ## What's new in this version
 
-Version 4 is a complete rewrite of the Essential Next.js plugin. For full details of everything that's new, see
+Version 4 is a complete rewrite of the Essential Next.js plugin. For full details of everything that's new, check out
 [the v4 release notes](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/release-notes/v4.md)
 
 ## Installing the beta
@@ -53,7 +53,7 @@ If you currently use redirects or rewrites on your site, see
 [the Rewrites and Redirects guide](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/redirects-rewrites.md)
 for information on changes to how they are handled in this version.
 
-If you want to use Next 12's beta middleware feature, this will mostly work as expected but please
+If you want to use Next 12's beta Middleware feature, this will mostly work as expected but please
 [read the docs on some caveats and workarounds](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/middleware.md)
 that are currently needed.
 

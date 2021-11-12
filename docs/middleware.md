@@ -1,10 +1,10 @@
 # Using Next 12 middleware on Netlify
 
-Next 12 introduces a new feature called [middleware](https://nextjs.org/docs/middleware), which are functions that are
-run before a request has finished processing, and can be used to modify the request or replace the response. For
+Next 12 introduces a new feature called [Middleware](https://nextjs.org/docs/middleware), in which functions
+run before a request has finished processing. Middleware can be used to modify the request or replace the response. For
 example, it can change headers, rewrite the request path, or return a different response entirely.
 
-Next Middleware can run either in an edge function or at the origin. On Netlify, middleware runs at the origin as part
+Next.js Middleware can run either in an edge function or at the origin. On Netlify, middleware runs at the origin as part
 of the normal Next.js server.
 
 ## How to deploy Next 12 middleware
@@ -15,7 +15,7 @@ workarounds that are currently required for some features during the beta period
 
 ### `geo`
 
-When running at the origin, Next does not populate the `request.geo` object. Fortunately there is a one line fix to get
+When running at the origin, Next.js does not populate the `request.geo` object. Fortunately there is a one line fix to get
 the visitor's country:
 
 ```typescript
@@ -42,8 +42,8 @@ export async function middleware(req: NextRequest) {
 
 ## Caveats
 
-Because the middleware runs at the origin, it is run _after_ Netlify rewrites and redirects. If a static file is served
-then it is never run, as it is only run when a page is served by Next.js. This means that it should not be used with the
+Because the middleware runs at the origin, it is run _after_ Netlify rewrites and redirects. If a static file is served by the Netlify CDN 
+then the middleware is never run, as middleware only runs when a page is served by Next.js. This means that middleware should not be used with the
 `EXPERIMENTAL_MOVE_STATIC_FILES` option, as this causes statically-generated pages to be served by the Netlify CDN
 before any middleware can be run.
 
@@ -72,5 +72,5 @@ export function middleware(req: NextRequest) {
 }
 ```
 
-If you have any issues with middleware on Netlify while it is beta, particularly if they cannot be reproduced when
-running locally, then please add a comment to [the Next plugin beta discussion](https://ntl.fyi/next-beta-feedback)
+If you have an issue with Next.js middleware on Netlify while it is beta, particularly if the issue cannot be reproduced when
+running locally, then please add a comment to [the Next plugin beta discussion](https://ntl.fyi/next-beta-feedback).
