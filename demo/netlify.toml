@@ -12,7 +12,7 @@ CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
 framework = "#static"
 
 [[plugins]]
-package = "./local-plugin"
+package = "@netlify/plugin-nextjs"
 
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
