@@ -146,7 +146,8 @@ Index.getInitialProps = async function () {
 
   // Set a random page between 1 and 100
   const randomPage = Math.floor(Math.random() * 100) + 1
-  const server = dev ? 'http://localhost:3000/shows1.json' : `https://api.tvmaze.com/shows?page=${randomPage}`;
+  // FIXME: stub out in dev
+  const server = dev ? `https://api.tvmaze.com/shows?page=${randomPage}` : `https://api.tvmaze.com/shows?page=${randomPage}`;
 
   // Get the data
   const res = await fetch(server);
