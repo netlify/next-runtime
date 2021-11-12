@@ -71,7 +71,7 @@ exports.resolvePages = () => {
 exports[`onBuild() writes correct redirects to netlifyConfig 1`] = `
 Array [
   Object {
-    "from": "/_next/image*",
+    "from": "/_next/image/*",
     "query": Object {
       "q": ":quality",
       "url": ":url",
