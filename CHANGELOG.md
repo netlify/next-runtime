@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.0.0-beta.6](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.5...v4.0.0-beta.6) (2021-11-08)
+
+
+### Bug Fixes
+
+* handle static file glob on Windows ([#778](https://www.github.com/netlify/netlify-plugin-nextjs/issues/778)) ([1cc222a](https://www.github.com/netlify/netlify-plugin-nextjs/commit/1cc222a866c2bb410965a2867984005737792fb3))
+* use glob to select files to move ([#768](https://www.github.com/netlify/netlify-plugin-nextjs/issues/768)) ([faeb703](https://www.github.com/netlify/netlify-plugin-nextjs/commit/faeb7033296a43cee7a4494298d0df4f7e78bbd3))
+
 ## [4.0.0-beta.5](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.4...v4.0.0-beta.5) (2021-11-03)
 
 

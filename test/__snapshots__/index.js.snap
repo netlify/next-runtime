@@ -68,6 +68,62 @@ exports.resolvePages = () => {
 }"
 `;
 
+exports[`onBuild() generates static files manifest 1`] = `
+Array [
+  "en/getStaticProps/1.html",
+  "en/getStaticProps/1.json",
+  "en/getStaticProps/2.html",
+  "en/getStaticProps/2.json",
+  "en/getStaticProps/static.html",
+  "en/getStaticProps/static.json",
+  "en/getStaticProps/with-revalidate.html",
+  "en/getStaticProps/with-revalidate.json",
+  "en/getStaticProps/withFallback/3.html",
+  "en/getStaticProps/withFallback/3.json",
+  "en/getStaticProps/withFallback/4.html",
+  "en/getStaticProps/withFallback/4.json",
+  "en/getStaticProps/withFallback/my/path/1.html",
+  "en/getStaticProps/withFallback/my/path/1.json",
+  "en/getStaticProps/withFallback/my/path/2.html",
+  "en/getStaticProps/withFallback/my/path/2.json",
+  "en/getStaticProps/withFallbackBlocking/3.html",
+  "en/getStaticProps/withFallbackBlocking/3.json",
+  "en/getStaticProps/withFallbackBlocking/4.html",
+  "en/getStaticProps/withFallbackBlocking/4.json",
+  "en/getStaticProps/withRevalidate/1.html",
+  "en/getStaticProps/withRevalidate/1.json",
+  "en/getStaticProps/withRevalidate/2.html",
+  "en/getStaticProps/withRevalidate/2.json",
+  "en/getStaticProps/withRevalidate/withFallback/1.html",
+  "en/getStaticProps/withRevalidate/withFallback/1.json",
+  "en/getStaticProps/withRevalidate/withFallback/2.html",
+  "en/getStaticProps/withRevalidate/withFallback/2.json",
+  "en/image.html",
+  "en/middle.html",
+  "en/previewTest.html",
+  "en/previewTest.json",
+  "en/static.html",
+  "es/getStaticProps/static.html",
+  "es/getStaticProps/static.json",
+  "es/getStaticProps/with-revalidate.html",
+  "es/getStaticProps/with-revalidate.json",
+  "es/image.html",
+  "es/middle.html",
+  "es/previewTest.html",
+  "es/previewTest.json",
+  "es/static.html",
+  "fr/getStaticProps/static.html",
+  "fr/getStaticProps/static.json",
+  "fr/getStaticProps/with-revalidate.html",
+  "fr/getStaticProps/with-revalidate.json",
+  "fr/image.html",
+  "fr/middle.html",
+  "fr/previewTest.html",
+  "fr/previewTest.json",
+  "fr/static.html",
+]
+`;
+
 exports[`onBuild() writes correct redirects to netlifyConfig 1`] = `
 Array [
   Object {

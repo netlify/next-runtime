@@ -1,6 +1,6 @@
 {
   "name": "@netlify/plugin-nextjs",
-  "version": "4.0.0-beta.5",
+  "version": "4.0.0-beta.6",
   "description": "Run Next.js seamlessly on Netlify",
   "main": "lib/index.js",
   "files": [
@@ -57,6 +57,7 @@
     "@vercel/node": "^1.11.2-canary.4",
     "chalk": "^4.1.2",
     "fs-extra": "^10.0.0",
+    "globby": "^11.0.4",
     "moize": "^6.1.0",
     "node-fetch": "^2.6.6",
     "node-stream-zip": "^1.15.0",
