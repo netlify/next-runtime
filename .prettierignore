@@ -1,6 +1,3 @@
-# Markdown
-*.md
-
 # Logs
 logs
 *.log
@@ -19,6 +16,5 @@ node_modules
 .parcel-cache
 
 # Test
-demo
 lib
 tsconfig.json

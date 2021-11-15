@@ -25,17 +25,27 @@ body:
       label: A link to a reproduction repository
       description: The fastest way to describe your bug is to provide a reproduction repository.
       placeholder: https://github.com/project/link-to-your-reproduction-repo
+
   - type: markdown
     attributes:
       value: |
         Check out [CONTRIBUTING.md](https://github.com/netlify/netlify-plugin-nextjs/blob/main/CONTRIBUTING.md#what-is-a-reproducible-test-case) for advice on producing a reproduction repo.
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: The version of `@netlify/plugin-nextjs` that you are using. (This is in the build logs)
+      placeholder: x.x.x
+    validations:
+      required: true
+
   - type: checkboxes
     id: more-info
     attributes:
       label: More information about your build
       options:
         - label: I am building using the CLI
-        - label: I am building using file-based configuration (netlify.toml)
+        - label: I am building using file-based configuration (`netlify.toml`)
   - type: dropdown
     id: which-os
     attributes:
@@ -51,8 +61,22 @@ body:
     attributes:
       label: Your `netlify.toml` file
       description: (If you're using file-based config) Please provide a copy of your `netlify.toml` file.
-      render: shell
+      value: |
+        <details>
+          <summary>`netlify.toml`</summary>
+        ```toml
+        # Paste content of your `netlify.toml` file here
+        ```
+        </details>
+
   - type: textarea
     id: logs
     attributes:
       label: Relevant log output (or link to your logs)
+      value: |
+        <details>
+          <summary>Build logs</summary>
+        ```
+        # Paste logs here
+        ```
+        </details>
