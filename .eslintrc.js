@@ -34,5 +34,16 @@ module.exports = {
   env: {
     jest: true,
   },
-  overrides: [...overrides],
+  overrides: [
+    ...overrides,
+    {
+      files: ['cypress/**/*.spec.ts'],
+      rules: {
+        'max-nested-callbacks': 0,
+        'promise/prefer-await-to-then': 0,
+        'promise/always-return': 0,
+        'promise/catch-or-return': 0,
+      },
+    },
+  ],
 }
