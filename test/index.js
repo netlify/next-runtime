@@ -8,6 +8,7 @@ const { dir: getTmpDir } = require('tmp-promise')
 const plugin = require('../src')
 
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../src/constants')
+const { join } = require('pathe')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demo`
@@ -312,11 +313,45 @@ describe('onPostBuild', () => {
 
     await plugin.onPostBuild({
       ...defaultArgs,
-      utils: { ...utils, cache: { save } },
+      utils: { ...utils, cache: { save }, functions: { list: jest.fn().mockResolvedValue([]) } },
     })
 
     expect(save).toHaveBeenCalledWith(path.posix.resolve('.next/cache'), {
       digests: [path.posix.resolve('.next/build-manifest.json')],
     })
+  })
+
+  test('warns if old functions exist', async () => {
+    const list = jest.fn().mockResolvedValue([
+      {
+        name: 'next_test',
+        mainFile: join(constants.INTERNAL_FUNCTIONS_SRC, 'next_test', 'next_test.js'),
+        runtime: 'js',
+        extension: '.js',
+      },
+      {
+        name: 'next_demo',
+        mainFile: join(constants.INTERNAL_FUNCTIONS_SRC, 'next_demo', 'next_demo.js'),
+        runtime: 'js',
+        extension: '.js',
+      },
+    ])
+
+    const oldLog = console.log
+    const logMock = jest.fn()
+    console.log = logMock
+    await plugin.onPostBuild({
+      ...defaultArgs,
+
+      utils: { ...utils, cache: { save: jest.fn() }, functions: { list } },
+    })
+
+    expect(logMock).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'We have found the following functions in your site that seem to be left over from the old Next.js plugin.',
+      ),
+    )
+
+    console.log = oldLog
   })
 })

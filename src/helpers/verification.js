@@ -2,7 +2,7 @@ const { existsSync, promises } = require('fs')
 const path = require('path')
 const { relative } = require('path')
 
-const { yellowBright, greenBright, blueBright, redBright } = require('chalk')
+const { yellowBright, greenBright, blueBright, redBright, reset } = require('chalk')
 const { async: StreamZip } = require('node-stream-zip')
 const outdent = require('outdent')
 const prettyBytes = require('pretty-bytes')
@@ -18,6 +18,26 @@ exports.verifyNetlifyBuildVersion = ({ IS_LOCAL, NETLIFY_BUILD_VERSION, failBuil
       This version of the Essential Next.js plugin requires netlify-cli@6.12.4 or higher. Please upgrade and try again.
       You can do this by running: "npm install -g netlify-cli@latest" or "yarn global add netlify-cli@latest"
     `)
+  }
+}
+
+exports.checkForOldFunctions = async ({ functions }) => {
+  const oldFunctions = (await functions.list()).filter(({ name }) => name.startsWith('next_'))
+  if (oldFunctions.length !== 0) {
+    console.log(
+      yellowBright(outdent`
+      We have found the following functions in your site that seem to be left over from the old Next.js plugin. We have guessed this because the name starts with "next_".
+
+      ${reset(oldFunctions.map(({ name }) => `- ${name}`).join('\n'))}
+
+      If they were created by the old plugin, these functions are likely to cause errors so should be removed. You can do this by deleting the following directories:
+
+      ${reset(
+        oldFunctions.map(({ mainFile }) => `- ${path.relative(process.cwd(), path.dirname(mainFile))}`).join('\n'),
+      )}
+
+    `),
+    )
   }
 }
 
