@@ -1,5 +1,3 @@
-// @ts-check
-
 const { join, relative } = require('path')
 
 const { ODB_FUNCTION_NAME } = require('./constants')
@@ -13,8 +11,10 @@ const {
   checkForRootPublish,
   logBetaMessage,
   checkZipSize,
+  checkForOldFunctions,
 } = require('./helpers/verification')
 
+/** @type import("@netlify/build").NetlifyPlugin */
 module.exports = {
   async onPreBuild({
     constants,
@@ -69,8 +69,9 @@ module.exports = {
     })
   },
 
-  async onPostBuild({ netlifyConfig, utils: { cache }, constants: { FUNCTIONS_DIST } }) {
+  async onPostBuild({ netlifyConfig, utils: { cache, functions }, constants: { FUNCTIONS_DIST } }) {
     await saveCache({ cache, publish: netlifyConfig.build.publish })
+    await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
   },
   onEnd() {
