@@ -26,7 +26,7 @@ exports.checkForOldFunctions = async ({ functions }) => {
   if (oldFunctions.length !== 0) {
     console.log(
       yellowBright(outdent`
-      We have found the following functions in your site that seem to be left over from the old Next.js plugin. We have guessed this because the name starts with "next_".
+      We have found the following functions in your site that seem to be left over from the old Next.js plugin (v3). We have guessed this because the name starts with "next_".
 
       ${reset(oldFunctions.map(({ name }) => `- ${name}`).join('\n'))}
 

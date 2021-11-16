@@ -348,7 +348,7 @@ describe('onPostBuild', () => {
 
     expect(logMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        'We have found the following functions in your site that seem to be left over from the old Next.js plugin.',
+        `We have found the following functions in your site that seem to be left over from the old Next.js plugin (v3). We have guessed this because the name starts with "next_".`,
       ),
     )
 
