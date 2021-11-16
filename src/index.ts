@@ -1,19 +1,19 @@
-// @ts-check
+import { join, relative } from 'path'
 
-const { join, relative } = require('path')
+import type { NetlifyPlugin } from '@netlify/build'
 
-const { ODB_FUNCTION_NAME } = require('./constants')
-const { restoreCache, saveCache } = require('./helpers/cache')
-const { getNextConfig, configureHandlerFunctions, generateRedirects } = require('./helpers/config')
-const { moveStaticPages, movePublicFiles } = require('./helpers/files')
-const { generateFunctions, setupImageFunction, generatePagesResolver } = require('./helpers/functions')
-const {
+import { ODB_FUNCTION_NAME } from './constants'
+import { restoreCache, saveCache } from './helpers/cache'
+import { getNextConfig, configureHandlerFunctions, generateRedirects } from './helpers/config'
+import { moveStaticPages, movePublicFiles } from './helpers/files'
+import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
+import {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
   checkForRootPublish,
   logBetaMessage,
   checkZipSize,
-} = require('./helpers/verification')
+} from './helpers/verification'
 
 module.exports = {
   async onPreBuild({
@@ -73,7 +73,8 @@ module.exports = {
     await saveCache({ cache, publish: netlifyConfig.build.publish })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
   },
+
   onEnd() {
     logBetaMessage()
   },
-}
+} as NetlifyPlugin

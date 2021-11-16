@@ -12,10 +12,7 @@ CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
 framework = "#static"
 
 [[plugins]]
-package = "./local-plugin"
-
-[[plugins]]
-package = "@netlify/plugin-local-install-core"
+package = "../src/index.ts"
 
 [[context.deploy-preview.plugins]]
 package = "netlify-plugin-cypress"
