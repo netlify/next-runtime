@@ -1,2 +1,5 @@
 [build]
-base="demo/"
+base = "."
+
+[[plugins]]
+package = "./src/index.ts"
