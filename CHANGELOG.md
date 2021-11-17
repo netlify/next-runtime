@@ -1,5 +1,25 @@
 # Changelog
 
+## [4.0.0-beta.7](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.6...v4.0.0-beta.7) (2021-11-17)
+
+
+### Features
+
+* add docs on middleware ([#795](https://www.github.com/netlify/netlify-plugin-nextjs/issues/795)) ([3b4a8c4](https://www.github.com/netlify/netlify-plugin-nextjs/commit/3b4a8c40e6300c0104c557bf7379859afe2be682))
+* log warning if old functions exist ([#801](https://www.github.com/netlify/netlify-plugin-nextjs/issues/801)) ([01faf58](https://www.github.com/netlify/netlify-plugin-nextjs/commit/01faf5853cd5e536b7549e627e2e65bcd6c4018f))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^0.9.0 ([#807](https://www.github.com/netlify/netlify-plugin-nextjs/issues/807)) ([3deec1d](https://www.github.com/netlify/netlify-plugin-nextjs/commit/3deec1d7f32e1b77b0812b8f1e6da30976e5448c))
+* ensure path is encoded ([#800](https://www.github.com/netlify/netlify-plugin-nextjs/issues/800)) ([b0f666e](https://www.github.com/netlify/netlify-plugin-nextjs/commit/b0f666ee8aad046503f0d562d0c3e4ac4275b945))
+* use forced catchall for preview mode ([#793](https://www.github.com/netlify/netlify-plugin-nextjs/issues/793)) ([fd7130f](https://www.github.com/netlify/netlify-plugin-nextjs/commit/fd7130f4a15f51e0785cdd9515faeb10cffb67a5))
+
+
+### Miscellaneous Chores
+
+* add docs on rewrites and redirects ([#767](https://www.github.com/netlify/netlify-plugin-nextjs/issues/767)) ([b32a08c](https://www.github.com/netlify/netlify-plugin-nextjs/commit/b32a08c01a8e440d2c5a570c50128fdc37cf89a8))
+
 ## [4.0.0-beta.6](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.5...v4.0.0-beta.6) (2021-11-08)
 
 
