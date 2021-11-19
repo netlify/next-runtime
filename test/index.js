@@ -410,6 +410,22 @@ describe('utility functions', () => {
     }
   })
 
+  test('middleware tester matches root middleware', () => {
+    const paths = [
+      'middl',
+      '',
+      'somethingelse',
+      'another.html',
+      'another/middle.html',
+      'sub/anotherdirectory.html',
+      'sub/directoryelse',
+      'sub/directoryelse.html',
+    ]
+    for (const path of paths) {
+      expect(matchMiddleware(undefined, path)).toBeFalsy()
+    }
+  })
+
   test('stripLocale correctly strips matching locales', () => {
     const locales = ['en', 'fr', 'en-GB']
     const paths = [
