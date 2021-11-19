@@ -22,7 +22,7 @@ const stripLocale = (rawPath, locales = []) => {
 }
 
 const matchMiddleware = (middleware, filePath) =>
-  middleware.includes('') ||
+  middleware?.includes('') ||
   middleware?.find(
     (middlewarePath) =>
       filePath === middlewarePath || filePath === `${middlewarePath}.html` || filePath.startsWith(`${middlewarePath}/`),
