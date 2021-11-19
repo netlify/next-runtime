@@ -86,7 +86,8 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
 
   if (matchedPages.size !== 0) {
     console.log(
-      yellowBright(outdent`Skipped moving ${matchedPages.size} ${
+      yellowBright(outdent`
+        Skipped moving ${matchedPages.size} ${
         matchedPages.size === 1 ? 'file because it matches' : 'files because they match'
       } middleware, so cannot be deployed to the CDN and will be served from the origin instead. This is fine, but we're letting you know because it may not be what you expect.
       `),
@@ -94,22 +95,18 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
 
     console.log(
       outdent`
-      
-    The following middleware matched statically-rendered pages:
+        The following middleware matched statically-rendered pages:
 
-    ${yellowBright([...matchingMiddleware].map((mid) => `- /${mid}/_middleware`).join('\n'))}
-    
-    `,
+        ${yellowBright([...matchingMiddleware].map((mid) => `- /${mid}/_middleware`).join('\n'))}
+      `,
     )
     // There could potentially be thousands of matching pages, so we don't want to spam the console with this
     if (matchedPages.size < 50) {
       console.log(
         outdent`
-        
-        The following files matched middleware and were not moved to the CDN:
+          The following files matched middleware and were not moved to the CDN:
 
-        ${yellowBright([...matchedPages].map((mid) => `- ${mid}`).join('\n'))}
-        
+          ${yellowBright([...matchedPages].map((mid) => `- ${mid}`).join('\n'))}
         `,
       )
     }
