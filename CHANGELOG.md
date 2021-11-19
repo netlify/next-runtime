@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.7...v4.0.0) (2021-11-19)
+
+
+### Features
+
+* don't move files to CDN if they match middleware ([#812](https://www.github.com/netlify/netlify-plugin-nextjs/issues/812)) ([615c97a](https://www.github.com/netlify/netlify-plugin-nextjs/commit/615c97ab63350430d520845567a5235a40512873))
+
 ## [4.0.0-beta.7](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.6...v4.0.0-beta.7) (2021-11-17)
 
 
