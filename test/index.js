@@ -9,6 +9,7 @@ const plugin = require('../src')
 
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../src/constants')
 const { join } = require('pathe')
+const { matchMiddleware, stripLocale } = require('../src/helpers/files')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demo`
@@ -208,8 +209,9 @@ describe('onBuild()', () => {
     await moveNextDist()
     process.env.EXPERIMENTAL_MOVE_STATIC_PAGES = 'true'
     await plugin.onBuild(defaultArgs)
-    expect(existsSync(path.resolve('.next/static-manifest.json'))).toBeTruthy()
-    const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8')).sort()
+    const manifestPath = path.resolve('.next/static-manifest.json')
+    expect(existsSync(manifestPath)).toBeTruthy()
+    const data = (await readJson(manifestPath)).sort()
     expect(data).toMatchSnapshot()
     delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
   })
@@ -243,6 +245,17 @@ describe('onBuild()', () => {
       const trimmed = file.substring(locale.length)
       expect(existsSync(path.resolve(path.join('.next', trimmed)))).toBeTruthy()
     })
+
+    delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
+  })
+
+  test('skips static files that match middleware', async () => {
+    await moveNextDist()
+    process.env.EXPERIMENTAL_MOVE_STATIC_PAGES = 'true'
+    await plugin.onBuild(defaultArgs)
+
+    expect(existsSync(path.resolve(path.join('.next', 'en', 'middle.html')))).toBeFalsy()
+    expect(existsSync(path.resolve(path.join('.next', 'server', 'pages', 'en', 'middle.html')))).toBeTruthy()
 
     delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
   })
@@ -353,5 +366,80 @@ describe('onPostBuild', () => {
     )
 
     console.log = oldLog
+  })
+})
+
+describe('utility functions', () => {
+  test('middleware tester matches correct paths', () => {
+    const middleware = ['middle', 'sub/directory']
+    const paths = [
+      'middle.html',
+      'middle',
+      'middle/',
+      'middle/ware',
+      'sub/directory',
+      'sub/directory.html',
+      'sub/directory/child',
+      'sub/directory/child.html',
+    ]
+    for (const path of paths) {
+      expect(matchMiddleware(middleware, path)).toBeTruthy()
+    }
+  })
+
+  test('middleware tester does not match incorrect paths', () => {
+    const middleware = ['middle', 'sub/directory']
+    const paths = [
+      'middl',
+      '',
+      'somethingelse',
+      'another.html',
+      'another/middle.html',
+      'sub/anotherdirectory.html',
+      'sub/directoryelse',
+      'sub/directoryelse.html',
+    ]
+    for (const path of paths) {
+      expect(matchMiddleware(middleware, path)).toBeFalsy()
+    }
+  })
+
+  test('middleware tester matches root middleware', () => {
+    const middleware = ['']
+    const paths = [
+      'middl',
+      '',
+      'somethingelse',
+      'another.html',
+      'another/middle.html',
+      'sub/anotherdirectory.html',
+      'sub/directoryelse',
+      'sub/directoryelse.html',
+    ]
+    for (const path of paths) {
+      expect(matchMiddleware(middleware, path)).toBeTruthy()
+    }
+  })
+
+  test('stripLocale correctly strips matching locales', () => {
+    const locales = ['en', 'fr', 'en-GB']
+    const paths = [
+      ['en/file.html', 'file.html'],
+      ['fr/file.html', 'file.html'],
+      ['en-GB/file.html', 'file.html'],
+      ['file.html', 'file.html'],
+    ]
+
+    for (const [path, expected] of paths) {
+      expect(stripLocale(path, locales)).toEqual(expected)
+    }
+  })
+
+  test('stripLocale does not touch non-matching matching locales', () => {
+    const locales = ['en', 'fr', 'en-GB']
+    const paths = ['de/file.html', 'enfile.html', 'en-US/file.html']
+    for (const path of paths) {
+      expect(stripLocale(path, locales)).toEqual(path)
+    }
   })
 })
