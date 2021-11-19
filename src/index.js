@@ -57,6 +57,12 @@ module.exports = {
     await movePublicFiles({ appDir, publish })
 
     if (process.env.EXPERIMENTAL_MOVE_STATIC_PAGES) {
+      console.log(
+        "The flag 'EXPERIMENTAL_MOVE_STATIC_PAGES' is no longer required, as it is now the default. To disable this behavior, set the env var 'SERVE_STATIC_FILES_FROM_ORIGIN' to 'true'",
+      )
+    }
+
+    if (!process.env.SERVE_STATIC_FILES_FROM_ORIGIN) {
       await moveStaticPages({ target, failBuild, netlifyConfig, i18n })
     }
 

@@ -207,18 +207,15 @@ describe('onBuild()', () => {
 
   test('generates static files manifest', async () => {
     await moveNextDist()
-    process.env.EXPERIMENTAL_MOVE_STATIC_PAGES = 'true'
     await plugin.onBuild(defaultArgs)
     const manifestPath = path.resolve('.next/static-manifest.json')
     expect(existsSync(manifestPath)).toBeTruthy()
     const data = (await readJson(manifestPath)).sort()
     expect(data).toMatchSnapshot()
-    delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
   })
 
   test('moves static files to root', async () => {
     await moveNextDist()
-    process.env.EXPERIMENTAL_MOVE_STATIC_PAGES = 'true'
     await plugin.onBuild(defaultArgs)
     const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
 
@@ -226,13 +223,10 @@ describe('onBuild()', () => {
       expect(existsSync(path.resolve(path.join('.next', file)))).toBeTruthy()
       expect(existsSync(path.resolve(path.join('.next', 'server', 'pages', file)))).toBeFalsy()
     })
-
-    delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
   })
 
   test('copies default locale files to top level', async () => {
     await moveNextDist()
-    process.env.EXPERIMENTAL_MOVE_STATIC_PAGES = 'true'
     await plugin.onBuild(defaultArgs)
     const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
 
@@ -245,19 +239,14 @@ describe('onBuild()', () => {
       const trimmed = file.substring(locale.length)
       expect(existsSync(path.resolve(path.join('.next', trimmed)))).toBeTruthy()
     })
-
-    delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
   })
 
   test('skips static files that match middleware', async () => {
     await moveNextDist()
-    process.env.EXPERIMENTAL_MOVE_STATIC_PAGES = 'true'
     await plugin.onBuild(defaultArgs)
 
     expect(existsSync(path.resolve(path.join('.next', 'en', 'middle.html')))).toBeFalsy()
     expect(existsSync(path.resolve(path.join('.next', 'server', 'pages', 'en', 'middle.html')))).toBeTruthy()
-
-    delete process.env.EXPERIMENTAL_MOVE_STATIC_PAGES
   })
 
   test('sets correct config', async () => {

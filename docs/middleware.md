@@ -44,28 +44,11 @@ export async function middleware(req: NextRequest) {
 
 Because the middleware runs at the origin, it is run _after_ Netlify rewrites and redirects. If a static file is served
 by the Netlify CDN then the middleware is never run, as middleware only runs when a page is served by Next.js. This
-means that middleware should not be used with the `EXPERIMENTAL_MOVE_STATIC_FILES` option, as this causes
-statically-generated pages to be served by the Netlify CDN before any middleware can be run.
+means that any pages that match middleware routes are served from the origin rather than the CDN.
 
 There is a bug in Next.js `<=12.0.3` that causes a proxy loop if you try to rewrite to a URL with a host other than
-localhost. This bug is fixed in version `12.0.4`. If you are using Next.js `<=12.0.3`, you can work around the bug by
-ensuring that when rewriting a request you either use a relative path, or manually set the host to `localhost` if
-returning a URL object. For example:
-
-```typescript
-export function middleware(req: NextRequest) {
-  const rewrittenUrl = req.nextUrl
-
-  // Change the URL in some way
-  // ...
-
-  // Before returning the URL, set the host to localhost
-  rewrittenUrl.host = 'localhost'
-
-  // ...then rewrite to the changed URL
-  return NextResponse.rewrite(rewrittenUrl)
-}
-```
+localhost. This bug is fixed in version `12.0.4`, so if you are using middleware you should upgrade to that version or
+later.
 
 If you have an issue with Next.js middleware on Netlify while it is beta, particularly if the issue cannot be reproduced
 when running locally, then please add a comment to
