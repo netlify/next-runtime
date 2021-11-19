@@ -72,8 +72,8 @@
   "devDependencies": {
     "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
-    "@netlify/build": "^18.23.1",
-    "@netlify/eslint-config-node": "^3.3.0",
+    "@netlify/build": "^18.24.0",
+    "@netlify/eslint-config-node": "^3.3.7",
     "@testing-library/cypress": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
