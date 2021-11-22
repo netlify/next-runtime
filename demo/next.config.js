@@ -1,9 +1,7 @@
 module.exports = {
   // Configurable site features we support:
   // distDir: 'build',
-  experimental: {
-    isrFlushToDisk: false,
-  },
+
   generateBuildId: () => 'build-id',
   i18n: {
     defaultLocale: 'en',

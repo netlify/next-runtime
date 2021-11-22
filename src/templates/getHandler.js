@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 const { promises, createWriteStream, existsSync } = require('fs')
 const { Server } = require('http')
 const { tmpdir } = require('os')
@@ -21,6 +22,7 @@ const makeHandler =
 
     // Set during the request as it needs the host header. Hoisted so we can define the function once
     let base
+    conf.experimental.isrFlushToDisk = false
 
     // Only do this if we have some static files moved to the CDN
     if (staticManifest.length !== 0) {
@@ -182,3 +184,4 @@ exports.handler = ${
 `
 
 module.exports = getHandler
+/* eslint-enable max-lines-per-function */
