@@ -52,9 +52,9 @@ const getNetlifyRoutes = (nextRoute) => {
 }
 
 exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
-  const { dynamicRoutes } = await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
-
-  const redirects = []
+  const { dynamicRoutes, routes: staticRoutes } = await readJSON(
+    join(netlifyConfig.build.publish, 'prerender-manifest.json'),
+  )
 
   netlifyConfig.redirects.push(
     ...HIDDEN_PATHS.map((path) => ({
@@ -65,15 +65,36 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
     })),
   )
 
+  const dataRedirects = []
+  const pageRedirects = []
+  const isrRedirects = []
+  let hasIsr = false
+
   const dynamicRouteEntries = Object.entries(dynamicRoutes)
-  dynamicRouteEntries.sort((a, b) => a[0].localeCompare(b[0]))
+
+  if (!process.env.EXPERIMENTAL_SWR_ODB) {
+    const staticRouteEntries = Object.entries(staticRoutes)
+
+    staticRouteEntries.forEach(([route, { dataRoute, initialRevalidateSeconds }]) => {
+      // With revalidate we need to rewrite to SSR rather than ODB
+      if (initialRevalidateSeconds === false) {
+        return
+      }
+      if (i18n.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
+        route = route.slice(i18n.defaultLocale.length + 1)
+      }
+      hasIsr = true
+      isrRedirects.push(...getNetlifyRoutes(dataRoute), ...getNetlifyRoutes(route))
+    })
+  }
 
   dynamicRouteEntries.forEach(([route, { dataRoute, fallback }]) => {
     // Add redirects if fallback is "null" (aka blocking) or true/a string
     if (fallback === false) {
       return
     }
-    redirects.push(...getNetlifyRoutes(route), ...getNetlifyRoutes(dataRoute))
+    pageRedirects.push(...getNetlifyRoutes(route))
+    dataRedirects.push(...getNetlifyRoutes(dataRoute))
   })
 
   if (i18n) {
@@ -90,7 +111,18 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
       conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
       force: true,
     },
-    ...redirects.map((redirect) => ({
+    ...isrRedirects.map((redirect) => ({
+      from: `${basePath}${redirect}`,
+      to: HANDLER_FUNCTION_PATH,
+      status: 200,
+      force: true,
+    })),
+    ...dataRedirects.map((redirect) => ({
+      from: `${basePath}${redirect}`,
+      to: ODB_FUNCTION_PATH,
+      status: 200,
+    })),
+    ...pageRedirects.map((redirect) => ({
       from: `${basePath}${redirect}`,
       to: ODB_FUNCTION_PATH,
       status: 200,
