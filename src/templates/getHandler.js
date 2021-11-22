@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function, max-lines */
 const { promises, createWriteStream, existsSync } = require('fs')
 const { Server } = require('http')
 const { tmpdir } = require('os')
@@ -35,8 +34,6 @@ const makeHandler =
       const cacheDir = path.join(tmpdir(), 'next-static-cache')
       // Grab the real fs.promises.readFile...
       const readfileOrig = promises.readFile
-      const writeFileOrig = promises.writeFile
-      const mkdirOrig = promises.mkdir
       // ...then money-patch it to see if it's requesting a CDN file
       promises.readFile = async (file, options) => {
         // We only care about page files
@@ -44,10 +41,6 @@ const makeHandler =
           // We only want the part after `pages/`
           const filePath = file.slice(pageRoot.length + 1)
           const cacheFile = path.join(cacheDir, filePath)
-
-          if (existsSync(cacheFile)) {
-            return readfileOrig(cacheFile, options)
-          }
 
           // Is it in the CDN and not local?
           if (staticFiles.has(filePath) && !existsSync(file)) {
@@ -73,27 +66,6 @@ const makeHandler =
         }
 
         return readfileOrig(file, options)
-      }
-
-      promises.writeFile = async (file, data, options) => {
-        if (file.startsWith(pageRoot)) {
-          const filePath = file.slice(pageRoot.length + 1)
-          const cacheFile = path.join(cacheDir, filePath)
-          await promises.mkdir(path.dirname(cacheFile), { recursive: true })
-          return writeFileOrig(cacheFile, data, options)
-        }
-
-        return writeFileOrig(file, data, options)
-      }
-
-      promises.mkdir = async (dir, options) => {
-        if (dir.startsWith(pageRoot)) {
-          const filePath = dir.slice(pageRoot.length + 1)
-          const cachePath = path.join(cacheDir, filePath)
-          return mkdirOrig(cachePath, options)
-        }
-
-        return mkdirOrig(dir, options)
       }
     }
     let NextServer
@@ -210,4 +182,3 @@ exports.handler = ${
 `
 
 module.exports = getHandler
-/* eslint-enable max-lines-per-function, max-lines */
