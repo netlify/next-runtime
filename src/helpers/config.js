@@ -1,5 +1,8 @@
-// @ts-check
+/* eslint-disable max-lines */
+
+const { yellowBright } = require('chalk')
 const { readJSON, existsSync } = require('fs-extra')
+const { outdent } = require('outdent')
 const { join, dirname, relative } = require('pathe')
 const slash = require('slash')
 
@@ -72,21 +75,19 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
 
   const dynamicRouteEntries = Object.entries(dynamicRoutes)
 
-  if (!process.env.EXPERIMENTAL_SWR_ODB) {
-    const staticRouteEntries = Object.entries(staticRoutes)
+  const staticRouteEntries = Object.entries(staticRoutes)
 
-    staticRouteEntries.forEach(([route, { dataRoute, initialRevalidateSeconds }]) => {
-      // With revalidate we need to rewrite to SSR rather than ODB
-      if (initialRevalidateSeconds === false) {
-        return
-      }
-      if (i18n.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
-        route = route.slice(i18n.defaultLocale.length + 1)
-      }
-      hasIsr = true
-      isrRedirects.push(...getNetlifyRoutes(dataRoute), ...getNetlifyRoutes(route))
-    })
-  }
+  staticRouteEntries.forEach(([route, { dataRoute, initialRevalidateSeconds }]) => {
+    // With revalidate we need to rewrite to SSR rather than ODB
+    if (initialRevalidateSeconds === false) {
+      return
+    }
+    if (i18n.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
+      route = route.slice(i18n.defaultLocale.length + 1)
+    }
+    hasIsr = true
+    isrRedirects.push(...getNetlifyRoutes(dataRoute), ...getNetlifyRoutes(route))
+  })
 
   dynamicRouteEntries.forEach(([route, { dataRoute, fallback }]) => {
     // Add redirects if fallback is "null" (aka blocking) or true/a string
@@ -129,6 +130,13 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
     })),
     { from: `${basePath}/*`, to: HANDLER_FUNCTION_PATH, status: 200 },
   )
+  if (hasIsr) {
+    console.log(
+      yellowBright(outdent`
+        You have some pages that use ISR (pages that use getStaticProps with revalidate set), which is not currently fully-supported by this plugin. Be aware that results may be unreliable.
+      `),
+    )
+  }
 }
 
 exports.getNextConfig = async function getNextConfig({ publish, failBuild = defaultFailBuild }) {
@@ -191,3 +199,4 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) =>
     })
   })
 }
+/* eslint-enable max-lines */
