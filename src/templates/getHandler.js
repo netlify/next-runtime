@@ -46,7 +46,6 @@ const makeHandler =
           const cacheFile = path.join(cacheDir, filePath)
 
           if (existsSync(cacheFile)) {
-            console.log('returning from cache', cacheFile)
             return readfileOrig(cacheFile, options)
           }
 
@@ -80,7 +79,6 @@ const makeHandler =
         if (file.startsWith(pageRoot)) {
           const filePath = file.slice(pageRoot.length + 1)
           const cacheFile = path.join(cacheDir, filePath)
-          console.log('writing', cacheFile)
           await promises.mkdir(path.dirname(cacheFile), { recursive: true })
           return writeFileOrig(cacheFile, data, options)
         }
@@ -92,7 +90,6 @@ const makeHandler =
         if (dir.startsWith(pageRoot)) {
           const filePath = dir.slice(pageRoot.length + 1)
           const cachePath = path.join(cacheDir, filePath)
-          console.log('creating', cachePath)
           return mkdirOrig(cachePath, options)
         }
 
@@ -174,6 +171,7 @@ const makeHandler =
       // Sending SWR headers causes undefined behaviour with the Netlify CDN
       const cacheHeader = multiValueHeaders['cache-control']?.[0]
       if (cacheHeader?.includes('stale-while-revalidate')) {
+        console.log({ cacheHeader })
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
       }
       multiValueHeaders['x-render-mode'] = [mode]
