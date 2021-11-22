@@ -47,6 +47,18 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
     }
   }
 
+  const prerenderManifest = await readJson(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
+
+  const isrFiles = new Set()
+
+  Object.entries(prerenderManifest.routes).forEach(([route, { initialRevalidateSeconds }]) => {
+    if (initialRevalidateSeconds) {
+      const trimmedPath = route.slice(1)
+      isrFiles.add(`${trimmedPath}.html`)
+      isrFiles.add(`${trimmedPath}.json`)
+    }
+  })
+
   const files = []
   const moveFile = async (file) => {
     const source = join(root, file)
@@ -67,6 +79,9 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   const limit = pLimit(Math.max(2, cpus().length))
   const promises = pages.map(async (rawPath) => {
     const filePath = slash(rawPath)
+    if (isrFiles.has(filePath)) {
+      return
+    }
     if (isDynamicRoute(filePath)) {
       return
     }
