@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function, max-lines */
 const { promises, createWriteStream, existsSync } = require('fs')
 const { Server } = require('http')
 const { tmpdir } = require('os')
@@ -11,7 +12,8 @@ const fetch = require('node-fetch')
 const makeHandler =
   () =>
   // We return a function and then call `toString()` on it to serialise it as the launcher function
-  (conf, app, pageRoot, staticManifest = []) => {
+  // eslint-disable-next-line max-params
+  (conf, app, pageRoot, staticManifest = [], mode = 'ssr') => {
     // This is just so nft knows about the page entrypoints. It's not actually used
     try {
       // eslint-disable-next-line node/no-missing-require
@@ -33,16 +35,24 @@ const makeHandler =
       const cacheDir = path.join(tmpdir(), 'next-static-cache')
       // Grab the real fs.promises.readFile...
       const readfileOrig = promises.readFile
+      const writeFileOrig = promises.writeFile
+      const mkdirOrig = promises.mkdir
       // ...then money-patch it to see if it's requesting a CDN file
       promises.readFile = async (file, options) => {
         // We only care about page files
         if (file.startsWith(pageRoot)) {
           // We only want the part after `pages/`
           const filePath = file.slice(pageRoot.length + 1)
+          const cacheFile = path.join(cacheDir, filePath)
+
+          if (existsSync(cacheFile)) {
+            console.log('returning from cache', cacheFile)
+            return readfileOrig(cacheFile, options)
+          }
+
           // Is it in the CDN and not local?
           if (staticFiles.has(filePath) && !existsSync(file)) {
             // This name is safe to use, because it's one that was already created by Next
-            const cacheFile = path.join(cacheDir, filePath)
             // Have we already cached it? We ignore the cache if running locally to avoid staleness
             if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && base) {
               await promises.mkdir(path.dirname(cacheFile), { recursive: true })
@@ -64,6 +74,29 @@ const makeHandler =
         }
 
         return readfileOrig(file, options)
+      }
+
+      promises.writeFile = async (file, data, options) => {
+        if (file.startsWith(pageRoot)) {
+          const filePath = file.slice(pageRoot.length + 1)
+          const cacheFile = path.join(cacheDir, filePath)
+          console.log('writing', cacheFile)
+          await promises.mkdir(path.dirname(cacheFile), { recursive: true })
+          return writeFileOrig(cacheFile, data, options)
+        }
+
+        return writeFileOrig(file, data, options)
+      }
+
+      promises.mkdir = async (dir, options) => {
+        if (dir.startsWith(pageRoot)) {
+          const filePath = dir.slice(pageRoot.length + 1)
+          const cachePath = path.join(cacheDir, filePath)
+          console.log('creating', cachePath)
+          return mkdirOrig(cachePath, options)
+        }
+
+        return mkdirOrig(dir, options)
       }
     }
     let NextServer
@@ -139,9 +172,11 @@ const makeHandler =
       }
 
       // Sending SWR headers causes undefined behaviour with the Netlify CDN
-      if (multiValueHeaders['cache-control']?.[0]?.includes('stale-while-revalidate')) {
+      const cacheHeader = multiValueHeaders['cache-control']?.[0]
+      if (cacheHeader?.includes('stale-while-revalidate')) {
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
       }
+      multiValueHeaders['x-render-mode'] = [mode]
 
       return {
         ...result,
@@ -171,9 +206,10 @@ const path = require("path");
 const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", config.target === "server" ? "server" : "serverless", "pages"));
 exports.handler = ${
   isODB
-    ? `builder((${makeHandler().toString()})(config, "${appDir}", pageRoot, staticManifest));`
-    : `(${makeHandler().toString()})(config, "${appDir}", pageRoot, staticManifest);`
+    ? `builder((${makeHandler().toString()})(config, "${appDir}", pageRoot, staticManifest, 'odb'));`
+    : `(${makeHandler().toString()})(config, "${appDir}", pageRoot, staticManifest, 'ssr');`
 }
 `
 
 module.exports = getHandler
+/* eslint-enable max-lines-per-function, max-lines */
