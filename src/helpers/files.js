@@ -42,6 +42,9 @@ const matchesRedirect = (file, redirects) => {
 }
 
 const matchesRewrite = (file, rewrites) => {
+  if (Array.isArray(rewrites)) {
+    return matchesRedirect(file, rewrites)
+  }
   if (!Array.isArray(rewrites?.beforeFiles)) {
     return false
   }
