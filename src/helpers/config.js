@@ -1,5 +1,8 @@
-// @ts-check
+/* eslint-disable max-lines */
+
+const { yellowBright } = require('chalk')
 const { readJSON, existsSync } = require('fs-extra')
+const { outdent } = require('outdent')
 const { join, dirname, relative } = require('pathe')
 const slash = require('slash')
 
@@ -52,9 +55,9 @@ const getNetlifyRoutes = (nextRoute) => {
 }
 
 exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
-  const { dynamicRoutes } = await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
-
-  const redirects = []
+  const { dynamicRoutes, routes: staticRoutes } = await readJSON(
+    join(netlifyConfig.build.publish, 'prerender-manifest.json'),
+  )
 
   netlifyConfig.redirects.push(
     ...HIDDEN_PATHS.map((path) => ({
@@ -65,15 +68,35 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
     })),
   )
 
+  const dataRedirects = []
+  const pageRedirects = []
+  const isrRedirects = []
+  let hasIsr = false
+
   const dynamicRouteEntries = Object.entries(dynamicRoutes)
-  dynamicRouteEntries.sort((a, b) => a[0].localeCompare(b[0]))
+
+  const staticRouteEntries = Object.entries(staticRoutes)
+
+  staticRouteEntries.forEach(([route, { dataRoute, initialRevalidateSeconds }]) => {
+    // Only look for revalidate as we need to rewrite these to SSR rather than ODB
+    if (initialRevalidateSeconds === false) {
+      // These can be ignored, as they're static files handled by the CDN
+      return
+    }
+    if (i18n.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
+      route = route.slice(i18n.defaultLocale.length + 1)
+    }
+    hasIsr = true
+    isrRedirects.push(...getNetlifyRoutes(dataRoute), ...getNetlifyRoutes(route))
+  })
 
   dynamicRouteEntries.forEach(([route, { dataRoute, fallback }]) => {
     // Add redirects if fallback is "null" (aka blocking) or true/a string
     if (fallback === false) {
       return
     }
-    redirects.push(...getNetlifyRoutes(route), ...getNetlifyRoutes(dataRoute))
+    pageRedirects.push(...getNetlifyRoutes(route))
+    dataRedirects.push(...getNetlifyRoutes(dataRoute))
   })
 
   if (i18n) {
@@ -82,7 +105,20 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
 
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
+    // Static files are in `static`
     { from: `${basePath}/_next/static/*`, to: `/static/:splat`, status: 200 },
+    // API routes always need to be served from the regular function
+    {
+      from: `${basePath}/api`,
+      to: HANDLER_FUNCTION_PATH,
+      status: 200,
+    },
+    {
+      from: `${basePath}/api/*`,
+      to: HANDLER_FUNCTION_PATH,
+      status: 200,
+    },
+    // Preview mode gets forced to the function, to bypess pre-rendered pages
     {
       from: `${basePath}/*`,
       to: HANDLER_FUNCTION_PATH,
@@ -90,13 +126,36 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
       conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
       force: true,
     },
-    ...redirects.map((redirect) => ({
+    // ISR redirects are handled by the regular function. Forced to avoid pre-rendered pages
+    ...isrRedirects.map((redirect) => ({
+      from: `${basePath}${redirect}`,
+      to: HANDLER_FUNCTION_PATH,
+      status: 200,
+      force: true,
+    })),
+    // These are pages with fallback set, which need an ODB
+    // Data redirects go first, to avoid conflict with splat redirects
+    ...dataRedirects.map((redirect) => ({
       from: `${basePath}${redirect}`,
       to: ODB_FUNCTION_PATH,
       status: 200,
     })),
+    // ...then all the other fallback pages
+    ...pageRedirects.map((redirect) => ({
+      from: `${basePath}${redirect}`,
+      to: ODB_FUNCTION_PATH,
+      status: 200,
+    })),
+    // Everything else is handled by the regular function
     { from: `${basePath}/*`, to: HANDLER_FUNCTION_PATH, status: 200 },
   )
+  if (hasIsr) {
+    console.log(
+      yellowBright(outdent`
+        You have some pages that use ISR (pages that use getStaticProps with revalidate set), which is not currently fully-supported by this plugin. Be aware that results may be unreliable.
+      `),
+    )
+  }
 }
 
 exports.getNextConfig = async function getNextConfig({ publish, failBuild = defaultFailBuild }) {
@@ -159,3 +218,4 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) =>
     })
   })
 }
+/* eslint-enable max-lines */

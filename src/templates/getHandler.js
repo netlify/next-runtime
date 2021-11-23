@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 const { promises, createWriteStream, existsSync } = require('fs')
 const { Server } = require('http')
 const { tmpdir } = require('os')
@@ -11,12 +12,16 @@ const fetch = require('node-fetch')
 const makeHandler =
   () =>
   // We return a function and then call `toString()` on it to serialise it as the launcher function
-  (conf, app, pageRoot, staticManifest = []) => {
+  // eslint-disable-next-line max-params
+  (conf, app, pageRoot, staticManifest = [], mode = 'ssr') => {
     // This is just so nft knows about the page entrypoints. It's not actually used
     try {
       // eslint-disable-next-line node/no-missing-require
       require.resolve('./pages.js')
     } catch {}
+
+    // We don't want to write ISR files to disk in the lambda environment
+    conf.experimental.isrFlushToDisk = false
 
     // Set during the request as it needs the host header. Hoisted so we can define the function once
     let base
@@ -39,6 +44,7 @@ const makeHandler =
         if (file.startsWith(pageRoot)) {
           // We only want the part after `pages/`
           const filePath = file.slice(pageRoot.length + 1)
+
           // Is it in the CDN and not local?
           if (staticFiles.has(filePath) && !existsSync(file)) {
             // This name is safe to use, because it's one that was already created by Next
@@ -139,9 +145,12 @@ const makeHandler =
       }
 
       // Sending SWR headers causes undefined behaviour with the Netlify CDN
-      if (multiValueHeaders['cache-control']?.[0]?.includes('stale-while-revalidate')) {
+      const cacheHeader = multiValueHeaders['cache-control']?.[0]
+      if (cacheHeader?.includes('stale-while-revalidate')) {
+        console.log({ cacheHeader })
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
       }
+      multiValueHeaders['x-render-mode'] = [mode]
 
       return {
         ...result,
@@ -171,9 +180,10 @@ const path = require("path");
 const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", config.target === "server" ? "server" : "serverless", "pages"));
 exports.handler = ${
   isODB
-    ? `builder((${makeHandler().toString()})(config, "${appDir}", pageRoot, staticManifest));`
-    : `(${makeHandler().toString()})(config, "${appDir}", pageRoot, staticManifest);`
+    ? `builder((${makeHandler().toString()})(config, "${appDir}", pageRoot, staticManifest, 'odb'));`
+    : `(${makeHandler().toString()})(config, "${appDir}", pageRoot, staticManifest, 'ssr');`
 }
 `
 
 module.exports = getHandler
+/* eslint-enable max-lines-per-function */
