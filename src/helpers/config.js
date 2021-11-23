@@ -78,8 +78,9 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
   const staticRouteEntries = Object.entries(staticRoutes)
 
   staticRouteEntries.forEach(([route, { dataRoute, initialRevalidateSeconds }]) => {
-    // With revalidate we need to rewrite to SSR rather than ODB
+    // Only look for revalidate as we need to rewrite these to SSR rather than ODB
     if (initialRevalidateSeconds === false) {
+      // These can be ignored, as they're static files handled by the CDN
       return
     }
     if (i18n.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
@@ -104,7 +105,20 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
 
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
+    // Static files are in `static`
     { from: `${basePath}/_next/static/*`, to: `/static/:splat`, status: 200 },
+    // API routes always need to be served from the regular function
+    {
+      from: `${basePath}/api`,
+      to: HANDLER_FUNCTION_PATH,
+      status: 200,
+    },
+    {
+      from: `${basePath}/api/*`,
+      to: HANDLER_FUNCTION_PATH,
+      status: 200,
+    },
+    // Preview mode gets forced to the function, to bypess pre-rendered pages
     {
       from: `${basePath}/*`,
       to: HANDLER_FUNCTION_PATH,
@@ -112,22 +126,27 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
       conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
       force: true,
     },
+    // ISR redirects are handled by the regular function. Forced to avoid pre-rendered pages
     ...isrRedirects.map((redirect) => ({
       from: `${basePath}${redirect}`,
       to: HANDLER_FUNCTION_PATH,
       status: 200,
       force: true,
     })),
+    // These are pages with fallback set, which need an ODB
+    // Data redirects go first, to avoid conflict with splat redirects
     ...dataRedirects.map((redirect) => ({
       from: `${basePath}${redirect}`,
       to: ODB_FUNCTION_PATH,
       status: 200,
     })),
+    // ...then all the other fallback pages
     ...pageRedirects.map((redirect) => ({
       from: `${basePath}${redirect}`,
       to: ODB_FUNCTION_PATH,
       status: 200,
     })),
+    // Everything else is handled by the regular function
     { from: `${basePath}/*`, to: HANDLER_FUNCTION_PATH, status: 200 },
   )
   if (hasIsr) {

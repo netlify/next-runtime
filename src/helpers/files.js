@@ -53,6 +53,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
 
   Object.entries(prerenderManifest.routes).forEach(([route, { initialRevalidateSeconds }]) => {
     if (initialRevalidateSeconds) {
+      // Find all files used by ISR routes
       const trimmedPath = route.slice(1)
       isrFiles.add(`${trimmedPath}.html`)
       isrFiles.add(`${trimmedPath}.json`)
@@ -83,6 +84,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   const limit = pLimit(Math.max(2, cpus().length))
   const promises = pages.map(async (rawPath) => {
     const filePath = slash(rawPath)
+    // Don't move ISR files, as they're used for the first request
     if (isrFiles.has(filePath)) {
       return
     }

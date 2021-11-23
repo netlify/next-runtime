@@ -20,9 +20,11 @@ const makeHandler =
       require.resolve('./pages.js')
     } catch {}
 
+    // We don't want to write ISR files to disk in the lambda environment
+    conf.experimental.isrFlushToDisk = false
+
     // Set during the request as it needs the host header. Hoisted so we can define the function once
     let base
-    conf.experimental.isrFlushToDisk = false
 
     // Only do this if we have some static files moved to the CDN
     if (staticManifest.length !== 0) {
@@ -42,11 +44,11 @@ const makeHandler =
         if (file.startsWith(pageRoot)) {
           // We only want the part after `pages/`
           const filePath = file.slice(pageRoot.length + 1)
-          const cacheFile = path.join(cacheDir, filePath)
 
           // Is it in the CDN and not local?
           if (staticFiles.has(filePath) && !existsSync(file)) {
             // This name is safe to use, because it's one that was already created by Next
+            const cacheFile = path.join(cacheDir, filePath)
             // Have we already cached it? We ignore the cache if running locally to avoid staleness
             if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && base) {
               await promises.mkdir(path.dirname(cacheFile), { recursive: true })

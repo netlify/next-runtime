@@ -33,7 +33,7 @@ export async function getStaticProps({ params }) {
   const res = await fetch(`https://api.tvmaze.com/shows/${id}`)
   const data = await res.json()
   const time = new Date().toLocaleTimeString()
-  await new Promise((resolve) => setTimeout(resolve, 10000))
+  await new Promise((resolve) => setTimeout(resolve, 1000))
   return {
     props: {
       show: data,
