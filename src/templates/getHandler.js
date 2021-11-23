@@ -1,4 +1,4 @@
-/* eslint-disable max-lines-per-function */
+/* eslint-disable max-lines-per-function, max-lines */
 const { promises, createWriteStream, existsSync } = require('fs')
 const { Server } = require('http')
 const { tmpdir } = require('os')
@@ -19,6 +19,10 @@ const makeHandler =
       // eslint-disable-next-line node/no-missing-require
       require.resolve('./pages.js')
     } catch {}
+    // eslint-disable-next-line no-underscore-dangle
+    process.env._BYPASS_SSG = 'true'
+
+    const ONE_YEAR_IN_SECONDS = 31536000
 
     // We don't want to write ISR files to disk in the lambda environment
     conf.experimental.isrFlushToDisk = false
@@ -114,6 +118,22 @@ const makeHandler =
     const bridge = new Bridge(server)
     bridge.listen()
 
+    const getMaxAge = (header) => {
+      const parts = header.split(',')
+      let maxAge
+      for (const part of parts) {
+        const [key, value] = part.split('=')
+        if (key?.trim() === 's-max-age') {
+          maxAge = value?.trim()
+        }
+      }
+      if (maxAge) {
+        const result = Number.parseInt(maxAge)
+        return Number.isNaN(result) ? 0 : result
+      }
+      return 0
+    }
+
     return async (event, context) => {
       // Ensure that paths are encoded - but don't double-encode them
       event.path = new URL(event.path, event.rawUrl).pathname
@@ -147,7 +167,14 @@ const makeHandler =
       // Sending SWR headers causes undefined behaviour with the Netlify CDN
       const cacheHeader = multiValueHeaders['cache-control']?.[0]
       if (cacheHeader?.includes('stale-while-revalidate')) {
-        console.log({ cacheHeader })
+        if (mode === 'odb' && process.env.EXPERIMENTAL_ODB_TTL) {
+          mode = 'isr'
+          const ttl = getMaxAge(cacheHeader)
+          // Long-expiry TTL is basically no TTL
+          if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
+            result.ttl = Math.min(ttl, 60)
+          }
+        }
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
       }
       multiValueHeaders['x-render-mode'] = [mode]
@@ -186,4 +213,4 @@ exports.handler = ${
 `
 
 module.exports = getHandler
-/* eslint-enable max-lines-per-function */
+/* eslint-enable max-lines-per-function, max-lines */

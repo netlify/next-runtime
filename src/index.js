@@ -3,7 +3,7 @@ const { join, relative } = require('path')
 const { ODB_FUNCTION_NAME } = require('./constants')
 const { restoreCache, saveCache } = require('./helpers/cache')
 const { getNextConfig, configureHandlerFunctions, generateRedirects } = require('./helpers/config')
-const { moveStaticPages, movePublicFiles } = require('./helpers/files')
+const { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } = require('./helpers/files')
 const { generateFunctions, setupImageFunction, generatePagesResolver } = require('./helpers/functions')
 const {
   verifyNetlifyBuildVersion,
@@ -56,6 +56,10 @@ module.exports = {
 
     await movePublicFiles({ appDir, publish })
 
+    if (process.env.EXPERIMENTAL_ODB_TTL) {
+      await patchNextFiles(basePath)
+    }
+
     if (process.env.EXPERIMENTAL_MOVE_STATIC_PAGES) {
       console.log(
         "The flag 'EXPERIMENTAL_MOVE_STATIC_PAGES' is no longer required, as it is now the default. To disable this behavior, set the env var 'SERVE_STATIC_FILES_FROM_ORIGIN' to 'true'",
@@ -75,10 +79,12 @@ module.exports = {
     })
   },
 
-  async onPostBuild({ netlifyConfig, utils: { cache, functions }, constants: { FUNCTIONS_DIST } }) {
+  async onPostBuild({ netlifyConfig, utils: { cache, functions, failBuild }, constants: { FUNCTIONS_DIST } }) {
     await saveCache({ cache, publish: netlifyConfig.build.publish })
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
+    const { basePath } = await getNextConfig({ publish: netlifyConfig.build.publish, failBuild })
+    await unpatchNextFiles(basePath)
   },
   onEnd() {
     logBetaMessage()

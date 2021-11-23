@@ -1,8 +1,8 @@
-//  @ts-check
+/* eslint-disable max-lines */
 const { cpus } = require('os')
 
 const { yellowBright } = require('chalk')
-const { existsSync, readJson, move, cpSync, copy, writeJson } = require('fs-extra')
+const { existsSync, readJson, move, cpSync, copy, writeJson, readFile, writeFile } = require('fs-extra')
 const globby = require('globby')
 const { outdent } = require('outdent')
 const pLimit = require('p-limit')
@@ -145,9 +145,61 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   }
 }
 
+const patchFile = async ({ file, from, to }) => {
+  if (!existsSync(file)) {
+    return
+  }
+  const content = await readFile(file, 'utf8')
+  if (content.includes(to)) {
+    return
+  }
+  const newContent = content.replace(from, to)
+  await writeFile(`${file}.orig`, content)
+  await writeFile(file, newContent)
+}
+
+const getServerFile = (root) => {
+  let serverFile
+  try {
+    serverFile = require.resolve('next/dist/server/next-server', { paths: [root] })
+  } catch {
+    // Ignore
+  }
+  if (!serverFile) {
+    try {
+      // eslint-disable-next-line node/no-missing-require
+      serverFile = require.resolve('next/dist/next-server/server/next-server', { paths: [root] })
+    } catch {
+      // Ignore
+    }
+  }
+  return serverFile
+}
+
+exports.patchNextFiles = async (root) => {
+  const serverFile = getServerFile(root)
+  console.log(`Patching ${serverFile}`)
+  if (serverFile) {
+    await patchFile({
+      file: serverFile,
+      from: `let ssgCacheKey = `,
+      to: `let ssgCacheKey = process.env._BYPASS_SSG || `,
+    })
+  }
+}
+
+exports.unpatchNextFiles = async (root) => {
+  const serverFile = getServerFile(root)
+  const origFile = `${serverFile}.orig`
+  if (existsSync(origFile)) {
+    await move(origFile, serverFile, { overwrite: true })
+  }
+}
+
 exports.movePublicFiles = async ({ appDir, publish }) => {
   const publicDir = join(appDir, 'public')
   if (existsSync(publicDir)) {
     await copy(publicDir, `${publish}/`)
   }
 }
+/* eslint-enable max-lines */
