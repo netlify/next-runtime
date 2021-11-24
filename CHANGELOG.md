@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.0-beta.11](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.10...v4.0.0-beta.11) (2021-11-24)
+
+
+### Bug Fixes
+
+* handle missing i18n object ([#837](https://www.github.com/netlify/netlify-plugin-nextjs/issues/837)) ([3b6d293](https://www.github.com/netlify/netlify-plugin-nextjs/commit/3b6d2938f0893fd4376a3f918d6f3ff81c720248))
+
 ## [4.0.0-beta.10](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.9...v4.0.0-beta.10) (2021-11-24)
 
 
