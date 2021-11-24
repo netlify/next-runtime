@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.0.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.9...v4.0.0) (2021-11-24)
+
+
+### Features
+
+* replace node-fetch with builtin ([#834](https://www.github.com/netlify/netlify-plugin-nextjs/issues/834)) ([6ff3100](https://www.github.com/netlify/netlify-plugin-nextjs/commit/6ff31005e87262a26c47e3fe1d6fe14d990e5554))
+
+
+### Bug Fixes
+
+* correct redirect priority and correctly handle ISR pages assets ([#826](https://www.github.com/netlify/netlify-plugin-nextjs/issues/826)) ([6b61643](https://www.github.com/netlify/netlify-plugin-nextjs/commit/6b61643a7d8b3f5a7c10642d250a665dfc25037c))
+* **deps:** update dependency @netlify/functions to ^0.10.0 ([#830](https://www.github.com/netlify/netlify-plugin-nextjs/issues/830)) ([3256839](https://www.github.com/netlify/netlify-plugin-nextjs/commit/32568394b2022edc14911809ebbfbff81ac26da6))
+
 ## [4.0.0-beta.9](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.8...v4.0.0-beta.9) (2021-11-19)
 
 
