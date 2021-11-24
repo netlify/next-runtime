@@ -5,7 +5,7 @@ const path = require('path')
 
 const { Bridge } = require('@vercel/node/dist/bridge')
 
-const { downloadFile } = require('./handlerUtils')
+const { downloadFile, getMaxAge, getMultiValueHeaders } = require('./handlerUtils')
 
 const makeHandler =
   () =>
@@ -109,22 +109,6 @@ const makeHandler =
     const bridge = new Bridge(server)
     bridge.listen()
 
-    const getMaxAge = (header) => {
-      const parts = header.split(',')
-      let maxAge
-      for (const part of parts) {
-        const [key, value] = part.split('=')
-        if (key?.trim() === 's-maxage') {
-          maxAge = value?.trim()
-        }
-      }
-      if (maxAge) {
-        const result = Number.parseInt(maxAge)
-        return Number.isNaN(result) ? 0 : result
-      }
-      return 0
-    }
-
     return async (event, context) => {
       // Ensure that paths are encoded - but don't double-encode them
       event.path = new URL(event.path, event.rawUrl).pathname
@@ -141,14 +125,8 @@ const makeHandler =
       /** @type import("@netlify/functions").HandlerResponse */
 
       // Convert all headers to multiValueHeaders
-      const multiValueHeaders = {}
-      for (const key of Object.keys(headers)) {
-        if (Array.isArray(headers[key])) {
-          multiValueHeaders[key] = headers[key]
-        } else {
-          multiValueHeaders[key] = [headers[key]]
-        }
-      }
+
+      const multiValueHeaders = getMultiValueHeaders(headers)
 
       if (multiValueHeaders['set-cookie']?.[0]?.includes('__prerender_bypass')) {
         delete multiValueHeaders.etag
@@ -163,12 +141,9 @@ const makeHandler =
         if (mode === 'odb' && process.env.EXPERIMENTAL_ODB_TTL) {
           mode = 'isr'
           const ttl = getMaxAge(cacheHeader)
-          multiValueHeaders['x-raw-ttl'] = [ttl]
-
           // Long-expiry TTL is basically no TTL
           if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
             result.ttl = ttl
-            multiValueHeaders['x-ttl-result'] = [result.ttl]
           }
         }
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
@@ -189,7 +164,7 @@ const { tmpdir } = require('os')
 const { promises, existsSync } = require("fs");
 // We copy the file here rather than requiring from the node module
 const { Bridge } = require("./bridge");
-const { downloadFile } = require('./handlerUtils')
+const { downloadFile, getMaxAge, getMultiValueHeaders } = require('./handlerUtils')
 
 const { builder } = require("@netlify/functions");
 const { config }  = require("${publishDir}/required-server-files.json")
