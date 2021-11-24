@@ -4,7 +4,7 @@ module.exports = {
   generateBuildId: () => 'build-id',
   i18n: {
     defaultLocale: 'en',
-    locales: ['en', 'es', 'fr']
+    locales: ['en', 'es', 'fr'],
   },
   async headers() {
     return [
@@ -14,7 +14,7 @@ module.exports = {
           {
             key: 'x-custom-header',
             value: 'my custom header value',
-          }
+          },
         ],
       },
     ]
@@ -29,8 +29,8 @@ module.exports = {
         {
           source: '/old/:path*',
           destination: '/:path*',
-        }
-      ]
+        },
+      ],
     }
   },
   // Redirects allow you to redirect an incoming request path to a different destination path.
