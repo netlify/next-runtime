@@ -170,9 +170,12 @@ const makeHandler =
         if (mode === 'odb' && process.env.EXPERIMENTAL_ODB_TTL) {
           mode = 'isr'
           const ttl = getMaxAge(cacheHeader)
+          multiValueHeaders['x-raw-ttl'] = [ttl]
+
           // Long-expiry TTL is basically no TTL
           if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
             result.ttl = Math.min(ttl, 60)
+            multiValueHeaders['x-ttl-result'] = [result.ttl]
           }
         }
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
