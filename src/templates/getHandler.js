@@ -123,7 +123,7 @@ const makeHandler =
       let maxAge
       for (const part of parts) {
         const [key, value] = part.split('=')
-        if (key?.trim() === 's-max-age') {
+        if (key?.trim() === 's-maxage') {
           maxAge = value?.trim()
         }
       }
@@ -166,6 +166,8 @@ const makeHandler =
 
       // Sending SWR headers causes undefined behaviour with the Netlify CDN
       const cacheHeader = multiValueHeaders['cache-control']?.[0]
+      multiValueHeaders['x-next-cache-header'] = [cacheHeader || '']
+
       if (cacheHeader?.includes('stale-while-revalidate')) {
         if (mode === 'odb' && process.env.EXPERIMENTAL_ODB_TTL) {
           mode = 'isr'
@@ -174,7 +176,7 @@ const makeHandler =
 
           // Long-expiry TTL is basically no TTL
           if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
-            result.ttl = Math.min(ttl, 60)
+            result.ttl = ttl
             multiValueHeaders['x-ttl-result'] = [result.ttl]
           }
         }
