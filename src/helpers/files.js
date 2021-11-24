@@ -47,12 +47,29 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
     }
   }
 
+  const prerenderManifest = await readJson(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
+
+  const isrFiles = new Set()
+
+  Object.entries(prerenderManifest.routes).forEach(([route, { initialRevalidateSeconds }]) => {
+    if (initialRevalidateSeconds) {
+      // Find all files used by ISR routes
+      const trimmedPath = route.slice(1)
+      isrFiles.add(`${trimmedPath}.html`)
+      isrFiles.add(`${trimmedPath}.json`)
+    }
+  })
+
   const files = []
   const moveFile = async (file) => {
     const source = join(root, file)
     files.push(file)
     const dest = join(netlifyConfig.build.publish, file)
-    await move(source, dest)
+    try {
+      await move(source, dest)
+    } catch (error) {
+      console.warn('Error moving file', source, error)
+    }
   }
   // Move all static files, except error documents and nft manifests
   const pages = await globby(['**/*.{html,json}', '!**/(500|404|*.js.nft).{html,json}'], {
@@ -67,6 +84,10 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   const limit = pLimit(Math.max(2, cpus().length))
   const promises = pages.map(async (rawPath) => {
     const filePath = slash(rawPath)
+    // Don't move ISR files, as they're used for the first request
+    if (isrFiles.has(filePath)) {
+      return
+    }
     if (isDynamicRoute(filePath)) {
       return
     }
