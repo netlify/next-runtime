@@ -28,10 +28,36 @@ const matchMiddleware = (middleware, filePath) =>
       filePath === middlewarePath || filePath === `${middlewarePath}.html` || filePath.startsWith(`${middlewarePath}/`),
   )
 
+const matchesRedirect = (file, redirects) => {
+  if (!Array.isArray(redirects)) {
+    return false
+  }
+  return redirects.some((redirect) => {
+    if (!redirect.regex || redirect.internal) {
+      return false
+    }
+    // Strips the extension from the file path
+    return new RegExp(redirect.regex).test(`/${file.slice(0, -5)}`)
+  })
+}
+
+const matchesRewrite = (file, rewrites) => {
+  if (Array.isArray(rewrites)) {
+    return matchesRedirect(file, rewrites)
+  }
+  if (!Array.isArray(rewrites?.beforeFiles)) {
+    return false
+  }
+  return matchesRedirect(file, rewrites.beforeFiles)
+}
+
+exports.matchesRedirect = matchesRedirect
+exports.matchesRewrite = matchesRewrite
 exports.matchMiddleware = matchMiddleware
 exports.stripLocale = stripLocale
 exports.isDynamicRoute = isDynamicRoute
 
+// eslint-disable-next-line max-lines-per-function
 exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
@@ -48,6 +74,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   }
 
   const prerenderManifest = await readJson(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
+  const { redirects, rewrites } = await readJson(join(netlifyConfig.build.publish, 'routes-manifest.json'))
 
   const isrFiles = new Set()
 
@@ -79,6 +106,8 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
 
   const matchingMiddleware = new Set()
   const matchedPages = new Set()
+  const matchedRedirects = new Set()
+  const matchedRewrites = new Set()
 
   // Limit concurrent file moves to number of cpus or 2 if there is only 1
   const limit = pLimit(Math.max(2, cpus().length))
@@ -89,6 +118,14 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
       return
     }
     if (isDynamicRoute(filePath)) {
+      return
+    }
+    if (matchesRedirect(filePath, redirects)) {
+      matchedRedirects.add(filePath)
+      return
+    }
+    if (matchesRewrite(filePath, rewrites)) {
+      matchedRewrites.add(filePath)
       return
     }
     // Middleware matches against the unlocalised path
@@ -110,7 +147,8 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
       yellowBright(outdent`
         Skipped moving ${matchedPages.size} ${
         matchedPages.size === 1 ? 'file because it matches' : 'files because they match'
-      } middleware, so cannot be deployed to the CDN and will be served from the origin instead. This is fine, but we're letting you know because it may not be what you expect.
+      } middleware, so cannot be deployed to the CDN and will be served from the origin instead. 
+        This is fine, but we're letting you know because it may not be what you expect.
       `),
     )
 
@@ -119,6 +157,8 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
         The following middleware matched statically-rendered pages:
 
         ${yellowBright([...matchingMiddleware].map((mid) => `- /${mid}/_middleware`).join('\n'))}
+
+        ────────────────────────────────────────────────────────────────
       `,
     )
     // There could potentially be thousands of matching pages, so we don't want to spam the console with this
@@ -128,6 +168,40 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
           The following files matched middleware and were not moved to the CDN:
 
           ${yellowBright([...matchedPages].map((mid) => `- ${mid}`).join('\n'))}
+
+          ────────────────────────────────────────────────────────────────
+        `,
+      )
+    }
+  }
+
+  if (matchedRedirects.size !== 0 || matchedRewrites.size !== 0) {
+    console.log(
+      yellowBright(outdent`
+        Skipped moving ${
+          matchedRedirects.size + matchedRewrites.size
+        } files because they match redirects or beforeFiles rewrites, so cannot be deployed to the CDN and will be served from the origin instead.
+      `),
+    )
+    if (matchedRedirects.size < 50 && matchedRedirects.size !== 0) {
+      console.log(
+        outdent`
+          The following files matched redirects and were not moved to the CDN:
+
+          ${yellowBright([...matchedRedirects].map((mid) => `- ${mid}`).join('\n'))}
+
+          ────────────────────────────────────────────────────────────────
+        `,
+      )
+    }
+    if (matchedRewrites.size < 50 && matchedRewrites.size !== 0) {
+      console.log(
+        outdent`
+          The following files matched beforeFiles rewrites and were not moved to the CDN:
+
+          ${yellowBright([...matchedRewrites].map((mid) => `- ${mid}`).join('\n'))}
+
+          ────────────────────────────────────────────────────────────────
         `,
       )
     }

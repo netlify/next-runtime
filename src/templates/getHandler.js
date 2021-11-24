@@ -1,13 +1,11 @@
-/* eslint-disable max-lines-per-function, max-lines */
-const { promises, createWriteStream, existsSync } = require('fs')
+const { promises, existsSync } = require('fs')
 const { Server } = require('http')
 const { tmpdir } = require('os')
 const path = require('path')
-const { promisify } = require('util')
 
-const streamPipeline = promisify(require('stream').pipeline)
 const { Bridge } = require('@vercel/node/dist/bridge')
-const fetch = require('node-fetch')
+
+const { downloadFile } = require('./handlerUtils')
 
 const makeHandler =
   () =>
@@ -59,14 +57,7 @@ const makeHandler =
 
               // Append the path to our host and we can load it like a regular page
               const url = `${base}/${filePath}`
-              console.log(`Downloading ${url} to ${cacheFile}`)
-              const response = await fetch(url)
-              if (!response.ok) {
-                // Next catches this and returns it as a not found file
-                throw new Error(`Failed to fetch ${url}`)
-              }
-              // Stream it to disk
-              await streamPipeline(response.body, createWriteStream(cacheFile))
+              await downloadFile(url, cacheFile)
             }
             // Return the cache file
             return readfileOrig(cacheFile, options)
@@ -195,12 +186,10 @@ const makeHandler =
 const getHandler = ({ isODB = false, publishDir = '../../../.next', appDir = '../../..' }) => `
 const { Server } = require("http");
 const { tmpdir } = require('os')
-const { promises, createWriteStream, existsSync } = require("fs");
-const { promisify } = require('util')
-const streamPipeline = promisify(require('stream').pipeline)
+const { promises, existsSync } = require("fs");
 // We copy the file here rather than requiring from the node module
 const { Bridge } = require("./bridge");
-const fetch = require('node-fetch')
+const { downloadFile } = require('./handlerUtils')
 
 const { builder } = require("@netlify/functions");
 const { config }  = require("${publishDir}/required-server-files.json")
@@ -218,4 +207,3 @@ exports.handler = ${
 `
 
 module.exports = getHandler
-/* eslint-enable max-lines-per-function, max-lines */

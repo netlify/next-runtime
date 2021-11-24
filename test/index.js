@@ -4,12 +4,13 @@ const process = require('process')
 const os = require('os')
 const cpy = require('cpy')
 const { dir: getTmpDir } = require('tmp-promise')
+const { downloadFile } = require('../src/templates/handlerUtils')
 
 const plugin = require('../src')
 
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../src/constants')
 const { join } = require('pathe')
-const { matchMiddleware, stripLocale } = require('../src/helpers/files')
+const { matchMiddleware, stripLocale, matchesRedirect, matchesRewrite } = require('../src/helpers/files')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demo`
@@ -30,6 +31,45 @@ const utils = {
     restore: jest.fn(),
   },
 }
+
+const REDIRECTS = [
+  {
+    source: '/:file((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+)/',
+    destination: '/:file',
+    locale: false,
+    internal: true,
+    statusCode: 308,
+    regex: '^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+))/$',
+  },
+  {
+    source: '/:notfile((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+)',
+    destination: '/:notfile/',
+    locale: false,
+    internal: true,
+    statusCode: 308,
+    regex: '^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+))$',
+  },
+  {
+    source: '/en/redirectme',
+    destination: '/',
+    statusCode: 308,
+    regex: '^(?!/_next)/en/redirectme(?:/)?$',
+  },
+  {
+    source: '/:nextInternalLocale(en|es|fr)/redirectme',
+    destination: '/:nextInternalLocale/',
+    statusCode: 308,
+    regex: '^(?!/_next)(?:/(en|es|fr))/redirectme(?:/)?$',
+  },
+]
+
+const REWRITES = [
+  {
+    source: '/:nextInternalLocale(en|es|fr)/old/:path*',
+    destination: '/:nextInternalLocale/:path*',
+    regex: '^(?:/(en|es|fr))/old(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$',
+  },
+]
 
 // Temporary switch cwd
 const changeCwd = function (cwd) {
@@ -186,8 +226,10 @@ describe('onBuild()', () => {
 
     expect(existsSync(`.netlify/internal-functions/___netlify-handler/___netlify-handler.js`)).toBeTruthy()
     expect(existsSync(`.netlify/internal-functions/___netlify-handler/bridge.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/internal-functions/___netlify-handler/handlerUtils.js`)).toBeTruthy()
     expect(existsSync(`.netlify/internal-functions/___netlify-odb-handler/___netlify-odb-handler.js`)).toBeTruthy()
     expect(existsSync(`.netlify/internal-functions/___netlify-odb-handler/bridge.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/internal-functions/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
   })
 
   test('writes correct redirects to netlifyConfig', async () => {
@@ -450,5 +492,79 @@ describe('utility functions', () => {
     for (const path of paths) {
       expect(stripLocale(path, locales)).toEqual(path)
     }
+  })
+
+  test('matchesRedirect correctly matches paths with locales', () => {
+    const paths = ['en/redirectme.html', 'en/redirectme.json', 'fr/redirectme.html', 'fr/redirectme.json']
+    paths.forEach((path) => {
+      expect(matchesRedirect(path, REDIRECTS)).toBeTruthy()
+    })
+  })
+
+  test("matchesRedirect doesn't match paths with invalid locales", () => {
+    const paths = ['dk/redirectme.html', 'dk/redirectme.json', 'gr/redirectme.html', 'gr/redirectme.json']
+    paths.forEach((path) => {
+      expect(matchesRedirect(path, REDIRECTS)).toBeFalsy()
+    })
+  })
+
+  test("matchesRedirect doesn't match internal redirects", () => {
+    const paths = ['en/notrailingslash']
+    paths.forEach((path) => {
+      expect(matchesRedirect(path, REDIRECTS)).toBeFalsy()
+    })
+  })
+
+  it('matchesRewrite matches array of rewrites', () => {
+    expect(matchesRewrite('en/old/page.html', REWRITES)).toBeTruthy()
+  })
+
+  it('matchesRewrite matches beforeFiles rewrites', () => {
+    expect(matchesRewrite('en/old/page.html', { beforeFiles: REWRITES })).toBeTruthy()
+  })
+
+  it("matchesRewrite doesn't match afterFiles rewrites", () => {
+    expect(matchesRewrite('en/old/page.html', { afterFiles: REWRITES })).toBeFalsy()
+  })
+
+  it('matchesRewrite matches various paths', () => {
+    const paths = ['en/old/page.html', 'fr/old/page.html', 'en/old/deep/page.html', 'en/old.html']
+    paths.forEach((path) => {
+      expect(matchesRewrite(path, REWRITES)).toBeTruthy()
+    })
+  })
+})
+
+describe('function helpers', () => {
+  it('downloadFile can download a file', async () => {
+    const url =
+      'https://raw.githubusercontent.com/netlify/netlify-plugin-nextjs/c2668af24a78eb69b33222913f44c1900a3bce23/manifest.yml'
+    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
+    await ensureDir(path.dirname(tmpFile))
+    await downloadFile(url, tmpFile)
+    expect(existsSync(tmpFile)).toBeTruthy()
+    expect(readFileSync(tmpFile, 'utf8')).toMatchInlineSnapshot(`
+      "name: netlify-plugin-nextjs-experimental
+      "
+    `)
+    await unlink(tmpFile)
+  })
+
+  it('downloadFile throws on bad domain', async () => {
+    const url = 'https://nonexistentdomain.example'
+    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
+    await ensureDir(path.dirname(tmpFile))
+    await expect(downloadFile(url, tmpFile)).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"getaddrinfo ENOTFOUND nonexistentdomain.example"`,
+    )
+  })
+
+  it('downloadFile throws on 404', async () => {
+    const url = 'https://example.com/nonexistentfile'
+    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
+    await ensureDir(path.dirname(tmpFile))
+    await expect(downloadFile(url, tmpFile)).rejects.toThrowError(
+      'Failed to download https://example.com/nonexistentfile: 404 Not Found',
+    )
   })
 })
