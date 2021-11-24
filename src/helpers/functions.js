@@ -22,6 +22,10 @@ exports.generateFunctions = async (
     await ensureDir(join(functionsDir, func))
     await writeFile(join(functionsDir, func, `${func}.js`), handlerSource)
     await copyFile(bridgeFile, join(functionsDir, func, 'bridge.js'))
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
+      join(functionsDir, func, 'handlerUtils.js'),
+    )
   }
 
   await writeHandler(HANDLER_FUNCTION_NAME, false)
