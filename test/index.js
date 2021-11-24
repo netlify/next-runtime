@@ -4,6 +4,7 @@ const process = require('process')
 const os = require('os')
 const cpy = require('cpy')
 const { dir: getTmpDir } = require('tmp-promise')
+const { downloadFile } = require('../src/templates/handlerUtils')
 
 const plugin = require('../src')
 
@@ -225,8 +226,10 @@ describe('onBuild()', () => {
 
     expect(existsSync(`.netlify/internal-functions/___netlify-handler/___netlify-handler.js`)).toBeTruthy()
     expect(existsSync(`.netlify/internal-functions/___netlify-handler/bridge.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/internal-functions/___netlify-handler/handlerUtils.js`)).toBeTruthy()
     expect(existsSync(`.netlify/internal-functions/___netlify-odb-handler/___netlify-odb-handler.js`)).toBeTruthy()
     expect(existsSync(`.netlify/internal-functions/___netlify-odb-handler/bridge.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/internal-functions/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
   })
 
   test('writes correct redirects to netlifyConfig', async () => {
@@ -525,5 +528,39 @@ describe('utility functions', () => {
     paths.forEach((path) => {
       expect(matchesRewrite(path, REWRITES)).toBeTruthy()
     })
+  })
+})
+
+describe('function helpers', () => {
+  it('downloadFile can download a file', async () => {
+    const url =
+      'https://raw.githubusercontent.com/netlify/netlify-plugin-nextjs/c2668af24a78eb69b33222913f44c1900a3bce23/manifest.yml'
+    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
+    await ensureDir(path.dirname(tmpFile))
+    await downloadFile(url, tmpFile)
+    expect(existsSync(tmpFile)).toBeTruthy()
+    expect(readFileSync(tmpFile, 'utf8')).toMatchInlineSnapshot(`
+      "name: netlify-plugin-nextjs-experimental
+      "
+    `)
+    await unlink(tmpFile)
+  })
+
+  it('downloadFile throws on bad domain', async () => {
+    const url = 'https://nonexistentdomain.example'
+    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
+    await ensureDir(path.dirname(tmpFile))
+    await expect(downloadFile(url, tmpFile)).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"getaddrinfo ENOTFOUND nonexistentdomain.example"`,
+    )
+  })
+
+  it('downloadFile throws on 404', async () => {
+    const url = 'https://example.com/nonexistentfile'
+    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
+    await ensureDir(path.dirname(tmpFile))
+    await expect(downloadFile(url, tmpFile)).rejects.toThrowError(
+      'Failed to download https://example.com/nonexistentfile: 404 Not Found',
+    )
   })
 })
