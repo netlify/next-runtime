@@ -110,6 +110,7 @@ const makeHandler =
     bridge.listen()
 
     return async (event, context) => {
+      let requestMode = mode
       // Ensure that paths are encoded - but don't double-encode them
       event.path = new URL(event.path, event.rawUrl).pathname
       // Next expects to be able to parse the query from the URL
@@ -122,6 +123,7 @@ const makeHandler =
         base = `${protocol}://${host}`
       }
       const { headers, ...result } = await bridge.launcher(event, context)
+
       /** @type import("@netlify/functions").HandlerResponse */
 
       // Convert all headers to multiValueHeaders
@@ -135,21 +137,20 @@ const makeHandler =
 
       // Sending SWR headers causes undefined behaviour with the Netlify CDN
       const cacheHeader = multiValueHeaders['cache-control']?.[0]
-      multiValueHeaders['x-next-cache-header'] = [cacheHeader || '']
 
       if (cacheHeader?.includes('stale-while-revalidate')) {
-        if (mode === 'odb' && process.env.EXPERIMENTAL_ODB_TTL) {
-          mode = 'isr'
+        if (requestMode === 'odb' && process.env.EXPERIMENTAL_ODB_TTL) {
+          requestMode = 'isr'
           const ttl = getMaxAge(cacheHeader)
           // Long-expiry TTL is basically no TTL
           if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
             result.ttl = ttl
           }
+          multiValueHeaders['x-rendered-at'] = [new Date().toISOString()]
         }
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
       }
-      multiValueHeaders['x-render-mode'] = [mode]
-
+      multiValueHeaders['x-render-mode'] = [requestMode]
       return {
         ...result,
         multiValueHeaders,

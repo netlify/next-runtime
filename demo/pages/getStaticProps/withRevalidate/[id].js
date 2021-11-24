@@ -8,7 +8,7 @@ const Show = ({ show, time }) => (
 
     <h1>Show #{show.id}</h1>
     <p>{show.name}</p>
-    <p>Rendered at {time}</p>
+    <p>Rendered at {time} (slowly)</p>
     <hr />
 
     <Link href="/">
@@ -33,7 +33,7 @@ export async function getStaticProps({ params }) {
   const res = await fetch(`https://api.tvmaze.com/shows/${id}`)
   const data = await res.json()
   const time = new Date().toLocaleTimeString()
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, 3000))
   return {
     props: {
       show: data,
