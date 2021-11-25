@@ -2,7 +2,7 @@ describe('Preview Mode', () => {
   it('enters and exits preview mode', () => {
     // preview mode is off by default
     cy.visit('/previewTest')
-    cy.findByText('Number: 4')
+    cy.findByText('Is preview? No')
 
     // enter preview mode
     cy.request('/api/enterPreview').then(
@@ -11,11 +11,11 @@ describe('Preview Mode', () => {
   }
 )
   cy.visit('/previewTest')
-  cy.findByText('Number: 3')
+  cy.findByText('Is preview? Yes!')
 
   // exit preview mode
   cy.request('/api/exitPreview')
   cy.visit('/previewTest')
-  cy.findByText('Number: 4')
+  cy.findByText('Is preview? No')
   })
 })

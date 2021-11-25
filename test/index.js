@@ -13,7 +13,7 @@ const { join } = require('pathe')
 const { matchMiddleware, stripLocale, matchesRedirect, matchesRewrite } = require('../src/helpers/files')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
-const SAMPLE_PROJECT_DIR = `${__dirname}/../demo`
+const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
 const constants = {
   INTERNAL_FUNCTIONS_SRC: '.netlify/internal-functions',
   PUBLISH_DIR: '.next',
@@ -302,7 +302,7 @@ describe('onBuild()', () => {
       '.next/BUILD_ID',
       '.next/static/chunks/webpack-middleware*.js',
       '!.next/server/**/*.js.nft.json',
-      '!../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
+      '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
       '!node_modules/next/dist/compiled/webpack/bundle4.js',

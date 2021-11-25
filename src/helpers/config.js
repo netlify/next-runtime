@@ -83,7 +83,7 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
       // These can be ignored, as they're static files handled by the CDN
       return
     }
-    if (i18n.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
+    if (i18n?.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
       route = route.slice(i18n.defaultLocale.length + 1)
     }
     hasIsr = true
