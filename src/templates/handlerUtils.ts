@@ -53,10 +53,12 @@ export const getMultiValueHeaders = (
 ): Record<string, Array<string>> => {
   const multiValueHeaders: Record<string, Array<string>> = {}
   for (const key of Object.keys(headers)) {
-    if (Array.isArray(headers[key])) {
-      multiValueHeaders[key] = headers[key] as Array<string>
+    const header = headers[key]
+
+    if (Array.isArray(header)) {
+      multiValueHeaders[key] = header
     } else {
-      multiValueHeaders[key] = [headers[key] as string]
+      multiValueHeaders[key] = [header]
     }
   }
   return multiValueHeaders
