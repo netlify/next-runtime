@@ -5,7 +5,7 @@ const path = require('path')
 
 const { Bridge } = require('@vercel/node/dist/bridge')
 
-const { downloadFile } = require('./handlerUtils')
+const { downloadFile, getMaxAge, getMultiValueHeaders } = require('./handlerUtils')
 
 const makeHandler =
   () =>
@@ -17,6 +17,10 @@ const makeHandler =
       // eslint-disable-next-line node/no-missing-require
       require.resolve('./pages.js')
     } catch {}
+    // eslint-disable-next-line no-underscore-dangle
+    process.env._BYPASS_SSG = 'true'
+
+    const ONE_YEAR_IN_SECONDS = 31536000
 
     // We don't want to write ISR files to disk in the lambda environment
     conf.experimental.isrFlushToDisk = false
@@ -106,6 +110,7 @@ const makeHandler =
     bridge.listen()
 
     return async (event, context) => {
+      let requestMode = mode
       // Ensure that paths are encoded - but don't double-encode them
       event.path = new URL(event.path, event.rawUrl).pathname
       // Next expects to be able to parse the query from the URL
@@ -118,17 +123,12 @@ const makeHandler =
         base = `${protocol}://${host}`
       }
       const { headers, ...result } = await bridge.launcher(event, context)
+
       /** @type import("@netlify/functions").HandlerResponse */
 
       // Convert all headers to multiValueHeaders
-      const multiValueHeaders = {}
-      for (const key of Object.keys(headers)) {
-        if (Array.isArray(headers[key])) {
-          multiValueHeaders[key] = headers[key]
-        } else {
-          multiValueHeaders[key] = [headers[key]]
-        }
-      }
+
+      const multiValueHeaders = getMultiValueHeaders(headers)
 
       if (multiValueHeaders['set-cookie']?.[0]?.includes('__prerender_bypass')) {
         delete multiValueHeaders.etag
@@ -137,12 +137,20 @@ const makeHandler =
 
       // Sending SWR headers causes undefined behaviour with the Netlify CDN
       const cacheHeader = multiValueHeaders['cache-control']?.[0]
+
       if (cacheHeader?.includes('stale-while-revalidate')) {
-        console.log({ cacheHeader })
+        if (requestMode === 'odb' && process.env.EXPERIMENTAL_ODB_TTL) {
+          requestMode = 'isr'
+          const ttl = getMaxAge(cacheHeader)
+          // Long-expiry TTL is basically no TTL
+          if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
+            result.ttl = ttl
+          }
+          multiValueHeaders['x-rendered-at'] = [new Date().toISOString()]
+        }
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
       }
-      multiValueHeaders['x-render-mode'] = [mode]
-
+      multiValueHeaders['x-render-mode'] = [requestMode]
       return {
         ...result,
         multiValueHeaders,
@@ -157,7 +165,7 @@ const { tmpdir } = require('os')
 const { promises, existsSync } = require("fs");
 // We copy the file here rather than requiring from the node module
 const { Bridge } = require("./bridge");
-const { downloadFile } = require('./handlerUtils')
+const { downloadFile, getMaxAge, getMultiValueHeaders } = require('./handlerUtils')
 
 const { builder } = require("@netlify/functions");
 const { config }  = require("${publishDir}/required-server-files.json")

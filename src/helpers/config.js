@@ -129,7 +129,7 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
     // ISR redirects are handled by the regular function. Forced to avoid pre-rendered pages
     ...isrRedirects.map((redirect) => ({
       from: `${basePath}${redirect}`,
-      to: HANDLER_FUNCTION_PATH,
+      to: process.env.EXPERIMENTAL_ODB_TTL ? ODB_FUNCTION_PATH : HANDLER_FUNCTION_PATH,
       status: 200,
       force: true,
     })),

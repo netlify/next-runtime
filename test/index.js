@@ -353,6 +353,8 @@ describe('onBuild()', () => {
 
 describe('onPostBuild', () => {
   test('saves cache with right paths', async () => {
+    await moveNextDist()
+
     const save = jest.fn()
 
     await plugin.onPostBuild({
@@ -366,6 +368,8 @@ describe('onPostBuild', () => {
   })
 
   test('warns if old functions exist', async () => {
+    await moveNextDist()
+
     const list = jest.fn().mockResolvedValue([
       {
         name: 'next_test',
