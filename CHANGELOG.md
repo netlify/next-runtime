@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.11...v4.0.0) (2021-11-25)
+
+
+### Features
+
+* add experimental support for TTL ([#833](https://www.github.com/netlify/netlify-plugin-nextjs/issues/833)) ([14ca14a](https://www.github.com/netlify/netlify-plugin-nextjs/commit/14ca14a9fabc7a1fc3574e9cd9b53529f19a44c6))
+
 ## [4.0.0-beta.11](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.10...v4.0.0-beta.11) (2021-11-24)
 
 
