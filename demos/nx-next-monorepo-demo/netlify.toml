@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist/apps/demo-monorepo/.next"
+[dev]
+  command = "npm run start"
+  targetPort = 4200
+  
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
