@@ -5,5 +5,8 @@ describe('Default site', () => {
 
   it('loads home page', () => {
     cy.findByText('Welcome to nx-nextjs-monorepo!!')
+
+    cy.visit('//')
+    cy.url().should('eq', `${Cypress.config().baseUrl}/`)
   })
 })
