@@ -1,16 +1,20 @@
 /* eslint-disable max-lines */
 
-const { yellowBright } = require('chalk')
-const { readJSON, existsSync } = require('fs-extra')
-const { outdent } = require('outdent')
-const { join, dirname, relative } = require('pathe')
-const slash = require('slash')
+import { NetlifyConfig } from '@netlify/build'
+import { yellowBright } from 'chalk'
+import { readJSON } from 'fs-extra'
+import { PrerenderManifest } from 'next/dist/build'
+import { outdent } from 'outdent'
+import { join, dirname, relative } from 'pathe'
+import slash from 'slash'
 
-const defaultFailBuild = (message, { error }) => {
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, HIDDEN_PATHS } from '../constants'
+
+import { RequiredServerFiles } from './requiredServerFilesType'
+
+const defaultFailBuild = (message: string, { error } ): never => {
   throw new Error(`${message}\n${error && error.stack}`)
 }
-
-const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, HIDDEN_PATHS } = require('../constants')
 
 const ODB_FUNCTION_PATH = `/.netlify/builders/${ODB_FUNCTION_NAME}`
 const HANDLER_FUNCTION_PATH = `/.netlify/functions/${HANDLER_FUNCTION_NAME}`
@@ -19,7 +23,7 @@ const CATCH_ALL_REGEX = /\/\[\.{3}(.*)](.json)?$/
 const OPTIONAL_CATCH_ALL_REGEX = /\/\[{2}\.{3}(.*)]{2}(.json)?$/
 const DYNAMIC_PARAMETER_REGEX = /\/\[(.*?)]/g
 
-const getNetlifyRoutes = (nextRoute) => {
+const getNetlifyRoutes = (nextRoute: string): Array<string> => {
   let netlifyRoutes = [nextRoute]
 
   // If the route is an optional catch-all route, we need to add a second
@@ -54,8 +58,12 @@ const getNetlifyRoutes = (nextRoute) => {
   return netlifyRoutes
 }
 
-exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
-  const { dynamicRoutes, routes: staticRoutes } = await readJSON(
+export const generateRedirects = async ({ netlifyConfig, basePath, i18n }: { 
+  netlifyConfig: NetlifyConfig, 
+  basePath: string, 
+  i18n 
+}) => {
+  const { dynamicRoutes, routes: staticRoutes }: PrerenderManifest = await readJSON(
     join(netlifyConfig.build.publish, 'prerender-manifest.json'),
   )
 
@@ -123,6 +131,8 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
       from: `${basePath}/*`,
       to: HANDLER_FUNCTION_PATH,
       status: 200,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
       force: true,
     },
@@ -158,14 +168,16 @@ exports.generateRedirects = async ({ netlifyConfig, basePath, i18n }) => {
   }
 }
 
-exports.getNextConfig = async function getNextConfig({ publish, failBuild = defaultFailBuild }) {
+export const getNextConfig = async function getNextConfig({ publish, failBuild = defaultFailBuild }) {
   try {
-    const { config, appDir, ignore } = await readJSON(join(publish, 'required-server-files.json'))
+    const { config, appDir, ignore }: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
     if (!config) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       return failBuild('Error loading your Next config')
     }
     return { ...config, appDir, ignore }
-  } catch (error) {
+  } catch (error: unknown) {
     return failBuild('Error loading your Next config', { error })
   }
 }
@@ -180,7 +192,7 @@ const resolveModuleRoot = (moduleName) => {
 
 const DEFAULT_EXCLUDED_MODULES = ['sharp', 'electron']
 
-exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) => {
+export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) => {
   /* eslint-disable no-underscore-dangle */
   netlifyConfig.functions._ipx ||= {}
   netlifyConfig.functions._ipx.node_bundler = 'nft'
