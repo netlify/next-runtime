@@ -1,7 +1,7 @@
 import Error from 'next/error'
 import Link from 'next/link'
 
-const Show = ({ errorCode, show }) => {
+const Show = ({ errorCode, show, env }) => {
   // If show item was not found, render 404 page
   if (errorCode) {
     return <Error statusCode={errorCode} />
@@ -15,7 +15,7 @@ const Show = ({ errorCode, show }) => {
         <br />
         Refresh the page to see server-side rendering in action.
         <br />
-        You can also try changing the ID to any other number between 1-10000.
+        You can also try changing the ID to any other number between 1-10000. Env: {env}
       </p>
 
       <hr />
@@ -46,6 +46,7 @@ export const getServerSideProps = async ({ params }) => {
     props: {
       errorCode,
       show: data,
+      env: process.env.HELLO_WORLD || null,
     },
   }
 }

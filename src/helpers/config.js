@@ -190,6 +190,10 @@ exports.configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) =>
     netlifyConfig.functions[functionName].node_bundler = 'nft'
     netlifyConfig.functions[functionName].included_files ||= []
     netlifyConfig.functions[functionName].included_files.push(
+      '.env',
+      '.env.local',
+      '.env.production',
+      '.env.production.local',
       `${publish}/server/**`,
       `${publish}/serverless/**`,
       `${publish}/*.json`,
