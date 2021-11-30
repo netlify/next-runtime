@@ -22,7 +22,8 @@ exports.verifyNetlifyBuildVersion = ({ IS_LOCAL, NETLIFY_BUILD_VERSION, failBuil
 }
 
 exports.checkForOldFunctions = async ({ functions }) => {
-  const oldFunctions = (await functions.list()).filter(({ name }) => name.startsWith('next_'))
+  const allOldFunctions = await functions.list()
+  const oldFunctions = allOldFunctions.filter(({ name }) => name.startsWith('next_'))
   if (oldFunctions.length !== 0) {
     console.log(
       yellowBright(outdent`
