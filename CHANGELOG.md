@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.0.0-beta.12](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.11...v4.0.0-beta.12) (2021-11-30)
+
+
+### Features
+
+* add experimental support for TTL ([#833](https://www.github.com/netlify/netlify-plugin-nextjs/issues/833)) ([14ca14a](https://www.github.com/netlify/netlify-plugin-nextjs/commit/14ca14a9fabc7a1fc3574e9cd9b53529f19a44c6))
+* add support for Next env vars ([#842](https://www.github.com/netlify/netlify-plugin-nextjs/issues/842)) ([24fd88a](https://www.github.com/netlify/netlify-plugin-nextjs/commit/24fd88a843767a7df9633f6c18d7ee7fc9724279))
+
+
+### Miscellaneous Chores
+
+* **deps:** update dependency @netlify/build to v19 ([#840](https://www.github.com/netlify/netlify-plugin-nextjs/issues/840)) ([d927524](https://www.github.com/netlify/netlify-plugin-nextjs/commit/d927524219941fea3206abb15b2d26d6325d2921))
+
 ## [4.0.0-beta.11](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.10...v4.0.0-beta.11) (2021-11-24)
 
 

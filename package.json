@@ -1,6 +1,6 @@
 {
   "name": "@netlify/plugin-nextjs",
-  "version": "4.0.0-beta.11",
+  "version": "4.0.0-beta.12",
   "description": "Run Next.js seamlessly on Netlify",
   "main": "lib/index.js",
   "files": [
