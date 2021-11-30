@@ -296,6 +296,10 @@ describe('onBuild()', () => {
 
     await plugin.onBuild(defaultArgs)
     const includes = [
+      '.env',
+      '.env.local',
+      '.env.production',
+      '.env.production.local',
       '.next/server/**',
       '.next/serverless/**',
       '.next/*.json',
