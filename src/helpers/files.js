@@ -166,7 +166,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
       yellowBright(outdent`
         Skipped moving ${matchedPages.size} ${
         matchedPages.size === 1 ? 'file because it matches' : 'files because they match'
-      } middleware, so cannot be deployed to the CDN and will be served from the origin instead. 
+      } middleware, so cannot be deployed to the CDN and will be served from the origin instead.
         This is fine, but we're letting you know because it may not be what you expect.
       `),
     )
@@ -301,8 +301,14 @@ exports.unpatchNextFiles = async (root) => {
   }
 }
 
-exports.movePublicFiles = async ({ appDir, publish }) => {
-  const publicDir = join(appDir, 'public')
+exports.movePublicFiles = async ({ appDir, outdir, publish }) => {
+  // `outdir` is a config property added when using Next.js with Nx. It's typically
+  // a relative path outside of the appDir, e.g. '../../dist/apps/<app-name>', and
+  // the parent directory of the .next directory.
+  // If it exists, copy the files from the public folder there in order to include
+  // any files that were generated during the build. Otherwise, copy the public
+  // directory from the original app directory.
+  const publicDir = outdir ? join(appDir, outdir, 'public') : join(appDir, 'public')
   if (existsSync(publicDir)) {
     await copy(publicDir, `${publish}/`)
   }
