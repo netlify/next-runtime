@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "preinstall": "cd ../.. && npm i"
+    "preinstall": "cd ../../.. && npm i"
   },
   "author": "",
   "license": "ISC"
