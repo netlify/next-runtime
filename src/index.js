@@ -2,9 +2,10 @@ const { join, relative } = require('path')
 
 const { ODB_FUNCTION_NAME } = require('./constants')
 const { restoreCache, saveCache } = require('./helpers/cache')
-const { getNextConfig, configureHandlerFunctions, generateRedirects } = require('./helpers/config')
+const { getNextConfig, configureHandlerFunctions } = require('./helpers/config')
 const { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } = require('./helpers/files')
 const { generateFunctions, setupImageFunction, generatePagesResolver } = require('./helpers/functions')
+const { generateRedirects } = require('./helpers/redirects')
 const {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
@@ -47,7 +48,10 @@ module.exports = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target, ignore } = await getNextConfig({ publish, failBuild })
+    const { appDir, basePath, i18n, images, target, ignore, trailingSlash } = await getNextConfig({
+      publish,
+      failBuild,
+    })
 
     configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
 
@@ -74,8 +78,7 @@ module.exports = {
 
     await generateRedirects({
       netlifyConfig,
-      basePath,
-      i18n,
+      nextConfig: { basePath, i18n, trailingSlash },
     })
   },
 
