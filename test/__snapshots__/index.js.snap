@@ -130,7 +130,9 @@ Array [
   },
   Object {
     "conditions": Object {
-      "Language": "es",
+      "Language": Array [
+        "es",
+      ],
     },
     "force": true,
     "from": "/",
@@ -139,7 +141,9 @@ Array [
   },
   Object {
     "conditions": Object {
-      "Language": "fr",
+      "Language": Array [
+        "fr",
+      ],
     },
     "force": true,
     "from": "/",

@@ -23,8 +23,6 @@ const generateLocaleRedirects = ({
     status: 200,
     force: true,
     conditions: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore Incorrect type
       Cookie: ['NEXT_LOCALE'],
     },
   })
@@ -37,9 +35,7 @@ const generateLocaleRedirects = ({
       to: `${basePath}/${locale}/`,
       status: 301,
       conditions: {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore Incorrect type
-        Language: locale,
+        Language: [locale],
       },
       force: true,
     })
