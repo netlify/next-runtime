@@ -13,17 +13,20 @@ describe('Localization', () => {
     cy.visit('/')
 
     cy.findByText('The current locale is fr')
+    cy.url().should('eq', `${Cypress.config().baseUrl}/fr/`)
   })
 
-  it('should use the NEXT_LOCALE cookie over Accept-Language header to determine the default locale', () => {
-    cy.visit({
-      url: '/',
+  it('should use Accept-Language to choose a locale', () => {
+    cy.visit('/', {
       headers: {
         'Accept-Language': 'fr;q=0.9',
       },
     })
     cy.findByText('The current locale is fr')
+    cy.url().should('eq', `${Cypress.config().baseUrl}/fr/`)
+  })
 
+  it('should use the NEXT_LOCALE cookie over Accept-Language header to determine the default locale', () => {
     cy.setCookie('NEXT_LOCALE', 'en')
     cy.visit({
       url: '/',
@@ -31,6 +34,7 @@ describe('Localization', () => {
         'Accept-Language': 'fr;q=0.9',
       },
     })
+    cy.url().should('eq', `${Cypress.config().baseUrl}/`)
 
     cy.findByText('The current locale is en')
   })
