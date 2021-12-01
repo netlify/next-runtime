@@ -1,0 +1,8 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "integrationFolder": "../../cypress/integration/static-root",
+  "pluginsFile": "../../cypress/plugins",
+  "screenshotsFolder": "../../cypress/screenshots",
+  "supportFile": "../../cypress/support/index.js",
+  "videoFolder": "../../cypress/videos"
+}
