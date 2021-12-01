@@ -63,7 +63,7 @@ export const generateRedirects = async ({
     })),
   )
 
-  if (i18n.localeDetection !== false) {
+  if (i18n && i18n.localeDetection !== false) {
     netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))
   }
 
