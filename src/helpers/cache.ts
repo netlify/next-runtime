@@ -1,9 +1,8 @@
-const {
-  posix: { join },
-} = require('path')
+import { posix } from 'path'
 
-exports.restoreCache = async ({ cache, publish }) => {
-  const cacheDir = join(publish, 'cache')
+export const restoreCache = async ({ cache, publish }) => {
+  const cacheDir = posix.join(publish, 'cache')
+
   if (await cache.restore(cacheDir)) {
     console.log('Next.js cache restored.')
   } else {
@@ -11,10 +10,10 @@ exports.restoreCache = async ({ cache, publish }) => {
   }
 }
 
-exports.saveCache = async ({ cache, publish }) => {
-  const cacheDir = join(publish, 'cache')
+export const saveCache = async ({ cache, publish }) => {
+  const cacheDir = posix.join(publish, 'cache')
 
-  const buildManifest = join(publish, 'build-manifest.json')
+  const buildManifest = posix.join(publish, 'build-manifest.json')
   if (await cache.save(cacheDir, { digests: [buildManifest] })) {
     console.log('Next.js cache saved.')
   } else {
