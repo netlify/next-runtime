@@ -51,7 +51,7 @@ const Index = ({ shows }) => {
         ))}
       </ul>
 
-      <h2>Catch-All Routess</h2>
+      <h2>Catch-All Routes</h2>
 
       <ul data-testid="list-catch-all">
         <li>
@@ -102,6 +102,74 @@ const Index = ({ shows }) => {
         <li>
           <Link href="/en">
             <a>/en (default locale)</a>
+          </Link>
+        </li>
+      </ul>
+      <h2>Page types</h2>
+      <ul>
+        <li>
+          <Link href="/getServerSideProps/1">
+            <a>/getServerSideProps/1</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/getServerSideProps/static">
+            <a>/getServerSideProps/static</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/getServerSideProps/all/1">
+            <a>/getServerSideProps/all/1</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/getStaticProps/1">
+            <a>/getStaticProps/1</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/getStaticProps/static">
+            <a>/getStaticProps/static</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/getStaticProps/with-revalidate">
+            <a>/getStaticProps/with-revalidate</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/getStaticProps/withFallback/3">
+            <a>/getStaticProps/withFallback/3 (pre-rendered)</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/getStaticProps/withFallback/300">
+            <a>/getStaticProps/withFallback/300 (SSR)</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/getStaticProps/withFallbackBlocking/300">
+            <a>/getStaticProps/withFallbackBlocking/300 (SSR)</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/getStaticProps/withRevalidate/2">
+            <a>/getStaticProps/withRevalidate/2</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/getStaticProps/withRevalidate/withFallback/200">
+            <a>/getStaticProps/withRevalidate/withFallback/200</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/old/image">
+            <a>Rewrite (should display image)</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/middle">
+            <a>Middleware</a>
           </Link>
         </li>
       </ul>
