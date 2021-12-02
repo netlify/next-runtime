@@ -238,6 +238,39 @@ Array [
 exports[`onBuild() writes correct redirects to netlifyConfig 1`] = `
 Array [
   Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "NEXT_LOCALE",
+      ],
+    },
+    "force": true,
+    "from": "/",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "conditions": Object {
+      "Language": Array [
+        "es",
+      ],
+    },
+    "force": true,
+    "from": "/",
+    "status": 301,
+    "to": "/es/",
+  },
+  Object {
+    "conditions": Object {
+      "Language": Array [
+        "fr",
+      ],
+    },
+    "force": true,
+    "from": "/",
+    "status": 301,
+    "to": "/fr/",
+  },
+  Object {
     "from": "/_ipx/*",
     "status": 200,
     "to": "/.netlify/builders/_ipx",

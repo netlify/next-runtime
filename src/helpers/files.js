@@ -235,6 +235,18 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
     if (existsSync(defaultLocaleDir)) {
       await copy(defaultLocaleDir, `${netlifyConfig.build.publish}/`)
     }
+    const defaultLocaleIndex = join(netlifyConfig.build.publish, `${i18n.defaultLocale}.html`)
+    const indexHtml = join(netlifyConfig.build.publish, 'index.html')
+    if (existsSync(defaultLocaleIndex) && !existsSync(indexHtml)) {
+      try {
+        await copy(defaultLocaleIndex, indexHtml, { overwrite: false })
+        await copy(
+          join(netlifyConfig.build.publish, `${i18n.defaultLocale}.json`),
+          join(netlifyConfig.build.publish, 'index.json'),
+          { overwrite: false },
+        )
+      } catch {}
+    }
   }
 }
 

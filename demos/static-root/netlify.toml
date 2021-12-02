@@ -21,4 +21,4 @@ package = "@netlify/plugin-local-install-core"
 package = "netlify-plugin-cypress"
 
 [context.deploy-preview.plugins.inputs]
-configFile = "../../cypress/config/ci.json"
+configFile = "../../cypress/config/static-root.json"

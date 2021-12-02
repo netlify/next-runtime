@@ -1,171 +1,13 @@
-/* eslint-disable max-lines */
-
-import { NetlifyConfig } from '@netlify/build'
-import { yellowBright } from 'chalk'
 import { readJSON } from 'fs-extra'
-import { PrerenderManifest } from 'next/dist/build'
-import { outdent } from 'outdent'
 import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
 
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, HIDDEN_PATHS } from '../constants'
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
 import { RequiredServerFiles } from './requiredServerFilesType'
 
-const defaultFailBuild = (message: string, { error } ): never => {
+const defaultFailBuild = (message: string, { error }): never => {
   throw new Error(`${message}\n${error && error.stack}`)
-}
-
-const ODB_FUNCTION_PATH = `/.netlify/builders/${ODB_FUNCTION_NAME}`
-const HANDLER_FUNCTION_PATH = `/.netlify/functions/${HANDLER_FUNCTION_NAME}`
-
-const CATCH_ALL_REGEX = /\/\[\.{3}(.*)](.json)?$/
-const OPTIONAL_CATCH_ALL_REGEX = /\/\[{2}\.{3}(.*)]{2}(.json)?$/
-const DYNAMIC_PARAMETER_REGEX = /\/\[(.*?)]/g
-
-const getNetlifyRoutes = (nextRoute: string): Array<string> => {
-  let netlifyRoutes = [nextRoute]
-
-  // If the route is an optional catch-all route, we need to add a second
-  // Netlify route for the base path (when no parameters are present).
-  // The file ending must be present!
-  if (OPTIONAL_CATCH_ALL_REGEX.test(nextRoute)) {
-    let netlifyRoute = nextRoute.replace(OPTIONAL_CATCH_ALL_REGEX, '$2')
-
-    // When optional catch-all route is at top-level, the regex on line 19 will
-    // create an empty string, but actually needs to be a forward slash
-    if (netlifyRoute === '') netlifyRoute = '/'
-
-    // When optional catch-all route is at top-level, the regex on line 19 will
-    // create an incorrect route for the data route. For example, it creates
-    // /_next/data/%BUILDID%.json, but NextJS looks for
-    // /_next/data/%BUILDID%/index.json
-    netlifyRoute = netlifyRoute.replace(/(\/_next\/data\/[^/]+).json/, '$1/index.json')
-
-    // Add second route to the front of the array
-    netlifyRoutes.unshift(netlifyRoute)
-  }
-
-  // Replace catch-all, e.g., [...slug]
-  netlifyRoutes = netlifyRoutes.map((route) => route.replace(CATCH_ALL_REGEX, '/:$1/*'))
-
-  // Replace optional catch-all, e.g., [[...slug]]
-  netlifyRoutes = netlifyRoutes.map((route) => route.replace(OPTIONAL_CATCH_ALL_REGEX, '/*'))
-
-  // Replace dynamic parameters, e.g., [id]
-  netlifyRoutes = netlifyRoutes.map((route) => route.replace(DYNAMIC_PARAMETER_REGEX, '/:$1'))
-
-  return netlifyRoutes
-}
-
-export const generateRedirects = async ({ netlifyConfig, basePath, i18n }: { 
-  netlifyConfig: NetlifyConfig, 
-  basePath: string, 
-  i18n 
-}) => {
-  const { dynamicRoutes, routes: staticRoutes }: PrerenderManifest = await readJSON(
-    join(netlifyConfig.build.publish, 'prerender-manifest.json'),
-  )
-
-  netlifyConfig.redirects.push(
-    ...HIDDEN_PATHS.map((path) => ({
-      from: `${basePath}${path}`,
-      to: '/404.html',
-      status: 404,
-      force: true,
-    })),
-  )
-
-  const dataRedirects = []
-  const pageRedirects = []
-  const isrRedirects = []
-  let hasIsr = false
-
-  const dynamicRouteEntries = Object.entries(dynamicRoutes)
-
-  const staticRouteEntries = Object.entries(staticRoutes)
-
-  staticRouteEntries.forEach(([route, { dataRoute, initialRevalidateSeconds }]) => {
-    // Only look for revalidate as we need to rewrite these to SSR rather than ODB
-    if (initialRevalidateSeconds === false) {
-      // These can be ignored, as they're static files handled by the CDN
-      return
-    }
-    if (i18n?.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
-      route = route.slice(i18n.defaultLocale.length + 1)
-    }
-    hasIsr = true
-    isrRedirects.push(...getNetlifyRoutes(dataRoute), ...getNetlifyRoutes(route))
-  })
-
-  dynamicRouteEntries.forEach(([route, { dataRoute, fallback }]) => {
-    // Add redirects if fallback is "null" (aka blocking) or true/a string
-    if (fallback === false) {
-      return
-    }
-    pageRedirects.push(...getNetlifyRoutes(route))
-    dataRedirects.push(...getNetlifyRoutes(dataRoute))
-  })
-
-  if (i18n) {
-    netlifyConfig.redirects.push({ from: `${basePath}/:locale/_next/static/*`, to: `/static/:splat`, status: 200 })
-  }
-
-  // This is only used in prod, so dev uses `next dev` directly
-  netlifyConfig.redirects.push(
-    // Static files are in `static`
-    { from: `${basePath}/_next/static/*`, to: `/static/:splat`, status: 200 },
-    // API routes always need to be served from the regular function
-    {
-      from: `${basePath}/api`,
-      to: HANDLER_FUNCTION_PATH,
-      status: 200,
-    },
-    {
-      from: `${basePath}/api/*`,
-      to: HANDLER_FUNCTION_PATH,
-      status: 200,
-    },
-    // Preview mode gets forced to the function, to bypess pre-rendered pages
-    {
-      from: `${basePath}/*`,
-      to: HANDLER_FUNCTION_PATH,
-      status: 200,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
-      force: true,
-    },
-    // ISR redirects are handled by the regular function. Forced to avoid pre-rendered pages
-    ...isrRedirects.map((redirect) => ({
-      from: `${basePath}${redirect}`,
-      to: process.env.EXPERIMENTAL_ODB_TTL ? ODB_FUNCTION_PATH : HANDLER_FUNCTION_PATH,
-      status: 200,
-      force: true,
-    })),
-    // These are pages with fallback set, which need an ODB
-    // Data redirects go first, to avoid conflict with splat redirects
-    ...dataRedirects.map((redirect) => ({
-      from: `${basePath}${redirect}`,
-      to: ODB_FUNCTION_PATH,
-      status: 200,
-    })),
-    // ...then all the other fallback pages
-    ...pageRedirects.map((redirect) => ({
-      from: `${basePath}${redirect}`,
-      to: ODB_FUNCTION_PATH,
-      status: 200,
-    })),
-    // Everything else is handled by the regular function
-    { from: `${basePath}/*`, to: HANDLER_FUNCTION_PATH, status: 200 },
-  )
-  if (hasIsr) {
-    console.log(
-      yellowBright(outdent`
-        You have some pages that use ISR (pages that use getStaticProps with revalidate set), which is not currently fully-supported by this plugin. Be aware that results may be unreliable.
-      `),
-    )
-  }
 }
 
 export const getNextConfig = async function getNextConfig({ publish, failBuild = defaultFailBuild }) {
@@ -234,4 +76,3 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
     })
   })
 }
-/* eslint-enable max-lines */
