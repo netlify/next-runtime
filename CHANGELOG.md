@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.0.0-beta.13](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.12...v4.0.0-beta.13) (2021-12-02)
+
+
+### Bug Fixes
+
+* correct handling of data route JSON files ([#864](https://www.github.com/netlify/netlify-plugin-nextjs/issues/864)) ([adea889](https://www.github.com/netlify/netlify-plugin-nextjs/commit/adea889085be758a47a01503b0501569ee27bc6a))
+* move locale detection to netlify redirects ([#861](https://www.github.com/netlify/netlify-plugin-nextjs/issues/861)) ([964637b](https://www.github.com/netlify/netlify-plugin-nextjs/commit/964637beb6e71ecac750f84858676cd4d980c5b8))
+
 ## [4.0.0-beta.12](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.11...v4.0.0-beta.12) (2021-11-30)
 
 
