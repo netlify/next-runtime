@@ -2,7 +2,17 @@
 const { cpus } = require('os')
 
 const { yellowBright } = require('chalk')
-const { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir } = require('fs-extra')
+const {
+  existsSync,
+  readJson,
+  move,
+  copy,
+  writeJson,
+  readFile,
+  writeFile,
+  ensureDir,
+  readFileSync,
+} = require('fs-extra')
 const globby = require('globby')
 const { outdent } = require('outdent')
 const pLimit = require('p-limit')
@@ -62,7 +72,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
   const root = join(outputDir, 'pages')
-  const buildId = await readFile(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8')
+  const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
   const dataDir = join('_next', 'data', buildId)
   await ensureDir(dataDir)
   // Load the middleware manifest so we can check if a file matches it before moving
