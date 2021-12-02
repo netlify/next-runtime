@@ -206,8 +206,11 @@ describe('onBuild()', () => {
   test("fails if BUILD_ID doesn't exist", async () => {
     await moveNextDist()
     await unlink(path.join(process.cwd(), '.next/BUILD_ID'))
-    const failBuild = jest.fn()
-    await plugin.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })
+    const failBuild = jest.fn().mockImplementation(() => {
+      throw new Error('BUILD_ID does not exist')
+    })
+
+    expect(() => plugin.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow()
     expect(failBuild).toHaveBeenCalled()
   })
 
@@ -260,8 +263,7 @@ describe('onBuild()', () => {
     await moveNextDist()
     await plugin.onBuild(defaultArgs)
     const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
-
-    data.forEach((file) => {
+    data.forEach(([_, file]) => {
       expect(existsSync(path.resolve(path.join('.next', file)))).toBeTruthy()
       expect(existsSync(path.resolve(path.join('.next', 'server', 'pages', file)))).toBeFalsy()
     })
@@ -274,7 +276,7 @@ describe('onBuild()', () => {
 
     const locale = 'en/'
 
-    data.forEach((file) => {
+    data.forEach(([_, file]) => {
       if (!file.startsWith(locale)) {
         return
       }

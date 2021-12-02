@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 const { promises, existsSync } = require('fs')
 const { Server } = require('http')
 const { tmpdir } = require('os')
@@ -34,12 +35,14 @@ const makeHandler =
       // In most cases these are served from the CDN, but for rewrites Next may try to read them
       // from disk. We need to intercept these and load them from the CDN instead
       // Sadly the only way to do this is to monkey-patch fs.promises. Yeah, I know.
-      const staticFiles = new Set(staticManifest)
-
+      const staticFiles = new Map(staticManifest)
+      const downloadPromises = new Map()
+      const statsCache = new Map()
       // Yes, you can cache stuff locally in a Lambda
       const cacheDir = path.join(tmpdir(), 'next-static-cache')
       // Grab the real fs.promises.readFile...
       const readfileOrig = promises.readFile
+      const statsOrig = promises.stat
       // ...then money-patch it to see if it's requesting a CDN file
       promises.readFile = async (file, options) => {
         // We only care about page files
@@ -51,13 +54,24 @@ const makeHandler =
           if (staticFiles.has(filePath) && !existsSync(file)) {
             // This name is safe to use, because it's one that was already created by Next
             const cacheFile = path.join(cacheDir, filePath)
-            // Have we already cached it? We ignore the cache if running locally to avoid staleness
+            const url = `${base}/${staticFiles.get(filePath)}`
+
+            // If it's already downloading we can wait for it to finish
+            if (downloadPromises.has(url)) {
+              await downloadPromises.get(url)
+            }
+            // Have we already cached it? We download every time if running locally to avoid staleness
             if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && base) {
               await promises.mkdir(path.dirname(cacheFile), { recursive: true })
 
-              // Append the path to our host and we can load it like a regular page
-              const url = `${base}/${filePath}`
-              await downloadFile(url, cacheFile)
+              try {
+                // Append the path to our host and we can load it like a regular page
+                const downloadPromise = downloadFile(url, cacheFile)
+                downloadPromises.set(url, downloadPromise)
+                await downloadPromise
+              } finally {
+                downloadPromises.delete(url)
+              }
             }
             // Return the cache file
             return readfileOrig(cacheFile, options)
@@ -65,6 +79,18 @@ const makeHandler =
         }
 
         return readfileOrig(file, options)
+      }
+
+      promises.stat = async (file, options) => {
+        // We only care about page files
+        if (file.startsWith(pageRoot)) {
+          // We only want the part after `pages/`
+          const cacheFile = path.join(cacheDir, file.slice(pageRoot.length + 1))
+          if (existsSync(cacheFile)) {
+            return statsOrig(cacheFile, options)
+          }
+        }
+        return statsOrig(file, options)
       }
     }
     let NextServer
@@ -183,3 +209,4 @@ exports.handler = ${
 `
 
 module.exports = getHandler
+/* eslint-enable max-lines-per-function */

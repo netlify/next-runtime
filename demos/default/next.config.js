@@ -31,6 +31,10 @@ module.exports = {
           destination: '/:path*',
         },
       ],
+      afterFiles: [{
+        source: '/rewriteToStatic',
+        destination: '/getStaticProps/1',
+      }]
     }
   },
   // Redirects allow you to redirect an incoming request path to a different destination path.

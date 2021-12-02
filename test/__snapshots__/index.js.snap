@@ -72,46 +72,166 @@ exports.resolvePages = () => {
 
 exports[`onBuild() generates static files manifest 1`] = `
 Array [
-  "en/getStaticProps/1.html",
-  "en/getStaticProps/1.json",
-  "en/getStaticProps/2.html",
-  "en/getStaticProps/2.json",
-  "en/getStaticProps/env.html",
-  "en/getStaticProps/env.json",
-  "en/getStaticProps/static.html",
-  "en/getStaticProps/static.json",
-  "en/getStaticProps/withFallback/3.html",
-  "en/getStaticProps/withFallback/3.json",
-  "en/getStaticProps/withFallback/4.html",
-  "en/getStaticProps/withFallback/4.json",
-  "en/getStaticProps/withFallback/my/path/1.html",
-  "en/getStaticProps/withFallback/my/path/1.json",
-  "en/getStaticProps/withFallback/my/path/2.html",
-  "en/getStaticProps/withFallback/my/path/2.json",
-  "en/getStaticProps/withFallbackBlocking/3.html",
-  "en/getStaticProps/withFallbackBlocking/3.json",
-  "en/getStaticProps/withFallbackBlocking/4.html",
-  "en/getStaticProps/withFallbackBlocking/4.json",
-  "en/image.html",
-  "en/previewTest.html",
-  "en/previewTest.json",
-  "en/static.html",
-  "es/getStaticProps/env.html",
-  "es/getStaticProps/env.json",
-  "es/getStaticProps/static.html",
-  "es/getStaticProps/static.json",
-  "es/image.html",
-  "es/previewTest.html",
-  "es/previewTest.json",
-  "es/static.html",
-  "fr/getStaticProps/env.html",
-  "fr/getStaticProps/env.json",
-  "fr/getStaticProps/static.html",
-  "fr/getStaticProps/static.json",
-  "fr/image.html",
-  "fr/previewTest.html",
-  "fr/previewTest.json",
-  "fr/static.html",
+  Array [
+    "en/getStaticProps/1.html",
+    "en/getStaticProps/1.html",
+  ],
+  Array [
+    "en/getStaticProps/1.json",
+    "_next/data/build-id/en/getStaticProps/1.json",
+  ],
+  Array [
+    "en/getStaticProps/2.html",
+    "en/getStaticProps/2.html",
+  ],
+  Array [
+    "en/getStaticProps/2.json",
+    "_next/data/build-id/en/getStaticProps/2.json",
+  ],
+  Array [
+    "en/getStaticProps/env.html",
+    "en/getStaticProps/env.html",
+  ],
+  Array [
+    "en/getStaticProps/env.json",
+    "_next/data/build-id/en/getStaticProps/env.json",
+  ],
+  Array [
+    "en/getStaticProps/static.html",
+    "en/getStaticProps/static.html",
+  ],
+  Array [
+    "en/getStaticProps/static.json",
+    "_next/data/build-id/en/getStaticProps/static.json",
+  ],
+  Array [
+    "en/getStaticProps/withFallback/3.html",
+    "en/getStaticProps/withFallback/3.html",
+  ],
+  Array [
+    "en/getStaticProps/withFallback/3.json",
+    "_next/data/build-id/en/getStaticProps/withFallback/3.json",
+  ],
+  Array [
+    "en/getStaticProps/withFallback/4.html",
+    "en/getStaticProps/withFallback/4.html",
+  ],
+  Array [
+    "en/getStaticProps/withFallback/4.json",
+    "_next/data/build-id/en/getStaticProps/withFallback/4.json",
+  ],
+  Array [
+    "en/getStaticProps/withFallback/my/path/1.html",
+    "en/getStaticProps/withFallback/my/path/1.html",
+  ],
+  Array [
+    "en/getStaticProps/withFallback/my/path/1.json",
+    "_next/data/build-id/en/getStaticProps/withFallback/my/path/1.json",
+  ],
+  Array [
+    "en/getStaticProps/withFallback/my/path/2.html",
+    "en/getStaticProps/withFallback/my/path/2.html",
+  ],
+  Array [
+    "en/getStaticProps/withFallback/my/path/2.json",
+    "_next/data/build-id/en/getStaticProps/withFallback/my/path/2.json",
+  ],
+  Array [
+    "en/getStaticProps/withFallbackBlocking/3.html",
+    "en/getStaticProps/withFallbackBlocking/3.html",
+  ],
+  Array [
+    "en/getStaticProps/withFallbackBlocking/3.json",
+    "_next/data/build-id/en/getStaticProps/withFallbackBlocking/3.json",
+  ],
+  Array [
+    "en/getStaticProps/withFallbackBlocking/4.html",
+    "en/getStaticProps/withFallbackBlocking/4.html",
+  ],
+  Array [
+    "en/getStaticProps/withFallbackBlocking/4.json",
+    "_next/data/build-id/en/getStaticProps/withFallbackBlocking/4.json",
+  ],
+  Array [
+    "en/image.html",
+    "en/image.html",
+  ],
+  Array [
+    "en/previewTest.html",
+    "en/previewTest.html",
+  ],
+  Array [
+    "en/previewTest.json",
+    "_next/data/build-id/en/previewTest.json",
+  ],
+  Array [
+    "en/static.html",
+    "en/static.html",
+  ],
+  Array [
+    "es/getStaticProps/env.html",
+    "es/getStaticProps/env.html",
+  ],
+  Array [
+    "es/getStaticProps/env.json",
+    "_next/data/build-id/es/getStaticProps/env.json",
+  ],
+  Array [
+    "es/getStaticProps/static.html",
+    "es/getStaticProps/static.html",
+  ],
+  Array [
+    "es/getStaticProps/static.json",
+    "_next/data/build-id/es/getStaticProps/static.json",
+  ],
+  Array [
+    "es/image.html",
+    "es/image.html",
+  ],
+  Array [
+    "es/previewTest.html",
+    "es/previewTest.html",
+  ],
+  Array [
+    "es/previewTest.json",
+    "_next/data/build-id/es/previewTest.json",
+  ],
+  Array [
+    "es/static.html",
+    "es/static.html",
+  ],
+  Array [
+    "fr/getStaticProps/env.html",
+    "fr/getStaticProps/env.html",
+  ],
+  Array [
+    "fr/getStaticProps/env.json",
+    "_next/data/build-id/fr/getStaticProps/env.json",
+  ],
+  Array [
+    "fr/getStaticProps/static.html",
+    "fr/getStaticProps/static.html",
+  ],
+  Array [
+    "fr/getStaticProps/static.json",
+    "_next/data/build-id/fr/getStaticProps/static.json",
+  ],
+  Array [
+    "fr/image.html",
+    "fr/image.html",
+  ],
+  Array [
+    "fr/previewTest.html",
+    "fr/previewTest.html",
+  ],
+  Array [
+    "fr/previewTest.json",
+    "_next/data/build-id/fr/previewTest.json",
+  ],
+  Array [
+    "fr/static.html",
+    "fr/static.html",
+  ],
 ]
 `;
 
