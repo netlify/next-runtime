@@ -168,6 +168,11 @@ const Index = ({ shows }) => {
           </Link>
         </li>
         <li>
+          <Link href="/rewriteToStatic">
+            <a>Rewrite to static (should show getStaticProps/1)</a>
+          </Link>
+        </li>
+        <li>
           <Link href="/middle">
             <a>Middleware</a>
           </Link>

@@ -2,7 +2,7 @@
 const { cpus } = require('os')
 
 const { yellowBright } = require('chalk')
-const { existsSync, readJson, move, cpSync, copy, writeJson, readFile, writeFile } = require('fs-extra')
+const { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir } = require('fs-extra')
 const globby = require('globby')
 const { outdent } = require('outdent')
 const pLimit = require('p-limit')
@@ -62,7 +62,9 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
   const root = join(outputDir, 'pages')
-
+  const buildId = await readFile(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8')
+  const dataDir = join('_next', 'data', buildId)
+  await ensureDir(dataDir)
   // Load the middleware manifest so we can check if a file matches it before moving
   let middleware
   const manifestPath = join(outputDir, 'middleware-manifest.json')
@@ -88,10 +90,17 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   })
 
   const files = []
+  const filesManifest = {}
   const moveFile = async (file) => {
+    const isData = file.endsWith('.json')
     const source = join(root, file)
+    const target = isData ? join(dataDir, file) : file
+
     files.push(file)
-    const dest = join(netlifyConfig.build.publish, file)
+    filesManifest[file] = target
+
+    const dest = join(netlifyConfig.build.publish, target)
+
     try {
       await move(source, dest)
     } catch (error) {
@@ -208,7 +217,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   }
 
   // Write the manifest for use in the serverless functions
-  await writeJson(join(netlifyConfig.build.publish, 'static-manifest.json'), files)
+  await writeJson(join(netlifyConfig.build.publish, 'static-manifest.json'), Object.entries(filesManifest))
 
   if (i18n?.defaultLocale) {
     // Copy the default locale into the root
