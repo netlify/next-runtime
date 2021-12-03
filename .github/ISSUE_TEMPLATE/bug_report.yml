@@ -64,9 +64,11 @@ body:
       value: |
         <details>
           <summary>`netlify.toml`</summary>
+          
         ```toml
         # Paste content of your `netlify.toml` file here
         ```
+
         </details>
 
   - type: textarea
@@ -76,7 +78,9 @@ body:
       value: |
         <details>
           <summary>Build logs</summary>
+          
         ```
         # Paste logs here
         ```
+
         </details>
