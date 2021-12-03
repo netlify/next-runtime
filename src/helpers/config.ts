@@ -1,16 +1,28 @@
 import { readJSON } from 'fs-extra'
+import type { NextConfigComplete } from 'next/dist/server/config-shared'
 import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
-import { RequiredServerFiles } from './requiredServerFilesType'
+export interface RequiredServerFiles {
+  version?: number
+  config?: NextConfigComplete
+  appDir?: string
+  files?: string[]
+  ignore?: string[]
+}
+
+export type NextConfig = Pick<RequiredServerFiles, 'appDir' | 'ignore'> & NextConfigComplete
 
 const defaultFailBuild = (message: string, { error }): never => {
   throw new Error(`${message}\n${error && error.stack}`)
 }
 
-export const getNextConfig = async function getNextConfig({ publish, failBuild = defaultFailBuild }) {
+export const getNextConfig = async function getNextConfig({
+  publish,
+  failBuild = defaultFailBuild,
+}): Promise<NextConfig> {
   try {
     const { config, appDir, ignore }: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
     if (!config) {
