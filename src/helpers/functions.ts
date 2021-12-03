@@ -4,7 +4,7 @@ import type { ImageConfigComplete } from 'next/dist/server/image-config'
 import { join, relative } from 'pathe'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
-import getHandler from '../templates/getHandler'
+import { getHandler } from '../templates/getHandler'
 import { getPageResolver } from '../templates/getPageResolver'
 
 export const generateFunctions = async (
@@ -77,7 +77,7 @@ export const setupImageFunction = async ({
     ...imageconfig,
     basePath: [basePath, IMAGE_FUNCTION_NAME].join('/'),
   })
-  await copyFile(join(__dirname, '..', 'templates', 'ipx.js'), join(functionDirectory, functionName))
+  await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
 
   const imagePath = imageconfig.path || '/_next/image'
 
