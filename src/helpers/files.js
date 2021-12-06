@@ -104,12 +104,12 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   const moveFile = async (file) => {
     const isData = file.endsWith('.json')
     const source = join(root, file)
-    const target = isData ? join(dataDir, file) : file
+    const targetFile = isData ? join(dataDir, file) : file
 
     files.push(file)
-    filesManifest[file] = target
+    filesManifest[file] = targetFile
 
-    const dest = join(netlifyConfig.build.publish, target)
+    const dest = join(netlifyConfig.build.publish, targetFile)
 
     try {
       await move(source, dest)
@@ -130,7 +130,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
 
   // Limit concurrent file moves to number of cpus or 2 if there is only 1
   const limit = pLimit(Math.max(2, cpus().length))
-  const promises = pages.map(async (rawPath) => {
+  const promises = pages.map((rawPath) => {
     const filePath = slash(rawPath)
     // Don't move ISR files, as they're used for the first request
     if (isrFiles.has(filePath)) {
