@@ -178,6 +178,25 @@ const Index = ({ shows }) => {
           </Link>
         </li>
       </ul>
+      <h4>Preview mode</h4>
+      <p>Preview mode: </p>
+      <ul>
+        <li>
+          <Link href="/previewTest">
+            <a>Check for preview mode</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/api/enterPreview">
+            <a>Enter preview</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/api/exitPreview">
+            <a>Exit preview</a>
+          </Link>
+        </li>
+      </ul>
     </div>
   )
 }
