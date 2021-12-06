@@ -78,15 +78,15 @@ exports.checkZipSize = async (file, maxSize = LAMBDA_MAX_SIZE) => {
     console.warn(`Could not check zip size because ${file} does not exist`)
     return
   }
-  const size = await promises.stat(file).then(({ size }) => size)
-  if (size < maxSize) {
+  const fileSize = await promises.stat(file).then(({ size }) => size)
+  if (fileSize < maxSize) {
     return
   }
   // We don't fail the build, because the actual hard max size is larger so it might still succeed
   console.log(
     redBright(outdent`
       The function zip ${yellowBright(relative(process.cwd(), file))} size is ${prettyBytes(
-      size,
+      fileSize,
     )}, which is larger than the maximum supported size of ${prettyBytes(maxSize)}.
       There are a few reasons this could happen. You may have accidentally bundled a large dependency, or you might have a
       large number of pre-rendered pages included.
