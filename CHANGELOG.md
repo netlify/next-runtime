@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.13...v4.0.0) (2021-12-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency regenerator-runtime to v0.13.9 ([#892](https://www.github.com/netlify/netlify-plugin-nextjs/issues/892)) ([46d4df1](https://www.github.com/netlify/netlify-plugin-nextjs/commit/46d4df1b43646354c598ef60de919443ad3c2630))
+
 ## [4.0.0-beta.13](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.12...v4.0.0-beta.13) (2021-12-02)
 
 
