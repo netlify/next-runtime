@@ -7,12 +7,6 @@
 
 * copy public directory output instead of input when using Nx ([#856](https://www.github.com/netlify/netlify-plugin-nextjs/issues/856)) ([d959f82](https://www.github.com/netlify/netlify-plugin-nextjs/commit/d959f82e622dfb2c9e2b7139ff39e8e7eed35f5c))
 * correct root redirect when trailingSlash = false ([#879](https://www.github.com/netlify/netlify-plugin-nextjs/issues/879)) ([3c6b10b](https://www.github.com/netlify/netlify-plugin-nextjs/commit/3c6b10bd38abae9a7b4e952ef9e88c254acef701))
-* **deps:** update dependency regenerator-runtime to v0.13.9 ([#892](https://www.github.com/netlify/netlify-plugin-nextjs/issues/892)) ([46d4df1](https://www.github.com/netlify/netlify-plugin-nextjs/commit/46d4df1b43646354c598ef60de919443ad3c2630))
-
-
-### Miscellaneous Chores
-
-* **deps:** update dependency @types/node to v14.18.0 ([#893](https://www.github.com/netlify/netlify-plugin-nextjs/issues/893)) ([d52335b](https://www.github.com/netlify/netlify-plugin-nextjs/commit/d52335b0e434c16d259e97b79fbcf0f946ffe71d))
 
 ## [4.0.0-beta.13](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.12...v4.0.0-beta.13) (2021-12-02)
 
