@@ -48,7 +48,7 @@ module.exports = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target, ignore, trailingSlash } = await getNextConfig({
+    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir } = await getNextConfig({
       publish,
       failBuild,
     })
@@ -58,7 +58,7 @@ module.exports = {
     await generateFunctions(constants, appDir)
     await generatePagesResolver({ netlifyConfig, target, constants })
 
-    await movePublicFiles({ appDir, publish })
+    await movePublicFiles({ appDir, outdir, publish })
 
     if (process.env.EXPERIMENTAL_ODB_TTL) {
       await patchNextFiles(basePath)
