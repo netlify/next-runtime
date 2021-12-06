@@ -18,7 +18,7 @@ const generateLocaleRedirects = ({
   const redirects: NetlifyConfig['redirects'] = []
   // If the cookie is set, we need to redirect at the origin
   redirects.push({
-    from: `${basePath}${trailingSlash ? '/' : ''}`,
+    from: `${basePath}/`,
     to: HANDLER_FUNCTION_PATH,
     status: 200,
     force: true,
@@ -32,7 +32,7 @@ const generateLocaleRedirects = ({
     }
     redirects.push({
       from: `${basePath}/`,
-      to: `${basePath}/${locale}/`,
+      to: `${basePath}/${locale}${trailingSlash ? '/' : ''}`,
       status: 301,
       conditions: {
         Language: [locale],
