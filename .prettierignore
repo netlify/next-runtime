@@ -18,4 +18,4 @@ node_modules
 # Test
 lib
 tsconfig.json
-demos
+demos/nx-next-monorepo-demo
