@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.0.0-rc.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.13...v4.0.0-rc.0) (2021-12-06)
+
+
+### Bug Fixes
+
+* copy public directory output instead of input when using Nx ([#856](https://www.github.com/netlify/netlify-plugin-nextjs/issues/856)) ([d959f82](https://www.github.com/netlify/netlify-plugin-nextjs/commit/d959f82e622dfb2c9e2b7139ff39e8e7eed35f5c))
+* correct root redirect when trailingSlash = false ([#879](https://www.github.com/netlify/netlify-plugin-nextjs/issues/879)) ([3c6b10b](https://www.github.com/netlify/netlify-plugin-nextjs/commit/3c6b10bd38abae9a7b4e952ef9e88c254acef701))
+
 ## [4.0.0-beta.13](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.12...v4.0.0-beta.13) (2021-12-02)
 
 
