@@ -11,6 +11,7 @@
 ### Bug Fixes
 
 * bypass preview for static files ([#918](https://www.github.com/netlify/netlify-plugin-nextjs/issues/918)) ([ecb3cc8](https://www.github.com/netlify/netlify-plugin-nextjs/commit/ecb3cc8491a6f24f75d8072f0a5e4a49b466146a))
+* work around a bug that caused a full response to be sent for images, even if the etag matched
 * **deps:** update dependency @netlify/ipx to ^0.0.8 ([#902](https://www.github.com/netlify/netlify-plugin-nextjs/issues/902)) ([25f375f](https://www.github.com/netlify/netlify-plugin-nextjs/commit/25f375fdff074e6aabd6a6d5b66433891f8af9dc))
 
 ## [4.0.0-rc.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.13...v4.0.0-rc.0) (2021-12-06)
