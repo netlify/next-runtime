@@ -70,7 +70,6 @@ export const generateRedirects = async ({
   const dataRedirects = []
   const pageRedirects = []
   const isrRedirects = []
-  let hasIsr = false
 
   const dynamicRouteEntries = Object.entries(dynamicRoutes)
 
@@ -85,7 +84,6 @@ export const generateRedirects = async ({
     if (i18n?.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
       route = route.slice(i18n.defaultLocale.length + 1)
     }
-    hasIsr = true
     isrRedirects.push(...netlifyRoutesForNextRoute(dataRoute), ...netlifyRoutesForNextRoute(route))
   })
 
@@ -130,7 +128,7 @@ export const generateRedirects = async ({
     // ISR redirects are handled by the regular function. Forced to avoid pre-rendered pages
     ...isrRedirects.map((redirect) => ({
       from: `${basePath}${redirect}`,
-      to: process.env.EXPERIMENTAL_ODB_TTL ? ODB_FUNCTION_PATH : HANDLER_FUNCTION_PATH,
+      to: ODB_FUNCTION_PATH,
       status: 200,
       force: true,
     })),
@@ -150,11 +148,4 @@ export const generateRedirects = async ({
     // Everything else is handled by the regular function
     { from: `${basePath}/*`, to: HANDLER_FUNCTION_PATH, status: 200 },
   )
-  if (hasIsr) {
-    console.log(
-      yellowBright(outdent`
-        You have some pages that use ISR (pages that use getStaticProps with revalidate set), which is not currently fully-supported by this plugin. Be aware that results may be unreliable.
-      `),
-    )
-  }
 }
