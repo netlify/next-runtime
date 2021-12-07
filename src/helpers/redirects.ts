@@ -1,9 +1,8 @@
 import { NetlifyConfig } from '@netlify/build'
-import { yellowBright } from 'chalk'
 import { readJSON } from 'fs-extra'
+import globby from 'globby'
 import { NextConfig } from 'next'
 import { PrerenderManifest } from 'next/dist/build'
-import { outdent } from 'outdent'
 import { join } from 'pathe'
 
 import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
@@ -45,10 +44,10 @@ const generateLocaleRedirects = ({
 
 export const generateRedirects = async ({
   netlifyConfig,
-  nextConfig: { i18n, basePath, trailingSlash },
+  nextConfig: { i18n, basePath, trailingSlash, appDir },
 }: {
   netlifyConfig: NetlifyConfig
-  nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash'>
+  nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash' | 'appDir'>
 }) => {
   const { dynamicRoutes, routes: staticRoutes }: PrerenderManifest = await readJSON(
     join(netlifyConfig.build.publish, 'prerender-manifest.json'),
@@ -100,6 +99,8 @@ export const generateRedirects = async ({
     netlifyConfig.redirects.push({ from: `${basePath}/:locale/_next/static/*`, to: `/static/:splat`, status: 200 })
   }
 
+  const publicFiles = await globby('**/*', { cwd: join(appDir, 'public') })
+
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
     // Static files are in `static`
@@ -115,13 +116,18 @@ export const generateRedirects = async ({
       to: HANDLER_FUNCTION_PATH,
       status: 200,
     },
-    // Preview mode gets forced to the function, to bypess pre-rendered pages
+    // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
+    ...publicFiles.map((file) => ({
+      from: `${basePath}/${file}`,
+      // This is a no-op, but we do it to stop it matching the following rule
+      to: `${basePath}/${file}`,
+      conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
+      status: 200,
+    })),
     {
       from: `${basePath}/*`,
       to: HANDLER_FUNCTION_PATH,
       status: 200,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore The conditions type is incorrect
       conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
       force: true,
     },
