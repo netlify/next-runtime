@@ -81,7 +81,7 @@ const makeHandler =
       const cacheHeader = multiValueHeaders['cache-control']?.[0]
 
       if (cacheHeader?.includes('stale-while-revalidate')) {
-        if (requestMode === 'odb' && process.env.EXPERIMENTAL_ODB_TTL) {
+        if (requestMode === 'odb') {
           requestMode = 'isr'
           const ttl = getMaxAge(cacheHeader)
           // Long-expiry TTL is basically no TTL

@@ -21,3 +21,8 @@ export const DEFAULT_FUNCTIONS_SRC = 'netlify/functions'
 export const CATCH_ALL_REGEX = /\/\[\.{3}(.*)](.json)?$/
 export const OPTIONAL_CATCH_ALL_REGEX = /\/\[{2}\.{3}(.*)]{2}(.json)?$/
 export const DYNAMIC_PARAMETER_REGEX = /\/\[(.*?)]/g
+export const MINIMUM_REVALIDATE_SECONDS = 60
+
+export const DIVIDER = `
+────────────────────────────────────────────────────────────────
+`
