@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.0.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-rc.0...v4.0.0) (2021-12-07)
+
+
+### Features
+
+* enable TTL for all sites ([#916](https://www.github.com/netlify/netlify-plugin-nextjs/issues/916)) ([152cf03](https://www.github.com/netlify/netlify-plugin-nextjs/commit/152cf03b29fe794322f52e0cb4afba79c0b70da5))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^0.0.8 ([#902](https://www.github.com/netlify/netlify-plugin-nextjs/issues/902)) ([25f375f](https://www.github.com/netlify/netlify-plugin-nextjs/commit/25f375fdff074e6aabd6a6d5b66433891f8af9dc))
+
 ## [4.0.0-rc.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-beta.13...v4.0.0-rc.0) (2021-12-06)
 
 
