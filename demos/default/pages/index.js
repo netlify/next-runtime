@@ -3,6 +3,13 @@ import dynamic from 'next/dynamic'
 const Header = dynamic(() => import(/* webpackChunkName: 'header' */ '../components/Header'), { ssr: true })
 import { useRouter } from 'next/router'
 
+import styled from 'styled-components'
+
+const Title = styled.h1`
+  font-size: 50px;
+  color: ${({ theme }) => theme.colors.primary};
+`
+
 const Index = ({ shows }) => {
   const { locale } = useRouter()
 
@@ -12,7 +19,7 @@ const Index = ({ shows }) => {
 
       <Header />
 
-      <h1>NextJS on Netlify</h1>
+      <Title>NextJS on Netlify</Title>
       <p>This is a demo of a NextJS application with Server-Side Rendering (SSR).</p>
 
       <h2>Server-Side Rendering</h2>
