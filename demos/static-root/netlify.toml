@@ -1,8 +1,8 @@
 [build]
 command = "next build"
 publish = ".next"
-ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF . ../../"
 
+# ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF . ../../"
 [build.environment]
 # cache Cypress binary in local "node_modules" folder
 # so Netlify caches it
