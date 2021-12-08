@@ -28,7 +28,6 @@
     "test:jest": "jest",
     "test:jest:update": "jest --updateSnapshot",
     "test:update": "run-s build build:demo test:jest:update",
-    "prepare": "npm run build",
     "clean": "rimraf lib",
     "build": "tsc",
     "watch": "tsc --watch"

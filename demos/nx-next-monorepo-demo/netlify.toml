@@ -8,7 +8,7 @@ command = "npm run start"
 targetPort = 4200
 
 [[plugins]]
-package = "./local-plugin"
+package = "../../src/index.ts"
 
 [build.environment]
 # cache Cypress binary in local "node_modules" folder
