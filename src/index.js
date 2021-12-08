@@ -10,7 +10,6 @@ const {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
   checkForRootPublish,
-  logBetaMessage,
   checkZipSize,
   checkForOldFunctions,
 } = require('./helpers/verification')
@@ -25,7 +24,6 @@ module.exports = {
       cache,
     },
   }) {
-    logBetaMessage()
     const { publish } = netlifyConfig.build
     checkForRootPublish({ publish, failBuild })
     verifyNetlifyBuildVersion({ failBuild, ...constants })
@@ -88,8 +86,5 @@ module.exports = {
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
     const { basePath } = await getNextConfig({ publish: netlifyConfig.build.publish, failBuild })
     await unpatchNextFiles(basePath)
-  },
-  onEnd() {
-    logBetaMessage()
   },
 }

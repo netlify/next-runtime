@@ -110,13 +110,3 @@ exports.checkZipSize = async (file, maxSize = LAMBDA_MAX_SIZE) => {
     greenBright`\n\nFor more information on fixing this, see ${blueBright`https://ntl.fyi/large-next-functions`}`,
   )
 }
-
-exports.logBetaMessage = () =>
-  console.log(
-    greenBright(
-      outdent`
-        Thank you for trying the Essential Next.js beta plugin. 
-        Please share feedback (both good and bad) at ${blueBright`https://ntl.fyi/next-beta-feedback`}
-      `,
-    ),
-  )
