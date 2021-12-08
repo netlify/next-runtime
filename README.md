@@ -1,9 +1,6 @@
-![Next.js on Netlify Build Plugin](next-on-netlify.png)
+![Essential Next.js Build Plugin](next-on-netlify.png)
 
-# Essential Next.js Build Plugin (beta)
-
-:warning: This is the beta version of the Essential Next.js plugin. For the stable version, refer to
-[Essential Next.js plugin v3](https://github.com/netlify/netlify-plugin-nextjs/tree/v3#readme) :warning:
+# Essential Next.js Build Plugin
 
 <p align="center">
   <a aria-label="npm version" href="https://www.npmjs.com/package/@netlify/plugin-nextjs">
@@ -19,35 +16,45 @@
 Version 4 is a complete rewrite of the Essential Next.js plugin. For full details of everything that's new, check out
 [the v4 release notes](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/release-notes/v4.md)
 
-## Installing the beta
+## Installing the plugin
+
+The plugin should be installed automatically for new Next.js sites on Netlify. You can also install it manually like
+this:
 
 - Install the module:
 
 ```shell
-npm install -D @netlify/plugin-nextjs@beta
+npm install -D @netlify/plugin-nextjs
 ```
 
-- Change the `publish` directory to `.next` and add the plugin to `netlify.toml` if not already installed:
+...then add it to your `netlify.toml` file:
 
 ```toml
-[build]
-publish = ".next"
-
 [[plugins]]
 package = "@netlify/plugin-nextjs"
 ```
 
-If you previously set a custom `distDir` in your `next.config.js`, or set `node_bundler` or `external_node_modules` in
-your `netlify.toml` these are no longer needed and can be removed.
+## Migrating from an older version of the plugin
+
+You can manually upgrade from the previous version of the plugin by running the following command:
+
+```shell
+npm install -D @netlify/plugin-nextjs@latest
+```
+
+Change the `publish` directory to `.next`:
+
+```toml
+[build]
+publish = ".next"
+```
+
+If you previously set a custom `distDir` in your `next.config.js`, or set `node_bundler = "esbuild"` or
+`external_node_modules` in your `netlify.toml` these are no longer needed and can be removed.
 
 The `serverless` and `experimental-serverless-trace` targets are deprecated in Next 12, and all builds with this plugin
 will now use the default `server` target. If you previously set the target in your `next.config.js`, you should remove
 it.
-
-If you are using a monorepo you will need to change `publish` to point to the full path to the built `.next` directory,
-which may be in a subdirectory. If you have changed your `distDir` then it will need to match that.
-
-If you are using Nx, then you will need to point `publish` to the folder inside `dist`, e.g. `dist/apps/myapp/.next`.
 
 If you currently use redirects or rewrites on your site, see
 [the Rewrites and Redirects guide](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/redirects-rewrites.md)
@@ -57,7 +64,15 @@ If you want to use Next 12's beta Middleware feature, this will mostly work as e
 [read the docs on some caveats and workarounds](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/middleware.md)
 that are currently needed.
 
-## Beta feedback
+## Monorepos
 
-Please share any thoughts, feedback or questions about the beta
-[in our discussion](https://github.com/netlify/netlify-plugin-nextjs/discussions/706).
+If you are using a monorepo you will need to change `publish` to point to the full path to the built `.next` directory,
+which may be in a subdirectory. If you have changed your `distDir` then it will need to match that.
+
+If you are using Nx, then you will need to point `publish` to the folder inside `dist`, e.g. `dist/apps/myapp/.next`.
+
+## Feedback
+
+If you think you have found a bug in the plugin,
+[please open an issue](https://github.com/netlify/netlify-plugin-nextjs/issues). If you have comments or feature
+requests, [see the dicussion board](https://github.com/netlify/netlify-plugin-nextjs/discussions)
