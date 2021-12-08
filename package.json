@@ -34,8 +34,8 @@
     "watch": "tsc --watch"
   },
   "config": {
-    "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{js,md,html}\" \"*.{js,md,html}\" \".*.{js,md,html}\"",
-    "prettier": "--loglevel=warn \"{src,scripts,tests,.github}/**/*.{js,md,yml,json,html}\" \"*.{js,yml,json,html}\" \".*.{js,yml,json,html}\" \"!package-lock.json\""
+    "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{ts,js,md,html}\" \"*.{ts,js,md,html}\" \".*.{ts,js,md,html}\"",
+    "prettier": "--loglevel=warn \"{src,scripts,tests,.github}/**/*.{ts,js,md,yml,json,html}\" \"*.{ts,js,yml,json,html}\" \".*.{ts,js,yml,json,html}\" \"!package-lock.json\""
   },
   "repository": {
     "type": "git",
