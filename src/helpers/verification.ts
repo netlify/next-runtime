@@ -1,17 +1,29 @@
-const { existsSync, promises } = require('fs')
-const path = require('path')
-const { relative } = require('path')
+import { existsSync, promises } from 'fs'
+import path, { relative } from 'path'
 
-const { yellowBright, greenBright, blueBright, redBright, reset } = require('chalk')
-const { async: StreamZip } = require('node-stream-zip')
-const outdent = require('outdent')
-const prettyBytes = require('pretty-bytes')
-const { satisfies } = require('semver')
+import { NetlifyPluginUtils } from '@netlify/build'
+import { yellowBright, greenBright, blueBright, redBright, reset } from 'chalk'
+import { async as StreamZip } from 'node-stream-zip'
+import { outdent } from 'outdent'
+import prettyBytes from 'pretty-bytes'
+import { satisfies } from 'semver'
+
+import { LAMBDA_MAX_SIZE } from '../constants'
 
 // This is when nft support was added
 const REQUIRED_BUILD_VERSION = '>=18.16.0'
 
-exports.verifyNetlifyBuildVersion = ({ IS_LOCAL, NETLIFY_BUILD_VERSION, failBuild }) => {
+type FailBuild = NetlifyPluginUtils['build']['failBuild']
+
+export const verifyNetlifyBuildVersion = ({
+  IS_LOCAL,
+  NETLIFY_BUILD_VERSION,
+  failBuild,
+}: {
+  IS_LOCAL: boolean
+  NETLIFY_BUILD_VERSION: string
+  failBuild: FailBuild
+}): void | never => {
   // We check for build version because that's what's available to us, but prompt about the cli because that's what they can upgrade
   if (IS_LOCAL && !satisfies(NETLIFY_BUILD_VERSION, REQUIRED_BUILD_VERSION, { includePrerelease: true })) {
     return failBuild(outdent`
@@ -21,7 +33,7 @@ exports.verifyNetlifyBuildVersion = ({ IS_LOCAL, NETLIFY_BUILD_VERSION, failBuil
   }
 }
 
-exports.checkForOldFunctions = async ({ functions }) => {
+export const checkForOldFunctions = async ({ functions }: Pick<NetlifyPluginUtils, 'functions'>): Promise<void> => {
   const allOldFunctions = await functions.list()
   const oldFunctions = allOldFunctions.filter(({ name }) => name.startsWith('next_'))
   if (oldFunctions.length !== 0) {
@@ -41,7 +53,13 @@ exports.checkForOldFunctions = async ({ functions }) => {
   }
 }
 
-exports.checkNextSiteHasBuilt = ({ publish, failBuild }) => {
+export const checkNextSiteHasBuilt = ({
+  publish,
+  failBuild,
+}: {
+  publish: string
+  failBuild: FailBuild
+}): void | never => {
   if (!existsSync(path.join(publish, 'BUILD_ID'))) {
     return failBuild(outdent`
       The directory "${path.relative(
@@ -61,7 +79,13 @@ exports.checkNextSiteHasBuilt = ({ publish, failBuild }) => {
   }
 }
 
-exports.checkForRootPublish = ({ publish, failBuild }) => {
+export const checkForRootPublish = ({
+  publish,
+  failBuild,
+}: {
+  publish: string
+  failBuild: FailBuild
+}): void | never => {
   if (path.resolve(publish) === path.resolve('.')) {
     failBuild(outdent`
       Your publish directory is pointing to the base directory of your site. This is not supported for Next.js sites, and is probably a mistake. 
@@ -70,10 +94,7 @@ exports.checkForRootPublish = ({ publish, failBuild }) => {
   }
 }
 
-// 50MB, which is the documented max, though the hard max seems to be higher
-const LAMBDA_MAX_SIZE = 1024 * 1024 * 50
-
-exports.checkZipSize = async (file, maxSize = LAMBDA_MAX_SIZE) => {
+export const checkZipSize = async (file: string, maxSize: number = LAMBDA_MAX_SIZE): Promise<void> => {
   if (!existsSync(file)) {
     console.warn(`Could not check zip size because ${file} does not exist`)
     return
@@ -111,7 +132,7 @@ exports.checkZipSize = async (file, maxSize = LAMBDA_MAX_SIZE) => {
   )
 }
 
-exports.logBetaMessage = () =>
+export const logBetaMessage = () =>
   console.log(
     greenBright(
       outdent`

@@ -22,6 +22,8 @@ export const CATCH_ALL_REGEX = /\/\[\.{3}(.*)](.json)?$/
 export const OPTIONAL_CATCH_ALL_REGEX = /\/\[{2}\.{3}(.*)]{2}(.json)?$/
 export const DYNAMIC_PARAMETER_REGEX = /\/\[(.*?)]/g
 export const MINIMUM_REVALIDATE_SECONDS = 60
+// 50MB, which is the documented max, though the hard max seems to be higher
+export const LAMBDA_MAX_SIZE = 1024 * 1024 * 50
 
 export const DIVIDER = `
 ────────────────────────────────────────────────────────────────

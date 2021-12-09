@@ -133,7 +133,7 @@ export const augmentFsModule = ({
     return readfileOrig(file, options)
   }) as typeof promises.readFile
 
-  promises.stat = (async (file, options) => {
+  promises.stat = ((file, options) => {
     // We only care about page files
     if (file.startsWith(pageRoot)) {
       // We only want the part after `pages/`
