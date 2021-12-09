@@ -6,6 +6,7 @@ on:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: navikt/github-app-token-generator@a9cd374e271b8aef573b8c16ac46c44fb89b02db
         id: get-token
@@ -13,7 +14,21 @@ jobs:
           private-key: ${{ secrets.TOKENS_PRIVATE_KEY }}
           app-id: ${{ secrets.TOKENS_APP_ID }}
       - uses: GoogleCloudPlatform/release-please-action@v2
+        id: release
         with:
           token: ${{ steps.get-token.outputs.token }}
           release-type: node
           package-name: '@netlify/plugin-nextjs'
+      - uses: actions/checkout@v2
+        if: ${{ steps.release.outputs.release_created }}
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '*'
+          cache: 'npm'
+          check-latest: true
+          registry-url: 'https://registry.npmjs.org'
+        if: ${{ steps.release.outputs.release_created }}
+      - run: npm publish
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
