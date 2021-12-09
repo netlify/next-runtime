@@ -24,4 +24,5 @@ package = "netlify-plugin-cypress"
 
 [context.deploy-preview.plugins.inputs]
 record = true
+parallel = true
 configFile = "../../cypress/config/ci.json"
