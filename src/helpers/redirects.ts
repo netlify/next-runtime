@@ -1,9 +1,8 @@
 import { NetlifyConfig } from '@netlify/build'
-import { yellowBright } from 'chalk'
 import { readJSON } from 'fs-extra'
+import globby from 'globby'
 import { NextConfig } from 'next'
 import { PrerenderManifest } from 'next/dist/build'
-import { outdent } from 'outdent'
 import { join } from 'pathe'
 
 import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
@@ -45,10 +44,10 @@ const generateLocaleRedirects = ({
 
 export const generateRedirects = async ({
   netlifyConfig,
-  nextConfig: { i18n, basePath, trailingSlash },
+  nextConfig: { i18n, basePath, trailingSlash, appDir },
 }: {
   netlifyConfig: NetlifyConfig
-  nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash'>
+  nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash' | 'appDir'>
 }) => {
   const { dynamicRoutes, routes: staticRoutes }: PrerenderManifest = await readJSON(
     join(netlifyConfig.build.publish, 'prerender-manifest.json'),
@@ -70,7 +69,6 @@ export const generateRedirects = async ({
   const dataRedirects = []
   const pageRedirects = []
   const isrRedirects = []
-  let hasIsr = false
 
   const dynamicRouteEntries = Object.entries(dynamicRoutes)
 
@@ -85,7 +83,6 @@ export const generateRedirects = async ({
     if (i18n?.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
       route = route.slice(i18n.defaultLocale.length + 1)
     }
-    hasIsr = true
     isrRedirects.push(...netlifyRoutesForNextRoute(dataRoute), ...netlifyRoutesForNextRoute(route))
   })
 
@@ -102,6 +99,8 @@ export const generateRedirects = async ({
     netlifyConfig.redirects.push({ from: `${basePath}/:locale/_next/static/*`, to: `/static/:splat`, status: 200 })
   }
 
+  const publicFiles = await globby('**/*', { cwd: join(appDir, 'public') })
+
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
     // Static files are in `static`
@@ -117,20 +116,25 @@ export const generateRedirects = async ({
       to: HANDLER_FUNCTION_PATH,
       status: 200,
     },
-    // Preview mode gets forced to the function, to bypess pre-rendered pages
+    // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
+    ...publicFiles.map((file) => ({
+      from: `${basePath}/${file}`,
+      // This is a no-op, but we do it to stop it matching the following rule
+      to: `${basePath}/${file}`,
+      conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
+      status: 200,
+    })),
     {
       from: `${basePath}/*`,
       to: HANDLER_FUNCTION_PATH,
       status: 200,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore The conditions type is incorrect
       conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
       force: true,
     },
     // ISR redirects are handled by the regular function. Forced to avoid pre-rendered pages
     ...isrRedirects.map((redirect) => ({
       from: `${basePath}${redirect}`,
-      to: process.env.EXPERIMENTAL_ODB_TTL ? ODB_FUNCTION_PATH : HANDLER_FUNCTION_PATH,
+      to: ODB_FUNCTION_PATH,
       status: 200,
       force: true,
     })),
@@ -150,11 +154,4 @@ export const generateRedirects = async ({
     // Everything else is handled by the regular function
     { from: `${basePath}/*`, to: HANDLER_FUNCTION_PATH, status: 200 },
   )
-  if (hasIsr) {
-    console.log(
-      yellowBright(outdent`
-        You have some pages that use ISR (pages that use getStaticProps with revalidate set), which is not currently fully-supported by this plugin. Be aware that results may be unreliable.
-      `),
-    )
-  }
 }

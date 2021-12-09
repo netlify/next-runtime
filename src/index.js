@@ -78,7 +78,7 @@ module.exports = {
 
     await generateRedirects({
       netlifyConfig,
-      nextConfig: { basePath, i18n, trailingSlash },
+      nextConfig: { basePath, i18n, trailingSlash, appDir },
     })
   },
 

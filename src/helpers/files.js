@@ -19,6 +19,8 @@ const pLimit = require('p-limit')
 const { join } = require('pathe')
 const slash = require('slash')
 
+const { MINIMUM_REVALIDATE_SECONDS, DIVIDER } = require('../constants')
+
 const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
 
 const isDynamicRoute = (route) => TEST_ROUTE.test(route)
@@ -90,12 +92,17 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
 
   const isrFiles = new Set()
 
+  const shortRevalidateRoutes = []
+
   Object.entries(prerenderManifest.routes).forEach(([route, { initialRevalidateSeconds }]) => {
     if (initialRevalidateSeconds) {
       // Find all files used by ISR routes
       const trimmedPath = route.slice(1)
       isrFiles.add(`${trimmedPath}.html`)
       isrFiles.add(`${trimmedPath}.json`)
+      if (initialRevalidateSeconds < MINIMUM_REVALIDATE_SECONDS) {
+        shortRevalidateRoutes.push({ Route: route, Revalidate: initialRevalidateSeconds })
+      }
     }
   })
 
@@ -104,12 +111,12 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   const moveFile = async (file) => {
     const isData = file.endsWith('.json')
     const source = join(root, file)
-    const target = isData ? join(dataDir, file) : file
+    const targetFile = isData ? join(dataDir, file) : file
 
     files.push(file)
-    filesManifest[file] = target
+    filesManifest[file] = targetFile
 
-    const dest = join(netlifyConfig.build.publish, target)
+    const dest = join(netlifyConfig.build.publish, targetFile)
 
     try {
       await move(source, dest)
@@ -130,7 +137,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
 
   // Limit concurrent file moves to number of cpus or 2 if there is only 1
   const limit = pLimit(Math.max(2, cpus().length))
-  const promises = pages.map(async (rawPath) => {
+  const promises = pages.map((rawPath) => {
     const filePath = slash(rawPath)
     // Don't move ISR files, as they're used for the first request
     if (isrFiles.has(filePath)) {
@@ -176,8 +183,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
         The following middleware matched statically-rendered pages:
 
         ${yellowBright([...matchingMiddleware].map((mid) => `- /${mid}/_middleware`).join('\n'))}
-
-        ────────────────────────────────────────────────────────────────
+        ${DIVIDER}
       `,
     )
     // There could potentially be thousands of matching pages, so we don't want to spam the console with this
@@ -187,8 +193,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
           The following files matched middleware and were not moved to the CDN:
 
           ${yellowBright([...matchedPages].map((mid) => `- ${mid}`).join('\n'))}
-
-          ────────────────────────────────────────────────────────────────
+          ${DIVIDER}
         `,
       )
     }
@@ -208,8 +213,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
           The following files matched redirects and were not moved to the CDN:
 
           ${yellowBright([...matchedRedirects].map((mid) => `- ${mid}`).join('\n'))}
-
-          ────────────────────────────────────────────────────────────────
+          ${DIVIDER}
         `,
       )
     }
@@ -219,8 +223,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
           The following files matched beforeFiles rewrites and were not moved to the CDN:
 
           ${yellowBright([...matchedRewrites].map((mid) => `- ${mid}`).join('\n'))}
-
-          ────────────────────────────────────────────────────────────────
+          ${DIVIDER}
         `,
       )
     }
@@ -247,6 +250,21 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
         )
       } catch {}
     }
+  }
+
+  if (shortRevalidateRoutes.length !== 0) {
+    console.log(outdent`
+      The following routes use "revalidate" values of under ${MINIMUM_REVALIDATE_SECONDS} seconds, which is not supported.
+      They will use a revalidate time of ${MINIMUM_REVALIDATE_SECONDS} seconds instead.
+    `)
+    console.table(shortRevalidateRoutes)
+    // TODO: add these docs
+    // console.log(
+    //   outdent`
+    //     For more information, see https://ntl.fyi/next-revalidate-time
+    //     ${DIVIDER}
+    //   `,
+    // )
   }
 }
 
