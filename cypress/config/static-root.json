@@ -4,5 +4,6 @@
   "pluginsFile": "../../cypress/plugins",
   "screenshotsFolder": "../../cypress/screenshots",
   "supportFile": "../../cypress/support/index.js",
-  "videoFolder": "../../cypress/videos"
+  "videoFolder": "../../cypress/videos",
+  "projectId": "3tvrbe"
 }
