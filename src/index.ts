@@ -1,22 +1,23 @@
-const { join, relative } = require('path')
+import { join, relative } from 'path'
 
-const { ODB_FUNCTION_NAME } = require('./constants')
-const { restoreCache, saveCache } = require('./helpers/cache')
-const { getNextConfig, configureHandlerFunctions } = require('./helpers/config')
-const { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } = require('./helpers/files')
-const { generateFunctions, setupImageFunction, generatePagesResolver } = require('./helpers/functions')
-const { generateRedirects } = require('./helpers/redirects')
-const {
+import { NetlifyPlugin } from '@netlify/build'
+
+import { ODB_FUNCTION_NAME } from './constants'
+import { restoreCache, saveCache } from './helpers/cache'
+import { getNextConfig, configureHandlerFunctions } from './helpers/config'
+import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
+import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
+import { generateRedirects } from './helpers/redirects'
+import {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
   checkForRootPublish,
   logBetaMessage,
   checkZipSize,
   checkForOldFunctions,
-} = require('./helpers/verification')
+} from './helpers/verification'
 
-/** @type import("@netlify/build").NetlifyPlugin */
-module.exports = {
+const plugin: NetlifyPlugin = {
   async onPreBuild({
     constants,
     netlifyConfig,
@@ -71,7 +72,7 @@ module.exports = {
     }
 
     if (!process.env.SERVE_STATIC_FILES_FROM_ORIGIN) {
-      await moveStaticPages({ target, failBuild, netlifyConfig, i18n })
+      await moveStaticPages({ target, netlifyConfig, i18n })
     }
 
     await setupImageFunction({ constants, imageconfig: images, netlifyConfig, basePath })
@@ -82,7 +83,15 @@ module.exports = {
     })
   },
 
-  async onPostBuild({ netlifyConfig, utils: { cache, functions, failBuild }, constants: { FUNCTIONS_DIST } }) {
+  async onPostBuild({
+    netlifyConfig,
+    utils: {
+      cache,
+      functions,
+      build: { failBuild },
+    },
+    constants: { FUNCTIONS_DIST },
+  }) {
     await saveCache({ cache, publish: netlifyConfig.build.publish })
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
@@ -93,3 +102,4 @@ module.exports = {
     logBetaMessage()
   },
 }
+module.exports = plugin

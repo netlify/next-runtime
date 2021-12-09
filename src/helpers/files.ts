@@ -1,31 +1,39 @@
 /* eslint-disable max-lines */
-const { cpus } = require('os')
+import { cpus } from 'os'
 
-const { yellowBright } = require('chalk')
-const {
-  existsSync,
-  readJson,
-  move,
-  copy,
-  writeJson,
-  readFile,
-  writeFile,
-  ensureDir,
-  readFileSync,
-} = require('fs-extra')
-const globby = require('globby')
-const { outdent } = require('outdent')
-const pLimit = require('p-limit')
-const { join } = require('pathe')
-const slash = require('slash')
+import { NetlifyConfig } from '@netlify/build'
+import { yellowBright } from 'chalk'
+import { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir, readFileSync } from 'fs-extra'
+import globby from 'globby'
+import { PrerenderManifest } from 'next/dist/build'
+import { Redirect as NextRedirect } from 'next/dist/lib/load-custom-routes'
+import { outdent } from 'outdent'
+import pLimit from 'p-limit'
+import { join } from 'pathe'
+import slash from 'slash'
 
-const { MINIMUM_REVALIDATE_SECONDS, DIVIDER } = require('../constants')
+import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
+
+import { NextConfig } from './config'
+
+interface Redirect extends NextRedirect {
+  regex: string
+  internal?: boolean
+}
+
+type Rewrites =
+  | {
+      fallback?: Array<Redirect>
+      afterFiles?: Array<Redirect>
+      beforeFiles?: Array<Redirect>
+    }
+  | Array<Redirect>
 
 const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
 
-const isDynamicRoute = (route) => TEST_ROUTE.test(route)
+export const isDynamicRoute = (route) => TEST_ROUTE.test(route)
 
-const stripLocale = (rawPath, locales = []) => {
+export const stripLocale = (rawPath: string, locales: Array<string> = []) => {
   const [locale, ...segments] = rawPath.split('/')
   if (locales.includes(locale)) {
     return segments.join('/')
@@ -33,14 +41,14 @@ const stripLocale = (rawPath, locales = []) => {
   return rawPath
 }
 
-const matchMiddleware = (middleware, filePath) =>
+export const matchMiddleware = (middleware: Array<string>, filePath: string): string | boolean =>
   middleware?.includes('') ||
   middleware?.find(
     (middlewarePath) =>
       filePath === middlewarePath || filePath === `${middlewarePath}.html` || filePath.startsWith(`${middlewarePath}/`),
   )
 
-const matchesRedirect = (file, redirects) => {
+export const matchesRedirect = (file: string, redirects: Rewrites): boolean => {
   if (!Array.isArray(redirects)) {
     return false
   }
@@ -53,7 +61,7 @@ const matchesRedirect = (file, redirects) => {
   })
 }
 
-const matchesRewrite = (file, rewrites) => {
+export const matchesRewrite = (file: string, rewrites: Rewrites): boolean => {
   if (Array.isArray(rewrites)) {
     return matchesRedirect(file, rewrites)
   }
@@ -63,14 +71,16 @@ const matchesRewrite = (file, rewrites) => {
   return matchesRedirect(file, rewrites.beforeFiles)
 }
 
-exports.matchesRedirect = matchesRedirect
-exports.matchesRewrite = matchesRewrite
-exports.matchMiddleware = matchMiddleware
-exports.stripLocale = stripLocale
-exports.isDynamicRoute = isDynamicRoute
-
 // eslint-disable-next-line max-lines-per-function
-exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
+export const moveStaticPages = async ({
+  netlifyConfig,
+  target,
+  i18n,
+}: {
+  netlifyConfig: NetlifyConfig
+  target: 'server' | 'serverless' | 'experimental-serverless-trace'
+  i18n: NextConfig['i18n']
+}): Promise<void> => {
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
   const root = join(outputDir, 'pages')
@@ -87,12 +97,16 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
     }
   }
 
-  const prerenderManifest = await readJson(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
-  const { redirects, rewrites } = await readJson(join(netlifyConfig.build.publish, 'routes-manifest.json'))
+  const prerenderManifest: PrerenderManifest = await readJson(
+    join(netlifyConfig.build.publish, 'prerender-manifest.json'),
+  )
+  const { redirects, rewrites }: { redirects: Array<Redirect>; rewrites: Rewrites } = await readJson(
+    join(netlifyConfig.build.publish, 'routes-manifest.json'),
+  )
 
-  const isrFiles = new Set()
+  const isrFiles = new Set<string>()
 
-  const shortRevalidateRoutes = []
+  const shortRevalidateRoutes: Array<{ Route: string; Revalidate: number }> = []
 
   Object.entries(prerenderManifest.routes).forEach(([route, { initialRevalidateSeconds }]) => {
     if (initialRevalidateSeconds) {
@@ -106,8 +120,8 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
     }
   })
 
-  const files = []
-  const filesManifest = {}
+  const files: Array<string> = []
+  const filesManifest: Record<string, string> = {}
   const moveFile = async (file) => {
     const isData = file.endsWith('.json')
     const source = join(root, file)
@@ -268,7 +282,7 @@ exports.moveStaticPages = async ({ netlifyConfig, target, i18n }) => {
   }
 }
 
-const patchFile = async ({ file, from, to }) => {
+const patchFile = async ({ file, from, to }: { file: string; from: string; to: string }): Promise<void> => {
   if (!existsSync(file)) {
     return
   }
@@ -299,7 +313,7 @@ const getServerFile = (root) => {
   return serverFile
 }
 
-exports.patchNextFiles = async (root) => {
+export const patchNextFiles = async (root: string): Promise<void> => {
   const serverFile = getServerFile(root)
   console.log(`Patching ${serverFile}`)
   if (serverFile) {
@@ -311,7 +325,7 @@ exports.patchNextFiles = async (root) => {
   }
 }
 
-exports.unpatchNextFiles = async (root) => {
+export const unpatchNextFiles = async (root: string): Promise<void> => {
   const serverFile = getServerFile(root)
   const origFile = `${serverFile}.orig`
   if (existsSync(origFile)) {
@@ -319,7 +333,15 @@ exports.unpatchNextFiles = async (root) => {
   }
 }
 
-exports.movePublicFiles = async ({ appDir, outdir, publish }) => {
+export const movePublicFiles = async ({
+  appDir,
+  outdir,
+  publish,
+}: {
+  appDir: string
+  outdir?: string
+  publish: string
+}): Promise<void> => {
   // `outdir` is a config property added when using Next.js with Nx. It's typically
   // a relative path outside of the appDir, e.g. '../../dist/apps/<app-name>', and
   // the parent directory of the .next directory.

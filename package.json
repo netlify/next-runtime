@@ -10,7 +10,6 @@
   "scripts": {
     "build:demo": "next build demos/default",
     "cy:open": "cypress open --config-file cypress/config/all.json",
-    "cy:run": "cypress run --config-file ../../cypress/config/ci.json",
     "dev:demo": "next dev demos/default",
     "format": "run-s format:check-fix:*",
     "format:ci": "run-s format:check:*",
@@ -34,8 +33,8 @@
     "watch": "tsc --watch"
   },
   "config": {
-    "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{js,md,html}\" \"*.{js,md,html}\" \".*.{js,md,html}\"",
-    "prettier": "--loglevel=warn \"{src,scripts,tests,.github}/**/*.{js,md,yml,json,html}\" \"*.{js,yml,json,html}\" \".*.{js,yml,json,html}\" \"!package-lock.json\""
+    "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{ts,js,md,html}\" \"*.{ts,js,md,html}\" \".*.{ts,js,md,html}\"",
+    "prettier": "--loglevel=warn \"{src,scripts,tests,.github}/**/*.{ts,js,md,yml,json,html}\" \"*.{ts,js,yml,json,html}\" \".*.{ts,js,yml,json,html}\" \"!package-lock.json\""
   },
   "repository": {
     "type": "git",
