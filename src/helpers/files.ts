@@ -33,7 +33,7 @@ const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
 
 export const isDynamicRoute = (route) => TEST_ROUTE.test(route)
 
-export const stripLocale = (rawPath, locales = []) => {
+export const stripLocale = (rawPath: string, locales: Array<string> = []) => {
   const [locale, ...segments] = rawPath.split('/')
   if (locales.includes(locale)) {
     return segments.join('/')
@@ -48,7 +48,7 @@ export const matchMiddleware = (middleware: Array<string>, filePath: string): st
       filePath === middlewarePath || filePath === `${middlewarePath}.html` || filePath.startsWith(`${middlewarePath}/`),
   )
 
-export const matchesRedirect = (file, redirects: Rewrites): boolean => {
+export const matchesRedirect = (file: string, redirects: Rewrites): boolean => {
   if (!Array.isArray(redirects)) {
     return false
   }
