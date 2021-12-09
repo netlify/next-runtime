@@ -7,6 +7,8 @@ publish = ".next"
 # cache Cypress binary in local "node_modules" folder
 # so Netlify caches it
 CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
+# set TERM variable for terminal output
+TERM = "xterm"
 
 [dev]
 framework = "#static"
@@ -21,4 +23,5 @@ package = "@netlify/plugin-local-install-core"
 package = "netlify-plugin-cypress"
 
 [context.deploy-preview.plugins.inputs]
+record = true
 configFile = "../../cypress/config/ci.json"
