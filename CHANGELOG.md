@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.0.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-rc.1...v4.0.0) (2021-12-10)
+
+
+### Bug Fixes
+
+* handle Windows paths correctly ([#948](https://www.github.com/netlify/netlify-plugin-nextjs/issues/948)) ([efa53fd](https://www.github.com/netlify/netlify-plugin-nextjs/commit/efa53fd062784d066b04aad9f33abc98461ad72e))
+* use rawUrl for path ([#954](https://www.github.com/netlify/netlify-plugin-nextjs/issues/954)) ([b2f8f5b](https://www.github.com/netlify/netlify-plugin-nextjs/commit/b2f8f5b37bb323449a9deed7a05dcf7130591566))
+* wip path encoding ([b2f8f5b](https://www.github.com/netlify/netlify-plugin-nextjs/commit/b2f8f5b37bb323449a9deed7a05dcf7130591566))
+
 ## [4.0.0-rc.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-rc.0...v4.0.0-rc.1) (2021-12-07)
 
 
