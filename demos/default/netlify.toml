@@ -1,12 +1,14 @@
 [build]
 command = "next build"
 publish = ".next"
-ignore = "echo CACHED_COMMIT_REF: $CACHED_COMMIT_REF COMMIT_REF: $COMMIT_REF && git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../../"
 
+# ignore = "echo CACHED_COMMIT_REF: $CACHED_COMMIT_REF COMMIT_REF: $COMMIT_REF && git diff --exit-code $CACHED_COMMIT_REF $COMMIT_REF ../../"
 [build.environment]
 # cache Cypress binary in local "node_modules" folder
 # so Netlify caches it
 CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
+# set TERM variable for terminal output
+TERM = "xterm"
 
 [dev]
 framework = "#static"
@@ -21,4 +23,5 @@ package = "@netlify/plugin-local-install-core"
 package = "netlify-plugin-cypress"
 
 [context.deploy-preview.plugins.inputs]
+record = true
 configFile = "../../cypress/config/ci.json"
