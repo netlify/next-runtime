@@ -57,7 +57,7 @@ const plugin: NetlifyPlugin = {
     configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
 
     await generateFunctions(constants, appDir)
-    await generatePagesResolver({ netlifyConfig, target, constants })
+    await generatePagesResolver({ target, constants })
 
     await movePublicFiles({ appDir, outdir, publish })
 

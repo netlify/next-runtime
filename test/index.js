@@ -11,6 +11,7 @@ const plugin = require('../src')
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../src/constants')
 const { join } = require('pathe')
 const { matchMiddleware, stripLocale, matchesRedirect, matchesRewrite } = require('../src/helpers/files')
+const { dirname } = require('path')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
@@ -83,8 +84,8 @@ const changeCwd = function (cwd) {
 const onBuildHasRun = (netlifyConfig) =>
   Boolean(netlifyConfig.functions[HANDLER_FUNCTION_NAME]?.included_files?.some((file) => file.includes('BUILD_ID')))
 
-const rewriteAppDir = async function () {
-  const manifest = path.join('.next', 'required-server-files.json')
+const rewriteAppDir = async function (dir = '.next') {
+  const manifest = path.join(dir, 'required-server-files.json')
   const manifestContent = await readJson(manifest)
   manifestContent.appDir = process.cwd()
 
@@ -92,10 +93,11 @@ const rewriteAppDir = async function () {
 }
 
 // Move .next from sample project to current directory
-const moveNextDist = async function () {
+const moveNextDist = async function (dir = '.next') {
   await stubModules(['next', 'sharp'])
-  await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), '.next'))
-  await rewriteAppDir()
+  await ensureDir(dirname(dir))
+  await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
+  await rewriteAppDir(dir)
 }
 
 const stubModules = async function (modules) {
@@ -129,7 +131,7 @@ beforeEach(async () => {
   restoreCwd = changeCwd(tmpDir.path)
   cleanup = tmpDir.cleanup
 
-  netlifyConfig.build.publish = path.posix.resolve('.next')
+  netlifyConfig.build.publish = path.resolve('.next')
   netlifyConfig.build.environment = {}
 
   netlifyConfig.redirects = []
@@ -183,7 +185,7 @@ describe('preBuild()', () => {
       utils: { ...utils, cache: { restore } },
     })
 
-    expect(restore).toHaveBeenCalledWith(path.posix.resolve('.next/cache'))
+    expect(restore).toHaveBeenCalledWith(path.resolve('.next/cache'))
   })
 
   it('forces the target to "server"', async () => {
@@ -337,6 +339,23 @@ describe('onBuild()', () => {
     expect(readFileSync(odbHandlerPagesFile, 'utf8')).toMatchSnapshot()
   })
 
+  test('generates a file referencing all when publish dir is a subdirectory', async () => {
+    const dir = 'web/.next'
+    await moveNextDist(dir)
+    netlifyConfig.build.publish = path.resolve(dir)
+    const config = {
+      ...defaultArgs,
+      netlifyConfig,
+      constants: { ...constants, PUBLISH_DIR: dir },
+    }
+    await plugin.onBuild(config)
+    const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
+    const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
+
+    expect(readFileSync(handlerPagesFile, 'utf8')).toMatchSnapshot()
+    expect(readFileSync(odbHandlerPagesFile, 'utf8')).toMatchSnapshot()
+  })
+
   test('generates entrypoints with correct references', async () => {
     await moveNextDist()
     await plugin.onBuild(defaultArgs)
@@ -368,8 +387,8 @@ describe('onPostBuild', () => {
       utils: { ...utils, cache: { save }, functions: { list: jest.fn().mockResolvedValue([]) } },
     })
 
-    expect(save).toHaveBeenCalledWith(path.posix.resolve('.next/cache'), {
-      digests: [path.posix.resolve('.next/build-manifest.json')],
+    expect(save).toHaveBeenCalledWith(path.resolve('.next/cache'), {
+      digests: [path.resolve('.next/build-manifest.json')],
     })
   })
 

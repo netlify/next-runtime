@@ -9,9 +9,9 @@ import { HANDLER_FUNCTION_NAME } from '../constants'
 // Generate a file full of require.resolve() calls for all the pages in the
 // build. This is used by the nft bundler to find all the pages.
 
-export const getPageResolver = async ({ netlifyConfig, target }) => {
+export const getPageResolver = async ({ publish, target }: { publish: string; target: string }) => {
   const functionDir = posix.resolve(posix.join('.netlify', 'functions', HANDLER_FUNCTION_NAME))
-  const root = posix.join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless', 'pages')
+  const root = posix.resolve(slash(publish), target === 'server' ? 'server' : 'serverless', 'pages')
 
   const pages = await glob('**/*.js', {
     cwd: root,
