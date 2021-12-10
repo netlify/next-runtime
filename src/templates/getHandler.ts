@@ -56,7 +56,7 @@ const makeHandler =
     return async (event, context) => {
       let requestMode = mode
       // Ensure that paths are encoded - but don't double-encode them
-      event.path = new URL(event.path, event.rawUrl).pathname
+      event.path = new URL(event.rawUrl).pathname
       // Next expects to be able to parse the query from the URL
       const query = new URLSearchParams(event.queryStringParameters).toString()
       event.path = query ? `${event.path}?${query}` : event.path

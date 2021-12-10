@@ -1,7 +1,7 @@
-import { posix } from 'path'
+import { join } from 'path'
 
 export const restoreCache = async ({ cache, publish }) => {
-  const cacheDir = posix.join(publish, 'cache')
+  const cacheDir = join(publish, 'cache')
 
   if (await cache.restore(cacheDir)) {
     console.log('Next.js cache restored.')
@@ -11,9 +11,9 @@ export const restoreCache = async ({ cache, publish }) => {
 }
 
 export const saveCache = async ({ cache, publish }) => {
-  const cacheDir = posix.join(publish, 'cache')
+  const cacheDir = join(publish, 'cache')
 
-  const buildManifest = posix.join(publish, 'build-manifest.json')
+  const buildManifest = join(publish, 'build-manifest.json')
   if (await cache.save(cacheDir, { digests: [buildManifest] })) {
     console.log('Next.js cache saved.')
   } else {

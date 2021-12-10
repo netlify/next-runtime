@@ -70,6 +70,76 @@ exports.resolvePages = () => {
 }"
 `;
 
+exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 1`] = `
+"// This file is purely to allow nft to know about these pages. It should be temporary.
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../web/.next/server/pages/_app.js')
+        require.resolve('../../../web/.next/server/pages/_document.js')
+        require.resolve('../../../web/.next/server/pages/_error.js')
+        require.resolve('../../../web/.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-background.js')
+        require.resolve('../../../web/.next/server/pages/api/hello.js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../web/.next/server/pages/deep/import.js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/env.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/index.js')
+        require.resolve('../../../web/.next/server/pages/middle/_middleware.js')
+        require.resolve('../../../web/.next/server/pages/previewTest.js')
+        require.resolve('../../../web/.next/server/pages/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/shows/[id].js')
+    } catch {}
+}"
+`;
+
+exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 2`] = `
+"// This file is purely to allow nft to know about these pages. It should be temporary.
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../web/.next/server/pages/_app.js')
+        require.resolve('../../../web/.next/server/pages/_document.js')
+        require.resolve('../../../web/.next/server/pages/_error.js')
+        require.resolve('../../../web/.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-background.js')
+        require.resolve('../../../web/.next/server/pages/api/hello.js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../web/.next/server/pages/deep/import.js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/env.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/index.js')
+        require.resolve('../../../web/.next/server/pages/middle/_middleware.js')
+        require.resolve('../../../web/.next/server/pages/previewTest.js')
+        require.resolve('../../../web/.next/server/pages/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/shows/[id].js')
+    } catch {}
+}"
+`;
+
 exports[`onBuild() generates static files manifest 1`] = `
 Array [
   Array [
