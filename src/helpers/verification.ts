@@ -61,12 +61,17 @@ export const checkNextSiteHasBuilt = ({
   failBuild: FailBuild
 }): void | never => {
   if (!existsSync(path.join(publish, 'BUILD_ID'))) {
+    const outWarning =
+      path.basename(publish) === 'out'
+        ? `Your publish directory is set to "out", but in most cases it should be ".next".`
+        : `In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config.`
+
     return failBuild(outdent`
       The directory "${path.relative(
         process.cwd(),
         publish,
-      )}" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory. 
-      In most cases it should be set to the site's ".next" directory path, unless you have chosen a custom "distDir" in your Next config. 
+      )}" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
+      ${outWarning}
       If you are using "next export" then the Essential Next.js plugin should be removed. See https://ntl.fyi/remove-plugin for details.
     `)
   }

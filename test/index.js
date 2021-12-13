@@ -208,11 +208,26 @@ describe('onBuild()', () => {
   test("fails if BUILD_ID doesn't exist", async () => {
     await moveNextDist()
     await unlink(path.join(process.cwd(), '.next/BUILD_ID'))
-    const failBuild = jest.fn().mockImplementation(() => {
-      throw new Error('BUILD_ID does not exist')
+    const failBuild = jest.fn().mockImplementation((err) => {
+      throw new Error(err)
     })
+    expect(() => plugin.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
+      `In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config.`,
+    )
+    expect(failBuild).toHaveBeenCalled()
+  })
 
-    expect(() => plugin.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow()
+  test("fails with helpful warning if BUILD_ID doesn't exist and publish is 'out'", async () => {
+    await moveNextDist()
+    await unlink(path.join(process.cwd(), '.next/BUILD_ID'))
+    const failBuild = jest.fn().mockImplementation((err) => {
+      throw new Error(err)
+    })
+    netlifyConfig.build.publish = path.resolve('out')
+
+    expect(() => plugin.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
+      `Your publish directory is set to "out", but in most cases it should be ".next".`,
+    )
     expect(failBuild).toHaveBeenCalled()
   })
 
