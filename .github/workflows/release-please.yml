@@ -6,7 +6,6 @@ on:
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - uses: navikt/github-app-token-generator@a9cd374e271b8aef573b8c16ac46c44fb89b02db
         id: get-token

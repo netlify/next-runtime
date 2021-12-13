@@ -37,18 +37,16 @@ export const generateFunctions = async (
  * This is just so that the nft bundler knows about them. We'll eventually do this better.
  */
 export const generatePagesResolver = async ({
-  constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC },
-  netlifyConfig,
+  constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, PUBLISH_DIR },
   target,
 }: {
   constants: NetlifyPluginConstants
-  netlifyConfig: NetlifyConfig
   target: string
 }): Promise<void> => {
   const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
 
   const jsSource = await getPageResolver({
-    netlifyConfig,
+    publish: PUBLISH_DIR,
     target,
   })
 
