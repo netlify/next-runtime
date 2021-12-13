@@ -18,7 +18,7 @@ Version 4 is a complete rewrite of the Essential Next.js plugin. For full detail
 
 ## Installing the plugin
 
-The plugin should be installed automatically for new Next.js sites on Netlify. You can also install it manually like
+The plugin installs automatically for new Next.js sites on Netlify. You can also install it manually like
 this:
 
 - Install the module:
@@ -27,7 +27,7 @@ this:
 npm install -D @netlify/plugin-nextjs
 ```
 
-...then add it to your `netlify.toml` file:
+...then add the plugin to your `netlify.toml` file:
 
 ```toml
 [[plugins]]
@@ -49,8 +49,10 @@ Change the `publish` directory to `.next`:
 publish = ".next"
 ```
 
-If you previously set a custom `distDir` in your `next.config.js`, or set `node_bundler = "esbuild"` or
-`external_node_modules` in your `netlify.toml` these are no longer needed and can be removed.
+If you previously set these values, they're no longer needed and can be removed:
+- `distDir` in your `next.config.js`
+- `node_bundler = "esbuild"` in `netlify.toml`
+- `external_node_modules` in `netlify.toml`
 
 The `serverless` and `experimental-serverless-trace` targets are deprecated in Next 12, and all builds with this plugin
 will now use the default `server` target. If you previously set the target in your `next.config.js`, you should remove
