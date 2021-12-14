@@ -18,10 +18,7 @@ Version 4 is a complete rewrite of the Essential Next.js plugin. For full detail
 
 ## Installing the plugin
 
-The plugin installs automatically for new Next.js sites on Netlify. You can also install it manually like
-this:
-
-- Install the module:
+The plugin installs automatically for new Next.js sites on Netlify. You can also install it manually like this:
 
 ```shell
 npm install -D @netlify/plugin-nextjs
@@ -50,6 +47,7 @@ publish = ".next"
 ```
 
 If you previously set these values, they're no longer needed and can be removed:
+
 - `distDir` in your `next.config.js`
 - `node_bundler = "esbuild"` in `netlify.toml`
 - `external_node_modules` in `netlify.toml`
@@ -72,6 +70,11 @@ If you are using a monorepo you will need to change `publish` to point to the fu
 which may be in a subdirectory. If you have changed your `distDir` then it will need to match that.
 
 If you are using Nx, then you will need to point `publish` to the folder inside `dist`, e.g. `dist/apps/myapp/.next`.
+
+## Incremental Static Regeneration (ISR)
+
+The Essential Next.js plugin now fully supports ISR on Netlify. For more details see
+[the ISR docs](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/isr.md).
 
 ## Feedback
 
