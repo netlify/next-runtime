@@ -136,13 +136,3 @@ export const checkZipSize = async (file: string, maxSize: number = LAMBDA_MAX_SI
     greenBright`\n\nFor more information on fixing this, see ${blueBright`https://ntl.fyi/large-next-functions`}`,
   )
 }
-
-export const logBetaMessage = () =>
-  console.log(
-    greenBright(
-      outdent`
-        Thank you for trying the Essential Next.js beta plugin. 
-        Please share feedback (both good and bad) at ${blueBright`https://ntl.fyi/next-beta-feedback`}
-      `,
-    ),
-  )
