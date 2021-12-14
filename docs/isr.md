@@ -3,7 +3,7 @@
 [Incremental static regeneration](https://vercel.com/docs/concepts/next.js/incremental-static-regeneration) is a feature
 of Next.js that allows pages to be updated after a site has been built and deployed. It is now fully supported in
 Netlify by the Essential Next.js plugin, meaning large sites can update pages without needing to rebuild the entire
-site. Unlike server-side rendered pages, the page is not rebuilt for each user, so they load quickly but unlike
+site. Unlike server-side rendered pages, the page is not rebuilt for each user, so they load quickly, but unlike
 statically-generated pages they can be periodically updated with new content without a new deploy.
 
 ### Using ISR on Netlify
