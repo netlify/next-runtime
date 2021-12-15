@@ -72,6 +72,21 @@ body:
         </details>
 
   - type: textarea
+    id: redirects-file
+    attributes:
+      label: Your public/_redirects file
+      description: Please provide a copy of your `_redirects` file.
+      value: |
+        <details>
+          <summary>`_redirects`</summary>
+          
+        ```toml
+        # Paste content of your `_redirects` file here
+        ```
+
+        </details>
+
+    - type: textarea
     id: next-config
     attributes:
       label: Your `next.config.js` file
