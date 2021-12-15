@@ -72,6 +72,7 @@ body:
         </details>
 
   - type: textarea
+    
     id: logs
     attributes:
       label: Relevant log output (or link to your logs)
@@ -83,4 +84,19 @@ body:
         # Paste logs here
         ```
 
+        </details>
+
+  - type: textarea
+  
+    id: next-build
+    attributes:
+      label: .next JSON files (i.e. `.next/required-server.json`)
+      value: |
+        <details>
+          <summary>generated JSON files here</summary>
+          
+        ```
+        # Paste logs here
+        ```
+        
         </details>
