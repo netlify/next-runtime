@@ -104,7 +104,7 @@ body:
   
     id: next-build
     attributes:
-      label: .next JSON files (i.e. `.next/required-server.json`)
+      label: .next JSON files (e.g. `.next/required-server-files.json`, `.next/routes-manifest.json` and  `.next/prerender-manifest.json`)
       value: |
         <details>
           <summary>generated JSON files here</summary>
