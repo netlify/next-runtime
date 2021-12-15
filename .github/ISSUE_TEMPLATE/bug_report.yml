@@ -110,7 +110,7 @@ body:
           <summary>generated JSON files here</summary>
           
         ```
-        # Paste logs here
+        # Paste file contents here. Please check there isn't any private info in them
         ```
         
         </details>
