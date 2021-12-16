@@ -27,6 +27,9 @@ jobs:
           check-latest: true
           registry-url: 'https://registry.npmjs.org'
         if: ${{ steps.release.outputs.release_created }}
+      - name: Install dependencies
+        run: npm ci
+        if: ${{ steps.release.outputs.releases_created }}
       - run: npm publish
         if: ${{ steps.release.outputs.release_created }}
         env:
