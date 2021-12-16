@@ -76,6 +76,15 @@ If you are using Nx, then you will need to point `publish` to the folder inside 
 The Essential Next.js plugin now fully supports ISR on Netlify. For more details see
 [the ISR docs](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/isr.md).
 
+## Use with `next export`
+
+If you are using `next export` to generate a static site, you do not need most of the functionality of this plugin and
+you can remove it. Alternatively you can
+[set the environment variable](https://docs.netlify.com/configure-builds/environment-variables/)
+`NETLIFY_NEXT_PLUGIN_SKIP` to `true` and the plugin will handle caching but won't generate any functions for SSR
+support. See [`demos/next-export`](https://github.com/netlify/netlify-plugin-nextjs/tree/main/demos/next-export) for an
+example.
+
 ## Feedback
 
 If you think you have found a bug in the plugin,

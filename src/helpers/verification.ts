@@ -73,14 +73,13 @@ export const checkNextSiteHasBuilt = ({
         publish,
       )}" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
       ${outWarning}
-      If you are using "next export" then the Essential Next.js plugin should be removed. See https://ntl.fyi/remove-plugin for details.
+      If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
     `)
   }
   if (existsSync(path.join(publish, 'export-detail.json'))) {
     failBuild(outdent`
       Detected that "next export" was run, but site is incorrectly publishing the ".next" directory.
-      This plugin is not needed for "next export" so should be removed, and publish directory set to "out".
-      See https://ntl.fyi/remove-plugin for more details on how to remove this plugin.
+      The publish directory should be set to "out", and you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
     `)
   }
 }

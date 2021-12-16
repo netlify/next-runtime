@@ -207,6 +207,24 @@ describe('onBuild()', () => {
     expect(onBuildHasRun(netlifyConfig)).toBe(true)
   })
 
+  test('skips if NETLIFY_NEXT_PLUGIN_SKIP is set', async () => {
+    process.env.NETLIFY_NEXT_PLUGIN_SKIP = 'true'
+    await moveNextDist()
+    await plugin.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(false)
+    delete process.env.NETLIFY_NEXT_PLUGIN_SKIP
+  })
+
+  test('skips if NEXT_PLUGIN_FORCE_RUN is "false"', async () => {
+    process.env.NEXT_PLUGIN_FORCE_RUN = 'false'
+    await moveNextDist()
+    await plugin.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(false)
+    delete process.env.NEXT_PLUGIN_FORCE_RUN
+  })
+
   test("fails if BUILD_ID doesn't exist", async () => {
     await moveNextDist()
     await unlink(path.join(process.cwd(), '.next/BUILD_ID'))
@@ -443,6 +461,35 @@ describe('onPostBuild', () => {
     )
 
     console.log = oldLog
+  })
+
+  test('warns if NETLIFY_NEXT_PLUGIN_SKIP is set', async () => {
+    await moveNextDist()
+
+    process.env.NETLIFY_NEXT_PLUGIN_SKIP = 'true'
+    await moveNextDist()
+    const show = jest.fn()
+    await plugin.onPostBuild({ ...defaultArgs, utils: { ...defaultArgs.utils, status: { show } } })
+    expect(show).toHaveBeenCalledWith({
+      summary: 'Next cache was stored, but all other functions were skipped because NETLIFY_NEXT_PLUGIN_SKIP is set',
+      title: 'Essential Next.js plugin did not run',
+    })
+    delete process.env.NETLIFY_NEXT_PLUGIN_SKIP
+  })
+
+  test('warns if NEXT_PLUGIN_FORCE_RUN is "false"', async () => {
+    await moveNextDist()
+
+    process.env.NEXT_PLUGIN_FORCE_RUN = 'false'
+    await moveNextDist()
+    const show = jest.fn()
+    await plugin.onPostBuild({ ...defaultArgs, utils: { ...defaultArgs.utils, status: { show } } })
+    expect(show).toHaveBeenCalledWith({
+      summary:
+        'Next cache was stored, but all other functions were skipped because NEXT_PLUGIN_FORCE_RUN is set to false',
+      title: 'Essential Next.js plugin did not run',
+    })
+    delete process.env.NEXT_PLUGIN_FORCE_RUN
   })
 
   test('finds problematic user rewrites', async () => {
