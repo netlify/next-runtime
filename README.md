@@ -82,7 +82,8 @@ If you are using `next export` to generate a static site, you do not need most o
 you can remove it. Alternatively you can
 [set the environment variable](https://docs.netlify.com/configure-builds/environment-variables/)
 `NETLIFY_NEXT_PLUGIN_SKIP` to `true` and the plugin will handle caching but won't generate any functions for SSR
-support.
+support. See [`demos/next-export`](https://github.com/netlify/netlify-plugin-nextjs/tree/main/demos/next-export) for an
+example.
 
 ## Feedback
 
