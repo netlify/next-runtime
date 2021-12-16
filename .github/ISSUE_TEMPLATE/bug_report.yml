@@ -6,7 +6,17 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thanks for taking the time to fill out this bug report! Using this template makes it a lot easier for us to diagnose your problem, so please fill in as many fields as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Summary
+      description: A short description of the problem
+      placeholder: |
+        Include what you expected to happen, and what actually happened.
+    validations:
+      required: true
   - type: textarea
     id: steps-to-reproduce
     attributes:
@@ -59,7 +69,7 @@ body:
   - type: textarea
     id: netlify-toml
     attributes:
-      label: Your `netlify.toml` file
+      label: Your netlify.toml file
       description: (If you're using file-based config) Please provide a copy of your `netlify.toml` file.
       value: |
         <details>
@@ -72,15 +82,78 @@ body:
         </details>
 
   - type: textarea
-    id: logs
+    id: redirects-file
     attributes:
-      label: Relevant log output (or link to your logs)
+      label: Your public/_redirects file
+      description: Please provide a copy of your `_redirects` file if you have one.
+      value: |
+        <details>
+          <summary>`_redirects`</summary>
+          
+        ```toml
+        # Paste content of your `_redirects` file here
+        ```
+
+        </details>
+
+  - type: textarea
+    id: next-config
+    attributes:
+      label: Your `next.config.js` file
+      description: Please provide a copy of your `next.config.js` file.
+      value: |
+        <details>
+          <summary>`next.config.js`</summary>
+          
+        ```toml
+        # Paste content of your `next.config.js` file here. Check there is no private info in there.
+        ```
+
+        </details>
+
+  - type: textarea
+    id: build-logs
+    attributes:
+      label: Builds logs (or link to your logs)
       value: |
         <details>
           <summary>Build logs</summary>
           
         ```
         # Paste logs here
+        ```
+
+        </details>
+
+  - type: textarea
+    id: function-logs
+    attributes:
+      label: Function logs
+      description: If it is a runtime error, please provide a copy of the relevant function logs.
+      value: |
+        <details>
+          <summary>Function logs</summary>
+          
+        ```
+        # Paste logs here
+        ```
+
+        </details>
+
+  - type: textarea
+
+    id: next-build
+    attributes:
+      label: .next JSON files
+      description:
+        (e.g. `.next/required-server-files.json`, `.next/routes-manifest.json` and `.next/prerender-manifest.json`).
+      value: |
+        <details>
+          <summary>generated .next JSON files</summary>
+          
+        ```
+        # Paste file contents here. Please check there isn't any private info in them
+        # You can either build locally, or download the deploy from Netlify by clicking the arrow next to the deploy time.
         ```
 
         </details>
