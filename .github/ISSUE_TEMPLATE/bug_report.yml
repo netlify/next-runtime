@@ -86,7 +86,7 @@ body:
 
         </details>
 
-    - type: textarea
+  - type: textarea
     id: next-config
     attributes:
       label: Your `next.config.js` file
@@ -116,10 +116,12 @@ body:
         </details>
 
   - type: textarea
-  
+
     id: next-build
     attributes:
-      label: .next JSON files (e.g. `.next/required-server-files.json`, `.next/routes-manifest.json` and  `.next/prerender-manifest.json`)
+      label:
+        .next JSON files (e.g. `.next/required-server-files.json`, `.next/routes-manifest.json`
+        and  `.next/prerender-manifest.json`)
       value: |
         <details>
           <summary>generated JSON files here</summary>
@@ -127,5 +129,5 @@ body:
         ```
         # Paste file contents here. Please check there isn't any private info in them
         ```
-        
+
         </details>
