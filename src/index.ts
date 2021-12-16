@@ -1,13 +1,15 @@
 import { join, relative } from 'path'
 
 import { NetlifyPlugin } from '@netlify/build'
+import { existsSync } from 'fs-extra'
 
-import { ODB_FUNCTION_NAME } from './constants'
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
 import { getNextConfig, configureHandlerFunctions } from './helpers/config'
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects } from './helpers/redirects'
+import { shouldSkip } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
@@ -26,6 +28,14 @@ const plugin: NetlifyPlugin = {
     },
   }) {
     const { publish } = netlifyConfig.build
+    if (shouldSkip()) {
+      await restoreCache({ cache, publish })
+      console.log('Not running Essential Next.js plugin')
+      if (existsSync(join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME))) {
+        console.log(`Please ensure you remove any generated functions from ${constants.INTERNAL_FUNCTIONS_SRC}`)
+      }
+      return
+    }
     checkForRootPublish({ publish, failBuild })
     verifyNetlifyBuildVersion({ failBuild, ...constants })
 
@@ -43,6 +53,9 @@ const plugin: NetlifyPlugin = {
       build: { failBuild },
     },
   }) {
+    if (shouldSkip()) {
+      return
+    }
     const { publish } = netlifyConfig.build
 
     checkNextSiteHasBuilt({ publish, failBuild })
@@ -84,6 +97,7 @@ const plugin: NetlifyPlugin = {
   async onPostBuild({
     netlifyConfig,
     utils: {
+      status,
       cache,
       functions,
       build: { failBuild },
@@ -91,6 +105,19 @@ const plugin: NetlifyPlugin = {
     constants: { FUNCTIONS_DIST },
   }) {
     await saveCache({ cache, publish: netlifyConfig.build.publish })
+
+    if (shouldSkip()) {
+      status.show({
+        title: 'Essential Next.js plugin did not run',
+        summary: `Next cache was stored, but all other functions were skipped because ${
+          process.env.NETLIFY_NEXT_PLUGIN_SKIP
+            ? `NETLIFY_NEXT_PLUGIN_SKIP is set`
+            : `NEXT_PLUGIN_FORCE_RUN is set to ${process.env.NEXT_PLUGIN_FORCE_RUN}`
+        }`,
+      })
+      return
+    }
+
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
     const { basePath } = await getNextConfig({ publish: netlifyConfig.build.publish, failBuild })

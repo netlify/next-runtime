@@ -33,3 +33,9 @@ export const netlifyRoutesForNextRoute = (nextRoute: string): Array<string> => {
       .replace(DYNAMIC_PARAMETER_REGEX, '/:$1'),
   )
 }
+
+export const shouldSkip = (): boolean =>
+  process.env.NEXT_PLUGIN_FORCE_RUN === 'false' ||
+  process.env.NEXT_PLUGIN_FORCE_RUN === '0' ||
+  process.env.NETLIFY_NEXT_PLUGIN_SKIP === 'true' ||
+  process.env.NETLIFY_NEXT_PLUGIN_SKIP === '1'
