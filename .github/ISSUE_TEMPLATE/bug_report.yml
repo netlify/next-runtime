@@ -6,7 +6,17 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thanks for taking the time to fill out this bug report! Using this template makes it a lot easier for us to diagnose your problem, so please fill in as many fields as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Summary
+      description: A short description of the problem
+      placeholder: |
+        Include what you expected to happen, and what actually happened.
+    validations:
+      required: true
   - type: textarea
     id: steps-to-reproduce
     attributes:
