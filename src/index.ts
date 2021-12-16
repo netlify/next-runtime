@@ -8,7 +8,7 @@ import { restoreCache, saveCache } from './helpers/cache'
 import { getNextConfig, configureHandlerFunctions } from './helpers/config'
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
-import { generateRedirects } from './helpers/redirects'
+import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
@@ -16,6 +16,7 @@ import {
   checkForRootPublish,
   checkZipSize,
   checkForOldFunctions,
+  warnForProblematicUserRewrites,
 } from './helpers/verification'
 
 const plugin: NetlifyPlugin = {
@@ -86,6 +87,11 @@ const plugin: NetlifyPlugin = {
       await moveStaticPages({ target, netlifyConfig, i18n })
     }
 
+    await generateStaticRedirects({
+      netlifyConfig,
+      nextConfig: { basePath, i18n },
+    })
+
     await setupImageFunction({ constants, imageconfig: images, netlifyConfig, basePath })
 
     await generateRedirects({
@@ -95,7 +101,10 @@ const plugin: NetlifyPlugin = {
   },
 
   async onPostBuild({
-    netlifyConfig,
+    netlifyConfig: {
+      build: { publish },
+      redirects,
+    },
     utils: {
       status,
       cache,
@@ -104,7 +113,7 @@ const plugin: NetlifyPlugin = {
     },
     constants: { FUNCTIONS_DIST },
   }) {
-    await saveCache({ cache, publish: netlifyConfig.build.publish })
+    await saveCache({ cache, publish })
 
     if (shouldSkip()) {
       status.show({
@@ -120,7 +129,8 @@ const plugin: NetlifyPlugin = {
 
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
-    const { basePath } = await getNextConfig({ publish: netlifyConfig.build.publish, failBuild })
+    const { basePath } = await getNextConfig({ publish, failBuild })
+    warnForProblematicUserRewrites({ basePath, redirects })
     await unpatchNextFiles(basePath)
   },
 }

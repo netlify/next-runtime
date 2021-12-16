@@ -1,7 +1,8 @@
+/* eslint-disable max-lines */
 import { existsSync, promises } from 'fs'
 import path, { relative } from 'path'
 
-import { NetlifyPluginUtils } from '@netlify/build'
+import { NetlifyConfig, NetlifyPluginUtils } from '@netlify/build'
 import { yellowBright, greenBright, blueBright, redBright, reset } from 'chalk'
 import { async as StreamZip } from 'node-stream-zip'
 import { outdent } from 'outdent'
@@ -135,3 +136,55 @@ export const checkZipSize = async (file: string, maxSize: number = LAMBDA_MAX_SI
     greenBright`\n\nFor more information on fixing this, see ${blueBright`https://ntl.fyi/large-next-functions`}`,
   )
 }
+
+export const getProblematicUserRewrites = ({
+  redirects,
+  basePath,
+}: {
+  redirects: NetlifyConfig['redirects']
+  basePath: string
+}) => {
+  const userRewrites: NetlifyConfig['redirects'] = []
+  for (const redirect of redirects) {
+    // This is the first of the plugin-generated redirects so we can stop checking
+    if (redirect.from === `${basePath}/_next/static/*` && redirect.to === `/static/:splat` && redirect.status === 200) {
+      break
+    }
+    if (
+      // Redirects are fine
+      (redirect.status === 200 || redirect.status === 404) &&
+      // Rewriting to a function is also fine
+      !redirect.to.startsWith('/.netlify/') &&
+      // ...so is proxying
+      !redirect.to.startsWith('http')
+    ) {
+      userRewrites.push(redirect)
+    }
+  }
+  return userRewrites
+}
+
+export const warnForProblematicUserRewrites = ({
+  redirects,
+  basePath,
+}: {
+  redirects: NetlifyConfig['redirects']
+  basePath: string
+}) => {
+  const userRewrites = getProblematicUserRewrites({ redirects, basePath })
+  if (userRewrites.length === 0) {
+    return
+  }
+  console.log(
+    yellowBright(outdent`
+      You have the following Netlify rewrite${
+        userRewrites.length === 1 ? '' : 's'
+      } that might cause conflicts with the Next.js plugin:
+
+      ${reset(userRewrites.map(({ from, to, status }) => `- ${from} ${to} ${status}`).join('\n'))}
+
+      For more information, see https://ntl.fyi/next-rewrites
+    `),
+  )
+}
+/* eslint-enable max-lines */

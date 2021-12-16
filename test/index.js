@@ -1,4 +1,4 @@
-const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson } = require('fs-extra')
+const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson, writeFile } = require('fs-extra')
 const path = require('path')
 const process = require('process')
 const os = require('os')
@@ -12,6 +12,8 @@ const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../src/constants')
 const { join } = require('pathe')
 const { matchMiddleware, stripLocale, matchesRedirect, matchesRewrite } = require('../src/helpers/files')
 const { dirname } = require('path')
+const { getProblematicUserRewrites } = require('../src/helpers/verification')
+const { outdent } = require('outdent')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
@@ -488,6 +490,33 @@ describe('onPostBuild', () => {
       title: 'Essential Next.js plugin did not run',
     })
     delete process.env.NEXT_PLUGIN_FORCE_RUN
+  })
+
+  test('finds problematic user rewrites', async () => {
+    await moveNextDist()
+    const rewrites = getProblematicUserRewrites({
+      redirects: [
+        { from: '/previous', to: '/rewrites-are-a-problem', status: 200 },
+        { from: '/api', to: '/.netlify/functions/are-ok', status: 200 },
+        { from: '/remote', to: 'http://example.com/proxying/is/ok', status: 200 },
+        { from: '/old', to: '/redirects-are-fine' },
+        { from: '/*', to: '/404-is-a-problem', status: 404 },
+        ...netlifyConfig.redirects,
+      ],
+      basePath: '',
+    })
+    expect(rewrites).toEqual([
+      {
+        from: '/previous',
+        status: 200,
+        to: '/rewrites-are-a-problem',
+      },
+      {
+        from: '/*',
+        status: 404,
+        to: '/404-is-a-problem',
+      },
+    ])
   })
 })
 

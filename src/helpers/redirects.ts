@@ -42,6 +42,21 @@ const generateLocaleRedirects = ({
   return redirects
 }
 
+export const generateStaticRedirects = ({
+  netlifyConfig,
+  nextConfig: { i18n, basePath },
+}: {
+  netlifyConfig: NetlifyConfig
+  nextConfig: Pick<NextConfig, 'i18n' | 'basePath'>
+}) => {
+  // Static files are in `static`
+  netlifyConfig.redirects.push({ from: `${basePath}/_next/static/*`, to: `/static/:splat`, status: 200 })
+
+  if (i18n) {
+    netlifyConfig.redirects.push({ from: `${basePath}/:locale/_next/static/*`, to: `/static/:splat`, status: 200 })
+  }
+}
+
 export const generateRedirects = async ({
   netlifyConfig,
   nextConfig: { i18n, basePath, trailingSlash, appDir },
@@ -95,16 +110,10 @@ export const generateRedirects = async ({
     dataRedirects.push(...netlifyRoutesForNextRoute(dataRoute))
   })
 
-  if (i18n) {
-    netlifyConfig.redirects.push({ from: `${basePath}/:locale/_next/static/*`, to: `/static/:splat`, status: 200 })
-  }
-
   const publicFiles = await globby('**/*', { cwd: join(appDir, 'public') })
 
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
-    // Static files are in `static`
-    { from: `${basePath}/_next/static/*`, to: `/static/:splat`, status: 200 },
     // API routes always need to be served from the regular function
     {
       from: `${basePath}/api`,
