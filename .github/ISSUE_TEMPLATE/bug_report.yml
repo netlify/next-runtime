@@ -59,7 +59,7 @@ body:
   - type: textarea
     id: netlify-toml
     attributes:
-      label: Your `netlify.toml` file
+      label: Your netlify.toml file
       description: (If you're using file-based config) Please provide a copy of your `netlify.toml` file.
       value: |
         <details>
@@ -75,7 +75,7 @@ body:
     id: redirects-file
     attributes:
       label: Your public/_redirects file
-      description: Please provide a copy of your `_redirects` file.
+      description: Please provide a copy of your `_redirects` file if you have one.
       value: |
         <details>
           <summary>`_redirects`</summary>
@@ -96,15 +96,15 @@ body:
           <summary>`next.config.js`</summary>
           
         ```toml
-        # Paste content of your `next.config.js` file here
+        # Paste content of your `next.config.js` file here. Check there is no private info in there.
         ```
 
         </details>
 
   - type: textarea
-    id: logs
+    id: build-logs
     attributes:
-      label: Relevant log output (or link to your logs)
+      label: Builds logs (or link to your logs)
       value: |
         <details>
           <summary>Build logs</summary>
@@ -116,18 +116,34 @@ body:
         </details>
 
   - type: textarea
+    id: function-logs
+    attributes:
+      label: Function logs
+      description: If it is a runtime error, please provide a copy of the relevant function logs.
+      value: |
+        <details>
+          <summary>Function logs</summary>
+          
+        ```
+        # Paste logs here
+        ```
+
+        </details>
+
+  - type: textarea
 
     id: next-build
     attributes:
-      label:
-        .next JSON files (e.g. `.next/required-server-files.json`, `.next/routes-manifest.json`
-        and  `.next/prerender-manifest.json`)
+      label: .next JSON files
+      description:
+        (e.g. `.next/required-server-files.json`, `.next/routes-manifest.json` and `.next/prerender-manifest.json`).
       value: |
         <details>
-          <summary>generated JSON files here</summary>
+          <summary>generated .next JSON files</summary>
           
         ```
         # Paste file contents here. Please check there isn't any private info in them
+        # You can either build locally, or download the deploy from Netlify by clicking the arrow next to the deploy time.
         ```
 
         </details>
