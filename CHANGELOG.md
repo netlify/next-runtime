@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.1.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0...v4.1.0) (2021-12-17)
+
+
+### Features
+
+* add support for use with `next export` ([#1012](https://www.github.com/netlify/netlify-plugin-nextjs/issues/1012)) ([76edc53](https://www.github.com/netlify/netlify-plugin-nextjs/commit/76edc5324d89adfad8c43a654ecec7719861e2b4))
+
+
+### Bug Fixes
+
+* prevent infinite loop when `/` is ISR ([#1020](https://www.github.com/netlify/netlify-plugin-nextjs/issues/1020)) ([55b18e6](https://www.github.com/netlify/netlify-plugin-nextjs/commit/55b18e6e4ea9424e896b860502d645513112c4f3))
+
 ## [4.0.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0-rc.2...v4.0.0) (2021-12-14)
 
 This is a full rewrite of the Essential Next.js plugin, with a new architecture that gives greater compatibility and
