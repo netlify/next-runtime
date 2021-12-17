@@ -111,7 +111,7 @@ export const moveStaticPages = async ({
   Object.entries(prerenderManifest.routes).forEach(([route, { initialRevalidateSeconds }]) => {
     if (initialRevalidateSeconds) {
       // Find all files used by ISR routes
-      const trimmedPath = route.slice(1)
+      const trimmedPath = route === '/' ? 'index' : route.slice(1)
       isrFiles.add(`${trimmedPath}.html`)
       isrFiles.add(`${trimmedPath}.json`)
       if (initialRevalidateSeconds < MINIMUM_REVALIDATE_SECONDS) {
