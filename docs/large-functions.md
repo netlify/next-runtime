@@ -18,9 +18,3 @@ solution. The list of largest files shown in the build logs will help you see wh
 
   If you do need large modules at runtime (e.g. if you are running Puppeteer in a Next API route), consider changing to
   a Netlify function which will have less overhead than the equivalent Next.js function.
-
-- **Large numbers of pre-rendered pages** If you have a very large number of pre-rendered pages, these can take up a lot
-  of space in the function. There are two approaches to fixing this. One is to consider deferring the building of the
-  pages. If you return `fallback: "blocking"` from `getStaticPaths` the rendering will be deferred until the first user
-  requests the page. This is a good choice for low-traffic pages. It reduces build and deploy time, and can make your
-  bundle a lot smaller.
