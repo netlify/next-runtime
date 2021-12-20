@@ -48,7 +48,7 @@
     "eslint-plugin-react-hooks": "4.3.0",
     "jest": "27.4.4",
     "prettier": "^2.3.1",
-    "ts-jest": "27.1.1",
+    "ts-jest": "27.1.2",
     "typescript": "~4.5.0",
     "workbox-webpack-plugin": "^6.4.1"
   }
