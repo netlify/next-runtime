@@ -11,6 +11,10 @@ const { Bridge } = require('@vercel/node/dist/bridge')
 
 const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
 
+type Mutable<T> = {
+  -readonly [K in keyof T]: T[K]
+}
+
 const makeHandler =
   () =>
   // We return a function and then call `toString()` on it to serialise it as the launcher function
@@ -21,13 +25,16 @@ const makeHandler =
       // eslint-disable-next-line node/no-missing-require
       require.resolve('./pages.js')
     } catch {}
-    // eslint-disable-next-line no-underscore-dangle
-    process.env._BYPASS_SSG = 'true'
 
     const ONE_YEAR_IN_SECONDS = 31536000
 
+    // React assumes you want development mode if NODE_ENV is unset.
+    ;(process.env as Mutable<NodeJS.ProcessEnv>).NODE_ENV ||= 'production'
+
     // We don't want to write ISR files to disk in the lambda environment
     conf.experimental.isrFlushToDisk = false
+    // eslint-disable-next-line no-underscore-dangle
+    process.env._BYPASS_SSG = 'true'
 
     // Set during the request as it needs the host header. Hoisted so we can define the function once
     let base

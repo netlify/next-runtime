@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 const Header = dynamic(() => import(/* webpackChunkName: 'header' */ '../components/Header'), { ssr: true })
 import { useRouter } from 'next/router'
 
-const Index = ({ shows }) => {
+const Index = ({ shows, nodeEnv }) => {
   const { locale } = useRouter()
 
   return (
@@ -23,6 +23,7 @@ const Index = ({ shows }) => {
         <br />
         Refresh this page to see it change.
       </p>
+      <p>NODE_ENV: {nodeEnv}</p>
 
       <ul data-testid="list-server-side">
         {shows.map(({ id, name }) => (
@@ -215,7 +216,7 @@ Index.getInitialProps = async function () {
   const res = await fetch(server)
   const data = await res.json()
 
-  return { shows: data.slice(0, 5) }
+  return { shows: data.slice(0, 5), nodeEnv: process.env.NODE_ENV || null }
 }
 
 export default Index
