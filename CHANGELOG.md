@@ -1,5 +1,13 @@
 # Changelog
 
+### [4.1.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.1.0...v4.1.1) (2021-12-21)
+
+
+### Bug Fixes
+
+* fix bug that caused ISR pages to sometimes serve first built version ([#1051](https://www.github.com/netlify/netlify-plugin-nextjs/issues/1051)) ([62660b2](https://www.github.com/netlify/netlify-plugin-nextjs/commit/62660b2da56457a5993985b05a7cdfd73e698bba))
+* force React to use production env ([#1056](https://www.github.com/netlify/netlify-plugin-nextjs/issues/1056)) ([eca0bee](https://www.github.com/netlify/netlify-plugin-nextjs/commit/eca0bee044ae44193eae7c9864153ae9b627b0ac))
+
 ## [4.1.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.0.0...v4.1.0) (2021-12-17)
 
 
