@@ -73,9 +73,7 @@ const plugin: NetlifyPlugin = {
 
     await movePublicFiles({ appDir, outdir, publish })
 
-    if (process.env.EXPERIMENTAL_ODB_TTL) {
-      await patchNextFiles(basePath)
-    }
+    await patchNextFiles(basePath)
 
     if (process.env.EXPERIMENTAL_MOVE_STATIC_PAGES) {
       console.log(
