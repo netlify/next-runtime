@@ -3,7 +3,18 @@ import { cpus } from 'os'
 
 import { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
-import { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir, readFileSync } from 'fs-extra'
+import {
+  existsSync,
+  readJson,
+  move,
+  copy,
+  writeJson,
+  readFile,
+  writeFile,
+  ensureDir,
+  readFileSync,
+  unlink,
+} from 'fs-extra'
 import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { Redirect as NextRedirect } from 'next/dist/lib/load-custom-routes'
@@ -69,6 +80,14 @@ export const matchesRewrite = (file: string, rewrites: Rewrites): boolean => {
     return false
   }
   return matchesRedirect(file, rewrites.beforeFiles)
+}
+
+const deleteFile = async (file) => {
+  try {
+    await unlink(file)
+  } catch (error) {
+    console.warn('Error removing ISR file', file, error)
+  }
 }
 
 // eslint-disable-next-line max-lines-per-function
@@ -153,9 +172,9 @@ export const moveStaticPages = async ({
   const limit = pLimit(Math.max(2, cpus().length))
   const promises = pages.map((rawPath) => {
     const filePath = slash(rawPath)
-    // Don't move ISR files, as they're used for the first request
+    // Delete pre-rendered ISR routes, as they're not used
     if (isrFiles.has(filePath)) {
-      return
+      return limit(deleteFile, join(root, filePath))
     }
     if (isDynamicRoute(filePath)) {
       return
