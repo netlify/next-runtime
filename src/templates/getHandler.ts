@@ -89,13 +89,12 @@ const makeHandler =
 
       if (cacheHeader?.includes('stale-while-revalidate')) {
         if (requestMode === 'odb') {
-          requestMode = 'isr'
           const ttl = getMaxAge(cacheHeader)
-          // Long-expiry TTL is basically no TTL
+          // Long-expiry TTL is basically no TTL, so we'll skip it
           if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
             result.ttl = ttl
+            requestMode = 'isr'
           }
-          multiValueHeaders['x-rendered-at'] = [new Date().toISOString()]
         }
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
       }

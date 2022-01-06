@@ -1,7 +1,7 @@
 import { join, relative } from 'path'
 
 import { NetlifyPlugin } from '@netlify/build'
-import { existsSync } from 'fs-extra'
+import { existsSync, readFileSync } from 'fs-extra'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
@@ -66,6 +66,8 @@ const plugin: NetlifyPlugin = {
       failBuild,
     })
 
+    const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
+
     configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
 
     await generateFunctions(constants, appDir)
@@ -95,6 +97,7 @@ const plugin: NetlifyPlugin = {
     await generateRedirects({
       netlifyConfig,
       nextConfig: { basePath, i18n, trailingSlash, appDir },
+      buildId,
     })
   },
 

@@ -277,7 +277,7 @@ describe('onBuild()', () => {
 
     await plugin.onBuild(defaultArgs)
 
-    expect([...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))).toMatchSnapshot()
+    expect([...netlifyConfig.redirects]).toMatchSnapshot()
   })
 
   test('publish dir is/has next dist', async () => {

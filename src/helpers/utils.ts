@@ -1,6 +1,18 @@
-import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX } from '../constants'
+import { NetlifyConfig } from '@netlify/build'
+import globby from 'globby'
+import { join } from 'pathe'
 
-export const netlifyRoutesForNextRoute = (nextRoute: string): Array<string> => {
+import {
+  OPTIONAL_CATCH_ALL_REGEX,
+  CATCH_ALL_REGEX,
+  DYNAMIC_PARAMETER_REGEX,
+  ODB_FUNCTION_PATH,
+  HANDLER_FUNCTION_PATH,
+} from '../constants'
+
+import { I18n } from './types'
+
+export const toNetlifyRoute = (nextRoute: string): Array<string> => {
   const netlifyRoutes = [nextRoute]
 
   // If the route is an optional catch-all route, we need to add a second
@@ -32,6 +44,128 @@ export const netlifyRoutesForNextRoute = (nextRoute: string): Array<string> => {
       // Replace dynamic parameters, e.g., [id]
       .replace(DYNAMIC_PARAMETER_REGEX, '/:$1'),
   )
+}
+
+export const netlifyRoutesForNextRouteWithData = ({ route, dataRoute }: { route: string; dataRoute: string }) => [
+  ...toNetlifyRoute(dataRoute),
+  ...toNetlifyRoute(route),
+]
+
+export const routeToDataRoute = (route: string, buildId: string, locale?: string) =>
+  `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}.json`
+
+const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n): Array<string> => {
+  if (!i18n?.locales?.length) {
+    return netlifyRoutesForNextRouteWithData({ route, dataRoute: routeToDataRoute(route, buildId) })
+  }
+  const { locales, defaultLocale } = i18n
+  const routes = []
+  locales.forEach((locale) => {
+    // Data route is always localized
+    const dataRoute = routeToDataRoute(route, buildId, locale)
+
+    routes.push(
+      // Default locale is served from root, not localized
+      ...netlifyRoutesForNextRouteWithData({
+        route: locale === defaultLocale ? route : `/${locale}${route}`,
+        dataRoute,
+      }),
+    )
+  })
+  return routes
+}
+
+export const isApiRoute = (route: string) => route.startsWith('/api/') || route === '/api'
+
+export const targetForFallback = (fallback: string | false) => {
+  if (fallback === null || fallback === false) {
+    // fallback = null mean "blocking", which uses ODB. For fallback=false then anything prerendered should 404.
+    // However i18n pages may not have been prerendered, so we still need to hit the origin
+    return { to: ODB_FUNCTION_PATH, status: 200 }
+  }
+  // fallback = true is also ODB
+  return { to: ODB_FUNCTION_PATH, status: 200 }
+}
+
+export const redirectsForNextRoute = ({
+  route,
+  buildId,
+  basePath,
+  to,
+  i18n,
+  status = 200,
+  force = false,
+}: {
+  route: string
+  buildId: string
+  basePath: string
+  to: string
+  i18n: I18n
+  status?: number
+  force?: boolean
+}): NetlifyConfig['redirects'] =>
+  netlifyRoutesForNextRoute(route, buildId, i18n).map((redirect) => ({
+    from: `${basePath}${redirect}`,
+    to,
+    status,
+    force,
+  }))
+
+export const redirectsForNextRouteWithData = ({
+  route,
+  dataRoute,
+  basePath,
+  to,
+  status = 200,
+  force = false,
+}: {
+  route: string
+  dataRoute: string
+  basePath: string
+  to: string
+  status?: number
+  force?: boolean
+}): NetlifyConfig['redirects'] =>
+  netlifyRoutesForNextRouteWithData({ route, dataRoute }).map((redirect) => ({
+    from: `${basePath}${redirect}`,
+    to,
+    status,
+    force,
+  }))
+
+export const getApiRewrites = (basePath) => [
+  {
+    from: `${basePath}/api`,
+    to: HANDLER_FUNCTION_PATH,
+    status: 200,
+  },
+  {
+    from: `${basePath}/api/*`,
+    to: HANDLER_FUNCTION_PATH,
+    status: 200,
+  },
+]
+
+export const getPreviewRewrites = async ({ basePath, appDir }) => {
+  const publicFiles = await globby('**/*', { cwd: join(appDir, 'public') })
+
+  // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
+  return [
+    ...publicFiles.map((file) => ({
+      from: `${basePath}/${file}`,
+      // This is a no-op, but we do it to stop it matching the following rule
+      to: `${basePath}/${file}`,
+      conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
+      status: 200,
+    })),
+    {
+      from: `${basePath}/*`,
+      to: HANDLER_FUNCTION_PATH,
+      status: 200,
+      conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
+      force: true,
+    },
+  ]
 }
 
 export const shouldSkip = (): boolean =>

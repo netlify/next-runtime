@@ -1,13 +1,21 @@
 import { NetlifyConfig } from '@netlify/build'
 import { readJSON } from 'fs-extra'
-import globby from 'globby'
 import { NextConfig } from 'next'
 import { PrerenderManifest } from 'next/dist/build'
 import { join } from 'pathe'
 
 import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
 
-import { netlifyRoutesForNextRoute } from './utils'
+import { RoutesManifest } from './types'
+import {
+  getApiRewrites,
+  getPreviewRewrites,
+  isApiRoute,
+  redirectsForNextRoute,
+  redirectsForNextRouteWithData,
+  routeToDataRoute,
+  targetForFallback,
+} from './utils'
 
 const generateLocaleRedirects = ({
   i18n,
@@ -60,12 +68,17 @@ export const generateStaticRedirects = ({
 export const generateRedirects = async ({
   netlifyConfig,
   nextConfig: { i18n, basePath, trailingSlash, appDir },
+  buildId,
 }: {
   netlifyConfig: NetlifyConfig
   nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash' | 'appDir'>
+  buildId: string
 }) => {
-  const { dynamicRoutes, routes: staticRoutes }: PrerenderManifest = await readJSON(
-    join(netlifyConfig.build.publish, 'prerender-manifest.json'),
+  const { dynamicRoutes: prerenderedDynamicRoutes, routes: prerenderedStaticRoutes }: PrerenderManifest =
+    await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
+
+  const { dynamicRoutes, staticRoutes }: RoutesManifest = await readJSON(
+    join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 
   netlifyConfig.redirects.push(
@@ -81,86 +94,84 @@ export const generateRedirects = async ({
     netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))
   }
 
-  const dataRedirects = []
-  const pageRedirects = []
-  const isrRedirects = []
+  // This is only used in prod, so dev uses `next dev` directly
+  netlifyConfig.redirects.push(
+    // API routes always need to be served from the regular function
+    ...getApiRewrites(basePath),
+    // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
+    ...(await getPreviewRewrites({ basePath, appDir })),
+  )
 
-  const dynamicRouteEntries = Object.entries(dynamicRoutes)
+  const staticRouteEntries = Object.entries(prerenderedStaticRoutes)
 
-  const staticRouteEntries = Object.entries(staticRoutes)
+  const staticRoutePaths = new Set<string>()
 
-  staticRouteEntries.forEach(([route, { dataRoute, initialRevalidateSeconds }]) => {
-    // Only look for revalidate as we need to rewrite these to SSR rather than ODB
+  // First add all static ISR routes
+  staticRouteEntries.forEach(([route, { initialRevalidateSeconds }]) => {
+    if (isApiRoute(route)) {
+      return
+    }
+    staticRoutePaths.add(route)
+
     if (initialRevalidateSeconds === false) {
       // These can be ignored, as they're static files handled by the CDN
       return
     }
+    // The default locale is served from the root, not the localised path
     if (i18n?.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
       route = route.slice(i18n.defaultLocale.length + 1)
-    }
-    isrRedirects.push(...netlifyRoutesForNextRoute(dataRoute), ...netlifyRoutesForNextRoute(route))
-  })
+      staticRoutePaths.add(route)
 
-  dynamicRouteEntries.forEach(([route, { dataRoute, fallback }]) => {
-    // Add redirects if fallback is "null" (aka blocking) or true/a string
-    if (fallback === false) {
+      netlifyConfig.redirects.push(
+        ...redirectsForNextRouteWithData({
+          route,
+          dataRoute: routeToDataRoute(route, buildId, i18n.defaultLocale),
+          basePath,
+          to: ODB_FUNCTION_PATH,
+          force: true,
+        }),
+      )
+    } else {
+      // ISR routes use the ODB handler
+      netlifyConfig.redirects.push(
+        // No i18n, because the route is already localized
+        ...redirectsForNextRoute({ route, basePath, to: ODB_FUNCTION_PATH, force: true, buildId, i18n: null }),
+      )
+    }
+  })
+  // Add rewrites for all static SSR routes
+  staticRoutes.forEach((route) => {
+    if (staticRoutePaths.has(route.page) || isApiRoute(route.page)) {
+      // Prerendered static routes are either handled by the CDN or are ISR
       return
     }
-    pageRedirects.push(...netlifyRoutesForNextRoute(route))
-    dataRedirects.push(...netlifyRoutesForNextRoute(dataRoute))
+    netlifyConfig.redirects.push(
+      ...redirectsForNextRoute({ route: route.page, buildId, basePath, to: HANDLER_FUNCTION_PATH, i18n }),
+    )
+  })
+  // Add rewrites for all dynamic routes (both SSR and ISR)
+  dynamicRoutes.forEach((route) => {
+    if (isApiRoute(route.page)) {
+      return
+    }
+    if (route.page in prerenderedDynamicRoutes) {
+      const { fallback } = prerenderedDynamicRoutes[route.page]
+
+      const { to, status } = targetForFallback(fallback)
+
+      netlifyConfig.redirects.push(...redirectsForNextRoute({ buildId, route: route.page, basePath, to, status, i18n }))
+    } else {
+      // If the route isn't prerendered, it's SSR
+      netlifyConfig.redirects.push(
+        ...redirectsForNextRoute({ route: route.page, buildId, basePath, to: HANDLER_FUNCTION_PATH, i18n }),
+      )
+    }
   })
 
-  const publicFiles = await globby('**/*', { cwd: join(appDir, 'public') })
-
-  // This is only used in prod, so dev uses `next dev` directly
-  netlifyConfig.redirects.push(
-    // API routes always need to be served from the regular function
-    {
-      from: `${basePath}/api`,
-      to: HANDLER_FUNCTION_PATH,
-      status: 200,
-    },
-    {
-      from: `${basePath}/api/*`,
-      to: HANDLER_FUNCTION_PATH,
-      status: 200,
-    },
-    // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
-    ...publicFiles.map((file) => ({
-      from: `${basePath}/${file}`,
-      // This is a no-op, but we do it to stop it matching the following rule
-      to: `${basePath}/${file}`,
-      conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
-      status: 200,
-    })),
-    {
-      from: `${basePath}/*`,
-      to: HANDLER_FUNCTION_PATH,
-      status: 200,
-      conditions: { Cookie: ['__prerender_bypass', '__next_preview_data'] },
-      force: true,
-    },
-    // ISR redirects are handled by the regular function. Forced to avoid pre-rendered pages
-    ...isrRedirects.map((redirect) => ({
-      from: `${basePath}${redirect}`,
-      to: ODB_FUNCTION_PATH,
-      status: 200,
-      force: true,
-    })),
-    // These are pages with fallback set, which need an ODB
-    // Data redirects go first, to avoid conflict with splat redirects
-    ...dataRedirects.map((redirect) => ({
-      from: `${basePath}${redirect}`,
-      to: ODB_FUNCTION_PATH,
-      status: 200,
-    })),
-    // ...then all the other fallback pages
-    ...pageRedirects.map((redirect) => ({
-      from: `${basePath}${redirect}`,
-      to: ODB_FUNCTION_PATH,
-      status: 200,
-    })),
-    // Everything else is handled by the regular function
-    { from: `${basePath}/*`, to: HANDLER_FUNCTION_PATH, status: 200 },
-  )
+  // Final fallback
+  netlifyConfig.redirects.push({
+    from: `${basePath}*`,
+    to: HANDLER_FUNCTION_PATH,
+    status: 200,
+  })
 }
