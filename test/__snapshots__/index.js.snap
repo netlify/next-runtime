@@ -1425,5 +1425,10 @@ Array [
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
+  Object {
+    "from": "/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
 ]
 `;

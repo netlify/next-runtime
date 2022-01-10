@@ -170,7 +170,7 @@ export const generateRedirects = async ({
 
   // Final fallback
   netlifyConfig.redirects.push({
-    from: `${basePath}*`,
+    from: `${basePath}/*`,
     to: HANDLER_FUNCTION_PATH,
     status: 200,
   })
