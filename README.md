@@ -69,7 +69,30 @@ that are currently needed.
 If you are using a monorepo you will need to change `publish` to point to the full path to the built `.next` directory,
 which may be in a subdirectory. If you have changed your `distDir` then it will need to match that.
 
-If you are using Nx, then you will need to point `publish` to the folder inside `dist`, e.g. `dist/apps/myapp/.next`.
+### Self-contained subdirectory
+
+If your Next.js site is in a subdirectory of the repo, but doesn't rely on installing or compiling anything outside of that directory, then the simplest arrangement is to set the `base` of the site to that directory. This can be done either in the Netlify dashboard or in the `netlify.toml`. If your site is in `/frontend`, you should set up your site with the following in the root of the repo:
+
+```toml
+# ./netlify.toml
+[build]
+  base="frontend"
+```
+You can then place another `netlify.toml` file in `/frontend/` that configures the actual build:
+
+```toml
+# ./frontend/netlify.toml
+
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+```
+
+### Nx
+If you are using [Nx](https://nx.dev/), then you will need to point `publish` to the folder inside `dist`, e.g. `dist/apps/myapp/.next`.
 
 ## Incremental Static Regeneration (ISR)
 
