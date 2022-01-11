@@ -6,7 +6,6 @@ import { yellowBright } from 'chalk'
 import { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir, readFileSync } from 'fs-extra'
 import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
-import { Redirect as NextRedirect } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
 import pLimit from 'p-limit'
 import { join } from 'pathe'
@@ -15,19 +14,7 @@ import slash from 'slash'
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
 
 import { NextConfig } from './config'
-
-interface Redirect extends NextRedirect {
-  regex: string
-  internal?: boolean
-}
-
-type Rewrites =
-  | {
-      fallback?: Array<Redirect>
-      afterFiles?: Array<Redirect>
-      beforeFiles?: Array<Redirect>
-    }
-  | Array<Redirect>
+import { Rewrites, RoutesManifest } from './types'
 
 const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
 
@@ -100,7 +87,7 @@ export const moveStaticPages = async ({
   const prerenderManifest: PrerenderManifest = await readJson(
     join(netlifyConfig.build.publish, 'prerender-manifest.json'),
   )
-  const { redirects, rewrites }: { redirects: Array<Redirect>; rewrites: Rewrites } = await readJson(
+  const { redirects, rewrites }: RoutesManifest = await readJson(
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 

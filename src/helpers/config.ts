@@ -39,7 +39,7 @@ export const getNextConfig = async function getNextConfig({
 const resolveModuleRoot = (moduleName) => {
   try {
     return dirname(relative(process.cwd(), require.resolve(`${moduleName}/package.json`, { paths: [process.cwd()] })))
-  } catch (error) {
+  } catch {
     return null
   }
 }
