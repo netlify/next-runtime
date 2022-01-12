@@ -65,7 +65,7 @@ export const checkNextSiteHasBuilt = ({
     const outWarning =
       path.basename(publish) === 'out'
         ? `Your publish directory is set to "out", but in most cases it should be ".next".`
-        : `In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config.`
+        : `In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config. `
 
     return failBuild(outdent`
       The directory "${path.relative(
@@ -73,7 +73,8 @@ export const checkNextSiteHasBuilt = ({
         publish,
       )}" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
       ${outWarning}
-      If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
+      If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".,
+      "If you are using a monorepo with subdirectories, you may have incorrect netllify.toml files set up. See https://ntl.fyi/next-monorepo for details.
     `)
   }
   if (existsSync(path.join(publish, 'export-detail.json'))) {
