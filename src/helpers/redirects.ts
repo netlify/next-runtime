@@ -139,8 +139,8 @@ export const generateRedirects = async ({
       )
     }
   })
-  // Add rewrites for all static SSR routes
-  staticRoutes.forEach((route) => {
+  // Add rewrites for all static SSR routes. This is Next 12+
+  staticRoutes?.forEach((route) => {
     if (staticRoutePaths.has(route.page) || isApiRoute(route.page)) {
       // Prerendered static routes are either handled by the CDN or are ISR
       return
