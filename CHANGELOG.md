@@ -1,5 +1,13 @@
 # Changelog
 
+### [4.1.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.1.1...v4.1.2) (2022-01-11)
+
+
+### Bug Fixes
+
+* add specific rewrites for all SSR routes ([#1105](https://www.github.com/netlify/netlify-plugin-nextjs/issues/1105)) ([6fd7bcc](https://www.github.com/netlify/netlify-plugin-nextjs/commit/6fd7bcc99aacf447559de46f60de6d8cb33e7a59))
+* **deps:** update dependency core-js to v3.20.2 ([#1095](https://www.github.com/netlify/netlify-plugin-nextjs/issues/1095)) ([41966ca](https://www.github.com/netlify/netlify-plugin-nextjs/commit/41966cac3b17035f6b008ddbf66ad1b3e6920e07))
+
 ### [4.1.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.1.0...v4.1.1) (2021-12-21)
 
 
