@@ -74,7 +74,7 @@ export const checkNextSiteHasBuilt = ({
       )}" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
       ${outWarning}
       If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".,
-      "If you are using a monorepo with subdirectories, you may have incorrect netllify.toml files set up. See https://ntl.fyi/next-monorepo for details.
+      "If you are using a monorepo with subdirectories, you may have incorrect netlify.toml files set up. See https://ntl.fyi/next-monorepo for details.
     `)
   }
   if (existsSync(path.join(publish, 'export-detail.json'))) {
