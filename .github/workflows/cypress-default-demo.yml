@@ -1,0 +1,118 @@
+name: Publish Deploy Preview on Netlify
+
+
+
+
+on: pull_request
+
+
+
+
+jobs:
+
+  deploy-preview:
+
+    runs-on: ubuntu-latest
+
+
+
+
+    steps:
+
+      - uses: actions/checkout@master
+
+
+
+
+      - uses: actions/setup-node@v2
+
+        with:
+
+          node-version: '14'
+
+
+
+
+      - name: Install dependencies
+
+        run: npm i
+
+
+
+
+      - name: Deploy Preview
+
+        id: deploy-preview
+
+        uses: netlify/actions/cli@master
+
+        with:
+
+          args: deploy --alias deploy-preview-${{ github.event.number }} --build
+
+        env:
+
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_DEFAULT_DEMO }}
+
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN_DEFAULT_DEMO }}
+
+
+
+
+      - uses: peter-evans/find-comment@v1
+
+        id: fc
+
+        with:
+
+          issue-number: ${{ github.event.pull_request.number }}
+
+          comment-author: 'github-actions[bot]'
+
+          body-includes: Deploy Preview
+
+
+
+
+      - name: Create or update deploy preview comment
+
+        uses: peter-evans/create-or-update-comment@v1
+
+        with:
+
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+
+          issue-number: ${{ github.event.pull_request.number }}
+
+          body: |
+
+            ### 🚀 Deploy Preview: ${{ steps.deploy-preview.outputs.NETLIFY_URL }}
+
+            Built with commit ${{ github.sha }} | [Deploy Logs](${{ steps.deploy-preview.outputs.NETLIFY_LOGS_URL }})
+
+          edit-mode: replace
+
+
+
+
+      - name: Cypress test
+
+        # You may pin to the exact commit or the version.
+
+        # uses: cypress-io/github-action@f06537910911844bce953022f6d643a0f69fd73b
+
+        uses: cypress-io/github-action@v2.9.7
+
+        with:
+
+          record: false
+
+          # Set configuration values. Separate multiple values with a comma. The values set here override any values set in your configuration file.
+
+          config: baseUrl=${{ steps.deploy-preview.outputs.NETLIFY_URL }}
+
+          # Path to a JSON file where configuration values are set.
+
+          config-file: cypress/config/ci.json
+
+          parallel: true
