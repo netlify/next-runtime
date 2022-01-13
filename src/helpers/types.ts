@@ -46,7 +46,7 @@ export interface RoutesManifest {
   redirects: Redirect[]
   headers: Header[]
   dynamicRoutes: DynamicRoute[]
-  staticRoutes: StaticRoute[]
+  staticRoutes?: StaticRoute[]
   dataRoutes: DataRoute[]
   i18n: I18n
   rewrites: Rewrites

@@ -409,6 +409,16 @@ describe('onBuild()', () => {
     expect(readFileSync(handlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
     expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
   })
+
+  test('handles empty routesManifest.staticRoutes', async () => {
+    await moveNextDist()
+    const manifestPath = path.resolve('.next/routes-manifest.json')
+    const routesManifest = await readJson(manifestPath)
+    delete routesManifest.staticRoutes
+    await writeJSON(manifestPath, routesManifest)
+    // The function is supposed to return undefined, but we want to check if it throws
+    expect(await plugin.onBuild(defaultArgs)).toBeUndefined()
+  })
 })
 
 describe('onPostBuild', () => {
