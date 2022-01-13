@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.1.3](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.1.2...v4.1.3) (2022-01-13)
+
+
+### Bug Fixes
+
+* handle `routes-manifest`s without `staticRoutes` defined ([#1120](https://www.github.com/netlify/netlify-plugin-nextjs/issues/1120)) ([96f3ccb](https://www.github.com/netlify/netlify-plugin-nextjs/commit/96f3ccb977e66dcd2b1a7911df24357501d18435))
+
 ### [4.1.2](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.1.1...v4.1.2) (2022-01-11)
 
 
