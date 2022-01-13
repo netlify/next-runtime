@@ -8,7 +8,7 @@
     "manifest.yml"
   ],
   "scripts": {
-    "build:demo": "next build demos/default",
+    "build:demo": "next build",
     "cy:open": "cypress open --config-file cypress/config/all.json",
     "dev:demo": "next dev demos/default",
     "format": "run-s format:check-fix:*",
