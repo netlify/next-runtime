@@ -9,7 +9,7 @@ const Show = ({ errorCode, show }) => {
 
   // Otherwise, render show
   return (
-    <div className='ml-14 mt-10'>
+    <div>
       <p>
         This page uses getInitialProps() to fetch the show with the ID provided in the URL: <code>/shows/:id</code>
       </p>

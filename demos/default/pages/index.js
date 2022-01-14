@@ -7,10 +7,10 @@ const Index = ({ shows, nodeEnv }) => {
   const { locale } = useRouter()
 
   return (
-    <div className="mb-20">
+    <div>
       <img src="/next-on-netlify.png" alt="NextJS on Netlify Banner" className='self-center w-full max-h-80 max-w-5xl m-auto' />
 
-      <div className="ml-14">
+      <div>
         <Header />
 
         <p>This is a demo of a NextJS application with Server-Side Rendering (SSR).</p>
