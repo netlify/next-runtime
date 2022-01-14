@@ -9,19 +9,21 @@ const Show = ({ errorCode, show }) => {
 
   // Otherwise, render show
   return (
-    <div>
+    <div className='ml-14 mt-10'>
       <p>
-        This page uses getInitialProps() to fetch the show with the ID provided in the URL: /shows/:id
-        <br />
+        This page uses getInitialProps() to fetch the show with the ID provided in the URL: <code>/shows/:id</code>
+      </p>
+      <p>
         Refresh the page to see server-side rendering in action.
-        <br />
+      </p>
+      <p>
         You can also try changing the ID to any other number between 1-10000.
       </p>
 
       <hr />
 
       <h1>Show #{show.id}</h1>
-      <p>{show.name}</p>
+      <p>Show Name: {show.name}</p>
 
       <hr />
 
