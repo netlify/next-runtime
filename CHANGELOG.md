@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.1.3...v4.2.0) (2022-01-17)
+
+
+### Features
+
+* add request logging ([#1127](https://www.github.com/netlify/netlify-plugin-nextjs/issues/1127)) ([010e86c](https://www.github.com/netlify/netlify-plugin-nextjs/commit/010e86c7c7513df8676dd8b3c747dcfa81fbc09e))
+
 ### [4.1.3](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.1.2...v4.1.3) (2022-01-13)
 
 
