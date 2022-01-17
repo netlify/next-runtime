@@ -85,6 +85,14 @@ you can remove it. Alternatively you can
 support. See [`demos/next-export`](https://github.com/netlify/netlify-plugin-nextjs/tree/main/demos/next-export) for an
 example.
 
+## Generated functions
+
+This plugin works by generating three Netlify functions that handle requests that haven't been pre-rendered. These are
+`___netlify-handler` (for SSR and API routes), `___netlify-odb-handler` (for ISR and fallback routes), and `_ipx` (for
+images). You can see the requests for these in [the function logs](https://docs.netlify.com/functions/logs/). For ISR
+and fallback routes you will not see any requests that are served from the edge cache, just actual rendering requests.
+These are all internal functions, so you won't find them in your site's own functions directory.
+
 ## Feedback
 
 If you think you have found a bug in the plugin,
