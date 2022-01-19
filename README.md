@@ -34,7 +34,7 @@ package = "@netlify/plugin-nextjs"
 ## Deploying
 
 If you build on Netlify, this plugin will work with no additional configuration. However if you are building and
-deploying locally using the Netlify CLI, you need to ensure that you deploy using `netlify deploy --build`. Running the
+deploying locally using the Netlify CLI, you must deploy using `netlify deploy --build`. Running the
 build and deploy commands separately will not work, because the plugin will not generate the required configuration.
 
 ## Migrating from an older version of the plugin
@@ -96,7 +96,7 @@ example.
 
 Netlify [asset optimization](https://docs.netlify.com/site-deploys/post-processing/) should not be used with Next.js
 sites. Assets are already optimized by Next.js at build time, and doing further optimization can break your site. Ensure
-that it is not enabled at **Site settings > Build & deploy > Post processing**.
+that it is not enabled at **Site settings > Build & deploy > Post processing > Asset optimization**.
 
 ## Feedback
 

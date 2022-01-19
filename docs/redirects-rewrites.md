@@ -27,4 +27,4 @@ Netlify and Next.js redirects support different features and are evaluated at di
 
 ### Using `_rewrites` and `_headers` files
 
-If you are using `_rewrites` or `_headers` files rather than a `netlify.toml` file, bear in mind that these files must be in the published directory of your site, not the root of the repo. To do this, put them in `public` and they will be moved intoi `.next` at build time. Do not put them directly into `.next`, because it is empltied at build time. Any `_rewrites` or `_headers` files in the root of the repo will not be found when deployed.
+If you are using `_rewrites` or `_headers` files rather than a `netlify.toml` file, bear in mind that these files must be in the published directory of your site, not the root of the repo. To do this, put them in `public` and they will be moved into `.next` at build time. Do not put them directly into `.next`, because it is emptied at build time. Any `_rewrites` or `_headers` files in the root of the repo will not be found when deployed.
