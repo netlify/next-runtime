@@ -1,0 +1,32 @@
+name: Run e2e
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+  push:
+    branches:
+      - main
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2, 3, 4, 5, 6]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Checkout @netlify/wait-for-deploy-action
+        uses: actions/checkout@v2
+        with:
+          repository: netlify/wait-for-deploy-action
+          token: ${{ secrets.PKG_RELEASE_TOKEN }} # token exposed to all Netlify repos
+          path: ./netlify-actions/wait-for-netlify-deploy
+      - name: Wait for Netlify Deploy
+        id: deploy
+        uses: ./netlify-actions/wait-for-netlify-deploy
+        with:
+          site-name: netlify-plugin-nextjs-demo
+      - name: Deploy successful
+        if: ${{ steps.deploy.outputs.origin-url }}
+        run: echo ${{ steps.deploy.outputs.origin-url }}
