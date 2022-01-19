@@ -99,6 +99,7 @@ const makeHandler =
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
       }
       multiValueHeaders['x-render-mode'] = [requestMode]
+      console.log(`[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()})`)
       return {
         ...result,
         multiValueHeaders,
