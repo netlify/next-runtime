@@ -23,7 +23,7 @@ jobs:
         with:
           private-key: ${{ secrets.TOKENS_PRIVATE_KEY }}
           app-id: ${{ secrets.TOKENS_APP_ID }}
-  
+
       - name: Checkout @netlify/wait-for-deploy-action
         uses: actions/checkout@v2
         with:
