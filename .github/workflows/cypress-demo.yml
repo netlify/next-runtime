@@ -46,7 +46,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-          cache: npm install
+    
+      - run: npm install
 
       - name: Cypress run
         if: ${{ steps.deploy.outputs.origin-url }}
