@@ -36,6 +36,7 @@ jobs:
         uses: ./.github/actions/wait-for-netlify-deploy
         with:
           site-name: netlify-plugin-nextjs-demo
+          timeout: 300
 
       - name: Deploy successful
         if: ${{ steps.deploy.outputs.origin-url }}
