@@ -6,8 +6,8 @@ on:
     branches:
       - main
     paths:
-      - 'demos/default/**/*.{js,jsx,ts,tsx}'
-      - 'cypress/integration/default/**/*.{ts,js}'
+      - 'demos/static-root/**/*.{js,jsx,ts,tsx}'
+      - 'cypress/integration/static/**/*.{ts,js}'
       - 'src/**/*.{ts,js}'
 jobs:
   cypress:

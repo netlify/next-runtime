@@ -6,8 +6,8 @@ on:
     branches:
       - main
     paths:
-      - 'demos/default/**/*.{js,jsx,ts,tsx}'
-      - 'cypress/integration/default/**/*.{ts,js}'
+      - 'demos/nx-next-monorepo-demo/**/*.{js,jsx,ts,tsx}'
+      - 'cypress/integration/nx/**/*.{ts,js}'
       - 'src/**/*.{ts,js}'
 jobs:
   cypress:
