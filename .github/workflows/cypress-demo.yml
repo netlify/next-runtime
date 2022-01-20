@@ -35,7 +35,7 @@ jobs:
         id: deploy
         uses: ./.github/actions/wait-for-netlify-deploy
         with:
-          site-name: app
+          site-name: netlify-plugin-nextjs-demo
 
       - name: Deploy successful
         if: ${{ steps.deploy.outputs.origin-url }}
