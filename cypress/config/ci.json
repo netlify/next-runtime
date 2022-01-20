@@ -1,9 +1,5 @@
 {
   "baseUrl": "http://localhost:3000",
-  "integrationFolder": "../integration/default",
-  "pluginsFile": "../plugins",
-  "screenshotsFolder": "../screenshots",
-  "supportFile": "../support/index.js",
-  "videoFolder": "../videos",
+  "integrationFolder": "cypress/integration/default",
   "projectId": "66va58"
 }
