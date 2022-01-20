@@ -17,6 +17,9 @@ jobs:
       matrix:
         containers: [1, 2, 3, 4, 5, 6]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Generate Github token
         uses: navikt/github-app-token-generator@v1
         id: get-token
