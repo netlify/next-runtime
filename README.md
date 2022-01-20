@@ -31,6 +31,12 @@ npm install -D @netlify/plugin-nextjs
 package = "@netlify/plugin-nextjs"
 ```
 
+## Deploying
+
+If you build on Netlify, this plugin will work with no additional configuration. However if you are building and
+deploying locally using the Netlify CLI, you must deploy using `netlify deploy --build`. Running the
+build and deploy commands separately will not work, because the plugin will not generate the required configuration.
+
 ## Migrating from an older version of the plugin
 
 You can manually upgrade from the previous version of the plugin by running the following command:
@@ -58,7 +64,8 @@ it.
 
 If you currently use redirects or rewrites on your site, see
 [the Rewrites and Redirects guide](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/redirects-rewrites.md)
-for information on changes to how they are handled in this version.
+for information on changes to how they are handled in this version. In particular, note that `_redirects` and `_headers`
+files must be placed in `public`, not in the root of the site.
 
 If you want to use Next 12's beta Middleware feature, this will mostly work as expected but please
 [read the docs on some caveats and workarounds](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/middleware.md)
@@ -84,6 +91,12 @@ you can remove it. Alternatively you can
 `NETLIFY_NEXT_PLUGIN_SKIP` to `true` and the plugin will handle caching but won't generate any functions for SSR
 support. See [`demos/next-export`](https://github.com/netlify/netlify-plugin-nextjs/tree/main/demos/next-export) for an
 example.
+
+## Asset optimization
+
+Netlify [asset optimization](https://docs.netlify.com/site-deploys/post-processing/) should not be used with Next.js
+sites. Assets are already optimized by Next.js at build time, and doing further optimization can break your site. Ensure
+that it is not enabled at **Site settings > Build & deploy > Post processing > Asset optimization**.
 
 ## Generated functions
 
