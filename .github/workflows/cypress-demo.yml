@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      
+
       - uses: navikt/github-app-token-generator@2d70c12368d1958155af4d283f9f21c9a2a8cb98
         id: get-token
         with:
