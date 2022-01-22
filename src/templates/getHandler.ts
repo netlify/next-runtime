@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+import { HandlerContext, HandlerEvent } from '@netlify/functions'
+
 import type { NextConfig } from '../helpers/config'
 
 const { promises } = require('fs')
@@ -41,39 +43,48 @@ const makeHandler =
 
     augmentFsModule({ promises, staticManifest, pageRoot, getBase: () => base })
 
-    const NextServer = getNextServer()
-
-    const nextServer = new NextServer({
-      conf,
-      dir: path.resolve(__dirname, app),
-      customServer: false,
-    })
-    const requestHandler = nextServer.getRequestHandler()
-    const server = new Server(async (req, res) => {
-      try {
-        await requestHandler(req, res)
-      } catch (error) {
-        console.error(error)
-        throw new Error('server function error')
+    let bridge
+    const getBridge = (event: HandlerEvent) => {
+      if (bridge) {
+        return bridge
       }
-    })
-    const bridge = new Bridge(server)
-    bridge.listen()
+      const url = new URL(event.rawUrl)
+      const port = Number.parseInt(url.port) || 80
+      const { host } = event.headers
+      const protocol = event.headers['x-forwarded-proto'] || 'http'
+      base = `${protocol}://${host}`
 
-    return async (event, context) => {
+      const NextServer = getNextServer()
+      const nextServer = new NextServer({
+        conf,
+        dir: path.resolve(__dirname, app),
+        customServer: false,
+        hostname: url.hostname,
+        port,
+      })
+      const requestHandler = nextServer.getRequestHandler()
+      const server = new Server(async (req, res) => {
+        try {
+          await requestHandler(req, res)
+        } catch (error) {
+          console.error(error)
+          throw new Error('server function error')
+        }
+      })
+      bridge = new Bridge(server)
+      bridge.listen()
+      return bridge
+    }
+
+    return async (event: HandlerEvent, context: HandlerContext) => {
       let requestMode = mode
       // Ensure that paths are encoded - but don't double-encode them
       event.path = new URL(event.rawUrl).pathname
       // Next expects to be able to parse the query from the URL
       const query = new URLSearchParams(event.queryStringParameters).toString()
       event.path = query ? `${event.path}?${query}` : event.path
-      // Only needed if we're intercepting static files
-      if (staticManifest.length !== 0) {
-        const { host } = event.headers
-        const protocol = event.headers['x-forwarded-proto'] || 'http'
-        base = `${protocol}://${host}`
-      }
-      const { headers, ...result } = await bridge.launcher(event, context)
+
+      const { headers, ...result } = await getBridge(event).launcher(event, context)
 
       // Convert all headers to multiValueHeaders
 
