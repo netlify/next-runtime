@@ -27,7 +27,7 @@
     "test:jest": "jest",
     "test:jest:update": "jest --updateSnapshot",
     "test:update": "run-s build build:demo test:jest:update",
-    "prepare": "npm run build",
+    "prepare": "husky install node_modules/@netlify/eslint-config-node/.husky/ && npm run build",
     "clean": "rimraf lib",
     "build": "tsc",
     "watch": "tsc --watch"
@@ -84,7 +84,7 @@
     "cpy": "^8.1.2",
     "cypress": "^9.0.0",
     "eslint-config-next": "^12.0.0",
-    "husky": "^4.3.0",
+    "husky": "^7.0.4",
     "jest": "^27.0.0",
     "netlify-plugin-cypress": "^2.2.0",
     "next": "^12.0.2",
@@ -95,12 +95,6 @@
     "rimraf": "^3.0.2",
     "tmp-promise": "^3.0.2",
     "typescript": "^4.3.4"
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-push": "npm run format"
-    }
   },
   "engines": {
     "node": ">=12.0.0"
