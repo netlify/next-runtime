@@ -1,5 +1,13 @@
 # Changelog
 
+### [4.2.1](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.2.0...v4.2.1) (2022-01-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^0.11.0 ([#1146](https://www.github.com/netlify/netlify-plugin-nextjs/issues/1146)) ([4da630b](https://www.github.com/netlify/netlify-plugin-nextjs/commit/4da630bc6596f790cb45ea0a4cd82d235ff1d3b1))
+* **deps:** update dependency core-js to v3.20.3 ([#1155](https://www.github.com/netlify/netlify-plugin-nextjs/issues/1155)) ([043ad36](https://www.github.com/netlify/netlify-plugin-nextjs/commit/043ad36e18cc720c48dc4a5c29659c79a8982abb))
+
 ## [4.2.0](https://www.github.com/netlify/netlify-plugin-nextjs/compare/v4.1.3...v4.2.0) (2022-01-17)
 
 
