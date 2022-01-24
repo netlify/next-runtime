@@ -5,17 +5,15 @@ describe('Preview Mode', () => {
     cy.findByText('Is preview? No')
 
     // enter preview mode
-    cy.request('/api/enterPreview').then(
-  (response) => {
-    expect(response.body).to.have.property('name', 'preview mode')
-  }
-)
-  cy.visit('/previewTest')
-  cy.findByText('Is preview? Yes!')
+    cy.request('/api/enterPreview').then((response) => {
+      expect(response.body).to.have.property('name', 'preview mode')
+    })
+    cy.visit('/previewTest')
+    cy.findByText('Is preview? Yes!', { selector: 'h1' })
 
-  // exit preview mode
-  cy.request('/api/exitPreview')
-  cy.visit('/previewTest')
-  cy.findByText('Is preview? No')
+    // exit preview mode
+    cy.request('/api/exitPreview')
+    cy.visit('/previewTest')
+    cy.findByText('Is preview? No', { selector: 'h1' })
   })
 })
