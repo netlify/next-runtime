@@ -4,7 +4,7 @@ describe('Default site', () => {
   })
 
   it('loads home page', () => {
-    cy.findByText('Next Demo!')
+    cy.findByText('NextJS on Netlify (imported Header component)')
     cy.findByTestId('list-server-side').within(() => {
       cy.findAllByRole('link').should('have.length', 5)
     })

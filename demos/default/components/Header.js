@@ -1,3 +1,3 @@
 export default function Header() {
-  return <h1>Next Demo!</h1>
+  return <h1>NextJS on Netlify (imported Header component)</h1>
 }

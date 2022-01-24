@@ -24,3 +24,7 @@ Netlify and Next.js redirects support different features and are evaluated at di
 ### When to use Next.js redirects or rewrites:
 - If you are using a _rewrite_ that points to a dynamic Next.js page, you must use Next.js rewrites. Next.js has no way of knowing what the rewritten page is when using Netlify rewrites, so the wrong page is likely to be rendered. This only applies to redirects, not rewrites.
 - If you need Next.js-specific features such as regex path or header matching, you must use Next.js rewrites.
+
+### Using `_rewrites` and `_headers` files
+
+If you are using `_rewrites` or `_headers` files rather than a `netlify.toml` file, bear in mind that these files must be in the published directory of your site, not the root of the repo. To do this, put them in `public` and they will be moved into `.next` at build time. Do not put them directly into `.next`, because it is emptied at build time. Any `_rewrites` or `_headers` files in the root of the repo will not be found when deployed.
