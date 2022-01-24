@@ -73,7 +73,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
         await requestHandler(req, res)
       } catch (error) {
         console.error(error)
-        throw new Error('server function error')
+        throw new Error('Error handling request. See function logs for details.')
       }
     })
     bridge = new Bridge(server)
