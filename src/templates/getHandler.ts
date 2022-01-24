@@ -1,6 +1,6 @@
 import { HandlerContext, HandlerEvent } from '@netlify/functions'
-import { Bridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
+import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
@@ -8,11 +8,14 @@ import type { NextConfig } from '../helpers/config'
 import type { NextServerType } from './handlerUtils'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
+
 const { promises } = require('fs')
 const { Server } = require('http')
 const path = require('path')
 // eslint-disable-next-line node/prefer-global/url, node/prefer-global/url-search-params
 const { URLSearchParams, URL } = require('url')
+
+const { Bridge } = require('@vercel/node-bridge/bridge')
 
 const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
 /* eslint-enable @typescript-eslint/no-var-requires */
@@ -48,8 +51,8 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
 
   // We memoize this because it can be shared between requests, but don't instantiate it until
   // the first request because we need the host and port.
-  let bridge: Bridge
-  const getBridge = (event: HandlerEvent): Bridge => {
+  let bridge: NodeBridge
+  const getBridge = (event: HandlerEvent): NodeBridge => {
     if (bridge) {
       return bridge
     }
