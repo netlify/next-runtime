@@ -1,11 +1,15 @@
+/* eslint-disable max-lines */
 import { NetlifyConfig } from '@netlify/build'
+import { yellowBright } from 'chalk'
 import { readJSON } from 'fs-extra'
 import { NextConfig } from 'next'
 import { PrerenderManifest } from 'next/dist/build'
+import { outdent } from 'outdent'
 import { join } from 'pathe'
 
 import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
 
+import { getMiddleware } from './files'
 import { RoutesManifest } from './types'
 import {
   getApiRewrites,
@@ -14,8 +18,10 @@ import {
   redirectsForNextRoute,
   redirectsForNextRouteWithData,
   routeToDataRoute,
-  targetForFallback,
 } from './utils'
+
+const matchesMiddleware = (middleware: Array<string>, route: string): boolean =>
+  middleware?.some((middlewarePath) => route.startsWith(middlewarePath))
 
 const generateLocaleRedirects = ({
   i18n,
@@ -65,6 +71,7 @@ export const generateStaticRedirects = ({
   }
 }
 
+// eslint-disable-next-line max-lines-per-function
 export const generateRedirects = async ({
   netlifyConfig,
   nextConfig: { i18n, basePath, trailingSlash, appDir },
@@ -102,6 +109,32 @@ export const generateRedirects = async ({
     ...(await getPreviewRewrites({ basePath, appDir })),
   )
 
+  const middleware = await getMiddleware(netlifyConfig.build.publish)
+  const routesThatMatchMiddleware = new Set<string>()
+
+  const handlerRewrite = (from: string) => ({
+    from: `${basePath}${from}`,
+    to: HANDLER_FUNCTION_PATH,
+    status: 200,
+  })
+
+  // Routes that match middleware need to always use the SSR function
+  // This generates a rewrite for every middleware in every locale, both with and without a splat
+  netlifyConfig.redirects.push(
+    ...middleware
+      .map((route) => [
+        handlerRewrite(`${route}`),
+        handlerRewrite(`${route}/*`),
+        handlerRewrite(routeToDataRoute(`${route}/*`, buildId)),
+        ...(i18n?.locales?.map((locale) => [
+          handlerRewrite(`/${locale}${route}`),
+          handlerRewrite(`/${locale}${route}/*`),
+          handlerRewrite(routeToDataRoute(`${route}/*`, buildId, locale)),
+        ]) ?? []),
+      ])
+      .flat(2),
+  )
+
   const staticRouteEntries = Object.entries(prerenderedStaticRoutes)
 
   const staticRoutePaths = new Set<string>()
@@ -121,7 +154,9 @@ export const generateRedirects = async ({
     if (i18n?.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
       route = route.slice(i18n.defaultLocale.length + 1)
       staticRoutePaths.add(route)
-
+      if (matchesMiddleware(middleware, route)) {
+        routesThatMatchMiddleware.add(route)
+      }
       netlifyConfig.redirects.push(
         ...redirectsForNextRouteWithData({
           route,
@@ -132,6 +167,9 @@ export const generateRedirects = async ({
         }),
       )
     } else {
+      if (matchesMiddleware(middleware, route)) {
+        routesThatMatchMiddleware.add(route)
+      }
       // ISR routes use the ODB handler
       netlifyConfig.redirects.push(
         // No i18n, because the route is already localized
@@ -155,11 +193,12 @@ export const generateRedirects = async ({
       return
     }
     if (route.page in prerenderedDynamicRoutes) {
-      const { fallback } = prerenderedDynamicRoutes[route.page]
-
-      const { to, status } = targetForFallback(fallback)
-
-      netlifyConfig.redirects.push(...redirectsForNextRoute({ buildId, route: route.page, basePath, to, status, i18n }))
+      if (matchesMiddleware(middleware, route.page)) {
+        routesThatMatchMiddleware.add(route.page)
+      }
+      netlifyConfig.redirects.push(
+        ...redirectsForNextRoute({ buildId, route: route.page, basePath, to: ODB_FUNCTION_PATH, status: 200, i18n }),
+      )
     } else {
       // If the route isn't prerendered, it's SSR
       netlifyConfig.redirects.push(
@@ -174,4 +213,19 @@ export const generateRedirects = async ({
     to: HANDLER_FUNCTION_PATH,
     status: 200,
   })
+
+  const middlewareMatches = routesThatMatchMiddleware.size
+  if (middlewareMatches > 0) {
+    console.log(
+      yellowBright(outdent`
+        There ${
+          middlewareMatches === 1
+            ? `is one statically-generated or ISR route`
+            : `are ${middlewareMatches} statically-generated or ISR routes`
+        } that match a middleware function, which means they will always be served from the SSR function and will not use ISR or be served from the CDN.
+        If this was not intended, ensure that your middleware only matches routes that you intend to use SSR.
+      `),
+    )
+  }
 }
+/* eslint-enable max-lines */

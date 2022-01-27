@@ -2,13 +2,7 @@ import { NetlifyConfig } from '@netlify/build'
 import globby from 'globby'
 import { join } from 'pathe'
 
-import {
-  OPTIONAL_CATCH_ALL_REGEX,
-  CATCH_ALL_REGEX,
-  DYNAMIC_PARAMETER_REGEX,
-  ODB_FUNCTION_PATH,
-  HANDLER_FUNCTION_PATH,
-} from '../constants'
+import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX, HANDLER_FUNCTION_PATH } from '../constants'
 
 import { I18n } from './types'
 
@@ -51,8 +45,12 @@ export const netlifyRoutesForNextRouteWithData = ({ route, dataRoute }: { route:
   ...toNetlifyRoute(route),
 ]
 
+export const endsWithDynamicSegment = (route: string) => /\/(\*|(:[a-z]+))$/.test(route)
+
 export const routeToDataRoute = (route: string, buildId: string, locale?: string) =>
-  `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}.json`
+  `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}${
+    endsWithDynamicSegment(route) ? '' : '.json'
+  }`
 
 const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n): Array<string> => {
   if (!i18n?.locales?.length) {
@@ -76,16 +74,6 @@ const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n):
 }
 
 export const isApiRoute = (route: string) => route.startsWith('/api/') || route === '/api'
-
-export const targetForFallback = (fallback: string | false) => {
-  if (fallback === null || fallback === false) {
-    // fallback = null mean "blocking", which uses ODB. For fallback=false then anything prerendered should 404.
-    // However i18n pages may not have been prerendered, so we still need to hit the origin
-    return { to: ODB_FUNCTION_PATH, status: 200 }
-  }
-  // fallback = true is also ODB
-  return { to: ODB_FUNCTION_PATH, status: 200 }
-}
 
 export const redirectsForNextRoute = ({
   route,

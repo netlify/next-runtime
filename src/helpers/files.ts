@@ -58,6 +58,15 @@ export const matchesRewrite = (file: string, rewrites: Rewrites): boolean => {
   return matchesRedirect(file, rewrites.beforeFiles)
 }
 
+export const getMiddleware = async (publish: string): Promise<Array<string>> => {
+  const manifestPath = join(publish, 'server', 'middleware-manifest.json')
+  if (existsSync(manifestPath)) {
+    const manifest = await readJson(manifestPath)
+    return manifest?.sortedMiddleware ?? []
+  }
+  return []
+}
+
 // eslint-disable-next-line max-lines-per-function
 export const moveStaticPages = async ({
   netlifyConfig,
@@ -75,14 +84,8 @@ export const moveStaticPages = async ({
   const dataDir = join('_next', 'data', buildId)
   await ensureDir(dataDir)
   // Load the middleware manifest so we can check if a file matches it before moving
-  let middleware
-  const manifestPath = join(outputDir, 'middleware-manifest.json')
-  if (existsSync(manifestPath)) {
-    const manifest = await readJson(manifestPath)
-    if (manifest?.middleware) {
-      middleware = Object.keys(manifest.middleware).map((path) => path.slice(1))
-    }
-  }
+  const middlewarePaths = await getMiddleware(netlifyConfig.build.publish)
+  const middleware = middlewarePaths.map((path) => path.slice(1))
 
   const prerenderManifest: PrerenderManifest = await readJson(
     join(netlifyConfig.build.publish, 'prerender-manifest.json'),
