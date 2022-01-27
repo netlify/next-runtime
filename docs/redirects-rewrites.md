@@ -22,7 +22,7 @@ Netlify and Next.js redirects support different features and are evaluated at di
 - If you need redirects or rewrites to be applied before loading static files, you must use Netlify redirects and rewrites.
 
 ### When to use Next.js redirects or rewrites:
-- If you are using a _rewrite_ that points to a dynamic Next.js page, you must use Next.js rewrites. Next.js has no way of knowing what the rewritten page is when using Netlify rewrites, so the wrong page is likely to be rendered. This only applies to redirects, not rewrites.
+- If you are using a _rewrite_ that points to a dynamic Next.js page, you must use Next.js rewrites. Next.js has no way of knowing what the rewritten page is when using Netlify rewrites, so the wrong page is likely to be rendered. This only applies to rewrites, not redirects.
 - If you need Next.js-specific features such as regex path or header matching, you must use Next.js rewrites.
 
 ### Using `_rewrites` and `_headers` files
