@@ -20,7 +20,7 @@ function BuiltInCSSSupport() {
       <p className={styles.error}>This is made with an imported css module</p>
 
       <h2>Import styles from <code>node_modules</code></h2>
-      <p>This page imports a node module's css file for the dialog below:</p>
+      <p>This page imports a node module&apos;s css file for the dialog below:</p>
       <ExampleDialog/>
 
       <h2>Sass Support</h2>
@@ -28,7 +28,7 @@ function BuiltInCSSSupport() {
 
       <div data-testid="css-in-js">
         <h2>CSS-in-JS</h2>
-        <p>NextJS bundles styled-jsx to provide support for isolated scoped CSS. The aim is to support "shadow CSS" similar to Web Components, which unfortunately do not support server-rendering and are JS-only.</p>
+        <p>NextJS bundles styled-jsx to provide support for isolated scoped CSS. The aim is to support &quot;shadow CSS&quot; similar to Web Components, which unfortunately do not support server-rendering and are JS-only.</p>
         <style jsx>{`
           p {
             color: white;
