@@ -4,7 +4,7 @@ describe('Environment Varialbes', () => {
   })
 
   it('should show a public environment token and not show private ones', () => {
-    cy.findByText('Greetings Local cool dev')
+    cy.findByText('Greetings Vi')
     cy.findByText('Everything worked')
   })
 })
