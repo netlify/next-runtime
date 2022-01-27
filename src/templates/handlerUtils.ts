@@ -6,10 +6,16 @@ import path from 'path'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 
-import type NextServerClass from 'next/dist/server/next-server'
+import type NextNodeServer from 'next/dist/server/next-server'
+
+export type NextServerType = typeof NextNodeServer
 
 const streamPipeline = promisify(pipeline)
 
+/**
+ * Downloads a file from the CDN to the local aliased filesystem. This is a fallback, because in most cases we'd expect
+ * files required at runtime to not be sent to the CDN.
+ */
 export const downloadFile = async (url: string, destination: string): Promise<void> => {
   console.log(`Downloading ${url} to ${destination}`)
 
@@ -36,6 +42,9 @@ export const downloadFile = async (url: string, destination: string): Promise<vo
   })
 }
 
+/**
+ * Parse maxage from a cache-control header
+ */
 export const getMaxAge = (header: string): number => {
   const parts = header.split(',')
   let maxAge
@@ -68,6 +77,9 @@ export const getMultiValueHeaders = (
   return multiValueHeaders
 }
 
+/**
+ * Monkey-patch the fs module to download missing files from the CDN
+ */
 export const augmentFsModule = ({
   promises,
   staticManifest,
@@ -146,8 +158,11 @@ export const augmentFsModule = ({
   }) as typeof promises.stat
 }
 
-export const getNextServer = (): typeof NextServerClass => {
-  let NextServer
+/**
+ * Next.js has an annoying habit of needing deep imports, but then moving those in patch releases. This is our abstraction.
+ */
+export const getNextServer = (): NextServerType => {
+  let NextServer: NextServerType
   try {
     // next >= 11.0.1. Yay breaking changes in patch releases!
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -157,7 +172,7 @@ export const getNextServer = (): typeof NextServerClass => {
       // A different error, so rethrow it
       throw error
     }
-    // Probably an old version of next
+    // Probably an old version of next, so fall through and find it elsewhere.
   }
 
   if (!NextServer) {

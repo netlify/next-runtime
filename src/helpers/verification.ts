@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import { existsSync, promises } from 'fs'
-import path, { relative } from 'path'
+import path, { relative, join } from 'path'
 
 import { NetlifyConfig, NetlifyPluginUtils } from '@netlify/build'
 import { yellowBright, greenBright, blueBright, redBright, reset } from 'chalk'
@@ -186,5 +186,15 @@ export const warnForProblematicUserRewrites = ({
       For more information, see https://ntl.fyi/next-rewrites
     `),
   )
+}
+
+export const warnForRootRedirects = ({ appDir }: { appDir: string }) => {
+  if (existsSync(join(appDir, '_redirects'))) {
+    console.log(
+      yellowBright(
+        `You have a "_redirects" file in your root directory, which is not deployed and will be ignored. If you want it to be used, please move it into "public".`,
+      ),
+    )
+  }
 }
 /* eslint-enable max-lines */

@@ -17,6 +17,7 @@ import {
   checkZipSize,
   checkForOldFunctions,
   warnForProblematicUserRewrites,
+  warnForRootRedirects,
 } from './helpers/verification'
 
 const plugin: NetlifyPlugin = {
@@ -130,8 +131,9 @@ const plugin: NetlifyPlugin = {
 
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
-    const { basePath } = await getNextConfig({ publish, failBuild })
+    const { basePath, appDir } = await getNextConfig({ publish, failBuild })
     warnForProblematicUserRewrites({ basePath, redirects })
+    warnForRootRedirects({ appDir })
     await unpatchNextFiles(basePath)
   },
 }
