@@ -6,7 +6,7 @@ function EnvTest() {
     <div>
       <h1>Environment Variables</h1>
       <a href="https://nextjs.org/docs/basic-features/environment-variables">Read Docs</a>
-      <p>By default environment variables are only available in the Node.js environment, meaning they won't be exposed to the browser.</p>
+      <p>By default environment variables are only available in the Node.js environment, meaning they won&apos;t be exposed to the browser.</p>
       <p>
         <code>NEXT_PUBLIC_</code> environment variables are available in the browser, and can be used to configure the application.
       </p>
