@@ -464,11 +464,6 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/_next/data/build-id/getStaticProps/withFallbackAndMiddleware/*",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
     "from": "/en/getStaticProps/withFallbackAndMiddleware",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -520,11 +515,6 @@ Array [
   },
   Object {
     "from": "/middle/*",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "from": "/_next/data/build-id/middle/*",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
@@ -1302,78 +1292,6 @@ Array [
   Object {
     "force": false,
     "from": "/fr/getStaticProps/withFallback/:slug/*",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/en/getStaticProps/withFallbackAndMiddleware/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/getStaticProps/withFallbackAndMiddleware/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/es/getStaticProps/withFallbackAndMiddleware/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/es/getStaticProps/withFallbackAndMiddleware/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/getStaticProps/withFallbackAndMiddleware/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/fr/getStaticProps/withFallbackAndMiddleware/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/en/getStaticProps/withFallbackAndMiddleware/:slug/*",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/getStaticProps/withFallbackAndMiddleware/:slug/*",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/es/getStaticProps/withFallbackAndMiddleware/:slug/*",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/es/getStaticProps/withFallbackAndMiddleware/:slug/*",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/getStaticProps/withFallbackAndMiddleware/:slug/*",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/fr/getStaticProps/withFallbackAndMiddleware/:slug/*",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
   },

@@ -122,16 +122,20 @@ export const generateRedirects = async ({
   // This generates a rewrite for every middleware in every locale, both with and without a splat
   netlifyConfig.redirects.push(
     ...middleware
-      .map((route) => [
-        handlerRewrite(`${route}`),
-        handlerRewrite(`${route}/*`),
-        handlerRewrite(routeToDataRoute(`${route}/*`, buildId)),
-        ...(i18n?.locales?.map((locale) => [
-          handlerRewrite(`/${locale}${route}`),
-          handlerRewrite(`/${locale}${route}/*`),
-          handlerRewrite(routeToDataRoute(`${route}/*`, buildId, locale)),
-        ]) ?? []),
-      ])
+      .map((route) => {
+        const unlocalized = [handlerRewrite(`${route}`), handlerRewrite(`${route}/*`)]
+        if (i18n?.locales?.length > 0) {
+          const localized = i18n?.locales?.map((locale) => [
+            handlerRewrite(`/${locale}${route}`),
+            handlerRewrite(`/${locale}${route}/*`),
+            handlerRewrite(`/_next/data/${buildId}/${locale}${route}/*`),
+          ])
+          // With i18n, all data routes are prefixed with the locale, but the HTML also has the unprefixed default
+          return [...unlocalized, ...localized]
+        }
+        return [...unlocalized, handlerRewrite(`/_next/data/${buildId}${route}/*`)]
+      })
+      // Flatten the array of arrays. Can't use flatMap as it might be 2 levels deep
       .flat(2),
   )
 
@@ -166,10 +170,10 @@ export const generateRedirects = async ({
           force: true,
         }),
       )
+    } else if (matchesMiddleware(middleware, route)) {
+      //  Routes that match middleware can't use the ODB
+      routesThatMatchMiddleware.add(route)
     } else {
-      if (matchesMiddleware(middleware, route)) {
-        routesThatMatchMiddleware.add(route)
-      }
       // ISR routes use the ODB handler
       netlifyConfig.redirects.push(
         // No i18n, because the route is already localized
@@ -195,10 +199,11 @@ export const generateRedirects = async ({
     if (route.page in prerenderedDynamicRoutes) {
       if (matchesMiddleware(middleware, route.page)) {
         routesThatMatchMiddleware.add(route.page)
+      } else {
+        netlifyConfig.redirects.push(
+          ...redirectsForNextRoute({ buildId, route: route.page, basePath, to: ODB_FUNCTION_PATH, status: 200, i18n }),
+        )
       }
-      netlifyConfig.redirects.push(
-        ...redirectsForNextRoute({ buildId, route: route.page, basePath, to: ODB_FUNCTION_PATH, status: 200, i18n }),
-      )
     } else {
       // If the route isn't prerendered, it's SSR
       netlifyConfig.redirects.push(

@@ -45,12 +45,8 @@ export const netlifyRoutesForNextRouteWithData = ({ route, dataRoute }: { route:
   ...toNetlifyRoute(route),
 ]
 
-export const endsWithDynamicSegment = (route: string) => /\/(\*|(:[a-z]+))$/.test(route)
-
 export const routeToDataRoute = (route: string, buildId: string, locale?: string) =>
-  `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}${
-    endsWithDynamicSegment(route) ? '' : '.json'
-  }`
+  `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}.json`
 
 const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n): Array<string> => {
   if (!i18n?.locales?.length) {
