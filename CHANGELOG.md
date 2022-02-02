@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.2.3](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.2...v4.2.3) (2022-02-02)
+
+
+### Bug Fixes
+
+* don't use ODB for routes that match middleware ([#1171](https://github.com/netlify/netlify-plugin-nextjs/issues/1171)) ([bbcdfbd](https://github.com/netlify/netlify-plugin-nextjs/commit/bbcdfbdf4062a044e6e87429119ee4ba3ac19bc0))
+
 ### [4.2.2](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.1...v4.2.2) (2022-01-31)
 
 
