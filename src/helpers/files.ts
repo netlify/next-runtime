@@ -61,7 +61,7 @@ export const matchesRewrite = (file: string, rewrites: Rewrites): boolean => {
 export const getMiddleware = async (publish: string): Promise<Array<string>> => {
   const manifestPath = join(publish, 'server', 'middleware-manifest.json')
   if (existsSync(manifestPath)) {
-    const manifest = await readJson(manifestPath)
+    const manifest = await readJson(manifestPath, { throws: false })
     return manifest?.sortedMiddleware ?? []
   }
   return []
