@@ -2,13 +2,7 @@ import { NetlifyConfig } from '@netlify/build'
 import globby from 'globby'
 import { join } from 'pathe'
 
-import {
-  OPTIONAL_CATCH_ALL_REGEX,
-  CATCH_ALL_REGEX,
-  DYNAMIC_PARAMETER_REGEX,
-  ODB_FUNCTION_PATH,
-  HANDLER_FUNCTION_PATH,
-} from '../constants'
+import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX, HANDLER_FUNCTION_PATH } from '../constants'
 
 import { I18n } from './types'
 
@@ -76,16 +70,6 @@ const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n):
 }
 
 export const isApiRoute = (route: string) => route.startsWith('/api/') || route === '/api'
-
-export const targetForFallback = (fallback: string | false) => {
-  if (fallback === null || fallback === false) {
-    // fallback = null mean "blocking", which uses ODB. For fallback=false then anything prerendered should 404.
-    // However i18n pages may not have been prerendered, so we still need to hit the origin
-    return { to: ODB_FUNCTION_PATH, status: 200 }
-  }
-  // fallback = true is also ODB
-  return { to: ODB_FUNCTION_PATH, status: 200 }
-}
 
 export const redirectsForNextRoute = ({
   route,

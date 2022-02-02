@@ -8,7 +8,11 @@ const Index = ({ shows, nodeEnv }) => {
 
   return (
     <div>
-      <img src="/next-on-netlify.png" alt="NextJS on Netlify Banner" className='self-center w-full max-h-80 max-w-5xl m-auto' />
+      <img
+        src="/next-on-netlify.png"
+        alt="NextJS on Netlify Banner"
+        className="self-center w-full max-h-80 max-w-5xl m-auto"
+      />
 
       <div>
         <Header />
@@ -18,7 +22,8 @@ const Index = ({ shows, nodeEnv }) => {
         <h2>Server-Side Rendering</h2>
 
         <p>
-          This page is server-side rendered. It fetches a random list of five TV shows from the TVmaze REST API. Refresh this page to see it change.
+          This page is server-side rendered. It fetches a random list of five TV shows from the TVmaze REST API. Refresh
+          this page to see it change.
         </p>
         <code>NODE_ENV: {nodeEnv}</code>
 
@@ -86,8 +91,8 @@ const Index = ({ shows, nodeEnv }) => {
 
         <h2>Localization</h2>
         <p>
-          Localization (i18n) is supported! This demo uses <code>fr</code> with <code>en</code> as the default locale (at{' '}
-          <code>/</code>).
+          Localization (i18n) is supported! This demo uses <code>fr</code> with <code>en</code> as the default locale
+          (at <code>/</code>).
         </p>
         <strong>The current locale is {locale}</strong>
         <p>Click on the links below to see the above text change</p>
@@ -173,6 +178,11 @@ const Index = ({ shows, nodeEnv }) => {
           <li>
             <Link href="/middle">
               <a>Middleware</a>
+            </Link>
+          </li>
+          <li>
+            <Link href="/getStaticProps/withFallbackAndMiddleware/4">
+              <a>Middleware matching a pre-rendered dynamic route</a>
             </Link>
           </li>
         </ul>
