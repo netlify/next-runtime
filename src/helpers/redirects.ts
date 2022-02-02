@@ -114,7 +114,11 @@ const generateStaticIsrRewrites = ({
   i18n: NextConfig['i18n']
   buildId: string
   middleware: Array<string>
-}) => {
+}): {
+  staticRoutePaths: Set<string>
+  staticIsrRoutesThatMatchMiddleware: Array<string>
+  staticIsrRewrites: NetlifyConfig['redirects']
+} => {
   const staticIsrRoutesThatMatchMiddleware: Array<string> = []
   const staticRoutePaths = new Set<string>()
   const staticIsrRewrites: NetlifyConfig['redirects'] = []
@@ -180,7 +184,10 @@ const generateDynamicRewrites = ({
   i18n: NextConfig['i18n']
   buildId: string
   middleware: Array<string>
-}) => {
+}): {
+  dynamicRoutesThatMatchMiddleware: Array<string>
+  dynamicRewrites: NetlifyConfig['redirects']
+} => {
   const dynamicRewrites: NetlifyConfig['redirects'] = []
   const dynamicRoutesThatMatchMiddleware: Array<string> = []
   dynamicRoutes.forEach((route) => {
