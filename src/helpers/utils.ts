@@ -157,3 +157,20 @@ export const shouldSkip = (): boolean =>
   process.env.NEXT_PLUGIN_FORCE_RUN === '0' ||
   process.env.NETLIFY_NEXT_PLUGIN_SKIP === 'true' ||
   process.env.NETLIFY_NEXT_PLUGIN_SKIP === '1'
+
+/**
+ * Given an array of base paths and candidate modules, return the first one that exists
+ */
+export const findModuleFromBase = ({ paths, candidates }): string | null => {
+  for (const candidate of candidates) {
+    try {
+      const modulePath = require.resolve(candidate, { paths })
+      if (modulePath) {
+        return modulePath
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  return null
+}
