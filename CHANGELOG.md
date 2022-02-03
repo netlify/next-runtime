@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.2.4](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.3...v4.2.4) (2022-02-03)
+
+
+### Bug Fixes
+
+* correctly disable ISR disk flushing ([#1190](https://github.com/netlify/netlify-plugin-nextjs/issues/1190)) ([e8067bf](https://github.com/netlify/netlify-plugin-nextjs/commit/e8067bf13ec94fac80ca6ce495a32249dcd5130c))
+
 ### [4.2.3](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.2...v4.2.3) (2022-02-02)
 
 
