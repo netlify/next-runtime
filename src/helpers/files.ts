@@ -15,6 +15,7 @@ import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
 
 import { NextConfig } from './config'
 import { Rewrites, RoutesManifest } from './types'
+import { findModuleFromBase } from './utils'
 
 const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
 
@@ -272,47 +273,56 @@ export const moveStaticPages = async ({
   }
 }
 
-const patchFile = async ({ file, from, to }: { file: string; from: string; to: string }): Promise<void> => {
+/**
+ * Attempt to patch a source file, preserving a backup
+ */
+const patchFile = async ({ file, from, to }: { file: string; from: string; to: string }): Promise<boolean> => {
   if (!existsSync(file)) {
-    return
+    console.warn('File was not found')
+
+    return false
   }
   const content = await readFile(file, 'utf8')
   if (content.includes(to)) {
-    return
+    console.log('File already patched')
+    return false
   }
   const newContent = content.replace(from, to)
+  if (newContent === content) {
+    console.warn('File was not changed')
+    return false
+  }
   await writeFile(`${file}.orig`, content)
   await writeFile(file, newContent)
+  console.log('Done')
+  return true
 }
 
+/**
+ * The file we need has moved around a bit over the past few versions,
+ * so we iterate through the options until we find it
+ */
 const getServerFile = (root) => {
-  let serverFile
-  try {
-    serverFile = require.resolve('next/dist/server/next-server', { paths: [root] })
-  } catch {
-    // Ignore
-  }
-  if (!serverFile) {
-    try {
-      // eslint-disable-next-line node/no-missing-require
-      serverFile = require.resolve('next/dist/next-server/server/next-server', { paths: [root] })
-    } catch {
-      // Ignore
-    }
-  }
-  return serverFile
+  const candidates = [
+    'next/dist/server/base-server',
+    'next/dist/server/next-server',
+    'next/dist/next-server/server/next-server',
+  ]
+
+  return findModuleFromBase({ candidates, paths: [root] })
 }
 
-export const patchNextFiles = async (root: string): Promise<void> => {
+export const patchNextFiles = (root: string): Promise<boolean> | boolean => {
   const serverFile = getServerFile(root)
   console.log(`Patching ${serverFile}`)
   if (serverFile) {
-    await patchFile({
+    return patchFile({
       file: serverFile,
       from: `let ssgCacheKey = `,
       to: `let ssgCacheKey = process.env._BYPASS_SSG || `,
     })
   }
+  return false
 }
 
 export const unpatchNextFiles = async (root: string): Promise<void> => {

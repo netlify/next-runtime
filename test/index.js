@@ -1,4 +1,4 @@
-const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson, writeFile } = require('fs-extra')
+const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson } = require('fs-extra')
 const path = require('path')
 const process = require('process')
 const os = require('os')
@@ -10,10 +10,16 @@ const plugin = require('../src')
 
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../src/constants')
 const { join } = require('pathe')
-const { matchMiddleware, stripLocale, matchesRedirect, matchesRewrite } = require('../src/helpers/files')
+const {
+  matchMiddleware,
+  stripLocale,
+  matchesRedirect,
+  matchesRewrite,
+  patchNextFiles,
+  unpatchNextFiles,
+} = require('../src/helpers/files')
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../src/helpers/verification')
-const { outdent } = require('outdent')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
@@ -658,6 +664,23 @@ describe('utility functions', () => {
     paths.forEach((path) => {
       expect(matchesRewrite(path, REWRITES)).toBeTruthy()
     })
+  })
+
+  test('patches Next server files', async () => {
+    const root = path.resolve(dirname(__dirname))
+    await copy(join(root, 'package.json'), path.join(process.cwd(), 'package.json'))
+    await ensureDir(path.join(process.cwd(), 'node_modules'))
+    await copy(path.join(root, 'node_modules', 'next'), path.join(process.cwd(), 'node_modules', 'next'))
+
+    expect(await patchNextFiles(process.cwd())).toBeTruthy()
+    const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
+    const patchedData = await readFileSync(serverFile, 'utf8')
+    expect(patchedData.includes('_BYPASS_SSG')).toBeTruthy()
+
+    await unpatchNextFiles(process.cwd())
+
+    const unPatchedData = await readFileSync(serverFile, 'utf8')
+    expect(unPatchedData.includes('_BYPASS_SSG')).toBeFalsy()
   })
 })
 
