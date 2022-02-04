@@ -15,9 +15,9 @@ jobs:
         node-version: [16, '*']
         exclude:
           - os: macOS-latest
-            node-version: 16
+            node-version: 12.0.10
           - os: windows-latest
-            node-version: 16
+            node-version: 12.0.10
       fail-fast: false
 
     steps:
@@ -27,8 +27,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: true
-      - name: NPM Install v8
-        run: npm i -g npm@latest
       - name: NPM Install
         run: npm ci
       - name: Linting
