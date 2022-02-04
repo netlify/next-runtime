@@ -29,7 +29,6 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
         require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/[id].js')
         require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
-        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
         require.resolve('../../../.next/server/pages/index.js')
         require.resolve('../../../.next/server/pages/middle/_middleware.js')
         require.resolve('../../../.next/server/pages/previewTest.js')
@@ -68,7 +67,6 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
         require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/[id].js')
         require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
-        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
         require.resolve('../../../.next/server/pages/index.js')
         require.resolve('../../../.next/server/pages/middle/_middleware.js')
         require.resolve('../../../.next/server/pages/previewTest.js')
@@ -107,7 +105,6 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/[id].js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
-        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
         require.resolve('../../../web/.next/server/pages/index.js')
         require.resolve('../../../web/.next/server/pages/middle/_middleware.js')
         require.resolve('../../../web/.next/server/pages/previewTest.js')
@@ -146,7 +143,6 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/[id].js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
-        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
         require.resolve('../../../web/.next/server/pages/index.js')
         require.resolve('../../../web/.next/server/pages/middle/_middleware.js')
         require.resolve('../../../web/.next/server/pages/previewTest.js')
@@ -158,22 +154,6 @@ exports.resolvePages = () => {
 
 exports[`onBuild() generates static files manifest 1`] = `
 Array [
-  Array [
-    "en/broken-image.html",
-    "en/broken-image.html",
-  ],
-  Array [
-    "en/css.html",
-    "en/css.html",
-  ],
-  Array [
-    "en/env.html",
-    "en/env.html",
-  ],
-  Array [
-    "en/font.html",
-    "en/font.html",
-  ],
   Array [
     "en/getStaticProps/1.html",
     "en/getStaticProps/1.html",
@@ -259,10 +239,6 @@ Array [
     "en/image.html",
   ],
   Array [
-    "en/layouts.html",
-    "en/layouts.html",
-  ],
-  Array [
     "en/previewTest.html",
     "en/previewTest.html",
   ],
@@ -271,28 +247,8 @@ Array [
     "_next/data/build-id/en/previewTest.json",
   ],
   Array [
-    "en/script.html",
-    "en/script.html",
-  ],
-  Array [
     "en/static.html",
     "en/static.html",
-  ],
-  Array [
-    "es/broken-image.html",
-    "es/broken-image.html",
-  ],
-  Array [
-    "es/css.html",
-    "es/css.html",
-  ],
-  Array [
-    "es/env.html",
-    "es/env.html",
-  ],
-  Array [
-    "es/font.html",
-    "es/font.html",
   ],
   Array [
     "es/getStaticProps/env.html",
@@ -315,10 +271,6 @@ Array [
     "es/image.html",
   ],
   Array [
-    "es/layouts.html",
-    "es/layouts.html",
-  ],
-  Array [
     "es/previewTest.html",
     "es/previewTest.html",
   ],
@@ -327,28 +279,8 @@ Array [
     "_next/data/build-id/es/previewTest.json",
   ],
   Array [
-    "es/script.html",
-    "es/script.html",
-  ],
-  Array [
     "es/static.html",
     "es/static.html",
-  ],
-  Array [
-    "fr/broken-image.html",
-    "fr/broken-image.html",
-  ],
-  Array [
-    "fr/css.html",
-    "fr/css.html",
-  ],
-  Array [
-    "fr/env.html",
-    "fr/env.html",
-  ],
-  Array [
-    "fr/font.html",
-    "fr/font.html",
   ],
   Array [
     "fr/getStaticProps/env.html",
@@ -371,20 +303,12 @@ Array [
     "fr/image.html",
   ],
   Array [
-    "fr/layouts.html",
-    "fr/layouts.html",
-  ],
-  Array [
     "fr/previewTest.html",
     "fr/previewTest.html",
   ],
   Array [
     "fr/previewTest.json",
     "_next/data/build-id/fr/previewTest.json",
-  ],
-  Array [
-    "fr/script.html",
-    "fr/script.html",
   ],
   Array [
     "fr/static.html",
@@ -641,78 +565,6 @@ Array [
   },
   Object {
     "force": true,
-    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/1.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/getStaticProps/withRevalidate/1",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/2.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/getStaticProps/withRevalidate/2",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/1.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/1",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/2.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/2",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/1.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/getStaticProps/withRevalidate/withFallback/1",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/2.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/getStaticProps/withRevalidate/withFallback/2",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
     "from": "/_next/data/build-id/en/getStaticProps/with-revalidate.json",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
@@ -744,6 +596,54 @@ Array [
   Object {
     "force": true,
     "from": "/fr/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/1.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/1",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/2.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/2",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/1.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallback/1",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/2.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallback/2",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
@@ -857,78 +757,6 @@ Array [
   },
   Object {
     "force": false,
-    "from": "/_next/data/build-id/en/broken-image.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/broken-image",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/es/broken-image.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/es/broken-image",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/broken-image.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/fr/broken-image",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/en/css.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/css",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/es/css.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/es/css",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/css.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/fr/css",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
     "from": "/_next/data/build-id/en/deep/import.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -960,78 +788,6 @@ Array [
   Object {
     "force": false,
     "from": "/fr/deep/import",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/en/env.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/env",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/es/env.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/es/env",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/env.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/fr/env",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/en/font.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/font",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/es/font.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/es/font",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/font.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/fr/font",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
@@ -1181,42 +937,6 @@ Array [
   },
   Object {
     "force": false,
-    "from": "/_next/data/build-id/en/layouts.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/layouts",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/es/layouts.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/es/layouts",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/layouts.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/fr/layouts",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
     "from": "/_next/data/build-id/en/middle.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -1356,42 +1076,6 @@ Array [
   Object {
     "force": false,
     "from": "/fr/redirectme",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/en/script.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/script",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/es/script.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/es/script",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/script.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/fr/script",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
@@ -1680,42 +1364,6 @@ Array [
   Object {
     "force": false,
     "from": "/fr/getStaticProps/withRevalidate/withFallback/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/es/getStaticProps/withRevalidate/withFallbackBlocking/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/es/getStaticProps/withRevalidate/withFallbackBlocking/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/getStaticProps/withRevalidate/withFallbackBlocking/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/fr/getStaticProps/withRevalidate/withFallbackBlocking/:id",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
