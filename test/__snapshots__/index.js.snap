@@ -724,6 +724,30 @@ Array [
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/1.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/1",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/2.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/2",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
     "force": false,
     "from": "/_next/data/build-id/en/index.json",
     "status": 200,
