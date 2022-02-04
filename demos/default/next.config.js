@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = {
   // Configurable site features we support:
   // distDir: 'build',
@@ -48,5 +50,13 @@ module.exports = {
         permanent: true,
       },
     ]
+  },
+  // https://nextjs.org/docs/basic-features/image-optimization#domains
+  images: {
+    domains: ['raw.githubusercontent.com'],
+  },
+  // https://nextjs.org/docs/basic-features/built-in-css-support#customizing-sass-options
+  sassOptions: {
+    includePaths: [path.join(__dirname, 'styles-sass-test')],
   },
 }
