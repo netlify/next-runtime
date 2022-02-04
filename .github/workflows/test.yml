@@ -27,6 +27,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: true
+      - name: NPM Install v8
+        run: npm i -g npm@latest
       - name: NPM Install
         run: npm ci
       - name: Linting
