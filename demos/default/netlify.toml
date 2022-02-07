@@ -1,7 +1,7 @@
 [build]
 command = "next build"
 publish = ".next"
-ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
+# ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../../"
 
 [build.environment]
 # cache Cypress binary in local "node_modules" folder
@@ -13,7 +13,7 @@ NODE_VERSION = "16.15.1"
 
 [[headers]]
   for = "/_next/image/*"
-  
+
   [headers.values]
     Strict-Transport-Security = "max-age=31536000"
     X-Test = 'foobar'
