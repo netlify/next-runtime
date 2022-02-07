@@ -16,6 +16,7 @@ package = "../plugin-wrapper"
 CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
 # set TERM variable for terminal output
 TERM = "xterm"
+NODE_VERSION = "16.13.2"
 
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
