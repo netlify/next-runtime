@@ -3,7 +3,7 @@ const path = require('path')
 module.exports = {
   // Configurable site features we support:
   // distDir: 'build',
-  generateBuildId: () => 'build-id',
+  // generateBuildId: () => 'build-id',
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'es', 'fr'],
