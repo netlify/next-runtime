@@ -168,8 +168,8 @@ export const findModuleFromBase = ({ paths, candidates }): string | null => {
       if (modulePath) {
         return modulePath
       }
-    } catch (error) {
-      console.error(error)
+    } catch {
+      // Ignore the error
     }
   }
   return null
