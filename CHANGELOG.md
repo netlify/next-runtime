@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.2.5](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.4...v4.2.5) (2022-02-07)
+
+
+### Bug Fixes
+
+* remove confusing error log ([#1199](https://github.com/netlify/netlify-plugin-nextjs/issues/1199)) ([7974849](https://github.com/netlify/netlify-plugin-nextjs/commit/7974849396a342614119cbe77e8933fdc826151e))
+
 ### [4.2.4](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.3...v4.2.4) (2022-02-03)
 
 
