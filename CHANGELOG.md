@@ -1,5 +1,33 @@
 # Changelog
 
+### [4.2.5](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.4...v4.2.5) (2022-02-07)
+
+
+### Bug Fixes
+
+* remove confusing error log ([#1199](https://github.com/netlify/netlify-plugin-nextjs/issues/1199)) ([7974849](https://github.com/netlify/netlify-plugin-nextjs/commit/7974849396a342614119cbe77e8933fdc826151e))
+
+### [4.2.4](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.3...v4.2.4) (2022-02-03)
+
+
+### Bug Fixes
+
+* correctly disable ISR disk flushing ([#1190](https://github.com/netlify/netlify-plugin-nextjs/issues/1190)) ([e8067bf](https://github.com/netlify/netlify-plugin-nextjs/commit/e8067bf13ec94fac80ca6ce495a32249dcd5130c))
+
+### [4.2.3](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.2...v4.2.3) (2022-02-02)
+
+
+### Bug Fixes
+
+* don't use ODB for routes that match middleware ([#1171](https://github.com/netlify/netlify-plugin-nextjs/issues/1171)) ([bbcdfbd](https://github.com/netlify/netlify-plugin-nextjs/commit/bbcdfbdf4062a044e6e87429119ee4ba3ac19bc0))
+
+### [4.2.2](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.1...v4.2.2) (2022-01-31)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^0.0.9 ([#1181](https://github.com/netlify/netlify-plugin-nextjs/issues/1181)) ([2e55a9e](https://github.com/netlify/netlify-plugin-nextjs/commit/2e55a9efc2c0d7ccffe3757c7ef915219b1598e8))
+
 ### [4.2.1](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.0...v4.2.1) (2022-01-24)
 
 
