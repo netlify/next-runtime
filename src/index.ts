@@ -85,7 +85,7 @@ const plugin: NetlifyPlugin = {
     }
 
     if (!process.env.SERVE_STATIC_FILES_FROM_ORIGIN) {
-      await moveStaticPages({ target, netlifyConfig, i18n })
+      await moveStaticPages({ target, netlifyConfig, i18n, basePath })
     }
 
     await generateStaticRedirects({

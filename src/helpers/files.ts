@@ -73,10 +73,12 @@ export const moveStaticPages = async ({
   netlifyConfig,
   target,
   i18n,
+  basePath,
 }: {
   netlifyConfig: NetlifyConfig
   target: 'server' | 'serverless' | 'experimental-serverless-trace'
   i18n: NextConfig['i18n']
+  basePath?: string
 }): Promise<void> => {
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
@@ -117,11 +119,12 @@ export const moveStaticPages = async ({
     const isData = file.endsWith('.json')
     const source = join(root, file)
     const targetFile = isData ? join(dataDir, file) : file
+    const targetPath = basePath ? join(basePath, targetFile) : targetFile
 
     files.push(file)
-    filesManifest[file] = targetFile
+    filesManifest[file] = targetPath
 
-    const dest = join(netlifyConfig.build.publish, targetFile)
+    const dest = join(netlifyConfig.build.publish, targetPath)
 
     try {
       await move(source, dest)
@@ -238,22 +241,23 @@ export const moveStaticPages = async ({
   await writeJson(join(netlifyConfig.build.publish, 'static-manifest.json'), Object.entries(filesManifest))
 
   if (i18n?.defaultLocale) {
+    const rootPath = basePath ? join(netlifyConfig.build.publish, basePath) : netlifyConfig.build.publish
     // Copy the default locale into the root
-    const defaultLocaleDir = join(netlifyConfig.build.publish, i18n.defaultLocale)
+    const defaultLocaleDir = join(rootPath, i18n.defaultLocale)
     if (existsSync(defaultLocaleDir)) {
-      await copy(defaultLocaleDir, `${netlifyConfig.build.publish}/`)
+      await copy(defaultLocaleDir, `${rootPath}/`)
     }
-    const defaultLocaleIndex = join(netlifyConfig.build.publish, `${i18n.defaultLocale}.html`)
-    const indexHtml = join(netlifyConfig.build.publish, 'index.html')
+    const defaultLocaleIndex = join(rootPath, `${i18n.defaultLocale}.html`)
+    const indexHtml = join(rootPath, 'index.html')
     if (existsSync(defaultLocaleIndex) && !existsSync(indexHtml)) {
-      try {
-        await copy(defaultLocaleIndex, indexHtml, { overwrite: false })
-        await copy(
-          join(netlifyConfig.build.publish, `${i18n.defaultLocale}.json`),
-          join(netlifyConfig.build.publish, 'index.json'),
-          { overwrite: false },
-        )
-      } catch {}
+      await copy(defaultLocaleIndex, indexHtml, { overwrite: false }).catch(() => {
+        /* ignore */
+      })
+      await copy(join(rootPath, `${i18n.defaultLocale}.json`), join(rootPath, 'index.json'), {
+        overwrite: false,
+      }).catch(() => {
+        /* ignore */
+      })
     }
   }
 
