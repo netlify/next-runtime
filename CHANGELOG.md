@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.2.6](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.5...v4.2.6) (2022-02-14)
+
+
+### Bug Fixes
+
+* prepend basePath to static file URLs ([#1213](https://github.com/netlify/netlify-plugin-nextjs/issues/1213)) ([8236b38](https://github.com/netlify/netlify-plugin-nextjs/commit/8236b38a5595abd38eec33fbe0a3aa112ded19d9))
+
 ### [4.2.5](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.4...v4.2.5) (2022-02-07)
 
 
