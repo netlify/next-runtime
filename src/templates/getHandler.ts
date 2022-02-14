@@ -85,6 +85,8 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   }
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
+    console.log(event)
+
     let requestMode = mode
     // Ensure that paths are encoded - but don't double-encode them
     event.path = new URL(event.rawUrl).pathname
