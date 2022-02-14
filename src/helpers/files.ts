@@ -73,10 +73,12 @@ export const moveStaticPages = async ({
   netlifyConfig,
   target,
   i18n,
+  basePath,
 }: {
   netlifyConfig: NetlifyConfig
   target: 'server' | 'serverless' | 'experimental-serverless-trace'
   i18n: NextConfig['i18n']
+  basePath?: string
 }): Promise<void> => {
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
@@ -117,11 +119,12 @@ export const moveStaticPages = async ({
     const isData = file.endsWith('.json')
     const source = join(root, file)
     const targetFile = isData ? join(dataDir, file) : file
+    const targetPath = basePath ? join(basePath, targetFile) : targetFile
 
     files.push(file)
-    filesManifest[file] = targetFile
+    filesManifest[file] = targetPath
 
-    const dest = join(netlifyConfig.build.publish, targetFile)
+    const dest = join(netlifyConfig.build.publish, targetPath)
 
     try {
       await move(source, dest)
