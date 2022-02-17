@@ -438,9 +438,7 @@ describe('onPostBuild', () => {
       utils: { ...utils, cache: { save }, functions: { list: jest.fn().mockResolvedValue([]) } },
     })
 
-    expect(save).toHaveBeenCalledWith(path.resolve('.next/cache'), {
-      digests: [path.resolve('.next/build-manifest.json')],
-    })
+    expect(save).toHaveBeenCalledWith(path.resolve('.next/cache'))
   })
 
   test('warns if old functions exist', async () => {
