@@ -1,5 +1,14 @@
 # Changelog
 
+### [4.2.7](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.6...v4.2.7) (2022-02-18)
+
+
+### Bug Fixes
+
+* correctly cache when using `next export` ([#1223](https://github.com/netlify/netlify-plugin-nextjs/issues/1223)) ([a8030ca](https://github.com/netlify/netlify-plugin-nextjs/commit/a8030caee02f464dd2b962d2c12318f185260af9))
+* **deps:** update dependency @netlify/functions to ^0.11.1 ([#1217](https://github.com/netlify/netlify-plugin-nextjs/issues/1217)) ([e17892b](https://github.com/netlify/netlify-plugin-nextjs/commit/e17892bf1be7aa75822c6295955dbd250cb14197))
+* **deps:** update dependency @netlify/functions to v1 ([#1219](https://github.com/netlify/netlify-plugin-nextjs/issues/1219)) ([af841cd](https://github.com/netlify/netlify-plugin-nextjs/commit/af841cd6d22a26d67d2d6f5328d6825c68dd22f5))
+
 ### [4.2.6](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.5...v4.2.6) (2022-02-14)
 
 

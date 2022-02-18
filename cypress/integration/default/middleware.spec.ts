@@ -1,11 +1,7 @@
 describe('Middleware', () => {
-  beforeEach(() => {
-    cy.request('/middle')
-  })
-
   it('should properly load custom headers', () => {
     cy.request({
-      url: '/',
+      url: '/middle',
     }).then((response) => {
       expect(response.headers).to.have.property('x-custom-1', 'value-1')
       expect(response.headers).to.have.property('x-custom-2', 'value-2')
