@@ -1,4 +1,4 @@
-name: Run e2e
+name: Run e2e (static root)
 on:
   pull_request:
     types: [opened, labeled, unlabeled, synchronize]
@@ -11,6 +11,7 @@ on:
       - 'src/**/*.{ts,js}'
 jobs:
   cypress:
+    name: Cypress
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
