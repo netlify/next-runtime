@@ -21,7 +21,11 @@ Version 4 is a complete rewrite of the Essential Next.js plugin. For full detail
 The plugin installs automatically for new Next.js sites on Netlify. You can also install it manually like this:
 
 ```shell
+# npm users
 npm install -D @netlify/plugin-nextjs
+
+# yarn users
+yarn add @netlify/plugin-nextjs -D
 ```
 
 ...then add the plugin to your `netlify.toml` file:
