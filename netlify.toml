@@ -1,2 +1,10 @@
 [build]
-base="demos/default"
+base = "."
+command = "npm run build:demo"
+publish = "demos/default/.next"
+
+[dev]
+framework = "#static"
+
+[[plugins]]
+package = "./src/index.ts"
