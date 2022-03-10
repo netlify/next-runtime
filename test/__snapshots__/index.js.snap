@@ -440,6 +440,12 @@ Array [
   },
   Object {
     "force": true,
+    "from": "/trace",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": true,
     "from": "/traces",
     "status": 404,
     "to": "/404.html",
@@ -641,42 +647,6 @@ Array [
   },
   Object {
     "force": true,
-    "from": "/_next/data/build-id/en/getStaticProps/with-revalidate.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/getStaticProps/with-revalidate",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/_next/data/build-id/es/getStaticProps/with-revalidate.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/es/getStaticProps/with-revalidate",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/_next/data/build-id/fr/getStaticProps/with-revalidate.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/fr/getStaticProps/with-revalidate",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
-  },
-  Object {
-    "force": true,
     "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/1.json",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
@@ -744,6 +714,42 @@ Array [
   Object {
     "force": true,
     "from": "/getStaticProps/withRevalidate/withFallbackBlocking/2",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/with-revalidate.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/es/getStaticProps/with-revalidate.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/es/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/fr/getStaticProps/with-revalidate.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/fr/getStaticProps/with-revalidate",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
