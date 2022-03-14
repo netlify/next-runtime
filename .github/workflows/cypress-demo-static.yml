@@ -64,7 +64,7 @@ jobs:
           parallel: true
           config-file: cypress/config/static-root.json
           group: 'Next Plugin - Demo Static'
-          spec:   cypress/integration/static-root/*
+          spec: cypress/integration/static-root/*
         env:
           DEBUG: '@cypress/github-action'
           CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}
