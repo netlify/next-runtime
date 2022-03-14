@@ -63,6 +63,8 @@ jobs:
           record: true
           parallel: true
           config-file: cypress/config/nx-demo.json
+          group: 'Next Plugin - Demo NX'
+          spec:   cypress/integration/nx/*
         env:
           DEBUG: '@cypress/github-action'
           CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}

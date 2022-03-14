@@ -63,6 +63,8 @@ jobs:
           record: true
           parallel: true
           config-file: cypress/config/ci.json
+          group: 'Next Plugin - Demo'
+          spec:   cypress/integration/default/*
         env:
           DEBUG: '@cypress/github-action'
           CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}
