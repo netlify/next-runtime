@@ -19,13 +19,22 @@ promote a positive and inclusive environment.
 First fork and clone the repository. If you're not sure how to do this, please watch
 [these videos](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
 
+Make sure you have a stable version of [NodeJS](https://nodejs.org/en/) installed.
+
 Run:
 
 ```bash
 npm install
 ```
 
-Make sure everything is correctly setup with:
+Run the demo:
+```bash
+npm run dev:demo
+```
+
+You should see a styled page that has a header that says: `NextJS on Netlify (imported Header component)`
+
+You can also make sure everything is correctly setup with:
 
 ```bash
 npm test

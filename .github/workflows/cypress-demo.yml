@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        containers: [1, 2, 3, 4, 5, 6]
+        containers: [1, 2, 3, 4]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
         uses: ./.github/actions/wait-for-netlify-deploy
         with:
           site-name: netlify-plugin-nextjs-demo
-          timeout: 300
+          timeout: 1200
 
       - name: Deploy successful
         if: ${{ steps.deploy.outputs.origin-url }}
@@ -62,7 +62,8 @@ jobs:
           headless: true
           record: true
           parallel: true
-          config-file: cypress/config/ci.json
+          tag: ${{ steps.deploy.outputs.context }}
+          spec: cypress/integration/default/*
         env:
           DEBUG: '@cypress/github-action'
           CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}

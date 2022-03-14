@@ -62,7 +62,8 @@ jobs:
           headless: true
           record: true
           parallel: true
-          config-file: cypress/config/static-root.json
+          tag: ${{ steps.deploy.outputs.context }}
+          spec: cypress/integration/static-root/*
         env:
           DEBUG: '@cypress/github-action'
           CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}
