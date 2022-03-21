@@ -68,10 +68,7 @@ export const checkNextSiteHasBuilt = ({
         : `In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config.`
 
     return failBuild(outdent`
-      The directory "${path.relative(
-        process.cwd(),
-        publish,
-      )}" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
+      The directory "${publish}" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
       ${outWarning}
       If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
     `)
@@ -93,7 +90,7 @@ export const checkForRootPublish = ({
 }): void | never => {
   if (path.resolve(publish) === path.resolve('.')) {
     failBuild(outdent`
-      Your publish directory is pointing to the base directory of your site. This is not supported for Next.js sites, and is probably a mistake. 
+      Your publish directory is pointing to the base directory of your site. This is not supported for Next.js sites, and is probably a mistake.
       In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config, or the Next site is in a subdirectory.
     `)
   }
