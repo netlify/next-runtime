@@ -282,8 +282,10 @@ describe('onBuild()', () => {
     await moveNextDist()
 
     await plugin.onBuild(defaultArgs)
-
-    expect([...netlifyConfig.redirects]).toMatchSnapshot()
+    // Not ideal, because it doesn't test precedence, but unfortunately the exact order seems to
+    // be non-deterministic, as it depends on filesystem globbing across platforms.
+    const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
+    expect(sorted).toMatchSnapshot()
   })
 
   test('publish dir is/has next dist', async () => {
