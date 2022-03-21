@@ -1,5 +1,15 @@
 # Changelog
 
+### [4.2.8](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.7...v4.2.8) (2022-03-21)
+
+
+### Bug Fixes
+
+* add new /trace to HIDDEN_PATHS ([#1259](https://github.com/netlify/netlify-plugin-nextjs/issues/1259)) ([84345a8](https://github.com/netlify/netlify-plugin-nextjs/commit/84345a8c27f12bf1a07d1fc83cff9b9a398ee9db))
+* chdir to site root ([#1265](https://github.com/netlify/netlify-plugin-nextjs/issues/1265)) ([8463bbc](https://github.com/netlify/netlify-plugin-nextjs/commit/8463bbcff483ddb6b14e73c6959092e2938cdef1))
+* **deps:** update dependency @netlify/ipx to ^0.0.10 ([#1237](https://github.com/netlify/netlify-plugin-nextjs/issues/1237)) ([16e067d](https://github.com/netlify/netlify-plugin-nextjs/commit/16e067d7ef16da0479d83d09b188838e66946c34))
+* use correct publishDir when building from CLI with cwd option ([#1264](https://github.com/netlify/netlify-plugin-nextjs/issues/1264)) ([e441c97](https://github.com/netlify/netlify-plugin-nextjs/commit/e441c970f3c7ce5c6e74a23cf55efe71d94c9027))
+
 ### [4.2.7](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.6...v4.2.7) (2022-02-18)
 
 
