@@ -48,7 +48,9 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   // This is our flag that we use when patching the source
   // eslint-disable-next-line no-underscore-dangle
   process.env._BYPASS_SSG = 'true'
-
+  for (const [key, value] of Object.entries(conf.env)) {
+    process.env[key] = String(value)
+  }
   // Set during the request as it needs the host header. Hoisted so we can define the function once
   let base: string
 
