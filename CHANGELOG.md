@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.3.0](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.8...v4.3.0) (2022-03-23)
+
+
+### Features
+
+* allow skipping of middleware handling ([#1277](https://github.com/netlify/netlify-plugin-nextjs/issues/1277)) ([63070da](https://github.com/netlify/netlify-plugin-nextjs/commit/63070daaff4082a756af881a382c238c37d07aec))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @vercel/node-bridge to v2.2.0 ([#1246](https://github.com/netlify/netlify-plugin-nextjs/issues/1246)) ([3637fff](https://github.com/netlify/netlify-plugin-nextjs/commit/3637fffce8550b012c8c9f35a0b9f3d1672e90a2))
+
 ### [4.2.8](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.7...v4.2.8) (2022-03-21)
 
 
