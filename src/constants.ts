@@ -7,6 +7,7 @@ export const HIDDEN_PATHS = [
   '/cache/*',
   '/server/*',
   '/serverless/*',
+  '/trace',
   '/traces',
   '/routes-manifest.json',
   '/build-manifest.json',

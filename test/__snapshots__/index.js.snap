@@ -1900,6 +1900,12 @@ Array [
   },
   Object {
     "force": true,
+    "from": "/trace",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": true,
     "from": "/traces",
     "status": 404,
     "to": "/404.html",
