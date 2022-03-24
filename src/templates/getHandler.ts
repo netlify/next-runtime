@@ -27,10 +27,12 @@ type Mutable<T> = {
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 // eslint-disable-next-line max-params
 const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
-  // Change working directory into the site root
+  // Change working directory into the site root, unless using Nx, which moves the
+  // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
-
-  process.chdir(dir)
+  if (pageRoot.startsWith(dir)) {
+    process.chdir(dir)
+  }
 
   // This is just so nft knows about the page entrypoints. It's not actually used
   try {
