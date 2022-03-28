@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.3.1](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.3.0...v4.3.1) (2022-03-28)
+
+
+### Bug Fixes
+
+* correctly find site root when using SSR with Nx ([#1281](https://github.com/netlify/netlify-plugin-nextjs/issues/1281)) ([3b26573](https://github.com/netlify/netlify-plugin-nextjs/commit/3b26573407c44a3f6405db776d9d37d993761c1c))
+
 ## [4.3.0](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.8...v4.3.0) (2022-03-23)
 
 
