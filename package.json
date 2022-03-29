@@ -1,6 +1,6 @@
 {
   "name": "@netlify/plugin-nextjs",
-  "version": "4.2.7",
+  "version": "4.3.1",
   "description": "Run Next.js seamlessly on Netlify",
   "main": "lib/index.js",
   "files": [
@@ -75,8 +75,8 @@
     "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.16.0",
-    "@netlify/build": "^26.3.5",
-    "@netlify/eslint-config-node": "^5.1.5",
+    "@netlify/build": "^26.5.1",
+    "@netlify/eslint-config-node": "^5.1.8",
     "@reach/dialog": "^0.16.2",
     "@reach/visually-hidden": "^0.16.0",
     "@testing-library/cypress": "^8.0.1",

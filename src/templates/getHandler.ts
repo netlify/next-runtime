@@ -27,6 +27,13 @@ type Mutable<T> = {
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 // eslint-disable-next-line max-params
 const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
+  // Change working directory into the site root, unless using Nx, which moves the
+  // dist directory and handles this itself
+  const dir = path.resolve(__dirname, app)
+  if (pageRoot.startsWith(dir)) {
+    process.chdir(dir)
+  }
+
   // This is just so nft knows about the page entrypoints. It's not actually used
   try {
     // eslint-disable-next-line node/no-missing-require
@@ -43,7 +50,9 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   // This is our flag that we use when patching the source
   // eslint-disable-next-line no-underscore-dangle
   process.env._BYPASS_SSG = 'true'
-
+  for (const [key, value] of Object.entries(conf.env)) {
+    process.env[key] = String(value)
+  }
   // Set during the request as it needs the host header. Hoisted so we can define the function once
   let base: string
 
@@ -65,7 +74,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     const NextServer: NextServerType = getNextServer()
     const nextServer = new NextServer({
       conf,
-      dir: path.resolve(__dirname, app),
+      dir,
       customServer: false,
       hostname: url.hostname,
       port,
