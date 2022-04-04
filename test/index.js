@@ -358,7 +358,6 @@ describe('onBuild()', () => {
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
       '!node_modules/next/dist/compiled/webpack/bundle4.js',
       '!node_modules/next/dist/compiled/webpack/bundle5.js',
-      '!node_modules/next/dist/compiled/terser/bundle.min.js',
       '!node_modules/sharp/**/*',
     ]
     // Relative paths in Windows are different
