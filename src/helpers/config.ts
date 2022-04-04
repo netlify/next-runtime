@@ -76,7 +76,6 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
         `!${nextRoot}/dist/next-server/server/lib/squoosh/**/*.wasm`,
         `!${nextRoot}/dist/compiled/webpack/bundle4.js`,
         `!${nextRoot}/dist/compiled/webpack/bundle5.js`,
-        `!${nextRoot}/dist/compiled/terser/bundle.min.js`,
       )
     }
 
