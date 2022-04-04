@@ -1,7 +1,7 @@
 import { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import { copyFile, ensureDir, writeFile, writeJSON } from 'fs-extra'
-import type { ImageConfigComplete } from 'next/dist/server/image-config'
+import type { ImageConfigComplete } from 'next/dist/shared/lib/image-config'
 import { join, relative, resolve } from 'pathe'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
