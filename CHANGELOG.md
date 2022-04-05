@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.3.2](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.3.1...v4.3.2) (2022-04-04)
+
+
+### Bug Fixes
+
+* :bug: include terser bundle into netlify functions ([#1295](https://github.com/netlify/netlify-plugin-nextjs/issues/1295)) ([f29adf3](https://github.com/netlify/netlify-plugin-nextjs/commit/f29adf3ee1d4be8bf40e4695ca4ac1e970c9b1ad))
+
 ### [4.3.1](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.3.0...v4.3.1) (2022-03-28)
 
 
