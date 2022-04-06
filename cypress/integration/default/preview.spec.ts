@@ -2,7 +2,7 @@ describe('Preview Mode', () => {
   it('enters and exits preview mode', () => {
     // preview mode is off by default
     cy.visit('/previewTest')
-    cy.findByText('Is preview? No')
+    cy.findByText('Is preview? No', {selector: 'h1'})
 
     // enter preview mode
     cy.request('/api/enterPreview').then((response) => {

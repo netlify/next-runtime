@@ -35,6 +35,30 @@ jobs:
         if: "${{ matrix.node-version == '*' }}"
       - name: Run tests against next@latest
         run: npm test
+  canary:
+    name: Unit tests (Canary)
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        node-version: [12, '*']
+        exclude:
+          - os: macOS-latest
+            node-version: 12
+          - os: windows-latest
+            node-version: 12
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          check-latest: true
+      - name: NPM Install
+        run: npm ci
       - name: Install Next.js Canary
         run: npm install -D next@canary --legacy-peer-deps
       - name: Run tests against next@canary

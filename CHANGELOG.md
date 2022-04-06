@@ -1,5 +1,41 @@
 # Changelog
 
+### [4.3.2](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.3.1...v4.3.2) (2022-04-04)
+
+
+### Bug Fixes
+
+* :bug: include terser bundle into netlify functions ([#1295](https://github.com/netlify/netlify-plugin-nextjs/issues/1295)) ([f29adf3](https://github.com/netlify/netlify-plugin-nextjs/commit/f29adf3ee1d4be8bf40e4695ca4ac1e970c9b1ad))
+
+### [4.3.1](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.3.0...v4.3.1) (2022-03-28)
+
+
+### Bug Fixes
+
+* correctly find site root when using SSR with Nx ([#1281](https://github.com/netlify/netlify-plugin-nextjs/issues/1281)) ([3b26573](https://github.com/netlify/netlify-plugin-nextjs/commit/3b26573407c44a3f6405db776d9d37d993761c1c))
+
+## [4.3.0](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.8...v4.3.0) (2022-03-23)
+
+
+### Features
+
+* allow skipping of middleware handling ([#1277](https://github.com/netlify/netlify-plugin-nextjs/issues/1277)) ([63070da](https://github.com/netlify/netlify-plugin-nextjs/commit/63070daaff4082a756af881a382c238c37d07aec))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @vercel/node-bridge to v2.2.0 ([#1246](https://github.com/netlify/netlify-plugin-nextjs/issues/1246)) ([3637fff](https://github.com/netlify/netlify-plugin-nextjs/commit/3637fffce8550b012c8c9f35a0b9f3d1672e90a2))
+
+### [4.2.8](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.7...v4.2.8) (2022-03-21)
+
+
+### Bug Fixes
+
+* add new /trace to HIDDEN_PATHS ([#1259](https://github.com/netlify/netlify-plugin-nextjs/issues/1259)) ([84345a8](https://github.com/netlify/netlify-plugin-nextjs/commit/84345a8c27f12bf1a07d1fc83cff9b9a398ee9db))
+* chdir to site root ([#1265](https://github.com/netlify/netlify-plugin-nextjs/issues/1265)) ([8463bbc](https://github.com/netlify/netlify-plugin-nextjs/commit/8463bbcff483ddb6b14e73c6959092e2938cdef1))
+* **deps:** update dependency @netlify/ipx to ^0.0.10 ([#1237](https://github.com/netlify/netlify-plugin-nextjs/issues/1237)) ([16e067d](https://github.com/netlify/netlify-plugin-nextjs/commit/16e067d7ef16da0479d83d09b188838e66946c34))
+* use correct publishDir when building from CLI with cwd option ([#1264](https://github.com/netlify/netlify-plugin-nextjs/issues/1264)) ([e441c97](https://github.com/netlify/netlify-plugin-nextjs/commit/e441c970f3c7ce5c6e74a23cf55efe71d94c9027))
+
 ### [4.2.7](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.2.6...v4.2.7) (2022-02-18)
 
 

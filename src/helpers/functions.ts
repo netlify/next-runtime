@@ -1,8 +1,8 @@
 import { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import { copyFile, ensureDir, writeFile, writeJSON } from 'fs-extra'
-import type { ImageConfigComplete } from 'next/dist/server/image-config'
-import { join, relative } from 'pathe'
+import type { ImageConfigComplete } from 'next/dist/shared/lib/image-config'
+import { join, relative, resolve } from 'pathe'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
 import { getHandler } from '../templates/getHandler'
@@ -14,7 +14,7 @@ export const generateFunctions = async (
 ): Promise<void> => {
   const functionsDir = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
   const functionDir = join(process.cwd(), functionsDir, HANDLER_FUNCTION_NAME)
-  const publishDir = relative(functionDir, join(process.cwd(), PUBLISH_DIR))
+  const publishDir = relative(functionDir, resolve(PUBLISH_DIR))
 
   const writeHandler = async (func: string, isODB: boolean) => {
     const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })

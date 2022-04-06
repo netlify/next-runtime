@@ -60,6 +60,9 @@ export const matchesRewrite = (file: string, rewrites: Rewrites): boolean => {
 }
 
 export const getMiddleware = async (publish: string): Promise<Array<string>> => {
+  if (process.env.NEXT_SKIP_MIDDLEWARE) {
+    return []
+  }
   const manifestPath = join(publish, 'server', 'middleware-manifest.json')
   if (existsSync(manifestPath)) {
     const manifest = await readJson(manifestPath, { throws: false })
