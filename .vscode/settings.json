@@ -1,0 +1,9 @@
+{
+  "deno.enablePaths": [
+    "src/templates/edge",
+    "demos/middleware/.netlify/edge-functions",
+    "demos/server-components/.netlify/edge-functions",
+  ],
+  "deno.unstable": true,
+  "deno.importMap": "demos/server-components/.netlify/edge-functions-import-map.json"
+}

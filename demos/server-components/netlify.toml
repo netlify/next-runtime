@@ -1,0 +1,20 @@
+[build]
+command = "npm run build"
+publish = ".next"
+
+[[plugins]]
+package = "../../src/index.ts"
+
+[[redirects]]
+from = "/_next/static/*"
+to = "/static/:splat"
+status = 200
+
+[functions]
+included_files = [
+    "!node_modules/sharp/vendor/8.12.2/darwin-*/**/*",
+    "!node_modules/sharp/build/Release/sharp-darwin-*"
+]
+
+[dev]
+framework = "#static"

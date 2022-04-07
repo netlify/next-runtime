@@ -1,21 +1,13 @@
 {
   "name": "default-demo",
   "version": "1.0.0",
-  "private": true,
   "description": "",
+  "main": " ",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/netlify/netlify-plugin-nextjs.git"
-  },
   "author": "",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/netlify/netlify-plugin-nextjs/issues"
-  },
-  "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
     "@reach/dialog": "^0.16.2",
     "@reach/visually-hidden": "^0.16.0"
