@@ -87,11 +87,13 @@
     "testTimeout": 60000
   },
   "workspaces": [
-    "demos/default",
     "plugin",
+    "demos/default",
     "demos/static-root",
     "demos/next-export",
     "demos/base-path",
-    "demos/plugin-wrapper"
+    "demos/plugin-wrapper",
+    "demos/server-components",
+    "demos/middleware"
   ]
 }
