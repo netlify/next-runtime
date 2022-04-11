@@ -15,4 +15,4 @@ NODE_VERSION = "17"
 framework = "#static"
 
 [[plugins]]
-package = "../../plugin"
+package = "../../plugin/src/index.ts"
