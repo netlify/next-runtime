@@ -1,12 +1,7 @@
 {
-  "name": "@netlify/plugin-nextjs",
-  "version": "4.3.2",
+  "name": "netlify-plugin-nextjs",
+  "private": true,
   "description": "Run Next.js seamlessly on Netlify",
-  "main": "lib/index.js",
-  "files": [
-    "lib/**/*",
-    "manifest.yml"
-  ],
   "scripts": {
     "build:demo": "next build demos/default",
     "cy:open": "cypress open --config-file cypress/config/all.json",
@@ -19,22 +14,11 @@
     "format:check-fix:prettier": "run-e format:check:prettier format:fix:prettier",
     "format:check:prettier": "cross-env-shell prettier --check $npm_package_config_prettier",
     "format:fix:prettier": "cross-env-shell prettier --write $npm_package_config_prettier",
-    "prepublishOnly": "run-s publish:pull publish:install clean build test",
-    "publish:pull": "git pull",
-    "publish:install": "npm ci",
-    "publish:test": "npm test",
-    "test": "run-s build build:demo test:jest",
-    "test:jest": "jest",
-    "test:jest:update": "jest --updateSnapshot",
-    "test:update": "run-s build build:demo test:jest:update",
-    "prepare": "husky install node_modules/@netlify/eslint-config-node/.husky/ && npm run build",
-    "clean": "rimraf lib",
-    "build": "tsc",
-    "watch": "tsc --watch"
+    "postinstall": "npm run -w @netlify/plugin-nextjs build"
   },
   "config": {
-    "eslint": "--cache --format=codeframe --max-warnings=0 \"{src,scripts,tests,.github}/**/*.{ts,js,md,html}\" \"*.{ts,js,md,html}\" \".*.{ts,js,md,html}\"",
-    "prettier": "--loglevel=warn \"{src,scripts,tests,.github}/**/*.{ts,js,md,yml,json,html}\" \"*.{ts,js,yml,json,html}\" \".*.{ts,js,yml,json,html}\" \"!package-lock.json\""
+    "eslint": "--cache --format=codeframe --max-warnings=0 \"{plugin,src,scripts,tests,.github}/**/*.{ts,js,md,html}\" \"*.{ts,js,md,html}\" \".*.{ts,js,md,html}\"",
+    "prettier": "--loglevel=warn \"{plugin,src,scripts,tests,.github}/**/*.{ts,js,md,yml,json,html}\" \"*.{ts,js,yml,json,html}\" \".*.{ts,js,yml,json,html}\" \"!package-lock.json\""
   },
   "repository": {
     "type": "git",
@@ -52,33 +36,13 @@
     "url": "https://github.com/netlify/netlify-plugin-nextjs/issues"
   },
   "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
-  "dependencies": {
-    "@netlify/functions": "^1.0.0",
-    "@netlify/ipx": "^1.0.1",
-    "@vercel/node-bridge": "^2.1.0",
-    "chalk": "^4.1.2",
-    "fs-extra": "^10.0.0",
-    "globby": "^11.0.4",
-    "moize": "^6.1.0",
-    "next": "^12.1.4",
-    "node-fetch": "^2.6.6",
-    "node-stream-zip": "^1.15.0",
-    "outdent": "^0.8.0",
-    "p-limit": "^3.1.0",
-    "pathe": "^0.2.0",
-    "pretty-bytes": "^5.6.0",
-    "semver": "^7.3.5",
-    "slash": "^3.0.0",
-    "tiny-glob": "^0.2.9"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.16.0",
     "@netlify/build": "^26.5.2",
     "@netlify/eslint-config-node": "^5.1.8",
-    "@reach/dialog": "^0.16.2",
-    "@reach/visually-hidden": "^0.16.0",
     "@testing-library/cypress": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
@@ -94,15 +58,15 @@
     "netlify-plugin-cypress": "^2.2.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.1.2",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "rimraf": "^3.0.2",
     "sass": "^1.49.0",
     "tmp-promise": "^3.0.2",
     "typescript": "^4.3.4"
   },
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=16.0.0"
   },
   "jest": {
     "testMatch": [
@@ -115,5 +79,9 @@
     },
     "verbose": true,
     "testTimeout": 60000
-  }
+  },
+  "workspaces": [
+    "demos/default",
+    "plugin"
+  ]
 }

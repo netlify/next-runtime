@@ -1,7 +1,7 @@
 [build]
 command = "next build"
 publish = ".next"
-ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../../"
+ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF . ../../plugin"
 
 [build.environment]
 # cache Cypress binary in local "node_modules" folder
@@ -9,12 +9,10 @@ ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../../"
 CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
 # set TERM variable for terminal output
 TERM = "xterm"
+NODE_VERSION = "17"
 
 [dev]
 framework = "#static"
 
 [[plugins]]
-package = "./local-plugin"
-
-[[plugins]]
-package = "@netlify/plugin-local-install-core"
+package = "../../plugin"
