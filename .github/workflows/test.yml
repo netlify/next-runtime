@@ -1,9 +1,11 @@
 name: Plugin Tests
 
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   build:
