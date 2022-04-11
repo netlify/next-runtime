@@ -90,6 +90,7 @@
     "plugin",
     "demos/static-root",
     "demos/next-export",
-    "demos/base-path"
+    "demos/base-path",
+    "demos/plugin-wrapper"
   ]
 }

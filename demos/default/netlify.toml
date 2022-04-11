@@ -15,4 +15,8 @@ NODE_VERSION = "17"
 framework = "#static"
 
 [[plugins]]
-package = "../../plugin/src/index.ts"
+package = "../plugin-wrapper/"
+
+# This is a fake plugin, that makes it run npm install
+[[plugins]]
+package = "@netlify/plugin-local-install-core"
