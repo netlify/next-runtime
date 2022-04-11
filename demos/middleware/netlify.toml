@@ -6,17 +6,11 @@ publish = ".next"
 NEXT_USE_NETLIFY_EDGE = "true"
 
 [[plugins]]
-package = "../../src/index.ts"
+package = "../plugin-wrapper/"
 
-[[redirects]]
-from = "/_next/static/*"
-to = "/static/:splat"
-status = 200
-
-[[redirects]]
-from = "/*"
-to = "/.netlify/functions/___netlify-handler"
-status = 200
+# This is a fake plugin, that makes it run npm install
+[[plugins]]
+package = "@netlify/plugin-local-install-core"
 
 [functions]
 included_files = [

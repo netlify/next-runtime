@@ -1,4 +1,5 @@
 import type { Context } from 'netlify:edge'
+
 export interface FetchEventResult {
   response: Response
   waitUntil: Promise<any>

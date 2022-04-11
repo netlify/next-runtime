@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import { cpus } from 'os'
 
-import { NetlifyConfig } from '@netlify/build'
+import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
 import { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir, readFileSync } from 'fs-extra'
 import globby from 'globby'

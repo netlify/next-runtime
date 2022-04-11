@@ -1,6 +1,6 @@
 import { join, relative } from 'path'
 
-import { NetlifyPlugin } from '@netlify/build'
+import type { NetlifyPlugin } from '@netlify/build'
 import { greenBright } from 'chalk'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'

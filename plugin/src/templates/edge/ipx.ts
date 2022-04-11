@@ -1,5 +1,5 @@
-import type { Context } from 'netlify:edge'
 import { Accepts } from 'https://deno.land/x/accepts/mod.ts'
+import type { Context } from 'netlify:edge'
 
 /**
  * Implement content negotiation for images
@@ -26,7 +26,7 @@ const handler = async (req: Request, context: Context) => {
     modifiers.push(`f_${type}`)
   }
 
-  return context.rewrite(`/_ipx/${modifiers.join()}/${encodeURIComponent(source)}`)
+  return context.rewrite(`/_ipx/${modifiers.join(',')}/${encodeURIComponent(source)}`)
 }
 
 export default handler

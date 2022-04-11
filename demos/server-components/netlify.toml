@@ -3,12 +3,11 @@ command = "npm run build"
 publish = ".next"
 
 [[plugins]]
-package = "../../src/index.ts"
+package = "../plugin-wrapper/"
 
-[[redirects]]
-from = "/_next/static/*"
-to = "/static/:splat"
-status = 200
+# This is a fake plugin, that makes it run npm install
+[[plugins]]
+package = "@netlify/plugin-local-install-core"
 
 [functions]
 included_files = [

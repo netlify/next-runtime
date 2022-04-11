@@ -1,6 +1,6 @@
 {
   "deno.enablePaths": [
-    "src/templates/edge",
+    "plugin/src/templates/edge",
     "demos/middleware/.netlify/edge-functions",
     "demos/server-components/.netlify/edge-functions",
   ],

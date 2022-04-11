@@ -1,4 +1,4 @@
-import { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
+import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import { copyFile, ensureDir, writeFile, writeJSON } from 'fs-extra'
 import type { ImageConfigComplete } from 'next/dist/shared/lib/image-config'
