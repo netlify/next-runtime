@@ -671,7 +671,7 @@ describe('utility functions', () => {
     await ensureDir(path.join(process.cwd(), 'node_modules'))
     await copy(path.join(root, 'node_modules', 'next'), path.join(process.cwd(), 'node_modules', 'next'))
 
-    expect(await patchNextFiles(process.cwd())).toBeTruthy()
+    await patchNextFiles(process.cwd())
     const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
     const patchedData = await readFileSync(serverFile, 'utf8')
     expect(patchedData.includes('_BYPASS_SSG')).toBeTruthy()
