@@ -35,7 +35,7 @@ export interface RequestData {
 const handler = async (req: Request, context: Context) => {
   const url = new URL(req.url)
   if (url.pathname.startsWith('/_next/')) {
-    return context.next()
+    return
   }
 
   const request: RequestData = {
