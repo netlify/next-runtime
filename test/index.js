@@ -1,3 +1,10 @@
+jest.mock('../src/helpers/utils', () => {
+  return {
+    ...(jest.requireActual('../src/helpers/utils')),
+    isNextAuthInstalled: jest.fn()
+  }
+});
+
 const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson } = require('fs-extra')
 const path = require('path')
 const process = require('process')
@@ -429,6 +436,66 @@ describe('onBuild()', () => {
 })
 
 describe('onPostBuild', () => {
+  const { isNextAuthInstalled } = require('../src/helpers/utils')
+
+  beforeEach(() => {
+    isNextAuthInstalled.mockImplementation(() => {
+      return true;
+    })
+  })
+
+  test('sets NEXTAUTH_URL when next-auth package is detected', async () => {
+    const netlifyConfig = { ...defaultArgs.netlifyConfig }
+    const mockSiteUrl = "https://my-netlify-site.app";
+
+    // Value represents the main address to the site and is either
+    // a Netlify subdomain or custom domain set by the user.
+    // See https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata
+    process.env.URL = mockSiteUrl;
+
+    await moveNextDist()
+
+    await plugin.onPostBuild({
+      ...defaultArgs,
+      netlifyConfig,
+      utils: {
+        ...defaultArgs.utils,
+        functions: {
+          list: jest.fn().mockResolvedValue([])
+        }
+      }
+    })
+
+    expect(netlifyConfig.build.environment.NEXTAUTH_URL).toBe(mockSiteUrl);
+
+    delete process.env.URL;
+  })
+
+  test('skips setting NEXTAUTH_URL when next-auth package is not found', async () => {
+    isNextAuthInstalled.mockImplementation(() => {
+      return false;
+    })
+
+    const netlifyConfig = { ...defaultArgs.netlifyConfig }
+
+    await moveNextDist()
+
+    await plugin.onPostBuild({
+      ...defaultArgs,
+      netlifyConfig,
+      utils: {
+        ...defaultArgs.utils,
+        functions: {
+          list: jest.fn().mockResolvedValue([])
+        }
+      }
+    })
+
+    expect(netlifyConfig.build.environment.NEXTAUTH_URL).toBeUndefined;
+
+    delete process.env.URL;
+  })
+
   test('saves cache with right paths', async () => {
     await moveNextDist()
 
