@@ -1,5 +1,13 @@
 # Changelog
 
+### [4.3.3](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.3.2...v4.3.3) (2022-04-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to v1 ([#1249](https://github.com/netlify/netlify-plugin-nextjs/issues/1249)) ([1430729](https://github.com/netlify/netlify-plugin-nextjs/commit/1430729f69d7d3944411b94641d972a19a13553c))
+* **deps:** update dependency fs-extra to v10.1.0 ([#1254](https://github.com/netlify/netlify-plugin-nextjs/issues/1254)) ([f66b6ee](https://github.com/netlify/netlify-plugin-nextjs/commit/f66b6ee8bc17b457e257d9b477d6cf1eaaf6b564))
+
 ### [4.3.2](https://github.com/netlify/netlify-plugin-nextjs/compare/v4.3.1...v4.3.2) (2022-04-04)
 
 
