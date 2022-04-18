@@ -491,7 +491,7 @@ describe('onPostBuild', () => {
       }
     })
 
-    expect(netlifyConfig.build.environment.NEXTAUTH_URL).toBeUndefined;
+    expect(netlifyConfig.build.environment.NEXTAUTH_URL).toBeUndefined();
   })
 
   test('saves cache with right paths', async () => {
