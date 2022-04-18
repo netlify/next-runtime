@@ -9,7 +9,7 @@ import { getNextConfig, configureHandlerFunctions } from './helpers/config'
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
-import { shouldSkip } from './helpers/utils'
+import { shouldSkip, isNextAuthInstalled } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
@@ -104,7 +104,7 @@ const plugin: NetlifyPlugin = {
 
   async onPostBuild({
     netlifyConfig: {
-      build: { publish },
+      build: { publish, environment },
       redirects,
     },
     utils: {
@@ -117,14 +117,18 @@ const plugin: NetlifyPlugin = {
   }) {
     await saveCache({ cache, publish })
 
+    if (isNextAuthInstalled()) {
+      console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${process.env.URL}`)
+      environment.NEXTAUTH_URL = process.env.URL;
+    }
+
     if (shouldSkip()) {
       status.show({
         title: 'Essential Next.js plugin did not run',
-        summary: `Next cache was stored, but all other functions were skipped because ${
-          process.env.NETLIFY_NEXT_PLUGIN_SKIP
+        summary: `Next cache was stored, but all other functions were skipped because ${process.env.NETLIFY_NEXT_PLUGIN_SKIP
             ? `NETLIFY_NEXT_PLUGIN_SKIP is set`
             : `NEXT_PLUGIN_FORCE_RUN is set to ${process.env.NEXT_PLUGIN_FORCE_RUN}`
-        }`,
+          }`,
       })
       return
     }
@@ -135,6 +139,6 @@ const plugin: NetlifyPlugin = {
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
     await unpatchNextFiles(basePath)
-  },
+  }
 }
 module.exports = plugin

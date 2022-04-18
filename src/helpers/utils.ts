@@ -174,3 +174,13 @@ export const findModuleFromBase = ({ paths, candidates }): string | null => {
   }
   return null
 }
+
+export const isNextAuthInstalled = (): boolean => {
+  try {
+    require('next-auth');
+  } catch {
+    // Ignore the MODULE_NOT_FOUND error
+    return false;
+  }
+  return true;
+}
