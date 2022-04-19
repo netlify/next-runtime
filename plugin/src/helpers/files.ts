@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import { cpus } from 'os'
 
-import { NetlifyConfig } from '@netlify/build'
+import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
 import { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir, readFileSync } from 'fs-extra'
 import globby from 'globby'
@@ -60,7 +60,7 @@ export const matchesRewrite = (file: string, rewrites: Rewrites): boolean => {
 }
 
 export const getMiddleware = async (publish: string): Promise<Array<string>> => {
-  if (process.env.NEXT_SKIP_MIDDLEWARE) {
+  if (process.env.NEXT_USE_NETLIFY_EDGE) {
     return []
   }
   const manifestPath = join(publish, 'server', 'middleware-manifest.json')
@@ -283,18 +283,25 @@ export const moveStaticPages = async ({
 /**
  * Attempt to patch a source file, preserving a backup
  */
-const patchFile = async ({ file, from, to }: { file: string; from: string; to: string }): Promise<boolean> => {
+const patchFile = async ({
+  file,
+  replacements,
+}: {
+  file: string
+  replacements: Array<[from: string, to: string]>
+}): Promise<boolean> => {
   if (!existsSync(file)) {
     console.warn('File was not found')
-
     return false
   }
   const content = await readFile(file, 'utf8')
-  if (content.includes(to)) {
-    console.log('File already patched')
-    return false
-  }
-  const newContent = content.replace(from, to)
+  const newContent = replacements.reduce((acc, [from, to]) => {
+    if (acc.includes(to)) {
+      console.log('Already patched. Skipping.')
+      return acc
+    }
+    return acc.replace(from, to)
+  }, content)
   if (newContent === content) {
     console.warn('File was not changed')
     return false
@@ -304,39 +311,68 @@ const patchFile = async ({ file, from, to }: { file: string; from: string; to: s
   console.log('Done')
   return true
 }
-
 /**
  * The file we need has moved around a bit over the past few versions,
  * so we iterate through the options until we find it
  */
-const getServerFile = (root) => {
-  const candidates = [
-    'next/dist/server/base-server',
-    'next/dist/server/next-server',
-    'next/dist/next-server/server/next-server',
-  ]
+const getServerFile = (root: string, includeBase = true) => {
+  const candidates = ['next/dist/server/next-server', 'next/dist/next-server/server/next-server']
+
+  if (includeBase) {
+    candidates.unshift('next/dist/server/base-server')
+  }
 
   return findModuleFromBase({ candidates, paths: [root] })
 }
 
-export const patchNextFiles = (root: string): Promise<boolean> | boolean => {
-  const serverFile = getServerFile(root)
-  console.log(`Patching ${serverFile}`)
-  if (serverFile) {
-    return patchFile({
-      file: serverFile,
-      from: `let ssgCacheKey = `,
-      to: `let ssgCacheKey = process.env._BYPASS_SSG || `,
+const baseServerReplacements: Array<[string, string]> = [
+  [`let ssgCacheKey = `, `let ssgCacheKey = process.env._BYPASS_SSG || `],
+]
+
+const nextServerReplacements: Array<[string, string]> = [
+  [
+    `getMiddlewareManifest() {\n        if (!this.minimalMode) {`,
+    `getMiddlewareManifest() {\n        if (!this.minimalMode && !process.env.NEXT_USE_NETLIFY_EDGE) {`,
+  ],
+  [
+    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode) return undefined;`,
+    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || process.env.NEXT_USE_NETLIFY_EDGE) return undefined;`,
+  ],
+]
+
+export const patchNextFiles = async (root: string): Promise<void> => {
+  const baseServerFile = getServerFile(root)
+  console.log(`Patching ${baseServerFile}`)
+  if (baseServerFile) {
+    await patchFile({
+      file: baseServerFile,
+      replacements: baseServerReplacements,
     })
   }
-  return false
+
+  const nextServerFile = getServerFile(root, false)
+  console.log(`Patching ${nextServerFile}`)
+  if (nextServerFile) {
+    await patchFile({
+      file: nextServerFile,
+      replacements: nextServerReplacements,
+    })
+  }
+}
+
+export const unpatchFile = async (file: string): Promise<void> => {
+  const origFile = `${file}.orig`
+  if (existsSync(origFile)) {
+    await move(origFile, file, { overwrite: true })
+  }
 }
 
 export const unpatchNextFiles = async (root: string): Promise<void> => {
-  const serverFile = getServerFile(root)
-  const origFile = `${serverFile}.orig`
-  if (existsSync(origFile)) {
-    await move(origFile, serverFile, { overwrite: true })
+  const baseServerFile = getServerFile(root)
+  await unpatchFile(baseServerFile)
+  const nextServerFile = getServerFile(root, false)
+  if (nextServerFile !== baseServerFile) {
+    await unpatchFile(nextServerFile)
   }
 }
 

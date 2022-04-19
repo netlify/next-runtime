@@ -1,4 +1,4 @@
-import { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
+import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import { copyFile, ensureDir, writeFile, writeJSON } from 'fs-extra'
 import type { ImageConfigComplete } from 'next/dist/shared/lib/image-config'
@@ -78,19 +78,21 @@ export const setupImageFunction = async ({
 
   const imagePath = imageconfig.path || '/_next/image'
 
-  netlifyConfig.redirects.push(
-    {
+  // If we have edge, we use content negotiation instead of the redirect
+  if (!process.env.NEXT_USE_NETLIFY_EDGE) {
+    netlifyConfig.redirects.push({
       from: `${imagePath}*`,
       query: { url: ':url', w: ':width', q: ':quality' },
       to: `${basePath}/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
       status: 301,
-    },
-    {
-      from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,
-      to: `/.netlify/builders/${IMAGE_FUNCTION_NAME}`,
-      status: 200,
-    },
-  )
+    })
+  }
+
+  netlifyConfig.redirects.push({
+    from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,
+    to: `/.netlify/builders/${IMAGE_FUNCTION_NAME}`,
+    status: 200,
+  })
 
   if (basePath) {
     // next/image generates image static URLs that still point at the site root

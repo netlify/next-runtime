@@ -21,3 +21,4 @@ node_modules
 lib
 tsconfig.json
 demos/nx-next-monorepo-demo
+plugin/src/templates/edge

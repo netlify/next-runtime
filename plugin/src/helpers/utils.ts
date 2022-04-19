@@ -1,4 +1,4 @@
-import { NetlifyConfig } from '@netlify/build'
+import type { NetlifyConfig } from '@netlify/build'
 import globby from 'globby'
 import { join } from 'pathe'
 

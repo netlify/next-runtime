@@ -2,7 +2,7 @@
 import { existsSync, promises } from 'fs'
 import path, { relative, join } from 'path'
 
-import { NetlifyConfig, NetlifyPluginUtils } from '@netlify/build'
+import type { NetlifyConfig, NetlifyPluginUtils } from '@netlify/build'
 import { yellowBright, greenBright, blueBright, redBright, reset } from 'chalk'
 import { async as StreamZip } from 'node-stream-zip'
 import { outdent } from 'outdent'

@@ -15,6 +15,9 @@ module.exports = {
     'node/exports-style': 0,
     'node/global-require': 0,
     'node/prefer-global/process': 0,
+    // Allow a single word inline so that it can do language tags for syntax highlighting
+    // ['error', { ignorePattern: /^ (\w+) $/ }],
+    'no-inline-comments': 0,
     'no-magic-numbers': 0,
     'no-param-reassign': 0,
     'no-promise-executor-return': 0,

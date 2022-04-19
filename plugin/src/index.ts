@@ -1,11 +1,14 @@
 import { join, relative } from 'path'
 
-import { NetlifyPlugin } from '@netlify/build'
+import type { NetlifyPlugin } from '@netlify/build'
+import { greenBright } from 'chalk'
 import { existsSync, readFileSync } from 'fs-extra'
+import { outdent } from 'outdent'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
 import { getNextConfig, configureHandlerFunctions } from './helpers/config'
+import { updateConfig, writeMiddleware } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
@@ -78,12 +81,6 @@ const plugin: NetlifyPlugin = {
 
     await patchNextFiles(basePath)
 
-    if (process.env.EXPERIMENTAL_MOVE_STATIC_PAGES) {
-      console.log(
-        "The flag 'EXPERIMENTAL_MOVE_STATIC_PAGES' is no longer required, as it is now the default. To disable this behavior, set the env var 'SERVE_STATIC_FILES_FROM_ORIGIN' to 'true'",
-      )
-    }
-
     if (!process.env.SERVE_STATIC_FILES_FROM_ORIGIN) {
       await moveStaticPages({ target, netlifyConfig, i18n, basePath })
     }
@@ -100,6 +97,15 @@ const plugin: NetlifyPlugin = {
       nextConfig: { basePath, i18n, trailingSlash, appDir },
       buildId,
     })
+
+    if (process.env.NEXT_USE_NETLIFY_EDGE) {
+      console.log(outdent`
+        ✨ Deploying to ${greenBright`Netlify Edge Functions`} ✨
+        This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
+      `)
+      await writeMiddleware(netlifyConfig)
+      await updateConfig(publish)
+    }
   },
 
   async onPostBuild({
