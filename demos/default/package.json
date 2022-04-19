@@ -18,7 +18,9 @@
   "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
     "@reach/dialog": "^0.16.2",
-    "@reach/visually-hidden": "^0.16.0"
+    "@reach/visually-hidden": "^0.16.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "*",
