@@ -3,7 +3,7 @@
   "private": true,
   "description": "Run Next.js seamlessly on Netlify",
   "scripts": {
-    "build:demo": "next build demos/default",
+    "build:demo": "cd demos/default && npm run build",
     "cy:open": "cypress open --config-file cypress/config/all.json",
     "dev:demo": "next dev demos/default",
     "format": "run-s format:check-fix:*",
