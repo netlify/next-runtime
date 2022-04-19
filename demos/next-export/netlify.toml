@@ -5,12 +5,13 @@ ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../../"
 
 [build.environment]
 NETLIFY_NEXT_PLUGIN_SKIP = "true"
+NODE_VERSION = "17"
 
 [dev]
 framework = "#static"
 
 [[plugins]]
-package = "./local-plugin"
+package = "../plugin-wrapper/"
 
 [[plugins]]
 package = "@netlify/plugin-local-install-core"

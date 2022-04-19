@@ -11,11 +11,11 @@ const process = require('process')
 const os = require('os')
 const cpy = require('cpy')
 const { dir: getTmpDir } = require('tmp-promise')
-const { downloadFile } = require('../src/templates/handlerUtils')
+const { downloadFile } = require('../plugin/src/templates/handlerUtils')
 
-const plugin = require('../src')
+const plugin = require('../plugin/src')
 
-const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../src/constants')
+const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../plugin/src/constants')
 const { join } = require('pathe')
 const {
   matchMiddleware,
@@ -24,9 +24,9 @@ const {
   matchesRewrite,
   patchNextFiles,
   unpatchNextFiles,
-} = require('../src/helpers/files')
+} = require('../plugin/src/helpers/files')
 const { dirname } = require('path')
-const { getProblematicUserRewrites } = require('../src/helpers/verification')
+const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
@@ -736,7 +736,7 @@ describe('utility functions', () => {
     await ensureDir(path.join(process.cwd(), 'node_modules'))
     await copy(path.join(root, 'node_modules', 'next'), path.join(process.cwd(), 'node_modules', 'next'))
 
-    expect(await patchNextFiles(process.cwd())).toBeTruthy()
+    await patchNextFiles(process.cwd())
     const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
     const patchedData = await readFileSync(serverFile, 'utf8')
     expect(patchedData.includes('_BYPASS_SSG')).toBeTruthy()
