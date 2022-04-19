@@ -146,4 +146,4 @@ Temporary Items
 .netlify
 demos/default/.next
 .parcel-cache
-lib
+plugin/lib
