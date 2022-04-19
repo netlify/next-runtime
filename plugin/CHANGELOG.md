@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.4.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.4.1...plugin-nextjs-v4.4.2) (2022-04-19)
+
+
+### Bug Fixes
+
+* include edge templates in the bundle ([#1317](https://github.com/netlify/netlify-plugin-nextjs/issues/1317)) ([b9d3abf](https://github.com/netlify/netlify-plugin-nextjs/commit/b9d3abf6f8e99cb01856b4a3fadb7387e67164db))
+
 ### [4.4.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.4.0...plugin-nextjs-v4.4.1) (2022-04-19)
 
 
