@@ -3,6 +3,8 @@ logs
 *.log
 npm-debug.log*
 
+package.json
+
 # Dependency directories
 node_modules
 

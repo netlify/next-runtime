@@ -1,0 +1,22 @@
+{
+  "name": "static-root-demo",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "@netlify/plugin-nextjs": "*"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/netlify/netlify-plugin-nextjs.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/netlify/netlify-plugin-nextjs/issues"
+  },
+  "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme"
+}

@@ -25,13 +25,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Installing with latest Node.js
         uses: actions/setup-node@v2
+        if: "${{ matrix.node-version != '*' }}"
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '*'
           check-latest: true
       - name: NPM Install
         run: npm ci
+      - name: Switching to Node.js ${{ matrix.node-version }} to run tests
+        uses: actions/setup-node@v2
+        if: "${{ matrix.node-version != '*' }}"
+        with:
+          node-version: ${{ matrix.node-version }}
+          check-latest: true
       - name: Linting
         run: npm run format:ci
         if: "${{ matrix.node-version == '*' }}"
@@ -55,14 +62,21 @@ jobs:
     if: github.ref_name == 'main'
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Installing with latest Node.js
         uses: actions/setup-node@v2
+        if: "${{ matrix.node-version != '*' }}"
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '*'
           check-latest: true
       - name: NPM Install
         run: npm ci
       - name: Install Next.js Canary
         run: npm install -D next@canary --legacy-peer-deps
+      - name: Switching to Node.js ${{ matrix.node-version }} to run tests
+        uses: actions/setup-node@v2
+        if: "${{ matrix.node-version != '*' }}"
+        with:
+          node-version: ${{ matrix.node-version }}
+          check-latest: true
       - name: Run tests against next@canary
         run: npm test
