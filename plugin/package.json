@@ -37,7 +37,7 @@
     "prepublishOnly": "run-s publish:pull publish:install clean build test",
     "publish:pull": "git pull",
     "publish:install": "npm ci",
-    "publish:test": "npm test",
+    "publish:test": "cd .. && npm ci && npm test",
     "clean": "rimraf lib",
     "build": "tsc",
     "watch": "tsc --watch",
