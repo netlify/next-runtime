@@ -81,7 +81,7 @@ const copyEdgeSourceFile = ({
   file: string
   edgeFunctionDir: string
   target?: string
-}) => fs.copyFile(join(__dirname, '..', 'templates', 'edge', file), join(edgeFunctionDir, target ?? file))
+}) => fs.copyFile(join(__dirname, '..', '..', 'src', 'templates', 'edge', file), join(edgeFunctionDir, target ?? file))
 
 // Edge functions don't support lookahead expressions
 const stripLookahead = (regex: string) => regex.replace('^/(?!_next)', '^/')
