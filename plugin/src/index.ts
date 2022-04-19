@@ -7,7 +7,12 @@ import { outdent } from 'outdent'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
-import { getNextConfig, getRequiredServerFiles, updateRequiredServerFiles, configureHandlerFunctions } from './helpers/config'
+import {
+  getNextConfig,
+  getRequiredServerFiles,
+  updateRequiredServerFiles,
+  configureHandlerFunctions,
+} from './helpers/config'
 import { updateConfig, writeMiddleware } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
@@ -72,11 +77,11 @@ const plugin: NetlifyPlugin = {
 
     if (isNextAuthInstalled()) {
       console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${process.env.URL}`)
-      
-      const config = await getRequiredServerFiles(publish);
+
+      const config = await getRequiredServerFiles(publish)
       config.config.env.NEXTAUTH_URL = process.env.URL
-      
-      await updateRequiredServerFiles(publish, config);
+
+      await updateRequiredServerFiles(publish, config)
     }
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()

@@ -40,7 +40,7 @@ export const getNextConfig = async function getNextConfig({
  * Returns all of the NextJS configuration stored within 'required-server-files.json'
  * To update the configuration within this file, use the 'updateRequiredServerFiles' method.
  */
- export const getRequiredServerFiles = async (publish: string): Promise<RequiredServerFiles> => {
+export const getRequiredServerFiles = async (publish: string): Promise<RequiredServerFiles> => {
   const configFile = join(publish, 'required-server-files.json')
   return await readJSON(configFile)
 }
@@ -53,7 +53,6 @@ export const updateRequiredServerFiles = async (publish: string, modifiedConfig:
   const configFile = join(publish, 'required-server-files.json')
   await writeJSON(configFile, modifiedConfig)
 }
-
 
 const resolveModuleRoot = (moduleName) => {
   try {
