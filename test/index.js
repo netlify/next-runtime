@@ -1,6 +1,6 @@
-jest.mock('../src/helpers/utils', () => {
+jest.mock('../plugin/src/helpers/utils', () => {
   return {
-    ...(jest.requireActual('../src/helpers/utils')),
+    ...(jest.requireActual('../plugin/src/helpers/utils')),
     isNextAuthInstalled: jest.fn()
   }
 });
@@ -25,6 +25,7 @@ const {
   patchNextFiles,
   unpatchNextFiles,
 } = require('../plugin/src/helpers/files')
+const { getRequiredServerFiles } = require('../plugin/src/helpers/config');
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
 
@@ -212,6 +213,48 @@ describe('preBuild()', () => {
 })
 
 describe('onBuild()', () => {
+  const { isNextAuthInstalled } = require('../plugin/src/helpers/utils')
+
+  beforeEach(() => {
+    isNextAuthInstalled.mockImplementation(() => {
+      return true;
+    })
+  })
+
+  test('sets NEXTAUTH_URL when next-auth package is detected', async () => {
+    const mockSiteUrl = "https://my-netlify-site.app";
+    
+    // Value represents the main address to the site and is either
+    // a Netlify subdomain or custom domain set by the user.
+    // See https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata
+    process.env.URL = mockSiteUrl;
+    
+    await moveNextDist()
+
+    await plugin.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish);
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(mockSiteUrl)
+
+    delete process.env.URL;
+  })
+
+  test('skips setting NEXTAUTH_URL when next-auth package is not found', async () => {
+    isNextAuthInstalled.mockImplementation(() => {
+      return false;
+    })
+
+    await moveNextDist()
+    await plugin.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish);
+
+    expect(config.config.env.NEXTAUTH_URL).toBeUndefined();
+  })
+
   test('runs onBuild', async () => {
     await moveNextDist()
 
@@ -436,64 +479,6 @@ describe('onBuild()', () => {
 })
 
 describe('onPostBuild', () => {
-  const { isNextAuthInstalled } = require('../src/helpers/utils')
-
-  beforeEach(() => {
-    isNextAuthInstalled.mockImplementation(() => {
-      return true;
-    })
-  })
-
-  test('sets NEXTAUTH_URL when next-auth package is detected', async () => {
-    const netlifyConfig = { ...defaultArgs.netlifyConfig }
-    const mockSiteUrl = "https://my-netlify-site.app";
-
-    // Value represents the main address to the site and is either
-    // a Netlify subdomain or custom domain set by the user.
-    // See https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata
-    process.env.URL = mockSiteUrl;
-
-    await moveNextDist()
-
-    await plugin.onPostBuild({
-      ...defaultArgs,
-      netlifyConfig,
-      utils: {
-        ...defaultArgs.utils,
-        functions: {
-          list: jest.fn().mockResolvedValue([])
-        }
-      }
-    })
-
-    expect(netlifyConfig.build.environment.NEXTAUTH_URL).toBe(mockSiteUrl);
-
-    delete process.env.URL;
-  })
-
-  test('skips setting NEXTAUTH_URL when next-auth package is not found', async () => {
-    isNextAuthInstalled.mockImplementation(() => {
-      return false;
-    })
-
-    const netlifyConfig = { ...defaultArgs.netlifyConfig }
-
-    await moveNextDist()
-
-    await plugin.onPostBuild({
-      ...defaultArgs,
-      netlifyConfig,
-      utils: {
-        ...defaultArgs.utils,
-        functions: {
-          list: jest.fn().mockResolvedValue([])
-        }
-      }
-    })
-
-    expect(netlifyConfig.build.environment.NEXTAUTH_URL).toBeUndefined();
-  })
-
   test('saves cache with right paths', async () => {
     await moveNextDist()
 

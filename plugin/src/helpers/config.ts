@@ -1,4 +1,4 @@
-import { readJSON } from 'fs-extra'
+import { readJSON, writeJSON } from 'fs-extra'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'
 import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
@@ -35,6 +35,25 @@ export const getNextConfig = async function getNextConfig({
     return failBuild('Error loading your Next config', { error })
   }
 }
+
+/**
+ * Returns all of the NextJS configuration stored within 'required-server-files.json'
+ * To update the configuration within this file, use the 'updateRequiredServerFiles' method.
+ */
+ export const getRequiredServerFiles = async (publish: string): Promise<RequiredServerFiles> => {
+  const configFile = join(publish, 'required-server-files.json')
+  return await readJSON(configFile)
+}
+
+/**
+ * Writes a modified configuration object to 'required-server-files.json'.
+ * To get the full configuration, use the 'getRequiredServerFiles' method.
+ */
+export const updateRequiredServerFiles = async (publish: string, modifiedConfig: RequiredServerFiles) => {
+  const configFile = join(publish, 'required-server-files.json')
+  await writeJSON(configFile, modifiedConfig)
+}
+
 
 const resolveModuleRoot = (moduleName) => {
   try {
