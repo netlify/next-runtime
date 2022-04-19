@@ -27,7 +27,7 @@ export const getNextConfig = async function getNextConfig({
     const { config, appDir, ignore }: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
     if (!config) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore We have no error object to pass
+      // @ts-ignore
       return failBuild('Error loading your Next config')
     }
     return { ...config, appDir, ignore }
