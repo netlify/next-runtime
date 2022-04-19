@@ -2,6 +2,9 @@
 command = "npm run build"
 publish = ".next"
 
+[environment]
+NEXT_USE_NETLIFY_EDGE = "true"
+
 [[plugins]]
 package = "../plugin-wrapper/"
 
