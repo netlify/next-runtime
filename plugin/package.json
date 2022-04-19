@@ -1,5 +1,5 @@
 {
-  "name": "@netlify-labs/plugin-nextjs",
+  "name": "@netlify/plugin-nextjs",
   "version": "4.3.2",
   "description": "Run Next.js seamlessly on Netlify",
   "main": "lib/index.js",
