@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.4.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.4.0...plugin-nextjs-v4.4.1) (2022-04-19)
+
+
+### Bug Fixes
+
+* copy edge src file  ([#1315](https://github.com/netlify/netlify-plugin-nextjs/issues/1315)) ([ccdb544](https://github.com/netlify/netlify-plugin-nextjs/commit/ccdb54477a2836a433f10d7eabbb8bb3553a18d7))
+
 ## [4.4.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.3.2...plugin-nextjs-v4.4.0) (2022-04-19)
 
 ### Features
