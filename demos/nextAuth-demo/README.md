@@ -27,6 +27,6 @@ To add a Netlify OAuth application:
 * Enter an application name
 * Enter a redirect URI (for the purposes of this demo application you would use `http://localhost:3000/api/auth/callback/netlify`)
 * Save the application, and copy the value for 'Client ID' as the `NETLIFY_CLIENT_ID` and the 'Client Secret' as the `NETLIFY_CLIENT_SECRET` into your `.env.local` file within the project
-  * If you're testing this on a deployed Netlify site you'll need to set the environment variables as part of the `Site Settings > Build & Deploy > Environment` settings
+  * If you're testing this on a deployed Netlify site you'll need to set the environment variables as part of the `Site Settings > Build & Deploy > Environment` settings. You'll also need to generate a `NEXTAUTH_SECRET` environment variable and set that for a production build.
 
 For configuring additional authentication providers, see the original documentation [here](https://github.com/nextauthjs/next-auth-example#3-configure-authentication-providers)
