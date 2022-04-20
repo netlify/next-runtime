@@ -89,6 +89,7 @@
   "workspaces": [
     "plugin",
     "demos/default",
+    "demos/nextAuth-demo",
     "demos/static-root",
     "demos/next-export",
     "demos/base-path",

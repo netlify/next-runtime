@@ -10,7 +10,7 @@
   "homepage": "https://next-auth-example.vercel.app",
   "main": "",
   "scripts": {
-    "dev": "next",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "types": "tsc --noEmit"
@@ -23,7 +23,6 @@
   ],
   "license": "ISC",
   "dependencies": {
-    "next": "^12.0.11-canary.4",
     "next-auth": "latest",
     "nodemailer": "^6.6.3",
     "react": "^17.0.2",
