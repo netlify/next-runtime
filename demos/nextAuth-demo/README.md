@@ -1,10 +1,12 @@
 ## NextAuth.js Example
 
-This example project came from the [next-auth-example](https://github.com/nextauthjs/next-auth-example) project provided by the NextAuth.js and was modified to use Netlify as the authentication provider as an example.
+This example project came from [next-auth-example](https://github.com/nextauthjs/next-auth-example) provided by the NextAuth.js and was modified to use Netlify as the authentication provider as an example.
 
 For more details on how to get set up and configured with various providers, visit the link above.
 
 ### Running locally
+
+Within this project directory:
 
 ```
 npm install
@@ -19,9 +21,9 @@ Copy the .env.local.example file in this directory to .env.local (which will be 
 cp .env.local.example .env.local
 ```
 
-Add details for the [Netlify Provider](https://next-auth.js.org/providers/netlify). 
+Add details for the [Netlify Provider](https://next-auth.js.org/providers/netlify), which will require create a Netlify OAuth application.
 
-To add a Netlify OAuth application:
+To create a Netlify OAuth application:
 * Visit `https://app.netlify.com/user/applications`
 * Click 'New OAuth App'
 * Enter an application name
