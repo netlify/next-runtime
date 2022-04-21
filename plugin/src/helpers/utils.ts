@@ -179,9 +179,9 @@ export const isNextAuthInstalled = (): boolean => {
   try {
     // eslint-disable-next-line import/no-unassigned-import, node/no-extraneous-require, import/no-extraneous-dependencies
     require('next-auth')
+    return true
   } catch {
     // Ignore the MODULE_NOT_FOUND error
     return false
   }
-  return true
 }

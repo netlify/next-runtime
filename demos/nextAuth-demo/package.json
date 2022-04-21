@@ -35,5 +35,8 @@
   },
   "prettier": {
     "semi": false
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
