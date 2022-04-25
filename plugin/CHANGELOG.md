@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.4.3](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.4.2...plugin-nextjs-v4.4.3) (2022-04-25)
+
+
+### Bug Fixes
+
+* pass x-middleware-rewrite header to client ([#1322](https://github.com/netlify/netlify-plugin-nextjs/issues/1322)) ([ed17658](https://github.com/netlify/netlify-plugin-nextjs/commit/ed176586916aef892d3c126e10ac0e0b97875510))
+
 ### [4.4.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.4.1...plugin-nextjs-v4.4.2) (2022-04-19)
 
 
