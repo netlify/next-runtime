@@ -33,11 +33,9 @@ export const buildResponse = async ({
   request.headers.set('x-nf-next-middleware', 'skip')
   const rewrite = res.headers.get('x-middleware-rewrite')
   if (rewrite) {
-    res.headers.delete('x-middleware-rewrite')
     return addMiddlewareHeaders(context.rewrite(rewrite), res)
   }
   if (res.headers.get('x-middleware-next') === '1') {
-    res.headers.delete('x-middleware-next')
     return addMiddlewareHeaders(context.next(), res)
   }
   return res
