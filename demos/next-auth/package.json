@@ -1,8 +1,8 @@
 {
-  "name": "next-auth-example",
+  "name": "next-auth-demo",
   "version": "0.0.0",
   "private": true,
-  "description": "An example project for NextAuth.js",
+  "description": "An example project using NextAuth.js",
   "repository": "https://github.com/nextauthjs/next-auth-example.git",
   "bugs": {
     "url": "https://github.com/nextauthjs/next-auth/issues"
