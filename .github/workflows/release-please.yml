@@ -27,7 +27,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
         if: ${{ steps.release.outputs.releases_created }}
       - name: Install dependencies
-        run: npm ci
+        run: CI=1 npm ci
         working-directory: plugin
         if: ${{ steps.release.outputs.releases_created }}
       - run: npm publish
