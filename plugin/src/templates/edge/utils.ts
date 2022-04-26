@@ -27,7 +27,8 @@ export const addMiddlewareHeaders = async (
     return originResponse
   }
   // We need to await the response to get the origin headers, then we can add the ones from middleware.
-  const response = await originResponse
+  const res = await originResponse
+  const response = new Response(res.body, res)
   middlewareResponse.headers.forEach((value, key) => {
     response.headers.set(key, value)
   })
@@ -46,6 +47,13 @@ export const buildResponse = async ({
   request.headers.set('x-nf-next-middleware', 'skip')
   const rewrite = res.headers.get('x-middleware-rewrite')
   if (rewrite) {
+    const rewriteUrl = new URL(rewrite, request.url)
+    const baseUrl = new URL(request.url)
+    if(rewriteUrl.hostname !== baseUrl.hostname) {
+      // Netlify Edge Functions don't support proxying to external domains, but Next middleware does
+      const proxied = fetch(new Request(rewriteUrl.toString(), request))
+      return addMiddlewareHeaders(proxied, res)
+    }
     res.headers.set('x-middleware-rewrite', relativizeURL(rewrite, request.url))
     return addMiddlewareHeaders(context.rewrite(rewrite), res)
   }
