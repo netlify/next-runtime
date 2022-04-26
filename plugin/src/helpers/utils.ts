@@ -174,3 +174,14 @@ export const findModuleFromBase = ({ paths, candidates }): string | null => {
   }
   return null
 }
+
+export const isNextAuthInstalled = (): boolean => {
+  try {
+    // eslint-disable-next-line import/no-unassigned-import, import/no-unresolved, node/no-missing-require
+    require('next-auth')
+    return true
+  } catch {
+    // Ignore the MODULE_NOT_FOUND error
+    return false
+  }
+}

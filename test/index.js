@@ -1,3 +1,10 @@
+jest.mock('../plugin/src/helpers/utils', () => {
+  return {
+    ...(jest.requireActual('../plugin/src/helpers/utils')),
+    isNextAuthInstalled: jest.fn()
+  }
+});
+
 const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson } = require('fs-extra')
 const path = require('path')
 const process = require('process')
@@ -18,6 +25,7 @@ const {
   patchNextFiles,
   unpatchNextFiles,
 } = require('../plugin/src/helpers/files')
+const { getRequiredServerFiles } = require('../plugin/src/helpers/config');
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
 
@@ -205,6 +213,48 @@ describe('preBuild()', () => {
 })
 
 describe('onBuild()', () => {
+  const { isNextAuthInstalled } = require('../plugin/src/helpers/utils')
+
+  beforeEach(() => {
+    isNextAuthInstalled.mockImplementation(() => {
+      return true;
+    })
+  })
+
+  test('sets NEXTAUTH_URL when next-auth package is detected', async () => {
+    const mockSiteUrl = "https://my-netlify-site.app";
+    
+    // Value represents the main address to the site and is either
+    // a Netlify subdomain or custom domain set by the user.
+    // See https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata
+    process.env.URL = mockSiteUrl;
+    
+    await moveNextDist()
+
+    await plugin.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish);
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(mockSiteUrl)
+
+    delete process.env.URL;
+  })
+
+  test('skips setting NEXTAUTH_URL when next-auth package is not found', async () => {
+    isNextAuthInstalled.mockImplementation(() => {
+      return false;
+    })
+
+    await moveNextDist()
+    await plugin.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish);
+
+    expect(config.config.env.NEXTAUTH_URL).toBeUndefined();
+  })
+
   test('runs onBuild', async () => {
     await moveNextDist()
 
