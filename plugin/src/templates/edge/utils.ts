@@ -5,6 +5,19 @@ export interface FetchEventResult {
   waitUntil: Promise<any>
 }
 
+/**
+ * This is how Next handles rewritten URLs.
+ */
+ export function relativizeURL(url: string | string, base: string | URL) {
+  const baseURL = typeof base === 'string' ? new URL(base) : base
+  const relative = new URL(url, base)
+  const origin = `${baseURL.protocol}//${baseURL.host}`
+  return `${relative.protocol}//${relative.host}` === origin
+    ? relative.toString().replace(origin, '')
+    : relative.toString()
+}
+
+
 export const addMiddlewareHeaders = async (
   originResponse: Promise<Response> | Response,
   middlewareResponse: Response,
@@ -33,6 +46,7 @@ export const buildResponse = async ({
   request.headers.set('x-nf-next-middleware', 'skip')
   const rewrite = res.headers.get('x-middleware-rewrite')
   if (rewrite) {
+    res.headers.set('x-middleware-rewrite', relativizeURL(rewrite, request.url))
     return addMiddlewareHeaders(context.rewrite(rewrite), res)
   }
   if (res.headers.get('x-middleware-next') === '1') {
