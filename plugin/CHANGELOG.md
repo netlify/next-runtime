@@ -1,5 +1,12 @@
 # Changelog
 
+### [4.4.4](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.4.3...plugin-nextjs-v4.4.4) (2022-04-26)
+
+
+### Bug Fixes
+
+* handle absolute rewrite URLs ([#1325](https://github.com/netlify/netlify-plugin-nextjs/issues/1325)) ([f8f8e85](https://github.com/netlify/netlify-plugin-nextjs/commit/f8f8e850e43ee6fc154eba3e224ddf606e721a6d))
+
 ### [4.4.3](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.4.2...plugin-nextjs-v4.4.3) (2022-04-25)
 
 
