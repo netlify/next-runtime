@@ -16,7 +16,9 @@ export default function Home() {
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
 
-        <p><Link href="/shows/rewriteme">Rewrite me</Link></p>
+        <p><Link href="/shows/rewriteme">Rewrite URL</Link></p>
+        <p><Link href="/shows/rewrite-absolute">Rewrite to absolute URL</Link></p>
+        <p><Link href="/shows/rewrite-external">Rewrite to external URL</Link></p>
       </main>
     </div>
   )
