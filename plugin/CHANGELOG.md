@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.4.4...plugin-nextjs-v4.5.0) (2022-04-26)
+
+
+### Features
+
+* ✨ add out-of-the-box support for NextAuth.js   ([#1309](https://github.com/netlify/netlify-plugin-nextjs/issues/1309)) ([45c0978](https://github.com/netlify/netlify-plugin-nextjs/commit/45c0978dcad92b6ba028850598425875d09fcf32))
+
 ### [4.4.4](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.4.3...plugin-nextjs-v4.4.4) (2022-04-26)
 
 
