@@ -78,6 +78,8 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
       '.env.local',
       '.env.production',
       '.env.production.local',
+      './public/locales/**',
+      './next-i18next.config.js',
       `${publish}/server/**`,
       `${publish}/serverless/**`,
       `${publish}/*.json`,
