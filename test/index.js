@@ -1,9 +1,9 @@
 jest.mock('../plugin/src/helpers/utils', () => {
   return {
-    ...(jest.requireActual('../plugin/src/helpers/utils')),
-    isNextAuthInstalled: jest.fn()
+    ...jest.requireActual('../plugin/src/helpers/utils'),
+    isNextAuthInstalled: jest.fn(),
   }
-});
+})
 
 const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson } = require('fs-extra')
 const path = require('path')
@@ -25,7 +25,7 @@ const {
   patchNextFiles,
   unpatchNextFiles,
 } = require('../plugin/src/helpers/files')
-const { getRequiredServerFiles } = require('../plugin/src/helpers/config');
+const { getRequiredServerFiles } = require('../plugin/src/helpers/config')
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
 
@@ -217,42 +217,42 @@ describe('onBuild()', () => {
 
   beforeEach(() => {
     isNextAuthInstalled.mockImplementation(() => {
-      return true;
+      return true
     })
   })
 
   test('sets NEXTAUTH_URL when next-auth package is detected', async () => {
-    const mockSiteUrl = "https://my-netlify-site.app";
-    
+    const mockSiteUrl = 'https://my-netlify-site.app'
+
     // Value represents the main address to the site and is either
     // a Netlify subdomain or custom domain set by the user.
     // See https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata
-    process.env.URL = mockSiteUrl;
-    
+    process.env.URL = mockSiteUrl
+
     await moveNextDist()
 
     await plugin.onBuild(defaultArgs)
 
     expect(onBuildHasRun(netlifyConfig)).toBe(true)
-    const config = await getRequiredServerFiles(netlifyConfig.build.publish);
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
 
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockSiteUrl)
 
-    delete process.env.URL;
+    delete process.env.URL
   })
 
   test('skips setting NEXTAUTH_URL when next-auth package is not found', async () => {
     isNextAuthInstalled.mockImplementation(() => {
-      return false;
+      return false
     })
 
     await moveNextDist()
     await plugin.onBuild(defaultArgs)
 
     expect(onBuildHasRun(netlifyConfig)).toBe(true)
-    const config = await getRequiredServerFiles(netlifyConfig.build.publish);
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
 
-    expect(config.config.env.NEXTAUTH_URL).toBeUndefined();
+    expect(config.config.env.NEXTAUTH_URL).toBeUndefined()
   })
 
   test('runs onBuild', async () => {
@@ -397,6 +397,8 @@ describe('onBuild()', () => {
       '.env.local',
       '.env.production',
       '.env.production.local',
+      './public/locales/**',
+      './next-i18next.config.js',
       '.next/server/**',
       '.next/serverless/**',
       '.next/*.json',
