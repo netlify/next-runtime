@@ -68,6 +68,7 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
   /* eslint-disable no-underscore-dangle */
   netlifyConfig.functions._ipx ||= {}
   netlifyConfig.functions._ipx.node_bundler = 'nft'
+
   /* eslint-enable no-underscore-dangle */
   ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
     netlifyConfig.functions[functionName] ||= { included_files: [], external_node_modules: [] }
@@ -78,6 +79,8 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
       '.env.local',
       '.env.production',
       '.env.production.local',
+      './public/locales/**',
+      './next-i18next.config.js',
       `${publish}/server/**`,
       `${publish}/serverless/**`,
       `${publish}/*.json`,

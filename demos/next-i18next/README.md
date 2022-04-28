@@ -3,6 +3,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with
 
 ## Getting Started
 
+To visit this demo site, visit [https://next-i18next-demo.netlify.app/](https://next-i18next-demo.netlify.app/)
+
 First, run the development server:
 
 ```bash
