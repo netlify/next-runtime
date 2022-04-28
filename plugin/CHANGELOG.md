@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.6.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.5.0...plugin-nextjs-v4.6.0) (2022-04-28)
+
+
+### Features
+
+* Add support for next-i18next ([#1331](https://github.com/netlify/netlify-plugin-nextjs/issues/1331)) ([5780e6b](https://github.com/netlify/netlify-plugin-nextjs/commit/5780e6b5710ca84c75a272d00fa43a3ad3b87289))
+
 ## [4.5.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.4.4...plugin-nextjs-v4.5.0) (2022-04-26)
 
 
