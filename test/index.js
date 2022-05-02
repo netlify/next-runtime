@@ -25,7 +25,7 @@ const {
   patchNextFiles,
   unpatchNextFiles,
 } = require('../plugin/src/helpers/files')
-const { getRequiredServerFiles } = require('../plugin/src/helpers/config')
+const { getRequiredServerFiles, updateRequiredServerFiles } = require('../plugin/src/helpers/config')
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
 
@@ -237,6 +237,26 @@ describe('onBuild()', () => {
     const config = await getRequiredServerFiles(netlifyConfig.build.publish)
 
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockSiteUrl)
+
+    delete process.env.URL
+  })
+
+  test('includes the basePath on NEXTAUTH_URL when present', async () => {
+    const mockSiteUrl = 'https://my-netlify-site.app'
+    process.env.URL = mockSiteUrl
+
+    await moveNextDist()
+    
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+    initialConfig.config.basePath = "/foo"
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+    
+    await plugin.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(`${mockSiteUrl}/foo`)
 
     delete process.env.URL
   })
