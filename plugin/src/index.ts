@@ -79,7 +79,7 @@ const plugin: NetlifyPlugin = {
       console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${process.env.URL}`)
 
       const config = await getRequiredServerFiles(publish)
-      const nextAuthUrl = `${process.env.URL}${basePath}`;
+      const nextAuthUrl = `${process.env.URL}${basePath}`
       config.config.env.NEXTAUTH_URL = nextAuthUrl
 
       await updateRequiredServerFiles(publish, config)
