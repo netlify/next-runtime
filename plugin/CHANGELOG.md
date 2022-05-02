@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.7.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.6.0...plugin-nextjs-v4.7.0) (2022-05-02)
+
+
+### Features
+
+* Include basePath property in NEXTAUTH_URL when present in config ([#1336](https://github.com/netlify/netlify-plugin-nextjs/issues/1336)) ([346aad1](https://github.com/netlify/netlify-plugin-nextjs/commit/346aad1a46e0e774b68d0436a193909689a6eb49))
+
 ## [4.6.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.5.0...plugin-nextjs-v4.6.0) (2022-04-28)
 
 
