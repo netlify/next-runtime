@@ -26,7 +26,9 @@ export default function Home() {
           <Link href="/shows/rewrite-external">Rewrite to external URL</Link>
         </p>
         <p>
-          <Link href="/cookies">Cookie API</Link>
+          <Link href="/cookies" prefetch={false}>
+            Cookie API
+          </Link>
         </p>
       </main>
     </div>
