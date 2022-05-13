@@ -18,5 +18,10 @@
   "exclude": [
     "node_modules",
     "../../src/templates/edge/*"
+  ],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
   ]
 }
