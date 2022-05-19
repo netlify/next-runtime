@@ -21,6 +21,16 @@ request is made for stale content, the page will be regenerated in the backgroun
 but it can take up to 60 seconds before the new content is then updated in all CDN nodes if they already had a cached
 copy.
 
+If the static regeneration relies on local files in your repository they need to be bundled with the handler functions. 
+This can be done by modifying your [file based configuration](https://docs.netlify.com/configure-builds/file-based-configuration).
+An entry to the `included_files` option needs to be added under the `functions` option. 
+See [Functions Configuration Docs](https://docs.netlify.com/configure-builds/file-based-configuration/#functions) for more info.
+Update your `netlify.toml` file to include the following (assuming local content is located in the /content directory):
+```
+[functions]
+included_files = ["content/**"]
+```
+
 If a new deploy is made, all persisted pages and CDN cached pages will be invalidated so that conflicts are avoided. If
 this did not happen, a stale HTML page might make a request for an asset that no longer exists in the new deploy. By
 invalidating all persisted pages, you can be confident that this will never happen and that deploys remain atomic.
