@@ -1,9 +1,19 @@
+import type { NetlifyConfig } from '@netlify/build'
 import { readJSON, writeJSON } from 'fs-extra'
+import type { Header } from 'next/dist/lib/load-custom-routes'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'
 import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
+
+const ROUTES_MANIFEST_FILE = 'routes-manifest.json'
+
+type NetlifyHeaders = NetlifyConfig['headers']
+
+// This is the minimal amount of typing required for now
+// add other properties as needed from the routes-manifest.json
+export type RoutesManifest = { headers: Header[] }
 
 export interface RequiredServerFiles {
   version?: number
@@ -13,7 +23,10 @@ export interface RequiredServerFiles {
   ignore?: string[]
 }
 
-export type NextConfig = Pick<RequiredServerFiles, 'appDir' | 'ignore'> & NextConfigComplete
+export type NextConfig = Pick<RequiredServerFiles, 'appDir' | 'ignore'> &
+  NextConfigComplete & {
+    routesManifest?: RoutesManifest
+  }
 
 const defaultFailBuild = (message: string, { error }): never => {
   throw new Error(`${message}\n${error && error.stack}`)
@@ -24,13 +37,19 @@ export const getNextConfig = async function getNextConfig({
   failBuild = defaultFailBuild,
 }): Promise<NextConfig> {
   try {
-    const { config, appDir, ignore }: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
+    const { config, appDir, ignore, files }: RequiredServerFiles = await readJSON(
+      join(publish, 'required-server-files.json'),
+    )
     if (!config) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       return failBuild('Error loading your Next config')
     }
-    return { ...config, appDir, ignore }
+
+    const routesManifest = (await readJSON(files.find((f) => f.endsWith(ROUTES_MANIFEST_FILE)))) as RoutesManifest
+
+    // If you need access to other manifest files, you can add them here as well
+    return { ...config, appDir, ignore, routesManifest }
   } catch (error: unknown) {
     return failBuild('Error loading your Next config', { error })
   }
@@ -107,4 +126,23 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
       }
     })
   })
+}
+
+/**
+ * Persist NEXT.js custom headers to the Netlify configuration so the headers work with static files
+ *
+ * @param customHeaders - Custom headers defined in the Next.js configuration
+ * @param netlifyHeaders - Existing headers that are already configured in the Netlify configuration
+ */
+export const generateCustomHeaders = (customHeaders: Header[] = [], netlifyHeaders: NetlifyHeaders = []) => {
+  for (const { source, headers } of customHeaders) {
+    netlifyHeaders.push({
+      for: source,
+      values: headers.reduce((builtHeaders, { key, value }) => {
+        builtHeaders[key] = value
+
+        return builtHeaders
+      }, {}),
+    })
+  }
 }
