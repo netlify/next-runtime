@@ -46,7 +46,8 @@ export const getNextConfig = async function getNextConfig({
       return failBuild('Error loading your Next config')
     }
 
-    const routesManifest = (await readJSON(files.find((f) => f.endsWith(ROUTES_MANIFEST_FILE)))) as RoutesManifest
+    const routeManifestFile = files.find((f) => f.endsWith(ROUTES_MANIFEST_FILE))
+    const routesManifest = (routeManifestFile ? await readJSON(routeManifestFile) : {}) as RoutesManifest
 
     // If you need access to other manifest files, you can add them here as well
     return { ...config, appDir, ignore, routesManifest }
