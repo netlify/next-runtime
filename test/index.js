@@ -26,9 +26,14 @@ const {
   patchNextFiles,
   unpatchNextFiles,
 } = require('../plugin/src/helpers/files')
-const { getRequiredServerFiles, updateRequiredServerFiles } = require('../plugin/src/helpers/config')
+const {
+  getRequiredServerFiles,
+  updateRequiredServerFiles,
+  generateCustomHeaders,
+} = require('../plugin/src/helpers/config')
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
+const { onPostBuild } = require('../plugin/lib')
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
@@ -269,11 +274,11 @@ describe('onBuild()', () => {
     process.env.URL = mockSiteUrl
 
     await moveNextDist()
-    
+
     const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
-    initialConfig.config.basePath = "/foo"
+    initialConfig.config.basePath = '/foo'
     await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
-    
+
     await plugin.onBuild(defaultArgs)
 
     expect(onBuildHasRun(netlifyConfig)).toBe(true)
@@ -807,5 +812,87 @@ describe('function helpers', () => {
     await expect(downloadFile(url, tmpFile)).rejects.toThrowError(
       'Failed to download https://example.com/nonexistentfile: 404 Not Found',
     )
+  })
+})
+
+describe('custom headers', () => {
+  it('sets custom headers in the Netlify configuration', async () => {
+    netlifyConfig.headers = []
+    const headers = [
+      // single header for a route
+      {
+        source: '/',
+        headers: [
+          {
+            key: 'X-Unit-Test',
+            value: 'true',
+          },
+        ],
+        regex: '^/(?:/)?$',
+      },
+      // multiple headers for a route
+      {
+        source: '/unit-test',
+        headers: [
+          {
+            key: 'X-Another-Unit-Test',
+            value: 'true',
+          },
+          {
+            key: 'X-Another-Unit-Test-Again',
+            value: 'true',
+          },
+        ],
+        regex: '^/(?:/)?$',
+      },
+    ]
+
+    generateCustomHeaders(headers, netlifyConfig.headers)
+
+    expect(netlifyConfig.headers).toMatchSnapshot()
+  })
+
+  it('appends custom headers in the Netlify configuration', async () => {
+    netlifyConfig.headers = [
+      {
+        for: '/',
+        values: {
+          'X-Existing-Header': 'true',
+        },
+      },
+    ]
+
+    const headers = [
+      // single header for a route
+      {
+        source: '/',
+        headers: [
+          {
+            key: 'X-Unit-Test',
+            value: 'true',
+          },
+        ],
+        regex: '^/(?:/)?$',
+      },
+      // multiple headers for a route
+      {
+        source: '/unit-test',
+        headers: [
+          {
+            key: 'X-Another-Unit-Test',
+            value: 'true',
+          },
+          {
+            key: 'X-Another-Unit-Test-Again',
+            value: 'true',
+          },
+        ],
+        regex: '^/(?:/)?$',
+      },
+    ]
+
+    generateCustomHeaders(headers, netlifyConfig.headers)
+
+    expect(netlifyConfig.headers).toMatchSnapshot()
   })
 })

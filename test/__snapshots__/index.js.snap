@@ -1,5 +1,47 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`custom headers appends custom headers in the Netlify configuration 1`] = `
+Array [
+  Object {
+    "for": "/",
+    "values": Object {
+      "X-Existing-Header": "true",
+    },
+  },
+  Object {
+    "for": "/",
+    "values": Object {
+      "X-Unit-Test": "true",
+    },
+  },
+  Object {
+    "for": "/unit-test",
+    "values": Object {
+      "X-Another-Unit-Test": "true",
+      "X-Another-Unit-Test-Again": "true",
+    },
+  },
+]
+`;
+
+exports[`custom headers sets custom headers in the Netlify configuration 1`] = `
+Array [
+  Object {
+    "for": "/",
+    "values": Object {
+      "X-Unit-Test": "true",
+    },
+  },
+  Object {
+    "for": "/unit-test",
+    "values": Object {
+      "X-Another-Unit-Test": "true",
+      "X-Another-Unit-Test-Again": "true",
+    },
+  },
+]
+`;
+
 exports[`onBuild() generates a file referencing all page sources 1`] = `
 "// This file is purely to allow nft to know about these pages. It should be temporary.
 exports.resolvePages = () => {
