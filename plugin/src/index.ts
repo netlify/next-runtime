@@ -76,13 +76,22 @@ const plugin: NetlifyPlugin = {
     })
 
     if (isNextAuthInstalled()) {
-      console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${process.env.URL}`)
-
       const config = await getRequiredServerFiles(publish)
-      const nextAuthUrl = `${process.env.URL}${basePath}`
-      config.config.env.NEXTAUTH_URL = nextAuthUrl
 
-      await updateRequiredServerFiles(publish, config)
+      const userDefinedNextAuthUrl = config.config.env.NEXTAUTH_URL
+
+      if (userDefinedNextAuthUrl) {
+        console.log(
+          `NextAuth package detected, NEXTAUTH_URL environment variable set by user to ${userDefinedNextAuthUrl}`,
+        )
+      } else {
+        console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${process.env.URL}`)
+
+        const nextAuthUrl = `${process.env.URL}${basePath}`
+        config.config.env.NEXTAUTH_URL = nextAuthUrl
+
+        await updateRequiredServerFiles(publish, config)
+      }
     }
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()

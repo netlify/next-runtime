@@ -5,6 +5,7 @@ jest.mock('../plugin/src/helpers/utils', () => {
   }
 })
 
+const Chance = require('chance')
 const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson } = require('fs-extra')
 const path = require('path')
 const process = require('process')
@@ -29,6 +30,7 @@ const { getRequiredServerFiles, updateRequiredServerFiles } = require('../plugin
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
 
+const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
 const constants = {
@@ -221,8 +223,27 @@ describe('onBuild()', () => {
     })
   })
 
+  test('does not set NEXTAUTH_URL if value is already set', async () => {
+    const mockUserDefinedSiteUrl = chance.url()
+    process.env.URL = chance.url()
+
+    await moveNextDist()
+    
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+    
+    initialConfig.config.env.NEXTAUTH_URL = mockUserDefinedSiteUrl
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await plugin.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
+  })
+
   test('sets NEXTAUTH_URL when next-auth package is detected', async () => {
-    const mockSiteUrl = 'https://my-netlify-site.app'
+    const mockSiteUrl = chance.url()
 
     // Value represents the main address to the site and is either
     // a Netlify subdomain or custom domain set by the user.
@@ -242,7 +263,7 @@ describe('onBuild()', () => {
   })
 
   test('includes the basePath on NEXTAUTH_URL when present', async () => {
-    const mockSiteUrl = 'https://my-netlify-site.app'
+    const mockSiteUrl = chance.url()
     process.env.URL = mockSiteUrl
 
     await moveNextDist()
