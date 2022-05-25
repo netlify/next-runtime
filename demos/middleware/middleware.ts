@@ -1,26 +1,27 @@
 import { NextResponse } from 'next/server'
 import { NextFetchEvent, NextRequest } from 'next/server'
 
-export function middleware(req: NextRequest, ev: NextFetchEvent) {
-  if (req.nextUrl.pathname.startsWith('/cookies')) {
-    let res = NextResponse.next()
-    res.cookies.set('netlifyCookie', 'true')
-    return res
+export function middleware(request: NextRequest, ev: NextFetchEvent) {
+  let response
+  const {nextUrl: {pathname}} = request
+
+  if (pathname.startsWith('/cookies')) {
+    response = NextResponse.next()
+    response.cookies.set('netlifyCookie', 'true')
+    return response
   }
 
-  if (req.nextUrl.pathname.startsWith('/shows')) {
-    let response
-
-    if (req.nextUrl.pathname.startsWith('/shows/rewrite-absolute')) {
-      response = NextResponse.rewrite(new URL('/shows/100', req.url))
+  if (pathname.startsWith('/shows')) {
+    if (pathname.startsWith('/shows/rewrite-absolute')) {
+      response = NextResponse.rewrite(new URL('/shows/100', request.url))
       response.headers.set('x-modified-in-rewrite', 'true')
     }
-    if (req.nextUrl.pathname.startsWith('/shows/rewrite-external')) {
+    if (pathname.startsWith('/shows/rewrite-external')) {
       response = NextResponse.rewrite('http://example.com/')
       response.headers.set('x-modified-in-rewrite', 'true')
     }
-    if (req.nextUrl.pathname.startsWith('/shows/rewriteme')) {
-      const url = req.nextUrl.clone()
+    if (pathname.startsWith('/shows/rewriteme')) {
+      const url = request.nextUrl.clone()
       url.pathname = '/shows/100'
       response = NextResponse.rewrite(url)
       response.headers.set('x-modified-in-rewrite', 'true')
