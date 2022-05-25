@@ -35,17 +35,14 @@ export const getNextConfig = async function getNextConfig({
   failBuild = defaultFailBuild,
 }): Promise<NextConfig> {
   try {
-    const { config, appDir, ignore, files }: RequiredServerFiles = await readJSON(
-      join(publish, 'required-server-files.json'),
-    )
+    const { config, appDir, ignore }: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
     if (!config) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       return failBuild('Error loading your Next config')
     }
 
-    const routeManifestFile = files.find((f) => f.endsWith(ROUTES_MANIFEST_FILE))
-    const routesManifest = (routeManifestFile ? await readJSON(routeManifestFile) : {}) as RoutesManifest
+    const routesManifest: RoutesManifest = await readJSON(join(publish, ROUTES_MANIFEST_FILE))
 
     // If you need access to other manifest files, you can add them here as well
     return { ...config, appDir, ignore, routesManifest }
