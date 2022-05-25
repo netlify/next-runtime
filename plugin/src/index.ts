@@ -85,9 +85,9 @@ const plugin: NetlifyPlugin = {
           `NextAuth package detected, NEXTAUTH_URL environment variable set by user to ${userDefinedNextAuthUrl}`,
         )
       } else {
-        console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${process.env.URL}`)
-
         const nextAuthUrl = `${process.env.URL}${basePath}`
+
+        console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
         config.config.env.NEXTAUTH_URL = nextAuthUrl
 
         await updateRequiredServerFiles(publish, config)
