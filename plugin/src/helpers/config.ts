@@ -7,13 +7,11 @@ import slash from 'slash'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
+import type { RoutesManifest } from './types'
+
 const ROUTES_MANIFEST_FILE = 'routes-manifest.json'
 
 type NetlifyHeaders = NetlifyConfig['headers']
-
-// This is the minimal amount of typing required for now
-// add other properties as needed from the routes-manifest.json
-export type RoutesManifest = { headers: Header[] }
 
 export interface RequiredServerFiles {
   version?: number
