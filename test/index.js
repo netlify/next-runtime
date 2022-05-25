@@ -223,6 +223,10 @@ describe('onBuild()', () => {
     })
   })
 
+  afterEach(() => {
+    delete process.env.URL
+  })
+
   test('does not set NEXTAUTH_URL if value is already set', async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.URL = chance.url()
@@ -258,8 +262,6 @@ describe('onBuild()', () => {
     const config = await getRequiredServerFiles(netlifyConfig.build.publish)
 
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockSiteUrl)
-
-    delete process.env.URL
   })
 
   test('includes the basePath on NEXTAUTH_URL when present', async () => {
@@ -278,8 +280,6 @@ describe('onBuild()', () => {
     const config = await getRequiredServerFiles(netlifyConfig.build.publish)
 
     expect(config.config.env.NEXTAUTH_URL).toEqual(`${mockSiteUrl}/foo`)
-
-    delete process.env.URL
   })
 
   test('skips setting NEXTAUTH_URL when next-auth package is not found', async () => {
