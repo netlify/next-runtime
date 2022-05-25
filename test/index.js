@@ -816,7 +816,7 @@ describe('function helpers', () => {
 })
 
 describe('custom headers', () => {
-  it('sets custom headers in the Netlify configuration', async () => {
+  it('sets custom headers in the Netlify configuration', () => {
     netlifyConfig.headers = []
     const headers = [
       // single header for a route
@@ -852,7 +852,7 @@ describe('custom headers', () => {
     expect(netlifyConfig.headers).toMatchSnapshot()
   })
 
-  it('appends custom headers in the Netlify configuration', async () => {
+  it('appends custom headers in the Netlify configuration', () => {
     netlifyConfig.headers = [
       {
         for: '/',
