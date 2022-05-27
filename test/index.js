@@ -237,9 +237,9 @@ describe('onBuild()', () => {
     process.env.URL = chance.url()
 
     await moveNextDist()
-    
+
     const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
-    
+
     initialConfig.config.env.NEXTAUTH_URL = mockUserDefinedSiteUrl
     await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
 
@@ -840,6 +840,52 @@ describe('custom headers', () => {
           },
           {
             key: 'X-Another-Unit-Test-Again',
+            value: 'true',
+          },
+        ],
+        regex: '^/(?:/)?$',
+      },
+    ]
+
+    generateCustomHeaders(headers, netlifyConfig.headers)
+
+    expect(netlifyConfig.headers).toMatchSnapshot()
+  })
+
+  it('sets custom headers using a splat instead of a named splat in the Netlify configuration', () => {
+    netlifyConfig.headers = []
+    const headers = [
+      // single header for a route
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Unit-Test',
+            value: 'true',
+          },
+        ],
+        regex: '^/(?:/)?$',
+      },
+      // multiple headers for a route
+      {
+        source: '/some-other-path/:path*',
+        headers: [
+          {
+            key: 'X-Another-Unit-Test',
+            value: 'true',
+          },
+          {
+            key: 'X-Another-Unit-Test-Again',
+            value: 'true',
+          },
+        ],
+        regex: '^/(?:/)?$',
+      },
+      {
+        source: '/some-other-path/:path*/yolo/:path',
+        headers: [
+          {
+            key: 'X-Another-Unit-Test',
             value: 'true',
           },
         ],

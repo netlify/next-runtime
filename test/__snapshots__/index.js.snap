@@ -42,6 +42,30 @@ Array [
 ]
 `;
 
+exports[`custom headers sets custom headers using a splat instead of a named splat in the Netlify configuration 1`] = `
+Array [
+  Object {
+    "for": "/*",
+    "values": Object {
+      "X-Unit-Test": "true",
+    },
+  },
+  Object {
+    "for": "/some-other-path/*",
+    "values": Object {
+      "X-Another-Unit-Test": "true",
+      "X-Another-Unit-Test-Again": "true",
+    },
+  },
+  Object {
+    "for": "/some-other-path/*/yolo/:path",
+    "values": Object {
+      "X-Another-Unit-Test": "true",
+    },
+  },
+]
+`;
+
 exports[`onBuild() generates a file referencing all page sources 1`] = `
 "// This file is purely to allow nft to know about these pages. It should be temporary.
 exports.resolvePages = () => {

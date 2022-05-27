@@ -133,7 +133,8 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
 export const generateCustomHeaders = (customHeaders: Header[] = [], netlifyHeaders: NetlifyHeaders = []) => {
   for (const { source, headers } of customHeaders) {
     netlifyHeaders.push({
-      for: source,
+      // Replace the pattern :path* with * since it's a named splat
+      for: source.replace(/:[^*]+\*/g, '*'),
       values: headers.reduce((builtHeaders, { key, value }) => {
         builtHeaders[key] = value
 
