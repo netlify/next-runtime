@@ -1,6 +1,5 @@
 import type { NetlifyConfig } from '@netlify/build'
 import { readJSON, writeJSON } from 'fs-extra'
-import type { Header } from 'next/dist/lib/load-custom-routes'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'
 import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
@@ -127,19 +126,35 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
 /**
  * Persist NEXT.js custom headers to the Netlify configuration so the headers work with static files
  *
- * @param customHeaders - Custom headers defined in the Next.js configuration
+ * @param nextConfig - The NextJS configuration
  * @param netlifyHeaders - Existing headers that are already configured in the Netlify configuration
  */
-export const generateCustomHeaders = (customHeaders: Header[] = [], netlifyHeaders: NetlifyHeaders = []) => {
-  for (const { source, headers } of customHeaders) {
-    netlifyHeaders.push({
-      // Replace the pattern :path* with * since it's a named splat
-      for: source.replace(/:[^*]+\*/g, '*'),
-      values: headers.reduce((builtHeaders, { key, value }) => {
-        builtHeaders[key] = value
+export const generateCustomHeaders = (nextConfig: NextConfig, netlifyHeaders: NetlifyHeaders = []) => {
+  const {
+    basePath = '',
+    routesManifest: { headers: customHeaders = [] },
+  } = nextConfig
 
-        return builtHeaders
-      }, {}),
-    })
+  for (const { source, headers, has, basePath: useBasePath } of customHeaders) {
+    // Skip has based routes as they are more complex dynamic conditional header logic
+    // that currently isn't supported by the Netlify configuration.
+    // Also, this type of dynamic header logic is most likely not for static
+    if (!has) {
+      // Explicitly checkling false to make the check simpler.
+      // Basepath is excluded only if useBasePath is false. There is no true value for useBasePath. It's either false or undefined.
+      // eslint-disable-next-line no-negated-condition
+      const pathPrefix = useBasePath !== false ? basePath : ''
+      const path = pathPrefix + source.replace(/:[^*/]+\*$/, '*')
+
+      netlifyHeaders.push({
+        // Replace the pattern :path* at the end of a path with * since it's a named splat
+        for: path,
+        values: headers.reduce((builtHeaders, { key, value }) => {
+          builtHeaders[key] = value
+
+          return builtHeaders
+        }, {}),
+      })
+    }
   }
 }

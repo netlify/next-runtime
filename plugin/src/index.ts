@@ -163,9 +163,11 @@ const plugin: NetlifyPlugin = {
 
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
-    const { basePath, appDir, routesManifest } = await getNextConfig({ publish, failBuild })
+    const nextConfig = await getNextConfig({ publish, failBuild })
 
-    generateCustomHeaders(routesManifest.headers, headers)
+    const { basePath, appDir } = nextConfig
+
+    generateCustomHeaders(nextConfig, headers)
 
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
