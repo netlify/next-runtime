@@ -34,6 +34,7 @@ const {
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
 const { onPostBuild } = require('../plugin/lib')
+const { basePath } = require('../demos/next-i18next/next.config')
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
@@ -813,132 +814,347 @@ describe('function helpers', () => {
       'Failed to download https://example.com/nonexistentfile: 404 Not Found',
     )
   })
-})
 
-describe('custom headers', () => {
-  it('sets custom headers in the Netlify configuration', () => {
-    netlifyConfig.headers = []
-    const headers = [
-      // single header for a route
-      {
-        source: '/',
-        headers: [
-          {
-            key: 'X-Unit-Test',
-            value: 'true',
-          },
-        ],
-        regex: '^/(?:/)?$',
-      },
-      // multiple headers for a route
-      {
-        source: '/unit-test',
-        headers: [
-          {
-            key: 'X-Another-Unit-Test',
-            value: 'true',
-          },
-          {
-            key: 'X-Another-Unit-Test-Again',
-            value: 'true',
-          },
-        ],
-        regex: '^/(?:/)?$',
-      },
-    ]
+  describe('config', () => {
+    describe('generateCustomHeaders', () => {
+      it('sets custom headers in the Netlify configuration', () => {
+        netlifyConfig.headers = []
 
-    generateCustomHeaders(headers, netlifyConfig.headers)
-
-    expect(netlifyConfig.headers).toMatchSnapshot()
-  })
-
-  it('sets custom headers using a splat instead of a named splat in the Netlify configuration', () => {
-    netlifyConfig.headers = []
-    const headers = [
-      // single header for a route
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'X-Unit-Test',
-            value: 'true',
+        const nextConfig = {
+          routesManifest: {
+            headers: [
+              // single header for a route
+              {
+                source: '/',
+                headers: [
+                  {
+                    key: 'X-Unit-Test',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+              // multiple headers for a route
+              {
+                source: '/unit-test',
+                headers: [
+                  {
+                    key: 'X-Another-Unit-Test',
+                    value: 'true',
+                  },
+                  {
+                    key: 'X-Another-Unit-Test-Again',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+            ],
           },
-        ],
-        regex: '^/(?:/)?$',
-      },
-      // multiple headers for a route
-      {
-        source: '/some-other-path/:path*',
-        headers: [
+        }
+
+        generateCustomHeaders(nextConfig, netlifyConfig.headers)
+
+        expect(netlifyConfig.headers).toEqual([
           {
-            key: 'X-Another-Unit-Test',
-            value: 'true',
+            for: '/',
+            values: {
+              'X-Unit-Test': 'true',
+            },
           },
           {
-            key: 'X-Another-Unit-Test-Again',
-            value: 'true',
+            for: '/unit-test',
+            values: {
+              'X-Another-Unit-Test': 'true',
+              'X-Another-Unit-Test-Again': 'true',
+            },
           },
-        ],
-        regex: '^/(?:/)?$',
-      },
-      {
-        source: '/some-other-path/:path*/yolo/:path',
-        headers: [
+        ])
+      })
+
+      it('sets custom headers using a splat instead of a named splat in the Netlify configuration', () => {
+        netlifyConfig.headers = []
+
+        const nextConfig = {
+          routesManifest: {
+            headers: [
+              // single header for a route
+              {
+                source: '/:path*',
+                headers: [
+                  {
+                    key: 'X-Unit-Test',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+              // multiple headers for a route
+              {
+                source: '/some-other-path/:path*',
+                headers: [
+                  {
+                    key: 'X-Another-Unit-Test',
+                    value: 'true',
+                  },
+                  {
+                    key: 'X-Another-Unit-Test-Again',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+              {
+                source: '/some-other-path/yolo/:path*',
+                headers: [
+                  {
+                    key: 'X-Another-Unit-Test',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+            ],
+          },
+        }
+
+        generateCustomHeaders(nextConfig, netlifyConfig.headers)
+
+        expect(netlifyConfig.headers).toEqual([
           {
-            key: 'X-Another-Unit-Test',
-            value: 'true',
-          },
-        ],
-        regex: '^/(?:/)?$',
-      },
-    ]
-
-    generateCustomHeaders(headers, netlifyConfig.headers)
-
-    expect(netlifyConfig.headers).toMatchSnapshot()
-  })
-
-  it('appends custom headers in the Netlify configuration', () => {
-    netlifyConfig.headers = [
-      {
-        for: '/',
-        values: {
-          'X-Existing-Header': 'true',
-        },
-      },
-    ]
-
-    const headers = [
-      // single header for a route
-      {
-        source: '/',
-        headers: [
-          {
-            key: 'X-Unit-Test',
-            value: 'true',
-          },
-        ],
-        regex: '^/(?:/)?$',
-      },
-      // multiple headers for a route
-      {
-        source: '/unit-test',
-        headers: [
-          {
-            key: 'X-Another-Unit-Test',
-            value: 'true',
+            for: '/*',
+            values: {
+              'X-Unit-Test': 'true',
+            },
           },
           {
-            key: 'X-Another-Unit-Test-Again',
-            value: 'true',
+            for: '/some-other-path/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
+              'X-Another-Unit-Test-Again': 'true',
+            },
           },
-        ],
-        regex: '^/(?:/)?$',
-      },
-    ]
+          {
+            for: '/some-other-path/yolo/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
+            },
+          },
+        ])
+      })
 
-    generateCustomHeaders(headers, netlifyConfig.headers)
+      it('appends custom headers in the Netlify configuration', () => {
+        netlifyConfig.headers = [
+          {
+            for: '/',
+            values: {
+              'X-Existing-Header': 'true',
+            },
+          },
+        ]
 
-    expect(netlifyConfig.headers).toMatchSnapshot()
+        const nextConfig = {
+          routesManifest: {
+            headers: [
+              // single header for a route
+              {
+                source: '/',
+                headers: [
+                  {
+                    key: 'X-Unit-Test',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+              // multiple headers for a route
+              {
+                source: '/unit-test',
+                headers: [
+                  {
+                    key: 'X-Another-Unit-Test',
+                    value: 'true',
+                  },
+                  {
+                    key: 'X-Another-Unit-Test-Again',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+            ],
+          },
+        }
+
+        generateCustomHeaders(nextConfig, netlifyConfig.headers)
+
+        expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/',
+            values: {
+              'X-Existing-Header': 'true',
+            },
+          },
+          {
+            for: '/',
+            values: {
+              'X-Unit-Test': 'true',
+            },
+          },
+          {
+            for: '/unit-test',
+            values: {
+              'X-Another-Unit-Test': 'true',
+              'X-Another-Unit-Test-Again': 'true',
+            },
+          },
+        ])
+      })
+
+      it('sets custom headers using basePath in the Next.js configuration', () => {
+        netlifyConfig.headers = []
+
+        const nextConfig = {
+          basePath: '/base-path',
+          routesManifest: {
+            headers: [
+              // single header for a route
+              {
+                source: '/:path*',
+                headers: [
+                  {
+                    key: 'X-Unit-Test',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+              // multiple headers for a route
+              {
+                source: '/some-other-path/:path*',
+                headers: [
+                  {
+                    key: 'X-Another-Unit-Test',
+                    value: 'true',
+                  },
+                  {
+                    key: 'X-Another-Unit-Test-Again',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+              {
+                source: '/some-other-path/yolo/:path*',
+                headers: [
+                  {
+                    key: 'X-Another-Unit-Test',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+            ],
+          },
+        }
+
+        generateCustomHeaders(nextConfig, netlifyConfig.headers)
+
+        expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/base-path/*',
+            values: {
+              'X-Unit-Test': 'true',
+            },
+          },
+          {
+            for: '/base-path/some-other-path/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
+              'X-Another-Unit-Test-Again': 'true',
+            },
+          },
+          {
+            for: '/base-path/some-other-path/yolo/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
+            },
+          },
+        ])
+      })
+
+      it('sets custom headers omitting basePath when a header has basePath set to false', () => {
+        netlifyConfig.headers = []
+
+        const nextConfig = {
+          basePath: '/base-path',
+          routesManifest: {
+            headers: [
+              // single header for a route
+              {
+                source: '/:path*',
+                headers: [
+                  {
+                    key: 'X-Unit-Test',
+                    value: 'true',
+                  },
+                ],
+                basePath: false,
+                regex: '^/(?:/)?$',
+              },
+              // multiple headers for a route
+              {
+                source: '/some-other-path/:path*',
+                headers: [
+                  {
+                    key: 'X-Another-Unit-Test',
+                    value: 'true',
+                  },
+                  {
+                    key: 'X-Another-Unit-Test-Again',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+              {
+                source: '/some-other-path/yolo/:path*',
+                headers: [
+                  {
+                    key: 'X-Another-Unit-Test',
+                    value: 'true',
+                  },
+                ],
+                regex: '^/(?:/)?$',
+              },
+            ],
+          },
+        }
+
+        generateCustomHeaders(nextConfig, netlifyConfig.headers)
+
+        expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/*',
+            values: {
+              'X-Unit-Test': 'true',
+            },
+          },
+          {
+            for: '/base-path/some-other-path/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
+              'X-Another-Unit-Test-Again': 'true',
+            },
+          },
+          {
+            for: '/base-path/some-other-path/yolo/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
+            },
+          },
+        ])
+      })
+    })
   })
 })
