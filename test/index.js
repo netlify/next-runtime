@@ -855,23 +855,21 @@ describe('function helpers', () => {
 
         generateCustomHeaders(nextConfig, netlifyConfig.headers)
 
-        expect(netlifyConfig.headers).toMatchInlineSnapshot(`
-          Array [
-            Object {
-              "for": "/",
-              "values": Object {
-                "X-Unit-Test": "true",
-              },
+        expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/',
+            values: {
+              'X-Unit-Test': 'true',
             },
-            Object {
-              "for": "/unit-test",
-              "values": Object {
-                "X-Another-Unit-Test": "true",
-                "X-Another-Unit-Test-Again": "true",
-              },
+          },
+          {
+            for: '/unit-test',
+            values: {
+              'X-Another-Unit-Test': 'true',
+              'X-Another-Unit-Test-Again': 'true',
             },
-          ]
-        `)
+          },
+        ])
       })
 
       it('sets custom headers using a splat instead of a named splat in the Netlify configuration', () => {
@@ -922,29 +920,27 @@ describe('function helpers', () => {
 
         generateCustomHeaders(nextConfig, netlifyConfig.headers)
 
-        expect(netlifyConfig.headers).toMatchInlineSnapshot(`
-          Array [
-            Object {
-              "for": "/*",
-              "values": Object {
-                "X-Unit-Test": "true",
-              },
+        expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/*',
+            values: {
+              'X-Unit-Test': 'true',
             },
-            Object {
-              "for": "/some-other-path/*",
-              "values": Object {
-                "X-Another-Unit-Test": "true",
-                "X-Another-Unit-Test-Again": "true",
-              },
+          },
+          {
+            for: '/some-other-path/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
+              'X-Another-Unit-Test-Again': 'true',
             },
-            Object {
-              "for": "/some-other-path/yolo/*",
-              "values": Object {
-                "X-Another-Unit-Test": "true",
-              },
+          },
+          {
+            for: '/some-other-path/yolo/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
             },
-          ]
-        `)
+          },
+        ])
       })
 
       it('appends custom headers in the Netlify configuration', () => {
@@ -992,29 +988,27 @@ describe('function helpers', () => {
 
         generateCustomHeaders(nextConfig, netlifyConfig.headers)
 
-        expect(netlifyConfig.headers).toMatchInlineSnapshot(`
-          Array [
-            Object {
-              "for": "/",
-              "values": Object {
-                "X-Existing-Header": "true",
-              },
+        expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/',
+            values: {
+              'X-Existing-Header': 'true',
             },
-            Object {
-              "for": "/",
-              "values": Object {
-                "X-Unit-Test": "true",
-              },
+          },
+          {
+            for: '/',
+            values: {
+              'X-Unit-Test': 'true',
             },
-            Object {
-              "for": "/unit-test",
-              "values": Object {
-                "X-Another-Unit-Test": "true",
-                "X-Another-Unit-Test-Again": "true",
-              },
+          },
+          {
+            for: '/unit-test',
+            values: {
+              'X-Another-Unit-Test': 'true',
+              'X-Another-Unit-Test-Again': 'true',
             },
-          ]
-        `)
+          },
+        ])
       })
 
       it('sets custom headers using basePath in the Next.js configuration', () => {
@@ -1066,29 +1060,27 @@ describe('function helpers', () => {
 
         generateCustomHeaders(nextConfig, netlifyConfig.headers)
 
-        expect(netlifyConfig.headers).toMatchInlineSnapshot(`
-          Array [
-            Object {
-              "for": "/base-path/*",
-              "values": Object {
-                "X-Unit-Test": "true",
-              },
+        expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/base-path/*',
+            values: {
+              'X-Unit-Test': 'true',
             },
-            Object {
-              "for": "/base-path/some-other-path/*",
-              "values": Object {
-                "X-Another-Unit-Test": "true",
-                "X-Another-Unit-Test-Again": "true",
-              },
+          },
+          {
+            for: '/base-path/some-other-path/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
+              'X-Another-Unit-Test-Again': 'true',
             },
-            Object {
-              "for": "/base-path/some-other-path/yolo/*",
-              "values": Object {
-                "X-Another-Unit-Test": "true",
-              },
+          },
+          {
+            for: '/base-path/some-other-path/yolo/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
             },
-          ]
-        `)
+          },
+        ])
       })
 
       it('sets custom headers omitting basePath when a header has basePath set to false', () => {
@@ -1141,29 +1133,27 @@ describe('function helpers', () => {
 
         generateCustomHeaders(nextConfig, netlifyConfig.headers)
 
-        expect(netlifyConfig.headers).toMatchInlineSnapshot(`
-          Array [
-            Object {
-              "for": "/*",
-              "values": Object {
-                "X-Unit-Test": "true",
-              },
+        expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/*',
+            values: {
+              'X-Unit-Test': 'true',
             },
-            Object {
-              "for": "/base-path/some-other-path/*",
-              "values": Object {
-                "X-Another-Unit-Test": "true",
-                "X-Another-Unit-Test-Again": "true",
-              },
+          },
+          {
+            for: '/base-path/some-other-path/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
+              'X-Another-Unit-Test-Again': 'true',
             },
-            Object {
-              "for": "/base-path/some-other-path/yolo/*",
-              "values": Object {
-                "X-Another-Unit-Test": "true",
-              },
+          },
+          {
+            for: '/base-path/some-other-path/yolo/*',
+            values: {
+              'X-Another-Unit-Test': 'true',
             },
-          ]
-        `)
+          },
+        ])
       })
 
       it('prepends locales set in the next.config to paths for custom headers', () => {
@@ -1192,22 +1182,20 @@ describe('function helpers', () => {
 
         generateCustomHeaders(nextConfig, netlifyConfig.headers)
 
-        expect(netlifyConfig.headers).toMatchInlineSnapshot(`
-          Array [
-            Object {
-              "for": "/en/with-locale/*",
-              "values": Object {
-                "X-Unit-Test": "true",
-              },
+        expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/en/with-locale/*',
+            values: {
+              'X-Unit-Test': 'true',
             },
-            Object {
-              "for": "/fr/with-locale/*",
-              "values": Object {
-                "X-Unit-Test": "true",
-              },
+          },
+          {
+            for: '/fr/with-locale/*',
+            values: {
+              'X-Unit-Test': 'true',
             },
-          ]
-        `)
+          },
+        ])
       })
 
       it('does not prepend locales set in the next.config to custom headers that have locale set to false', () => {
@@ -1247,28 +1235,26 @@ describe('function helpers', () => {
 
         generateCustomHeaders(nextConfig, netlifyConfig.headers)
 
-        expect(netlifyConfig.headers).toMatchInlineSnapshot(`
-          Array [
-            Object {
-              "for": "/en/with-locale/*",
-              "values": Object {
-                "X-Unit-Test": "true",
-              },
+        expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/en/with-locale/*',
+            values: {
+              'X-Unit-Test': 'true',
             },
-            Object {
-              "for": "/fr/with-locale/*",
-              "values": Object {
-                "X-Unit-Test": "true",
-              },
+          },
+          {
+            for: '/fr/with-locale/*',
+            values: {
+              'X-Unit-Test': 'true',
             },
-            Object {
-              "for": "/fr/le-custom-locale-path/*",
-              "values": Object {
-                "X-Unit-Test": "true",
-              },
+          },
+          {
+            for: '/fr/le-custom-locale-path/*',
+            values: {
+              'X-Unit-Test': 'true',
             },
-          ]
-        `)
+          },
+        ])
       })
     })
   })
