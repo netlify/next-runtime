@@ -131,11 +131,9 @@ interface BuildHeaderParams {
 }
 
 const buildHeader = (buildHeaderParams: BuildHeaderParams) => {
-  const { /* locale, */ path, headers } = buildHeaderParams
-  // const localePart = locale ? `/${locale}` : ''
+  const { path, headers } = buildHeaderParams
 
   return {
-    // for: `${localePart}${path}`,
     for: path,
     values: headers.reduce((builtHeaders, { key, value }) => {
       builtHeaders[key] = value
