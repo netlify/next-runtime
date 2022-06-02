@@ -817,6 +817,10 @@ describe('function helpers', () => {
 
   describe('config', () => {
     describe('generateCustomHeaders', () => {
+      // The routesManifest is the contents of the routes-manifest.json file which will already contain the generated
+      // header paths which take locales and base path into account which is why you'll see them in the paths already
+      // in test data.
+
       it('sets custom headers in the Netlify configuration', () => {
         netlifyConfig.headers = []
 
@@ -1014,13 +1018,13 @@ describe('function helpers', () => {
       it('sets custom headers using basePath in the Next.js configuration', () => {
         netlifyConfig.headers = []
 
+        const basePath = '/base-path'
         const nextConfig = {
-          basePath: '/base-path',
           routesManifest: {
             headers: [
               // single header for a route
               {
-                source: '/:path*',
+                source: `${basePath}/:path*`,
                 headers: [
                   {
                     key: 'X-Unit-Test',
@@ -1031,7 +1035,7 @@ describe('function helpers', () => {
               },
               // multiple headers for a route
               {
-                source: '/some-other-path/:path*',
+                source: `${basePath}/some-other-path/:path*`,
                 headers: [
                   {
                     key: 'X-Another-Unit-Test',
@@ -1039,16 +1043,6 @@ describe('function helpers', () => {
                   },
                   {
                     key: 'X-Another-Unit-Test-Again',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-              {
-                source: '/some-other-path/yolo/:path*',
-                headers: [
-                  {
-                    key: 'X-Another-Unit-Test',
                     value: 'true',
                   },
                 ],
@@ -1074,20 +1068,15 @@ describe('function helpers', () => {
               'X-Another-Unit-Test-Again': 'true',
             },
           },
-          {
-            for: '/base-path/some-other-path/yolo/*',
-            values: {
-              'X-Another-Unit-Test': 'true',
-            },
-          },
         ])
       })
 
       it('sets custom headers omitting basePath when a header has basePath set to false', () => {
         netlifyConfig.headers = []
 
+        const basePath = '/base-path'
+
         const nextConfig = {
-          basePath: '/base-path',
           routesManifest: {
             headers: [
               // single header for a route
@@ -1104,21 +1093,7 @@ describe('function helpers', () => {
               },
               // multiple headers for a route
               {
-                source: '/some-other-path/:path*',
-                headers: [
-                  {
-                    key: 'X-Another-Unit-Test',
-                    value: 'true',
-                  },
-                  {
-                    key: 'X-Another-Unit-Test-Again',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-              {
-                source: '/some-other-path/yolo/:path*',
+                source: `${basePath}/some-other-path/:path*`,
                 headers: [
                   {
                     key: 'X-Another-Unit-Test',
@@ -1144,13 +1119,6 @@ describe('function helpers', () => {
             for: '/base-path/some-other-path/*',
             values: {
               'X-Another-Unit-Test': 'true',
-              'X-Another-Unit-Test-Again': 'true',
-            },
-          },
-          {
-            for: '/base-path/some-other-path/yolo/*',
-            values: {
-              'X-Another-Unit-Test': 'true',
             },
           },
         ])
@@ -1159,6 +1127,8 @@ describe('function helpers', () => {
       it('prepends locales set in the next.config to paths for custom headers', () => {
         netlifyConfig.headers = []
 
+        // I'm not setting locales in the nextConfig, because at this point in the post build when this runs,
+        // Next.js has modified the routesManifest to have the locales in the source.
         const nextConfig = {
           i18n: {
             locales: ['en', 'fr'],
@@ -1167,7 +1137,7 @@ describe('function helpers', () => {
           routesManifest: {
             headers: [
               {
-                source: '/with-locale/:path*',
+                source: '/:nextInternalLocale(en|fr)/with-locale/:path*',
                 headers: [
                   {
                     key: 'X-Unit-Test',
@@ -1209,7 +1179,7 @@ describe('function helpers', () => {
           routesManifest: {
             headers: [
               {
-                source: '/with-locale/:path*',
+                source: '/:nextInternalLocale(en|fr)/with-locale/:path*',
                 headers: [
                   {
                     key: 'X-Unit-Test',

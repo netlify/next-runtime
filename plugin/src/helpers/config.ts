@@ -131,11 +131,12 @@ interface BuildHeaderParams {
 }
 
 const buildHeader = (buildHeaderParams: BuildHeaderParams) => {
-  const { locale, path, headers } = buildHeaderParams
-  const localePart = locale ? `/${locale}` : ''
+  const { /* locale, */ path, headers } = buildHeaderParams
+  // const localePart = locale ? `/${locale}` : ''
 
   return {
-    for: `${localePart}${path}`,
+    // for: `${localePart}${path}`,
+    for: path,
     values: headers.reduce((builtHeaders, { key, value }) => {
       builtHeaders[key] = value
 
@@ -143,6 +144,10 @@ const buildHeader = (buildHeaderParams: BuildHeaderParams) => {
     }, {}),
   }
 }
+
+// Replace the pattern :path* at the end of a path with * since it's a named splat which the Netlify
+// configuration does not support.
+const sanitizePath = (path: string) => path.replace(/:[^*/]+\*$/, '*')
 
 /**
  * Persist NEXT.js custom headers to the Netlify configuration so the headers work with static files
@@ -153,8 +158,10 @@ const buildHeader = (buildHeaderParams: BuildHeaderParams) => {
  * @param netlifyHeaders - Existing headers that are already configured in the Netlify configuration
  */
 export const generateCustomHeaders = (nextConfig: NextConfig, netlifyHeaders: NetlifyHeaders = []) => {
+  // The routesManifest is the contents of the routes-manifest.json file which will already contain the generated
+  // header paths which take locales and base path into account since this runs after the build. The routes-manifest.json
+  // file is located at demos/default/.next/routes-manifest.json once you've build the demo site.
   const {
-    basePath = '',
     routesManifest: { headers: customHeaders = [] },
     i18n,
   } = nextConfig
@@ -162,28 +169,33 @@ export const generateCustomHeaders = (nextConfig: NextConfig, netlifyHeaders: Ne
   // Skip `has` based custom headers as they have more complex dynamic conditional header logic
   // that currently isn't supported by the Netlify configuration.
   // Also, this type of dynamic header logic is most likely not for SSG pages.
-  for (const { source, headers, basePath: useBasePath, locale: localeEnabled } of customHeaders.filter(
-    (customHeader) => !customHeader.has,
-  )) {
+  for (const { source, headers, locale: localeEnabled } of customHeaders.filter((customHeader) => !customHeader.has)) {
     // Explicitly checkling false to make the check simpler.
     // Locale specific paths are excluded only if localeEnabled is false. There is no true value for localeEnabled. It's either
     // false or undefined, where undefined means it's true.
+    //
+    // Again, the routesManifest has already been generated taking locales into account, but the check is required
+    // so  the paths can be properly set in the Netlify configuration.
     const useLocale = i18n?.locales?.length > 0 && localeEnabled !== false
 
-    // Explicitly checkling false to make the check simpler.
-    // Basepath is excluded only if useBasePath is false. There is no true value for useBasePath. It's either false or undefined,
-    // where undefined means it's true.
-    // eslint-disable-next-line no-negated-condition
-    const pathPrefix = useBasePath !== false ? basePath : ''
-
-    // Replace the pattern :path* at the end of a path with * since it's a named splat
-    const path = pathPrefix + source.replace(/:[^*/]+\*$/, '*')
-
     if (useLocale) {
-      for (const locale of i18n.locales) {
-        netlifyHeaders.push(buildHeader({ path, headers, locale }))
+      const { locales } = i18n
+      const joinedLocales = locales.join('|')
+
+      /**
+       *  converts e.g.
+       *  /:nextInternalLocale(en|fr)/some-path
+       *  to a path for each locale
+       *  /en/some-path and /fr/some-path
+       */
+      for (const locale of locales) {
+        const path = sanitizePath(source).replace(`:nextInternalLocale(${joinedLocales})`, locale)
+
+        netlifyHeaders.push(buildHeader({ path, headers }))
       }
     } else {
+      const path = sanitizePath(source)
+
       netlifyHeaders.push(buildHeader({ path, headers }))
     }
   }
