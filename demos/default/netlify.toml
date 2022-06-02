@@ -9,7 +9,7 @@ ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../.."
 CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
 # set TERM variable for terminal output
 TERM = "xterm"
-NODE_VERSION = "17"
+NODE_VERSION = "18"
 
 [dev]
 framework = "#static"
