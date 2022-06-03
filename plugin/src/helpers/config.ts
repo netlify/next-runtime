@@ -184,8 +184,12 @@ export const generateCustomHeaders = (nextConfig: NextConfig, netlifyHeaders: Ne
        *  converts e.g.
        *  /:nextInternalLocale(en|fr)/some-path
        *  to a path for each locale
-       *  /en/some-path and /fr/some-path
+       *  /en/some-path and /fr/some-path as well as /some-path (default locale)
        */
+      const defaultLocalePath = sanitizePath(source).replace(`/:nextInternalLocale(${joinedLocales})`, '')
+
+      netlifyHeaders.push(buildHeader({ path: defaultLocalePath, headers }))
+
       for (const locale of locales) {
         const path = sanitizePath(source).replace(`:nextInternalLocale(${joinedLocales})`, locale)
 

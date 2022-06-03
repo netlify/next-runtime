@@ -1154,6 +1154,12 @@ describe('function helpers', () => {
 
         expect(netlifyConfig.headers).toEqual([
           {
+            for: '/with-locale/*',
+            values: {
+              'X-Unit-Test': 'true',
+            },
+          },
+          {
             for: '/en/with-locale/*',
             values: {
               'X-Unit-Test': 'true',
@@ -1206,6 +1212,12 @@ describe('function helpers', () => {
         generateCustomHeaders(nextConfig, netlifyConfig.headers)
 
         expect(netlifyConfig.headers).toEqual([
+          {
+            for: '/with-locale/*',
+            values: {
+              'X-Unit-Test': 'true',
+            },
+          },
           {
             for: '/en/with-locale/*',
             values: {
