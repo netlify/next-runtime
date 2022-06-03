@@ -168,7 +168,7 @@ export const generateCustomHeaders = (nextConfig: NextConfig, netlifyHeaders: Ne
   // that currently isn't supported by the Netlify configuration.
   // Also, this type of dynamic header logic is most likely not for SSG pages.
   for (const { source, headers, locale: localeEnabled } of customHeaders.filter((customHeader) => !customHeader.has)) {
-    // Explicitly checkling false to make the check simpler.
+    // Explicitly checking false to make the check simpler.
     // Locale specific paths are excluded only if localeEnabled is false. There is no true value for localeEnabled. It's either
     // false or undefined, where undefined means it's true.
     //
