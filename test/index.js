@@ -138,7 +138,7 @@ const useFixture = async function (fixtureName) {
   await cpy('**', process.cwd(), { cwd: fixtureDir, parents: true, overwrite: true, dot: true })
 }
 
-const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [] }
+const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] }
 const defaultArgs = {
   netlifyConfig,
   utils,
@@ -159,6 +159,7 @@ beforeEach(async () => {
   netlifyConfig.build.environment = {}
 
   netlifyConfig.redirects = []
+  netlifyConfig.headers = []
   netlifyConfig.functions[HANDLER_FUNCTION_NAME] && (netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files = [])
   netlifyConfig.functions[ODB_FUNCTION_NAME] && (netlifyConfig.functions[ODB_FUNCTION_NAME].included_files = [])
   await useFixture('serverless_next_config')
@@ -632,6 +633,93 @@ describe('onPostBuild', () => {
       },
     ])
   })
+
+  test('adds headers to Netlify configuration', async () => {
+    await moveNextDist()
+
+    const show = jest.fn()
+
+    await plugin.onPostBuild({
+      ...defaultArgs,
+
+      utils: { ...defaultArgs.utils, status: { show }, functions: { list: jest.fn().mockResolvedValue([]) } },
+    })
+
+    expect(netlifyConfig.headers).toEqual([
+      {
+        for: '/',
+        values: {
+          'x-custom-header': 'my custom header value',
+        },
+      },
+      {
+        for: '/en/',
+        values: {
+          'x-custom-header': 'my custom header value',
+        },
+      },
+      {
+        for: '/es/',
+        values: {
+          'x-custom-header': 'my custom header value',
+        },
+      },
+      {
+        for: '/fr/',
+        values: {
+          'x-custom-header': 'my custom header value',
+        },
+      },
+      {
+        for: '/api/*',
+        values: {
+          'x-custom-api-header': 'my custom api header value',
+        },
+      },
+      {
+        for: '/en/api/*',
+        values: {
+          'x-custom-api-header': 'my custom api header value',
+        },
+      },
+      {
+        for: '/es/api/*',
+        values: {
+          'x-custom-api-header': 'my custom api header value',
+        },
+      },
+      {
+        for: '/fr/api/*',
+        values: {
+          'x-custom-api-header': 'my custom api header value',
+        },
+      },
+      {
+        for: '/*',
+        values: {
+          'x-custom-header-for-everything': 'my custom header for everything value',
+        },
+      },
+      {
+        for: '/en/*',
+        values: {
+          'x-custom-header-for-everything': 'my custom header for everything value',
+        },
+      },
+      {
+        for: '/es/*',
+        values: {
+          'x-custom-header-for-everything': 'my custom header for everything value',
+        },
+      },
+      {
+        for: '/fr/*',
+        values: {
+          'x-custom-header-for-everything': 'my custom header for everything value',
+        },
+      },
+    ])
+  })
 })
 
 describe('utility functions', () => {
@@ -822,8 +910,6 @@ describe('function helpers', () => {
       // in test data.
 
       it('sets custom headers in the Netlify configuration', () => {
-        netlifyConfig.headers = []
-
         const nextConfig = {
           routesManifest: {
             headers: [
