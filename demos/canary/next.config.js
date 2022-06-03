@@ -7,7 +7,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ['raw.githubusercontent.com'],
+    domains: ['*.githubusercontent.com'],
   },
 }
 
