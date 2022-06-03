@@ -12,7 +12,7 @@ export default function Home() {
       <main>
         <h1>Canary Next App</h1>
         <div>
-          <p>Here's where we test out Next's canary features to ensure they work with our plugin.</p>
+          <p>Here's where we test out Next's canary features to ensure they work with our plugin .</p>
         </div>
       </main>
 
