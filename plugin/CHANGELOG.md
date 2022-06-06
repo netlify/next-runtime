@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.8.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.7.1...plugin-nextjs-v4.8.0) (2022-06-06)
+
+
+### Features
+
+* added better custom header support ([#1358](https://github.com/netlify/netlify-plugin-nextjs/issues/1358)) ([46d8f3a](https://github.com/netlify/netlify-plugin-nextjs/commit/46d8f3ab4670768d7dd2f8c13ce68ef9d45208ae))
+
 ### [4.7.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.7.0...plugin-nextjs-v4.7.1) (2022-05-25)
 
 
