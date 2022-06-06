@@ -19,6 +19,24 @@ module.exports = {
           },
         ],
       },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'x-custom-api-header',
+            value: 'my custom api header value',
+          },
+        ],
+      },
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'x-custom-header-for-everything',
+            value: 'my custom header for everything value',
+          },
+        ],
+      },
     ]
   },
   trailingSlash: true,
