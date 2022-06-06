@@ -16,7 +16,6 @@ package = "./local-plugin"
 CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
 # set TERM variable for terminal output
 TERM = "xterm"
-NODE_VERSION = "16.15.0" # TODO: Remove once peer dep conflicts are resolved
 
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
