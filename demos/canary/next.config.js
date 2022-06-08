@@ -6,8 +6,15 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
-  images: {
-    domains: ['*.githubusercontent.com'],
+  experimental: {
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'raw.githubusercontent.com',
+        },
+      ],
+    },
   },
 }
 
