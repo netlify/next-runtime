@@ -19,8 +19,8 @@ export default function Home() {
       <Image
         src="https://raw.githubusercontent.com/netlify/netlify-plugin-nextjs/main/next-on-netlify.png"
         alt="Picture of the author"
-        width={500}
-        height={500}
+        width={540}
+        height={191}
       />
     </div>
   )
