@@ -70,7 +70,19 @@ const plugin: NetlifyPlugin = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental: { images: { remotePatterns } } } = await getNextConfig({
+    const {
+      appDir,
+      basePath,
+      i18n,
+      images,
+      target,
+      ignore,
+      trailingSlash,
+      outdir,
+      experimental: {
+        images: { remotePatterns },
+      },
+    } = await getNextConfig({
       publish,
       failBuild,
     })

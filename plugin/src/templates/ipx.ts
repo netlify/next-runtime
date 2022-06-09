@@ -8,6 +8,6 @@ import { basePath, domains, remotePatterns } from './imageconfig.json'
 export const handler: Handler = createIPXHandler({
   basePath,
   domains,
-  remotePatterns
+  remotePatterns,
 }) as Handler
 /* eslint-enable node/no-missing-import, import/no-unresolved, @typescript-eslint/ban-ts-comment  */
