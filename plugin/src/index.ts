@@ -13,6 +13,7 @@ import {
   getRequiredServerFiles,
   updateRequiredServerFiles,
   configureHandlerFunctions,
+  generateCustomHeaders,
 } from './helpers/config'
 import { updateConfig, writeMiddleware } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
@@ -149,6 +150,7 @@ const plugin: NetlifyPlugin = {
     netlifyConfig: {
       build: { publish },
       redirects,
+      headers,
     },
     utils: {
       status,
@@ -174,7 +176,12 @@ const plugin: NetlifyPlugin = {
 
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
-    const { basePath, appDir } = await getNextConfig({ publish, failBuild })
+    const nextConfig = await getNextConfig({ publish, failBuild })
+
+    const { basePath, appDir } = nextConfig
+
+    generateCustomHeaders(nextConfig, headers)
+
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
     await unpatchNextFiles(basePath)

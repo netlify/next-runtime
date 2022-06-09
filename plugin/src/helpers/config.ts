@@ -1,9 +1,17 @@
+import type { NetlifyConfig } from '@netlify/build'
 import { readJSON, writeJSON } from 'fs-extra'
+import type { Header } from 'next/dist/lib/load-custom-routes'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'
 import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
+
+import type { RoutesManifest } from './types'
+
+const ROUTES_MANIFEST_FILE = 'routes-manifest.json'
+
+type NetlifyHeaders = NetlifyConfig['headers']
 
 export interface RequiredServerFiles {
   version?: number
@@ -13,7 +21,10 @@ export interface RequiredServerFiles {
   ignore?: string[]
 }
 
-export type NextConfig = Pick<RequiredServerFiles, 'appDir' | 'ignore'> & NextConfigComplete
+export type NextConfig = Pick<RequiredServerFiles, 'appDir' | 'ignore'> &
+  NextConfigComplete & {
+    routesManifest?: RoutesManifest
+  }
 
 const defaultFailBuild = (message: string, { error }): never => {
   throw new Error(`${message}\n${error && error.stack}`)
@@ -30,7 +41,11 @@ export const getNextConfig = async function getNextConfig({
       // @ts-ignore
       return failBuild('Error loading your Next config')
     }
-    return { ...config, appDir, ignore }
+
+    const routesManifest: RoutesManifest = await readJSON(join(publish, ROUTES_MANIFEST_FILE))
+
+    // If you need access to other manifest files, you can add them here as well
+    return { ...config, appDir, ignore, routesManifest }
   } catch (error: unknown) {
     return failBuild('Error loading your Next config', { error })
   }
@@ -107,4 +122,83 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
       }
     })
   })
+}
+
+interface BuildHeaderParams {
+  path: string
+  headers: Header['headers']
+  locale?: string
+}
+
+const buildHeader = (buildHeaderParams: BuildHeaderParams) => {
+  const { path, headers } = buildHeaderParams
+
+  return {
+    for: path,
+    values: headers.reduce((builtHeaders, { key, value }) => {
+      builtHeaders[key] = value
+
+      return builtHeaders
+    }, {}),
+  }
+}
+
+// Replace the pattern :path* at the end of a path with * since it's a named splat which the Netlify
+// configuration does not support.
+const sanitizePath = (path: string) => path.replace(/:[^*/]+\*$/, '*')
+
+/**
+ * Persist NEXT.js custom headers to the Netlify configuration so the headers work with static files
+ * See {@link https://nextjs.org/docs/api-reference/next.config.js/headers} for more information on custom
+ * headers in Next.js
+ *
+ * @param nextConfig - The NextJS configuration
+ * @param netlifyHeaders - Existing headers that are already configured in the Netlify configuration
+ */
+export const generateCustomHeaders = (nextConfig: NextConfig, netlifyHeaders: NetlifyHeaders = []) => {
+  // The routesManifest is the contents of the routes-manifest.json file which will already contain the generated
+  // header paths which take locales and base path into account since this runs after the build. The routes-manifest.json
+  // file is located at demos/default/.next/routes-manifest.json once you've build the demo site.
+  const {
+    routesManifest: { headers: customHeaders = [] },
+    i18n,
+  } = nextConfig
+
+  // Skip `has` based custom headers as they have more complex dynamic conditional header logic
+  // that currently isn't supported by the Netlify configuration.
+  // Also, this type of dynamic header logic is most likely not for SSG pages.
+  for (const { source, headers, locale: localeEnabled } of customHeaders.filter((customHeader) => !customHeader.has)) {
+    // Explicitly checking false to make the check simpler.
+    // Locale specific paths are excluded only if localeEnabled is false. There is no true value for localeEnabled. It's either
+    // false or undefined, where undefined means it's true.
+    //
+    // Again, the routesManifest has already been generated taking locales into account, but the check is required
+    // so  the paths can be properly set in the Netlify configuration.
+    const useLocale = i18n?.locales?.length > 0 && localeEnabled !== false
+
+    if (useLocale) {
+      const { locales } = i18n
+      const joinedLocales = locales.join('|')
+
+      /**
+       *  converts e.g.
+       *  /:nextInternalLocale(en|fr)/some-path
+       *  to a path for each locale
+       *  /en/some-path and /fr/some-path as well as /some-path (default locale)
+       */
+      const defaultLocalePath = sanitizePath(source).replace(`/:nextInternalLocale(${joinedLocales})`, '')
+
+      netlifyHeaders.push(buildHeader({ path: defaultLocalePath, headers }))
+
+      for (const locale of locales) {
+        const path = sanitizePath(source).replace(`:nextInternalLocale(${joinedLocales})`, locale)
+
+        netlifyHeaders.push(buildHeader({ path, headers }))
+      }
+    } else {
+      const path = sanitizePath(source)
+
+      netlifyHeaders.push(buildHeader({ path, headers }))
+    }
+  }
 }
