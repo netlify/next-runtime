@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
@@ -180,3 +181,4 @@ const plugin: NetlifyPlugin = {
   },
 }
 module.exports = plugin
+/* eslint-enable max-lines */
