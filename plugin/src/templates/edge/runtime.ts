@@ -34,6 +34,9 @@ export interface RequestData {
 
 const handler = async (req: Request, context: Context) => {
   const url = new URL(req.url)
+  if (url.pathname.startsWith('/_next/static/')) {
+    return
+  }
 
   const request: RequestData = {
     headers: Object.fromEntries(req.headers.entries()),

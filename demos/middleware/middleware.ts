@@ -6,7 +6,7 @@ export function middleware(request: NextRequest, ev: NextFetchEvent) {
   const {
     nextUrl: { pathname },
   } = request
-
+  console.log({ pathname })
   if (pathname.startsWith('/cookies')) {
     response = NextResponse.next()
     response.cookies.set('netlifyCookie', 'true')
