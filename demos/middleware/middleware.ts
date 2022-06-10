@@ -3,7 +3,9 @@ import { NextFetchEvent, NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest, ev: NextFetchEvent) {
   let response
-  const {nextUrl: {pathname}} = request
+  const {
+    nextUrl: { pathname },
+  } = request
 
   if (pathname.startsWith('/cookies')) {
     response = NextResponse.next()
@@ -30,10 +32,12 @@ export function middleware(request: NextRequest, ev: NextFetchEvent) {
     if (!response) {
       response = NextResponse.next()
     }
+    if (pathname.startsWith('/shows/static')) {
+      response.headers.set('x-middleware-date', new Date().toISOString())
+    }
     response.headers.set('x-modified-edge', 'true')
     response.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
 
     return response
   }
-
 }
