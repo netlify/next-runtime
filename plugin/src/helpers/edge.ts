@@ -30,20 +30,17 @@ const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<Middlewar
 /**
  * Convert the Next middleware name into a valid Edge Function name
  */
-const sanitizeName = (name: string) => `next${name === '/' ? '_index' : name.replace(/\W/g, '_')}`
+const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 
 /**
  * Initialization added to the top of the edge function bundle
  */
 const bootstrap = /* js */ `
+globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
 globalThis._ENTRIES ||= {}
+// Deno defines "window", but naughty libraries think this means it's a browser
 delete globalThis.window
 
-`
-
-// TODO: set the proper env
-const getEnv = () => /* js */ `
-globalThis.process = { env: {} }
 `
 
 /**
@@ -57,7 +54,7 @@ const getMiddlewareBundle = async ({
   netlifyConfig: NetlifyConfig
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
-  const chunks: Array<string> = [bootstrap, getEnv()]
+  const chunks: Array<string> = [bootstrap]
   for (const file of middlewareDefinition.files) {
     const filePath = join(publish, file)
     const data = await fs.readFile(filePath, 'utf8')
@@ -112,9 +109,10 @@ export const writeMiddleware = async (netlifyConfig: NetlifyConfig) => {
   })
 
   for (const middleware of middlewareManifest.sortedMiddleware) {
-    const name = sanitizeName(middleware)
-    const edgeFunctionDir = join(edgeFunctionRoot, name)
     const middlewareDefinition = middlewareManifest.middleware[middleware]
+    const name = sanitizeName(middlewareDefinition.name)
+    const edgeFunctionDir = join(edgeFunctionRoot, name)
+
     const bundle = await getMiddlewareBundle({
       middlewareDefinition,
       netlifyConfig,
