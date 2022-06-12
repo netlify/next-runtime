@@ -1,7 +1,7 @@
 [build]
 command = "npm run build"
 publish = ".next"
-ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../.."
+ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF . ../../plugin; fi;"
 
 [build.environment]
 NEXT_USE_NETLIFY_EDGE = "true"
