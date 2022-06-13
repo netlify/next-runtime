@@ -1,4 +1,4 @@
-<!--Please tag yourself as the Assignee and netlify/integrations as the Reviewer -->
+<!--Please tag yourself as the Assignee and netlify/frameworks as the Reviewer -->
 
 ### Summary
 
