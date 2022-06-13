@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        containers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        containers: [1, 2, 3, 4]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -62,7 +62,7 @@ jobs:
           headless: true
           record: true
           parallel: true
-          config-file: cypress/config/ci.json
+          config-file: cypress/config/canary.json
           group: 'Next Plugin - Demo Canary'
           spec: cypress/integration/canary/*
         env:
