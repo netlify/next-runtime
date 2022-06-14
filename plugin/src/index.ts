@@ -81,7 +81,7 @@ const plugin: NetlifyPlugin = {
     )
 
     if (experimental.images) {
-      experimentalRemotePatterns = experimental.images.remotePatterns
+      experimentalRemotePatterns = experimental.images.remotePatterns || []
     }
 
     if (isNextAuthInstalled()) {
