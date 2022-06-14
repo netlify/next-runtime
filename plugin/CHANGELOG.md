@@ -1,5 +1,30 @@
 # Changelog
 
+## [4.10.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.1...plugin-nextjs-v4.10.0) (2022-06-14)
+
+
+### Features
+
+* ✨ add out-of-the-box support for NextAuth.js   ([#1309](https://github.com/netlify/netlify-plugin-nextjs/issues/1309)) ([45c0978](https://github.com/netlify/netlify-plugin-nextjs/commit/45c0978dcad92b6ba028850598425875d09fcf32))
+* add support for Edge Functions ([#1310](https://github.com/netlify/netlify-plugin-nextjs/issues/1310)) ([d39ce27](https://github.com/netlify/netlify-plugin-nextjs/commit/d39ce2720a3a8fe766ba22654d52807ea7b4e170))
+* add support for experimental image remotePatterns ([#1375](https://github.com/netlify/netlify-plugin-nextjs/issues/1375)) ([9095c82](https://github.com/netlify/netlify-plugin-nextjs/commit/9095c82b95018ce82a23fe90c48c84b99750d4f9))
+* Add support for next-i18next ([#1331](https://github.com/netlify/netlify-plugin-nextjs/issues/1331)) ([5780e6b](https://github.com/netlify/netlify-plugin-nextjs/commit/5780e6b5710ca84c75a272d00fa43a3ad3b87289))
+* added better custom header support ([#1358](https://github.com/netlify/netlify-plugin-nextjs/issues/1358)) ([46d8f3a](https://github.com/netlify/netlify-plugin-nextjs/commit/46d8f3ab4670768d7dd2f8c13ce68ef9d45208ae))
+* Include basePath property in NEXTAUTH_URL when present in config ([#1336](https://github.com/netlify/netlify-plugin-nextjs/issues/1336)) ([346aad1](https://github.com/netlify/netlify-plugin-nextjs/commit/346aad1a46e0e774b68d0436a193909689a6eb49))
+
+
+### Bug Fixes
+
+* check for existence of experimental images ([#1392](https://github.com/netlify/netlify-plugin-nextjs/issues/1392)) ([db004fa](https://github.com/netlify/netlify-plugin-nextjs/commit/db004fa694757006aa699e9e9181c5d2ad088969))
+* copy edge src file  ([#1315](https://github.com/netlify/netlify-plugin-nextjs/issues/1315)) ([ccdb544](https://github.com/netlify/netlify-plugin-nextjs/commit/ccdb54477a2836a433f10d7eabbb8bb3553a18d7))
+* **deps:** update dependency @netlify/ipx to ^1.1.0 ([#1377](https://github.com/netlify/netlify-plugin-nextjs/issues/1377)) ([9ed5c38](https://github.com/netlify/netlify-plugin-nextjs/commit/9ed5c38c520b8d14f1c1e99f89355b308bd6c0b6))
+* **deps:** update dependency @netlify/ipx to v1 ([#1343](https://github.com/netlify/netlify-plugin-nextjs/issues/1343)) ([4ab9ff4](https://github.com/netlify/netlify-plugin-nextjs/commit/4ab9ff45db88b24efb062aeb1e56af8245d464f2))
+* don't override user defined NEXTAUTH_URL ([#1360](https://github.com/netlify/netlify-plugin-nextjs/issues/1360)) ([9010da3](https://github.com/netlify/netlify-plugin-nextjs/commit/9010da3d2f5da98c040beba9634651499e65cf88))
+* handle absolute rewrite URLs ([#1325](https://github.com/netlify/netlify-plugin-nextjs/issues/1325)) ([f8f8e85](https://github.com/netlify/netlify-plugin-nextjs/commit/f8f8e850e43ee6fc154eba3e224ddf606e721a6d))
+* include edge templates in the bundle ([#1317](https://github.com/netlify/netlify-plugin-nextjs/issues/1317)) ([b9d3abf](https://github.com/netlify/netlify-plugin-nextjs/commit/b9d3abf6f8e99cb01856b4a3fadb7387e67164db))
+* pass x-middleware-rewrite header to client ([#1322](https://github.com/netlify/netlify-plugin-nextjs/issues/1322)) ([ed17658](https://github.com/netlify/netlify-plugin-nextjs/commit/ed176586916aef892d3c126e10ac0e0b97875510))
+* run edge middleware on data requests ([#1382](https://github.com/netlify/netlify-plugin-nextjs/issues/1382)) ([55755df](https://github.com/netlify/netlify-plugin-nextjs/commit/55755dfc05118e1ff044398d9227b11aeb0d8352))
+
 ## [4.9.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.0...plugin-nextjs-v4.9.1) (2022-06-14)
 
 
