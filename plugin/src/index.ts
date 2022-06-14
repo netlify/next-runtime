@@ -80,6 +80,8 @@ const plugin: NetlifyPlugin = {
       },
     )
 
+    console.log('testing!')
+
     if (experimental.images) {
       experimentalRemotePatterns = experimental.images.remotePatterns || []
     }
