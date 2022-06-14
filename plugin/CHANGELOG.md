@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.9.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.0...plugin-nextjs-v4.9.1) (2022-06-14)
+
+
+### Bug Fixes
+
+* check for existence of experimental images ([#1392](https://github.com/netlify/netlify-plugin-nextjs/issues/1392)) ([db004fa](https://github.com/netlify/netlify-plugin-nextjs/commit/db004fa694757006aa699e9e9181c5d2ad088969))
+
 ## [4.9.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.8.0...plugin-nextjs-v4.9.0) (2022-06-14)
 
 
