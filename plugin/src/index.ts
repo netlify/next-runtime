@@ -72,22 +72,17 @@ const plugin: NetlifyPlugin = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const {
-      appDir,
-      basePath,
-      i18n,
-      images,
-      target,
-      ignore,
-      trailingSlash,
-      outdir,
-      experimental: {
-        images: { remotePatterns },
+    let experimentalRemotePatterns = []
+    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental } = await getNextConfig(
+      {
+        publish,
+        failBuild,
       },
-    } = await getNextConfig({
-      publish,
-      failBuild,
-    })
+    )
+
+    if (experimental.images) {
+      experimentalRemotePatterns = experimental.images.remotePatterns
+    }
 
     if (isNextAuthInstalled()) {
       const config = await getRequiredServerFiles(publish)
@@ -128,7 +123,13 @@ const plugin: NetlifyPlugin = {
       nextConfig: { basePath, i18n },
     })
 
-    await setupImageFunction({ constants, imageconfig: images, netlifyConfig, basePath, remotePatterns })
+    await setupImageFunction({
+      constants,
+      imageconfig: images,
+      netlifyConfig,
+      basePath,
+      remotePatterns: experimentalRemotePatterns,
+    })
 
     await generateRedirects({
       netlifyConfig,
