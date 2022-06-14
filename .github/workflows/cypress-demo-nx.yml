@@ -13,6 +13,7 @@ jobs:
   cypress:
     name: Cypress
     runs-on: ubuntu-latest
+    container: cypress/included:10.1.0
     strategy:
       fail-fast: false
       matrix:
@@ -71,3 +72,4 @@ jobs:
           CYPRESS_NETLIFY_CONTEXT: ${{ steps.deploy.outputs.context }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.NX_CYPRESS_RECORD_KEY }}
+          CYPRESS_SKIP_BINARY_INSTALL: true
