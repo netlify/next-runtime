@@ -1,5 +1,5 @@
 {
   "baseUrl": "http://localhost:3000",
   "integrationFolder": "cypress/integration/canary",
-  "projectId": "66va58" // TODO: CHANGEME!
+  "projectId": "5zbkdv"
 }
