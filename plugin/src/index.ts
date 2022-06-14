@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
@@ -71,7 +72,19 @@ const plugin: NetlifyPlugin = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir } = await getNextConfig({
+    const {
+      appDir,
+      basePath,
+      i18n,
+      images,
+      target,
+      ignore,
+      trailingSlash,
+      outdir,
+      experimental: {
+        images: { remotePatterns },
+      },
+    } = await getNextConfig({
       publish,
       failBuild,
     })
@@ -115,7 +128,7 @@ const plugin: NetlifyPlugin = {
       nextConfig: { basePath, i18n },
     })
 
-    await setupImageFunction({ constants, imageconfig: images, netlifyConfig, basePath })
+    await setupImageFunction({ constants, imageconfig: images, netlifyConfig, basePath, remotePatterns })
 
     await generateRedirects({
       netlifyConfig,
@@ -175,3 +188,4 @@ const plugin: NetlifyPlugin = {
   },
 }
 module.exports = plugin
+/* eslint-enable max-lines */
