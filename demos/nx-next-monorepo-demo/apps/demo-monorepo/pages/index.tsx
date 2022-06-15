@@ -1,6 +1,7 @@
 import styles from './index.module.css';
 
 export function Index() {
+  console.log('a console log to test a deploy preview')
   /*
    * Replace the elements below with your own.
    *
