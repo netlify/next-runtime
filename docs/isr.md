@@ -31,6 +31,18 @@ Update your `netlify.toml` file to include the following (assuming local content
 included_files = ["content/**"]
 ```
 
+If you only need the content for DSG pages, then you can target only that function like this:
+
+```toml
+[functions.__dsg]
+included_files = ["content/**"]
+```
+or, for SSR pages:
+
+```toml
+[functions.__ssr]
+included_files = ["content/**"]
+```
 If a new deploy is made, all persisted pages and CDN cached pages will be invalidated so that conflicts are avoided. If
 this did not happen, a stale HTML page might make a request for an asset that no longer exists in the new deploy. By
 invalidating all persisted pages, you can be confident that this will never happen and that deploys remain atomic.
