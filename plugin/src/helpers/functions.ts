@@ -1,7 +1,7 @@
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import { copyFile, ensureDir, writeFile, writeJSON } from 'fs-extra'
-import type { ImageConfigComplete } from 'next/dist/shared/lib/image-config'
+import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { join, relative, resolve } from 'pathe'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
@@ -59,11 +59,13 @@ export const setupImageFunction = async ({
   imageconfig = {},
   netlifyConfig,
   basePath,
+  remotePatterns,
 }: {
   constants: NetlifyPluginConstants
   netlifyConfig: NetlifyConfig
   basePath: string
   imageconfig: Partial<ImageConfigComplete>
+  remotePatterns: RemotePattern[]
 }): Promise<void> => {
   const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
   const functionName = `${IMAGE_FUNCTION_NAME}.js`
@@ -73,6 +75,7 @@ export const setupImageFunction = async ({
   await writeJSON(join(functionDirectory, 'imageconfig.json'), {
     ...imageconfig,
     basePath: [basePath, IMAGE_FUNCTION_NAME].join('/'),
+    remotePatterns,
   })
   await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
 

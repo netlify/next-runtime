@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
@@ -12,6 +13,7 @@ import {
   getRequiredServerFiles,
   updateRequiredServerFiles,
   configureHandlerFunctions,
+  generateCustomHeaders,
 } from './helpers/config'
 import { updateConfig, writeMiddleware } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
@@ -70,19 +72,35 @@ const plugin: NetlifyPlugin = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir } = await getNextConfig({
-      publish,
-      failBuild,
-    })
+    let experimentalRemotePatterns = []
+    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental } = await getNextConfig(
+      {
+        publish,
+        failBuild,
+      },
+    )
+
+    if (experimental.images) {
+      experimentalRemotePatterns = experimental.images.remotePatterns || []
+    }
 
     if (isNextAuthInstalled()) {
-      console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${process.env.URL}`)
-
       const config = await getRequiredServerFiles(publish)
-      const nextAuthUrl = `${process.env.URL}${basePath}`
-      config.config.env.NEXTAUTH_URL = nextAuthUrl
 
-      await updateRequiredServerFiles(publish, config)
+      const userDefinedNextAuthUrl = config.config.env.NEXTAUTH_URL
+
+      if (userDefinedNextAuthUrl) {
+        console.log(
+          `NextAuth package detected, NEXTAUTH_URL environment variable set by user to ${userDefinedNextAuthUrl}`,
+        )
+      } else {
+        const nextAuthUrl = `${process.env.URL}${basePath}`
+
+        console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
+        config.config.env.NEXTAUTH_URL = nextAuthUrl
+
+        await updateRequiredServerFiles(publish, config)
+      }
     }
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
@@ -105,7 +123,13 @@ const plugin: NetlifyPlugin = {
       nextConfig: { basePath, i18n },
     })
 
-    await setupImageFunction({ constants, imageconfig: images, netlifyConfig, basePath })
+    await setupImageFunction({
+      constants,
+      imageconfig: images,
+      netlifyConfig,
+      basePath,
+      remotePatterns: experimentalRemotePatterns,
+    })
 
     await generateRedirects({
       netlifyConfig,
@@ -127,6 +151,7 @@ const plugin: NetlifyPlugin = {
     netlifyConfig: {
       build: { publish },
       redirects,
+      headers,
     },
     utils: {
       status,
@@ -152,10 +177,16 @@ const plugin: NetlifyPlugin = {
 
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
-    const { basePath, appDir } = await getNextConfig({ publish, failBuild })
+    const nextConfig = await getNextConfig({ publish, failBuild })
+
+    const { basePath, appDir } = nextConfig
+
+    generateCustomHeaders(nextConfig, headers)
+
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
     await unpatchNextFiles(basePath)
   },
 }
 module.exports = plugin
+/* eslint-enable max-lines */

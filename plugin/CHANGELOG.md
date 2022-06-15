@@ -1,5 +1,40 @@
 # Changelog
 
+## [4.9.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.0...plugin-nextjs-v4.9.1) (2022-06-14)
+
+
+### Bug Fixes
+
+* check for existence of experimental images ([#1392](https://github.com/netlify/netlify-plugin-nextjs/issues/1392)) ([db004fa](https://github.com/netlify/netlify-plugin-nextjs/commit/db004fa694757006aa699e9e9181c5d2ad088969))
+
+## [4.9.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.8.0...plugin-nextjs-v4.9.0) (2022-06-14)
+
+
+### Features
+
+* add support for experimental image remotePatterns ([#1375](https://github.com/netlify/netlify-plugin-nextjs/issues/1375)) ([9095c82](https://github.com/netlify/netlify-plugin-nextjs/commit/9095c82b95018ce82a23fe90c48c84b99750d4f9))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.1.0 ([#1377](https://github.com/netlify/netlify-plugin-nextjs/issues/1377)) ([9ed5c38](https://github.com/netlify/netlify-plugin-nextjs/commit/9ed5c38c520b8d14f1c1e99f89355b308bd6c0b6))
+* run edge middleware on data requests ([#1382](https://github.com/netlify/netlify-plugin-nextjs/issues/1382)) ([55755df](https://github.com/netlify/netlify-plugin-nextjs/commit/55755dfc05118e1ff044398d9227b11aeb0d8352))
+
+## [4.8.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.7.1...plugin-nextjs-v4.8.0) (2022-06-06)
+
+
+### Features
+
+* added better custom header support ([#1358](https://github.com/netlify/netlify-plugin-nextjs/issues/1358)) ([46d8f3a](https://github.com/netlify/netlify-plugin-nextjs/commit/46d8f3ab4670768d7dd2f8c13ce68ef9d45208ae))
+
+### [4.7.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.7.0...plugin-nextjs-v4.7.1) (2022-05-25)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to v1 ([#1343](https://github.com/netlify/netlify-plugin-nextjs/issues/1343)) ([4ab9ff4](https://github.com/netlify/netlify-plugin-nextjs/commit/4ab9ff45db88b24efb062aeb1e56af8245d464f2))
+* don't override user defined NEXTAUTH_URL ([#1360](https://github.com/netlify/netlify-plugin-nextjs/issues/1360)) ([9010da3](https://github.com/netlify/netlify-plugin-nextjs/commit/9010da3d2f5da98c040beba9634651499e65cf88))
+
 ## [4.7.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.6.0...plugin-nextjs-v4.7.0) (2022-05-02)
 
 
