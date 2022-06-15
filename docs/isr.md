@@ -26,7 +26,7 @@ This can be done by modifying your [file based configuration](https://docs.netli
 An entry to the `included_files` option needs to be added under the `functions` option. You should be careful to not include unnecessary files, particularly large files such as images or videos, because there is a 50MB size limit for each handler function.
 See [Functions Configuration Docs](https://docs.netlify.com/configure-builds/file-based-configuration/#functions) for more info.
 Update your `netlify.toml` file to include the following (assuming local content is located in the /content directory):
-```
+```toml
 [functions]
 included_files = ["content/**"]
 ```
