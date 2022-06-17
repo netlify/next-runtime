@@ -1,0 +1,52 @@
+diff --git a/node_modules/next/dist/server/base-server.js b/node_modules/next/dist/server/base-server.js
+index 0dbb103..d17852c 100644
+--- a/node_modules/next/dist/server/base-server.js
++++ b/node_modules/next/dist/server/base-server.js
+@@ -938,6 +938,7 @@ class Server {
+                 fallbackMode: false
+             };
+             if (fallbackMode === 'static' && (0, _utils2).isBot(req.headers['user-agent'] || '')) {
++                console.log('TESTING: Ignoring bot request');
+                 fallbackMode = 'blocking';
+             }
+             // skip manual revalidate if cache is not present and
+@@ -949,6 +950,7 @@ class Server {
+             // only allow manual revalidate for fallback: true/blocking
+             // or for prerendered fallback: false paths
+             if (isManualRevalidate && (fallbackMode !== false || hadCache)) {
++                console.log('TESTING: Ignoring manual revalidate');
+                 fallbackMode = 'blocking';
+             }
+             // When we did not respond from cache, we need to choose to block on
+@@ -971,6 +973,7 @@ class Server {
+             (isProduction || !staticPaths || !staticPaths.includes(// we use ssgCacheKey here as it is normalized to match the
+             // encoding from getStaticPaths along with including the locale
+             query.amp ? ssgCacheKey.replace(/\.amp$/, '') : ssgCacheKey))) {
++                console.log('TESTING: Triggering fallback');
+                 if (// In development, fall through to render to handle missing
+                 // getStaticPaths.
+                 (isProduction || staticPaths) && // When fallback isn't present, abort this render so we 404
+@@ -980,6 +983,7 @@ class Server {
+                 if (!isDataReq) {
+                     // Production already emitted the fallback as static HTML.
+                     if (isProduction) {
++                        console.log('TESTING: Emitting fallback in production');
+                         const html = await this.incrementalCache.getFallback(locale ? `/${locale}${pathname}` : pathname);
+                         return {
+                             value: {
+@@ -989,6 +993,7 @@ class Server {
+                             }
+                         };
+                     } else {
++                        console.log('TESTING: Emitting fallback in development');
+                         query.__nextFallback = 'true';
+                         if (isLikeServerless) {
+                             prepareServerlessUrl(req, query);
+@@ -1003,6 +1008,7 @@ class Server {
+                     }
+                 }
+             }
++            console.log('TESTING: Not triggering fallback');
+             const result = await doRender();
+             if (!result) {
+                 return null;
