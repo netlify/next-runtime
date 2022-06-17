@@ -1,5 +1,6 @@
 /* eslint-disable max-lines */
 import { join, relative } from 'path'
+import process from 'process'
 
 import type { NetlifyPlugin } from '@netlify/build'
 import { greenBright } from 'chalk'

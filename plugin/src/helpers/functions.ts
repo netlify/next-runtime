@@ -1,3 +1,5 @@
+import process from 'process'
+
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import { copyFile, ensureDir, writeFile, writeJSON } from 'fs-extra'

@@ -1,3 +1,5 @@
+import process from 'process'
+
 import { HandlerContext, HandlerEvent } from '@netlify/functions'
 // Aliasing like this means the editor may be able to syntax-highlight the string
 import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
@@ -12,7 +14,7 @@ import type { NextServerType } from './handlerUtils'
 const { promises } = require('fs')
 const { Server } = require('http')
 const path = require('path')
-// eslint-disable-next-line node/prefer-global/url, node/prefer-global/url-search-params
+// eslint-disable-next-line n/prefer-global/url, n/prefer-global/url-search-params
 const { URLSearchParams, URL } = require('url')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
@@ -36,7 +38,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
 
   // This is just so nft knows about the page entrypoints. It's not actually used
   try {
-    // eslint-disable-next-line node/no-missing-require
+    // eslint-disable-next-line n/no-missing-require
     require.resolve('./pages.js')
   } catch {}
 
@@ -147,7 +149,7 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
 
   const { builder } = require("@netlify/functions");
   const { config }  = require("${publishDir}/required-server-files.json")
-  let staticManifest 
+  let staticManifest
   try {
     staticManifest = require("${publishDir}/static-manifest.json")
   } catch {}

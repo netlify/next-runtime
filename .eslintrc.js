@@ -1,4 +1,8 @@
 const { overrides } = require('@netlify/eslint-config-node')
+const { rules } = require('@netlify/eslint-config-node')
+
+// Existing ignores from https://github.com/netlify/eslint-config-node/pull/482/files#diff-e1ce717e1179a0db14e90ec5374768a206651ca807db58352991eb7895ed7c9cR186
+const [, { ignores: unsupportedIgnores }] = rules['n/no-unsupported-features/es-syntax']
 
 module.exports = {
   extends: '@netlify/eslint-config-node',
@@ -38,6 +42,17 @@ module.exports = {
   },
   overrides: [
     ...overrides,
+    {
+      files: ['*.ts'],
+      rules: {
+        'n/no-unsupported-features/es-syntax': [
+          2,
+          {
+            ignores: [...unsupportedIgnores, 'optionalChaining', 'nullishCoalescingOperators'],
+          },
+        ],
+      },
+    },
     {
       files: ['cypress/**/*.spec.ts'],
       rules: {

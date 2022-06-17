@@ -1,3 +1,5 @@
+import process from 'process'
+
 import type { NetlifyConfig } from '@netlify/build'
 import globby from 'globby'
 import { join } from 'pathe'
@@ -177,7 +179,7 @@ export const findModuleFromBase = ({ paths, candidates }): string | null => {
 
 export const isNextAuthInstalled = (): boolean => {
   try {
-    // eslint-disable-next-line import/no-unassigned-import, import/no-unresolved, node/no-missing-require
+    // eslint-disable-next-line n/global-require, import/no-unassigned-import, import/no-unresolved, n/no-missing-require
     require('next-auth')
     return true
   } catch {

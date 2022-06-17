@@ -1,6 +1,7 @@
 /* eslint-disable max-lines */
 import { existsSync, promises } from 'fs'
 import path, { relative, join } from 'path'
+import process from 'process'
 
 import type { NetlifyConfig, NetlifyPluginUtils } from '@netlify/build'
 import { yellowBright, greenBright, blueBright, redBright, reset } from 'chalk'

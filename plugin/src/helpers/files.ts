@@ -1,5 +1,6 @@
 /* eslint-disable max-lines */
 import { cpus } from 'os'
+import process from 'process'
 
 import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'

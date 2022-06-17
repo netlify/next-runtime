@@ -3,6 +3,7 @@ import http from 'http'
 import https from 'https'
 import { tmpdir } from 'os'
 import path from 'path'
+import process from 'process'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 
@@ -165,7 +166,7 @@ export const getNextServer = (): NextServerType => {
   let NextServer: NextServerType
   try {
     // next >= 11.0.1. Yay breaking changes in patch releases!
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line n/global-require, @typescript-eslint/no-var-requires
     NextServer = require('next/dist/server/next-server').default
   } catch (error) {
     if (!error.message.includes("Cannot find module 'next/dist/server/next-server'")) {
@@ -178,7 +179,7 @@ export const getNextServer = (): NextServerType => {
   if (!NextServer) {
     try {
       // next < 11.0.1
-      // eslint-disable-next-line node/no-missing-require, import/no-unresolved, @typescript-eslint/no-var-requires
+      // eslint-disable-next-line n/global-require, n/no-missing-require, import/no-unresolved, @typescript-eslint/no-var-requires
       NextServer = require('next/dist/next-server/server/next-server').default
     } catch (error) {
       if (!error.message.includes("Cannot find module 'next/dist/next-server/server/next-server'")) {

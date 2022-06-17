@@ -1,3 +1,5 @@
+import process from 'process'
+
 import type { NetlifyConfig } from '@netlify/build'
 import { readJSON, writeJSON } from 'fs-extra'
 import type { Header } from 'next/dist/lib/load-custom-routes'
