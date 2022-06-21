@@ -1,8 +1,7 @@
 const Page = () => {
-
   return (
     <div>
-      <p>No middleware</p>
+      <p>Open the network tab in devtools to see the response headers</p>
     </div>
   )
 }
