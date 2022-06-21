@@ -13,6 +13,8 @@ jobs:
   build:
     name: Unit tests
     runs-on: ${{ matrix.os }}
+    env:
+      FILE_DIRECTORY: default
 
     strategy:
       matrix:
@@ -48,6 +50,8 @@ jobs:
   canary:
     name: Unit tests (Canary)
     runs-on: ${{ matrix.os }}
+    env:
+      FILE_DIRECTORY: canary
 
     strategy:
       matrix:

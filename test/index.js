@@ -38,7 +38,8 @@ const { basePath } = require('../demos/next-i18next/next.config')
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
-const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
+const PROJECT_NAME = process.env.FILE_DIRECTORY || 'default'
+const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/${PROJECT_NAME}`
 const constants = {
   INTERNAL_FUNCTIONS_SRC: '.netlify/internal-functions',
   PUBLISH_DIR: '.next',
