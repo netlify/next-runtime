@@ -59,8 +59,8 @@ jobs:
           - os: windows-latest
             node-version: 12
       fail-fast: false
-
-    if: github.ref_name == 'main'
+    # uncomment this for merge
+    # if: github.ref_name == 'main'
     steps:
       - uses: actions/checkout@v2
       - name: Installing with latest Node.js
