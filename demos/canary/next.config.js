@@ -1,7 +1,8 @@
 const path = require('path')
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+module.exports = {
+  // Configurable site features we support:
+  // distDir: 'build',
   generateBuildId: () => 'build-id',
   i18n: {
     defaultLocale: 'en',
@@ -68,9 +69,7 @@ const nextConfig = {
       },
     ]
   },
-  sassOptions: {
-    includePaths: [path.join(__dirname, 'styles-sass-test')],
-  },
+  // https://github.com/vercel/next.js/blob/canary/docs/api-reference/next/image.md#remote-patterns
   experimental: {
     images: {
       remotePatterns: [
@@ -81,6 +80,8 @@ const nextConfig = {
       ],
     },
   },
+  // https://nextjs.org/docs/basic-features/built-in-css-support#customizing-sass-options
+  sassOptions: {
+    includePaths: [path.join(__dirname, 'styles-sass-test')],
+  },
 }
-
-module.exports = nextConfig

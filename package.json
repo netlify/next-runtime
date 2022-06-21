@@ -96,6 +96,7 @@
   "workspaces": [
     "plugin",
     "demos/default",
+    "demos/canary",
     "demos/static-root",
     "demos/next-export",
     "demos/base-path",

@@ -1,19 +1,27 @@
 {
-  "name": "canary",
-  "version": "0.1.0",
+  "name": "canary-demo",
+  "version": "1.0.0",
   "private": true,
+  "description": "",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "build": "next build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/netlify/netlify-plugin-nextjs.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/netlify/netlify-plugin-nextjs/issues"
+  },
+  "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
   "dependencies": {
     "next": "^12.1.7-canary.29",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
     "@reach/dialog": "^0.16.2",
-    "@reach/visually-hidden": "^0.16.0"
+    "@reach/visually-hidden": "^0.16.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "*",
