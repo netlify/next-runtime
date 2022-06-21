@@ -2,6 +2,8 @@ name: Plugin Tests
 
 on:
   pull_request:
+    # to be removed - this is just for testing
+    types: [opened, labeled, unlabeled, synchronize]
   push:
     branches: [main]
   schedule:
@@ -77,4 +79,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
           check-latest: true
       - name: Run tests against next@canary
-        run: npm test
+        run: npm run test:canary

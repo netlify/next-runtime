@@ -4,6 +4,7 @@
   "description": "Run Next.js seamlessly on Netlify",
   "scripts": {
     "build:demo": "cd demos/default && npm run build",
+    "build:canary": "cd demos/canary && npm run build",
     "cy:open": "cypress open --config-file cypress/config/all.json",
     "dev:demo": "next dev demos/default",
     "format": "run-s format:check-fix:*",
@@ -18,6 +19,7 @@
     "postinstall": "run-s build install-husky",
     "install-husky": "if-env CI=1 || husky install node_modules/@netlify/eslint-config-node/.husky",
     "test": "run-s build:demo test:jest",
+    "test:canary": "run-s build:canary test:jest",
     "test:jest": "jest",
     "test:jest:update": "jest --updateSnapshot",
     "test:update": "run-s build build:demo test:jest:update"
