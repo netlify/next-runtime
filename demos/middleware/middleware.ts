@@ -6,9 +6,6 @@ export function middleware(request: NextRequest, ev: NextFetchEvent) {
   const {
     nextUrl: { pathname },
   } = request
-  console.log('data', (request as any).__isData)
-  console.log({ request })
-  console.log({ pathname })
   if (pathname.startsWith('/cookies')) {
     response = NextResponse.next()
     response.cookies.set('netlifyCookie', 'true')
@@ -34,10 +31,11 @@ export function middleware(request: NextRequest, ev: NextFetchEvent) {
     if (!response) {
       response = NextResponse.next()
     }
+
     if (pathname.startsWith('/shows/static')) {
-      console.log('matches static')
       response.headers.set('x-middleware-date', new Date().toISOString())
     }
+
     response.headers.set('x-modified-edge', 'true')
     response.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
 

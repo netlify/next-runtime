@@ -1,5 +1,25 @@
 # Changelog
 
+## [4.9.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.0...plugin-nextjs-v4.9.1) (2022-06-14)
+
+
+### Bug Fixes
+
+* check for existence of experimental images ([#1392](https://github.com/netlify/netlify-plugin-nextjs/issues/1392)) ([db004fa](https://github.com/netlify/netlify-plugin-nextjs/commit/db004fa694757006aa699e9e9181c5d2ad088969))
+
+## [4.9.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.8.0...plugin-nextjs-v4.9.0) (2022-06-14)
+
+
+### Features
+
+* add support for experimental image remotePatterns ([#1375](https://github.com/netlify/netlify-plugin-nextjs/issues/1375)) ([9095c82](https://github.com/netlify/netlify-plugin-nextjs/commit/9095c82b95018ce82a23fe90c48c84b99750d4f9))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.1.0 ([#1377](https://github.com/netlify/netlify-plugin-nextjs/issues/1377)) ([9ed5c38](https://github.com/netlify/netlify-plugin-nextjs/commit/9ed5c38c520b8d14f1c1e99f89355b308bd6c0b6))
+* run edge middleware on data requests ([#1382](https://github.com/netlify/netlify-plugin-nextjs/issues/1382)) ([55755df](https://github.com/netlify/netlify-plugin-nextjs/commit/55755dfc05118e1ff044398d9227b11aeb0d8352))
+
 ## [4.8.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.7.1...plugin-nextjs-v4.8.0) (2022-06-06)
 
 

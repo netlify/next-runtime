@@ -15,7 +15,7 @@ const Show = ({ show }) => {
       </p>
       <hr />
       <p>
-        <Link href="/shows/static/34">Show 3</Link> and <Link href="/shows/static/4">show 4</Link> are pre-rendered
+        <Link href="/shows/static/3">Show 3</Link> and <Link href="/shows/static/4">show 4</Link> are pre-rendered
       </p>
       <h1>Show #{show.id}</h1>
       <p>{show.name}</p>

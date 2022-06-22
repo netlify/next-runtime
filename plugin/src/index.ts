@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
@@ -71,10 +72,17 @@ const plugin: NetlifyPlugin = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir } = await getNextConfig({
-      publish,
-      failBuild,
-    })
+    let experimentalRemotePatterns = []
+    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental } = await getNextConfig(
+      {
+        publish,
+        failBuild,
+      },
+    )
+
+    if (experimental.images) {
+      experimentalRemotePatterns = experimental.images.remotePatterns || []
+    }
 
     if (isNextAuthInstalled()) {
       const config = await getRequiredServerFiles(publish)
@@ -115,7 +123,13 @@ const plugin: NetlifyPlugin = {
       nextConfig: { basePath, i18n },
     })
 
-    await setupImageFunction({ constants, imageconfig: images, netlifyConfig, basePath })
+    await setupImageFunction({
+      constants,
+      imageconfig: images,
+      netlifyConfig,
+      basePath,
+      remotePatterns: experimentalRemotePatterns,
+    })
 
     await generateRedirects({
       netlifyConfig,
@@ -175,3 +189,4 @@ const plugin: NetlifyPlugin = {
   },
 }
 module.exports = plugin
+/* eslint-enable max-lines */
