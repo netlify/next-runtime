@@ -5,6 +5,8 @@ import type { NetlifyConfig } from '@netlify/build'
 import { emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 
+type EdgeFunctionDefinition = MiddlewareManifest['middleware']['name']
+
 export interface FunctionManifest {
   version: 1
   functions: Array<
@@ -47,25 +49,25 @@ delete globalThis.window
  * Concatenates the Next edge function code with the required chunks and adds an export
  */
 const getMiddlewareBundle = async ({
-  middlewareDefinition,
+  edgeFunctionDefinition,
   netlifyConfig,
 }: {
-  middlewareDefinition: MiddlewareManifest['middleware']['name']
+  edgeFunctionDefinition: EdgeFunctionDefinition
   netlifyConfig: NetlifyConfig
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
   const chunks: Array<string> = [bootstrap]
-  for (const file of middlewareDefinition.files) {
+  for (const file of edgeFunctionDefinition.files) {
     const filePath = join(publish, file)
     const data = await fs.readFile(filePath, 'utf8')
     chunks.push('{', data, '}')
   }
 
-  const middleware = await fs.readFile(join(publish, `server`, `${middlewareDefinition.name}.js`), 'utf8')
+  const middleware = await fs.readFile(join(publish, `server`, `${edgeFunctionDefinition.name}.js`), 'utf8')
 
   chunks.push(middleware)
 
-  const exports = /* js */ `export default _ENTRIES["middleware_${middlewareDefinition.name}"].default;`
+  const exports = /* js */ `export default _ENTRIES["middleware_${edgeFunctionDefinition.name}"].default;`
   chunks.push(exports)
   return chunks.join('\n')
 }
@@ -83,10 +85,46 @@ const copyEdgeSourceFile = ({
 // Edge functions don't support lookahead expressions
 const stripLookahead = (regex: string) => regex.replace('^/(?!_next)', '^/')
 
+const writeEdgeFunction = async ({
+  edgeFunctionDefinition,
+  edgeFunctionRoot,
+  netlifyConfig,
+}: {
+  edgeFunctionDefinition: EdgeFunctionDefinition
+  edgeFunctionRoot: string
+  netlifyConfig: NetlifyConfig
+}): Promise<{
+  function: string
+  pattern: string
+}> => {
+  const name = sanitizeName(edgeFunctionDefinition.name)
+  const edgeFunctionDir = join(edgeFunctionRoot, name)
+
+  const bundle = await getMiddlewareBundle({
+    edgeFunctionDefinition,
+    netlifyConfig,
+  })
+
+  await ensureDir(edgeFunctionDir)
+  await fs.writeFile(join(edgeFunctionDir, 'bundle.js'), bundle)
+
+  await copyEdgeSourceFile({
+    edgeFunctionDir,
+    file: 'runtime.ts',
+    target: 'index.ts',
+  })
+
+  await copyEdgeSourceFile({ edgeFunctionDir, file: 'utils.ts' })
+  return {
+    function: name,
+    pattern: stripLookahead(edgeFunctionDefinition.regexp),
+  }
+}
+
 /**
  * Writes Edge Functions for the Next middleware
  */
-export const writeMiddleware = async (netlifyConfig: NetlifyConfig) => {
+export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
   if (!middlewareManifest) {
     console.error("Couldn't find the middleware manifest")
@@ -109,29 +147,22 @@ export const writeMiddleware = async (netlifyConfig: NetlifyConfig) => {
   })
 
   for (const middleware of middlewareManifest.sortedMiddleware) {
-    const middlewareDefinition = middlewareManifest.middleware[middleware]
-    const name = sanitizeName(middlewareDefinition.name)
-    const edgeFunctionDir = join(edgeFunctionRoot, name)
-
-    const bundle = await getMiddlewareBundle({
-      middlewareDefinition,
+    const edgeFunctionDefinition = middlewareManifest.middleware[middleware]
+    const functionDefinition = await writeEdgeFunction({
+      edgeFunctionDefinition,
+      edgeFunctionRoot,
       netlifyConfig,
     })
+    manifest.functions.push(functionDefinition)
+  }
 
-    await ensureDir(edgeFunctionDir)
-    await fs.writeFile(join(edgeFunctionDir, 'bundle.js'), bundle)
-
-    await copyEdgeSourceFile({
-      edgeFunctionDir,
-      file: 'runtime.ts',
-      target: 'index.ts',
+  for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
+    const functionDefinition = await writeEdgeFunction({
+      edgeFunctionDefinition,
+      edgeFunctionRoot,
+      netlifyConfig,
     })
-
-    await copyEdgeSourceFile({ edgeFunctionDir, file: 'utils.ts' })
-    manifest.functions.push({
-      function: name,
-      pattern: stripLookahead(middlewareDefinition.regexp),
-    })
+    manifest.functions.push(functionDefinition)
   }
 
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
