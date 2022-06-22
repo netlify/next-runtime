@@ -88,7 +88,7 @@ export const moveStaticPages = async ({
   const root = join(outputDir, 'pages')
   const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
   const dataDir = join('_next', 'data', buildId)
-  await ensureDir(dataDir)
+  await ensureDir(join(netlifyConfig.build.publish, dataDir))
   // Load the middleware manifest so we can check if a file matches it before moving
   const middlewarePaths = await getMiddleware(netlifyConfig.build.publish)
   const middleware = middlewarePaths.map((path) => path.slice(1))
