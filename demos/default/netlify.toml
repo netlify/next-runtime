@@ -1,5 +1,5 @@
 [build]
-command = "next build || { cat /opt/buildhome/.npm/_logs/* ; sleep 30 ; false; }"
+command = "next build"
 publish = ".next"
 ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF . ../../plugin; fi;"
 
