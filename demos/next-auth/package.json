@@ -23,6 +23,7 @@
   ],
   "license": "ISC",
   "dependencies": {
+    "next": "^12.1.6",
     "next-auth": "^4.3.3",
     "nodemailer": "^6.6.3",
     "react": "^17.0.2",

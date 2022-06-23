@@ -47,7 +47,7 @@
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.16.0",
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^27.1.6",
+    "@netlify/build": "^27.2.0",
     "@netlify/eslint-config-node": "^5.1.8",
     "@testing-library/cypress": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
