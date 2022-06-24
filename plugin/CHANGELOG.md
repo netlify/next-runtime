@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.9.3](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.2...plugin-nextjs-v4.9.3) (2022-06-24)
+
+
+### Bug Fixes
+
+* handle missing manifest functions field ([#1416](https://github.com/netlify/netlify-plugin-nextjs/issues/1416)) ([5114193](https://github.com/netlify/netlify-plugin-nextjs/commit/5114193ac37f00a51a8637b11638857c8dfc4698))
+
 ## [4.9.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.1...plugin-nextjs-v4.9.2) (2022-06-23)
 
 
