@@ -155,14 +155,17 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
     })
     manifest.functions.push(functionDefinition)
   }
-
-  for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
-    const functionDefinition = await writeEdgeFunction({
-      edgeFunctionDefinition,
-      edgeFunctionRoot,
-      netlifyConfig,
-    })
-    manifest.functions.push(functionDefinition)
+  // Older versions of the manifest format don't have the functions field
+  // No, the version field was not incremented
+  if (typeof middlewareManifest.functions === 'object') {
+    for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
+      const functionDefinition = await writeEdgeFunction({
+        edgeFunctionDefinition,
+        edgeFunctionRoot,
+        netlifyConfig,
+      })
+      manifest.functions.push(functionDefinition)
+    }
   }
 
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
