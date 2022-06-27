@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.9.3](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.2...plugin-nextjs-v4.9.3) (2022-06-24)
+
+
+### Bug Fixes
+
+* handle missing manifest functions field ([#1416](https://github.com/netlify/netlify-plugin-nextjs/issues/1416)) ([5114193](https://github.com/netlify/netlify-plugin-nextjs/commit/5114193ac37f00a51a8637b11638857c8dfc4698))
+
+## [4.9.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.1...plugin-nextjs-v4.9.2) (2022-06-23)
+
+
+### Bug Fixes
+
+* **deps:** upgrade ipx ([#1409](https://github.com/netlify/netlify-plugin-nextjs/issues/1409)) ([050ddcc](https://github.com/netlify/netlify-plugin-nextjs/commit/050ddcc62c6d4c145e82cc9f8516b2d9bfdff92c))
+
 ## [4.9.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.0...plugin-nextjs-v4.9.1) (2022-06-14)
 
 

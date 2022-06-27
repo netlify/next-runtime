@@ -16,7 +16,7 @@ import {
   configureHandlerFunctions,
   generateCustomHeaders,
 } from './helpers/config'
-import { updateConfig, writeMiddleware } from './helpers/edge'
+import { updateConfig, writeEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
@@ -143,7 +143,7 @@ const plugin: NetlifyPlugin = {
         ✨ Deploying to ${greenBright`Netlify Edge Functions`} ✨
         This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
       `)
-      await writeMiddleware(netlifyConfig)
+      await writeEdgeFunctions(netlifyConfig)
       await updateConfig(publish)
     }
   },
