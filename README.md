@@ -34,8 +34,8 @@ package = "@netlify/plugin-nextjs"
 ## Deploying
 
 If you build on Netlify, this plugin will work with no additional configuration. However if you are building and
-deploying locally using the Netlify CLI, you must deploy using `netlify deploy --build`. Running the
-build and deploy commands separately will not work, because the plugin will not generate the required configuration.
+deploying locally using the Netlify CLI, you must deploy using `netlify deploy --build`. Running the build and deploy
+commands separately will not work, because the plugin will not generate the required configuration.
 
 ## Migrating from an older version of the plugin
 
@@ -69,7 +69,13 @@ files must be placed in `public`, not in the root of the site.
 
 If you want to use Next 12's beta Middleware feature, this will mostly work as expected but please
 [read the docs on some caveats and workarounds](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/middleware.md)
-that are currently needed.
+that are currently needed. In Next 12.2.0, nested middleware was deprecated in favour of root level middleware. If you
+are running middleware on origin, this means that none of your pages will be static, and the benefits of using a CDN are
+negated. To fix this issue, you may choose to run your middleware on Netlify Edge Functions
+
+## Netlify Edge Functions
+
+To use Netlify Edge Functions to run middleware, set the environment variable `NEXT_USE_NETLIFY_EDGE=true`
 
 ## Monorepos
 
