@@ -2,7 +2,7 @@
 import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
-import { greenBright, yellowBright } from 'chalk'
+import { greenBright, yellowBright, bold } from 'chalk'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
@@ -153,7 +153,7 @@ const plugin: NetlifyPlugin = {
         yellowBright(outdent`
           You are using Next.js Middleware without Netlify Edge Functions.
           Your middleware is running at origin, which disables static pages.
-          To get the best performance and use Netlify Edge Functions, set the env NEXT_USE_NETLIFY_EDGE=true
+          To get the best performance and use Netlify Edge Functions, set the env var ${bold`NEXT_USE_NETLIFY_EDGE=true`}.
         `),
       )
     }

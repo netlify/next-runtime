@@ -67,15 +67,22 @@ If you currently use redirects or rewrites on your site, see
 for information on changes to how they are handled in this version. In particular, note that `_redirects` and `_headers`
 files must be placed in `public`, not in the root of the site.
 
-If you want to use Next 12's beta Middleware feature, this will mostly work as expected but please
-[read the docs on some caveats and workarounds](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/middleware.md)
-that are currently needed. In Next 12.2.0, nested middleware has been deprecated in favour of root level middleware. If
-you are running middleware on origin, this means that none of your pages will be static, and the benefits of using a CDN
-are negated. To fix this issue, you may choose to run your middleware on Netlify Edge Functions
+## Next.js Middleware on Netlify
+
+Next 12's Middleware mostly works as expected on Netlify, but check out the
+[docs on some caveats and workarounds](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/middleware.md)
+that are currently needed.
+
+### No nested middleware in Next 12.2.0
+
+In Next 12.2.0, nested middleware has been deprecated in favour of root level middleware. If you are running middleware
+on the origin, this means that none of your pages will be static and you won't get the benefits of using a CDN.
+
+To fix this issue, you can run your middleware on [Netlify Edge Functions](#netlify-edge-functions).
 
 ## Netlify Edge Functions
 
-To use Netlify Edge Functions to run middleware, set the environment variable `NEXT_USE_NETLIFY_EDGE=true`
+To use Netlify Edge Functions for middleware, set the environment variable `NEXT_USE_NETLIFY_EDGE=true`.
 
 ## Monorepos
 
