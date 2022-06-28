@@ -2,7 +2,7 @@
 import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
-import { greenBright } from 'chalk'
+import { greenBright, yellowBright } from 'chalk'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
@@ -15,7 +15,7 @@ import {
   configureHandlerFunctions,
   generateCustomHeaders,
 } from './helpers/config'
-import { updateConfig, writeEdgeFunctions } from './helpers/edge'
+import { updateConfig, writeEdgeFunctions, loadMiddlewareManifest } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
@@ -144,6 +144,18 @@ const plugin: NetlifyPlugin = {
       `)
       await writeEdgeFunctions(netlifyConfig)
       await updateConfig(publish)
+    }
+
+    const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
+
+    if (!process.env.NEXT_USE_NETLIFY_EDGE && middlewareManifest.sortedMiddleware.length !== 0) {
+      console.log(
+        yellowBright(outdent`
+          You are using Next.js Middleware without Netlify Edge Functions.
+          Your middleware is running at origin, which disables static pages.
+          To get the best performance and use Netlify Edge Functions, set the env NEXT_USE_NETLIFY_EDGE=true
+        `),
+      )
     }
   },
 
