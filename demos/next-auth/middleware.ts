@@ -1,20 +1,12 @@
-import type { NextRequest } from "next/server"
-import type { JWT } from "next-auth/jwt"
 import { withAuth } from "next-auth/middleware"
 
-export default withAuth(
-  {
-    callbacks: {
-      authorized: ({ req, token }) => {
-        if (req.nextUrl.pathname.startsWith('/admin')) {
-          return token?.role === "admin"
-        }
-        if(token) return true
-
-        return false
-      },
-    },
-  }
-)
+// More on how NextAuth.js middleware works: https://next-auth.js.org/configuration/nextjs#middleware
+export default withAuth({
+  callbacks: {
+    authorized: ({ req, token }) =>
+      // /admin requires admin role, but /me only requires the user to be logged in.
+      req.nextUrl.pathname !== "/admin" || token?.userRole === "admin",
+  },
+})
 
 export const config = { matcher: ["/admin", "/me"] }
