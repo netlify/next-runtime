@@ -428,7 +428,8 @@ describe('onBuild()', () => {
     })
   })
 
-  test('skips static files that match middleware', async () => {
+  // TODO - TO BE MOVED TO TEST AGAINST A PROJECT WITH MIDDLEWARE IN ANOTHER PR
+  test.skip('skips static files that match middleware', async () => {
     await moveNextDist()
     await plugin.onBuild(defaultArgs)
 
