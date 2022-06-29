@@ -175,16 +175,6 @@ const Index = ({ shows, nodeEnv }) => {
               <a>Rewrite to static (should show getStaticProps/1)</a>
             </Link>
           </li>
-          <li>
-            <Link href="/middle">
-              <a>Middleware</a>
-            </Link>
-          </li>
-          <li>
-            <Link href="/getStaticProps/withFallbackAndMiddleware/4">
-              <a>Middleware matching a pre-rendered dynamic route</a>
-            </Link>
-          </li>
         </ul>
         <h4>Preview mode</h4>
         <p>Preview mode: </p>
