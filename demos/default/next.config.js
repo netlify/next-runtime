@@ -77,4 +77,13 @@ module.exports = {
   sassOptions: {
     includePaths: [path.join(__dirname, 'styles-sass-test')],
   },
+  experimental: {
+    images: {
+      remotePatterns: [
+        {
+          hostname: '*.imgur.com',
+        },
+      ],
+    },
+  },
 }

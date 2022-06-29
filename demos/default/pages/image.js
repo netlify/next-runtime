@@ -21,6 +21,8 @@ const Images = () => (
         width={500}
         height={500}
       />
+
+      <Image src="https://i.imgur.com/bxSRS3Jb.png" alt="Tawny Frogmouth" width={160} height={160} />
     </p>
   </div>
 )
