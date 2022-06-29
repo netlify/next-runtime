@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.10.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.3...plugin-nextjs-v4.10.0) (2022-06-29)
+
+
+### Features
+
+* middleware warning ([#1425](https://github.com/netlify/netlify-plugin-nextjs/issues/1425)) ([3c56eda](https://github.com/netlify/netlify-plugin-nextjs/commit/3c56eda2b4824b4d0c5785fcd508f4571b960300))
+
 ## [4.9.3](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.2...plugin-nextjs-v4.9.3) (2022-06-24)
 
 
