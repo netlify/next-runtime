@@ -17,4 +17,15 @@ describe('next/images', () => {
     cy.visit('/image')
     cy.findByRole('img', { name: /shiba inu dog looks through a window/i })
   })
+
+  it('should show image allow-listed with remotePatterns', () => {
+    cy.visit('/image')
+    cy.findByRole('img',{ name: /tawny frogmouth/i }).should('be.visible').and(($img) => {
+      // "naturalWidth" and "naturalHeight" are set when the image loads
+      expect(
+        $img[0].naturalWidth,
+        'image has natural width'
+      ).to.be.greaterThan(0)
+    })
+  })
 })
