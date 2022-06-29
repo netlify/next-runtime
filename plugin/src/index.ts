@@ -148,15 +148,11 @@ const plugin: NetlifyPlugin = {
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
 
-    if (
-      !process.env.NEXT_USE_NETLIFY_EDGE &&
-      middlewareManifest.sortedMiddleware &&
-      middlewareManifest.sortedMiddleware.length !== 0
-    ) {
+    if (!process.env.NEXT_USE_NETLIFY_EDGE && middlewareManifest?.sortedMiddleware?.length) {
       console.log(
         yellowBright(outdent`
           You are using Next.js Middleware without Netlify Edge Functions.
-          This will soon be deprecated because it negatively affects performance and will disable ISR and static rendering.
+          Your middleware is running at origin, which disables static pages.
           To get the best performance and use Netlify Edge Functions, set the env var ${bold`NEXT_USE_NETLIFY_EDGE=true`}.
         `),
       )
