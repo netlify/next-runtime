@@ -34,8 +34,8 @@ package = "@netlify/plugin-nextjs"
 ## Deploying
 
 If you build on Netlify, this plugin will work with no additional configuration. However if you are building and
-deploying locally using the Netlify CLI, you must deploy using `netlify deploy --build`. Running the
-build and deploy commands separately will not work, because the plugin will not generate the required configuration.
+deploying locally using the Netlify CLI, you must deploy using `netlify deploy --build`. Running the build and deploy
+commands separately will not work, because the plugin will not generate the required configuration.
 
 ## Migrating from an older version of the plugin
 
@@ -67,9 +67,26 @@ If you currently use redirects or rewrites on your site, see
 for information on changes to how they are handled in this version. In particular, note that `_redirects` and `_headers`
 files must be placed in `public`, not in the root of the site.
 
-If you want to use Next 12's beta Middleware feature, this will mostly work as expected but please
-[read the docs on some caveats and workarounds](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/middleware.md)
-that are currently needed.
+## Next.js Middleware on Netlify
+
+Next.js Middleware works out of the box on Netlify, but check out the
+[docs on some caveats](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/middleware.md). By default,
+middleware runs using SSR. For better results, you should enable [Netlify Edge Functions](#netlify-edge-functions),
+which ensures middleware runs at the edge.
+
+### No nested middleware in Next 12.2.0
+
+In Next 12.2.0, nested middleware [has been deprecated](https://nextjs.org/docs/messages/middleware-upgrade-guide) in
+favor of root level middleware. If you are not using edge functions then this means that you won't get the benefits of
+using a CDN, and ISR will not work.
+
+To fix this issue, you can run your middleware on [Netlify Edge Functions](#netlify-edge-functions).
+
+## Netlify Edge Functions
+
+To use Netlify Edge Functions for middleware or to enable
+[edge server rendering](https://nextjs.org/blog/next-12-2#edge-server-rendering-experimental), set the environment
+variable `NEXT_USE_NETLIFY_EDGE` to `true`.
 
 ## Monorepos
 

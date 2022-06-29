@@ -21,7 +21,7 @@ export interface FunctionManifest {
   >
 }
 
-const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> => {
+export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> => {
   const middlewarePath = resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json')
   if (!existsSync(middlewarePath)) {
     return null
