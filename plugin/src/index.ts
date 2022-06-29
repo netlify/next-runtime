@@ -148,7 +148,11 @@ const plugin: NetlifyPlugin = {
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
 
-    if (!process.env.NEXT_USE_NETLIFY_EDGE && middlewareManifest.sortedMiddleware && middlewareManifest.sortedMiddleware.length !== 0) {
+    if (
+      !process.env.NEXT_USE_NETLIFY_EDGE &&
+      middlewareManifest.sortedMiddleware &&
+      middlewareManifest.sortedMiddleware.length !== 0
+    ) {
       console.log(
         yellowBright(outdent`
           You are using Next.js Middleware without Netlify Edge Functions.
