@@ -77,7 +77,7 @@ which ensures middleware runs at the edge.
 ### No nested middleware in Next 12.2.0
 
 In Next 12.2.0, nested middleware [has been deprecated](https://nextjs.org/docs/messages/middleware-upgrade-guide) in
-favour of root level middleware. If you are not using edge functions then this means that you won't get the benefits of
+favor of root level middleware. If you are not using edge functions then this means that you won't get the benefits of
 using a CDN, and ISR will not work.
 
 To fix this issue, you can run your middleware on [Netlify Edge Functions](#netlify-edge-functions).
