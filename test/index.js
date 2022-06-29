@@ -35,6 +35,7 @@ const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
 const { onPostBuild } = require('../plugin/lib')
 const { basePath } = require('../demos/next-i18next/next.config')
+const { IMAGE_FUNCTION_NAME } = require('../plugin/lib/constants')
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
@@ -526,6 +527,15 @@ describe('onBuild()', () => {
     await writeJSON(manifestPath, routesManifest)
     // The function is supposed to return undefined, but we want to check if it throws
     expect(await plugin.onBuild(defaultArgs)).toBeUndefined()
+  })
+
+  test('generates imageconfig file with entries for domains and remotePatterns', async () => {
+    await moveNextDist()
+    await plugin.onBuild(defaultArgs)
+    const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
+    const imageConfigJson = await readJson(imageConfigPath)
+    expect(imageConfigJson.domains.length).toBe(1)
+    expect(imageConfigJson.remotePatterns.length).toBe(1)
   })
 })
 
