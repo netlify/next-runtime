@@ -16,7 +16,7 @@ const { downloadFile } = require('../plugin/src/templates/handlerUtils')
 
 const plugin = require('../plugin/src')
 
-const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../plugin/src/constants')
+const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../plugin/src/constants')
 const { join } = require('pathe')
 const {
   matchMiddleware,
@@ -35,7 +35,6 @@ const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
 const { onPostBuild } = require('../plugin/lib')
 const { basePath } = require('../demos/next-i18next/next.config')
-const { IMAGE_FUNCTION_NAME } = require('../plugin/lib/constants')
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
