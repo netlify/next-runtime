@@ -13,20 +13,16 @@ const defaultFormat = "webp"
 // deno-lint-ignore require-await
 const handler = async (req: Request, context: Context) => {
   const { searchParams } = new URL(req.url);
-  console.log({imageconfig, headers: req.headers})
   const accept = new Accepts(req.headers);
   const { formats = [defaultFormat] } = imageconfig;
   if (formats.length === 0) {
     formats.push(defaultFormat);
   }
-  let type = accept.types(formats) 
-  console.log('Accepted types:', type)
-  type ||= defaultFormat;
+  let type = accept.types(formats) || defaultFormat;
   if(Array.isArray(type)) {
     type = type[0];
   }
 
-  console.log('Resolved type to:', type)
 
   const source = searchParams.get("url");
   const width = searchParams.get("w");
@@ -48,7 +44,6 @@ const handler = async (req: Request, context: Context) => {
     modifiers.push(`f_${type}`);
   }
   const target = `/_ipx/${modifiers.join(",")}/${encodeURIComponent(source)}`;
-  console.log('Loading image from', target)
   return context.rewrite(
     target,
   );
