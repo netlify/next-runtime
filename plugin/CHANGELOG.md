@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.11.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.11.0...plugin-nextjs-v4.11.1) (2022-06-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.1.3 ([#1441](https://github.com/netlify/netlify-plugin-nextjs/issues/1441)) ([9a72c0c](https://github.com/netlify/netlify-plugin-nextjs/commit/9a72c0ce7baf85bb3f5266b593162895a20ac9df))
+
 ## [4.11.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.10.1...plugin-nextjs-v4.11.0) (2022-06-30)
 
 
