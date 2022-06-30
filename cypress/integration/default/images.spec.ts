@@ -27,5 +27,15 @@ describe('next/images', () => {
         'image has natural width'
       ).to.be.greaterThan(0)
     })
+
+  it('should show a broken image if it is not on domains or remotePatterns allowlist', () => {
+    cy.visit('/image')
+    cy.findByRole('img',{ name: /deploy to netlify button/i }).should('be.visible').and(($img) => {
+      // "naturalWidth" and "naturalHeight" are set when the image loads, so should be 0 if image doesn't load
+      expect(
+        $img[0].naturalWidth,
+        'image has natural width'
+      ).to.equal(0)
+    })
   })
 })
