@@ -137,12 +137,14 @@ const plugin: NetlifyPlugin = {
       buildId,
     })
 
+    // We call this even if we don't have edge functions enabled because we still use it for images
+    await writeEdgeFunctions(netlifyConfig)
+
     if (process.env.NEXT_USE_NETLIFY_EDGE) {
       console.log(outdent`
         ✨ Deploying to ${greenBright`Netlify Edge Functions`} ✨
         This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
       `)
-      await writeEdgeFunctions(netlifyConfig)
       await updateConfig(publish)
     }
 
