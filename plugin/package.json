@@ -22,8 +22,8 @@
     "p-limit": "^3.1.0",
     "pathe": "^0.2.0",
     "pretty-bytes": "^5.6.0",
-    "semver": "^7.3.5",
     "slash": "^3.0.0",
+    "semver": "^7.3.5",
     "tiny-glob": "^0.2.9"
   },
   "devDependencies": {
