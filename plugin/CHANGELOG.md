@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.11.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.10.1...plugin-nextjs-v4.11.0) (2022-06-30)
+
+
+### Features
+
+* use edge functions for content negotiation by default ([#1438](https://github.com/netlify/netlify-plugin-nextjs/issues/1438)) ([0bac0e0](https://github.com/netlify/netlify-plugin-nextjs/commit/0bac0e078600bf3a014b270f0d40143345a68107))
+
 ## [4.10.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.10.0...plugin-nextjs-v4.10.1) (2022-06-29)
 
 
