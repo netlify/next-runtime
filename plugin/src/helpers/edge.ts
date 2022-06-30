@@ -125,12 +125,6 @@ const writeEdgeFunction = async ({
  * Writes Edge Functions for the Next middleware
  */
 export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
-  const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
-  if (!middlewareManifest) {
-    console.error("Couldn't find the middleware manifest")
-    return
-  }
-
   const manifest: FunctionManifest = {
     functions: [],
     version: 1,
@@ -139,26 +133,27 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   const edgeFunctionRoot = resolve('.netlify', 'edge-functions')
   await emptyDir(edgeFunctionRoot)
 
-  await copyEdgeSourceFile({ edgeFunctionDir: edgeFunctionRoot, file: 'ipx.ts' })
-
-  manifest.functions.push({
-    function: 'ipx',
-    path: '/_next/image*',
-  })
-
-  for (const middleware of middlewareManifest.sortedMiddleware) {
-    const edgeFunctionDefinition = middlewareManifest.middleware[middleware]
-    const functionDefinition = await writeEdgeFunction({
-      edgeFunctionDefinition,
-      edgeFunctionRoot,
-      netlifyConfig,
+  if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
+    if (!process.env.NEXT_USE_NETLIFY_EDGE) {
+      console.log(
+        'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
+      )
+    }
+    await copyEdgeSourceFile({ edgeFunctionDir: edgeFunctionRoot, file: 'ipx.ts' })
+    manifest.functions.push({
+      function: 'ipx',
+      path: '/_next/image*',
     })
-    manifest.functions.push(functionDefinition)
   }
-  // Older versions of the manifest format don't have the functions field
-  // No, the version field was not incremented
-  if (typeof middlewareManifest.functions === 'object') {
-    for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
+  if (process.env.NEXT_USE_NETLIFY_EDGE) {
+    const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
+    if (!middlewareManifest) {
+      console.error("Couldn't find the middleware manifest")
+      return
+    }
+
+    for (const middleware of middlewareManifest.sortedMiddleware) {
+      const edgeFunctionDefinition = middlewareManifest.middleware[middleware]
       const functionDefinition = await writeEdgeFunction({
         edgeFunctionDefinition,
         edgeFunctionRoot,
@@ -166,8 +161,19 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
       })
       manifest.functions.push(functionDefinition)
     }
+    // Older versions of the manifest format don't have the functions field
+    // No, the version field was not incremented
+    if (typeof middlewareManifest.functions === 'object') {
+      for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
+        const functionDefinition = await writeEdgeFunction({
+          edgeFunctionDefinition,
+          edgeFunctionRoot,
+          netlifyConfig,
+        })
+        manifest.functions.push(functionDefinition)
+      }
+    }
   }
-
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
 
