@@ -21,11 +21,15 @@ request is made for stale content, the page will be regenerated in the backgroun
 but it can take up to 60 seconds before the new content is then updated in all CDN nodes if they already had a cached
 copy.
 
-If the static regeneration relies on local files in your repository they need to be bundled with the handler functions. 
-This can be done by modifying your [file based configuration](https://docs.netlify.com/configure-builds/file-based-configuration).
-An entry to the `included_files` option needs to be added under the `functions` option. You should be careful to not include unnecessary files, particularly large files such as images or videos, because there is a 50MB size limit for each handler function.
-See [Functions Configuration Docs](https://docs.netlify.com/configure-builds/file-based-configuration/#functions) for more info.
-Update your `netlify.toml` file to include the following (assuming local content is located in the /content directory):
+If the static regeneration relies on local files in your repository they need to be bundled with the handler functions.
+This can be done by modifying your
+[file based configuration](https://docs.netlify.com/configure-builds/file-based-configuration). An entry to the
+`included_files` option needs to be added under the `functions` option. You should be careful to not include unnecessary
+files, particularly large files such as images or videos, because there is a 50MB size limit for each handler function.
+See [Functions Configuration Docs](https://docs.netlify.com/configure-builds/file-based-configuration/#functions) for
+more info. Update your `netlify.toml` file to include the following (assuming local content is located in the /content
+directory):
+
 ```toml
 [functions]
 included_files = ["content/**"]
@@ -37,15 +41,23 @@ If you only need the content for DSG pages, then you can target only that functi
 [functions.__dsg]
 included_files = ["content/**"]
 ```
+
 or, for SSR pages:
 
 ```toml
 [functions.__ssr]
 included_files = ["content/**"]
 ```
+
 If a new deploy is made, all persisted pages and CDN cached pages will be invalidated so that conflicts are avoided. If
 this did not happen, a stale HTML page might make a request for an asset that no longer exists in the new deploy. By
 invalidating all persisted pages, you can be confident that this will never happen and that deploys remain atomic.
+
+### On-demand ISR
+
+On-Demand ISR (where a path is manually revalidated) is not currently supported on Netlify.
+[Please let us know](https://github.com/netlify/netlify-plugin-nextjs/discussions/1228) if this feature would be useful
+to you, and if so how you would plan to use it.
 
 ### Alternatives to ISR
 
@@ -54,13 +66,13 @@ control over when it happens. It is less ideal in situations such as a CMS with 
 the CMS trigger a deploy when a page is added or edited. This offers the best performance and avoids unnecesary
 rebuilds.
 
-### Static site generation
+#### Static site generation
 
 For high-traffic pages you can use
 [static generation](https://nextjs.org/docs/basic-features/data-fetching#getstaticprops-static-generation) without
 `revalidate`, which deploys static files directly to the CDN for maximum performance.
 
-### Distributed persistent rendering
+#### Distributed persistent rendering
 
 For less commonly-accessed content you can use return `fallback: "blocking"` from
 [`getStaticPaths`](https://nextjs.org/docs/basic-features/data-fetching#getstaticpaths-static-generation) and defer

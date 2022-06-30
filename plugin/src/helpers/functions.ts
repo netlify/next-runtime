@@ -81,15 +81,14 @@ export const setupImageFunction = async ({
 
   const imagePath = imageconfig.path || '/_next/image'
 
-  // If we have edge, we use content negotiation instead of the redirect
-  if (!process.env.NEXT_USE_NETLIFY_EDGE) {
-    netlifyConfig.redirects.push({
-      from: `${imagePath}*`,
-      query: { url: ':url', w: ':width', q: ':quality' },
-      to: `${basePath}/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
-      status: 301,
-    })
-  }
+  // If we have edge functions then the request will have already been rewritten
+  // so this won't match. This is matched if edge is disabled or unavailable.
+  netlifyConfig.redirects.push({
+    from: `${imagePath}*`,
+    query: { url: ':url', w: ':width', q: ':quality' },
+    to: `${basePath}/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
+    status: 301,
+  })
 
   netlifyConfig.redirects.push({
     from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,

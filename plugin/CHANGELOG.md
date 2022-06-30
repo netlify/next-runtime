@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.10.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.10.0...plugin-nextjs-v4.10.1) (2022-06-29)
+
+
+### Bug Fixes
+
+* check for Middleware manifest & chain ([#1435](https://github.com/netlify/netlify-plugin-nextjs/issues/1435)) ([afe65eb](https://github.com/netlify/netlify-plugin-nextjs/commit/afe65ebd3cbe1ad8dec947ae43dd9a8eb2af1d86))
+
 ## [4.10.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.9.3...plugin-nextjs-v4.10.0) (2022-06-29)
 
 
