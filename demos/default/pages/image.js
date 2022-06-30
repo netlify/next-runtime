@@ -23,8 +23,8 @@ const Images = () => (
       <Image src="https://i.imgur.com/bxSRS3Jb.png" alt="Tawny Frogmouth" width={160} height={160} />
       The following image should be broken as the domain is not added to domains or remotePatterns in next.config.js:
       <Image
-        src="https://www.netlify.com/img/deploy/button.svg"
-        alt="Deploy to Netlify button"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/SIPI_Jelly_Beans_4.1.07.tiff/lossy-page1-256px-SIPI_Jelly_Beans_4.1.07.tiff.jpg"
+        alt="Jellybeans"
         width={146}
         height={32}
       />
