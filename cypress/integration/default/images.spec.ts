@@ -34,10 +34,10 @@ describe('next/images', () => {
     cy.findByRole('img',{ name: /jellybeans/i }).should('be.visible').and(($img) => {
       expect(
         $img[0].style.height
-      ).to.equal(0)
+      ).to.equal('0px')
       expect(
         $img[0].style.width
-      ).to.equal(0)
+      ).to.equal('0px')
     })
   })
 })
