@@ -35,10 +35,8 @@ describe('next/images', () => {
     cy.scrollTo('bottom')
     cy.findByRole('img',{ name: /jellybeans/i }).should('be.visible').and(($img) => {
       // "naturalWidth" and "naturalHeight" are set when the image loads, so should be 0 if image doesn't load
-      cy.log(JSON.stringify($img[0]))
       expect(
-        $img[0].naturalWidth,
-        'image has natural width'
+        $img[0].naturalWidth
       ).to.equal(0)
     })
   })
