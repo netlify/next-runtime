@@ -27,6 +27,7 @@ describe('next/images', () => {
         'image has natural width'
       ).to.be.greaterThan(0)
     })
+  })
 
   it('should show a broken image if it is not on domains or remotePatterns allowlist', () => {
     cy.visit('/image')
