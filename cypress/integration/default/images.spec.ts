@@ -31,12 +31,12 @@ describe('next/images', () => {
 
   it('should show a broken image if it is not on domains or remotePatterns allowlist', () => {
     cy.visit('/image')
-    // Scroll to view image in cypress snapshot
-    cy.scrollTo('bottom')
     cy.findByRole('img',{ name: /jellybeans/i }).should('be.visible').and(($img) => {
-      // "naturalWidth" and "naturalHeight" are set when the image loads, so should be 0 if image doesn't load
       expect(
-        $img[0].naturalWidth
+        $img[0].style.height
+      ).to.equal(0)
+      expect(
+        $img[0].style.width
       ).to.equal(0)
     })
   })
