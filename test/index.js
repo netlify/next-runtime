@@ -16,7 +16,7 @@ const { downloadFile } = require('../plugin/src/templates/handlerUtils')
 
 const plugin = require('../plugin/src')
 
-const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } = require('../plugin/src/constants')
+const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../plugin/src/constants')
 const { join } = require('pathe')
 const {
   matchMiddleware,
@@ -526,6 +526,15 @@ describe('onBuild()', () => {
     await writeJSON(manifestPath, routesManifest)
     // The function is supposed to return undefined, but we want to check if it throws
     expect(await plugin.onBuild(defaultArgs)).toBeUndefined()
+  })
+
+  test('generates imageconfig file with entries for domains and remotePatterns', async () => {
+    await moveNextDist()
+    await plugin.onBuild(defaultArgs)
+    const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
+    const imageConfigJson = await readJson(imageConfigPath)
+    expect(imageConfigJson.domains.length).toBe(1)
+    expect(imageConfigJson.remotePatterns.length).toBe(1)
   })
 })
 

@@ -14,14 +14,24 @@ const Images = () => (
     </p>
     <p>
       <Image src={logo} alt="netlify logomark" />
-
       <Image
         src="https://raw.githubusercontent.com/netlify/netlify-plugin-nextjs/main/next-on-netlify.png"
         alt="Picture of the author"
         width={500}
         height={500}
       />
+      <Image src="https://i.imgur.com/bxSRS3Jb.png" alt="Tawny Frogmouth" width={160} height={160} />
     </p>
+
+    <p>
+      The following image should be broken as the domain is not added to domains or remotePatterns in next.config.js:
+    </p>
+    <Image
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/SIPI_Jelly_Beans_4.1.07.tiff/lossy-page1-256px-SIPI_Jelly_Beans_4.1.07.tiff.jpg"
+      alt="Jellybeans"
+      width={146}
+      height={32}
+    />
   </div>
 )
 
