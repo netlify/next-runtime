@@ -1,0 +1,20 @@
+name: Add new issue to project
+on:
+  issues:
+    types:
+      - opened
+jobs:
+  track_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1.5.0
+        with:
+          app_id: ${{ secrets.TOKENS_APP_ID }}
+          private_key: ${{ secrets.TOKENS_PRIVATE_KEY }}
+      - name: Add issue to Project
+        uses: actions/add-to-project@v0.1.0
+        with:
+          project-url: https://github.com/orgs/netlify/projects/199
+          github-token: ${{ steps.generate_token.outputs.token }}
