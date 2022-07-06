@@ -16,5 +16,5 @@ jobs:
       - name: Add issue to Project
         uses: actions/add-to-project@v0.1.0
         with:
-          project-url: https://github.com/orgs/netlify/projects/199/views/1
+          project-url: https://github.com/orgs/netlify/projects/199
           github-token: ${{ steps.generate_token.outputs.token }}
