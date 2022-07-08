@@ -78,6 +78,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
       customServer: false,
       hostname: url.hostname,
       port,
+      minimalMode: true,
     })
     const requestHandler = nextServer.getRequestHandler()
     const server = new Server(async (req, res) => {
