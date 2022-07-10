@@ -96,12 +96,18 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     let requestMode = mode
-    // Ensure that paths are encoded - but don't double-encode them
-    event.path = new URL(event.rawUrl).pathname
-    // Next expects to be able to parse the query from the URL
-    const query = new URLSearchParams(event.queryStringParameters).toString()
-    event.path = query ? `${event.path}?${query}` : event.path
-
+    // This is used for "afterFiles" rewrites
+    const canonicalPath = event.headers['x-canonical-path']
+    if (canonicalPath) {
+      event.path = canonicalPath
+    } else {
+      // Ensure that paths are encoded - but don't double-encode them
+      event.path = new URL(event.rawUrl).pathname
+      // Next expects to be able to parse the query from the URL
+      const query = new URLSearchParams(event.queryStringParameters).toString()
+      event.path = query ? `${event.path}?${query}` : event.path
+    }
+    console.log({ event })
     const { headers, ...result } = await getBridge(event).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
