@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Generate token
         id: generate_token
-        uses: tibdex/github-app-token@v1.5.0
+        uses: tibdex/github-app-token@v1.5.2
         with:
           app_id: ${{ secrets.TOKENS_APP_ID }}
           private_key: ${{ secrets.TOKENS_PRIVATE_KEY }}
