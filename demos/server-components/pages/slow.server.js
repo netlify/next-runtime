@@ -15,9 +15,7 @@ import useData from '../lib/use-data'
 import Skeletons from '../components/skeletons'
 
 function StoryWithData({ id }) {
-  const { data } = useData(`s-${id}`, () =>
-    fetchData(`item/${id}`).then(transform)
-  )
+  const { data } = useData(`s-${id}`, () => fetchData(`item/${id}`).then(transform))
   return <Story {...data} />
 }
 
@@ -49,5 +47,5 @@ export default function News() {
 }
 
 export const config = {
-  runtime: 'edge',
+  runtime: 'experimental-edge',
 }
