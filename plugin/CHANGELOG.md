@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.11.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.11.1...plugin-nextjs-v4.11.2) (2022-07-12)
+
+
+### Bug Fixes
+
+* explicitly type image config in ipx edge function ([#1457](https://github.com/netlify/netlify-plugin-nextjs/issues/1457)) ([a96af92](https://github.com/netlify/netlify-plugin-nextjs/commit/a96af9264f322bbf64c3e746a376c3287f39cce1))
+
 ## [4.11.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.11.0...plugin-nextjs-v4.11.1) (2022-06-30)
 
 
