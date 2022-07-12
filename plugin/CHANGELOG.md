@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.12.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.12.0...plugin-nextjs-v4.12.1) (2022-07-12)
+
+
+### Bug Fixes
+
+* copy imageconfig into edge function dir ([#1462](https://github.com/netlify/netlify-plugin-nextjs/issues/1462)) ([58ba162](https://github.com/netlify/netlify-plugin-nextjs/commit/58ba162a9c8d02212eb044d0df9dfb3be0c11eea))
+
 ## [4.12.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.11.2...plugin-nextjs-v4.12.0) (2022-07-12)
 
 
