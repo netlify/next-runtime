@@ -27,12 +27,11 @@ function NewsWithData() {
   return (
     <>
       {error ? <ErrorPlaceholder error={error} /> : null}
-      {storyIds ?
-        storyIds.slice(0, 30).map((id) => {
-          return <StoryWithData id={id} key={id} />
-        }) : 
-        null
-      }
+      {storyIds
+        ? storyIds.slice(0, 30).map((id) => {
+            return <StoryWithData id={id} key={id} />
+          })
+        : null}
     </>
   )
 }
@@ -50,5 +49,5 @@ export default function News() {
 }
 
 export const config = {
-  runtime: 'edge',
+  runtime: 'experimental-edge',
 }
