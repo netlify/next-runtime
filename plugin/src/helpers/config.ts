@@ -102,6 +102,7 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
       `${publish}/BUILD_ID`,
       `${publish}/static/chunks/webpack-middleware*.js`,
       `!${publish}/server/**/*.js.nft.json`,
+      `${publish}/static/**/*.css`,
       ...ignore.map((path) => `!${slash(path)}`),
     )
 

@@ -454,6 +454,7 @@ describe('onBuild()', () => {
       '.next/BUILD_ID',
       '.next/static/chunks/webpack-middleware*.js',
       '!.next/server/**/*.js.nft.json',
+      '.next/static/**/*.css',
       '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
