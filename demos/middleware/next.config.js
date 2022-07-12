@@ -6,6 +6,22 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  async rewrites() {
+    return {
+      afterFiles: [
+        {
+          source: '/old/:path*',
+          destination: '/:path*',
+        },
+      ],
+      beforeFiles: [
+        {
+          source: '/aa/:path*',
+          destination: '/:path*',
+        },
+      ],
+    }
+  },
 }
 
 module.exports = nextConfig

@@ -34,7 +34,7 @@ export const addMiddlewareHeaders = async (
   })
   return response
 }
-export const buildResponse = async ({
+export const buildResponse = ({
   result,
   request,
   context,
