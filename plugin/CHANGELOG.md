@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.12.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.11.2...plugin-nextjs-v4.12.0) (2022-07-12)
+
+
+### Features
+
+* get client IP from Context object rather than header ([#1460](https://github.com/netlify/netlify-plugin-nextjs/issues/1460)) ([30b6717](https://github.com/netlify/netlify-plugin-nextjs/commit/30b67171421e4b801162c438d2e721d73d01a57c))
+
 ## [4.11.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.11.1...plugin-nextjs-v4.11.2) (2022-07-12)
 
 
