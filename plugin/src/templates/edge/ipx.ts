@@ -1,7 +1,7 @@
 import { Accepts } from "https://deno.land/x/accepts@2.1.1/mod.ts";
 import type { Context } from "netlify:edge";
 // Available at build time
-import imageconfig from "../functions-internal/_ipx/imageconfig.json" assert {
+import imageconfig from "./imageconfig.json" assert {
   type: "json",
 };
 
