@@ -5,7 +5,7 @@ module.exports = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    runtime: 'edge',
+    runtime: 'experimental-edge',
     serverComponents: true,
   },
 }
