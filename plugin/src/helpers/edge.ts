@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */ 
+/* eslint-disable max-lines */
 import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
@@ -190,4 +190,4 @@ export const updateConfig = async (publish: string) => {
   config.config.env.NEXT_USE_NETLIFY_EDGE = 'true'
   await writeJSON(configFile, config)
 }
-/* eslint-enable max-lines */ 
+/* eslint-enable max-lines */

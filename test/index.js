@@ -40,7 +40,7 @@ const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
 const constants = {
-  INTERNAL_FUNCTIONS_SRC: '.netlify/internal-functions',
+  INTERNAL_FUNCTIONS_SRC: '.netlify/functions-internal',
   PUBLISH_DIR: '.next',
   FUNCTIONS_DIST: '.netlify/functions',
 }
@@ -368,12 +368,12 @@ describe('onBuild()', () => {
 
     await plugin.onBuild(defaultArgs)
 
-    expect(existsSync(`.netlify/internal-functions/___netlify-handler/___netlify-handler.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/internal-functions/___netlify-handler/bridge.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/internal-functions/___netlify-handler/handlerUtils.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/internal-functions/___netlify-odb-handler/___netlify-odb-handler.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/internal-functions/___netlify-odb-handler/bridge.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/internal-functions/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-handler/___netlify-handler.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-handler/bridge.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-handler/handlerUtils.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/___netlify-odb-handler.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/bridge.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
   })
 
   test('writes correct redirects to netlifyConfig', async () => {
