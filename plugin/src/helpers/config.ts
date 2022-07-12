@@ -79,7 +79,11 @@ const resolveModuleRoot = (moduleName) => {
 
 const DEFAULT_EXCLUDED_MODULES = ['sharp', 'electron']
 
-export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] }) => {
+export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore = [] }) => {
+  const config = await getRequiredServerFiles(publish)
+  const files = config.files || []
+  const cssFilesToInclude = files.filter((f) => f.startsWith(`${publish}/static/css/`))
+
   /* eslint-disable no-underscore-dangle */
   netlifyConfig.functions._ipx ||= {}
   netlifyConfig.functions._ipx.node_bundler = 'nft'
@@ -102,7 +106,7 @@ export const configureHandlerFunctions = ({ netlifyConfig, publish, ignore = [] 
       `${publish}/BUILD_ID`,
       `${publish}/static/chunks/webpack-middleware*.js`,
       `!${publish}/server/**/*.js.nft.json`,
-      `${publish}/static/**/*.css`,
+      ...cssFilesToInclude,
       ...ignore.map((path) => `!${slash(path)}`),
     )
 
