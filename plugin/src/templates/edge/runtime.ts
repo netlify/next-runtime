@@ -47,7 +47,7 @@ const handler = async (req: Request, context: Context) => {
     },
     url: url.toString(),
     method: req.method,
-    ip: req.headers.get('x-nf-client-address') ?? undefined,
+    ip: context.ip,
     body: req.body ?? undefined,
   }
 

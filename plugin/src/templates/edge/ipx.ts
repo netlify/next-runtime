@@ -1,10 +1,15 @@
 import { Accepts } from "https://deno.land/x/accepts@2.1.1/mod.ts";
 import type { Context } from "netlify:edge";
-import imageconfig from "../functions-internal/_ipx/imageconfig.json" assert {
+// Available at build time
+import imageconfig from "./imageconfig.json" assert {
   type: "json",
 };
 
 const defaultFormat = "webp"
+
+interface ImageConfig extends Record<string, unknown> {
+  formats?: string[];
+}
 
 /**
  * Implement content negotiation for images
@@ -14,7 +19,7 @@ const defaultFormat = "webp"
 const handler = async (req: Request, context: Context) => {
   const { searchParams } = new URL(req.url);
   const accept = new Accepts(req.headers);
-  const { formats = [defaultFormat] } = imageconfig;
+  const { formats = [defaultFormat] } = imageconfig as ImageConfig;
   if (formats.length === 0) {
     formats.push(defaultFormat);
   }

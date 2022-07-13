@@ -99,6 +99,7 @@
     "demos/base-path",
     "demos/plugin-wrapper",
     "demos/server-components",
-    "demos/middleware"
+    "demos/middleware",
+    "demos/custom-routes"
   ]
 }

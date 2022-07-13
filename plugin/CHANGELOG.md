@@ -1,5 +1,33 @@
 # Changelog
 
+## [4.12.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.12.1...plugin-nextjs-v4.12.2) (2022-07-13)
+
+
+### Bug Fixes
+
+* include css files in handler functions ([#1463](https://github.com/netlify/netlify-plugin-nextjs/issues/1463)) ([ebdf991](https://github.com/netlify/netlify-plugin-nextjs/commit/ebdf9918e1dd28db504c894439625916d928c6ec))
+
+## [4.12.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.12.0...plugin-nextjs-v4.12.1) (2022-07-12)
+
+
+### Bug Fixes
+
+* copy imageconfig into edge function dir ([#1462](https://github.com/netlify/netlify-plugin-nextjs/issues/1462)) ([58ba162](https://github.com/netlify/netlify-plugin-nextjs/commit/58ba162a9c8d02212eb044d0df9dfb3be0c11eea))
+
+## [4.12.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.11.2...plugin-nextjs-v4.12.0) (2022-07-12)
+
+
+### Features
+
+* get client IP from Context object rather than header ([#1460](https://github.com/netlify/netlify-plugin-nextjs/issues/1460)) ([30b6717](https://github.com/netlify/netlify-plugin-nextjs/commit/30b67171421e4b801162c438d2e721d73d01a57c))
+
+## [4.11.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.11.1...plugin-nextjs-v4.11.2) (2022-07-12)
+
+
+### Bug Fixes
+
+* explicitly type image config in ipx edge function ([#1457](https://github.com/netlify/netlify-plugin-nextjs/issues/1457)) ([a96af92](https://github.com/netlify/netlify-plugin-nextjs/commit/a96af9264f322bbf64c3e746a376c3287f39cce1))
+
 ## [4.11.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.11.0...plugin-nextjs-v4.11.1) (2022-06-30)
 
 
