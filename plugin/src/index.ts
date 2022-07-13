@@ -105,7 +105,7 @@ const plugin: NetlifyPlugin = {
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
-    configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
+    await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
 
     await generateFunctions(constants, appDir)
     await generatePagesResolver({ target, constants })
