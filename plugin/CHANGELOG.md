@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.12.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.12.1...plugin-nextjs-v4.12.2) (2022-07-13)
+
+
+### Bug Fixes
+
+* include css files in handler functions ([#1463](https://github.com/netlify/netlify-plugin-nextjs/issues/1463)) ([ebdf991](https://github.com/netlify/netlify-plugin-nextjs/commit/ebdf9918e1dd28db504c894439625916d928c6ec))
+
 ## [4.12.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.12.0...plugin-nextjs-v4.12.1) (2022-07-12)
 
 
