@@ -12,7 +12,7 @@ jest.mock('fs', () => {
 
 describe('checkNextSiteHasBuilt', () => {
   let failBuildMock
-  let { existsSync } = require('fs')
+  const { existsSync } = require('fs')
   
   beforeEach(() => {
     failBuildMock = (jest.fn() as unknown) as FailBuild
