@@ -1,0 +1,15 @@
+[build]
+command = "next build"
+publish = ".next"
+ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
+
+[dev]
+framework = "#static"
+
+[[plugins]]
+package = "../plugin-wrapper/"
+
+[[plugins]]
+package = "@netlify/plugin-local-install-core"
+# [[context.deploy-preview.plugins]]
+# package = "netlify-plugin-cypress"
