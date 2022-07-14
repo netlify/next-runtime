@@ -157,7 +157,7 @@ const Index = ({ shows, nodeEnv }) => {
           </li>
           <li>
             <Link href="/getStaticProps/withFallbackBlocking/3">
-              <a>/getStaticProps/withFallbackBlocking/3 (SSR)</a>
+              <a>/getStaticProps/withFallbackBlocking/3 (ODB)</a>
             </Link>
           </li>
           <li>
@@ -192,7 +192,7 @@ const Index = ({ shows, nodeEnv }) => {
           </li>
           <li>
             <Link href="/getStaticProps/withRevalidate/withFallbackBlocking/3">
-              <a>/getStaticProps/withRevalidate/withFallbackBlocking/3 (404)</a>
+              <a>/getStaticProps/withRevalidate/withFallbackBlocking/3 (ODB)</a>
             </Link>
           </li>
           <li>
