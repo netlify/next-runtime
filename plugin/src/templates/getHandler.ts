@@ -127,7 +127,9 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
       multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
     }
     multiValueHeaders['x-render-mode'] = [requestMode]
-    console.log(`[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()})`)
+    console.log(
+      `[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()}${result.ttl > 0 ? ` ${result.ttl}s` : ''})`,
+    )
     return {
       ...result,
       multiValueHeaders,
