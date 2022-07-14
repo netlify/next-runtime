@@ -82,6 +82,7 @@
   "jest": {
     "testMatch": [
       "**/test/**/*.js",
+      "**/test/**/*.ts",
       "!**/test/fixtures/**",
       "!**/test/sample/**"
     ],
