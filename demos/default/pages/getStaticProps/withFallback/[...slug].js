@@ -1,11 +1,9 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 
-const Show = ({ show }) => {
+const Show = ({ show, time }) => {
   const router = useRouter()
 
-  // This is never shown on Netlify. We just need it for NextJS to be happy,
-  // because NextJS will render a fallback HTML page.
   if (router.isFallback) {
     return <div>Loading...</div>
   }
@@ -13,12 +11,16 @@ const Show = ({ show }) => {
   return (
     <div>
       <p>This page uses getStaticProps() to pre-fetch a TV show.</p>
-
+      <p>
+        Paths /my/path/1 and /my/path/2 are prerendered and any other path should show a{' '}
+        <a href="https://nextjs.org/docs/api-reference/data-fetching/get-static-paths#fallback-true">fallback page</a>{' '}
+        while rendering.
+      </p>
       <hr />
 
       <h1>Show #{show.id}</h1>
       <p>{show.name}</p>
-
+      <p>Rendered at {time} </p>
       <hr />
 
       <Link href="/">
@@ -44,10 +46,12 @@ export async function getStaticProps({ params }) {
 
   const res = await fetch(`https://api.tvmaze.com/shows/${id}`)
   const data = await res.json()
+  const time = new Date().toLocaleTimeString()
 
   return {
     props: {
       show: data,
+      time,
     },
   }
 }
