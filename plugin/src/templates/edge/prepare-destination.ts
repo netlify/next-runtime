@@ -1,58 +1,94 @@
-import type { Key } from "https://deno.land/x/path_to_regexp@v6.2.1/index.ts";
-import type { Params } from "./route-matcher";
+// Ported to Deno from Next.js source
+// https://github.com/vercel/next.js/blob/7280c3ced186bb9a7ae3d7012613ef93f20b0fa9/packages/next/shared/lib/router/utils/prepare-destination.ts
+import { Key, match } from 'https://deno.land/x/path_to_regexp@v6.2.1/index.ts'
+import { getCookies } from 'https://deno.land/std@0.148.0/http/cookie.ts'
 
-import {
-  compile,
-  pathToRegexp,
-} from "https://deno.land/x/path_to_regexp@v6.2.1/index.ts";
+import { compile, pathToRegexp } from 'https://deno.land/x/path_to_regexp@v6.2.1/index.ts'
 
 // regexp is based on https://github.com/sindresorhus/escape-string-regexp
-const reHasRegExp = /[|\\{}()[\]^$+*?.-]/;
-const reReplaceRegExp = /[|\\{}()[\]^$+*?.-]/g;
+const reHasRegExp = /[|\\{}()[\]^$+*?.-]/
+const reReplaceRegExp = /[|\\{}()[\]^$+*?.-]/g
 
-interface ParsedUrlQuery {
-  [key: string]: string | string[];
+export interface ParsedUrlQuery {
+  [key: string]: string | string[]
+}
+
+export interface Params {
+  [param: string]: any
+}
+
+export type RouteHas =
+  | {
+      type: 'header' | 'query' | 'cookie'
+      key: string
+      value?: string
+    }
+  | {
+      type: 'host'
+      key?: undefined
+      value: string
+    }
+
+export type Rewrite = {
+  source: string
+  destination: string
+  basePath?: false
+  locale?: false
+  has?: RouteHas[]
+}
+
+export type Header = {
+  source: string
+  basePath?: false
+  locale?: false
+  headers: Array<{ key: string; value: string }>
+  has?: RouteHas[]
+}
+export type Redirect = {
+  source: string
+  destination: string
+  basePath?: false
+  locale?: false
+  has?: RouteHas[]
+  statusCode?: number
+  permanent?: boolean
 }
 
 export function escapeStringRegexp(str: string) {
   // see also: https://github.com/lodash/lodash/blob/2da024c3b4f9947a48517639de7560457cd4ec6c/escapeRegExp.js#L23
   if (reHasRegExp.test(str)) {
-    return str.replace(reReplaceRegExp, "\\$&");
+    return str.replace(reReplaceRegExp, '\\$&')
   }
-  return str;
+  return str
 }
 
-export function searchParamsToUrlQuery(
-  searchParams: URLSearchParams,
-): ParsedUrlQuery {
-  const query: ParsedUrlQuery = {};
+export function searchParamsToUrlQuery(searchParams: URLSearchParams): ParsedUrlQuery {
+  const query: ParsedUrlQuery = {}
   searchParams.forEach((value, key) => {
-    if (typeof query[key] === "undefined") {
-      query[key] = value;
+    if (typeof query[key] === 'undefined') {
+      query[key] = value
     } else if (Array.isArray(query[key])) {
-      (query[key] as string[]).push(value);
+      ;(query[key] as string[]).push(value)
     } else {
-      query[key] = [query[key] as string, value];
+      query[key] = [query[key] as string, value]
     }
-  });
-  return query;
+  })
+  return query
 }
 
 interface ParsedUrl {
-  hash: string;
-  hostname?: string | null;
-  href: string;
-  pathname: string;
-  port?: string | null;
-  protocol?: string | null;
-  query: ParsedUrlQuery;
-  search: string;
+  hash: string
+  hostname?: string | null
+  href: string
+  pathname: string
+  port?: string | null
+  protocol?: string | null
+  query: ParsedUrlQuery
+  search: string
 }
 
 export function parseUrl(url: string): ParsedUrl {
-  const parsedURL = (url.startsWith("/"))
-    ? new URL(url, "http://n")
-    : new URL(url);
+  const parsedURL = url.startsWith('/') ? new URL(url, 'http://n') : new URL(url)
   return {
     hash: parsedURL.hash,
     hostname: parsedURL.hostname,
@@ -62,144 +98,128 @@ export function parseUrl(url: string): ParsedUrl {
     protocol: parsedURL.protocol,
     query: searchParamsToUrlQuery(parsedURL.searchParams),
     search: parsedURL.search,
-  };
+  }
 }
 
-// export function matchHas(
-//   req: BaseNextRequest ,
-//   has: RouteHas[],
-//   query: Params
-// ): false | Params {
-//   const params: Params = {}
+// Changed to use WHATWG Fetch Request instead of IncomingMessage
+export function matchHas(req: Pick<Request, 'headers' | 'url'>, has: RouteHas[], query: Params): false | Params {
+  const params: Params = {}
+  const cookies = getCookies(req.headers)
+  const url = new URL(req.url)
+  const allMatch = has.every((hasItem) => {
+    let value: undefined | string | null
+    let key = hasItem.key
+    if (!key) {
+      return true
+    }
 
-//   const allMatch = has.every((hasItem) => {
-//     let value: undefined | string
-//     let key = hasItem.key
+    switch (hasItem.type) {
+      case 'header': {
+        key = key.toLowerCase()
+        value = req.headers.get(key)
+        break
+      }
+      case 'cookie': {
+        value = cookies[key]
+        break
+      }
+      case 'query': {
+        value = query[key]
+        break
+      }
+      case 'host': {
+        value = url.hostname
+        break
+      }
+      default: {
+        break
+      }
+    }
+    if (!hasItem.value && value) {
+      params[getSafeParamName(key)] = value
+      return true
+    } else if (value) {
+      const matcher = new RegExp(`^${hasItem.value}$`)
+      const matches = Array.isArray(value) ? value.slice(-1)[0].match(matcher) : value.match(matcher)
+      if (matches) {
+        if (Array.isArray(matches)) {
+          if (matches.groups) {
+            Object.keys(matches.groups).forEach((groupKey) => {
+              params[groupKey] = matches.groups![groupKey]
+            })
+          } else if (hasItem.type === 'host' && matches[0]) {
+            params.host = matches[0]
+          }
+        }
+        return true
+      }
+    }
+    return false
+  })
 
-//     switch (hasItem.type) {
-//       case 'header': {
-//         key = key!.toLowerCase()
-//         value = req.headers[key] as string
-//         break
-//       }
-//       case 'cookie': {
-//         value = (req as any).cookies[hasItem.key]
-//         break
-//       }
-//       case 'query': {
-//         value = query[key!]
-//         break
-//       }
-//       case 'host': {
-//         const { host } = req?.headers || {}
-//         // remove port from host if present
-//         const hostname = host?.split(':')[0].toLowerCase()
-//         value = hostname
-//         break
-//       }
-//       default: {
-//         break
-//       }
-//     }
-
-//     if (!hasItem.value && value) {
-//       params[getSafeParamName(key!)] = value
-//       return true
-//     } else if (value) {
-//       const matcher = new RegExp(`^${hasItem.value}$`)
-//       const matches = Array.isArray(value)
-//         ? value.slice(-1)[0].match(matcher)
-//         : value.match(matcher)
-
-//       if (matches) {
-//         if (Array.isArray(matches)) {
-//           if (matches.groups) {
-//             Object.keys(matches.groups).forEach((groupKey) => {
-//               params[groupKey] = matches.groups![groupKey]
-//             })
-//           } else if (hasItem.type === 'host' && matches[0]) {
-//             params.host = matches[0]
-//           }
-//         }
-//         return true
-//       }
-//     }
-//     return false
-//   })
-
-//   if (allMatch) {
-//     return params
-//   }
-//   return false
-// }
+  if (allMatch) {
+    return params
+  }
+  return false
+}
 
 export function compileNonPath(value: string, params: Params): string {
-  if (!value.includes(":")) {
-    return value;
+  if (!value.includes(':')) {
+    return value
   }
 
   for (const key of Object.keys(params)) {
     if (value.includes(`:${key}`)) {
       value = value
-        .replace(
-          new RegExp(`:${key}\\*`, "g"),
-          `:${key}--ESCAPED_PARAM_ASTERISKS`,
-        )
-        .replace(
-          new RegExp(`:${key}\\?`, "g"),
-          `:${key}--ESCAPED_PARAM_QUESTION`,
-        )
-        .replace(new RegExp(`:${key}\\+`, "g"), `:${key}--ESCAPED_PARAM_PLUS`)
-        .replace(
-          new RegExp(`:${key}(?!\\w)`, "g"),
-          `--ESCAPED_PARAM_COLON${key}`,
-        );
+        .replace(new RegExp(`:${key}\\*`, 'g'), `:${key}--ESCAPED_PARAM_ASTERISKS`)
+        .replace(new RegExp(`:${key}\\?`, 'g'), `:${key}--ESCAPED_PARAM_QUESTION`)
+        .replace(new RegExp(`:${key}\\+`, 'g'), `:${key}--ESCAPED_PARAM_PLUS`)
+        .replace(new RegExp(`:${key}(?!\\w)`, 'g'), `--ESCAPED_PARAM_COLON${key}`)
     }
   }
   value = value
-    .replace(/(:|\*|\?|\+|\(|\)|\{|\})/g, "\\$1")
-    .replace(/--ESCAPED_PARAM_PLUS/g, "+")
-    .replace(/--ESCAPED_PARAM_COLON/g, ":")
-    .replace(/--ESCAPED_PARAM_QUESTION/g, "?")
-    .replace(/--ESCAPED_PARAM_ASTERISKS/g, "*");
-
+    .replace(/(:|\*|\?|\+|\(|\)|\{|\})/g, '\\$1')
+    .replace(/--ESCAPED_PARAM_PLUS/g, '+')
+    .replace(/--ESCAPED_PARAM_COLON/g, ':')
+    .replace(/--ESCAPED_PARAM_QUESTION/g, '?')
+    .replace(/--ESCAPED_PARAM_ASTERISKS/g, '*')
   // the value needs to start with a forward-slash to be compiled
   // correctly
-  return compile(`/${value}`, { validate: false })(params).slice(1);
+  return compile(`/${value}`, { validate: false })(params).slice(1)
 }
 
 export function prepareDestination(args: {
-  appendParamsToQuery: boolean;
-  destination: string;
-  params: Params;
-  query: ParsedUrlQuery;
+  appendParamsToQuery: boolean
+  destination: string
+  params: Params
+  query: ParsedUrlQuery
 }) {
-  const query = Object.assign({}, args.query);
-  delete query.__nextLocale;
-  delete query.__nextDefaultLocale;
-  delete query.__nextDataReq;
+  const query = Object.assign({}, args.query)
+  delete query.__nextLocale
+  delete query.__nextDefaultLocale
+  delete query.__nextDataReq
 
-  let escapedDestination = args.destination;
+  let escapedDestination = args.destination
 
   for (const param of Object.keys({ ...args.params, ...query })) {
-    escapedDestination = escapeSegment(escapedDestination, param);
+    escapedDestination = escapeSegment(escapedDestination, param)
   }
 
-  const parsedDestination: ParsedUrl = parseUrl(escapedDestination);
-  const destQuery = parsedDestination.query;
-  const destPath = unescapeSegments(
-    `${parsedDestination.pathname!}${parsedDestination.hash || ""}`,
-  );
-  const destHostname = unescapeSegments(parsedDestination.hostname || "");
-  const destPathParamKeys: Key[] = [];
-  const destHostnameParamKeys: Key[] = [];
-  pathToRegexp(destPath, destPathParamKeys);
-  pathToRegexp(destHostname, destHostnameParamKeys);
+  console.log({ escapedDestination, params: args.params })
 
-  const destParams: (string | number)[] = [];
+  const parsedDestination: ParsedUrl = parseUrl(escapedDestination)
+  const destQuery = parsedDestination.query
+  const destPath = unescapeSegments(`${parsedDestination.pathname!}${parsedDestination.hash || ''}`)
+  const destHostname = unescapeSegments(parsedDestination.hostname || '')
+  const destPathParamKeys: Key[] = []
+  const destHostnameParamKeys: Key[] = []
+  pathToRegexp(destPath, destPathParamKeys)
+  pathToRegexp(destHostname, destHostnameParamKeys)
 
-  destPathParamKeys.forEach((key) => destParams.push(key.name));
-  destHostnameParamKeys.forEach((key) => destParams.push(key.name));
+  const destParams: (string | number)[] = []
+
+  destPathParamKeys.forEach((key) => destParams.push(key.name))
+  destHostnameParamKeys.forEach((key) => destParams.push(key.name))
 
   const destPathCompiler = compile(
     destPath,
@@ -210,60 +230,50 @@ export function prepareDestination(args: {
     // since compile validation is meant for reversing and not for inserting
     // params from a separate path-regex into another
     { validate: false },
-  );
+  )
 
-  const destHostnameCompiler = compile(destHostname, { validate: false });
+  const destHostnameCompiler = compile(destHostname, { validate: false })
 
   // update any params in query values
   for (const [key, strOrArray] of Object.entries(destQuery)) {
     // the value needs to start with a forward-slash to be compiled
     // correctly
     if (Array.isArray(strOrArray)) {
-      destQuery[key] = strOrArray.map((value) =>
-        compileNonPath(unescapeSegments(value), args.params)
-      );
+      destQuery[key] = strOrArray.map((value) => compileNonPath(unescapeSegments(value), args.params))
     } else {
-      destQuery[key] = compileNonPath(
-        unescapeSegments(strOrArray),
-        args.params,
-      );
+      destQuery[key] = compileNonPath(unescapeSegments(strOrArray), args.params)
     }
   }
 
   // add path params to query if it's not a redirect and not
   // already defined in destination query or path
-  let paramKeys = Object.keys(args.params).filter(
-    (name) => name !== "nextInternalLocale",
-  );
+  const paramKeys = Object.keys(args.params).filter((name) => name !== 'nextInternalLocale')
 
-  if (
-    args.appendParamsToQuery &&
-    !paramKeys.some((key) => destParams.includes(key))
-  ) {
+  if (args.appendParamsToQuery && !paramKeys.some((key) => destParams.includes(key))) {
     for (const key of paramKeys) {
       if (!(key in destQuery)) {
-        destQuery[key] = args.params[key];
+        destQuery[key] = args.params[key]
       }
     }
   }
 
-  let newUrl;
+  let newUrl
 
   try {
-    newUrl = destPathCompiler(args.params);
+    newUrl = destPathCompiler(args.params)
 
-    const [pathname, hash] = newUrl.split("#");
-    parsedDestination.hostname = destHostnameCompiler(args.params);
-    parsedDestination.pathname = pathname;
-    parsedDestination.hash = `${hash ? "#" : ""}${hash || ""}`;
-    delete (parsedDestination as any).search;
+    const [pathname, hash] = newUrl.split('#')
+    parsedDestination.hostname = destHostnameCompiler(args.params)
+    parsedDestination.pathname = pathname
+    parsedDestination.hash = `${hash ? '#' : ''}${hash || ''}`
+    delete (parsedDestination as any).search
   } catch (err: any) {
     if (err.message.match(/Expected .*? to not repeat, but got an array/)) {
       throw new Error(
         `To use a multi-match in the destination you must add \`*\` at the end of the param name to signify it should repeat. https://nextjs.org/docs/messages/invalid-multi-match`,
-      );
+      )
     }
-    throw err;
+    throw err
   }
 
   // Query merge order lowest priority to highest
@@ -273,13 +283,13 @@ export function prepareDestination(args: {
   parsedDestination.query = {
     ...query,
     ...parsedDestination.query,
-  };
+  }
 
   return {
     newUrl,
     destQuery,
     parsedDestination,
-  };
+  }
 }
 
 /**
@@ -287,28 +297,25 @@ export function prepareDestination(args: {
  * with path-to-regexp
  */
 function getSafeParamName(paramName: string) {
-  let newParamName = "";
+  let newParamName = ''
 
   for (let i = 0; i < paramName.length; i++) {
-    const charCode = paramName.charCodeAt(i);
+    const charCode = paramName.charCodeAt(i)
 
     if (
       (charCode > 64 && charCode < 91) || // A-Z
       (charCode > 96 && charCode < 123) // a-z
     ) {
-      newParamName += paramName[i];
+      newParamName += paramName[i]
     }
   }
-  return newParamName;
+  return newParamName
 }
 
 function escapeSegment(str: string, segmentName: string) {
-  return str.replace(
-    new RegExp(`:${escapeStringRegexp(segmentName)}`, "g"),
-    `__ESC_COLON_${segmentName}`,
-  );
+  return str.replace(new RegExp(`:${escapeStringRegexp(segmentName)}`, 'g'), `__ESC_COLON_${segmentName}`)
 }
 
 function unescapeSegments(str: string) {
-  return str.replace(/__ESC_COLON_/gi, ":");
+  return str.replace(/__ESC_COLON_/gi, ':')
 }

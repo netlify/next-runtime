@@ -1,9 +1,13 @@
 {
+  "deno.enable": false,
   "deno.enablePaths": [
     "plugin/src/templates/edge",
     "demos/middleware/.netlify/edge-functions",
-    "demos/server-components/.netlify/edge-functions",
+    "demos/server-components/.netlify/edge-functions"
   ],
   "deno.unstable": true,
-  "deno.importMap": "demos/server-components/.netlify/edge-functions-import-map.json"
+  "deno.importMap": "demos/server-components/.netlify/edge-functions-import-map.json",
+  "deno.suggest.completeFunctionCalls": true,
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "editor.formatOnSave": true
 }
