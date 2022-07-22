@@ -33,6 +33,9 @@ export default function Home() {
             Cookie API
           </Link>
         </p>
+        <p>
+          <Link href="/static">Rewrite static page content</Link>
+        </p>
       </main>
     </div>
   )

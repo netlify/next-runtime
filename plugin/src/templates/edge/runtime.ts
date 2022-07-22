@@ -38,13 +38,23 @@ const handler = async (req: Request, context: Context) => {
     return
   }
 
+  const geo = {
+    country: context.geo.country?.code,
+    region: context.geo.subdivision?.code,
+    city: context.geo.city,
+  }
+
+  // The geo object is passed through to the middleware unchanged
+  // so we're smuggling the Netlify context object inside it
+
+  Object.defineProperty(geo, '__nf_context', {
+    value: context,
+    enumerable: false,
+  })
+
   const request: RequestData = {
     headers: Object.fromEntries(req.headers.entries()),
-    geo: {
-      country: context.geo.country?.code,
-      region: context.geo.subdivision?.code,
-      city: context.geo.city,
-    },
+    geo,
     url: url.toString(),
     method: req.method,
     ip: context.ip,
