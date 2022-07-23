@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import type { ElementHandlers } from './html_rewriter'
 
 /**
  * Supercharge your Next middleware with Netlify Edge Functions
@@ -21,11 +22,18 @@ type NextDataTransform = <T extends Record<string, any>>(props: T) => T
 // We can't pass it through directly, because Next disallows returning a response body
 class NetlifyNextResponse extends NextResponse {
   private originResponse: Response
-  private transforms: NextDataTransform[]
+  private dataTransforms: NextDataTransform[]
+
+  private elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
   constructor(originResponse: Response) {
     super()
     this.originResponse = originResponse
-    Object.defineProperty(this, 'transforms', {
+    Object.defineProperty(this, 'dataTransforms', {
+      value: [],
+      enumerable: false,
+      writable: false,
+    })
+    Object.defineProperty(this, 'elementHandlers', {
       value: [],
       enumerable: false,
       writable: false,
@@ -38,8 +46,13 @@ class NetlifyNextResponse extends NextResponse {
    */
   transformData(transform: NextDataTransform) {
     // The transforms are evaluated after the middleware is returned
-    this.transforms.push(transform)
+    this.dataTransforms.push(transform)
   }
+
+  rewriteHTML(selector: string, handlers: ElementHandlers) {
+    this.elementHandlers.push([selector, handlers])
+  }
+
   get headers(): Headers {
     // If we have the origin response, we should use its headers
     return this.originResponse?.headers || super.headers
@@ -55,10 +68,21 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/static')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
     const res = await NetlifyResponse.next(request)
+    const message = `This was static but has been transformed in ${request.geo.city}`
+
     res.transformData((data) => {
-      data.pageProps.message = `This was static but has been transformed in ${request.geo.city}`
+      data.pageProps.message = message
       data.pageProps.showAd = true
       return data
+    })
+    res.rewriteHTML('p[id=message]', {
+      text(textChunk) {
+        if (textChunk.lastInTextNode) {
+          textChunk.replace(message)
+        } else {
+          textChunk.remove()
+        }
+      },
     })
 
     return res

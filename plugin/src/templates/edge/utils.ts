@@ -1,5 +1,5 @@
 import type { Context } from 'netlify:edge'
-import { HTMLRewriter } from 'https://deno.land/x/html_rewriter@v0.1.0-pre.17/index.ts'
+import { ElementHandlers, HTMLRewriter } from 'https://deno.land/x/html_rewriter@v0.1.0-pre.17/index.ts'
 
 export interface FetchEventResult {
   response: Response
@@ -39,7 +39,8 @@ export const addMiddlewareHeaders = async (
 
 interface NetlifyNextResponse extends Response {
   originResponse: Response
-  transforms: NextDataTransform[]
+  dataTransforms: NextDataTransform[]
+  elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
 }
 
 export const buildResponse = async ({
@@ -52,12 +53,12 @@ export const buildResponse = async ({
   context: Context
 }) => {
   // This means it's a Netlify Next response.
-  if ('transforms' in result.response) {
+  if ('dataTransforms' in result.response) {
     const response = result.response as NetlifyNextResponse
     // If it's JSON we don't need to use the rewriter, we can just parse it
     if (response.originResponse.headers.get('content-type')?.includes('application/json')) {
       const props = await response.originResponse.json()
-      const transformed = response.transforms.reduce((prev, transform) => {
+      const transformed = response.dataTransforms.reduce((prev, transform) => {
         return transform(prev)
       }, props)
       return context.json(transformed)
@@ -65,27 +66,35 @@ export const buildResponse = async ({
     // This var will hold the contents of the script tag
     let buffer = ''
     // Create an HTMLRewriter that matches the Next data script tag
-    const rewriter = new HTMLRewriter().on('script[id="__NEXT_DATA__"]', {
-      text(textChunk) {
-        // Grab all the chunks in the Next data script tag
-        buffer += textChunk.text
-        if (textChunk.lastInTextNode) {
-          try {
-            // When we have all the data, try to parse it as JSON
-            const data = JSON.parse(buffer.trim())
-            // Apply all of the transforms to the props
-            const props = response.transforms.reduce((prev, transform) => transform(prev), data.props)
-            // Replace the data with the transformed props
-            textChunk.replace(JSON.stringify({ ...data, props }))
-          } catch (err) {
-            console.log('Could not parse', err)
+    const rewriter = new HTMLRewriter()
+
+    if (response.dataTransforms.length > 0) {
+      rewriter.on('script[id="__NEXT_DATA__"]', {
+        text(textChunk) {
+          // Grab all the chunks in the Next data script tag
+          buffer += textChunk.text
+          if (textChunk.lastInTextNode) {
+            try {
+              // When we have all the data, try to parse it as JSON
+              const data = JSON.parse(buffer.trim())
+              // Apply all of the transforms to the props
+              const props = response.dataTransforms.reduce((prev, transform) => transform(prev), data.props)
+              // Replace the data with the transformed props
+              textChunk.replace(JSON.stringify({ ...data, props }))
+            } catch (err) {
+              console.log('Could not parse', err)
+            }
+          } else {
+            // Remove the chunk after we've appended it to the buffer
+            textChunk.remove()
           }
-        } else {
-          // Remove the chunk after we've appended it to the buffer
-          textChunk.remove()
-        }
-      },
-    })
+        },
+      })
+    }
+
+    if (response.elementHandlers.length > 0) {
+      response.elementHandlers.forEach(([selector, handlers]) => rewriter.on(selector, handlers))
+    }
     return rewriter.transform(response.originResponse)
   }
   const res = new Response(result.response.body, result.response)

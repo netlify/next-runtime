@@ -1,7 +1,7 @@
 /**
  * This placeholder is replaced with the compiled Next.js bundle at build time
- * @args {Object}
- * @args.request {import("./runtime.ts").RequestData}
+ * @param {Object} props
+ * @param {import("./runtime.ts").RequestData} props.request
  * @returns {Promise<import("./utils.ts").FetchEventResult>}
  */
-export default async (props) => {}
+export default async ({ request }) => {}
