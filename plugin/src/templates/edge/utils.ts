@@ -99,11 +99,6 @@ export const buildResponse = async ({
   }
   const res = new Response(result.response.body, result.response)
   request.headers.set('x-nf-next-middleware', 'skip')
-  res.headers.forEach((value, key) => {
-    if (key.startsWith('x-request-header-')) {
-      request.headers.set(key.slice(17), value)
-    }
-  })
 
   const rewrite = res.headers.get('x-middleware-rewrite')
   if (rewrite) {

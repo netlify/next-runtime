@@ -8,9 +8,16 @@ import type { ElementHandlers } from './html_rewriter'
 class NetlifyResponse {
   static async next(request: NextRequest): Promise<NetlifyNextResponse> {
     const context = (request.geo as any).__nf_context
+    const originalRequest: Request = (request.geo as any).__nf_request
+
     if (!context) {
       throw new Error('NetlifyResponse can only be used with Netlify Edge Functions')
     }
+
+    request.headers.forEach((value, key) => {
+      originalRequest.headers.set(key, value)
+    })
+
     const response: Response = await context.next()
     return new NetlifyNextResponse(response)
   }
@@ -86,6 +93,11 @@ export async function middleware(request: NextRequest) {
     })
 
     return res
+  }
+
+  if (pathname.startsWith('/api/hello')) {
+    request.headers.set('x-hello', 'world')
+    return NetlifyResponse.next(request)
   }
 
   if (pathname.startsWith('/cookies')) {

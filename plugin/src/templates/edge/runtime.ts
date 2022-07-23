@@ -45,10 +45,15 @@ const handler = async (req: Request, context: Context) => {
   }
 
   // The geo object is passed through to the middleware unchanged
-  // so we're smuggling the Netlify context object inside it
+  // so we're smuggling the Request and Netlify context object inside it
 
   Object.defineProperty(geo, '__nf_context', {
     value: context,
+    enumerable: false,
+  })
+
+  Object.defineProperty(geo, '__nf_request', {
+    value: req,
     enumerable: false,
   })
 
