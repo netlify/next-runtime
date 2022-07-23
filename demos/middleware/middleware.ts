@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
     const res = await NetlifyResponse.next(request)
     res.transformData((data) => {
-      data.pageProps.message = `This was static but has been transformed in ${request.geo.country}`
+      data.pageProps.message = `This was static but has been transformed in ${request.geo.city}`
       data.pageProps.showAd = true
       return data
     })

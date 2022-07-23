@@ -1,7 +1,14 @@
 const Page = ({ message, showAd }) => (
   <div>
     <p>{message}</p>
-    {showAd ? <div>This is an ad that isn't shown by default</div> : <p>No ads for me</p>}
+    {showAd ? (
+      <div>
+        <p>This is an ad that isn't shown by default</p>
+        <img src="http://placekitten.com/400/300" />
+      </div>
+    ) : (
+      <p>No ads for me</p>
+    )}
   </div>
 )
 
