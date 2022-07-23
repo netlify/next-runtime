@@ -1,25 +1,41 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import type { ElementHandlers } from './html_rewriter'
+import { NextURL } from 'next/dist/server/web/next-url'
+
+type Context = any
 
 /**
  * Supercharge your Next middleware with Netlify Edge Functions
  */
 class NetlifyResponse {
-  static async next(request: NextRequest): Promise<NetlifyNextResponse> {
-    const context = (request.geo as any).__nf_context
-    const originalRequest: Request = (request.geo as any).__nf_request
+  context: Context
+  originalRequest: Request
 
-    if (!context) {
+  constructor(public request: NextRequest) {
+    this.context = (request.geo as any).__nf_context
+    this.originalRequest = (request.geo as any).__nf_request
+
+    if (!this.context) {
       throw new Error('NetlifyResponse can only be used with Netlify Edge Functions')
     }
-
-    request.headers.forEach((value, key) => {
-      originalRequest.headers.set(key, value)
+  }
+  async next(): Promise<NetlifyNextResponse> {
+    this.request.headers.forEach((value, key) => {
+      this.originalRequest.headers.set(key, value)
     })
-
-    const response: Response = await context.next()
+    const response: Response = await this.context.next()
     return new NetlifyNextResponse(response)
+  }
+
+  rewrite(destination: string | URL | NextURL, init?: ResponseInit): NextResponse {
+    if (typeof destination === 'string' && destination.startsWith('/')) {
+      destination = new URL(destination, this.request.url)
+    }
+    this.request.headers.forEach((value, key) => {
+      this.originalRequest.headers.set(key, value)
+    })
+    return NextResponse.rewrite(destination, init)
   }
 }
 
@@ -28,11 +44,9 @@ type NextDataTransform = <T extends Record<string, any>>(props: T) => T
 // A NextReponse that will pass through the Netlify origin response
 // We can't pass it through directly, because Next disallows returning a response body
 class NetlifyNextResponse extends NextResponse {
-  private originResponse: Response
   private dataTransforms: NextDataTransform[]
-
   private elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
-  constructor(originResponse: Response) {
+  constructor(public originResponse: Response) {
     super()
     this.originResponse = originResponse
     Object.defineProperty(this, 'dataTransforms', {
@@ -74,7 +88,7 @@ export async function middleware(request: NextRequest) {
 
   if (pathname.startsWith('/static')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
-    const res = await NetlifyResponse.next(request)
+    const res = await new NetlifyResponse(request).next()
     const message = `This was static but has been transformed in ${request.geo.city}`
 
     res.transformData((data) => {
@@ -97,7 +111,12 @@ export async function middleware(request: NextRequest) {
 
   if (pathname.startsWith('/api/hello')) {
     request.headers.set('x-hello', 'world')
-    return NetlifyResponse.next(request)
+    return new NetlifyResponse(request).next()
+  }
+
+  if (pathname.startsWith('/headers')) {
+    request.headers.set('x-hello', 'world')
+    return new NetlifyResponse(request).rewrite('/api/hello')
   }
 
   if (pathname.startsWith('/cookies')) {
