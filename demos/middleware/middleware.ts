@@ -57,6 +57,7 @@ export async function middleware(request: NextRequest) {
     const res = await NetlifyResponse.next(request)
     res.transformData((data) => {
       data.pageProps.message = `This was static but has been transformed in ${request.geo.country}`
+      data.pageProps.showAd = true
       return data
     })
 
