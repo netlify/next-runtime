@@ -6,8 +6,20 @@
   "files": [
     "lib/**/*",
     "src/templates/edge/*",
-    "manifest.yml"
+    "manifest.yml",
+    "middleware.js"
   ],
+  "typesVersions": {
+    "*": {
+      "middleware": [
+        "dist-types/middleware"
+      ]
+    }
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./middleware": "./lib/middleware/index.js"
+  },
   "dependencies": {
     "@netlify/functions": "^1.0.0",
     "@netlify/ipx": "^1.1.3",

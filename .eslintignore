@@ -4,3 +4,5 @@ test
 lib
 demos
 plugin/src/templates/edge
+plugin/lib
+plugin/dist-types
