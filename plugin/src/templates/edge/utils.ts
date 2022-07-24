@@ -43,6 +43,14 @@ interface NetlifyNextResponse extends Response {
   elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
 }
 
+interface NetlifyResponse {
+  request: Request
+  context: Context
+  originalRequest: Request
+  next(): Promise<NetlifyNextResponse>
+  rewrite(destination: string | URL, init?: ResponseInit): Response
+}
+
 export const buildResponse = async ({
   result,
   request,
@@ -52,6 +60,10 @@ export const buildResponse = async ({
   request: Request
   context: Context
 }) => {
+  // They've returned the NetlifyResponse directly, so we'll call `next()` for them.
+  if ('originalRequest' in result.response) {
+    result.response = await (result.response as unknown as NetlifyResponse).next()
+  }
   // This means it's a Netlify Next response.
   if ('dataTransforms' in result.response) {
     const response = result.response as NetlifyNextResponse
