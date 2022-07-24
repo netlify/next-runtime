@@ -34,7 +34,13 @@ export default function Home() {
           </Link>
         </p>
         <p>
+          <Link href="/api/hello">Adds `x-hello` request header</Link>
+        </p>
+        <p>
           <Link href="/static">Rewrite static page content</Link>
+        </p>
+        <p>
+          <Link href="/headers">Adds `x-hello` request header to a rewrite</Link>
         </p>
       </main>
     </div>
