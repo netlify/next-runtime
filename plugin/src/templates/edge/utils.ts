@@ -43,7 +43,7 @@ interface NetlifyNextResponse extends Response {
   elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
 }
 
-interface NetlifyResponse {
+interface NetlifyMiddleware {
   request: Request
   context: Context
   originalRequest: Request
@@ -60,9 +60,9 @@ export const buildResponse = async ({
   request: Request
   context: Context
 }) => {
-  // They've returned the NetlifyResponse directly, so we'll call `next()` for them.
+  // They've returned the NetlifyMiddleware directly, so we'll call `next()` for them.
   if ('originalRequest' in result.response) {
-    result.response = await (result.response as unknown as NetlifyResponse).next()
+    result.response = await (result.response as unknown as NetlifyMiddleware).next()
   }
   // This means it's a Netlify Next response.
   if ('dataTransforms' in result.response) {

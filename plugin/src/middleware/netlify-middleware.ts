@@ -21,17 +21,17 @@ type AugmentedGeo = NextRequest['geo'] & {
 /**
  * Supercharge your Next middleware with Netlify Edge Functions
  */
-export class NetlifyResponse {
+export class NetlifyMiddleware {
   context: Context
   originalRequest: Request
 
   constructor(public request: NextRequest) {
     if (!('Deno' in globalThis)) {
-      throw new Error('NetlifyResponse only works in a Netlify Edge Function environment')
+      throw new Error('NetlifyMiddleware only works in a Netlify Edge Function environment')
     }
     const geo = request.geo as AugmentedGeo
     if (!geo) {
-      throw new Error('NetlifyResponse must be instantiated with a NextRequest object')
+      throw new Error('NetlifyMiddleware must be instantiated with a NextRequest object')
     }
     this.context = geo.__nf_context
     this.originalRequest = geo.__nf_request
