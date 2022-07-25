@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.13.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.13.0...plugin-nextjs-v4.13.1) (2022-07-25)
+
+
+### Bug Fixes
+
+* update patch syntax ([#1480](https://github.com/netlify/netlify-plugin-nextjs/issues/1480)) ([11f4ef1](https://github.com/netlify/netlify-plugin-nextjs/commit/11f4ef1494c76212acf7859c112a8801aad7ad54))
+
 ## [4.13.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.12.2...plugin-nextjs-v4.13.0) (2022-07-21)
 
 
