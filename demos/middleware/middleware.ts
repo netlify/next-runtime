@@ -14,11 +14,14 @@ export async function middleware(request: NextRequest) {
     const res = await new NetlifyResponse(request).next()
     const message = `This was static but has been transformed in ${request.geo.city}`
 
+    // Transform the response page data
     res.transformData((data) => {
       data.pageProps.message = message
       data.pageProps.showAd = true
       return data
     })
+
+    // Transform the response HTML
     res.rewriteHTML('p[id=message]', {
       text(textChunk) {
         if (textChunk.lastInTextNode) {
@@ -33,11 +36,13 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith('/api/hello')) {
+    // Add a header to the request
     request.headers.set('x-hello', 'world')
     return new NetlifyResponse(request).next()
   }
 
   if (pathname.startsWith('/headers')) {
+    // Add a header to the rewritten request
     request.headers.set('x-hello', 'world')
     return new NetlifyResponse(request).rewrite('/api/hello')
   }
