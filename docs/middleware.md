@@ -4,8 +4,10 @@ Next 12 introduces a new feature called [Middleware](https://nextjs.org/docs/mid
 a request has finished processing. Middleware can be used to modify the request or replace the response. For example, it
 can change headers, rewrite the request path, or return a different response entirely.
 
-Next.js Middleware can run either in an edge function or at the origin. On Netlify, middleware runs at the origin as
+Next.js Middleware can run either in an edge function (highly recommended for version 12.2+ as ISR will not work otherwise) or at the origin. On Netlify, middleware runs at the origin as
 part of the normal Next.js server.
+
+If you'd like to run Middleware at the edge, set the environment variable `NEXT_USE_NETLIFY_EDGE` to `true`.
 
 ## How to deploy Next 12 middleware
 
@@ -15,8 +17,7 @@ workarounds that are currently required for some features during the beta period
 
 ### `geo`
 
-When running at the origin, Next.js does not populate the `request.geo` object. Fortunately there is a one line fix to
-get the visitor's country:
+When running at the origin, Next.js does not populate the `request.geo` object as part of the [NextRequest](https://nextjs.org/docs/api-reference/next/server#nextrequest). Fortunately there is a one line fix to get the visitor's country:
 
 ```typescript
 export async function middleware(req: NextRequest) {
@@ -40,9 +41,9 @@ export async function middleware(req: NextRequest) {
 }
 ```
 
-## Caveats
+## Caveats when middleware is run at the origin
 
-Because the middleware runs at the origin, it is run _after_ Netlify rewrites and redirects. If a static file is served
+When the middleware runs at the origin, it is run _after_ Netlify rewrites and redirects. If a static file is served
 by the Netlify CDN then the middleware is never run, as middleware only runs when a page is served by Next.js. This
 means that any pages that match middleware routes are served from the origin rather than the CDN.
 
