@@ -29,10 +29,6 @@ module.exports = {
     'unicorn/filename-case': 0,
     'unicorn/no-array-push-push': 0,
     'unicorn/numeric-separators-style': 0,
-    // This is disabled because TypeScript transpiles some features currently
-    // unsupported by Node 12, i.e. optional chaining
-    // TODO: re-enable after dropping support for Node 12
-    'n/no-unsupported-features/es-syntax': 'off',
   },
   parserOptions: {
     sourceType: 'module',
@@ -42,6 +38,15 @@ module.exports = {
   },
   overrides: [
     ...overrides,
+    {
+      files: ['**/*.ts'],
+      rules: {
+        // This is disabled because TypeScript transpiles some features currently
+        // unsupported by Node 12, i.e. optional chaining
+        // TODO: re-enable after dropping support for Node 12
+        'n/no-unsupported-features/es-syntax': 'off',
+      },
+    },
     {
       files: ['cypress/**/*.spec.ts'],
       rules: {
