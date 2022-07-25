@@ -23,3 +23,5 @@ tsconfig.json
 demos/nx-next-monorepo-demo
 
 plugin/CHANGELOG.md
+plugin/lib
+plugin/dist-types
