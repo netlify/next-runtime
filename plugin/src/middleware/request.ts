@@ -3,7 +3,7 @@ import { NextURL } from 'next/dist/server/web/next-url'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-import { NextOriginResponse } from './next-origin-response'
+import { MiddlewareResponse } from './response'
 
 // TODO: add Context type
 type Context = {
@@ -44,10 +44,10 @@ export class MiddlewareRequest {
     })
   }
 
-  async next(): Promise<NextOriginResponse> {
+  async next(): Promise<MiddlewareResponse> {
     this.applyHeaders()
     const response = await this.context.next()
-    return new NextOriginResponse(response)
+    return new MiddlewareResponse(response)
   }
 
   rewrite(destination: string | URL | NextURL, init?: ResponseInit): NextResponse {

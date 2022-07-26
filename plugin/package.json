@@ -53,7 +53,7 @@
     "publish:pull": "git pull",
     "publish:install": "npm ci",
     "publish:test": "cd .. && npm ci && npm test",
-    "clean": "rimraf lib",
+    "clean": "rimraf lib dist-types",
     "build": "tsc",
     "watch": "tsc --watch",
     "prepare": "npm run build"

@@ -37,7 +37,7 @@ export const addMiddlewareHeaders = async (
   return response
 }
 
-interface NextOriginResponse extends Response {
+interface MiddlewareResponse extends Response {
   originResponse: Response
   dataTransforms: NextDataTransform[]
   elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
@@ -47,7 +47,7 @@ interface MiddlewareRequest {
   request: Request
   context: Context
   originalRequest: Request
-  next(): Promise<NextOriginResponse>
+  next(): Promise<MiddlewareResponse>
   rewrite(destination: string | URL, init?: ResponseInit): Response
 }
 
@@ -55,7 +55,7 @@ function isMiddlewareRequest(response: Response | MiddlewareRequest): response i
   return 'originalRequest' in response
 }
 
-function isNextOriginResponse(response: Response | NextOriginResponse): response is NextOriginResponse {
+function isMiddlewareResponse(response: Response | MiddlewareResponse): response is MiddlewareResponse {
   return 'dataTransforms' in response
 }
 
@@ -72,7 +72,7 @@ export const buildResponse = async ({
   if (isMiddlewareRequest(result.response)) {
     result.response = await result.response.next()
   }
-  if (isNextOriginResponse(result.response)) {
+  if (isMiddlewareResponse(result.response)) {
     const { response } = result
     // If it's JSON we don't need to use the rewriter, we can just parse it
     if (response.originResponse.headers.get('content-type')?.includes('application/json')) {
