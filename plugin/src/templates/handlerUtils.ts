@@ -178,7 +178,7 @@ export const getNextServer = (): NextServerType => {
   if (!NextServer) {
     try {
       // next < 11.0.1
-      // eslint-disable-next-line node/no-missing-require, import/no-unresolved, @typescript-eslint/no-var-requires
+      // eslint-disable-next-line n/no-missing-require, import/no-unresolved, @typescript-eslint/no-var-requires
       NextServer = require('next/dist/next-server/server/next-server').default
     } catch (error) {
       if (!error.message.includes("Cannot find module 'next/dist/next-server/server/next-server'")) {
