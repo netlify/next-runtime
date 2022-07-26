@@ -51,6 +51,14 @@ interface NetlifyMiddleware {
   rewrite(destination: string | URL, init?: ResponseInit): Response
 }
 
+function isNetlifyMiddleware(response: Response | NetlifyMiddleware): response is NetlifyMiddleware {
+  return 'originalRequest' in response
+}
+
+function isNetlifyNextResponse(response: Response | NetlifyNextResponse): response is NetlifyNextResponse {
+  return 'dataTransforms' in response
+}
+
 export const buildResponse = async ({
   result,
   request,
@@ -61,12 +69,11 @@ export const buildResponse = async ({
   context: Context
 }) => {
   // They've returned the NetlifyMiddleware directly, so we'll call `next()` for them.
-  if ('originalRequest' in result.response) {
-    result.response = await (result.response as unknown as NetlifyMiddleware).next()
+  if (isNetlifyMiddleware(result.response)) {
+    result.response = await result.response.next()
   }
-  // This means it's a Netlify Next response.
-  if ('dataTransforms' in result.response) {
-    const response = result.response as NetlifyNextResponse
+  if (isNetlifyNextResponse(result.response)) {
+    const { response } = result
     // If it's JSON we don't need to use the rewriter, we can just parse it
     if (response.originResponse.headers.get('content-type')?.includes('application/json')) {
       const props = await response.originResponse.json()
