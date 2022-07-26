@@ -37,25 +37,25 @@ export const addMiddlewareHeaders = async (
   return response
 }
 
-interface EnhancedNextResponse extends Response {
+interface NextOriginResponse extends Response {
   originResponse: Response
   dataTransforms: NextDataTransform[]
   elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
 }
 
-interface EnhancedMiddleware {
+interface MiddlewareRequest {
   request: Request
   context: Context
   originalRequest: Request
-  next(): Promise<EnhancedNextResponse>
+  next(): Promise<NextOriginResponse>
   rewrite(destination: string | URL, init?: ResponseInit): Response
 }
 
-function isEnhancedMiddleware(response: Response | EnhancedMiddleware): response is EnhancedMiddleware {
+function isMiddlewareRequest(response: Response | MiddlewareRequest): response is MiddlewareRequest {
   return 'originalRequest' in response
 }
 
-function isEnhancedNextResponse(response: Response | EnhancedNextResponse): response is EnhancedNextResponse {
+function isNextOriginResponse(response: Response | NextOriginResponse): response is NextOriginResponse {
   return 'dataTransforms' in response
 }
 
@@ -68,11 +68,11 @@ export const buildResponse = async ({
   request: Request
   context: Context
 }) => {
-  // They've returned the EnhancedMiddleware directly, so we'll call `next()` for them.
-  if (isEnhancedMiddleware(result.response)) {
+  // They've returned the MiddlewareRequest directly, so we'll call `next()` for them.
+  if (isMiddlewareRequest(result.response)) {
     result.response = await result.response.next()
   }
-  if (isEnhancedNextResponse(result.response)) {
+  if (isNextOriginResponse(result.response)) {
     const { response } = result
     // If it's JSON we don't need to use the rewriter, we can just parse it
     if (response.originResponse.headers.get('content-type')?.includes('application/json')) {

@@ -7,12 +7,11 @@ export type NextDataTransform = <T extends Record<string, any>>(props: T) => T
 
 // A NextReponse that wraps the Netlify origin response
 // We can't pass it through directly, because Next disallows returning a response body
-export class EnhancedNextResponse extends NextResponse {
+export class NextOriginResponse extends NextResponse {
   private readonly dataTransforms: NextDataTransform[]
   private readonly elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
   constructor(public originResponse: Response) {
     super()
-    this.originResponse = originResponse
 
     // These are private in Node when compiling, but we access them in Deno at runtime
     Object.defineProperty(this, 'dataTransforms', {

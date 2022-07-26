@@ -1,3 +1,3 @@
-export * from './enhanced-next-response'
-export * from './enhanced-middleware'
+export * from './next-origin-response'
+export * from './middleware-request'
 export * from './html-rewriter'
