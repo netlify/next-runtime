@@ -1,6 +1,8 @@
 /* eslint-disable max-classes-per-file */
 
 // These types are inlined from the HTMLRewriter package, because we don't use the actual package here
+// https://github.com/cloudflare/html-rewriter-wasm/blob/master/src/html_rewriter.d.ts
+// This is Node code, so we can't import the Deno types from the URL.
 export interface ContentTypeOptions {
   html?: boolean
 }
