@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-import { NetlifyMiddleware } from '@netlify/plugin-nextjs/middleware'
+import { EnhancedMiddleware } from '@netlify/plugin-nextjs/middleware'
 
 export async function middleware(request: NextRequest) {
   let response
@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
 
   if (pathname.startsWith('/static')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
-    const res = await new NetlifyMiddleware(request).next()
+    const res = await new EnhancedMiddleware(request).next()
     const message = `This was static but has been transformed in ${request.geo.city}`
 
     // Transform the response page data
@@ -38,13 +38,13 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/api/hello')) {
     // Add a header to the request
     request.headers.set('x-hello', 'world')
-    return new NetlifyMiddleware(request).next()
+    return new EnhancedMiddleware(request).next()
   }
 
   if (pathname.startsWith('/headers')) {
     // Add a header to the rewritten request
     request.headers.set('x-hello', 'world')
-    return new NetlifyMiddleware(request).rewrite('/api/hello')
+    return new EnhancedMiddleware(request).rewrite('/api/hello')
   }
 
   if (pathname.startsWith('/cookies')) {

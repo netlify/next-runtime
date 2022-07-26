@@ -7,7 +7,7 @@ export type NextDataTransform = <T extends Record<string, any>>(props: T) => T
 
 // A NextReponse that wraps the Netlify origin response
 // We can't pass it through directly, because Next disallows returning a response body
-export class NetlifyNextResponse extends NextResponse {
+export class EnhancedNextResponse extends NextResponse {
   private readonly dataTransforms: NextDataTransform[]
   private readonly elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
   constructor(public originResponse: Response) {

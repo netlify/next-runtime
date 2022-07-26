@@ -3,7 +3,7 @@ import { NextURL } from 'next/dist/server/web/next-url'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-import { NetlifyNextResponse } from './netlify-next-response'
+import { EnhancedNextResponse } from './enhanced-next-response'
 
 // TODO: add Context type
 type Context = {
@@ -21,7 +21,7 @@ type AugmentedGeo = NextRequest['geo'] & {
 /**
  * Supercharge your Next middleware with Netlify Edge Functions
  */
-export class NetlifyMiddleware {
+export class EnhancedMiddleware {
   context: Context
   originalRequest: Request
 
@@ -44,10 +44,10 @@ export class NetlifyMiddleware {
     })
   }
 
-  async next(): Promise<NetlifyNextResponse> {
+  async next(): Promise<EnhancedNextResponse> {
     this.applyHeaders()
     const response = await this.context.next()
-    return new NetlifyNextResponse(response)
+    return new EnhancedNextResponse(response)
   }
 
   rewrite(destination: string | URL | NextURL, init?: ResponseInit): NextResponse {

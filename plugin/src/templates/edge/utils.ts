@@ -37,25 +37,25 @@ export const addMiddlewareHeaders = async (
   return response
 }
 
-interface NetlifyNextResponse extends Response {
+interface EnhancedNextResponse extends Response {
   originResponse: Response
   dataTransforms: NextDataTransform[]
   elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
 }
 
-interface NetlifyMiddleware {
+interface EnhancedMiddleware {
   request: Request
   context: Context
   originalRequest: Request
-  next(): Promise<NetlifyNextResponse>
+  next(): Promise<EnhancedNextResponse>
   rewrite(destination: string | URL, init?: ResponseInit): Response
 }
 
-function isNetlifyMiddleware(response: Response | NetlifyMiddleware): response is NetlifyMiddleware {
+function isEnhancedMiddleware(response: Response | EnhancedMiddleware): response is EnhancedMiddleware {
   return 'originalRequest' in response
 }
 
-function isNetlifyNextResponse(response: Response | NetlifyNextResponse): response is NetlifyNextResponse {
+function isEnhancedNextResponse(response: Response | EnhancedNextResponse): response is EnhancedNextResponse {
   return 'dataTransforms' in response
 }
 
@@ -68,11 +68,11 @@ export const buildResponse = async ({
   request: Request
   context: Context
 }) => {
-  // They've returned the NetlifyMiddleware directly, so we'll call `next()` for them.
-  if (isNetlifyMiddleware(result.response)) {
+  // They've returned the EnhancedMiddleware directly, so we'll call `next()` for them.
+  if (isEnhancedMiddleware(result.response)) {
     result.response = await result.response.next()
   }
-  if (isNetlifyNextResponse(result.response)) {
+  if (isEnhancedNextResponse(result.response)) {
     const { response } = result
     // If it's JSON we don't need to use the rewriter, we can just parse it
     if (response.originResponse.headers.get('content-type')?.includes('application/json')) {

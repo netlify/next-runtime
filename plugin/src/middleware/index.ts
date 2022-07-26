@@ -1,3 +1,3 @@
-export * from './netlify-next-response'
-export * from './netlify-middleware'
+export * from './enhanced-next-response'
+export * from './enhanced-middleware'
 export * from './html-rewriter'
