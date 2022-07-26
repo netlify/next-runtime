@@ -21,15 +21,16 @@ type AugmentedGeo = NextRequest['geo'] & {
 /**
  * Supercharge your Next middleware with Netlify Edge Functions
  */
-export class MiddlewareRequest {
+export class MiddlewareRequest extends Request {
   context: Context
   originalRequest: Request
 
-  constructor(public request: NextRequest) {
+  constructor(private nextRequest: NextRequest) {
+    super(nextRequest)
     if (!('Deno' in globalThis)) {
       throw new Error('NetlifyMiddleware only works in a Netlify Edge Function environment')
     }
-    const geo = request.geo as AugmentedGeo
+    const geo = nextRequest.geo as AugmentedGeo
     if (!geo) {
       throw new Error('NetlifyMiddleware must be instantiated with a NextRequest object')
     }
@@ -39,7 +40,7 @@ export class MiddlewareRequest {
 
   // Add the headers to the original request, which will be passed to the origin
   private applyHeaders() {
-    this.request.headers.forEach((value, name) => {
+    this.headers.forEach((value, name) => {
       this.originalRequest.headers.set(name, value)
     })
   }
@@ -52,17 +53,35 @@ export class MiddlewareRequest {
 
   rewrite(destination: string | URL | NextURL, init?: ResponseInit): NextResponse {
     if (typeof destination === 'string' && destination.startsWith('/')) {
-      destination = new URL(destination, this.request.url)
+      destination = new URL(destination, this.url)
     }
     this.applyHeaders()
     return NextResponse.rewrite(destination, init)
   }
 
-  redirect(destination: string | URL | NextURL, init?: number | ResponseInit) {
-    if (typeof destination === 'string' && destination.startsWith('/')) {
-      destination = new URL(destination, this.request.url)
-    }
-    return NextResponse.redirect(destination, init)
+  get headers() {
+    return this.nextRequest.headers
+  }
+
+  get cookies() {
+    return this.nextRequest.cookies
+  }
+
+  get geo() {
+    return this.nextRequest.geo
+  }
+
+  get ip() {
+    return this.nextRequest.ip
+  }
+
+  get nextUrl() {
+    return this.nextRequest.url
+  }
+
+  get url() {
+    return this.nextRequest.url.toString()
   }
 }
+
 /* eslint-enable no-underscore-dangle */
