@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import { NextURL } from 'next/dist/server/web/next-url'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
@@ -8,14 +7,6 @@ import { MiddlewareResponse } from './response'
 // TODO: add Context type
 type Context = {
   next: () => Promise<Response>
-}
-
-// We sneak our own request and context into the middleware using the geo object
-type AugmentedGeo = NextRequest['geo'] & {
-  // eslint-disable-next-line camelcase
-  __nf_context: Context
-  // eslint-disable-next-line camelcase
-  __nf_request: Request
 }
 
 /**
@@ -28,14 +19,18 @@ export class MiddlewareRequest extends Request {
   constructor(private nextRequest: NextRequest) {
     super(nextRequest)
     if (!('Deno' in globalThis)) {
-      throw new Error('NetlifyMiddleware only works in a Netlify Edge Function environment')
+      throw new Error('MiddlewareRequest only works in a Netlify Edge Function environment')
     }
-    const geo = nextRequest.geo as AugmentedGeo
-    if (!geo) {
-      throw new Error('NetlifyMiddleware must be instantiated with a NextRequest object')
+    const requestId = nextRequest.headers.get('x-nf-request-id')
+    if (!requestId) {
+      throw new Error('Missing x-nf-request-id header')
     }
-    this.context = geo.__nf_context
-    this.originalRequest = geo.__nf_request
+    const requestContext = globalThis.NFRequestContextMap.get(requestId)
+    if (!requestContext) {
+      throw new Error(`Could not find request context for request id ${requestId}`)
+    }
+    this.context = requestContext.context
+    this.originalRequest = requestContext.request
   }
 
   // Add the headers to the original request, which will be passed to the origin
@@ -83,5 +78,3 @@ export class MiddlewareRequest extends Request {
     return this.nextRequest.url.toString()
   }
 }
-
-/* eslint-enable no-underscore-dangle */

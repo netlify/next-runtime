@@ -32,6 +32,18 @@ export interface RequestData {
   body?: ReadableStream<Uint8Array>
 }
 
+export interface RequestContext {
+  request: Request
+  context: Context
+}
+
+declare global {
+  // deno-lint-ignore no-var
+  var NFRequestContextMap: Map<string, RequestContext>
+}
+
+globalThis.NFRequestContextMap = new Map()
+
 const handler = async (req: Request, context: Context) => {
   const url = new URL(req.url)
   if (url.pathname.startsWith('/_next/static/')) {
@@ -44,18 +56,15 @@ const handler = async (req: Request, context: Context) => {
     city: context.geo.city,
   }
 
-  // The geo object is passed through to the middleware unchanged
-  // so we're smuggling the Request and Netlify context object inside it
-
-  Object.defineProperty(geo, '__nf_context', {
-    value: context,
-    enumerable: false,
-  })
-
-  Object.defineProperty(geo, '__nf_request', {
-    value: req,
-    enumerable: false,
-  })
+  const requestId = req.headers.get('x-nf-request-id')
+  if (!requestId) {
+    console.error('Missing x-nf-request-id header')
+  } else {
+    globalThis.NFRequestContextMap.set(requestId, {
+      request: req,
+      context,
+    })
+  }
 
   const request: RequestData = {
     headers: Object.fromEntries(req.headers.entries()),
@@ -72,6 +81,10 @@ const handler = async (req: Request, context: Context) => {
   } catch (error) {
     console.error(error)
     return new Response(error.message, { status: 500 })
+  } finally {
+    if (requestId) {
+      globalThis.NFRequestContextMap.delete(requestId)
+    }
   }
 }
 
