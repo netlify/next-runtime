@@ -8,7 +8,7 @@ export interface FetchEventResult {
 /**
  * This is how Next handles rewritten URLs.
  */
- export function relativizeURL(url: string | string, base: string | URL) {
+export function relativizeURL(url: string | string, base: string | URL) {
   const baseURL = typeof base === 'string' ? new URL(base) : base
   const relative = new URL(url, base)
   const origin = `${baseURL.protocol}//${baseURL.host}`
@@ -16,7 +16,6 @@ export interface FetchEventResult {
     ? relative.toString().replace(origin, '')
     : relative.toString()
 }
-
 
 export const addMiddlewareHeaders = async (
   originResponse: Promise<Response> | Response,
@@ -49,7 +48,7 @@ export const buildResponse = ({
   if (rewrite) {
     const rewriteUrl = new URL(rewrite, request.url)
     const baseUrl = new URL(request.url)
-    if(rewriteUrl.hostname !== baseUrl.hostname) {
+    if (rewriteUrl.hostname !== baseUrl.hostname) {
       // Netlify Edge Functions don't support proxying to external domains, but Next middleware does
       const proxied = fetch(new Request(rewriteUrl.toString(), request))
       return addMiddlewareHeaders(proxied, res)
