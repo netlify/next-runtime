@@ -191,20 +191,20 @@ Array [
     "_next/data/build-id/en/getStaticProps/static.json",
   ],
   Array [
-    "en/getStaticProps/withFallback/3.html",
-    "en/getStaticProps/withFallback/3.html",
+    "en/getStaticProps/withFallback/1.html",
+    "en/getStaticProps/withFallback/1.html",
   ],
   Array [
-    "en/getStaticProps/withFallback/3.json",
-    "_next/data/build-id/en/getStaticProps/withFallback/3.json",
+    "en/getStaticProps/withFallback/1.json",
+    "_next/data/build-id/en/getStaticProps/withFallback/1.json",
   ],
   Array [
-    "en/getStaticProps/withFallback/4.html",
-    "en/getStaticProps/withFallback/4.html",
+    "en/getStaticProps/withFallback/2.html",
+    "en/getStaticProps/withFallback/2.html",
   ],
   Array [
-    "en/getStaticProps/withFallback/4.json",
-    "_next/data/build-id/en/getStaticProps/withFallback/4.json",
+    "en/getStaticProps/withFallback/2.json",
+    "_next/data/build-id/en/getStaticProps/withFallback/2.json",
   ],
   Array [
     "en/getStaticProps/withFallback/my/path/1.html",
@@ -223,20 +223,20 @@ Array [
     "_next/data/build-id/en/getStaticProps/withFallback/my/path/2.json",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/3.html",
-    "en/getStaticProps/withFallbackBlocking/3.html",
+    "en/getStaticProps/withFallbackBlocking/1.html",
+    "en/getStaticProps/withFallbackBlocking/1.html",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/3.json",
-    "_next/data/build-id/en/getStaticProps/withFallbackBlocking/3.json",
+    "en/getStaticProps/withFallbackBlocking/1.json",
+    "_next/data/build-id/en/getStaticProps/withFallbackBlocking/1.json",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/4.html",
-    "en/getStaticProps/withFallbackBlocking/4.html",
+    "en/getStaticProps/withFallbackBlocking/2.html",
+    "en/getStaticProps/withFallbackBlocking/2.html",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/4.json",
-    "_next/data/build-id/en/getStaticProps/withFallbackBlocking/4.json",
+    "en/getStaticProps/withFallbackBlocking/2.json",
+    "_next/data/build-id/en/getStaticProps/withFallbackBlocking/2.json",
   ],
   Array [
     "en/image.html",

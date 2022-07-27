@@ -1,5 +1,24 @@
 # Changelog
 
+## [4.13.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.13.0...plugin-nextjs-v4.13.1) (2022-07-25)
+
+
+### Bug Fixes
+
+* update patch syntax ([#1480](https://github.com/netlify/netlify-plugin-nextjs/issues/1480)) ([11f4ef1](https://github.com/netlify/netlify-plugin-nextjs/commit/11f4ef1494c76212acf7859c112a8801aad7ad54))
+
+## [4.13.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.12.2...plugin-nextjs-v4.13.0) (2022-07-21)
+
+
+### Features
+
+* dx updates to default demo site ([#1447](https://github.com/netlify/netlify-plugin-nextjs/issues/1447)) ([0d194fc](https://github.com/netlify/netlify-plugin-nextjs/commit/0d194fc0329fdaf2683146bf8bde474eb22a35c8))
+
+
+### Bug Fixes
+
+* add better error messaging for builds ([#1467](https://github.com/netlify/netlify-plugin-nextjs/issues/1467)) ([1d90f68](https://github.com/netlify/netlify-plugin-nextjs/commit/1d90f68d9f947dec0b104b84579be70b5056162e))
+
 ## [4.12.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.12.1...plugin-nextjs-v4.12.2) (2022-07-13)
 
 

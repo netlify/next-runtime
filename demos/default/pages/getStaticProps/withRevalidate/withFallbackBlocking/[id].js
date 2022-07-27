@@ -3,7 +3,8 @@ import Link from 'next/link'
 const Show = ({ show, time }) => (
   <div>
     <p>This page uses getStaticProps() to pre-fetch a TV show.</p>
-    <p>Ids 1 and 2 are prerendered</p>
+    <p>Ids 1 and 2 are prerendered and others should render on-demand.</p>
+    <p>The page should be revalidated after 60 seconds.</p>
     <hr />
 
     <h1>Show #{show.id}</h1>
@@ -33,6 +34,7 @@ export async function getStaticProps({ params }) {
   const res = await fetch(`https://api.tvmaze.com/shows/${id}`)
   const data = await res.json()
   const time = new Date().toLocaleTimeString()
+
   return {
     props: {
       show: data,

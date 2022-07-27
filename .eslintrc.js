@@ -12,9 +12,9 @@ module.exports = {
     'id-length': 0,
     'max-statements': 0,
     'no-await-in-loop': 0,
-    'node/exports-style': 0,
-    'node/global-require': 0,
-    'node/prefer-global/process': 0,
+    'n/exports-style': 0,
+    'n/global-require': 0,
+    'n/prefer-global/process': 0,
     // Allow a single word inline so that it can do language tags for syntax highlighting
     // ['error', { ignorePattern: /^ (\w+) $/ }],
     'no-inline-comments': 0,
@@ -38,6 +38,15 @@ module.exports = {
   },
   overrides: [
     ...overrides,
+    {
+      files: ['**/*.ts'],
+      rules: {
+        // This is disabled because TypeScript transpiles some features currently
+        // unsupported by Node 12, i.e. optional chaining
+        // TODO: re-enable after dropping support for Node 12
+        'n/no-unsupported-features/es-syntax': 'off',
+      },
+    },
     {
       files: ['cypress/**/*.spec.ts'],
       rules: {
