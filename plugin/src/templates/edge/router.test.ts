@@ -11,6 +11,25 @@ import {
 } from './router.ts'
 import manifest from './test-routes-manifest.json' assert { type: 'json' }
 
+const staticRoutes = new Set([
+  '/blog/data.json',
+  '/static/hello.txt',
+  '/_error',
+  '/_app',
+  '/auto-export/another',
+  '/api/hello',
+  '/hello-again',
+  '/docs/v2/more/now-for-github',
+  '/hello',
+  '/nav',
+  '/multi-rewrites',
+  '/redirect-override',
+  '/with-params',
+  '/overridden',
+  '/_document',
+  '/404',
+])
+
 Deno.test('rewrites paths', () => {
   const rule = {
     source: '/catchall-query/:path*',
@@ -360,15 +379,47 @@ Deno.test('redirects', async (t) => {
     assertEquals(result.status, 307)
   })
 })
+
 Deno.test('rewrites', async (t) => {
-  await t.step('simple rewrite', () => {
-    const result = applyRewrites(new Request('http://localhost/to-another'), manifest.rewrites.afterFiles as Rewrite[])
+  await t.step('afterFiles rewrite', () => {
+    const result = applyRewrites({
+      request: new Request('http://localhost/to-another'),
+      rules: manifest.rewrites.afterFiles as Rewrite[],
+      checkStaticRoutes: true,
+      staticRoutes,
+    })
     assert(result)
     assertEquals(result.url, 'http://localhost/another/one')
   })
-  await t.step('with params', () => {
-    const result = applyRewrites(new Request('http://localhost/test/hello'), manifest.rewrites.afterFiles as Rewrite[])
+  await t.step('afterFiles with params', () => {
+    const result = applyRewrites({
+      request: new Request('http://localhost/test/hello'),
+      rules: manifest.rewrites.afterFiles as Rewrite[],
+      checkStaticRoutes: true,
+      staticRoutes,
+    })
     assert(result)
     assertEquals(result.url, 'http://localhost/hello')
+  })
+
+  await t.step('afterFiles matching static file', () => {
+    const result = applyRewrites({
+      request: new Request('http://localhost/hello-world'),
+      rules: manifest.rewrites.afterFiles as Rewrite[],
+      checkStaticRoutes: true,
+      staticRoutes,
+    })
+    assert(result)
+    assertEquals(result.url, 'http://localhost/static/hello.txt')
+  })
+
+  await t.step('non-matching', () => {
+    const result = applyRewrites({
+      request: new Request('http://localhost/no-match'),
+      rules: manifest.rewrites.afterFiles as Rewrite[],
+      checkStaticRoutes: true,
+      staticRoutes,
+    })
+    assertFalse(result)
   })
 })

@@ -404,4 +404,24 @@ export const movePublicFiles = async ({
     await copy(publicDir, `${publish}/`)
   }
 }
+
+export const writeStaticRouteManifest = async ({
+  appDir,
+  outdir,
+  publish,
+}: {
+  appDir: string
+  outdir?: string
+  publish: string
+}): Promise<void> => {
+  const publicDir = outdir ? join(appDir, outdir, 'public') : join(appDir, 'public')
+  const fileList = existsSync(publicDir) ? await globby(['**/*'], { cwd: publicDir }) : []
+
+  const pagesManifest = await readJson(join(publish, 'server', 'pages-manifest.json'))
+
+  const staticRoutes = Object.keys(pagesManifest).filter((route) => !isDynamicRoute(route))
+
+  await writeJson(join(publish, 'public-manifest.json'), [...fileList.map((file) => `/${file}`), ...staticRoutes])
+}
+
 /* eslint-enable max-lines */

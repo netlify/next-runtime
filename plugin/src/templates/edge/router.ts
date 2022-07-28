@@ -208,9 +208,40 @@ export function applyRedirects(request: Request, rules: Redirect[]): Response | 
   return false
 }
 
-export function applyRewrites(request: Request, rules: Rewrite[]): Request | false {
+export function applyRewrites({
+  request,
+  rules,
+  staticRoutes,
+  checkStaticRoutes,
+}: {
+  request: Request
+  rules: Rewrite[]
+  checkStaticRoutes: boolean
+  staticRoutes?: Set<string>
+}): Request | false {
+  let result: Request | false = false
+
+  if (checkStaticRoutes && !staticRoutes) {
+    throw new Error('staticRoutes must be provided if checkStaticRoutes is true')
+  }
+
   // Apply all rewrite rules in order
-  return rules.reduce((request, rule) => {
-    return applyRewriteRule({ request, rule }) || request
-  }, request)
+  for (const rule of rules) {
+    const rewritten = applyRewriteRule({ request, rule })
+    if (rewritten) {
+      result = rewritten
+      // If a static route is matched, then we exit early
+      if (checkStaticRoutes && staticRoutes!.has(new URL(result.url).pathname)) {
+        return result
+      }
+    }
+  }
+  return result
+}
+
+export function matchesStaticRoute(route: string, staticRoutes: Set<string>, staticFiles: Set<string>): boolean {
+  if (staticFiles.has(route)) {
+    return true
+  }
+  return staticRoutes.has(route.endsWith('/') ? route.slice(0, -1) : route)
 }

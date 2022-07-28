@@ -16,7 +16,13 @@ import {
   generateCustomHeaders,
 } from './helpers/config'
 import { updateConfig, writeEdgeFunctions, loadMiddlewareManifest } from './helpers/edge'
-import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
+import {
+  moveStaticPages,
+  movePublicFiles,
+  patchNextFiles,
+  unpatchNextFiles,
+  writeStaticRouteManifest,
+} from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled } from './helpers/utils'
@@ -111,6 +117,8 @@ const plugin: NetlifyPlugin = {
     await generatePagesResolver({ target, constants })
 
     await movePublicFiles({ appDir, outdir, publish })
+
+    await writeStaticRouteManifest({ appDir, outdir, publish })
 
     await patchNextFiles(basePath)
 
