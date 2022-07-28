@@ -2,12 +2,14 @@ import { Match, match } from 'https://deno.land/x/path_to_regexp@v6.2.1/index.ts
 
 import {
   compileNonPath,
+  DynamicRoute,
   Header,
   matchHas as nextMatchHas,
   prepareDestination,
   Redirect,
   Rewrite,
   RouteHas,
+  RoutesManifest,
   searchParamsToUrlQuery,
 } from './next-utils.ts'
 
@@ -18,17 +20,12 @@ export type Rule = Rewrite | Header | Redirect
  * Converts Next.js's internal parsed URL response to a `URL` object.
  */
 
-function preparedDestinationToUrl({
-  newUrl,
-  destQuery,
-  parsedDestination,
-}: ReturnType<typeof prepareDestination>): URL {
+function preparedDestinationToUrl({ newUrl, parsedDestination }: ReturnType<typeof prepareDestination>): URL {
   const transformedUrl = new URL(newUrl, 'http://n')
   transformedUrl.hostname = parsedDestination.hostname ?? ''
   transformedUrl.port = parsedDestination.port ?? ''
   transformedUrl.protocol = parsedDestination.protocol ?? ''
-
-  for (const [name, value] of Object.entries(destQuery)) {
+  for (const [name, value] of Object.entries(parsedDestination.query)) {
     transformedUrl.searchParams.set(name, String(value))
   }
   return transformedUrl
@@ -212,11 +209,11 @@ export function applyRewrites({
   request,
   rules,
   staticRoutes,
-  checkStaticRoutes,
+  checkStaticRoutes = false,
 }: {
   request: Request
   rules: Rewrite[]
-  checkStaticRoutes: boolean
+  checkStaticRoutes?: boolean
   staticRoutes?: Set<string>
 }): Request | false {
   let result: Request | false = false
@@ -230,8 +227,13 @@ export function applyRewrites({
     const rewritten = applyRewriteRule({ request, rule })
     if (rewritten) {
       result = rewritten
+      if (!checkStaticRoutes) {
+        continue
+      }
+      const { pathname } = new URL(rewritten.url)
       // If a static route is matched, then we exit early
-      if (checkStaticRoutes && staticRoutes!.has(new URL(result.url).pathname)) {
+      if (staticRoutes!.has(pathname) || pathname.startsWith('/_next/static/')) {
+        result.headers.set('x-matched-path', pathname)
         return result
       }
     }
@@ -239,9 +241,87 @@ export function applyRewrites({
   return result
 }
 
-export function matchesStaticRoute(route: string, staticRoutes: Set<string>, staticFiles: Set<string>): boolean {
-  if (staticFiles.has(route)) {
-    return true
+export function matchDynamicRoute(request: Request, routes: DynamicRoute[]): string | false {
+  const { pathname } = new URL(request.url)
+  const match = routes.find((route) => {
+    return new RegExp(route.regex).test(pathname)
+  })
+  if (match) {
+    return match.page
   }
-  return staticRoutes.has(route.endsWith('/') ? route.slice(0, -1) : route)
+  return false
+}
+
+/**
+ * Run the rules that run before middleware
+ */
+export function runPreMiddleware(request: Request, manifest: RoutesManifest): Request | Response {
+  const output: Request = applyHeaders(request, manifest.headers)
+  const redirect = applyRedirects(output, manifest.redirects)
+  if (redirect) {
+    return Response.redirect(redirect.url, redirect.status)
+  }
+  return output
+}
+
+/**
+ * Run the rules that run after middleware
+ */
+export function runPostMiddleware(
+  request: Request,
+  manifest: RoutesManifest,
+  staticRoutes: Set<string>,
+  skipBeforeFiles = false,
+): Request | Response {
+  // Everyone gets the beforeFiles rewrites, unless we're re-running after matching fallback
+  let result = skipBeforeFiles
+    ? request
+    : applyRewrites({
+        request,
+        rules: manifest.rewrites.beforeFiles,
+      }) || request
+
+  // Check if it matches a static route or file
+  const { pathname } = new URL(result.url)
+  if (staticRoutes.has(pathname) || pathname.startsWith('/_next/static/')) {
+    result.headers.set('x-matched-path', pathname)
+    return result
+  }
+
+  // afterFiles rewrites also check if it matches a static file after every match
+  const afterRewrite = applyRewrites({
+    request: result,
+    rules: manifest.rewrites.afterFiles,
+    checkStaticRoutes: true,
+    staticRoutes,
+  })
+
+  if (afterRewrite) {
+    result = afterRewrite
+    // If we match a rewrite, we check if it matches a static route or file
+    // If it does, we return right away
+    if (afterRewrite.headers.has('x-matched-path')) {
+      return afterRewrite
+    }
+  }
+
+  // Now we check dynamic routes, so we can
+  const dynamicRoute = matchDynamicRoute(result, manifest.dynamicRoutes)
+  if (dynamicRoute) {
+    result.headers.set('x-matched-path', dynamicRoute)
+    return result
+  }
+
+  // Finally, check for fallback rewrites
+  const fallbackRewrite = applyRewrites({
+    request: result,
+    rules: manifest.rewrites.fallback,
+  })
+
+  // If the fallback matched, we go right back to checking for static routes
+  if (fallbackRewrite) {
+    return runPostMiddleware(fallbackRewrite, manifest, staticRoutes, true)
+  }
+  // 404
+  return result
 }

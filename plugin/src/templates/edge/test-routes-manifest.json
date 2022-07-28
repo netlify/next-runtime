@@ -1,825 +1,825 @@
 {
-  "version": 3,
-  "pages404": true,
-  "basePath": "",
-  "redirects": [
-    {
-      "source": "/:path+/",
-      "destination": "/:path+",
-      "internal": true,
-      "statusCode": 308,
-      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
-    },
-    {
-      "source": "/redirect/me/to-about/:lang",
-      "destination": "/:lang/about",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/redirect/me/to-about(?:/([^/]+?))(?:/)?$"
-    },
-    {
-      "source": "/docs/router-status/:code",
-      "destination": "/docs/v2/network/status-codes#:code",
-      "statusCode": 301,
-      "regex": "^(?!/_next)/docs/router-status(?:/([^/]+?))(?:/)?$"
-    },
-    {
-      "source": "/docs/github",
-      "destination": "/docs/v2/advanced/now-for-github",
-      "statusCode": 301,
-      "regex": "^(?!/_next)/docs/github(?:/)?$"
-    },
-    {
-      "source": "/docs/v2/advanced/:all(.*)",
-      "destination": "/docs/v2/more/:all",
-      "statusCode": 301,
-      "regex": "^(?!/_next)/docs/v2/advanced(?:/(.*))(?:/)?$"
-    },
-    {
-      "source": "/hello/:id/another",
-      "destination": "/blog/:id",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/hello(?:/([^/]+?))/another(?:/)?$"
-    },
-    {
-      "source": "/redirect1",
-      "destination": "/",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/redirect1(?:/)?$"
-    },
-    {
-      "source": "/redirect2",
-      "destination": "/",
-      "statusCode": 301,
-      "regex": "^(?!/_next)/redirect2(?:/)?$"
-    },
-    {
-      "source": "/redirect3",
-      "destination": "/another",
-      "statusCode": 302,
-      "regex": "^(?!/_next)/redirect3(?:/)?$"
-    },
-    {
-      "source": "/redirect4",
-      "destination": "/",
-      "statusCode": 308,
-      "regex": "^(?!/_next)/redirect4(?:/)?$"
-    },
-    {
-      "source": "/redir-chain1",
-      "destination": "/redir-chain2",
-      "statusCode": 301,
-      "regex": "^(?!/_next)/redir-chain1(?:/)?$"
-    },
-    {
-      "source": "/redir-chain2",
-      "destination": "/redir-chain3",
-      "statusCode": 302,
-      "regex": "^(?!/_next)/redir-chain2(?:/)?$"
-    },
-    {
-      "source": "/redir-chain3",
-      "destination": "/",
-      "statusCode": 303,
-      "regex": "^(?!/_next)/redir-chain3(?:/)?$"
-    },
-    {
-      "source": "/to-external",
-      "destination": "https://google.com",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/to-external(?:/)?$"
-    },
-    {
-      "source": "/query-redirect/:section/:name",
-      "destination": "/with-params?first=:section&second=:name",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/query-redirect(?:/([^/]+?))(?:/([^/]+?))(?:/)?$"
-    },
-    {
-      "source": "/unnamed/(first|second)/(.*)",
-      "destination": "/got-unnamed",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/unnamed(?:/(first|second))(?:/(.*))(?:/)?$"
-    },
-    {
-      "source": "/named-like-unnamed/:0",
-      "destination": "/:0",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/named-like-unnamed(?:/([^/]+?))(?:/)?$"
-    },
-    {
-      "source": "/redirect-override",
-      "destination": "/thank-you-next",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/redirect-override(?:/)?$"
-    },
-    {
-      "source": "/docs/:first(integrations|now-cli)/v2:second(.*)",
-      "destination": "/:first/:second",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/docs(?:/(integrations|now-cli))/v2(.*)(?:/)?$"
-    },
-    {
-      "source": "/catchall-redirect/:path*",
-      "destination": "/somewhere",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/catchall-redirect(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-    },
-    {
-      "source": "/to-external-with-query",
-      "destination": "https://authserver.example.com/set-password?returnUrl=https%3A%2F%2Fwww.example.com/login",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/to-external-with-query(?:/)?$"
-    },
-    {
-      "source": "/to-external-with-query-2",
-      "destination": "https://authserver.example.com/set-password?returnUrl=https://www.example.com/login",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/to-external-with-query-2(?:/)?$"
-    },
-    {
-      "source": "/has-redirect-1",
-      "has": [
+    "version": 3,
+    "pages404": true,
+    "basePath": "",
+    "redirects": [
         {
-          "type": "header",
-          "key": "x-my-header",
-          "value": "(?<myHeader>.*)"
-        }
-      ],
-      "destination": "/another?myHeader=:myHeader",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/has-redirect-1(?:/)?$"
-    },
-    {
-      "source": "/has-redirect-2",
-      "has": [
-        {
-          "type": "query",
-          "key": "my-query"
-        }
-      ],
-      "destination": "/another?value=:myquery",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/has-redirect-2(?:/)?$"
-    },
-    {
-      "source": "/has-redirect-3",
-      "has": [
-        {
-          "type": "cookie",
-          "key": "loggedIn",
-          "value": "true"
-        }
-      ],
-      "destination": "/another?authorized=1",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/has-redirect-3(?:/)?$"
-    },
-    {
-      "source": "/has-redirect-4",
-      "has": [
-        {
-          "type": "host",
-          "value": "example.com"
-        }
-      ],
-      "destination": "/another?host=1",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/has-redirect-4(?:/)?$"
-    },
-    {
-      "source": "/:path/has-redirect-5",
-      "has": [
-        {
-          "type": "header",
-          "key": "x-test-next"
-        }
-      ],
-      "destination": "/somewhere",
-      "statusCode": 307,
-      "regex": "^(?!/_next)(?:/([^/]+?))/has-redirect-5(?:/)?$"
-    },
-    {
-      "source": "/has-redirect-6",
-      "has": [
-        {
-          "type": "host",
-          "value": "(?<subdomain>.*)-test.example.com"
-        }
-      ],
-      "destination": "https://:subdomain.example.com/some-path/end?a=b",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/has-redirect-6(?:/)?$"
-    },
-    {
-      "source": "/has-redirect-7",
-      "has": [
-        {
-          "type": "query",
-          "key": "hello",
-          "value": "(?<hello>.*)"
-        }
-      ],
-      "destination": "/somewhere?value=:hello",
-      "statusCode": 307,
-      "regex": "^(?!/_next)/has-redirect-7(?:/)?$"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/add-header",
-      "headers": [
-        {
-          "key": "x-custom-header",
-          "value": "hello world"
+            "source": "/:path+/",
+            "destination": "/:path+",
+            "internal": true,
+            "statusCode": 308,
+            "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
         },
         {
-          "key": "x-another-header",
-          "value": "hello again"
-        }
-      ],
-      "regex": "^/add-header(?:/)?$"
-    },
-    {
-      "source": "/my-headers/(.*)",
-      "headers": [
-        {
-          "key": "x-first-header",
-          "value": "first"
+            "source": "/redirect/me/to-about/:lang",
+            "destination": "/:lang/about",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/redirect/me/to-about(?:/([^/]+?))(?:/)?$"
         },
         {
-          "key": "x-second-header",
-          "value": "second"
-        }
-      ],
-      "regex": "^/my-headers(?:/(.*))(?:/)?$"
-    },
-    {
-      "source": "/my-other-header/:path",
-      "headers": [
-        {
-          "key": "x-path",
-          "value": ":path"
+            "source": "/docs/router-status/:code",
+            "destination": "/docs/v2/network/status-codes#:code",
+            "statusCode": 301,
+            "regex": "^(?!/_next)/docs/router-status(?:/([^/]+?))(?:/)?$"
         },
         {
-          "key": "some:path",
-          "value": "hi"
+            "source": "/docs/github",
+            "destination": "/docs/v2/advanced/now-for-github",
+            "statusCode": 301,
+            "regex": "^(?!/_next)/docs/github(?:/)?$"
         },
         {
-          "key": "x-test",
-          "value": "some:value*"
+            "source": "/docs/v2/advanced/:all(.*)",
+            "destination": "/docs/v2/more/:all",
+            "statusCode": 301,
+            "regex": "^(?!/_next)/docs/v2/advanced(?:/(.*))(?:/)?$"
         },
         {
-          "key": "x-test-2",
-          "value": "value*"
+            "source": "/hello/:id/another",
+            "destination": "/blog/:id",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/hello(?:/([^/]+?))/another(?:/)?$"
         },
         {
-          "key": "x-test-3",
-          "value": ":value?"
+            "source": "/redirect1",
+            "destination": "/",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/redirect1(?:/)?$"
         },
         {
-          "key": "x-test-4",
-          "value": ":value+"
+            "source": "/redirect2",
+            "destination": "/",
+            "statusCode": 301,
+            "regex": "^(?!/_next)/redirect2(?:/)?$"
         },
         {
-          "key": "x-test-5",
-          "value": "something https:"
+            "source": "/redirect3",
+            "destination": "/another",
+            "statusCode": 302,
+            "regex": "^(?!/_next)/redirect3(?:/)?$"
         },
         {
-          "key": "x-test-6",
-          "value": ":hello(world)"
+            "source": "/redirect4",
+            "destination": "/",
+            "statusCode": 308,
+            "regex": "^(?!/_next)/redirect4(?:/)?$"
         },
         {
-          "key": "x-test-7",
-          "value": "hello(world)"
+            "source": "/redir-chain1",
+            "destination": "/redir-chain2",
+            "statusCode": 301,
+            "regex": "^(?!/_next)/redir-chain1(?:/)?$"
         },
         {
-          "key": "x-test-8",
-          "value": "hello{1,}"
+            "source": "/redir-chain2",
+            "destination": "/redir-chain3",
+            "statusCode": 302,
+            "regex": "^(?!/_next)/redir-chain2(?:/)?$"
         },
         {
-          "key": "x-test-9",
-          "value": ":hello{1,2}"
+            "source": "/redir-chain3",
+            "destination": "/",
+            "statusCode": 303,
+            "regex": "^(?!/_next)/redir-chain3(?:/)?$"
         },
         {
-          "key": "content-security-policy",
-          "value": "default-src 'self'; img-src *; media-src media1.com media2.com; script-src userscripts.example.com/:path"
-        }
-      ],
-      "regex": "^/my-other-header(?:/([^/]+?))(?:/)?$"
-    },
-    {
-      "source": "/without-params/url",
-      "headers": [
-        {
-          "key": "x-origin",
-          "value": "https://example.com"
-        }
-      ],
-      "regex": "^/without-params/url(?:/)?$"
-    },
-    {
-      "source": "/with-params/url/:path*",
-      "headers": [
-        {
-          "key": "x-url",
-          "value": "https://example.com/:path*"
-        }
-      ],
-      "regex": "^/with-params/url(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-    },
-    {
-      "source": "/with-params/url2/:path*",
-      "headers": [
-        {
-          "key": "x-url",
-          "value": "https://example.com:8080?hello=:path*"
-        }
-      ],
-      "regex": "^/with-params/url2(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-    },
-    {
-      "source": "/:path*",
-      "headers": [
-        {
-          "key": "x-something",
-          "value": "applied-everywhere"
-        }
-      ],
-      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-    },
-    {
-      "source": "/named-pattern/:path(.*)",
-      "headers": [
-        {
-          "key": "x-something",
-          "value": "value=:path"
+            "source": "/to-external",
+            "destination": "https://google.com",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/to-external(?:/)?$"
         },
         {
-          "key": "path-:path",
-          "value": "end"
-        }
-      ],
-      "regex": "^/named-pattern(?:/(.*))(?:/)?$"
-    },
-    {
-      "source": "/catchall-header/:path*",
-      "headers": [
+            "source": "/query-redirect/:section/:name",
+            "destination": "/with-params?first=:section&second=:name",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/query-redirect(?:/([^/]+?))(?:/([^/]+?))(?:/)?$"
+        },
         {
-          "key": "x-value",
-          "value": ":path*"
-        }
-      ],
-      "regex": "^/catchall-header(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-    },
-    {
-      "source": "/has-header-1",
-      "has": [
+            "source": "/unnamed/(first|second)/(.*)",
+            "destination": "/got-unnamed",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/unnamed(?:/(first|second))(?:/(.*))(?:/)?$"
+        },
         {
-          "type": "header",
-          "key": "x-my-header",
-          "value": "(?<myHeader>.*)"
-        }
-      ],
-      "headers": [
+            "source": "/named-like-unnamed/:0",
+            "destination": "/:0",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/named-like-unnamed(?:/([^/]+?))(?:/)?$"
+        },
         {
-          "key": "x-another",
-          "value": "header"
-        }
-      ],
-      "regex": "^/has-header-1(?:/)?$"
-    },
-    {
-      "source": "/has-header-2",
-      "has": [
+            "source": "/redirect-override",
+            "destination": "/thank-you-next",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/redirect-override(?:/)?$"
+        },
         {
-          "type": "query",
-          "key": "my-query"
-        }
-      ],
-      "headers": [
+            "source": "/docs/:first(integrations|now-cli)/v2:second(.*)",
+            "destination": "/:first/:second",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/docs(?:/(integrations|now-cli))/v2(.*)(?:/)?$"
+        },
         {
-          "key": "x-added",
-          "value": "value"
-        }
-      ],
-      "regex": "^/has-header-2(?:/)?$"
-    },
-    {
-      "source": "/has-header-3",
-      "has": [
+            "source": "/catchall-redirect/:path*",
+            "destination": "/somewhere",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/catchall-redirect(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+        },
         {
-          "type": "cookie",
-          "key": "loggedIn",
-          "value": "true"
-        }
-      ],
-      "headers": [
+            "source": "/to-external-with-query",
+            "destination": "https://authserver.example.com/set-password?returnUrl=https%3A%2F%2Fwww.example.com/login",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/to-external-with-query(?:/)?$"
+        },
         {
-          "key": "x-is-user",
-          "value": "yuuuup"
-        }
-      ],
-      "regex": "^/has-header-3(?:/)?$"
-    },
-    {
-      "source": "/has-header-4",
-      "has": [
+            "source": "/to-external-with-query-2",
+            "destination": "https://authserver.example.com/set-password?returnUrl=https://www.example.com/login",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/to-external-with-query-2(?:/)?$"
+        },
         {
-          "type": "host",
-          "value": "example.com"
-        }
-      ],
-      "headers": [
+            "source": "/has-redirect-1",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "x-my-header",
+                    "value": "(?<myHeader>.*)"
+                }
+            ],
+            "destination": "/another?myHeader=:myHeader",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/has-redirect-1(?:/)?$"
+        },
         {
-          "key": "x-is-host",
-          "value": "yuuuup"
+            "source": "/has-redirect-2",
+            "has": [
+                {
+                    "type": "query",
+                    "key": "my-query"
+                }
+            ],
+            "destination": "/another?value=:myquery",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/has-redirect-2(?:/)?$"
+        },
+        {
+            "source": "/has-redirect-3",
+            "has": [
+                {
+                    "type": "cookie",
+                    "key": "loggedIn",
+                    "value": "true"
+                }
+            ],
+            "destination": "/another?authorized=1",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/has-redirect-3(?:/)?$"
+        },
+        {
+            "source": "/has-redirect-4",
+            "has": [
+                {
+                    "type": "host",
+                    "value": "example.com"
+                }
+            ],
+            "destination": "/another?host=1",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/has-redirect-4(?:/)?$"
+        },
+        {
+            "source": "/:path/has-redirect-5",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "x-test-next"
+                }
+            ],
+            "destination": "/somewhere",
+            "statusCode": 307,
+            "regex": "^(?!/_next)(?:/([^/]+?))/has-redirect-5(?:/)?$"
+        },
+        {
+            "source": "/has-redirect-6",
+            "has": [
+                {
+                    "type": "host",
+                    "value": "(?<subdomain>.*)-test.example.com"
+                }
+            ],
+            "destination": "https://:subdomain.example.com/some-path/end?a=b",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/has-redirect-6(?:/)?$"
+        },
+        {
+            "source": "/has-redirect-7",
+            "has": [
+                {
+                    "type": "query",
+                    "key": "hello",
+                    "value": "(?<hello>.*)"
+                }
+            ],
+            "destination": "/somewhere?value=:hello",
+            "statusCode": 307,
+            "regex": "^(?!/_next)/has-redirect-7(?:/)?$"
         }
-      ],
-      "regex": "^/has-header-4(?:/)?$"
-    }
-  ],
-  "dynamicRoutes": [
-    {
-      "page": "/_sport/[slug]",
-      "regex": "^/_sport/([^/]+?)(?:/)?$",
-      "routeKeys": {
-        "slug": "slug"
-      },
-      "namedRegex": "^/_sport/(?<slug>[^/]+?)(?:/)?$"
-    },
-    {
-      "page": "/_sport/[slug]/test",
-      "regex": "^/_sport/([^/]+?)/test(?:/)?$",
-      "routeKeys": {
-        "slug": "slug"
-      },
-      "namedRegex": "^/_sport/(?<slug>[^/]+?)/test(?:/)?$"
-    },
-    {
-      "page": "/another/[id]",
-      "regex": "^/another/([^/]+?)(?:/)?$",
-      "routeKeys": {
-        "id": "id"
-      },
-      "namedRegex": "^/another/(?<id>[^/]+?)(?:/)?$"
-    },
-    {
-      "page": "/api/dynamic/[slug]",
-      "regex": "^/api/dynamic/([^/]+?)(?:/)?$",
-      "routeKeys": {
-        "slug": "slug"
-      },
-      "namedRegex": "^/api/dynamic/(?<slug>[^/]+?)(?:/)?$"
-    },
-    {
-      "page": "/auto-export/[slug]",
-      "regex": "^/auto\\-export/([^/]+?)(?:/)?$",
-      "routeKeys": {
-        "slug": "slug"
-      },
-      "namedRegex": "^/auto\\-export/(?<slug>[^/]+?)(?:/)?$"
-    },
-    {
-      "page": "/blog/[post]",
-      "regex": "^/blog/([^/]+?)(?:/)?$",
-      "routeKeys": {
-        "post": "post"
-      },
-      "namedRegex": "^/blog/(?<post>[^/]+?)(?:/)?$"
-    },
-    {
-      "page": "/blog-catchall/[...slug]",
-      "regex": "^/blog\\-catchall/(.+?)(?:/)?$",
-      "routeKeys": {
-        "slug": "slug"
-      },
-      "namedRegex": "^/blog\\-catchall/(?<slug>.+?)(?:/)?$"
-    }
-  ],
-  "staticRoutes": [
-    {
-      "page": "/auto-export/another",
-      "regex": "^/auto\\-export/another(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/auto\\-export/another(?:/)?$"
-    },
-    {
-      "page": "/docs/v2/more/now-for-github",
-      "regex": "^/docs/v2/more/now\\-for\\-github(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/docs/v2/more/now\\-for\\-github(?:/)?$"
-    },
-    {
-      "page": "/hello",
-      "regex": "^/hello(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/hello(?:/)?$"
-    },
-    {
-      "page": "/hello-again",
-      "regex": "^/hello\\-again(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/hello\\-again(?:/)?$"
-    },
-    {
-      "page": "/multi-rewrites",
-      "regex": "^/multi\\-rewrites(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/multi\\-rewrites(?:/)?$"
-    },
-    {
-      "page": "/nav",
-      "regex": "^/nav(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/nav(?:/)?$"
-    },
-    {
-      "page": "/overridden",
-      "regex": "^/overridden(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/overridden(?:/)?$"
-    },
-    {
-      "page": "/redirect-override",
-      "regex": "^/redirect\\-override(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/redirect\\-override(?:/)?$"
-    },
-    {
-      "page": "/with-params",
-      "regex": "^/with\\-params(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/with\\-params(?:/)?$"
-    }
-  ],
-  "dataRoutes": [
-    {
-      "page": "/blog-catchall/[...slug]",
-      "routeKeys": {
-        "slug": "slug"
-      },
-      "dataRouteRegex": "^/_next/data/7ddkxfkyV8tKXNdN\\-kG4A/blog\\-catchall/(.+?)\\.json$",
-      "namedDataRouteRegex": "^/_next/data/7ddkxfkyV8tKXNdN\\-kG4A/blog\\-catchall/(?<slug>.+?)\\.json$"
-    }
-  ],
-  "rewrites": {
-    "beforeFiles": [
-      {
-        "source": "/hello",
-        "has": [
-          {
-            "type": "query",
-            "key": "overrideMe"
-          }
-        ],
-        "destination": "/with-params?overridden=1",
-        "regex": "^/hello(?:/)?$"
-      },
-      {
-        "source": "/old-blog/:path*",
-        "destination": "/blog/:path*",
-        "regex": "^/old-blog(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-      },
-      {
-        "source": "/overridden",
-        "destination": "https://example.vercel.sh",
-        "regex": "^/overridden(?:/)?$"
-      },
-      {
-        "source": "/nfl/:path*",
-        "destination": "/_sport/nfl/:path*",
-        "regex": "^/nfl(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-      }
     ],
-    "afterFiles": [
-      {
-        "source": "/to-nowhere",
-        "destination": "http://localhost:12233",
-        "regex": "^/to-nowhere(?:/)?$"
-      },
-      {
-        "source": "/rewriting-to-auto-export",
-        "destination": "/auto-export/hello?rewrite=1",
-        "regex": "^/rewriting-to-auto-export(?:/)?$"
-      },
-      {
-        "source": "/rewriting-to-another-auto-export/:path*",
-        "destination": "/auto-export/another?rewrite=1",
-        "regex": "^/rewriting-to-another-auto-export(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-      },
-      {
-        "source": "/to-another",
-        "destination": "/another/one",
-        "regex": "^/to-another(?:/)?$"
-      },
-      {
-        "source": "/nav",
-        "destination": "/404",
-        "regex": "^/nav(?:/)?$"
-      },
-      {
-        "source": "/hello-world",
-        "destination": "/static/hello.txt",
-        "regex": "^/hello-world(?:/)?$"
-      },
-      {
-        "source": "/",
-        "destination": "/another",
-        "regex": "^/(?:/)?$"
-      },
-      {
-        "source": "/another",
-        "destination": "/multi-rewrites",
-        "regex": "^/another(?:/)?$"
-      },
-      {
-        "source": "/first",
-        "destination": "/hello",
-        "regex": "^/first(?:/)?$"
-      },
-      {
-        "source": "/second",
-        "destination": "/hello-again",
-        "regex": "^/second(?:/)?$"
-      },
-      {
-        "source": "/to-hello",
-        "destination": "/hello",
-        "regex": "^/to-hello(?:/)?$"
-      },
-      {
-        "source": "/blog/post-1",
-        "destination": "/blog/post-2",
-        "regex": "^/blog/post-1(?:/)?$"
-      },
-      {
-        "source": "/test/:path",
-        "destination": "/:path",
-        "regex": "^/test(?:/([^/]+?))(?:/)?$"
-      },
-      {
-        "source": "/test-overwrite/:something/:another",
-        "destination": "/params/this-should-be-the-value",
-        "regex": "^/test-overwrite(?:/([^/]+?))(?:/([^/]+?))(?:/)?$"
-      },
-      {
-        "source": "/params/:something",
-        "destination": "/with-params",
-        "regex": "^/params(?:/([^/]+?))(?:/)?$"
-      },
-      {
-        "source": "/query-rewrite/:section/:name",
-        "destination": "/with-params?first=:section&second=:name",
-        "regex": "^/query-rewrite(?:/([^/]+?))(?:/([^/]+?))(?:/)?$"
-      },
-      {
-        "source": "/hidden/_next/:path*",
-        "destination": "/_next/:path*",
-        "regex": "^/hidden/_next(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-      },
-      {
-        "source": "/proxy-me/:path*",
-        "destination": "http://localhost:__EXTERNAL_PORT__/:path*",
-        "regex": "^/proxy-me(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-      },
-      {
-        "source": "/api-hello",
-        "destination": "/api/hello",
-        "regex": "^/api-hello(?:/)?$"
-      },
-      {
-        "source": "/api-hello-regex/:first(.*)",
-        "destination": "/api/hello?name=:first*",
-        "regex": "^/api-hello-regex(?:/(.*))(?:/)?$"
-      },
-      {
-        "source": "/api-hello-param/:name",
-        "destination": "/api/hello?hello=:name",
-        "regex": "^/api-hello-param(?:/([^/]+?))(?:/)?$"
-      },
-      {
-        "source": "/api-dynamic-param/:name",
-        "destination": "/api/dynamic/:name?hello=:name",
-        "regex": "^/api-dynamic-param(?:/([^/]+?))(?:/)?$"
-      },
-      {
-        "source": "/:path/post-321",
-        "destination": "/with-params",
-        "regex": "^(?:/([^/]+?))/post-321(?:/)?$"
-      },
-      {
-        "source": "/unnamed-params/nested/(.*)/:test/(.*)",
-        "destination": "/with-params",
-        "regex": "^/unnamed-params/nested(?:/(.*))(?:/([^/]+?))(?:/(.*))(?:/)?$"
-      },
-      {
-        "source": "/catchall-rewrite/:path*",
-        "destination": "/with-params",
-        "regex": "^/catchall-rewrite(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-      },
-      {
-        "source": "/catchall-query/:path*",
-        "destination": "/with-params?another=:path*",
-        "regex": "^/catchall-query(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-      },
-      {
-        "source": "/has-rewrite-1",
-        "has": [
-          {
-            "type": "header",
-            "key": "x-my-header",
-            "value": "(?<myHeader>.*)"
-          }
-        ],
-        "destination": "/with-params?myHeader=:myHeader",
-        "regex": "^/has-rewrite-1(?:/)?$"
-      },
-      {
-        "source": "/has-rewrite-2",
-        "has": [
-          {
-            "type": "query",
-            "key": "my-query"
-          }
-        ],
-        "destination": "/with-params?value=:myquery",
-        "regex": "^/has-rewrite-2(?:/)?$"
-      },
-      {
-        "source": "/has-rewrite-3",
-        "has": [
-          {
-            "type": "cookie",
-            "key": "loggedIn",
-            "value": "(?<loggedIn>true)"
-          }
-        ],
-        "destination": "/with-params?authorized=1",
-        "regex": "^/has-rewrite-3(?:/)?$"
-      },
-      {
-        "source": "/has-rewrite-4",
-        "has": [
-          {
-            "type": "host",
-            "value": "example.com"
-          }
-        ],
-        "destination": "/with-params?host=1",
-        "regex": "^/has-rewrite-4(?:/)?$"
-      },
-      {
-        "source": "/has-rewrite-5",
-        "has": [
-          {
-            "type": "query",
-            "key": "hasParam"
-          }
-        ],
-        "destination": "/:hasParam",
-        "regex": "^/has-rewrite-5(?:/)?$"
-      },
-      {
-        "source": "/has-rewrite-6",
-        "has": [
-          {
-            "type": "header",
-            "key": "hasParam",
-            "value": "with-params"
-          }
-        ],
-        "destination": "/with-params",
-        "regex": "^/has-rewrite-6(?:/)?$"
-      },
-      {
-        "source": "/has-rewrite-7",
-        "has": [
-          {
-            "type": "query",
-            "key": "hasParam",
-            "value": "(?<idk>with-params|hello)"
-          }
-        ],
-        "destination": "/with-params?idk=:idk",
-        "regex": "^/has-rewrite-7(?:/)?$"
-      },
-      {
-        "source": "/has-rewrite-8",
-        "has": [
-          {
-            "type": "query",
-            "key": "post"
-          }
-        ],
-        "destination": "/blog-catchall/:post",
-        "regex": "^/has-rewrite-8(?:/)?$"
-      },
-      {
-        "source": "/blog/about",
-        "destination": "/hello",
-        "regex": "^/blog/about(?:/)?$"
-      }
+    "headers": [
+        {
+            "source": "/add-header",
+            "headers": [
+                {
+                    "key": "x-custom-header",
+                    "value": "hello world"
+                },
+                {
+                    "key": "x-another-header",
+                    "value": "hello again"
+                }
+            ],
+            "regex": "^/add-header(?:/)?$"
+        },
+        {
+            "source": "/my-headers/(.*)",
+            "headers": [
+                {
+                    "key": "x-first-header",
+                    "value": "first"
+                },
+                {
+                    "key": "x-second-header",
+                    "value": "second"
+                }
+            ],
+            "regex": "^/my-headers(?:/(.*))(?:/)?$"
+        },
+        {
+            "source": "/my-other-header/:path",
+            "headers": [
+                {
+                    "key": "x-path",
+                    "value": ":path"
+                },
+                {
+                    "key": "some:path",
+                    "value": "hi"
+                },
+                {
+                    "key": "x-test",
+                    "value": "some:value*"
+                },
+                {
+                    "key": "x-test-2",
+                    "value": "value*"
+                },
+                {
+                    "key": "x-test-3",
+                    "value": ":value?"
+                },
+                {
+                    "key": "x-test-4",
+                    "value": ":value+"
+                },
+                {
+                    "key": "x-test-5",
+                    "value": "something https:"
+                },
+                {
+                    "key": "x-test-6",
+                    "value": ":hello(world)"
+                },
+                {
+                    "key": "x-test-7",
+                    "value": "hello(world)"
+                },
+                {
+                    "key": "x-test-8",
+                    "value": "hello{1,}"
+                },
+                {
+                    "key": "x-test-9",
+                    "value": ":hello{1,2}"
+                },
+                {
+                    "key": "content-security-policy",
+                    "value": "default-src 'self'; img-src *; media-src media1.com media2.com; script-src userscripts.example.com/:path"
+                }
+            ],
+            "regex": "^/my-other-header(?:/([^/]+?))(?:/)?$"
+        },
+        {
+            "source": "/without-params/url",
+            "headers": [
+                {
+                    "key": "x-origin",
+                    "value": "https://example.com"
+                }
+            ],
+            "regex": "^/without-params/url(?:/)?$"
+        },
+        {
+            "source": "/with-params/url/:path*",
+            "headers": [
+                {
+                    "key": "x-url",
+                    "value": "https://example.com/:path*"
+                }
+            ],
+            "regex": "^/with-params/url(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+        },
+        {
+            "source": "/with-params/url2/:path*",
+            "headers": [
+                {
+                    "key": "x-url",
+                    "value": "https://example.com:8080?hello=:path*"
+                }
+            ],
+            "regex": "^/with-params/url2(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+        },
+        {
+            "source": "/:path*",
+            "headers": [
+                {
+                    "key": "x-something",
+                    "value": "applied-everywhere"
+                }
+            ],
+            "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+        },
+        {
+            "source": "/named-pattern/:path(.*)",
+            "headers": [
+                {
+                    "key": "x-something",
+                    "value": "value=:path"
+                },
+                {
+                    "key": "path-:path",
+                    "value": "end"
+                }
+            ],
+            "regex": "^/named-pattern(?:/(.*))(?:/)?$"
+        },
+        {
+            "source": "/catchall-header/:path*",
+            "headers": [
+                {
+                    "key": "x-value",
+                    "value": ":path*"
+                }
+            ],
+            "regex": "^/catchall-header(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+        },
+        {
+            "source": "/has-header-1",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "x-my-header",
+                    "value": "(?<myHeader>.*)"
+                }
+            ],
+            "headers": [
+                {
+                    "key": "x-another",
+                    "value": "header"
+                }
+            ],
+            "regex": "^/has-header-1(?:/)?$"
+        },
+        {
+            "source": "/has-header-2",
+            "has": [
+                {
+                    "type": "query",
+                    "key": "my-query"
+                }
+            ],
+            "headers": [
+                {
+                    "key": "x-added",
+                    "value": "value"
+                }
+            ],
+            "regex": "^/has-header-2(?:/)?$"
+        },
+        {
+            "source": "/has-header-3",
+            "has": [
+                {
+                    "type": "cookie",
+                    "key": "loggedIn",
+                    "value": "true"
+                }
+            ],
+            "headers": [
+                {
+                    "key": "x-is-user",
+                    "value": "yuuuup"
+                }
+            ],
+            "regex": "^/has-header-3(?:/)?$"
+        },
+        {
+            "source": "/has-header-4",
+            "has": [
+                {
+                    "type": "host",
+                    "value": "example.com"
+                }
+            ],
+            "headers": [
+                {
+                    "key": "x-is-host",
+                    "value": "yuuuup"
+                }
+            ],
+            "regex": "^/has-header-4(?:/)?$"
+        }
     ],
-    "fallback": []
-  }
+    "dynamicRoutes": [
+        {
+            "page": "/_sport/[slug]",
+            "regex": "^/_sport/([^/]+?)(?:/)?$",
+            "routeKeys": {
+                "slug": "slug"
+            },
+            "namedRegex": "^/_sport/(?<slug>[^/]+?)(?:/)?$"
+        },
+        {
+            "page": "/_sport/[slug]/test",
+            "regex": "^/_sport/([^/]+?)/test(?:/)?$",
+            "routeKeys": {
+                "slug": "slug"
+            },
+            "namedRegex": "^/_sport/(?<slug>[^/]+?)/test(?:/)?$"
+        },
+        {
+            "page": "/another/[id]",
+            "regex": "^/another/([^/]+?)(?:/)?$",
+            "routeKeys": {
+                "id": "id"
+            },
+            "namedRegex": "^/another/(?<id>[^/]+?)(?:/)?$"
+        },
+        {
+            "page": "/api/dynamic/[slug]",
+            "regex": "^/api/dynamic/([^/]+?)(?:/)?$",
+            "routeKeys": {
+                "slug": "slug"
+            },
+            "namedRegex": "^/api/dynamic/(?<slug>[^/]+?)(?:/)?$"
+        },
+        {
+            "page": "/auto-export/[slug]",
+            "regex": "^/auto\\-export/([^/]+?)(?:/)?$",
+            "routeKeys": {
+                "slug": "slug"
+            },
+            "namedRegex": "^/auto\\-export/(?<slug>[^/]+?)(?:/)?$"
+        },
+        {
+            "page": "/blog/[post]",
+            "regex": "^/blog/([^/]+?)(?:/)?$",
+            "routeKeys": {
+                "post": "post"
+            },
+            "namedRegex": "^/blog/(?<post>[^/]+?)(?:/)?$"
+        },
+        {
+            "page": "/blog-catchall/[...slug]",
+            "regex": "^/blog\\-catchall/(.+?)(?:/)?$",
+            "routeKeys": {
+                "slug": "slug"
+            },
+            "namedRegex": "^/blog\\-catchall/(?<slug>.+?)(?:/)?$"
+        }
+    ],
+    "staticRoutes": [
+        {
+            "page": "/auto-export/another",
+            "regex": "^/auto\\-export/another(?:/)?$",
+            "routeKeys": {},
+            "namedRegex": "^/auto\\-export/another(?:/)?$"
+        },
+        {
+            "page": "/docs/v2/more/now-for-github",
+            "regex": "^/docs/v2/more/now\\-for\\-github(?:/)?$",
+            "routeKeys": {},
+            "namedRegex": "^/docs/v2/more/now\\-for\\-github(?:/)?$"
+        },
+        {
+            "page": "/hello",
+            "regex": "^/hello(?:/)?$",
+            "routeKeys": {},
+            "namedRegex": "^/hello(?:/)?$"
+        },
+        {
+            "page": "/hello-again",
+            "regex": "^/hello\\-again(?:/)?$",
+            "routeKeys": {},
+            "namedRegex": "^/hello\\-again(?:/)?$"
+        },
+        {
+            "page": "/multi-rewrites",
+            "regex": "^/multi\\-rewrites(?:/)?$",
+            "routeKeys": {},
+            "namedRegex": "^/multi\\-rewrites(?:/)?$"
+        },
+        {
+            "page": "/nav",
+            "regex": "^/nav(?:/)?$",
+            "routeKeys": {},
+            "namedRegex": "^/nav(?:/)?$"
+        },
+        {
+            "page": "/overridden",
+            "regex": "^/overridden(?:/)?$",
+            "routeKeys": {},
+            "namedRegex": "^/overridden(?:/)?$"
+        },
+        {
+            "page": "/redirect-override",
+            "regex": "^/redirect\\-override(?:/)?$",
+            "routeKeys": {},
+            "namedRegex": "^/redirect\\-override(?:/)?$"
+        },
+        {
+            "page": "/with-params",
+            "regex": "^/with\\-params(?:/)?$",
+            "routeKeys": {},
+            "namedRegex": "^/with\\-params(?:/)?$"
+        }
+    ],
+    "dataRoutes": [
+        {
+            "page": "/blog-catchall/[...slug]",
+            "routeKeys": {
+                "slug": "slug"
+            },
+            "dataRouteRegex": "^/_next/data/7ddkxfkyV8tKXNdN\\-kG4A/blog\\-catchall/(.+?)\\.json$",
+            "namedDataRouteRegex": "^/_next/data/7ddkxfkyV8tKXNdN\\-kG4A/blog\\-catchall/(?<slug>.+?)\\.json$"
+        }
+    ],
+    "rewrites": {
+        "beforeFiles": [
+            {
+                "source": "/hello",
+                "has": [
+                    {
+                        "type": "query",
+                        "key": "overrideMe"
+                    }
+                ],
+                "destination": "/with-params?overridden=1",
+                "regex": "^/hello(?:/)?$"
+            },
+            {
+                "source": "/old-blog/:path*",
+                "destination": "/blog/:path*",
+                "regex": "^/old-blog(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+            },
+            {
+                "source": "/overridden",
+                "destination": "https://example.vercel.sh",
+                "regex": "^/overridden(?:/)?$"
+            },
+            {
+                "source": "/nfl/:path*",
+                "destination": "/_sport/nfl/:path*",
+                "regex": "^/nfl(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+            }
+        ],
+        "afterFiles": [
+            {
+                "source": "/to-nowhere",
+                "destination": "http://localhost:12233",
+                "regex": "^/to-nowhere(?:/)?$"
+            },
+            {
+                "source": "/rewriting-to-auto-export",
+                "destination": "/auto-export/hello?rewrite=1",
+                "regex": "^/rewriting-to-auto-export(?:/)?$"
+            },
+            {
+                "source": "/rewriting-to-another-auto-export/:path*",
+                "destination": "/auto-export/another?rewrite=1",
+                "regex": "^/rewriting-to-another-auto-export(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+            },
+            {
+                "source": "/to-another",
+                "destination": "/another/one",
+                "regex": "^/to-another(?:/)?$"
+            },
+            {
+                "source": "/nav",
+                "destination": "/404",
+                "regex": "^/nav(?:/)?$"
+            },
+            {
+                "source": "/hello-world",
+                "destination": "/static/hello.txt",
+                "regex": "^/hello-world(?:/)?$"
+            },
+            {
+                "source": "/",
+                "destination": "/another",
+                "regex": "^/(?:/)?$"
+            },
+            {
+                "source": "/another",
+                "destination": "/multi-rewrites",
+                "regex": "^/another(?:/)?$"
+            },
+            {
+                "source": "/first",
+                "destination": "/hello",
+                "regex": "^/first(?:/)?$"
+            },
+            {
+                "source": "/second",
+                "destination": "/hello-again",
+                "regex": "^/second(?:/)?$"
+            },
+            {
+                "source": "/to-hello",
+                "destination": "/hello",
+                "regex": "^/to-hello(?:/)?$"
+            },
+            {
+                "source": "/blog/post-1",
+                "destination": "/blog/post-2",
+                "regex": "^/blog/post-1(?:/)?$"
+            },
+            {
+                "source": "/test/:path",
+                "destination": "/:path",
+                "regex": "^/test(?:/([^/]+?))(?:/)?$"
+            },
+            {
+                "source": "/test-overwrite/:something/:another",
+                "destination": "/params/this-should-be-the-value",
+                "regex": "^/test-overwrite(?:/([^/]+?))(?:/([^/]+?))(?:/)?$"
+            },
+            {
+                "source": "/params/:something",
+                "destination": "/with-params",
+                "regex": "^/params(?:/([^/]+?))(?:/)?$"
+            },
+            {
+                "source": "/query-rewrite/:section/:name",
+                "destination": "/with-params?first=:section&second=:name",
+                "regex": "^/query-rewrite(?:/([^/]+?))(?:/([^/]+?))(?:/)?$"
+            },
+            {
+                "source": "/hidden/_next/:path*",
+                "destination": "/_next/:path*",
+                "regex": "^/hidden/_next(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+            },
+            {
+                "source": "/proxy-me/:path*",
+                "destination": "http://external.example.com/:path*?this=me",
+                "regex": "^/proxy-me(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+            },
+            {
+                "source": "/api-hello",
+                "destination": "/api/hello",
+                "regex": "^/api-hello(?:/)?$"
+            },
+            {
+                "source": "/api-hello-regex/:first(.*)",
+                "destination": "/api/hello?name=:first*",
+                "regex": "^/api-hello-regex(?:/(.*))(?:/)?$"
+            },
+            {
+                "source": "/api-hello-param/:name",
+                "destination": "/api/hello?hello=:name",
+                "regex": "^/api-hello-param(?:/([^/]+?))(?:/)?$"
+            },
+            {
+                "source": "/api-dynamic-param/:name",
+                "destination": "/api/dynamic/:name?hello=:name",
+                "regex": "^/api-dynamic-param(?:/([^/]+?))(?:/)?$"
+            },
+            {
+                "source": "/:path/post-321",
+                "destination": "/with-params",
+                "regex": "^(?:/([^/]+?))/post-321(?:/)?$"
+            },
+            {
+                "source": "/unnamed-params/nested/(.*)/:test/(.*)",
+                "destination": "/with-params",
+                "regex": "^/unnamed-params/nested(?:/(.*))(?:/([^/]+?))(?:/(.*))(?:/)?$"
+            },
+            {
+                "source": "/catchall-rewrite/:path*",
+                "destination": "/with-params",
+                "regex": "^/catchall-rewrite(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+            },
+            {
+                "source": "/catchall-query/:path*",
+                "destination": "/with-params?another=:path*",
+                "regex": "^/catchall-query(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+            },
+            {
+                "source": "/has-rewrite-1",
+                "has": [
+                    {
+                        "type": "header",
+                        "key": "x-my-header",
+                        "value": "(?<myHeader>.*)"
+                    }
+                ],
+                "destination": "/with-params?myHeader=:myHeader",
+                "regex": "^/has-rewrite-1(?:/)?$"
+            },
+            {
+                "source": "/has-rewrite-2",
+                "has": [
+                    {
+                        "type": "query",
+                        "key": "my-query"
+                    }
+                ],
+                "destination": "/with-params?value=:myquery",
+                "regex": "^/has-rewrite-2(?:/)?$"
+            },
+            {
+                "source": "/has-rewrite-3",
+                "has": [
+                    {
+                        "type": "cookie",
+                        "key": "loggedIn",
+                        "value": "(?<loggedIn>true)"
+                    }
+                ],
+                "destination": "/with-params?authorized=1",
+                "regex": "^/has-rewrite-3(?:/)?$"
+            },
+            {
+                "source": "/has-rewrite-4",
+                "has": [
+                    {
+                        "type": "host",
+                        "value": "example.com"
+                    }
+                ],
+                "destination": "/with-params?host=1",
+                "regex": "^/has-rewrite-4(?:/)?$"
+            },
+            {
+                "source": "/has-rewrite-5",
+                "has": [
+                    {
+                        "type": "query",
+                        "key": "hasParam"
+                    }
+                ],
+                "destination": "/:hasParam",
+                "regex": "^/has-rewrite-5(?:/)?$"
+            },
+            {
+                "source": "/has-rewrite-6",
+                "has": [
+                    {
+                        "type": "header",
+                        "key": "hasParam",
+                        "value": "with-params"
+                    }
+                ],
+                "destination": "/with-params",
+                "regex": "^/has-rewrite-6(?:/)?$"
+            },
+            {
+                "source": "/has-rewrite-7",
+                "has": [
+                    {
+                        "type": "query",
+                        "key": "hasParam",
+                        "value": "(?<idk>with-params|hello)"
+                    }
+                ],
+                "destination": "/with-params?idk=:idk",
+                "regex": "^/has-rewrite-7(?:/)?$"
+            },
+            {
+                "source": "/has-rewrite-8",
+                "has": [
+                    {
+                        "type": "query",
+                        "key": "post"
+                    }
+                ],
+                "destination": "/blog-catchall/:post",
+                "regex": "^/has-rewrite-8(?:/)?$"
+            },
+            {
+                "source": "/blog/about",
+                "destination": "/hello",
+                "regex": "^/blog/about(?:/)?$"
+            }
+        ],
+        "fallback": []
+    }
 }

@@ -64,6 +64,24 @@ export type Redirect = {
   regex: string
 }
 
+export type DynamicRoute = {
+  page: string
+  regex: string
+  namedRegex?: string
+  routeKeys?: { [key: string]: string }
+}
+
+export type RoutesManifest = {
+  basePath: string
+  redirects: Redirect[]
+  headers: Header[]
+  rewrites: {
+    beforeFiles: Rewrite[]
+    afterFiles: Rewrite[]
+    fallback: Rewrite[]
+  }
+  dynamicRoutes: DynamicRoute[]
+}
 // escape-regexp.ts
 // regexp is based on https://github.com/sindresorhus/escape-string-regexp
 const reHasRegExp = /[|\\{}()[\]^$+*?.-]/

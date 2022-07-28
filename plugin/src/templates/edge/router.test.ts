@@ -1,5 +1,5 @@
 import { assert, assertEquals, assertFalse } from 'https://deno.land/std@0.148.0/testing/asserts.ts'
-import { Header, Redirect, Rewrite } from './next-utils.ts'
+import { Header, Redirect, Rewrite, RoutesManifest } from './next-utils.ts'
 import {
   applyHeaderRule,
   applyHeaders,
@@ -8,9 +8,10 @@ import {
   applyRewriteRule,
   applyRewrites,
   matchesRule,
+  runPostMiddleware,
 } from './router.ts'
-import manifest from './test-routes-manifest.json' assert { type: 'json' }
-
+import manifestImport from './test-routes-manifest.json' assert { type: 'json' }
+const manifest = manifestImport as unknown as RoutesManifest
 const staticRoutes = new Set([
   '/blog/data.json',
   '/static/hello.txt',
@@ -410,7 +411,20 @@ Deno.test('rewrites', async (t) => {
       staticRoutes,
     })
     assert(result)
+    assertEquals(result.headers.get('x-matched-path'), '/static/hello.txt')
     assertEquals(result.url, 'http://localhost/static/hello.txt')
+  })
+
+  await t.step('afterFiles matching dynamic route', () => {
+    const result = applyRewrites({
+      request: new Request('http://localhost/test/nothing'),
+      rules: manifest.rewrites.afterFiles as Rewrite[],
+      checkStaticRoutes: true,
+      staticRoutes,
+    })
+    assert(result)
+    assertFalse(result.headers.get('x-matched-path'))
+    assertEquals(result.url, 'http://localhost/nothing')
   })
 
   await t.step('non-matching', () => {
@@ -421,5 +435,34 @@ Deno.test('rewrites', async (t) => {
       staticRoutes,
     })
     assertFalse(result)
+  })
+
+  await t.step('preserves query params', () => {
+    const result = applyRewrites({
+      request: new Request('http://localhost/proxy-me/first?keep=me&and=me'),
+      rules: manifest.rewrites.afterFiles as Rewrite[],
+      checkStaticRoutes: true,
+      staticRoutes,
+    })
+    assert(result)
+    assertEquals(result.url, 'http://external.example.com/first?keep=me&and=me&this=me')
+  })
+})
+
+Deno.test('router', async (t) => {
+  await t.step('static route overrides afterFiles rewrite', () => {
+    const result = runPostMiddleware(new Request('http://localhost/nav'), manifest, staticRoutes)
+    assert(result)
+    assertEquals(result.url, 'http://localhost/nav')
+  })
+
+  await t.step('proxy to external resource', () => {
+    const result = runPostMiddleware(
+      new Request('http://localhost/proxy-me/first?keep=me&and=me'),
+      manifest,
+      staticRoutes,
+    )
+    assert(result)
+    assertEquals(result.url, 'http://external.example.com/first?keep=me&and=me&this=me')
   })
 })
