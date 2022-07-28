@@ -1,11 +1,21 @@
-import { assert, assertEquals } from 'https://deno.land/std@0.148.0/testing/asserts.ts'
-import { Header, Redirect, Rewrite } from './prepare-destination.ts'
-import { applyHeaderRule, applyRedirectRule, applyRewriteRule, matchesRule } from './router.ts'
+import { assert, assertEquals, assertFalse } from 'https://deno.land/std@0.148.0/testing/asserts.ts'
+import { Header, Redirect, Rewrite } from './next-utils.ts'
+import {
+  applyHeaderRule,
+  applyHeaders,
+  applyRedirectRule,
+  applyRedirects,
+  applyRewriteRule,
+  applyRewrites,
+  matchesRule,
+} from './router.ts'
+import manifest from './test-routes-manifest.json' assert { type: 'json' }
 
 Deno.test('rewrites paths', () => {
   const rule = {
     source: '/catchall-query/:path*',
     destination: '/with-params/:path*?foo=:path*',
+    regex: '/catchall-query(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$',
   }
   const result = applyRewriteRule({
     request: new Request('http://n/catchall-query/something/else'),
@@ -18,6 +28,7 @@ Deno.test('rewrites paths', () => {
 Deno.test('rewrite matches headers "has" rule', () => {
   const rule: Rewrite = {
     source: '/has-rewrite-1',
+    regex: '/has-rewrite-1(?:/)?$',
     has: [
       {
         type: 'header',
@@ -43,8 +54,9 @@ Deno.test('matches named regex param', () => {
   const rule: Rewrite = {
     source: '/old-blog/:post(\\d{1,})',
     destination: '/blog/:post', // Matched parameters can be used in the destination
+    regex: '/old-blog/(?<post>\\d{1,})(?:/)?$',
   }
-  const request = new Request('http://n/old-blog/123')
+  const request = new Request('http://localhost/old-blog/123')
   const result = matchesRule({ request, rule })
   assert(result)
   assertEquals(result.post, '123')
@@ -53,6 +65,7 @@ Deno.test('matches named regex param', () => {
 Deno.test('applies headers', () => {
   const rule: Header = {
     source: '/apply-header',
+    regex: '/apply-header(?:/)?$',
     headers: [
       {
         key: 'x-my-header',
@@ -71,6 +84,7 @@ Deno.test('applies headers', () => {
 Deno.test('applies dynamic headers', () => {
   const rule: Header = {
     source: '/blog/:slug',
+    regex: '/blog/(?<slug>[^/]+?)(?:/)?$',
     headers: [
       {
         key: 'x-slug',
@@ -94,6 +108,7 @@ Deno.test('applies dynamic headers', () => {
 Deno.test('applies wildcard headers', () => {
   const rule: Header = {
     source: '/blog/:slug*',
+    regex: '/blog(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$',
     headers: [
       {
         key: 'x-slug',
@@ -117,6 +132,7 @@ Deno.test('applies wildcard headers', () => {
 Deno.test('applies regex headers', () => {
   const rule: Header = {
     source: '/blog/:post(\\d{1,})',
+    regex: '/blog(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$',
     headers: [
       {
         key: 'x-post',
@@ -125,7 +141,7 @@ Deno.test('applies regex headers', () => {
     ],
   }
 
-  const request = new Request('http://n/blog/123')
+  const request = new Request('http://localhost/blog/123')
 
   const result = applyHeaderRule({ request, rule })
   assert(result)
@@ -135,6 +151,7 @@ Deno.test('applies regex headers', () => {
 Deno.test('applies header based on value of a cookie', () => {
   const rule: Header = {
     source: '/specific/:path*',
+    regex: '/specific(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$',
     has: [
       {
         type: 'query',
@@ -158,14 +175,13 @@ Deno.test('applies header based on value of a cookie', () => {
     ],
   }
 
-  const request = new Request('http://n/specific/123?page=home', {
+  const request = new Request('http://localhost/specific/123?page=home', {
     headers: new Headers({
       cookie: 'authorized=true',
     }),
   })
 
   const result = applyHeaderRule({ request, rule })
-  console.log(result)
   assert(result)
   assertEquals(result.headers.get('x-authorized'), 'true')
 })
@@ -173,13 +189,14 @@ Deno.test('applies header based on value of a cookie', () => {
 Deno.test('applies "has" host rule', () => {
   const rule: Redirect = {
     source: '/has-redirect-6',
+    regex: '/has-redirect-6(?:/)?$',
     has: [
       {
         type: 'host',
         value: '(?<subdomain>.*)-test.example.com',
       },
     ],
-    destination: 'https://:subdomain.example.com/some-path/end?a=b',
+    destination: 'https://:subdomain.example.com/some-path/end?a=:subdomain',
     permanent: false,
   }
 
@@ -187,6 +204,171 @@ Deno.test('applies "has" host rule', () => {
 
   const result = applyRedirectRule({ request, rule })
   assert(result)
-  console.log(result)
-  // assertEquals(result, 'something/else')
+  assertEquals(result.headers.get('location'), 'https://hello.example.com/some-path/end?a=hello')
+})
+
+Deno.test('headers', async (t) => {
+  await t.step('has headers rule', () => {
+    const result = applyHeaders(
+      new Request('http://localhost/has-header-1', {
+        headers: {
+          'x-my-header': 'hello world!!',
+        },
+      }),
+      manifest.headers as Header[],
+    )
+    assert(result)
+    assertEquals(result.headers.get('x-another'), 'header')
+
+    const result2 = applyHeaders(new Request('http://localhost/has-header-1'), manifest.headers as Header[])
+    assert(result2)
+    assertFalse(result2.headers.get('x-another'))
+  })
+
+  await t.step('has query rule', () => {
+    const result = applyHeaders(
+      new Request('http://localhost/has-header-2?my-query=hellooo'),
+      manifest.headers as Header[],
+    )
+    assert(result)
+    assertEquals(result.headers.get('x-added'), 'value')
+
+    const result2 = applyHeaders(new Request('http://localhost/has-header-2'), manifest.headers as Header[])
+    assert(result2)
+    assertFalse(result2.headers.get('x-added'))
+  })
+
+  await t.step('has cookie rule', () => {
+    const result = applyHeaders(
+      new Request('http://localhost/has-header-3', {
+        headers: {
+          cookie: 'loggedIn=true',
+        },
+      }),
+      manifest.headers as Header[],
+    )
+    assert(result)
+    assertEquals(result.headers.get('x-is-user'), 'yuuuup')
+
+    const result2 = applyHeaders(new Request('http://localhost/has-header-3'), manifest.headers as Header[])
+    assert(result2)
+    assertFalse(result2.headers.get('x-is-user'))
+  })
+
+  await t.step('has host rule', () => {
+    const result = applyHeaders(new Request('http://example.com/has-header-4'), manifest.headers as Header[])
+    assert(result)
+    assertEquals(result.headers.get('x-is-host'), 'yuuuup')
+
+    const result2 = applyHeaders(new Request('http://localhost/has-header-4'), manifest.headers as Header[])
+    assert(result2)
+    assertFalse(result2.headers.get('x-is-host'))
+  })
+})
+Deno.test('redirects', async (t) => {
+  await t.step('chained redirects', () => {
+    const result = applyRedirects(new Request('http://localhost/redir-chain1'), manifest.redirects as Redirect[])
+    assert(result)
+    assertEquals(result.headers.get('location'), 'http://localhost/redir-chain2')
+    assertEquals(result.status, 301)
+
+    const result2 = applyRedirects(new Request('http://localhost/redir-chain2'), manifest.redirects as Redirect[])
+    assert(result2)
+    assertEquals(result2.headers.get('location'), 'http://localhost/redir-chain3')
+    assertEquals(result2.status, 302)
+
+    const result3 = applyRedirects(new Request('http://localhost/redir-chain3'), manifest.redirects as Redirect[])
+    assert(result3)
+    assertEquals(result3.headers.get('location'), 'http://localhost/')
+    assertEquals(result3.status, 303)
+  })
+
+  await t.step('does not match _next', () => {
+    const result = applyRedirects(
+      new Request('http://localhost/_next/has-redirect-5', {
+        headers: {
+          'x-test-next': 'true',
+        },
+      }),
+      manifest.redirects as Redirect[],
+    )
+    assertFalse(result)
+
+    const result2 = applyRedirects(
+      new Request('http://localhost/another/has-redirect-5', {
+        headers: {
+          'x-test-next': 'true',
+        },
+      }),
+      manifest.redirects as Redirect[],
+    )
+
+    assert(result2)
+    assertEquals(result2.status, 307)
+  })
+
+  await t.step('with permanent: false', () => {
+    const result = applyRedirects(new Request('http://localhost/redirect1'), manifest.redirects as Redirect[])
+    assert(result)
+    assertEquals(result.headers.get('location'), 'http://localhost/')
+    assertEquals(result.status, 307)
+  })
+
+  await t.step('with params', () => {
+    const result = applyRedirects(new Request('http://localhost/hello/123/another'), manifest.redirects as Redirect[])
+    assert(result)
+    assertEquals(result.headers.get('location'), 'http://localhost/blog/123')
+    assertEquals(result.status, 307)
+  })
+
+  await t.step('to a URL with a hash', () => {
+    const result = applyRedirects(
+      new Request('http://localhost/docs/router-status/500'),
+      manifest.redirects as Redirect[],
+    )
+    assert(result)
+    const location = result.headers.get('location')
+    assert(location)
+    const { pathname, hash } = new URL(location)
+    assertEquals(pathname, '/docs/v2/network/status-codes')
+    assertEquals(hash, '#500')
+    assertEquals(result.status, 301)
+  })
+
+  await t.step('with provided statusCode', () => {
+    const result = applyRedirects(new Request('http://localhost/redirect2'), manifest.redirects as Redirect[])
+    assert(result)
+    const location = result.headers.get('location')
+    assert(location)
+    const { pathname, search } = new URL(location)
+    assertEquals(pathname, '/')
+    assertEquals(search, '')
+    assertEquals(result.status, 301)
+  })
+
+  await t.step('using a catchall', () => {
+    const result = applyRedirects(
+      new Request('http://localhost/catchall-redirect/hello/world'),
+      manifest.redirects as Redirect[],
+    )
+    assert(result)
+    const location = result.headers.get('location')
+    assert(location)
+    const { pathname, search } = new URL(location)
+    assertEquals(pathname, '/somewhere')
+    assertEquals(search, '')
+    assertEquals(result.status, 307)
+  })
+})
+Deno.test('rewrites', async (t) => {
+  await t.step('simple rewrite', () => {
+    const result = applyRewrites(new Request('http://localhost/to-another'), manifest.rewrites.afterFiles as Rewrite[])
+    assert(result)
+    assertEquals(result.url, 'http://localhost/another/one')
+  })
+  await t.step('with params', () => {
+    const result = applyRewrites(new Request('http://localhost/test/hello'), manifest.rewrites.afterFiles as Rewrite[])
+    assert(result)
+    assertEquals(result.url, 'http://localhost/hello')
+  })
 })

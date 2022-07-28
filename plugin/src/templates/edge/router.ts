@@ -9,7 +9,7 @@ import {
   Rewrite,
   RouteHas,
   searchParamsToUrlQuery,
-} from './prepare-destination.ts'
+} from './next-utils.ts'
 
 type Params = Record<string, string>
 export type Rule = Rewrite | Header | Redirect
@@ -35,7 +35,7 @@ function preparedDestinationToUrl({
 }
 
 // regexp is based on https://github.com/sindresorhus/escape-string-regexp
-const reHasRegExp = /[|\\{}()[\]^$+*?.-]/
+// const reHasRegExp = /[|\\{}()[\]^$+*?.-]/
 
 /**
  * Checks if a patch matches a given path pattern. If it matches, then it returns
@@ -60,16 +60,18 @@ export function generateDestinationUrl({
   destination,
   query,
   params,
+  appendParamsToQuery = false,
 }: {
   query: URLSearchParams
   destination: string
   params: Params
+  appendParamsToQuery?: boolean
 }): URL {
   const preparedDestination = prepareDestination({
     destination,
     params,
     query: searchParamsToUrlQuery(query),
-    appendParamsToQuery: true,
+    appendParamsToQuery,
   })
   return preparedDestinationToUrl(preparedDestination)
 }
@@ -85,11 +87,10 @@ function matchHas(request: Request, has?: RouteHas[]): Params | false {
   if (!has?.length) {
     return {}
   }
-  console.log(has)
   return nextMatchHas(
     request,
     // y u no narrow `has` type?
-    has as RouteHas[],
+    has,
     searchParamsToUrlQuery(url.searchParams),
   )
 }
@@ -101,8 +102,10 @@ function matchHas(request: Request, has?: RouteHas[]): Params | false {
 export function matchesRule({ request, rule }: { request: Request; rule: Rule }): Params | false {
   const params: Params = {}
   const url = new URL(request.url)
+  if (!new RegExp(rule.regex).test(url.pathname)) {
+    return false
+  }
   const hasParams = matchHas(request, rule.has)
-  console.log({ hasParams, rule })
   if (!hasParams) {
     return false
   }
@@ -131,7 +134,13 @@ export function applyRewriteRule({ request, rule }: { request: Request; rule: Re
     query: new URL(request.url).searchParams,
     destination: rule.destination,
     params,
+    appendParamsToQuery: true,
   })
+
+  if (destination.hostname === 'n') {
+    destination.hostname = new URL(request.url).hostname
+  }
+
   return new Request(destination.href, request)
 }
 
@@ -149,12 +158,12 @@ export function applyRedirectRule({ request, rule }: { request: Request; rule: R
     destination: rule.destination,
     params,
   })
-  return new Response(null, {
-    status: rule.statusCode,
-    headers: {
-      Location: destination.href,
-    },
-  })
+
+  if (destination.hostname === 'n') {
+    destination.hostname = new URL(request.url).hostname
+  }
+
+  return Response.redirect(destination.href, rule.statusCode)
 }
 
 /**
@@ -179,4 +188,29 @@ export function applyHeaderRule({ request, rule }: { request: Request; rule: Hea
     ...request,
     headers,
   })
+}
+
+export function applyHeaders(request: Request, rules: Header[]): Request {
+  // Apply all headers rules in order
+  return rules.reduce((request, rule) => {
+    return applyHeaderRule({ request, rule }) || request
+  }, request)
+}
+
+export function applyRedirects(request: Request, rules: Redirect[]): Response | false {
+  // Redirects only apply the first matching rule
+  for (const rule of rules) {
+    const match = applyRedirectRule({ request, rule })
+    if (match) {
+      return match
+    }
+  }
+  return false
+}
+
+export function applyRewrites(request: Request, rules: Rewrite[]): Request | false {
+  // Apply all rewrite rules in order
+  return rules.reduce((request, rule) => {
+    return applyRewriteRule({ request, rule }) || request
+  }, request)
 }

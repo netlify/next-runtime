@@ -1,19 +1,26 @@
-// Ported to Deno from Next.js source
-// https://github.com/vercel/next.js/blob/7280c3ced186bb9a7ae3d7012613ef93f20b0fa9/packages/next/shared/lib/router/utils/prepare-destination.ts
-import { Key, match } from 'https://deno.land/x/path_to_regexp@v6.2.1/index.ts'
-import { getCookies } from 'https://deno.land/std@0.148.0/http/cookie.ts'
+/**
+ * Various router utils ported to Deno from Next.js source
+ * https://github.com/vercel/next.js/blob/7280c3ced186bb9a7ae3d7012613ef93f20b0fa9/packages/next/shared/lib/router/utils/
+ * Licence: https://github.com/vercel/next.js/blob/7280c3ced186bb9a7ae3d7012613ef93f20b0fa9/license.md
+ *
+ * Some types have been re-implemented to be more compatible with Deno or avoid chains of dependent files
+ */
+
+// Deno imports
+import type { Key } from 'https://deno.land/x/path_to_regexp@v6.2.1/index.ts'
 
 import { compile, pathToRegexp } from 'https://deno.land/x/path_to_regexp@v6.2.1/index.ts'
+import { getCookies } from 'https://deno.land/std@0.148.0/http/cookie.ts'
 
-// regexp is based on https://github.com/sindresorhus/escape-string-regexp
-const reHasRegExp = /[|\\{}()[\]^$+*?.-]/
-const reReplaceRegExp = /[|\\{}()[\]^$+*?.-]/g
+// Inlined/re-implemented types
 
 export interface ParsedUrlQuery {
   [key: string]: string | string[]
 }
 
 export interface Params {
+  // Yeah, best we get
+  // deno-lint-ignore no-explicit-any
   [param: string]: any
 }
 
@@ -35,6 +42,7 @@ export type Rewrite = {
   basePath?: false
   locale?: false
   has?: RouteHas[]
+  regex: string
 }
 
 export type Header = {
@@ -43,6 +51,7 @@ export type Header = {
   locale?: false
   headers: Array<{ key: string; value: string }>
   has?: RouteHas[]
+  regex: string
 }
 export type Redirect = {
   source: string
@@ -52,7 +61,13 @@ export type Redirect = {
   has?: RouteHas[]
   statusCode?: number
   permanent?: boolean
+  regex: string
 }
+
+// escape-regexp.ts
+// regexp is based on https://github.com/sindresorhus/escape-string-regexp
+const reHasRegExp = /[|\\{}()[\]^$+*?.-]/
+const reReplaceRegExp = /[|\\{}()[\]^$+*?.-]/g
 
 export function escapeStringRegexp(str: string) {
   // see also: https://github.com/lodash/lodash/blob/2da024c3b4f9947a48517639de7560457cd4ec6c/escapeRegExp.js#L23
@@ -62,6 +77,7 @@ export function escapeStringRegexp(str: string) {
   return str
 }
 
+// querystring.ts
 export function searchParamsToUrlQuery(searchParams: URLSearchParams): ParsedUrlQuery {
   const query: ParsedUrlQuery = {}
   searchParams.forEach((value, key) => {
@@ -76,6 +92,7 @@ export function searchParamsToUrlQuery(searchParams: URLSearchParams): ParsedUrl
   return query
 }
 
+// parse-url.ts
 interface ParsedUrl {
   hash: string
   hostname?: string | null
@@ -101,6 +118,7 @@ export function parseUrl(url: string): ParsedUrl {
   }
 }
 
+// prepare-destination.ts
 // Changed to use WHATWG Fetch Request instead of IncomingMessage
 export function matchHas(req: Pick<Request, 'headers' | 'url'>, has: RouteHas[], query: Params): false | Params {
   const params: Params = {}
@@ -109,22 +127,19 @@ export function matchHas(req: Pick<Request, 'headers' | 'url'>, has: RouteHas[],
   const allMatch = has.every((hasItem) => {
     let value: undefined | string | null
     let key = hasItem.key
-    if (!key) {
-      return true
-    }
 
     switch (hasItem.type) {
       case 'header': {
-        key = key.toLowerCase()
+        key = hasItem.key.toLowerCase()
         value = req.headers.get(key)
         break
       }
       case 'cookie': {
-        value = cookies[key]
+        value = cookies[hasItem.key]
         break
       }
       case 'query': {
-        value = query[key]
+        value = query[hasItem.key]
         break
       }
       case 'host': {
@@ -135,12 +150,13 @@ export function matchHas(req: Pick<Request, 'headers' | 'url'>, has: RouteHas[],
         break
       }
     }
-    if (!hasItem.value && value) {
+    if (!hasItem.value && value && key) {
       params[getSafeParamName(key)] = value
       return true
     } else if (value) {
       const matcher = new RegExp(`^${hasItem.value}$`)
       const matches = Array.isArray(value) ? value.slice(-1)[0].match(matcher) : value.match(matcher)
+
       if (matches) {
         if (Array.isArray(matches)) {
           if (matches.groups) {
@@ -204,8 +220,6 @@ export function prepareDestination(args: {
   for (const param of Object.keys({ ...args.params, ...query })) {
     escapedDestination = escapeSegment(escapedDestination, param)
   }
-
-  console.log({ escapedDestination, params: args.params })
 
   const parsedDestination: ParsedUrl = parseUrl(escapedDestination)
   const destQuery = parsedDestination.query
@@ -318,4 +332,12 @@ function escapeSegment(str: string, segmentName: string) {
 
 function unescapeSegments(str: string) {
   return str.replace(/__ESC_COLON_/gi, ':')
+}
+
+// is-dynamic.ts
+// Identify /[param]/ in route string
+const TEST_ROUTE = /\/\[[^/]+?\](?=\/|$)/
+
+export function isDynamicRoute(route: string): boolean {
+  return TEST_ROUTE.test(route)
 }
