@@ -42,7 +42,7 @@ declare global {
   var NFRequestContextMap: Map<string, RequestContext>
 }
 
-globalThis.NFRequestContextMap = new Map()
+globalThis.NFRequestContextMap ||= new Map()
 
 const handler = async (req: Request, context: Context) => {
   const url = new URL(req.url)
