@@ -73,6 +73,9 @@ export const buildResponse = async ({
     result.response = await result.response.next()
   }
   if (isMiddlewareResponse(result.response)) {
+    if (request.method === 'HEAD' || request.method === 'OPTIONS') {
+      return response.originResponse
+    }
     const { response } = result
     // If it's JSON we don't need to use the rewriter, we can just parse it
     if (response.originResponse.headers.get('content-type')?.includes('application/json')) {
