@@ -233,6 +233,44 @@ module.exports = {
           destination: '/_sport/nfl/:path*',
         },
       ],
+      fallback: [
+        {
+          source: '/matchfallback',
+          destination: '/blog/1',
+        },
+        {
+          source: '/externalfallback',
+          destination: 'https://example.com',
+        },
+        {
+          source: '/fallbackloop',
+          destination: '/intermediatefallback',
+        },
+        {
+          source: '/intermediatefallback',
+          destination: '/fallbackloop',
+        },
+        {
+          source: '/chainedfallback',
+          destination: '/chain1',
+        },
+        {
+          source: '/chain1',
+          destination: '/chain2',
+        },
+        {
+          source: '/chain2',
+          destination: '/chain3',
+        },
+        {
+          source: '/chain3',
+          destination: '/chain4',
+        },
+        {
+          source: '/chain4',
+          destination: '/static/hello.txt',
+        },
+      ],
     }
   },
   async redirects() {
