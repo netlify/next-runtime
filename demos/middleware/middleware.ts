@@ -16,23 +16,10 @@ export async function middleware(req: NextRequest) {
     const res = await request.next()
     const message = `This was static but has been transformed in ${req.geo.city}`
 
-    // Transform the response page data
-    res.transformData((data) => {
-      data.pageProps.message = message
-      data.pageProps.showAd = true
-      return data
-    })
-
-    // Transform the response HTML
-    res.rewriteHTML('p[id=message]', {
-      text(textChunk) {
-        if (textChunk.lastInTextNode) {
-          textChunk.replace(message)
-        } else {
-          textChunk.remove()
-        }
-      },
-    })
+    // Transform the response HTML and props
+    res.replaceText('p[id=message]', message)
+    res.setPageProp('message', message)
+    res.setPageProp('showAd', true)
 
     return res
   }
