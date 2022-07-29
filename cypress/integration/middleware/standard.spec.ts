@@ -1,4 +1,4 @@
-describe('Rewrites and Redirects', () => {
+describe('Standard middleware', () => {
   it('rewrites to internal page', () => {
     // preview mode is off by default
     cy.visit('/shows/rewriteme')
