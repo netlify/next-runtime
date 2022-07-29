@@ -1,9 +1,7 @@
 describe('Enhanced middleware', () => {
   it('adds request headers', () => {
     cy.request('/api/hello').then((response) => {
-      response.body.json().then((body) => {
-        expect(body.headers).to.have.property('x-hello', 'world')
-      })
+      expect(response.body).to.have.nested.property('headers.x-hello', 'world')
     })
   })
 
@@ -14,6 +12,9 @@ describe('Enhanced middleware', () => {
   })
 
   it('rewrites the response body', () => {
+    cy.on('uncaught:exception', (err, runnable) => {
+      console.log(err.message)
+    })
     cy.visit('/static')
     cy.findByText('This was static but has been transformed in')
     cy.findByText("This is an ad that isn't shown by default")
