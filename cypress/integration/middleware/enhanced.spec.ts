@@ -12,12 +12,9 @@ describe('Enhanced middleware', () => {
   })
 
   it('rewrites the response body', () => {
-    cy.on('uncaught:exception', (err, runnable) => {
-      console.log(err.message)
-    })
     cy.visit('/static')
-    cy.findByText('This was static but has been transformed in')
-    cy.findByText("This is an ad that isn't shown by default")
+    cy.get('#message').contains('This was static but has been transformed in')
+    cy.contains("This is an ad that isn't shown by default")
   })
 
   it('modifies the page props', () => {

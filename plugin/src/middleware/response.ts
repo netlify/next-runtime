@@ -5,7 +5,7 @@ import type { ElementHandlers } from './html-rewriter'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type NextDataTransform = <T extends { pageProps?: Record<string, any> }>(props: T) => T
 
-// A NextReponse that wraps the Netlify origin response
+// A NextResponse that wraps the Netlify origin response
 // We can't pass it through directly, because Next disallows returning a response body
 export class MiddlewareResponse extends NextResponse {
   private readonly dataTransforms: NextDataTransform[]
