@@ -8,7 +8,7 @@ import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
 import pLimit from 'p-limit'
-import { join } from 'pathe'
+import { join, resolve } from 'pathe'
 import slash from 'slash'
 
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
@@ -323,6 +323,24 @@ const getServerFile = (root: string, includeBase = true) => {
   }
 
   return findModuleFromBase({ candidates, paths: [root] })
+}
+
+export const getSourceFileForPage = (page: string, root: string) => {
+  for (const extension of ['ts', 'js']) {
+    const file = join(root, `${page}.${extension}`)
+    if (existsSync(file)) {
+      return file
+    }
+  }
+}
+
+export const getDependenciesOfFile = async (file: string) => {
+  const nft = `${file}.nft.json`
+  if (!existsSync(nft)) {
+    return []
+  }
+  const dependencies = await readJson(nft, 'utf8')
+  return dependencies.files.map((dep) => resolve(file, dep))
 }
 
 const baseServerReplacements: Array<[string, string]> = [

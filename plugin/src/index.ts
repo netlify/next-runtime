@@ -17,7 +17,7 @@ import {
 } from './helpers/config'
 import { updateConfig, writeEdgeFunctions, loadMiddlewareManifest } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
-import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
+import { generateFunctions, setupImageFunction, generatePagesResolver, getApiRouteConfigs } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled } from './helpers/utils'
 import {
@@ -106,13 +106,14 @@ const plugin: NetlifyPlugin = {
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
     await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
+    const apiRoutes = await getApiRouteConfigs(publish, appDir)
 
-    await generateFunctions(constants, appDir)
+    await generateFunctions(constants, appDir, apiRoutes)
     await generatePagesResolver({ target, constants })
 
     await movePublicFiles({ appDir, outdir, publish })
 
-    await patchNextFiles(basePath)
+    await patchNextFiles(appDir)
 
     if (!process.env.SERVE_STATIC_FILES_FROM_ORIGIN) {
       await moveStaticPages({ target, netlifyConfig, i18n, basePath })
@@ -135,6 +136,7 @@ const plugin: NetlifyPlugin = {
       netlifyConfig,
       nextConfig: { basePath, i18n, trailingSlash, appDir },
       buildId,
+      apiRoutes,
     })
 
     // We call this even if we don't have edge functions enabled because we still use it for images

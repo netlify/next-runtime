@@ -9,7 +9,6 @@ import type { NextServerType } from './handlerUtils'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const { promises } = require('fs')
 const { Server } = require('http')
 const path = require('path')
 // eslint-disable-next-line n/prefer-global/url, n/prefer-global/url-search-params
@@ -17,7 +16,7 @@ const { URLSearchParams, URL } = require('url')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
 
-const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+const { getMultiValueHeaders, getNextServer } = require('./handlerUtils')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
@@ -25,8 +24,8 @@ type Mutable<T> = {
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
-// eslint-disable-next-line max-params
-const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
+
+const makeHandler = (conf: NextConfig, app, pageRoot, page) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -40,9 +39,8 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     require.resolve('./pages.js')
   } catch {}
 
-  const ONE_YEAR_IN_SECONDS = 31536000
-
   // React assumes you want development mode if NODE_ENV is unset.
+  // eslint-disable-next-line @typescript-eslint/no-extra-semi
   ;(process.env as Mutable<NodeJS.ProcessEnv>).NODE_ENV ||= 'production'
 
   // We don't want to write ISR files to disk in the lambda environment
@@ -53,10 +51,6 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   for (const [key, value] of Object.entries(conf.env)) {
     process.env[key] = String(value)
   }
-  // Set during the request as it needs the host header. Hoisted so we can define the function once
-  let base: string
-
-  augmentFsModule({ promises, staticManifest, pageRoot, getBase: () => base })
 
   // We memoize this because it can be shared between requests, but don't instantiate it until
   // the first request because we need the host and port.
@@ -65,14 +59,14 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     if (bridge) {
       return bridge
     }
-    const url = new URL(event.rawUrl)
+    // Scheduled functions don't have a URL, but we need to give one so Next knows the route to serve
+    const url = event.rawUrl ? new URL(event.rawUrl) : new URL(path, process.env.URL || 'http://n')
     const port = Number.parseInt(url.port) || 80
-    const { host } = event.headers
-    const protocol = event.headers['x-forwarded-proto'] || 'http'
-    base = `${protocol}://${host}`
 
     const NextServer: NextServerType = getNextServer()
     const nextServer = new NextServer({
+      // We know we're just an API route, so can enable minimal mode
+      minimalMode: true,
       conf,
       dir,
       customServer: false,
@@ -94,42 +88,21 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   }
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
-    let requestMode = mode
     // Ensure that paths are encoded - but don't double-encode them
-    event.path = new URL(event.rawUrl).pathname
+    event.path = event.rawUrl ? new URL(event.rawUrl).pathname : page
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
-
+    // We know the page
+    event.headers['x-matched-path'] = page
     const { headers, ...result } = await getBridge(event).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
 
     const multiValueHeaders = getMultiValueHeaders(headers)
 
-    if (multiValueHeaders['set-cookie']?.[0]?.includes('__prerender_bypass')) {
-      delete multiValueHeaders.etag
-      multiValueHeaders['cache-control'] = ['no-cache']
-    }
-
-    // Sending SWR headers causes undefined behaviour with the Netlify CDN
-    const cacheHeader = multiValueHeaders['cache-control']?.[0]
-
-    if (cacheHeader?.includes('stale-while-revalidate')) {
-      if (requestMode === 'odb') {
-        const ttl = getMaxAge(cacheHeader)
-        // Long-expiry TTL is basically no TTL, so we'll skip it
-        if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
-          result.ttl = ttl
-          requestMode = 'isr'
-        }
-      }
-      multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
-    }
-    multiValueHeaders['x-render-mode'] = [requestMode]
-    console.log(
-      `[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()}${result.ttl > 0 ? ` ${result.ttl}s` : ''})`,
-    )
+    multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
+    console.log(`[${event.httpMethod}] ${event.path} (API)`)
     return {
       ...result,
       multiValueHeaders,
@@ -138,26 +111,26 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   }
 }
 
-export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDir = '../../..' }): string =>
+export const getApiHandler = ({ page, schedule, publishDir = '../../../.next', appDir = '../../..' }): string =>
   // This is a string, but if you have the right editor plugin it should format as js
   javascript/* javascript */ `
   const { Server } = require("http");
-  const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+  const { getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
 
-  ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
+  ${schedule ? `const { schedule } = require("@netlify/functions")` : ''}
+
+
   const { config }  = require("${publishDir}/required-server-files.json")
   let staticManifest
-  try {
-    staticManifest = require("${publishDir}/static-manifest.json")
-  } catch {}
   const path = require("path");
-  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", config.target === "server" ? "server" : "serverless", "pages"));
+  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "serverless", "pages"));
   exports.handler = ${
-    isODB
-      ? `builder((${makeHandler.toString()})(config, "${appDir}", pageRoot, staticManifest, 'odb'));`
-      : `(${makeHandler.toString()})(config, "${appDir}", pageRoot, staticManifest, 'ssr');`
+    schedule
+      ? `schedule(${JSON.stringify(
+          schedule,
+        )},(${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)}));`
+      : `(${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)});`
   }
 `

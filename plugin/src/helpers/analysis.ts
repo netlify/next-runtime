@@ -4,7 +4,13 @@ import { relative } from 'path'
 import { extractExportedConstValue, UnsupportedValueError } from 'next/dist/build/analysis/extract-const-value'
 import { parseModule } from 'next/dist/build/analysis/parse-module'
 
-export const extractConfigFromFile = async (apiFilePath: string): Promise<Record<string, unknown>> => {
+export interface ApiConfig {
+  runtime?: 'node' | 'experimental-edge'
+  background?: boolean
+  schedule?: string
+}
+
+export const extractConfigFromFile = async (apiFilePath: string): Promise<ApiConfig> => {
   const fileContent = await fs.promises.readFile(apiFilePath, 'utf8')
   if (!fileContent.includes('config')) {
     return {}

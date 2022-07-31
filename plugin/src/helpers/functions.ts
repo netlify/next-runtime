@@ -1,29 +1,60 @@
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
-import { copyFile, ensureDir, writeFile, writeJSON } from 'fs-extra'
+import { copyFile, ensureDir, readJSON, writeFile, writeJSON } from 'fs-extra'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { join, relative, resolve } from 'pathe'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
+import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
-import { getPageResolver } from '../templates/getPageResolver'
+import { getPageResolver, getSinglePageResolver } from '../templates/getPageResolver'
+
+import { ApiConfig, extractConfigFromFile } from './analysis'
+import { getSourceFileForPage } from './files'
+import { getFunctionNameForPage } from './utils'
+
+export interface ApiRouteConfig {
+  route: string
+  config: ApiConfig
+  compiled: string
+}
 
 export const generateFunctions = async (
   { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
   appDir: string,
+  apiRoutes: Array<ApiRouteConfig>,
 ): Promise<void> => {
-  const functionsDir = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
-  const functionDir = join(process.cwd(), functionsDir, HANDLER_FUNCTION_NAME)
-  const publishDir = relative(functionDir, resolve(PUBLISH_DIR))
+  const publish = resolve(PUBLISH_DIR)
+  const functionsDir = resolve(INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC)
+  console.log({ functionsDir })
+  const functionDir = join(functionsDir, HANDLER_FUNCTION_NAME)
+  const publishDir = relative(functionDir, publish)
 
-  const writeHandler = async (func: string, isODB: boolean) => {
-    const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
-    await ensureDir(join(functionsDir, func))
-    await writeFile(join(functionsDir, func, `${func}.js`), handlerSource)
-    await copyFile(bridgeFile, join(functionsDir, func, 'bridge.js'))
+  for (const { route, config, compiled } of apiRoutes) {
+    const apiHandlerSource = await getApiHandler({ page: route, schedule: config.schedule })
+    const functionName = getFunctionNameForPage(route, config.background)
+    await ensureDir(join(functionsDir, functionName))
+    await writeFile(join(functionsDir, functionName, `${functionName}.js`), apiHandlerSource)
+    await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
     await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
-      join(functionsDir, func, 'handlerUtils.js'),
+      join(functionsDir, functionName, 'handlerUtils.js'),
+    )
+    const resolverSource = await getSinglePageResolver({
+      functionsDir,
+      sourceFile: join(publish, 'server', compiled),
+    })
+    await writeFile(join(functionsDir, functionName, 'pages.js'), resolverSource)
+  }
+
+  const writeHandler = async (functionName: string, isODB: boolean) => {
+    const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
+    await ensureDir(join(functionsDir, functionName))
+    await writeFile(join(functionsDir, functionName, `${functionName}.js`), handlerSource)
+    await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
+      join(functionsDir, functionName, 'handlerUtils.js'),
     )
   }
 
@@ -104,4 +135,16 @@ export const setupImageFunction = async ({
       status: 200,
     })
   }
+}
+
+export const getApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
+  const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
+  const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
+  const pagesDir = join(baseDir, 'pages')
+  return Promise.all(
+    apiRoutes.map(async (apiRoute) => {
+      const filePath = getSourceFileForPage(apiRoute, pagesDir)
+      return { route: apiRoute, config: await extractConfigFromFile(filePath), compiled: pages[apiRoute] }
+    }),
+  )
 }
