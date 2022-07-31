@@ -126,11 +126,6 @@ export const getApiHandler = ({ page, schedule, publishDir = '../../../.next', a
   let staticManifest
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "serverless", "pages"));
-  exports.handler = ${
-    schedule
-      ? `schedule(${JSON.stringify(
-          schedule,
-        )},(${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)}));`
-      : `(${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)});`
-  }
+  const handler = (${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)})
+  exports.handler = ${schedule ? `schedule(${JSON.stringify(schedule)}, handler);` : 'handler'}
 `
