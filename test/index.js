@@ -33,8 +33,6 @@ const {
 } = require('../plugin/src/helpers/config')
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
-const { onPostBuild } = require('../plugin/lib')
-const { basePath } = require('../demos/next-i18next/next.config')
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
@@ -121,6 +119,7 @@ const moveNextDist = async function (dir = '.next') {
   await stubModules(['next', 'sharp'])
   await ensureDir(dirname(dir))
   await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
+  await copy(path.join(SAMPLE_PROJECT_DIR, 'pages'), path.join(process.cwd(), 'pages'))
   await rewriteAppDir(dir)
 }
 
@@ -454,8 +453,8 @@ describe('onBuild()', () => {
       '.next/BUILD_ID',
       '.next/static/chunks/webpack-middleware*.js',
       '!.next/server/**/*.js.nft.json',
-      ".next/static/css/1152424140993be6.css",
-      ".next/static/css/84099ae0bbc955fa.css",  
+      '.next/static/css/1152424140993be6.css',
+      '.next/static/css/84099ae0bbc955fa.css',
       '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
