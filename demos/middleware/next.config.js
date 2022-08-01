@@ -6,6 +6,7 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  generateBuildId: () => 'build-id',
 }
 
 module.exports = nextConfig

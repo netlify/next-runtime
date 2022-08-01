@@ -1,11 +1,40 @@
 import { NextResponse } from 'next/server'
-import { NextFetchEvent, NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest, ev: NextFetchEvent) {
+import { MiddlewareRequest } from '@netlify/plugin-nextjs/middleware'
+
+export async function middleware(req: NextRequest) {
   let response
   const {
     nextUrl: { pathname },
-  } = request
+  } = req
+
+  const request = new MiddlewareRequest(req)
+
+  if (pathname.startsWith('/static')) {
+    // Unlike NextResponse.next(), this actually sends the request to the origin
+    const res = await request.next()
+    const message = `This was static but has been transformed in ${req.geo.city}`
+
+    // Transform the response HTML and props
+    res.replaceText('p[id=message]', message)
+    res.setPageProp('message', message)
+    res.setPageProp('showAd', true)
+
+    return res
+  }
+
+  if (pathname.startsWith('/api/hello')) {
+    // Add a header to the request
+    req.headers.set('x-hello', 'world')
+    return request.next()
+  }
+
+  if (pathname.startsWith('/headers')) {
+    // Add a header to the rewritten request
+    req.headers.set('x-hello', 'world')
+    return request.rewrite('/api/hello')
+  }
 
   if (pathname.startsWith('/cookies')) {
     response = NextResponse.next()
@@ -15,7 +44,7 @@ export function middleware(request: NextRequest, ev: NextFetchEvent) {
 
   if (pathname.startsWith('/shows')) {
     if (pathname.startsWith('/shows/rewrite-absolute')) {
-      response = NextResponse.rewrite(new URL('/shows/100', request.url))
+      response = NextResponse.rewrite(new URL('/shows/100', req.url))
       response.headers.set('x-modified-in-rewrite', 'true')
     }
     if (pathname.startsWith('/shows/rewrite-external')) {
@@ -23,7 +52,7 @@ export function middleware(request: NextRequest, ev: NextFetchEvent) {
       response.headers.set('x-modified-in-rewrite', 'true')
     }
     if (pathname.startsWith('/shows/rewriteme')) {
-      const url = request.nextUrl.clone()
+      const url = req.nextUrl.clone()
       url.pathname = '/shows/100'
       response = NextResponse.rewrite(url)
       response.headers.set('x-modified-in-rewrite', 'true')

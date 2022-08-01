@@ -147,6 +147,7 @@ Temporary Items
 demos/default/.next
 .parcel-cache
 plugin/lib
+plugin/dist-types
 
 # Cypress
 cypress/screenshots
