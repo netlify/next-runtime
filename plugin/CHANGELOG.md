@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.14.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.14.0...plugin-nextjs-v4.14.1) (2022-08-03)
+
+
+### Bug Fixes
+
+* replace netlify:edge identifier with full URL ([#1500](https://github.com/netlify/netlify-plugin-nextjs/issues/1500)) ([69327e6](https://github.com/netlify/netlify-plugin-nextjs/commit/69327e64f98234e3df37acc6d7479e705f5998c0))
+
 ## [4.14.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.13.1...plugin-nextjs-v4.14.0) (2022-08-01)
 
 
