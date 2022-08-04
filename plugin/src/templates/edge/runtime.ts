@@ -46,9 +46,6 @@ globalThis.NFRequestContextMap ||= new Map()
 
 const handler = async (req: Request, context: Context) => {
   const url = new URL(req.url)
-  if (url.pathname.startsWith('/_next/static/')) {
-    return
-  }
 
   const geo = {
     country: context.geo.country?.code,
