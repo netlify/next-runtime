@@ -1480,22 +1480,25 @@ describe('api route file analysis', () => {
   it('extracts correct route configs from source files', async () => {
     await moveNextDist()
     const configs = await getApiRouteConfigs('.next', process.cwd())
-    expect(configs).toEqual([
-      { compiled: 'pages/api/enterPreview.js', config: {}, route: '/api/enterPreview' },
-      {
-        compiled: 'pages/api/hello-background.js',
-        config: { type: 'experimental-background' },
-        route: '/api/hello-background',
-      },
-      { compiled: 'pages/api/exitPreview.js', config: {}, route: '/api/exitPreview' },
-      { compiled: 'pages/api/shows/[...params].js', config: {}, route: '/api/shows/[...params]' },
-      { compiled: 'pages/api/shows/[id].js', config: {}, route: '/api/shows/[id]' },
-      { compiled: 'pages/api/hello.js', config: {}, route: '/api/hello' },
-      {
-        compiled: 'pages/api/hello-scheduled.js',
-        config: { schedule: '@hourly', type: 'experimental-scheduled' },
-        route: '/api/hello-scheduled',
-      },
-    ])
+    // Using a Set means the order doesn't matter
+    expect(new Set(configs)).toEqual(
+      new Set([
+        { compiled: 'pages/api/enterPreview.js', config: {}, route: '/api/enterPreview' },
+        {
+          compiled: 'pages/api/hello-background.js',
+          config: { type: 'experimental-background' },
+          route: '/api/hello-background',
+        },
+        { compiled: 'pages/api/exitPreview.js', config: {}, route: '/api/exitPreview' },
+        { compiled: 'pages/api/shows/[...params].js', config: {}, route: '/api/shows/[...params]' },
+        { compiled: 'pages/api/shows/[id].js', config: {}, route: '/api/shows/[id]' },
+        { compiled: 'pages/api/hello.js', config: {}, route: '/api/hello' },
+        {
+          compiled: 'pages/api/hello-scheduled.js',
+          config: { schedule: '@hourly', type: 'experimental-scheduled' },
+          route: '/api/hello-scheduled',
+        },
+      ]),
+    )
   })
 })
