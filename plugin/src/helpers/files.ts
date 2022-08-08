@@ -325,6 +325,9 @@ const getServerFile = (root: string, includeBase = true) => {
   return findModuleFromBase({ candidates, paths: [root] })
 }
 
+/**
+ * Find the source file for a given page route
+ */
 export const getSourceFileForPage = (page: string, root: string) => {
   for (const extension of ['ts', 'js']) {
     const file = join(root, `${page}.${extension}`)
@@ -334,6 +337,9 @@ export const getSourceFileForPage = (page: string, root: string) => {
   }
 }
 
+/**
+ * Reads the node file trace file for a given file, and resolves the dependencies
+ */
 export const getDependenciesOfFile = async (file: string) => {
   const nft = `${file}.nft.json`
   if (!existsSync(nft)) {

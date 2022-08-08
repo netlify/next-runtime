@@ -33,6 +33,10 @@ export const getPageResolver = async ({ publish, target }: { publish: string; ta
   `
 }
 
+/**
+ * API routes only need the dependencies for a single entrypoint, so we use the
+ * NFT trace file to get the dependencies.
+ */
 export const getSinglePageResolver = async ({
   functionsDir,
   sourceFile,

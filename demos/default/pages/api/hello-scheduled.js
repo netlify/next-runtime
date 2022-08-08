@@ -5,5 +5,6 @@ export default (req, res) => {
 }
 
 export const config = {
+  type: 'experimental-scheduled',
   schedule: '@hourly',
 }

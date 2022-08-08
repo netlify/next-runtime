@@ -6,4 +6,6 @@ export default (req, res) => {
 
 export const config = {
   type: 'experimental-background',
+  // INVALID
+  schedule: '@daily',
 }

@@ -5,5 +5,5 @@ export default (req, res) => {
 }
 
 export const config = {
-  background: true,
+  type: 'experimental-background',
 }

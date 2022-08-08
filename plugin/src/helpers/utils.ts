@@ -10,15 +10,11 @@ import { I18n } from './types'
 
 const RESERVED_FILENAME = /[^\w_-]/g
 
-//
-//    // Replace catch-all, e.g., [...slug]
-//    .replace(CATCH_ALL_REGEX, '/:$1/*')
-//    // Replace optional catch-all, e.g., [[...slug]]
-//    .replace(OPTIONAL_CATCH_ALL_REGEX, '/*')
-//    // Replace dynamic parameters, e.g., [id]
-//    .replace(DYNAMIC_PARAMETER_REGEX, '/:$1'),
-//
-
+/**
+ * Given a Next route, generates a valid Netlify function name.
+ * If "background" is true then the function name will have `-background`
+ * appended to it, meaning that it is executed as a background function.
+ */
 export const getFunctionNameForPage = (page: string, background = false) =>
   `${page
     .replace(CATCH_ALL_REGEX, '_$1-SPLAT')
@@ -141,13 +137,16 @@ export const getApiRewrites = (basePath: string, apiRoutes: Array<ApiRouteConfig
   const apiRewrites = apiRoutes.map((apiRoute) => {
     const [from] = toNetlifyRoute(`${basePath}${apiRoute.route}`)
 
-    // Scheduled functions can't be invoked directly
-    if (apiRoute.config.schedule) {
+    // Scheduled functions can't be invoked directly, so we 404 them.
+    if (apiRoute.config.type === 'experimental-scheduled') {
       return { from, to: '/404.html', status: 404 }
     }
     return {
       from,
-      to: `/.netlify/functions/${getFunctionNameForPage(apiRoute.route, apiRoute.config.background)}`,
+      to: `/.netlify/functions/${getFunctionNameForPage(
+        apiRoute.route,
+        apiRoute.config.type === 'experimental-background',
+      )}`,
       status: 200,
     }
   })

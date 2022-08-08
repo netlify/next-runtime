@@ -31,8 +31,11 @@ export const generateFunctions = async (
   const publishDir = relative(functionDir, publish)
 
   for (const { route, config, compiled } of apiRoutes) {
-    const apiHandlerSource = await getApiHandler({ page: route, schedule: config.schedule })
-    const functionName = getFunctionNameForPage(route, config.background)
+    const apiHandlerSource = await getApiHandler({
+      page: route,
+      config,
+    })
+    const functionName = getFunctionNameForPage(route, config.type === 'experimental-background')
     await ensureDir(join(functionsDir, functionName))
     await writeFile(join(functionsDir, functionName, `${functionName}.js`), apiHandlerSource)
     await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
@@ -137,6 +140,9 @@ export const setupImageFunction = async ({
   }
 }
 
+/**
+ * Look for API routes, and extract the config from the source file.
+ */
 export const getApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
   const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
   const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))

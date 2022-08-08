@@ -3,6 +3,7 @@ import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
 import { outdent as javascript } from 'outdent'
 
+import { ApiConfig } from '../helpers/analysis'
 import type { NextConfig } from '../helpers/config'
 
 import type { NextServerType } from './handlerUtils'
@@ -111,7 +112,20 @@ const makeHandler = (conf: NextConfig, app, pageRoot, page) => {
   }
 }
 
-export const getApiHandler = ({ page, schedule, publishDir = '../../../.next', appDir = '../../..' }): string =>
+/**
+ * Handlers for API routes are simpler than page routes, but they each have a separate one
+ */
+export const getApiHandler = ({
+  page,
+  config,
+  publishDir = '../../../.next',
+  appDir = '../../..',
+}: {
+  page: string
+  config: ApiConfig
+  publishDir?: string
+  appDir?: string
+}): string =>
   // This is a string, but if you have the right editor plugin it should format as js
   javascript/* javascript */ `
   const { Server } = require("http");
@@ -119,7 +133,7 @@ export const getApiHandler = ({ page, schedule, publishDir = '../../../.next', a
   const { Bridge } = require("./bridge");
   const { getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
 
-  ${schedule ? `const { schedule } = require("@netlify/functions")` : ''}
+  ${config.type === 'experimental-scheduled' ? `const { schedule } = require("@netlify/functions")` : ''}
 
 
   const { config }  = require("${publishDir}/required-server-files.json")
@@ -127,5 +141,7 @@ export const getApiHandler = ({ page, schedule, publishDir = '../../../.next', a
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "serverless", "pages"));
   const handler = (${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)})
-  exports.handler = ${schedule ? `schedule(${JSON.stringify(schedule)}, handler);` : 'handler'}
+  exports.handler = ${
+    config.type === 'experimental-scheduled' ? `schedule(${JSON.stringify(config.schedule)}, handler);` : 'handler'
+  }
 `
