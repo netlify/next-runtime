@@ -1,4 +1,4 @@
-import type { Context } from 'netlify:edge'
+import type { Context } from 'https://edge.netlify.com'
 import { ElementHandlers, HTMLRewriter } from 'https://deno.land/x/html_rewriter@v0.1.0-pre.17/index.ts'
 
 export interface FetchEventResult {
