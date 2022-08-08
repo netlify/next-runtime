@@ -1,8 +1,8 @@
 import fs from 'fs'
-import { relative } from 'path'
 
 import { extractExportedConstValue, UnsupportedValueError } from 'next/dist/build/analysis/extract-const-value'
 import { parseModule } from 'next/dist/build/analysis/parse-module'
+import { relative } from 'pathe'
 
 export interface ApiStandardConfig {
   type?: never

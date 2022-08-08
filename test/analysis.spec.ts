@@ -1,5 +1,5 @@
 import { extractConfigFromFile } from '../plugin/src/helpers/analysis'
-import { resolve } from 'path'
+import { resolve } from 'pathe'
 import { getDependenciesOfFile } from '../plugin/src/helpers/files'
 describe('static source analysis', () => {
   beforeEach(() => {
