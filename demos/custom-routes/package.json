@@ -17,8 +17,7 @@
     "next": "^12.2.0"
   },
   "scripts": {
-    "build": "next build",
-    "test": "jest"
+    "build": "next build"
   },
   "repository": {
     "type": "git",
