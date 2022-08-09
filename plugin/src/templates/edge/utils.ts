@@ -1,9 +1,12 @@
-import type { Context } from 'netlify:edge'
+import type { Context } from 'https://edge.netlify.com'
+import { ElementHandlers, HTMLRewriter } from 'https://deno.land/x/html_rewriter@v0.1.0-pre.17/index.ts'
 
 export interface FetchEventResult {
   response: Response
   waitUntil: Promise<any>
 }
+
+type NextDataTransform = <T>(data: T) => T
 
 /**
  * This is how Next handles rewritten URLs.
@@ -33,7 +36,30 @@ export const addMiddlewareHeaders = async (
   })
   return response
 }
-export const buildResponse = ({
+
+interface MiddlewareResponse extends Response {
+  originResponse: Response
+  dataTransforms: NextDataTransform[]
+  elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
+}
+
+interface MiddlewareRequest {
+  request: Request
+  context: Context
+  originalRequest: Request
+  next(): Promise<MiddlewareResponse>
+  rewrite(destination: string | URL, init?: ResponseInit): Response
+}
+
+function isMiddlewareRequest(response: Response | MiddlewareRequest): response is MiddlewareRequest {
+  return 'originalRequest' in response
+}
+
+function isMiddlewareResponse(response: Response | MiddlewareResponse): response is MiddlewareResponse {
+  return 'dataTransforms' in response
+}
+
+export const buildResponse = async ({
   result,
   request,
   context,
@@ -42,8 +68,60 @@ export const buildResponse = ({
   request: Request
   context: Context
 }) => {
+  // They've returned the MiddlewareRequest directly, so we'll call `next()` for them.
+  if (isMiddlewareRequest(result.response)) {
+    result.response = await result.response.next()
+  }
+  if (isMiddlewareResponse(result.response)) {
+    const { response } = result
+    if (request.method === 'HEAD' || request.method === 'OPTIONS') {
+      return response.originResponse
+    }
+    // If it's JSON we don't need to use the rewriter, we can just parse it
+    if (response.originResponse.headers.get('content-type')?.includes('application/json')) {
+      const props = await response.originResponse.json()
+      const transformed = response.dataTransforms.reduce((prev, transform) => {
+        return transform(prev)
+      }, props)
+      return context.json(transformed)
+    }
+    // This var will hold the contents of the script tag
+    let buffer = ''
+    // Create an HTMLRewriter that matches the Next data script tag
+    const rewriter = new HTMLRewriter()
+
+    if (response.dataTransforms.length > 0) {
+      rewriter.on('script[id="__NEXT_DATA__"]', {
+        text(textChunk) {
+          // Grab all the chunks in the Next data script tag
+          buffer += textChunk.text
+          if (textChunk.lastInTextNode) {
+            try {
+              // When we have all the data, try to parse it as JSON
+              const data = JSON.parse(buffer.trim())
+              // Apply all of the transforms to the props
+              const props = response.dataTransforms.reduce((prev, transform) => transform(prev), data.props)
+              // Replace the data with the transformed props
+              textChunk.replace(JSON.stringify({ ...data, props }))
+            } catch (err) {
+              console.log('Could not parse', err)
+            }
+          } else {
+            // Remove the chunk after we've appended it to the buffer
+            textChunk.remove()
+          }
+        },
+      })
+    }
+
+    if (response.elementHandlers.length > 0) {
+      response.elementHandlers.forEach(([selector, handlers]) => rewriter.on(selector, handlers))
+    }
+    return rewriter.transform(response.originResponse)
+  }
   const res = new Response(result.response.body, result.response)
   request.headers.set('x-nf-next-middleware', 'skip')
+
   const rewrite = res.headers.get('x-middleware-rewrite')
   if (rewrite) {
     const rewriteUrl = new URL(rewrite, request.url)

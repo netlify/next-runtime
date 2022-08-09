@@ -1,4 +1,4 @@
-import type { Context } from 'netlify:edge'
+import type { Context } from 'https://edge.netlify.com'
 
 import edgeFunction from './bundle.js'
 import { buildResponse } from './utils.ts'
@@ -32,19 +32,43 @@ export interface RequestData {
   body?: ReadableStream<Uint8Array>
 }
 
+export interface RequestContext {
+  request: Request
+  context: Context
+}
+
+declare global {
+  // deno-lint-ignore no-var
+  var NFRequestContextMap: Map<string, RequestContext>
+}
+
+globalThis.NFRequestContextMap ||= new Map()
+
 const handler = async (req: Request, context: Context) => {
   const url = new URL(req.url)
   if (url.pathname.startsWith('/_next/static/')) {
     return
   }
 
+  const geo = {
+    country: context.geo.country?.code,
+    region: context.geo.subdivision?.code,
+    city: context.geo.city,
+  }
+
+  const requestId = req.headers.get('x-nf-request-id')
+  if (!requestId) {
+    console.error('Missing x-nf-request-id header')
+  } else {
+    globalThis.NFRequestContextMap.set(requestId, {
+      request: req,
+      context,
+    })
+  }
+
   const request: RequestData = {
     headers: Object.fromEntries(req.headers.entries()),
-    geo: {
-      country: context.geo.country?.code,
-      region: context.geo.subdivision?.code,
-      city: context.geo.city,
-    },
+    geo,
     url: url.toString(),
     method: req.method,
     ip: context.ip,
@@ -57,6 +81,10 @@ const handler = async (req: Request, context: Context) => {
   } catch (error) {
     console.error(error)
     return new Response(error.message, { status: 500 })
+  } finally {
+    if (requestId) {
+      globalThis.NFRequestContextMap.delete(requestId)
+    }
   }
 }
 

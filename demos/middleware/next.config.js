@@ -22,6 +22,7 @@ const nextConfig = {
       ],
     }
   },
+  generateBuildId: () => 'build-id',
 }
 
 module.exports = nextConfig
