@@ -8,6 +8,5 @@
   "deno.unstable": true,
   "deno.importMap": "demos/server-components/.netlify/edge-functions-import-map.json",
   "deno.suggest.completeFunctionCalls": true,
-  "editor.defaultFormatter": "denoland.vscode-deno",
   "editor.formatOnSave": true
 }
