@@ -1,4 +1,5 @@
 import type { NetlifyConfig } from '@netlify/build'
+import type { Header } from '@netlify/build/types/config/netlify_config'
 import globby from 'globby'
 import { join } from 'pathe'
 
@@ -184,4 +185,13 @@ export const isNextAuthInstalled = (): boolean => {
     // Ignore the MODULE_NOT_FOUND error
     return false
   }
+}
+
+export const getCustomImageResponseHeaders = (headers: Header[]): Record<string, string> | null => {
+  const customImageResponseHeaders = headers.find(h => h.for.startsWith("/_next/image/"))
+  
+  if (customImageResponseHeaders) {
+    return customImageResponseHeaders?.values as Record<string, string>
+  }
+  return null
 }
