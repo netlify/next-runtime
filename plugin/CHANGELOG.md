@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.14.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.14.1...plugin-nextjs-v4.14.2) (2022-08-11)
+
+
+### Bug Fixes
+
+* allow proxy of /_next/static ([#1503](https://github.com/netlify/netlify-plugin-nextjs/issues/1503)) ([4efef60](https://github.com/netlify/netlify-plugin-nextjs/commit/4efef6010600195d61aef79606c800a8b9c7c22b))
+* **deps:** update dependency @netlify/ipx to ^1.1.4 ([#1512](https://github.com/netlify/netlify-plugin-nextjs/issues/1512)) ([44bdb1f](https://github.com/netlify/netlify-plugin-nextjs/commit/44bdb1fbe53fa929e270cad70e2cde5e84330baf))
+* **deps:** update dependency @netlify/ipx to ^1.2.0 ([#1516](https://github.com/netlify/netlify-plugin-nextjs/issues/1516)) ([b90bf3e](https://github.com/netlify/netlify-plugin-nextjs/commit/b90bf3e6aff30dabbd5064b0553818304f92d211))
+
 ## [4.14.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.14.0...plugin-nextjs-v4.14.1) (2022-08-03)
 
 
