@@ -67,7 +67,7 @@ export const setupImageFunction = async ({
   basePath: string
   imageconfig: Partial<ImageConfigComplete>
   remotePatterns: RemotePattern[]
-  responseHeaders?: Record<string,string>
+  responseHeaders?: Record<string, string>
 }): Promise<void> => {
   const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
   const functionName = `${IMAGE_FUNCTION_NAME}.js`
@@ -78,7 +78,7 @@ export const setupImageFunction = async ({
     ...imageconfig,
     basePath: [basePath, IMAGE_FUNCTION_NAME].join('/'),
     remotePatterns,
-    responseHeaders
+    responseHeaders,
   })
   await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
 

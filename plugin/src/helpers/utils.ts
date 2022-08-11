@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import type { NetlifyConfig } from '@netlify/build'
 import type { Header } from '@netlify/build/types/config/netlify_config'
 import globby from 'globby'
@@ -188,10 +189,11 @@ export const isNextAuthInstalled = (): boolean => {
 }
 
 export const getCustomImageResponseHeaders = (headers: Header[]): Record<string, string> | null => {
-  const customImageResponseHeaders = headers.find(h => h.for.startsWith("/_next/image/"))
-  
+  const customImageResponseHeaders = headers.find((h) => h.for.startsWith('/_next/image/'))
+
   if (customImageResponseHeaders) {
     return customImageResponseHeaders?.values as Record<string, string>
   }
   return null
 }
+/* eslint-enable max-lines */

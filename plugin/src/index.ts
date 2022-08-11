@@ -129,7 +129,7 @@ const plugin: NetlifyPlugin = {
       netlifyConfig,
       basePath,
       remotePatterns: experimentalRemotePatterns,
-      responseHeaders: getCustomImageResponseHeaders(netlifyConfig.headers)
+      responseHeaders: getCustomImageResponseHeaders(netlifyConfig.headers),
     })
 
     await generateRedirects({
