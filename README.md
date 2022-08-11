@@ -53,6 +53,19 @@ In order to deliver the correct format to a visitor's browser, this uses a Netli
 site may not support Edge Functions, in which case it will instead fall back to delivering the original file format. You
 may also manually disable the Edge Function by setting the environment variable `NEXT_DISABLE_EDGE_IMAGES` to `true`.
 
+## Returning custom response headers on images handled by `ipx`
+
+Should you wish to return custom response headers on images handled by the [`netlify-ipx`](https://github.com/netlify/netlify-ipx) package, you can add them within your project's `netlify.toml` by targeting the `/_next/image/*` route:
+
+```
+[[headers]]
+  for = "/_next/image/*"
+  
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000"
+    X-Test = 'foobar'
+```
+
 ## Next.js Middleware on Netlify
 
 Next.js Middleware works out of the box on Netlify, but check out the
