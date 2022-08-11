@@ -1,4 +1,4 @@
-describe('Environment Varialbes', () => {
+describe('Environment Variables', () => {
   beforeEach(() => {
     cy.visit('/env')
   })
