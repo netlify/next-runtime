@@ -33,8 +33,6 @@ const {
 } = require('../plugin/src/helpers/config')
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
-const { onPostBuild } = require('../plugin/lib')
-const { basePath } = require('../demos/next-i18next/next.config')
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
@@ -455,7 +453,7 @@ describe('onBuild()', () => {
       '.next/static/chunks/webpack-middleware*.js',
       '!.next/server/**/*.js.nft.json',
       ".next/static/css/1152424140993be6.css",
-      ".next/static/css/84099ae0bbc955fa.css",  
+      ".next/static/css/84099ae0bbc955fa.css",
       '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
@@ -530,13 +528,32 @@ describe('onBuild()', () => {
     expect(await plugin.onBuild(defaultArgs)).toBeUndefined()
   })
 
-  test('generates imageconfig file with entries for domains and remotePatterns', async () => {
+  test('generates imageconfig file with entries for domains, remotePatterns, and custom response headers', async () => {
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    const mockHeaderValue = chance.string()
+
+    const updatedArgs = {
+      ...defaultArgs,
+      netlifyConfig: {
+        ...defaultArgs.netlifyConfig,
+        headers: [{
+          for: '/_next/image/',
+          values: {
+            'X-Foo': mockHeaderValue
+          }
+        }]
+      }
+    }
+    await plugin.onBuild(updatedArgs)
+
     const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
     const imageConfigJson = await readJson(imageConfigPath)
+
     expect(imageConfigJson.domains.length).toBe(1)
     expect(imageConfigJson.remotePatterns.length).toBe(1)
+    expect(imageConfigJson.responseHeaders).toStrictEqual({
+      'X-Foo': mockHeaderValue
+    })
   })
 })
 
