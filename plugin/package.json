@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@netlify/functions": "^1.0.0",
-    "@netlify/ipx": "https://github.com/netlify/netlify-ipx/raw/ep/support-custom-response-headers/netlify-ipx-v1.1.4.tgz",
+    "@netlify/ipx": "^1.2.0",
     "@vercel/node-bridge": "^2.1.0",
     "chalk": "^4.1.2",
     "fs-extra": "^10.0.0",
