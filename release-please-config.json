@@ -1,6 +1,7 @@
 {
   "bootstrap-sha": "62a4ce414f5b02f539902f88dd4b548df5cfa8ef",
   "packages": {
-    "packages/runtime": {}
+    "packages/runtime": {},
+    "packages/next": {}
   }
 }

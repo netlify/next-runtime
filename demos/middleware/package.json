@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@netlify/plugin-nextjs": "*",
+    "@netlify/next": "*",
     "next": "^12.2.0",
     "react": "18.0.0",
     "react-dom": "18.0.0"

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-import { MiddlewareRequest } from '@netlify/plugin-nextjs/middleware'
+import { MiddlewareRequest } from '@netlify/next'
 
 export async function middleware(req: NextRequest) {
   let response
