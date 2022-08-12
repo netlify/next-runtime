@@ -1,5 +1,5 @@
 import Chance from 'chance'
-import { getCustomImageResponseHeaders } from '../../plugin/src/helpers/utils'
+import { getCustomImageResponseHeaders } from '../../packages/runtime/src/helpers/utils'
 
 const chance = new Chance()
 
