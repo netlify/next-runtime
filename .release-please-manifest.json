@@ -1,3 +1,4 @@
 {
-  "packages/runtime": "4.14.2"
+  "packages/runtime": "4.14.2",
+  "packages/next": "0.0.1"
 }

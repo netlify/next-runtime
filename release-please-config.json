@@ -3,5 +3,6 @@
   "packages": {
     "packages/runtime": {},
     "packages/next": {}
-  }
+  },
+  "plugins": ["node-workspace"]
 }
