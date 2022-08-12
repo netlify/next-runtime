@@ -530,13 +530,32 @@ describe('onBuild()', () => {
     expect(await plugin.onBuild(defaultArgs)).toBeUndefined()
   })
 
-  test('generates imageconfig file with entries for domains and remotePatterns', async () => {
+  test('generates imageconfig file with entries for domains, remotePatterns, and custom response headers', async () => {
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    const mockHeaderValue = chance.string()
+
+    const updatedArgs = {
+      ...defaultArgs,
+      netlifyConfig: {
+        ...defaultArgs.netlifyConfig,
+        headers: [{
+          for: '/_next/image/',
+          values: {
+            'X-Foo': mockHeaderValue
+          }
+        }]
+      }
+    }
+    await plugin.onBuild(updatedArgs)
+
     const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
     const imageConfigJson = await readJson(imageConfigPath)
+
     expect(imageConfigJson.domains.length).toBe(1)
     expect(imageConfigJson.remotePatterns.length).toBe(1)
+    expect(imageConfigJson.responseHeaders).toStrictEqual({
+      'X-Foo': mockHeaderValue
+    })
   })
 })
 

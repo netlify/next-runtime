@@ -11,6 +11,13 @@ CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
 TERM = "xterm"
 NODE_VERSION = "16.15.1"
 
+[[headers]]
+  for = "/_next/image/*"
+  
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000"
+    X-Test = 'foobar'
+
 [dev]
 framework = "#static"
 

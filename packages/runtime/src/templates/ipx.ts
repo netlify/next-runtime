@@ -3,11 +3,12 @@ import { Handler } from '@netlify/functions'
 import { createIPXHandler } from '@netlify/ipx'
 
 // @ts-ignore Injected at build time
-import { basePath, domains, remotePatterns } from './imageconfig.json'
+import { basePath, domains, remotePatterns, responseHeaders } from './imageconfig.json'
 
 export const handler: Handler = createIPXHandler({
   basePath,
   domains,
   remotePatterns,
+  responseHeaders,
 }) as Handler
 /* eslint-enable n/no-missing-import, import/no-unresolved, @typescript-eslint/ban-ts-comment  */
