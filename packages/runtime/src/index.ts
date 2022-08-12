@@ -19,7 +19,7 @@ import { updateConfig, writeEdgeFunctions, loadMiddlewareManifest } from './help
 import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
-import { shouldSkip, isNextAuthInstalled } from './helpers/utils'
+import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
@@ -129,6 +129,7 @@ const plugin: NetlifyPlugin = {
       netlifyConfig,
       basePath,
       remotePatterns: experimentalRemotePatterns,
+      responseHeaders: getCustomImageResponseHeaders(netlifyConfig.headers),
     })
 
     await generateRedirects({
