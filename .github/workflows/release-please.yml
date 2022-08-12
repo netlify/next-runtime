@@ -28,15 +28,17 @@ jobs:
         if: ${{ steps.release.outputs.releases_created }}
       - name: Install dependencies
         run: CI=1 npm ci
-        working-directory: plugin
         if: ${{ steps.release.outputs.releases_created }}
-      - run: npm publish
-        working-directory: plugin
-        if: ${{ steps.release.outputs.releases_created }}
+      - run: npm publish packages/runtime/
+        if: ${{ steps.release.outputs['packages/runtime--version'] }}
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - run: npm publish packages/next/
+        if: ${{ steps.release.outputs['packages/next--version'] }}
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - uses: netlify/submit-build-plugin-action@v1
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs['packages/runtime--version'] }}
         with:
           github-token: ${{ steps.get-token.outputs.token }}
-          package-json-dir: plugin
+          package-json-dir: packages/runtime
