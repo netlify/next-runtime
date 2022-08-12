@@ -132,15 +132,11 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     )
 
     const graphToken = event.netlifyGraphToken
-    if (graphToken) {
-      if (requestMode === 'ssr') {
-        multiValueHeaders['X-Netlify-Graph-Token'] = [graphToken]
-      } else {
-        // Prefix with underscore to help us determine the origin of the token
-        // allows us to write better error messages
-        // eslint-disable-next-line no-underscore-dangle
-        process.env._NETLIFY_GRAPH_TOKEN = graphToken
-      }
+    if (graphToken && requestMode !== 'ssr') {
+      // Prefix with underscore to help us determine the origin of the token
+      // allows us to write better error messages
+      // eslint-disable-next-line no-underscore-dangle
+      process.env._NETLIFY_GRAPH_TOKEN = graphToken
     }
 
     return {
