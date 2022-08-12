@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.15.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.14.2...plugin-nextjs-v4.15.0) (2022-08-12)
+
+
+### Features
+
+* support custom response headers on images served via IPX ([#1515](https://github.com/netlify/netlify-plugin-nextjs/issues/1515)) ([40cb8a9](https://github.com/netlify/netlify-plugin-nextjs/commit/40cb8a9643794121c9253ffb48555f029c7ae9af))
+
 ## [4.14.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.14.1...plugin-nextjs-v4.14.2) (2022-08-11)
 
 
