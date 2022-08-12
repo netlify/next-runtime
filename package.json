@@ -23,8 +23,8 @@
     "test:update": "run-s build build:demo test:jest:update"
   },
   "config": {
-    "eslint": "--cache --format=codeframe --max-warnings=0 \"{plugin,src,scripts,tests,.github}/**/*.{ts,js,md,html}\" \"*.{ts,js,md,html}\" \".*.{ts,js,md,html}\"",
-    "prettier": "--loglevel=warn \"{plugin,src,scripts,tests,.github}/**/*.{ts,js,md,yml,json,html}\" \"*.{ts,js,yml,json,html}\" \".*.{ts,js,yml,json,html}\" \"!package-lock.json\""
+    "eslint": "--cache --format=codeframe --max-warnings=0 \"{packages,src,scripts,tests,.github}/**/*.{ts,js,md,html}\" \"*.{ts,js,md,html}\" \".*.{ts,js,md,html}\"",
+    "prettier": "--loglevel=warn \"{packages,src,scripts,tests,.github}/**/*.{ts,js,md,yml,json,html}\" \"*.{ts,js,yml,json,html}\" \".*.{ts,js,yml,json,html}\" \"!package-lock.json\""
   },
   "repository": {
     "type": "git",
