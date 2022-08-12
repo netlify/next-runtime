@@ -189,7 +189,7 @@ export const isNextAuthInstalled = (): boolean => {
 }
 
 export const getCustomImageResponseHeaders = (headers: Header[]): Record<string, string> | null => {
-  const customImageResponseHeaders = headers.find((h) => h.for.startsWith('/_next/image/'))
+  const customImageResponseHeaders = headers.find((header) => header.for?.startsWith('/_next/image/'))
 
   if (customImageResponseHeaders) {
     return customImageResponseHeaders?.values as Record<string, string>
