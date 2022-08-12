@@ -138,7 +138,6 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     console.log(
       `[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()}${result.ttl > 0 ? ` ${result.ttl}s` : ''})`,
     )
-
     return {
       ...result,
       multiValueHeaders,
