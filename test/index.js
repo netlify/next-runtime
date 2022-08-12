@@ -1,6 +1,6 @@
-jest.mock('../plugin/src/helpers/utils', () => {
+jest.mock('../packages/runtime/src/helpers/utils', () => {
   return {
-    ...jest.requireActual('../plugin/src/helpers/utils'),
+    ...jest.requireActual('../packages/runtime/src/helpers/utils'),
     isNextAuthInstalled: jest.fn(),
   }
 })
@@ -12,11 +12,11 @@ const process = require('process')
 const os = require('os')
 const cpy = require('cpy')
 const { dir: getTmpDir } = require('tmp-promise')
-const { downloadFile } = require('../plugin/src/templates/handlerUtils')
+const { downloadFile } = require('../packages/runtime/src/templates/handlerUtils')
 
-const plugin = require('../plugin/src')
+const plugin = require('../packages/runtime/src')
 
-const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../plugin/src/constants')
+const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../packages/runtime/src/constants')
 const { join } = require('pathe')
 const {
   matchMiddleware,
@@ -25,15 +25,15 @@ const {
   matchesRewrite,
   patchNextFiles,
   unpatchNextFiles,
-} = require('../plugin/src/helpers/files')
+} = require('../packages/runtime/src/helpers/files')
 const {
   getRequiredServerFiles,
   updateRequiredServerFiles,
   generateCustomHeaders,
-} = require('../plugin/src/helpers/config')
+} = require('../packages/runtime/src/helpers/config')
 const { dirname } = require('path')
-const { getProblematicUserRewrites } = require('../plugin/src/helpers/verification')
-const { onPostBuild } = require('../plugin/lib')
+const { getProblematicUserRewrites } = require('../packages/runtime/src/helpers/verification')
+const { onPostBuild } = require('../packages/runtime/lib')
 const { basePath } = require('../demos/next-i18next/next.config')
 
 const chance = new Chance()
@@ -222,7 +222,7 @@ describe('preBuild()', () => {
 })
 
 describe('onBuild()', () => {
-  const { isNextAuthInstalled } = require('../plugin/src/helpers/utils')
+  const { isNextAuthInstalled } = require('../packages/runtime/src/helpers/utils')
 
   beforeEach(() => {
     isNextAuthInstalled.mockImplementation(() => {
@@ -454,8 +454,8 @@ describe('onBuild()', () => {
       '.next/BUILD_ID',
       '.next/static/chunks/webpack-middleware*.js',
       '!.next/server/**/*.js.nft.json',
-      ".next/static/css/1152424140993be6.css",
-      ".next/static/css/84099ae0bbc955fa.css",  
+      '.next/static/css/1152424140993be6.css',
+      '.next/static/css/84099ae0bbc955fa.css',
       '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
