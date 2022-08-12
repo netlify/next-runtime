@@ -95,7 +95,7 @@
     "testTimeout": 60000
   },
   "workspaces": [
-    "plugin",
+    "packages/*",
     "demos/default",
     "demos/static-root",
     "demos/next-export",
