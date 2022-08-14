@@ -21,7 +21,7 @@
     "Nico Domino <yo@ndo.dev>",
     "Lluis Agusti <hi@llu.lu>"
   ],
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "next": "^12.2.0",
     "next-auth": "^4.7.0",

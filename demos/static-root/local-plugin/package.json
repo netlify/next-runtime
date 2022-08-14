@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "preinstall": "cd ../../.. && npm i"
-  },
-  "author": "",
-  "license": "ISC"
+  }
 }
