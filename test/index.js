@@ -2,6 +2,7 @@ jest.mock('../packages/runtime/src/helpers/utils', () => {
   return {
     ...jest.requireActual('../packages/runtime/src/helpers/utils'),
     isNextAuthInstalled: jest.fn(),
+    isOldPluginInstalled: jest.fn(),
   }
 })
 
@@ -33,8 +34,6 @@ const {
 } = require('../packages/runtime/src/helpers/config')
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../packages/runtime/src/helpers/verification')
-const { onPostBuild } = require('../packages/runtime/lib')
-const { basePath } = require('../demos/next-i18next/next.config')
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`

@@ -188,6 +188,17 @@ export const isNextAuthInstalled = (): boolean => {
   }
 }
 
+export const isOldPluginInstalled = (): boolean => {
+  try {
+    // eslint-disable-next-line import/no-unassigned-import, import/no-extraneous-dependencies, n/no-extraneous-require
+    require('@netlify/plugin-nextjs')
+    return true
+  } catch {
+    // Ignore the MODULE_NOT_FOUND error
+    return false
+  }
+}
+
 export const getCustomImageResponseHeaders = (headers: Header[]): Record<string, string> | null => {
   const customImageResponseHeaders = headers.find((header) => header.for?.startsWith('/_next/image/'))
 
