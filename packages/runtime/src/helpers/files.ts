@@ -280,6 +280,8 @@ export const moveStaticPages = async ({
   }
 }
 
+const PATCH_WARNING = `/* File patched by Netlify */`
+
 /**
  * Attempt to patch a source file, preserving a backup
  */
@@ -294,7 +296,13 @@ const patchFile = async ({
     console.warn('File was not found')
     return false
   }
-  const content = await readFile(file, 'utf8')
+  let content = await readFile(file, 'utf8')
+
+  // If the file has already been patched, patch the backed-up original instead
+  if (content.includes(PATCH_WARNING) && existsSync(`${file}.orig`)) {
+    content = await readFile(`${file}.orig`, 'utf8')
+  }
+
   const newContent = replacements.reduce((acc, [from, to]) => {
     if (acc.includes(to)) {
       console.log('Already patched. Skipping.')
@@ -307,7 +315,7 @@ const patchFile = async ({
     return false
   }
   await writeFile(`${file}.orig`, content)
-  await writeFile(file, newContent)
+  await writeFile(file, `${newContent}\n${PATCH_WARNING}`)
   console.log('Done')
   return true
 }
