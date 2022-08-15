@@ -559,6 +559,43 @@ describe('onBuild()', () => {
 })
 
 describe('onPostBuild', () => {
+  const { isOldPluginInstalled } = require('../packages/runtime/src/helpers/utils')
+
+  test('show warning message to remove old plugin', async () => {
+    isOldPluginInstalled.mockImplementation(() => {
+      return true
+    })
+    const mockStatusFunc = jest.fn()
+
+    await plugin.onPostBuild({
+      ...defaultArgs,
+      utils: { ...utils, status: { show: mockStatusFunc } }
+    })
+
+    expect(mockStatusFunc).toHaveBeenCalledWith({ "summary": "Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features." })
+
+  })
+
+  test('does not show warning message to remove old plugin', async () => {
+    isOldPluginInstalled.mockImplementation(() => {
+      return false
+    })
+    const mockStatusFunc = jest.fn()
+    await moveNextDist()
+
+    await plugin.onPostBuild({
+      ...defaultArgs,
+      utils: {
+        ...utils,
+        status: { show: mockStatusFunc },
+        functions: { list: jest.fn().mockResolvedValue([]) }
+      }
+    })
+
+    expect(mockStatusFunc).not.toHaveBeenCalledWith({ "summary": "Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features." })
+
+  })
+
   test('saves cache with right paths', async () => {
     await moveNextDist()
 
