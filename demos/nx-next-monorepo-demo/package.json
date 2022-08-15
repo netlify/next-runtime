@@ -40,7 +40,7 @@
     "cypress": "^8.3.0",
     "eslint": "8.22.0",
     "eslint-config-next": "12.2.4",
-    "eslint-config-prettier": "8.3.0",
+    "eslint-config-prettier": "8.5.0",
     "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-import": "2.25.4",
     "eslint-plugin-jsx-a11y": "6.5.1",
