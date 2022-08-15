@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.16.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.15.0...plugin-nextjs-v4.16.0) (2022-08-15)
+
+
+### Features
+
+* **graph:** populate graph token for ISR ([#1525](https://github.com/netlify/next-runtime/issues/1525)) ([573b913](https://github.com/netlify/next-runtime/commit/573b9137241882359411f448acd044a32c2c8169))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.1.0 ([#1526](https://github.com/netlify/next-runtime/issues/1526)) ([8a98d72](https://github.com/netlify/next-runtime/commit/8a98d7237f9168342e3bfeb9dbcc9240d694dcdd))
+* **deps:** update dependency @netlify/ipx to ^1.2.1 ([#1534](https://github.com/netlify/next-runtime/issues/1534)) ([086a703](https://github.com/netlify/next-runtime/commit/086a703c87fb196d3b84c698dfb1621be6a0713b))
+
 ## [4.15.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.14.2...plugin-nextjs-v4.15.0) (2022-08-12)
 
 
