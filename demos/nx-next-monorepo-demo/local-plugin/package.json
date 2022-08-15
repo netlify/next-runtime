@@ -6,6 +6,5 @@
   "scripts": {
     "preinstall": "cd ../../.. && npm i"
   },
-  "author": "",
-  "license": "ISC"
+  "license": "MIT"
 }
