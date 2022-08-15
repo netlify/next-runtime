@@ -45,6 +45,10 @@ declare global {
 globalThis.NFRequestContextMap ||= new Map()
 
 const handler = async (req: Request, context: Context) => {
+  if (Deno.env.get('NETLIFY_DEV')) {
+    console.log('is dev')
+    return
+  }
   const url = new URL(req.url)
 
   const geo = {

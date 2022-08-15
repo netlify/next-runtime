@@ -1,9 +1,10 @@
 /* eslint-disable max-lines */
-import { join, relative } from 'path'
+import { join, relative, resolve } from 'path'
 
-import type { NetlifyPlugin } from '@netlify/build'
+import type { NetlifyPlugin, OnPreBuild } from '@netlify/build'
 import { greenBright, yellowBright, bold } from 'chalk'
-import { existsSync, readFileSync } from 'fs-extra'
+import execa from 'execa'
+import { existsSync, readFileSync, unlink } from 'fs-extra'
 import { outdent } from 'outdent'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
@@ -15,7 +16,7 @@ import {
   configureHandlerFunctions,
   generateCustomHeaders,
 } from './helpers/config'
-import { updateConfig, writeEdgeFunctions, loadMiddlewareManifest } from './helpers/edge'
+import { updateConfig, writeEdgeFunctions, loadMiddlewareManifest, writeDevEdgeFunction } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
@@ -30,7 +31,7 @@ import {
   warnForRootRedirects,
 } from './helpers/verification'
 
-const plugin: NetlifyPlugin = {
+const plugin: NetlifyPlugin & { onPreDev?: OnPreBuild; onDev?: OnPreBuild } = {
   async onPreBuild({
     constants,
     netlifyConfig,
@@ -214,5 +215,59 @@ const plugin: NetlifyPlugin = {
     warnForRootRedirects({ appDir })
   },
 }
-module.exports = plugin
+// The types haven't been updated yet
+const nextPlugin = (_inputs, { events }: { events: Set<string> }): NetlifyPlugin & { onPreDev?: OnPreBuild } => {
+  if (!events.has('onPreDev')) {
+    return {
+      ...plugin,
+      onEnd: ({ utils }) => {
+        utils.status.show({
+          title: 'Please upgrade to the latest version of the Netlify CLI',
+          summary:
+            'To support for the latest Next.js features, please upgrade to the latest version of the Netlify CLI',
+        })
+      },
+    }
+  }
+  return {
+    ...plugin,
+    onPreDev: async ({ constants, netlifyConfig }) => {
+      // Need to patch the files, because build might not have been run
+      await patchNextFiles(resolve(netlifyConfig.build.publish, '..'))
+
+      //  Clean up old functions
+      await unlink(resolve('.netlify', 'middleware.js')).catch(() => {
+        // Ignore if it doesn't exist
+      })
+      await writeDevEdgeFunction(constants)
+      if (
+        !existsSync(resolve(netlifyConfig.build.base, 'middleware.ts')) &&
+        !existsSync(resolve(netlifyConfig.build.base, 'middleware.js'))
+      ) {
+        console.log(
+          "No middleware found. Create a 'middleware.ts' or 'middleware.js' file in your project root to add custom middleware.",
+        )
+      } else {
+        console.log('Watching for changes in Next.js middleware...')
+      }
+      // Eventually we might want to do this via esbuild's API, but for now the CLI works fine
+      const childProcess = execa(`esbuild`, [
+        `--bundle`,
+        `--outdir=${resolve('.netlify')}`,
+        `--format=esm`,
+        '--watch',
+        // Watch for both, because it can have either ts or js
+        resolve(netlifyConfig.build.base, 'middleware.ts'),
+        resolve(netlifyConfig.build.base, 'middleware.js'),
+      ])
+
+      childProcess.stdout.pipe(process.stdout)
+      childProcess.stderr.pipe(process.stderr)
+      // Don't return the promise because we don't want to wait for the child process to finish
+    },
+  }
+}
+
+module.exports = nextPlugin
+
 /* eslint-enable max-lines */

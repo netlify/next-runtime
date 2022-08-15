@@ -9,10 +9,12 @@
     "manifest.yml"
   ],
   "dependencies": {
+    "@netlify/esbuild": "0.14.25",
     "@netlify/functions": "^1.2.0",
     "@netlify/ipx": "^1.2.2",
     "@vercel/node-bridge": "^2.1.0",
     "chalk": "^4.1.2",
+    "execa": "^5.1.1",
     "fs-extra": "^10.0.0",
     "globby": "^11.0.4",
     "moize": "^6.1.0",
@@ -22,8 +24,8 @@
     "p-limit": "^3.1.0",
     "pathe": "^0.2.0",
     "pretty-bytes": "^5.6.0",
-    "slash": "^3.0.0",
     "semver": "^7.3.5",
+    "slash": "^3.0.0",
     "tiny-glob": "^0.2.9"
   },
   "devDependencies": {

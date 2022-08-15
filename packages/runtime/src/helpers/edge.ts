@@ -2,7 +2,7 @@
 import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
-import type { NetlifyConfig } from '@netlify/build'
+import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 
@@ -20,6 +20,7 @@ export interface FunctionManifest {
         pattern: string
       }
   >
+  import_map?: string
 }
 
 export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> => {
@@ -120,6 +121,31 @@ const writeEdgeFunction = async ({
     function: name,
     pattern: stripLookahead(edgeFunctionDefinition.regexp),
   }
+}
+
+export const writeDevEdgeFunction = async ({
+  INTERNAL_EDGE_FUNCTIONS_SRC = '.netlify/edge-functions',
+}: NetlifyPluginConstants & {
+  // The constants type needs an update
+  INTERNAL_EDGE_FUNCTIONS_SRC?: string
+}) => {
+  const manifest: FunctionManifest = {
+    functions: [
+      {
+        function: 'next-dev',
+        path: '/*',
+      },
+    ],
+    version: 1,
+  }
+  const edgeFunctionRoot = resolve(INTERNAL_EDGE_FUNCTIONS_SRC)
+  await emptyDir(edgeFunctionRoot)
+  await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
+
+  const edgeFunctionDir = join(edgeFunctionRoot, 'next-dev')
+  await ensureDir(edgeFunctionDir)
+  await copyEdgeSourceFile({ edgeFunctionDir, file: 'next-dev.ts', target: 'index.ts' })
+  await copyEdgeSourceFile({ edgeFunctionDir, file: 'utils.ts' })
 }
 
 /**

@@ -5,16 +5,13 @@ import { MiddlewareRequest } from '@netlify/next'
 
 export async function middleware(req: NextRequest) {
   let response
-  const {
-    nextUrl: { pathname },
-  } = req
+  const { pathname } = req.nextUrl
 
   const request = new MiddlewareRequest(req)
-
   if (pathname.startsWith('/static')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
     const res = await request.next()
-    const message = `This was static but has been transformed in ${req.geo.city}`
+    const message = `This was static but has been transformed in ${req.geo?.city}`
 
     // Transform the response HTML and props
     res.replaceText('p[id=message]', message)
@@ -56,6 +53,16 @@ export async function middleware(req: NextRequest) {
       url.pathname = '/shows/100'
       response = NextResponse.rewrite(url)
       response.headers.set('x-modified-in-rewrite', 'true')
+    }
+
+    if (pathname.startsWith('/shows/redirectme')) {
+      const url = req.nextUrl.clone()
+      url.pathname = '/shows/100'
+      response = NextResponse.redirect(url)
+    }
+
+    if (pathname.startsWith('/shows/redirectexternal')) {
+      response = NextResponse.redirect('http://example.com/')
     }
 
     if (!response) {

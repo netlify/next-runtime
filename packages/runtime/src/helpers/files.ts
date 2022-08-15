@@ -377,6 +377,7 @@ export const patchNextFiles = async (root: string): Promise<void> => {
 }
 
 export const unpatchFile = async (file: string): Promise<void> => {
+  return
   const origFile = `${file}.orig`
   if (existsSync(origFile)) {
     await move(origFile, file, { overwrite: true })

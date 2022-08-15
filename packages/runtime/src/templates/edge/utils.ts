@@ -123,17 +123,38 @@ export const buildResponse = async ({
   request.headers.set('x-nf-next-middleware', 'skip')
 
   const rewrite = res.headers.get('x-middleware-rewrite')
+
+  // Data requests (i.e. requests for /_next/data ) need special handling
+  const isDataReq = request.headers.get('x-nextjs-data')
+
   if (rewrite) {
     const rewriteUrl = new URL(rewrite, request.url)
     const baseUrl = new URL(request.url)
+    const relativeUrl = relativizeURL(rewrite, request.url)
+
+    // Data requests might be rewritten to an external URL
+    // This header tells the client router the redirect target, and if it's external then it will do a full navigation
+    if (isDataReq) {
+      res.headers.set('x-nextjs-rewrite', relativeUrl)
+    }
     if (rewriteUrl.hostname !== baseUrl.hostname) {
       // Netlify Edge Functions don't support proxying to external domains, but Next middleware does
       const proxied = fetch(new Request(rewriteUrl.toString(), request))
       return addMiddlewareHeaders(proxied, res)
     }
-    res.headers.set('x-middleware-rewrite', relativizeURL(rewrite, request.url))
+    res.headers.set('x-middleware-rewrite', relativeUrl)
+
     return addMiddlewareHeaders(context.rewrite(rewrite), res)
   }
+
+  const redirect = res.headers.get('Location')
+
+  // Data requests shouldn;t automatically redirect in the browser (they might be HTML pages): they're handled by the router
+  if (redirect && isDataReq) {
+    res.headers.delete('location')
+    res.headers.set('x-nextjs-redirect', relativizeURL(redirect, request.url))
+  }
+
   if (res.headers.get('x-middleware-next') === '1') {
     return addMiddlewareHeaders(context.next(), res)
   }

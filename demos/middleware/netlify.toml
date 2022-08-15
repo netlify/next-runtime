@@ -6,9 +6,8 @@ ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff
 [build.environment]
 NEXT_USE_NETLIFY_EDGE = "true"
 
-[[plugins]]
-package = "../plugin-wrapper/"
-
+# [[plugins]]
+# package = "@netlify/plugin-nextjs"
 # This is a fake plugin, that makes it run npm install
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
@@ -19,15 +18,13 @@ included_files = [
     "!node_modules/sharp/build/Release/sharp-darwin-*"
 ]
 
-[dev]
-framework = "#static"
-
+# [dev]
+# framework = "#static"
 [[redirects]]
 from = "/_next/static/*"
 to = "/static/:splat"
 status = 200
-
-[[redirects]]
-from = "/*"
-to = "/.netlify/functions/___netlify-handler"
-status = 200
+# [[redirects]]
+# from = "/*"
+# to = "/.netlify/functions/___netlify-handler"
+# status = 200
