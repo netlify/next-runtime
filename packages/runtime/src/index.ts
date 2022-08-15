@@ -42,7 +42,7 @@ const plugin: NetlifyPlugin = {
     const { publish } = netlifyConfig.build
     if (shouldSkip()) {
       await restoreCache({ cache, publish })
-      console.log('Not running Essential Next.js plugin')
+      console.log('Not running Next Runtime')
       if (existsSync(join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME))) {
         console.log(`Please ensure you remove any generated functions from ${constants.INTERNAL_FUNCTIONS_SRC}`)
       }
@@ -180,7 +180,7 @@ const plugin: NetlifyPlugin = {
 
     if (shouldSkip()) {
       status.show({
-        title: 'Essential Next.js plugin did not run',
+        title: 'Next Runtime did not run',
         summary: `Next cache was stored, but all other functions were skipped because ${
           process.env.NETLIFY_NEXT_PLUGIN_SKIP
             ? `NETLIFY_NEXT_PLUGIN_SKIP is set`

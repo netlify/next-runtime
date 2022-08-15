@@ -8,7 +8,7 @@ const findDistDir = (publish) => {
   if (!shouldSkip()) {
     return publish
   }
-  // In this situation, the user has disabled the plugin, which means that they might be using next export,
+  // In this situation, the user has disabled the next-runtime, which means that they might be using next export,
   // so we'll look in a few places to find the site root. This allows us to find the .next directory.
   for (const root of [resolve(publish, '..'), resolve(publish, '..', '..')]) {
     if (existsSync(join(root, 'next.config.js'))) {
