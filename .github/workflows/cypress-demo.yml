@@ -63,7 +63,7 @@ jobs:
           record: true
           parallel: true
           config-file: cypress/config/ci.json
-          group: 'Next Plugin - Demo'
+          group: 'Next Runtime - Demo'
           spec: cypress/integration/default/*
         env:
           DEBUG: '@cypress/github-action'

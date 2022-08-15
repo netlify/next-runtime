@@ -63,7 +63,7 @@ jobs:
           record: true
           parallel: true
           config-file: cypress/config/canary.json
-          group: 'Next Plugin - Demo Canary'
+          group: 'Next Runtime - Demo Canary'
           spec: cypress/integration/canary/*
         env:
           DEBUG: '@cypress/github-action'
