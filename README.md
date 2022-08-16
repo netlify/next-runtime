@@ -16,15 +16,11 @@
 Version 4 is a complete rewrite of the Essential Next.js plugin. For full details of everything that's new, check out
 [the v4 release notes](https://github.com/netlify/next-runtime/blob/main/docs/release-notes/v4.md)
 
-## Installing the Next.js Runtime
-
-The Next.js Runtime installs automatically for new Next.js sites on Netlify.
-
 ## Deploying
 
-If you build on Netlify, this Next.js Runtime will work with no additional configuration. However if you are building
-and deploying locally using the Netlify CLI, you must deploy using `netlify deploy --build`. Running the build and
-deploy commands separately will not work, because the Next.js Runtime will not generate the required configuration.
+If you build on Netlify, the Next.js Runtime will work with no additional configuration. However if you are building and
+deploying locally using the Netlify CLI, you must deploy using `netlify deploy --build`. Running the build and deploy
+commands separately will not work, because the Next.js Runtime will not generate the required configuration.
 
 ## Using `next/image`
 
@@ -84,7 +80,7 @@ If you are using Nx, then you will need to point `publish` to the folder inside 
 
 ## Incremental Static Regeneration (ISR)
 
-The Next.js Runtime now fully supports ISR on Netlify. For more details see
+The Next.js Runtime fully supports ISR on Netlify. For more details see
 [the ISR docs](https://github.com/netlify/next-runtime/blob/main/docs/isr.md).
 
 ## Use with `next export`
@@ -114,7 +110,22 @@ them in your site's own functions directory.
 The Next.js Runtime will also generate a Netlify Edge Function called 'ipx' to handle image content negotiation, and if
 Edge runtime or middleware is enabled it will also generate edge functions for middleware and edge routes.
 
-## Migrating from an older version of the Next.js Runtime
+## Manually installing the Next.js Runtime
+
+The Next.js Runtime installs automatically for new Next.js sites on Netlify. You can also install it manually like this:
+
+```shell
+npm install -D @netlify/next-runtime
+```
+
+...then add the following to your `netlify.toml` file:
+
+```toml
+[[plugins]]
+package = "@netlify/next-runtime"
+```
+
+## Manually upgrading from an older version of the Next.js Runtime
 
 If you previously set these values, they're no longer needed and can be removed:
 
