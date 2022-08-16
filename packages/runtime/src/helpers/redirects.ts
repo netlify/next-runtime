@@ -295,13 +295,6 @@ export const generateRedirects = async ({
   netlifyConfig.redirects.push(...dynamicRewrites)
   routesThatMatchMiddleware.push(...dynamicRoutesThatMatchMiddleware)
 
-  // Final fallback
-  netlifyConfig.redirects.push({
-    from: `${basePath}/*`,
-    to: HANDLER_FUNCTION_PATH,
-    status: 200,
-  })
-
   const middlewareMatches = new Set(routesThatMatchMiddleware).size
   if (middlewareMatches > 0) {
     console.log(
