@@ -185,7 +185,7 @@ const plugin: NetlifyPlugin = {
     if (isOldPluginInstalled()) {
       status.show({
         summary:
-          'Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features.',
+          'Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features. Learn more: https://ntl.fyi/3w85e2E',
       })
       return
     }

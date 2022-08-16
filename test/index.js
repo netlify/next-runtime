@@ -572,7 +572,7 @@ describe('onPostBuild', () => {
       utils: { ...utils, status: { show: mockStatusFunc } }
     })
 
-    expect(mockStatusFunc).toHaveBeenCalledWith({ "summary": "Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features." })
+    expect(mockStatusFunc).toHaveBeenCalledWith({ "summary": "Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features. Learn more: https://ntl.fyi/3w85e2E" })
 
   })
 
