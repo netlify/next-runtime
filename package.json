@@ -1,5 +1,5 @@
 {
-  "name": "netlify-plugin-nextjs",
+  "name": "netlify-next-runtime",
   "private": true,
   "description": "Run Next.js seamlessly on Netlify",
   "scripts": {
@@ -34,7 +34,7 @@
     "nextjs",
     "netlify",
     "next",
-    "netlify-plugin"
+    "netlify-runtime"
   ],
   "license": "MIT",
   "bugs": {
