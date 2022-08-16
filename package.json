@@ -96,6 +96,7 @@
   "workspaces": [
     "packages/*",
     "demos/default",
+    "demos/next-auth",
     "demos/static-root",
     "demos/next-export",
     "demos/base-path",
