@@ -2,6 +2,7 @@ jest.mock('../packages/runtime/src/helpers/utils', () => {
   return {
     ...jest.requireActual('../packages/runtime/src/helpers/utils'),
     isNextAuthInstalled: jest.fn(),
+    isOldPluginInstalled: jest.fn(),
   }
 })
 
@@ -33,8 +34,6 @@ const {
 } = require('../packages/runtime/src/helpers/config')
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../packages/runtime/src/helpers/verification')
-const { onPostBuild } = require('../packages/runtime/lib')
-const { basePath } = require('../demos/next-i18next/next.config')
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
@@ -560,6 +559,43 @@ describe('onBuild()', () => {
 })
 
 describe('onPostBuild', () => {
+  const { isOldPluginInstalled } = require('../packages/runtime/src/helpers/utils')
+
+  test('show warning message to remove old plugin', async () => {
+    isOldPluginInstalled.mockImplementation(() => {
+      return true
+    })
+    const mockStatusFunc = jest.fn()
+
+    await plugin.onPostBuild({
+      ...defaultArgs,
+      utils: { ...utils, status: { show: mockStatusFunc } }
+    })
+
+    expect(mockStatusFunc).toHaveBeenCalledWith({ "summary": "Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features. Learn more: https://ntl.fyi/3w85e2E" })
+
+  })
+
+  test('does not show warning message to remove old plugin', async () => {
+    isOldPluginInstalled.mockImplementation(() => {
+      return false
+    })
+    const mockStatusFunc = jest.fn()
+    await moveNextDist()
+
+    await plugin.onPostBuild({
+      ...defaultArgs,
+      utils: {
+        ...utils,
+        status: { show: mockStatusFunc },
+        functions: { list: jest.fn().mockResolvedValue([]) }
+      }
+    })
+
+    expect(mockStatusFunc).not.toHaveBeenCalledWith({ "summary": "Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features." })
+
+  })
+
   test('saves cache with right paths', async () => {
     await moveNextDist()
 
