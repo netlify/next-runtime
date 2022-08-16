@@ -18,18 +18,7 @@ Version 4 is a complete rewrite of the Essential Next.js plugin. For full detail
 
 ## Installing the Next.js Runtime
 
-The Next.js Runtime installs automatically for new Next.js sites on Netlify. You can also install it manually like this:
-
-```shell
-npm install -D @netlify/next-runtime
-```
-
-...then add the following to your `netlify.toml` file:
-
-```toml
-[[plugins]]
-package = "@netlify/next-runtime"
-```
+The Next.js Runtime installs automatically for new Next.js sites on Netlify.
 
 ## Deploying
 
@@ -126,19 +115,6 @@ The Next.js Runtime will also generate a Netlify Edge Function called 'ipx' to h
 Edge runtime or middleware is enabled it will also generate edge functions for middleware and edge routes.
 
 ## Migrating from an older version of the Next.js Runtime
-
-You can manually upgrade from the previous version of the Next.js Runtime by running the following command:
-
-```shell
-npm install -D @netlify/next-runtime@latest
-```
-
-Change the `publish` directory to `.next`:
-
-```toml
-[build]
-publish = ".next"
-```
 
 If you previously set these values, they're no longer needed and can be removed:
 
