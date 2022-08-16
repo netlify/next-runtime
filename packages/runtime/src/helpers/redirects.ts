@@ -56,6 +56,33 @@ const generateLocaleRedirects = ({
   return redirects
 }
 
+const generateCustom404Redirects = ({ i18n }: Pick<NextConfig, 'i18n'>): NetlifyConfig['redirects'] => {
+  const redirects: NetlifyConfig['redirects'] = []
+
+  if (i18n) {
+    i18n.locales.forEach((locale) => {
+      redirects.push({
+        from: `/${locale}/*`,
+        to: `/server/pages/${locale}/404.html`,
+        status: 404,
+      })
+    })
+    redirects.push({
+      from: '/*',
+      to: `/server/pages/${i18n.defaultLocale}/404.html`,
+      status: 404,
+    })
+  } else {
+    redirects.push({
+      from: '/*',
+      to: '/server/pages/404.html',
+      status: 404,
+    })
+  }
+
+  return redirects
+}
+
 export const generateStaticRedirects = ({
   netlifyConfig,
   nextConfig: { i18n, basePath },
@@ -244,6 +271,8 @@ export const generateRedirects = async ({
   if (i18n && i18n.localeDetection !== false) {
     netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))
   }
+
+  netlifyConfig.redirects.push(...generateCustom404Redirects({ i18n }))
 
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
