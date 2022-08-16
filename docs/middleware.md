@@ -55,4 +55,4 @@ later.
 
 If you have an issue with Next.js middleware on Netlify while it is beta, particularly if the issue cannot be reproduced
 when running locally, then please add a comment to
-[the Next runtime beta discussion](https://ntl.fyi/next-beta-feedback).
+[the Next Runtime beta discussion](https://ntl.fyi/next-beta-feedback).
