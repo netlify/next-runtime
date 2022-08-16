@@ -5,7 +5,7 @@ a request has finished processing. Middleware can be used to modify the request 
 can change headers, rewrite the request path, or return a different response entirely.
 
 Next.js Middleware can run either in an edge function (highly recommended for version 12.2+ as ISR will not work
-otherwise) or at the origin. On Netlify, middleware runs at the origin as part of the normal Next.js server.
+otherwise) or at the origin. On Netlify, Middleware runs at the origin as part of the normal Next.js server.
 
 If you'd like to run Middleware at the edge, set the environment variable `NEXT_USE_NETLIFY_EDGE` to `true`.
 
