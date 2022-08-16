@@ -195,9 +195,10 @@ const generateDynamicRewrites = ({
       return
     }
     if (route.page in prerenderedDynamicRoutes) {
+      const { fallback } = prerenderedDynamicRoutes[route.page]
       if (matchesMiddleware(middleware, route.page)) {
         dynamicRoutesThatMatchMiddleware.push(route.page)
-      } else {
+      } else if (fallback !== false) {
         dynamicRewrites.push(
           ...redirectsForNextRoute({ buildId, route: route.page, basePath, to: ODB_FUNCTION_PATH, status: 200, i18n }),
         )
