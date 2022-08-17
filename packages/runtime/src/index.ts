@@ -20,7 +20,7 @@ import { updateConfig, writeEdgeFunctions, loadMiddlewareManifest, writeDevEdgeF
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
-import { shouldSkip, isNextAuthInstalled, isOldPluginInstalled, getCustomImageResponseHeaders } from './helpers/utils'
+import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
@@ -40,10 +40,6 @@ const plugin: NetlifyPlugin & { onPreDev?: OnPreBuild; onDev?: OnPreBuild } = {
       cache,
     },
   }) {
-    if (isOldPluginInstalled()) {
-      return
-    }
-
     const { publish } = netlifyConfig.build
     if (shouldSkip()) {
       await restoreCache({ cache, publish })
@@ -70,7 +66,7 @@ const plugin: NetlifyPlugin & { onPreDev?: OnPreBuild; onDev?: OnPreBuild } = {
       build: { failBuild },
     },
   }) {
-    if (isOldPluginInstalled() || shouldSkip()) {
+    if (shouldSkip()) {
       return
     }
     const { publish } = netlifyConfig.build
@@ -182,14 +178,6 @@ const plugin: NetlifyPlugin & { onPreDev?: OnPreBuild; onDev?: OnPreBuild } = {
     constants: { FUNCTIONS_DIST },
   }) {
     await saveCache({ cache, publish })
-
-    if (isOldPluginInstalled()) {
-      status.show({
-        summary:
-          'Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features. Learn more: https://ntl.fyi/3w85e2E',
-      })
-      return
-    }
 
     if (shouldSkip()) {
       status.show({
