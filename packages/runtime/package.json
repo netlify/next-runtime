@@ -10,7 +10,7 @@
   ],
   "dependencies": {
     "@netlify/functions": "^1.2.0",
-    "@netlify/ipx": "^1.2.1",
+    "@netlify/ipx": "^1.2.2",
     "@vercel/node-bridge": "^2.1.0",
     "chalk": "^4.1.2",
     "fs-extra": "^10.0.0",
