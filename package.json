@@ -1,5 +1,5 @@
 {
-  "name": "netlify-plugin-nextjs",
+  "name": "netlify-next-runtime",
   "private": true,
   "description": "Run Next.js seamlessly on Netlify",
   "scripts": {
@@ -34,7 +34,7 @@
     "nextjs",
     "netlify",
     "next",
-    "netlify-plugin"
+    "netlify-runtime"
   ],
   "license": "MIT",
   "bugs": {
@@ -46,7 +46,7 @@
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.16.0",
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^27.11.5",
+    "@netlify/build": "^27.13.0",
     "@netlify/eslint-config-node": "^7.0.0",
     "@testing-library/cypress": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
@@ -96,6 +96,7 @@
   "workspaces": [
     "packages/*",
     "demos/default",
+    "demos/next-auth",
     "demos/static-root",
     "demos/next-export",
     "demos/base-path",
