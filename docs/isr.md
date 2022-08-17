@@ -2,9 +2,9 @@
 
 [Incremental static regeneration](https://vercel.com/docs/concepts/next.js/incremental-static-regeneration) is a feature
 of Next.js that allows pages to be updated after a site has been built and deployed. It is now fully supported in
-Netlify by the Essential Next.js plugin, meaning large sites can update pages without needing to rebuild the entire
-site. Unlike server-side rendered pages, the page is not rebuilt for each user, so they load quickly, but unlike
-statically-generated pages they can be periodically updated with new content without a new deploy.
+Netlify by the Next Runtime, meaning large sites can update pages without needing to rebuild the entire site. Unlike
+server-side rendered pages, the page is not rebuilt for each user, so they load quickly, but unlike statically-generated
+pages they can be periodically updated with new content without a new deploy.
 
 ### Using ISR on Netlify
 
@@ -56,8 +56,8 @@ invalidating all persisted pages, you can be confident that this will never happ
 ### On-demand ISR
 
 On-Demand ISR (where a path is manually revalidated) is not currently supported on Netlify.
-[Please let us know](https://github.com/netlify/netlify-plugin-nextjs/discussions/1228) if this feature would be useful
-to you, and if so how you would plan to use it.
+[Please let us know](https://github.com/netlify/next-runtime/discussions/1228) if this feature would be useful to you,
+and if so how you would plan to use it.
 
 ### Alternatives to ISR
 

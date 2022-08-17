@@ -1,4 +1,4 @@
-name: Plugin Tests
+name: Next Runtime Tests
 
 on:
   pull_request:

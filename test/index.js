@@ -15,7 +15,7 @@ const cpy = require('cpy')
 const { dir: getTmpDir } = require('tmp-promise')
 const { downloadFile } = require('../packages/runtime/src/templates/handlerUtils')
 
-const plugin = require('../packages/runtime/src')
+const nextRuntime = require('../packages/runtime/src')
 
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../packages/runtime/src/constants')
 const { join } = require('pathe')
@@ -176,23 +176,23 @@ afterEach(async () => {
 describe('preBuild()', () => {
   test('fails if publishing the root of the project', () => {
     defaultArgs.netlifyConfig.build.publish = path.resolve('.')
-    expect(plugin.onPreBuild(defaultArgs)).rejects.toThrowError(
+    expect(nextRuntime.onPreBuild(defaultArgs)).rejects.toThrowError(
       /Your publish directory is pointing to the base directory of your site/,
     )
   })
 
   test('fails if the build version is too old', () => {
     expect(
-      plugin.onPreBuild({
+      nextRuntime.onPreBuild({
         ...defaultArgs,
         constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.15.0' },
       }),
-    ).rejects.toThrow('This version of the Essential Next.js plugin requires netlify-cli')
+    ).rejects.toThrow('This version of the Next Runtime requires netlify-cli')
   })
 
   test('passes if the build version is new enough', async () => {
     expect(
-      plugin.onPreBuild({
+      nextRuntime.onPreBuild({
         ...defaultArgs,
         constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.16.1' },
       }),
@@ -204,7 +204,7 @@ describe('preBuild()', () => {
 
     const restore = jest.fn()
 
-    await plugin.onPreBuild({
+    await nextRuntime.onPreBuild({
       ...defaultArgs,
       utils: { ...utils, cache: { restore } },
     })
@@ -215,7 +215,7 @@ describe('preBuild()', () => {
   it('forces the target to "server"', async () => {
     const netlifyConfig = { ...defaultArgs.netlifyConfig }
 
-    await plugin.onPreBuild({ ...defaultArgs, netlifyConfig })
+    await nextRuntime.onPreBuild({ ...defaultArgs, netlifyConfig })
     expect(netlifyConfig.build.environment.NEXT_PRIVATE_TARGET).toBe('server')
   })
 })
@@ -244,7 +244,7 @@ describe('onBuild()', () => {
     initialConfig.config.env.NEXTAUTH_URL = mockUserDefinedSiteUrl
     await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
 
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
 
     expect(onBuildHasRun(netlifyConfig)).toBe(true)
     const config = await getRequiredServerFiles(netlifyConfig.build.publish)
@@ -262,7 +262,7 @@ describe('onBuild()', () => {
 
     await moveNextDist()
 
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
 
     expect(onBuildHasRun(netlifyConfig)).toBe(true)
     const config = await getRequiredServerFiles(netlifyConfig.build.publish)
@@ -280,7 +280,7 @@ describe('onBuild()', () => {
     initialConfig.config.basePath = '/foo'
     await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
 
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
 
     expect(onBuildHasRun(netlifyConfig)).toBe(true)
     const config = await getRequiredServerFiles(netlifyConfig.build.publish)
@@ -294,7 +294,7 @@ describe('onBuild()', () => {
     })
 
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
 
     expect(onBuildHasRun(netlifyConfig)).toBe(true)
     const config = await getRequiredServerFiles(netlifyConfig.build.publish)
@@ -305,7 +305,7 @@ describe('onBuild()', () => {
   test('runs onBuild', async () => {
     await moveNextDist()
 
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
 
     expect(onBuildHasRun(netlifyConfig)).toBe(true)
   })
@@ -313,7 +313,7 @@ describe('onBuild()', () => {
   test('skips if NETLIFY_NEXT_PLUGIN_SKIP is set', async () => {
     process.env.NETLIFY_NEXT_PLUGIN_SKIP = 'true'
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
 
     expect(onBuildHasRun(netlifyConfig)).toBe(false)
     delete process.env.NETLIFY_NEXT_PLUGIN_SKIP
@@ -322,7 +322,7 @@ describe('onBuild()', () => {
   test('skips if NEXT_PLUGIN_FORCE_RUN is "false"', async () => {
     process.env.NEXT_PLUGIN_FORCE_RUN = 'false'
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
 
     expect(onBuildHasRun(netlifyConfig)).toBe(false)
     delete process.env.NEXT_PLUGIN_FORCE_RUN
@@ -334,7 +334,7 @@ describe('onBuild()', () => {
     const failBuild = jest.fn().mockImplementation((err) => {
       throw new Error(err)
     })
-    expect(() => plugin.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
+    expect(() => nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
       `In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config.`,
     )
     expect(failBuild).toHaveBeenCalled()
@@ -348,7 +348,7 @@ describe('onBuild()', () => {
     })
     netlifyConfig.build.publish = path.resolve('out')
 
-    expect(() => plugin.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
+    expect(() => nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
       `Your publish directory is set to "out", but in most cases it should be ".next".`,
     )
     expect(failBuild).toHaveBeenCalled()
@@ -358,14 +358,14 @@ describe('onBuild()', () => {
     await moveNextDist()
     await writeJSON(path.join(process.cwd(), '.next/export-detail.json'), {})
     const failBuild = jest.fn()
-    await plugin.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })
+    await nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })
     expect(failBuild).toHaveBeenCalled()
   })
 
   test('copy handlers to the internal functions directory', async () => {
     await moveNextDist()
 
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
 
     expect(existsSync(`.netlify/functions-internal/___netlify-handler/___netlify-handler.js`)).toBeTruthy()
     expect(existsSync(`.netlify/functions-internal/___netlify-handler/bridge.js`)).toBeTruthy()
@@ -378,7 +378,7 @@ describe('onBuild()', () => {
   test('writes correct redirects to netlifyConfig', async () => {
     await moveNextDist()
 
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
     // Not ideal, because it doesn't test precedence, but unfortunately the exact order seems to
     // be non-deterministic, as it depends on filesystem globbing across platforms.
     const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
@@ -388,13 +388,13 @@ describe('onBuild()', () => {
   test('publish dir is/has next dist', async () => {
     await moveNextDist()
 
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
     expect(existsSync(path.resolve('.next/BUILD_ID'))).toBeTruthy()
   })
 
   test('generates static files manifest', async () => {
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
     const manifestPath = path.resolve('.next/static-manifest.json')
     expect(existsSync(manifestPath)).toBeTruthy()
     const data = (await readJson(manifestPath)).sort()
@@ -403,7 +403,7 @@ describe('onBuild()', () => {
 
   test('moves static files to root', async () => {
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
     const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
     data.forEach(([_, file]) => {
       expect(existsSync(path.resolve(path.join('.next', file)))).toBeTruthy()
@@ -413,7 +413,7 @@ describe('onBuild()', () => {
 
   test('copies default locale files to top level', async () => {
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
     const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
 
     const locale = 'en/'
@@ -430,7 +430,7 @@ describe('onBuild()', () => {
   // TODO - TO BE MOVED TO TEST AGAINST A PROJECT WITH MIDDLEWARE IN ANOTHER PR
   test.skip('skips static files that match middleware', async () => {
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
 
     expect(existsSync(path.resolve(path.join('.next', 'en', 'middle.html')))).toBeFalsy()
     expect(existsSync(path.resolve(path.join('.next', 'server', 'pages', 'en', 'middle.html')))).toBeTruthy()
@@ -439,7 +439,7 @@ describe('onBuild()', () => {
   test('sets correct config', async () => {
     await moveNextDist()
 
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
     const includes = [
       '.env',
       '.env.local',
@@ -473,7 +473,7 @@ describe('onBuild()', () => {
 
   test('generates a file referencing all page sources', async () => {
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
     const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
     const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
     expect(existsSync(handlerPagesFile)).toBeTruthy()
@@ -492,7 +492,7 @@ describe('onBuild()', () => {
       netlifyConfig,
       constants: { ...constants, PUBLISH_DIR: dir },
     }
-    await plugin.onBuild(config)
+    await nextRuntime.onBuild(config)
     const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
     const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
 
@@ -502,7 +502,7 @@ describe('onBuild()', () => {
 
   test('generates entrypoints with correct references', async () => {
     await moveNextDist()
-    await plugin.onBuild(defaultArgs)
+    await nextRuntime.onBuild(defaultArgs)
 
     const handlerFile = path.join(
       constants.INTERNAL_FUNCTIONS_SRC,
@@ -526,7 +526,7 @@ describe('onBuild()', () => {
     delete routesManifest.staticRoutes
     await writeJSON(manifestPath, routesManifest)
     // The function is supposed to return undefined, but we want to check if it throws
-    expect(await plugin.onBuild(defaultArgs)).toBeUndefined()
+    expect(await nextRuntime.onBuild(defaultArgs)).toBeUndefined()
   })
 
   test('generates imageconfig file with entries for domains, remotePatterns, and custom response headers', async () => {
@@ -537,15 +537,17 @@ describe('onBuild()', () => {
       ...defaultArgs,
       netlifyConfig: {
         ...defaultArgs.netlifyConfig,
-        headers: [{
-          for: '/_next/image/',
-          values: {
-            'X-Foo': mockHeaderValue
-          }
-        }]
-      }
+        headers: [
+          {
+            for: '/_next/image/',
+            values: {
+              'X-Foo': mockHeaderValue,
+            },
+          },
+        ],
+      },
     }
-    await plugin.onBuild(updatedArgs)
+    await nextRuntime.onBuild(updatedArgs)
 
     const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
     const imageConfigJson = await readJson(imageConfigPath)
@@ -553,7 +555,7 @@ describe('onBuild()', () => {
     expect(imageConfigJson.domains.length).toBe(1)
     expect(imageConfigJson.remotePatterns.length).toBe(1)
     expect(imageConfigJson.responseHeaders).toStrictEqual({
-      'X-Foo': mockHeaderValue
+      'X-Foo': mockHeaderValue,
     })
   })
 })
@@ -567,13 +569,15 @@ describe('onPostBuild', () => {
     })
     const mockStatusFunc = jest.fn()
 
-    await plugin.onPostBuild({
+    await nextRuntime.onPostBuild({
       ...defaultArgs,
-      utils: { ...utils, status: { show: mockStatusFunc } }
+      utils: { ...utils, status: { show: mockStatusFunc } },
     })
 
-    expect(mockStatusFunc).toHaveBeenCalledWith({ "summary": "Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features. Learn more: https://ntl.fyi/3w85e2E" })
-
+    expect(mockStatusFunc).toHaveBeenCalledWith({
+      summary:
+        'Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features. Learn more: https://ntl.fyi/3w85e2E',
+    })
   })
 
   test('does not show warning message to remove old plugin', async () => {
@@ -583,17 +587,19 @@ describe('onPostBuild', () => {
     const mockStatusFunc = jest.fn()
     await moveNextDist()
 
-    await plugin.onPostBuild({
+    await nextRuntime.onPostBuild({
       ...defaultArgs,
       utils: {
         ...utils,
         status: { show: mockStatusFunc },
-        functions: { list: jest.fn().mockResolvedValue([]) }
-      }
+        functions: { list: jest.fn().mockResolvedValue([]) },
+      },
     })
 
-    expect(mockStatusFunc).not.toHaveBeenCalledWith({ "summary": "Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features." })
-
+    expect(mockStatusFunc).not.toHaveBeenCalledWith({
+      summary:
+        'Please remove @netlify/plugin-nextjs from your site. It is no longer required and will prevent you using new features.',
+    })
   })
 
   test('saves cache with right paths', async () => {
@@ -601,7 +607,7 @@ describe('onPostBuild', () => {
 
     const save = jest.fn()
 
-    await plugin.onPostBuild({
+    await nextRuntime.onPostBuild({
       ...defaultArgs,
       utils: { ...utils, cache: { save }, functions: { list: jest.fn().mockResolvedValue([]) } },
     })
@@ -630,7 +636,7 @@ describe('onPostBuild', () => {
     const oldLog = console.log
     const logMock = jest.fn()
     console.log = logMock
-    await plugin.onPostBuild({
+    await nextRuntime.onPostBuild({
       ...defaultArgs,
 
       utils: { ...utils, cache: { save: jest.fn() }, functions: { list } },
@@ -651,10 +657,10 @@ describe('onPostBuild', () => {
     process.env.NETLIFY_NEXT_PLUGIN_SKIP = 'true'
     await moveNextDist()
     const show = jest.fn()
-    await plugin.onPostBuild({ ...defaultArgs, utils: { ...defaultArgs.utils, status: { show } } })
+    await nextRuntime.onPostBuild({ ...defaultArgs, utils: { ...defaultArgs.utils, status: { show } } })
     expect(show).toHaveBeenCalledWith({
       summary: 'Next cache was stored, but all other functions were skipped because NETLIFY_NEXT_PLUGIN_SKIP is set',
-      title: 'Essential Next.js plugin did not run',
+      title: 'Next Runtime did not run',
     })
     delete process.env.NETLIFY_NEXT_PLUGIN_SKIP
   })
@@ -665,11 +671,11 @@ describe('onPostBuild', () => {
     process.env.NEXT_PLUGIN_FORCE_RUN = 'false'
     await moveNextDist()
     const show = jest.fn()
-    await plugin.onPostBuild({ ...defaultArgs, utils: { ...defaultArgs.utils, status: { show } } })
+    await nextRuntime.onPostBuild({ ...defaultArgs, utils: { ...defaultArgs.utils, status: { show } } })
     expect(show).toHaveBeenCalledWith({
       summary:
         'Next cache was stored, but all other functions were skipped because NEXT_PLUGIN_FORCE_RUN is set to false',
-      title: 'Essential Next.js plugin did not run',
+      title: 'Next Runtime did not run',
     })
     delete process.env.NEXT_PLUGIN_FORCE_RUN
   })
@@ -706,7 +712,7 @@ describe('onPostBuild', () => {
 
     const show = jest.fn()
 
-    await plugin.onPostBuild({
+    await nextRuntime.onPostBuild({
       ...defaultArgs,
 
       utils: { ...defaultArgs.utils, status: { show }, functions: { list: jest.fn().mockResolvedValue([]) } },
@@ -802,7 +808,7 @@ describe('onPostBuild', () => {
 
     const show = jest.fn()
 
-    await plugin.onPostBuild({
+    await nextRuntime.onPostBuild({
       ...defaultArgs,
 
       utils: { ...defaultArgs.utils, status: { show }, functions: { list: jest.fn().mockResolvedValue([]) } },
@@ -909,7 +915,7 @@ describe('onPostBuild', () => {
     delete routesManifest.headers
     await writeJSON(manifestPath, routesManifest)
 
-    await plugin.onPostBuild({
+    await nextRuntime.onPostBuild({
       ...defaultArgs,
 
       utils: { ...defaultArgs.utils, status: { show }, functions: { list: jest.fn().mockResolvedValue([]) } },
@@ -1077,7 +1083,7 @@ describe('utility functions', () => {
 describe('function helpers', () => {
   it('downloadFile can download a file', async () => {
     const url =
-      'https://raw.githubusercontent.com/netlify/netlify-plugin-nextjs/c2668af24a78eb69b33222913f44c1900a3bce23/manifest.yml'
+      'https://raw.githubusercontent.com/netlify/next-runtime/c2668af24a78eb69b33222913f44c1900a3bce23/manifest.yml'
     const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
     await ensureDir(path.dirname(tmpFile))
     await downloadFile(url, tmpFile)
