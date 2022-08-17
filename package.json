@@ -105,5 +105,5 @@
     "demos/middleware",
     "demos/custom-routes"
   ],
-  "version": "0.0.1-runtime.0"
+  "version": "0.0.1-runtime.1"
 }
