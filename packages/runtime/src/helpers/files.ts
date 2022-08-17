@@ -60,7 +60,7 @@ export const matchesRewrite = (file: string, rewrites: Rewrites): boolean => {
 }
 
 export const getMiddleware = async (publish: string): Promise<Array<string>> => {
-  if (process.env.NEXT_USE_NETLIFY_EDGE) {
+  if (!process.env.NEXT_DISABLE_NETLIFY_EDGE) {
     return []
   }
   const manifestPath = join(publish, 'server', 'middleware-manifest.json')

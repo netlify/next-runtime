@@ -142,27 +142,32 @@ const plugin: NetlifyPlugin = {
       buildId,
     })
 
-    // We call this even if we don't have edge functions enabled because we still use it for images
-    await writeEdgeFunctions(netlifyConfig)
+    if (!process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+      await writeEdgeFunctions(netlifyConfig)
 
-    if (process.env.NEXT_USE_NETLIFY_EDGE) {
-      console.log(outdent`
-        ✨ Deploying to ${greenBright`Netlify Edge Functions`} ✨
-        This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
-      `)
       await updateConfig(publish)
     }
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
-
-    if (!process.env.NEXT_USE_NETLIFY_EDGE && middlewareManifest?.sortedMiddleware?.length) {
-      console.log(
-        yellowBright(outdent`
-          You are using Next.js Middleware without Netlify Edge Functions.
-          This will soon be deprecated because it negatively affects performance and will disable ISR and static rendering.
-          To get the best performance and use Netlify Edge Functions, set the env var ${bold`NEXT_USE_NETLIFY_EDGE=true`}.
-        `),
-      )
+    if (
+      Object.keys(middlewareManifest?.middleware).length !== 0 ||
+      Object.keys(middlewareManifest?.functions).length !== 0
+    ) {
+      if (process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+        console.log(
+          yellowBright(outdent`
+            You are using Next.js Middleware without Netlify Edge Functions.
+            This is deprecated because it negatively affects performance and will disable ISR and static rendering.
+            It also disables advanced middleware features from @netlify/next
+            To get the best performance and use Netlify Edge Functions, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`}.
+          `),
+        )
+      } else {
+        console.log(outdent`
+          ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
+          This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
+        `)
+      }
     }
   },
 
