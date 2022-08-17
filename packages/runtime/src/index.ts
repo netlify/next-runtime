@@ -216,8 +216,8 @@ const plugin: NetlifyPlugin & { onPreDev?: OnPreBuild; onDev?: OnPreBuild } = {
   },
 }
 // The types haven't been updated yet
-const nextPlugin = (_inputs, { events }: { events: Set<string> }): NetlifyPlugin & { onPreDev?: OnPreBuild } => {
-  if (!events.has('onPreDev')) {
+const nextPlugin = (_inputs, meta: { events: Set<string> }): NetlifyPlugin & { onPreDev?: OnPreBuild } => {
+  if (!meta?.events?.has('onPreDev')) {
     return {
       ...plugin,
       onEnd: ({ utils }) => {
