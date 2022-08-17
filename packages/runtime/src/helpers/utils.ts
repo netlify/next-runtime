@@ -179,19 +179,8 @@ export const findModuleFromBase = ({ paths, candidates }): string | null => {
 
 export const isNextAuthInstalled = (): boolean => {
   try {
-    // eslint-disable-next-line import/no-unassigned-import, n/no-extraneous-require, import/no-extraneous-dependencies
+    // eslint-disable-next-line import/no-unassigned-import, import/no-extraneous-dependencies, n/no-extraneous-require
     require('next-auth')
-    return true
-  } catch {
-    // Ignore the MODULE_NOT_FOUND error
-    return false
-  }
-}
-
-export const isOldPluginInstalled = (): boolean => {
-  try {
-    // eslint-disable-next-line import/no-unassigned-import, n/no-missing-require, import/no-unresolved
-    require('@netlify/plugin-nextjs')
     return true
   } catch {
     // Ignore the MODULE_NOT_FOUND error
