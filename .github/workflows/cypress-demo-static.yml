@@ -63,7 +63,7 @@ jobs:
           record: true
           parallel: true
           config-file: cypress/config/static-root.json
-          group: 'Next Plugin - Demo Static'
+          group: 'Next Runtime - Demo Static'
           spec: cypress/integration/static-root/*
         env:
           DEBUG: '@cypress/github-action'

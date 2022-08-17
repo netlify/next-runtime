@@ -28,7 +28,7 @@ export const verifyNetlifyBuildVersion = ({
   // We check for build version because that's what's available to us, but prompt about the cli because that's what they can upgrade
   if (IS_LOCAL && !satisfies(NETLIFY_BUILD_VERSION, REQUIRED_BUILD_VERSION, { includePrerelease: true })) {
     return failBuild(outdent`
-      This version of the Essential Next.js plugin requires netlify-cli@6.12.4 or higher. Please upgrade and try again.
+      This version of the Next Runtime requires netlify-cli@6.12.4 or higher. Please upgrade and try again.
       You can do this by running: "npm install -g netlify-cli@latest" or "yarn global add netlify-cli@latest"
     `)
   }
@@ -151,7 +151,7 @@ export const getProblematicUserRewrites = ({
 }) => {
   const userRewrites: NetlifyConfig['redirects'] = []
   for (const redirect of redirects) {
-    // This is the first of the plugin-generated redirects so we can stop checking
+    // This is the first of the runtime-generated redirects so we can stop checking
     if (redirect.from === `${basePath}/_next/static/*` && redirect.to === `/static/:splat` && redirect.status === 200) {
       break
     }
@@ -184,7 +184,7 @@ export const warnForProblematicUserRewrites = ({
     yellowBright(outdent`
       You have the following Netlify rewrite${
         userRewrites.length === 1 ? '' : 's'
-      } that might cause conflicts with the Next.js plugin:
+      } that might cause conflicts with the Next.js Runtime:
 
       ${reset(userRewrites.map(({ from, to, status }) => `- ${from} ${to} ${status}`).join('\n'))}
 

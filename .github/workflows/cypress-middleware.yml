@@ -63,7 +63,7 @@ jobs:
           record: true
           parallel: true
           config-file: cypress/config/middleware.json
-          group: 'Next Plugin - Middleware'
+          group: 'Next Runtime - Middleware'
           spec: cypress/integration/middleware/*
         env:
           DEBUG: '@cypress/github-action'
