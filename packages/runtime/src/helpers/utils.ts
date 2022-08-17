@@ -179,7 +179,7 @@ export const findModuleFromBase = ({ paths, candidates }): string | null => {
 
 export const isNextAuthInstalled = (): boolean => {
   try {
-    // eslint-disable-next-line import/no-unassigned-import
+    // eslint-disable-next-line import/no-unassigned-import, import/no-extraneous-dependencies, n/no-extraneous-require
     require('next-auth')
     return true
   } catch {
