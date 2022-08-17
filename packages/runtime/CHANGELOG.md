@@ -1,5 +1,23 @@
 # Changelog
 
+## [4.17.0](https://github.com/netlify/next-runtime/compare/next-runtime-v4.16.0...next-runtime-v4.17.0) (2022-08-17)
+
+
+### Features
+
+* ✨  change over to next-runtime ([#1540](https://github.com/netlify/next-runtime/issues/1540)) ([7ecf41d](https://github.com/netlify/next-runtime/commit/7ecf41d1908bc1879761ce5324fe231c75673ead))
+* **graph:** populate graph token for ISR ([#1525](https://github.com/netlify/next-runtime/issues/1525)) ([573b913](https://github.com/netlify/next-runtime/commit/573b9137241882359411f448acd044a32c2c8169))
+* skip run if @netlify/plugin-nextjs installed ([#1536](https://github.com/netlify/next-runtime/issues/1536)) ([0b4cf8c](https://github.com/netlify/next-runtime/commit/0b4cf8c6df7745fed91a59b90ab0e9f7f909b033))
+* support custom response headers on images served via IPX ([#1515](https://github.com/netlify/next-runtime/issues/1515)) ([40cb8a9](https://github.com/netlify/next-runtime/commit/40cb8a9643794121c9253ffb48555f029c7ae9af))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.1.0 ([#1526](https://github.com/netlify/next-runtime/issues/1526)) ([8a98d72](https://github.com/netlify/next-runtime/commit/8a98d7237f9168342e3bfeb9dbcc9240d694dcdd))
+* **deps:** update dependency @netlify/functions to ^1.2.0 ([#1543](https://github.com/netlify/next-runtime/issues/1543)) ([81381eb](https://github.com/netlify/next-runtime/commit/81381eb0955b7ab6db12da1c23a3f315b6754459))
+* **deps:** update dependency @netlify/ipx to ^1.2.1 ([#1534](https://github.com/netlify/next-runtime/issues/1534)) ([086a703](https://github.com/netlify/next-runtime/commit/086a703c87fb196d3b84c698dfb1621be6a0713b))
+* **deps:** update dependency @netlify/ipx to ^1.2.2 ([#1544](https://github.com/netlify/next-runtime/issues/1544)) ([097e624](https://github.com/netlify/next-runtime/commit/097e624261fad97da3411439f8e7c3baa0f706c1))
+
 ## [4.16.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.15.0...plugin-nextjs-v4.16.0) (2022-08-15)
 
 
