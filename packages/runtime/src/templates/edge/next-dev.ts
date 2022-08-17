@@ -98,7 +98,7 @@ const handler = async (req: Request, context: Context) => {
   // We don't want to just try importing and use that to test,
   // because that would also throw if there's an error in the middleware,
   // which we would want to surface not ignore.
-  if (await exists('../../iddleware.js')) {
+  if (await exists('../../middleware.js')) {
     // These will be user code
     const nextMiddleware = await import('../../middleware.js')
     middleware = nextMiddleware.middleware
