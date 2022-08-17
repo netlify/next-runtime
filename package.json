@@ -104,5 +104,6 @@
     "demos/server-components",
     "demos/middleware",
     "demos/custom-routes"
-  ]
+  ],
+  "version": "0.0.1-runtime.0"
 }
