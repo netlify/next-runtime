@@ -2,7 +2,7 @@
 import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
-import { greenBright, yellowBright, bold } from 'chalk'
+import { greenBright, bold, redBright } from 'chalk'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
@@ -15,7 +15,7 @@ import {
   configureHandlerFunctions,
   generateCustomHeaders,
 } from './helpers/config'
-import { updateConfig, writeEdgeFunctions, loadMiddlewareManifest } from './helpers/edge'
+import { enableEdgeInNextConfig, writeEdgeFunctions, loadMiddlewareManifest } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
@@ -80,6 +80,34 @@ const plugin: NetlifyPlugin = {
       },
     )
 
+    const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
+
+    let usingEdge = false
+
+    if (Object.keys(middlewareManifest?.functions).length !== 0) {
+      usingEdge = true
+      if (process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+        failBuild(outdent`
+          You are using Next.js experimental edge runtime, but have set NEXT_DISABLE_NETLIFY_EDGE to true. This is not supported.
+          To use edge runtime, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`}.
+        `)
+      }
+    }
+
+    if (Object.keys(middlewareManifest?.middleware).length !== 0) {
+      usingEdge = true
+      if (process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+        console.log(
+          redBright(outdent`
+            You are using Next.js Middleware without Netlify Edge Functions.
+            This is deprecated because it negatively affects performance and will disable ISR and static rendering.
+            It also disables advanced middleware features from @netlify/next
+            To get the best performance and use Netlify Edge Functions, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`}.
+          `),
+        )
+      }
+    }
+
     if (experimental.images) {
       experimentalRemotePatterns = experimental.images.remotePatterns || []
     }
@@ -138,27 +166,15 @@ const plugin: NetlifyPlugin = {
       buildId,
     })
 
-    // We call this even if we don't have edge functions enabled because we still use it for images
-    await writeEdgeFunctions(netlifyConfig)
+    if (usingEdge) {
+      await writeEdgeFunctions(netlifyConfig)
 
-    if (process.env.NEXT_USE_NETLIFY_EDGE) {
+      await enableEdgeInNextConfig(publish)
+
       console.log(outdent`
-        ✨ Deploying to ${greenBright`Netlify Edge Functions`} ✨
+        ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
         This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
       `)
-      await updateConfig(publish)
-    }
-
-    const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
-
-    if (!process.env.NEXT_USE_NETLIFY_EDGE && middlewareManifest?.sortedMiddleware?.length) {
-      console.log(
-        yellowBright(outdent`
-          You are using Next.js Middleware without Netlify Edge Functions.
-          This will soon be deprecated because it negatively affects performance and will disable ISR and static rendering.
-          To get the best performance and use Netlify Edge Functions, set the env var ${bold`NEXT_USE_NETLIFY_EDGE=true`}.
-        `),
-      )
     }
   },
 
