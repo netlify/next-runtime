@@ -50,9 +50,7 @@ export class MiddlewareRequest extends Request {
   }
 
   /**
-   *
-   * @param options
-   * @returns
+   * Passes the request to the origin, allowing you to access the response
    */
   async next(options?: NextOptions): Promise<MiddlewareResponse> {
     this.applyHeaders()

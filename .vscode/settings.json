@@ -2,7 +2,6 @@
   "deno.enablePaths": [
     "packages/runtime/src/templates/edge",
     "demos/middleware/.netlify/edge-functions",
-    "demos/middleware/netlify/edge-functions",
     "demos/server-components/.netlify/edge-functions",
   ],
   "deno.unstable": true
