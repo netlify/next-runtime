@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'https://esm.sh/next/server'
-import { fromFileUrl } from 'https://deno.land/std/path/mod.ts'
+import { NextRequest } from 'https://esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/request.js'
+import { NextResponse } from 'https://esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/response.js'
+import { fromFileUrl } from 'https://deno.land/std@0.151.0/path/mod.ts'
 import { buildResponse } from './utils.ts'
 
 globalThis.NFRequestContextMap ||= new Map()
