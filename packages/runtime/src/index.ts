@@ -95,7 +95,7 @@ const plugin: NetlifyPlugin = {
       }
     }
 
-    if (Object.keys(middlewareManifest?.middleware).length !== 0) {
+    if (middlewareManifest?.middleware && Object.keys(middlewareManifest.middleware).length !== 0) {
       usingEdge = true
       if (process.env.NEXT_DISABLE_NETLIFY_EDGE) {
         console.log(
