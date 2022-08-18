@@ -1,81 +1,13 @@
-import type { Context } from 'https://edge.netlify.com'
-import { NextRequest, NextResponse } from 'https://esm.sh/next/server'
-import { fromFileUrl } from 'https://deno.land/std/path/mod.ts'
+import { NextRequest } from 'https://esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/request.js'
+import { NextResponse } from 'https://esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/response.js'
+import { fromFileUrl } from 'https://deno.land/std@0.151.0/path/mod.ts'
 import { buildResponse } from './utils.ts'
-
-export interface FetchEventResult {
-  response: Response
-  waitUntil: Promise<unknown>
-}
-
-interface I18NConfig {
-  defaultLocale: string
-  domains?: DomainLocale[]
-  localeDetection?: false
-  locales: string[]
-}
-
-interface DomainLocale {
-  defaultLocale: string
-  domain: string
-  http?: true
-  locales?: string[]
-}
-export interface NextRequestInit extends RequestInit {
-  geo?: {
-    city?: string
-    country?: string
-    region?: string
-  }
-  ip?: string
-  nextConfig?: {
-    basePath?: string
-    i18n?: I18NConfig | null
-    trailingSlash?: boolean
-  }
-}
-
-export interface RequestData {
-  geo?: {
-    city?: string
-    country?: string
-    region?: string
-    latitude?: string
-    longitude?: string
-  }
-  headers: Record<string, string>
-  ip?: string
-  method: string
-  nextConfig?: {
-    basePath?: string
-    i18n?: Record<string, unknown>
-    trailingSlash?: boolean
-  }
-  page?: {
-    name?: string
-    params?: { [key: string]: string }
-  }
-  url: string
-  body?: ReadableStream<Uint8Array>
-}
-
-export interface RequestContext {
-  request: Request
-  context: Context
-}
-
-declare global {
-  // deno-lint-ignore no-var
-  var NFRequestContextMap: Map<string, RequestContext>
-  // deno-lint-ignore no-var
-  var __dirname: string
-}
 
 globalThis.NFRequestContextMap ||= new Map()
 globalThis.__dirname = fromFileUrl(new URL('./', import.meta.url)).slice(0, -1)
 
 // Check if a file exists, given a relative path
-const exists = async (relativePath: string) => {
+const exists = async (relativePath) => {
   const path = fromFileUrl(new URL(relativePath, import.meta.url))
   try {
     await Deno.stat(path)
@@ -88,7 +20,7 @@ const exists = async (relativePath: string) => {
   }
 }
 
-const handler = async (req: Request, context: Context) => {
+const handler = async (req, context) => {
   // Uncomment when CLI update lands
   // if (!Deno.env.get('NETLIFY_DEV')) {
   //   // Only run in dev
@@ -111,7 +43,7 @@ const handler = async (req: Request, context: Context) => {
   }
 
   //  This is the format expected by Next.js
-  const geo: NextRequestInit['geo'] = {
+  const geo = {
     country: context.geo.country?.code,
     region: context.geo.subdivision?.code,
     city: context.geo.city,
@@ -125,7 +57,7 @@ const handler = async (req: Request, context: Context) => {
     context,
   })
 
-  const request: NextRequestInit = {
+  const request = {
     headers: Object.fromEntries(req.headers.entries()),
     geo,
     method: req.method,
@@ -133,7 +65,7 @@ const handler = async (req: Request, context: Context) => {
     body: req.body || undefined,
   }
 
-  const nextRequest: NextRequest = new NextRequest(req, request)
+  const nextRequest = new NextRequest(req, request)
 
   try {
     const response = await middleware(nextRequest)
