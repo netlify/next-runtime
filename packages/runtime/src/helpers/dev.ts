@@ -31,6 +31,7 @@ export const onPreDev: OnPreBuild = async ({ constants, netlifyConfig }) => {
     `--bundle`,
     `--outdir=${resolve('.netlify')}`,
     `--format=esm`,
+    `--target=esnext`,
     '--watch',
     // Watch for both, because it can have either ts or js
     resolve(base, 'middleware.ts'),
