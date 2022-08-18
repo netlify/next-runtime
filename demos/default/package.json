@@ -25,7 +25,7 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "@netlify/next-runtime": "*",
+    "@netlify/plugin-nextjs": "*",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.1",
     "@types/node": "^17.0.25",
