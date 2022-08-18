@@ -44,7 +44,7 @@ body:
     id: runtime-version
     attributes:
       label: Next Runtime version
-      description: The version of `@netlify/next-runtime` that you are using. (This is in the build logs)
+      description: The version of `@netlify/plugin-nextjs` that you are using. (This is in the build logs)
       placeholder: x.x.x
     validations:
       required: true
