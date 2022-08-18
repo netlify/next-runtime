@@ -144,7 +144,7 @@ export const writeDevEdgeFunction = async ({
 
   const edgeFunctionDir = join(edgeFunctionRoot, 'next-dev')
   await ensureDir(edgeFunctionDir)
-  await copyEdgeSourceFile({ edgeFunctionDir, file: 'next-dev.ts', target: 'index.ts' })
+  await copyEdgeSourceFile({ edgeFunctionDir, file: 'next-dev.js', target: 'index.js' })
   await copyEdgeSourceFile({ edgeFunctionDir, file: 'utils.ts' })
 }
 

@@ -9,18 +9,17 @@ import { patchNextFiles } from './files'
 
 // The types haven't been updated yet
 export const onPreDev: OnPreBuild = async ({ constants, netlifyConfig }) => {
+  const base = netlifyConfig.build.base ?? process.cwd()
+
   // Need to patch the files, because build might not have been run
-  await patchNextFiles(resolve(netlifyConfig.build.publish, '..'))
+  await patchNextFiles(base)
 
   //  Clean up old functions
   await unlink(resolve('.netlify', 'middleware.js')).catch(() => {
     // Ignore if it doesn't exist
   })
   await writeDevEdgeFunction(constants)
-  if (
-    !existsSync(resolve(netlifyConfig.build.base, 'middleware.ts')) &&
-    !existsSync(resolve(netlifyConfig.build.base, 'middleware.js'))
-  ) {
+  if (!existsSync(resolve(base, 'middleware.ts')) && !existsSync(resolve(base, 'middleware.js'))) {
     console.log(
       "No middleware found. Create a 'middleware.ts' or 'middleware.js' file in your project root to add custom middleware.",
     )
@@ -34,8 +33,8 @@ export const onPreDev: OnPreBuild = async ({ constants, netlifyConfig }) => {
     `--format=esm`,
     '--watch',
     // Watch for both, because it can have either ts or js
-    resolve(netlifyConfig.build.base, 'middleware.ts'),
-    resolve(netlifyConfig.build.base, 'middleware.js'),
+    resolve(base, 'middleware.ts'),
+    resolve(base, 'middleware.js'),
   ])
 
   childProcess.stdout.pipe(process.stdout)
