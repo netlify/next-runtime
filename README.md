@@ -13,7 +13,7 @@
 
 ## What's new in this version
 
-Version 4 is a complete rewrite of the Essential Next.js plugin. For full details of everything that's new, check out
+For full details of everything that's new, check out
 [the v4 release notes](https://github.com/netlify/next-runtime/blob/main/docs/release-notes/v4.md)
 
 ## Deploying
