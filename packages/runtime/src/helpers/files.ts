@@ -340,19 +340,19 @@ const baseServerReplacements: Array<[string, string]> = [
 const nextServerReplacements: Array<[string, string]> = [
   [
     `getMiddlewareManifest() {\n        if (this.minimalMode) return null;`,
-    `getMiddlewareManifest() {\n        if (this.minimalMode || process.env.NEXT_USE_NETLIFY_EDGE) return null;`,
+    `getMiddlewareManifest() {\n        if (this.minimalMode || !process.env.NEXT_DISABLE_NETLIFY_EDGE) return null;`,
   ],
   [
     `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode) return []`,
-    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || process.env.NEXT_USE_NETLIFY_EDGE) return [];`,
+    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || !process.env.NEXT_DISABLE_NETLIFY_EDGE) return [];`,
   ],
   [
     `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode) return undefined;`,
-    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || process.env.NEXT_USE_NETLIFY_EDGE) return undefined;`,
+    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || !process.env.NEXT_DISABLE_NETLIFY_EDGE) return undefined;`,
   ],
   [
     `getMiddlewareManifest() {\n        if (this.minimalMode) {`,
-    `getMiddlewareManifest() {\n        if (!this.minimalMode && !process.env.NEXT_USE_NETLIFY_EDGE) {`,
+    `getMiddlewareManifest() {\n        if (!this.minimalMode && process.env.NEXT_DISABLE_NETLIFY_EDGE) {`,
   ],
 ]
 

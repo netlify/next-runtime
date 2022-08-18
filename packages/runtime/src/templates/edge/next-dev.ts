@@ -89,10 +89,11 @@ const exists = async (relativePath: string) => {
 }
 
 const handler = async (req: Request, context: Context) => {
-  if (!Deno.env.get('NETLIFY_DEV')) {
-    // Only run in dev
-    return
-  }
+  // Uncomment when CLI update lands
+  // if (!Deno.env.get('NETLIFY_DEV')) {
+  //   // Only run in dev
+  //   return
+  // }
 
   let middleware
   // Dynamic imports and FS operations aren't allowed when deployed,

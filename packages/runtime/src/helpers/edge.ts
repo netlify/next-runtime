@@ -211,8 +211,6 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
 export const enableEdgeInNextConfig = async (publish: string) => {
   const configFile = join(publish, 'required-server-files.json')
   const config = await readJSON(configFile)
-  // This is for runtime in Next.js, rather than a build plugin setting
-  config.config.env.NEXT_USE_NETLIFY_EDGE = 'true'
   await writeJSON(configFile, config)
 }
 /* eslint-enable max-lines */
