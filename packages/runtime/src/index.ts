@@ -15,6 +15,7 @@ import {
   configureHandlerFunctions,
   generateCustomHeaders,
 } from './helpers/config'
+import { onPreDev } from './helpers/dev'
 import { enableEdgeInNextConfig, writeEdgeFunctions, loadMiddlewareManifest } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
@@ -218,5 +219,29 @@ const plugin: NetlifyPlugin = {
     warnForRootRedirects({ appDir })
   },
 }
-module.exports = plugin
+// The types haven't been updated yet
+const nextRuntime = (
+  _inputs,
+  meta: { events?: Set<string> } = {},
+): NetlifyPlugin & { onPreDev?: NetlifyPlugin['onPreBuild'] } => {
+  if (!meta?.events?.has('onPreDev')) {
+    return {
+      ...plugin,
+      onEnd: ({ utils }) => {
+        utils.status.show({
+          title: 'Please upgrade to the latest version of the Netlify CLI',
+          summary:
+            'To support for the latest Next.js features, please upgrade to the latest version of the Netlify CLI',
+        })
+      },
+    }
+  }
+  return {
+    ...plugin,
+    onPreDev,
+  }
+}
+
+module.exports = nextRuntime
+
 /* eslint-enable max-lines */

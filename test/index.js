@@ -14,7 +14,8 @@ const cpy = require('cpy')
 const { dir: getTmpDir } = require('tmp-promise')
 const { downloadFile } = require('../packages/runtime/src/templates/handlerUtils')
 
-const nextRuntime = require('../packages/runtime/src')
+const nextRuntimeFactory = require('../packages/runtime/src')
+const nextRuntime = nextRuntimeFactory({})
 
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../packages/runtime/src/constants')
 const { join } = require('pathe')
@@ -33,8 +34,6 @@ const {
 } = require('../packages/runtime/src/helpers/config')
 const { dirname } = require('path')
 const { getProblematicUserRewrites } = require('../packages/runtime/src/helpers/verification')
-const { onPostBuild } = require('../packages/runtime/lib')
-const { basePath } = require('../demos/next-i18next/next.config')
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
