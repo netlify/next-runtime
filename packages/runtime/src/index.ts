@@ -204,7 +204,7 @@ const plugin: NetlifyPlugin & { onPreDev?: OnPreBuild; onDev?: OnPreBuild } = {
   },
 }
 // The types haven't been updated yet
-const nextPlugin = (_inputs, meta: { events: Set<string> }): NetlifyPlugin & { onPreDev?: OnPreBuild } => {
+const nextRuntime = (_inputs, meta: { events?: Set<string> } = {}): NetlifyPlugin & { onPreDev?: OnPreBuild } => {
   if (!meta?.events?.has('onPreDev')) {
     return {
       ...plugin,
@@ -223,6 +223,6 @@ const nextPlugin = (_inputs, meta: { events: Set<string> }): NetlifyPlugin & { o
   }
 }
 
-module.exports = nextPlugin
+module.exports = nextRuntime
 
 /* eslint-enable max-lines */
