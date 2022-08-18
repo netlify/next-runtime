@@ -31,7 +31,7 @@ import {
   warnForRootRedirects,
 } from './helpers/verification'
 
-const plugin: NetlifyPlugin & { onPreDev?: OnPreBuild; onDev?: OnPreBuild } = {
+const plugin: NetlifyPlugin = {
   async onPreBuild({
     constants,
     netlifyConfig,
@@ -220,7 +220,10 @@ const plugin: NetlifyPlugin & { onPreDev?: OnPreBuild; onDev?: OnPreBuild } = {
   },
 }
 // The types haven't been updated yet
-const nextRuntime = (_inputs, meta: { events?: Set<string> } = {}): NetlifyPlugin & { onPreDev?: OnPreBuild } => {
+const nextRuntime = (
+  _inputs,
+  meta: { events?: Set<string> } = {},
+): NetlifyPlugin & { onPreDev?: NetlifyPlugin['onPreBuild'] } => {
   if (!meta?.events?.has('onPreDev')) {
     return {
       ...plugin,

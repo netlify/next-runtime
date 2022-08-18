@@ -46,7 +46,7 @@ globalThis.NFRequestContextMap ||= new Map()
 
 const handler = async (req: Request, context: Context) => {
   if (Deno.env.get('NETLIFY_DEV')) {
-    console.log('is dev')
+    // Don't run in dev
     return
   }
   const url = new URL(req.url)

@@ -89,9 +89,11 @@ const exists = async (relativePath: string) => {
 }
 
 const handler = async (req: Request, context: Context) => {
-  // if (!Deno.env.get('NETLIFY_DEV')) {
-  //   return
-  // }
+  if (!Deno.env.get('NETLIFY_DEV')) {
+    // Only run in dev
+    return
+  }
+
   let middleware
   // Dynamic imports and FS operations aren't allowed when deployed,
   // but that's fine because this is only ever used locally.

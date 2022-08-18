@@ -1,6 +1,6 @@
 import { resolve } from 'path'
 
-import { NetlifyPlugin } from '@netlify/build'
+import { OnPreBuild } from '@netlify/build'
 import execa from 'execa'
 import { unlink, existsSync } from 'fs-extra'
 
@@ -8,7 +8,7 @@ import { writeDevEdgeFunction } from './edge'
 import { patchNextFiles } from './files'
 
 // The types haven't been updated yet
-export const onPreDev: NetlifyPlugin['onPreBuild'] = async ({ constants, netlifyConfig }) => {
+export const onPreDev: OnPreBuild = async ({ constants, netlifyConfig }) => {
   // Need to patch the files, because build might not have been run
   await patchNextFiles(resolve(netlifyConfig.build.publish, '..'))
 
