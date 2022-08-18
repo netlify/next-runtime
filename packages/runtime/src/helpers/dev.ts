@@ -27,17 +27,14 @@ export const onPreDev: OnPreBuild = async ({ constants, netlifyConfig }) => {
     console.log('Watching for changes in Next.js middleware...')
   }
   // Eventually we might want to do this via esbuild's API, but for now the CLI works fine
-  const childProcess = execa(`esbuild`, [
-    `--bundle`,
-    `--outdir=${resolve('.netlify')}`,
-    `--format=esm`,
-    '--watch',
-    // Watch for both, because it can have either ts or js
-    resolve(base, 'middleware.ts'),
-    resolve(base, 'middleware.js'),
-  ])
 
-  childProcess.stdout.pipe(process.stdout)
-  childProcess.stderr.pipe(process.stderr)
+  const common = [`--bundle`, `--outdir=${resolve('.netlify')}`, `--format=esm`, `--target=esnext`, '--watch']
+
+  // TypeScript
+  execa(`esbuild`, [...common, resolve(base, 'middleware.ts')], { all: true }).all.pipe(process.stdout)
+
+  // JavaScript
+  execa(`esbuild`, [...common, resolve(base, 'middleware.js')], { all: true }).all.pipe(process.stdout)
+
   // Don't return the promise because we don't want to wait for the child process to finish
 }

@@ -19,6 +19,7 @@ const exists = async (relativePath) => {
     throw error
   }
 }
+let idx = 0
 
 const handler = async (req, context) => {
   // Uncomment when CLI update lands
@@ -34,8 +35,9 @@ const handler = async (req, context) => {
   // because that would also throw if there's an error in the middleware,
   // which we would want to surface not ignore.
   if (await exists('../../middleware.js')) {
-    // These will be user code
-    const nextMiddleware = await import('../../middleware.js')
+    // We need to cache-bust the import because otherwise it will claim it
+    // doesn't exist if the user creates it after the server starts
+    const nextMiddleware = await import(`../../middleware.js#${idx++}`)
     middleware = nextMiddleware.middleware
   } else {
     //  No middleware, so we silently return
