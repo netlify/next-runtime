@@ -3,11 +3,11 @@
 # Next.js Runtime
 
 <p align="center">
-  <a aria-label="npm version" href="https://www.npmjs.com/package/@netlify/next-runtime">
-    <img alt="" src="https://img.shields.io/npm/v/@netlify/next-runtime">
+  <a aria-label="npm version" href="https://www.npmjs.com/package/@netlify/plugin-nextjs">
+    <img alt="" src="https://img.shields.io/npm/v/@netlify/plugin-nextjs">
   </a>
-  <a aria-label="MIT License" href="https://img.shields.io/npm/l/@netlify/next-runtime">
-    <img alt="" src="https://img.shields.io/npm/l/@netlify/next-runtime">
+  <a aria-label="MIT License" href="https://img.shields.io/npm/l/@netlify/plugin-nextjs">
+    <img alt="" src="https://img.shields.io/npm/l/@netlify/plugin-nextjs">
   </a>
 </p>
 
@@ -115,14 +115,14 @@ Edge runtime or middleware is enabled it will also generate edge functions for m
 The Next.js Runtime installs automatically for new Next.js sites on Netlify. You can also install it manually like this:
 
 ```shell
-npm install -D @netlify/next-runtime
+npm install -D @netlify/plugin-nextjs
 ```
 
 ...then add the following to your `netlify.toml` file:
 
 ```toml
 [[plugins]]
-package = "@netlify/next-runtime"
+package = "@netlify/plugin-nextjs"
 ```
 
 ## Manually upgrading from an older version of the Next.js Runtime
