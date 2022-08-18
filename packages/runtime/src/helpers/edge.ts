@@ -182,7 +182,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
 
-export const updateConfig = async (publish: string) => {
+export const enableEdgeInNextConfig = async (publish: string) => {
   const configFile = join(publish, 'required-server-files.json')
   const config = await readJSON(configFile)
   // This is for runtime in Next.js, rather than a build plugin setting
