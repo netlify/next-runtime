@@ -1,5 +1,52 @@
 # Changelog
 
+## [4.17.0](https://github.com/netlify/next-runtime/compare/next-runtime-v4.16.0...next-runtime-v4.17.0) (2022-08-17)
+
+
+### Features
+
+* ✨  change over to next-runtime ([#1540](https://github.com/netlify/next-runtime/issues/1540)) ([7ecf41d](https://github.com/netlify/next-runtime/commit/7ecf41d1908bc1879761ce5324fe231c75673ead))
+* **graph:** populate graph token for ISR ([#1525](https://github.com/netlify/next-runtime/issues/1525)) ([573b913](https://github.com/netlify/next-runtime/commit/573b9137241882359411f448acd044a32c2c8169))
+* skip run if @netlify/plugin-nextjs installed ([#1536](https://github.com/netlify/next-runtime/issues/1536)) ([0b4cf8c](https://github.com/netlify/next-runtime/commit/0b4cf8c6df7745fed91a59b90ab0e9f7f909b033))
+* support custom response headers on images served via IPX ([#1515](https://github.com/netlify/next-runtime/issues/1515)) ([40cb8a9](https://github.com/netlify/next-runtime/commit/40cb8a9643794121c9253ffb48555f029c7ae9af))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.1.0 ([#1526](https://github.com/netlify/next-runtime/issues/1526)) ([8a98d72](https://github.com/netlify/next-runtime/commit/8a98d7237f9168342e3bfeb9dbcc9240d694dcdd))
+* **deps:** update dependency @netlify/functions to ^1.2.0 ([#1543](https://github.com/netlify/next-runtime/issues/1543)) ([81381eb](https://github.com/netlify/next-runtime/commit/81381eb0955b7ab6db12da1c23a3f315b6754459))
+* **deps:** update dependency @netlify/ipx to ^1.2.1 ([#1534](https://github.com/netlify/next-runtime/issues/1534)) ([086a703](https://github.com/netlify/next-runtime/commit/086a703c87fb196d3b84c698dfb1621be6a0713b))
+* **deps:** update dependency @netlify/ipx to ^1.2.2 ([#1544](https://github.com/netlify/next-runtime/issues/1544)) ([097e624](https://github.com/netlify/next-runtime/commit/097e624261fad97da3411439f8e7c3baa0f706c1))
+
+## [4.16.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.15.0...plugin-nextjs-v4.16.0) (2022-08-15)
+
+
+### Features
+
+* **graph:** populate graph token for ISR ([#1525](https://github.com/netlify/next-runtime/issues/1525)) ([573b913](https://github.com/netlify/next-runtime/commit/573b9137241882359411f448acd044a32c2c8169))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.1.0 ([#1526](https://github.com/netlify/next-runtime/issues/1526)) ([8a98d72](https://github.com/netlify/next-runtime/commit/8a98d7237f9168342e3bfeb9dbcc9240d694dcdd))
+* **deps:** update dependency @netlify/ipx to ^1.2.1 ([#1534](https://github.com/netlify/next-runtime/issues/1534)) ([086a703](https://github.com/netlify/next-runtime/commit/086a703c87fb196d3b84c698dfb1621be6a0713b))
+
+## [4.15.0](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.14.2...plugin-nextjs-v4.15.0) (2022-08-12)
+
+
+### Features
+
+* support custom response headers on images served via IPX ([#1515](https://github.com/netlify/netlify-plugin-nextjs/issues/1515)) ([40cb8a9](https://github.com/netlify/netlify-plugin-nextjs/commit/40cb8a9643794121c9253ffb48555f029c7ae9af))
+
+## [4.14.2](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.14.1...plugin-nextjs-v4.14.2) (2022-08-11)
+
+
+### Bug Fixes
+
+* allow proxy of /_next/static ([#1503](https://github.com/netlify/netlify-plugin-nextjs/issues/1503)) ([4efef60](https://github.com/netlify/netlify-plugin-nextjs/commit/4efef6010600195d61aef79606c800a8b9c7c22b))
+* **deps:** update dependency @netlify/ipx to ^1.1.4 ([#1512](https://github.com/netlify/netlify-plugin-nextjs/issues/1512)) ([44bdb1f](https://github.com/netlify/netlify-plugin-nextjs/commit/44bdb1fbe53fa929e270cad70e2cde5e84330baf))
+* **deps:** update dependency @netlify/ipx to ^1.2.0 ([#1516](https://github.com/netlify/netlify-plugin-nextjs/issues/1516)) ([b90bf3e](https://github.com/netlify/netlify-plugin-nextjs/commit/b90bf3e6aff30dabbd5064b0553818304f92d211))
+
 ## [4.14.1](https://github.com/netlify/netlify-plugin-nextjs/compare/plugin-nextjs-v4.14.0...plugin-nextjs-v4.14.1) (2022-08-03)
 
 

@@ -2,7 +2,7 @@
 import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
-import type { NetlifyConfig } from '@netlify/build'
+import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 
@@ -20,6 +20,7 @@ export interface FunctionManifest {
         pattern: string
       }
   >
+  import_map?: string
 }
 
 export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> => {
@@ -122,6 +123,31 @@ const writeEdgeFunction = async ({
   }
 }
 
+export const writeDevEdgeFunction = async ({
+  INTERNAL_EDGE_FUNCTIONS_SRC = '.netlify/edge-functions',
+}: NetlifyPluginConstants & {
+  // The constants type needs an update
+  INTERNAL_EDGE_FUNCTIONS_SRC?: string
+}) => {
+  const manifest: FunctionManifest = {
+    functions: [
+      {
+        function: 'next-dev',
+        path: '/*',
+      },
+    ],
+    version: 1,
+  }
+  const edgeFunctionRoot = resolve(INTERNAL_EDGE_FUNCTIONS_SRC)
+  await emptyDir(edgeFunctionRoot)
+  await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
+
+  const edgeFunctionDir = join(edgeFunctionRoot, 'next-dev')
+  await ensureDir(edgeFunctionDir)
+  await copyEdgeSourceFile({ edgeFunctionDir, file: 'next-dev.js', target: 'index.js' })
+  await copyEdgeSourceFile({ edgeFunctionDir, file: 'utils.ts' })
+}
+
 /**
  * Writes Edge Functions for the Next middleware
  */
@@ -135,11 +161,9 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   await emptyDir(edgeFunctionRoot)
 
   if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
-    if (!process.env.NEXT_USE_NETLIFY_EDGE) {
-      console.log(
-        'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
-      )
-    }
+    console.log(
+      'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
+    )
     const edgeFunctionDir = join(edgeFunctionRoot, 'ipx')
     await ensureDir(edgeFunctionDir)
     await copyEdgeSourceFile({ edgeFunctionDir, file: 'ipx.ts', target: 'index.ts' })
@@ -152,7 +176,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
       path: '/_next/image*',
     })
   }
-  if (process.env.NEXT_USE_NETLIFY_EDGE) {
+  if (!process.env.NEXT_DISABLE_NETLIFY_EDGE) {
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
     if (!middlewareManifest) {
       console.error("Couldn't find the middleware manifest")
@@ -184,10 +208,9 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
 
-export const updateConfig = async (publish: string) => {
+export const enableEdgeInNextConfig = async (publish: string) => {
   const configFile = join(publish, 'required-server-files.json')
   const config = await readJSON(configFile)
-  config.config.env.NEXT_USE_NETLIFY_EDGE = 'true'
   await writeJSON(configFile, config)
 }
 /* eslint-enable max-lines */

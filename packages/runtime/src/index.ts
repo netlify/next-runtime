@@ -2,7 +2,7 @@
 import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
-import { greenBright, yellowBright, bold } from 'chalk'
+import { greenBright, bold, redBright } from 'chalk'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
@@ -15,11 +15,12 @@ import {
   configureHandlerFunctions,
   generateCustomHeaders,
 } from './helpers/config'
-import { updateConfig, writeEdgeFunctions, loadMiddlewareManifest } from './helpers/edge'
-import { moveStaticPages, movePublicFiles, patchNextFiles, unpatchNextFiles } from './helpers/files'
+import { onPreDev } from './helpers/dev'
+import { enableEdgeInNextConfig, writeEdgeFunctions, loadMiddlewareManifest } from './helpers/edge'
+import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver, getApiRouteConfigs } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
-import { shouldSkip, isNextAuthInstalled } from './helpers/utils'
+import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
@@ -42,7 +43,7 @@ const plugin: NetlifyPlugin = {
     const { publish } = netlifyConfig.build
     if (shouldSkip()) {
       await restoreCache({ cache, publish })
-      console.log('Not running Essential Next.js plugin')
+      console.log('Not running Next Runtime')
       if (existsSync(join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME))) {
         console.log(`Please ensure you remove any generated functions from ${constants.INTERNAL_FUNCTIONS_SRC}`)
       }
@@ -79,6 +80,34 @@ const plugin: NetlifyPlugin = {
         failBuild,
       },
     )
+
+    const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
+
+    let usingEdge = false
+
+    if (middlewareManifest?.functions && Object.keys(middlewareManifest.functions).length !== 0) {
+      usingEdge = true
+      if (process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+        failBuild(outdent`
+          You are using Next.js experimental edge runtime, but have set NEXT_DISABLE_NETLIFY_EDGE to true. This is not supported.
+          To use edge runtime, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`}.
+        `)
+      }
+    }
+
+    if (middlewareManifest?.middleware && Object.keys(middlewareManifest.middleware).length !== 0) {
+      usingEdge = true
+      if (process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+        console.log(
+          redBright(outdent`
+            You are using Next.js Middleware without Netlify Edge Functions.
+            This is deprecated because it negatively affects performance and will disable ISR and static rendering.
+            It also disables advanced middleware features from @netlify/next
+            To get the best performance and use Netlify Edge Functions, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`}.
+          `),
+        )
+      }
+    }
 
     if (experimental.images) {
       experimentalRemotePatterns = experimental.images.remotePatterns || []
@@ -130,6 +159,7 @@ const plugin: NetlifyPlugin = {
       netlifyConfig,
       basePath,
       remotePatterns: experimentalRemotePatterns,
+      responseHeaders: getCustomImageResponseHeaders(netlifyConfig.headers),
     })
 
     await generateRedirects({
@@ -139,27 +169,15 @@ const plugin: NetlifyPlugin = {
       apiRoutes,
     })
 
-    // We call this even if we don't have edge functions enabled because we still use it for images
-    await writeEdgeFunctions(netlifyConfig)
+    if (usingEdge) {
+      await writeEdgeFunctions(netlifyConfig)
 
-    if (process.env.NEXT_USE_NETLIFY_EDGE) {
+      await enableEdgeInNextConfig(publish)
+
       console.log(outdent`
-        ✨ Deploying to ${greenBright`Netlify Edge Functions`} ✨
+        ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
         This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
       `)
-      await updateConfig(publish)
-    }
-
-    const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
-
-    if (!process.env.NEXT_USE_NETLIFY_EDGE && middlewareManifest?.sortedMiddleware?.length) {
-      console.log(
-        yellowBright(outdent`
-          You are using Next.js Middleware without Netlify Edge Functions.
-          This will soon be deprecated because it negatively affects performance and will disable ISR and static rendering.
-          To get the best performance and use Netlify Edge Functions, set the env var ${bold`NEXT_USE_NETLIFY_EDGE=true`}.
-        `),
-      )
     }
   },
 
@@ -181,7 +199,7 @@ const plugin: NetlifyPlugin = {
 
     if (shouldSkip()) {
       status.show({
-        title: 'Essential Next.js plugin did not run',
+        title: 'Next Runtime did not run',
         summary: `Next cache was stored, but all other functions were skipped because ${
           process.env.NETLIFY_NEXT_PLUGIN_SKIP
             ? `NETLIFY_NEXT_PLUGIN_SKIP is set`
@@ -201,8 +219,31 @@ const plugin: NetlifyPlugin = {
 
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
-    await unpatchNextFiles(basePath)
   },
 }
-module.exports = plugin
+// The types haven't been updated yet
+const nextRuntime = (
+  _inputs,
+  meta: { events?: Set<string> } = {},
+): NetlifyPlugin & { onPreDev?: NetlifyPlugin['onPreBuild'] } => {
+  if (!meta?.events?.has('onPreDev')) {
+    return {
+      ...plugin,
+      onEnd: ({ utils }) => {
+        utils.status.show({
+          title: 'Please upgrade to the latest version of the Netlify CLI',
+          summary:
+            'To support for the latest Next.js features, please upgrade to the latest version of the Netlify CLI',
+        })
+      },
+    }
+  }
+  return {
+    ...plugin,
+    onPreDev,
+  }
+}
+
+module.exports = nextRuntime
+
 /* eslint-enable max-lines */

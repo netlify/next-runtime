@@ -1,5 +1,5 @@
 {
-  "name": "netlify-plugin-nextjs",
+  "name": "netlify-next-runtime",
   "private": true,
   "description": "Run Next.js seamlessly on Netlify",
   "scripts": {
@@ -14,7 +14,7 @@
     "format:check-fix:prettier": "run-e format:check:prettier format:fix:prettier",
     "format:check:prettier": "cross-env-shell prettier --check $npm_package_config_prettier",
     "format:fix:prettier": "cross-env-shell prettier --write $npm_package_config_prettier",
-    "build": "npm run -w @netlify/plugin-nextjs build",
+    "build": "npm run build -w packages/next -w packages/runtime",
     "postinstall": "run-s build install-husky",
     "install-husky": "if-env CI=1 || husky install node_modules/@netlify/eslint-config-node/.husky",
     "test": "run-s build:demo test:jest",
@@ -23,31 +23,30 @@
     "test:update": "run-s build build:demo test:jest:update"
   },
   "config": {
-    "eslint": "--cache --format=codeframe --max-warnings=0 \"{plugin,src,scripts,tests,.github}/**/*.{ts,js,md,html}\" \"*.{ts,js,md,html}\" \".*.{ts,js,md,html}\"",
-    "prettier": "--loglevel=warn \"{plugin,src,scripts,tests,.github}/**/*.{ts,js,md,yml,json,html}\" \"*.{ts,js,yml,json,html}\" \".*.{ts,js,yml,json,html}\" \"!package-lock.json\""
+    "eslint": "--cache --format=codeframe --max-warnings=0 \"{packages,src,scripts,tests,.github}/**/*.{ts,js,md,html}\" \"*.{ts,js,md,html}\" \".*.{ts,js,md,html}\"",
+    "prettier": "--loglevel=warn \"{packages,src,scripts,tests,.github}/**/*.{ts,js,md,yml,json,html}\" \"*.{ts,js,yml,json,html}\" \".*.{ts,js,yml,json,html}\" \"!package-lock.json\""
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/netlify/netlify-plugin-nextjs.git"
+    "url": "git+https://github.com/netlify/next-runtime.git"
   },
   "keywords": [
     "nextjs",
     "netlify",
     "next",
-    "netlify-plugin"
+    "netlify-runtime"
   ],
-  "author": "lindsaylevine",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/netlify/netlify-plugin-nextjs/issues"
+    "url": "https://github.com/netlify/next-runtime/issues"
   },
-  "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme",
+  "homepage": "https://github.com/netlify/next-runtime#readme",
   "devDependencies": {
     "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.16.0",
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^27.9.1",
+    "@netlify/build": "^27.15.1",
     "@netlify/eslint-config-node": "^7.0.0",
     "@testing-library/cypress": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
@@ -95,8 +94,9 @@
     "testTimeout": 60000
   },
   "workspaces": [
-    "plugin",
+    "packages/*",
     "demos/default",
+    "demos/next-auth",
     "demos/static-root",
     "demos/next-export",
     "demos/base-path",

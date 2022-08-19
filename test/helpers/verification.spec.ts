@@ -1,4 +1,4 @@
-import { checkNextSiteHasBuilt } from '../../plugin/src/helpers/verification'
+import { checkNextSiteHasBuilt } from '../../packages/runtime/src/helpers/verification'
 import { outdent } from 'outdent'
 
 import type { NetlifyPluginUtils } from '@netlify/build'
@@ -6,18 +6,18 @@ type FailBuild = NetlifyPluginUtils['build']['failBuild']
 
 jest.mock('fs', () => {
   return {
-    existsSync: jest.fn()
+    existsSync: jest.fn(),
   }
 })
 
 describe('checkNextSiteHasBuilt', () => {
   let failBuildMock
   const { existsSync } = require('fs')
-  
+
   beforeEach(() => {
-    failBuildMock = (jest.fn() as unknown) as FailBuild
+    failBuildMock = jest.fn() as unknown as FailBuild
   })
-  
+
   afterEach(() => {
     jest.clearAllMocks()
     jest.resetAllMocks()
@@ -37,7 +37,7 @@ describe('checkNextSiteHasBuilt', () => {
   })
 
   it('returns error message prompt to change publish directory to ".next"', () => {
-    // False for not initially finding the specified 'publish' directory, 
+    // False for not initially finding the specified 'publish' directory,
     // True for successfully finding a '.next' directory with a production build
     existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true)
 

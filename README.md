@@ -1,6 +1,6 @@
-![Essential Next.js Build Plugin](next-on-netlify.png)
+![Next.js Runtime](next-on-netlify.png)
 
-# Essential Next.js Build Plugin
+# Next.js Runtime
 
 <p align="center">
   <a aria-label="npm version" href="https://www.npmjs.com/package/@netlify/plugin-nextjs">
@@ -13,29 +13,14 @@
 
 ## What's new in this version
 
-Version 4 is a complete rewrite of the Essential Next.js plugin. For full details of everything that's new, check out
-[the v4 release notes](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/release-notes/v4.md)
-
-## Installing the plugin
-
-The plugin installs automatically for new Next.js sites on Netlify. You can also install it manually like this:
-
-```shell
-npm install -D @netlify/plugin-nextjs
-```
-
-...then add the plugin to your `netlify.toml` file:
-
-```toml
-[[plugins]]
-package = "@netlify/plugin-nextjs"
-```
+For full details of everything that's new, check out
+[the v4 release notes](https://github.com/netlify/next-runtime/blob/main/docs/release-notes/v4.md)
 
 ## Deploying
 
-If you build on Netlify, this plugin will work with no additional configuration. However if you are building and
+If you build on Netlify, the Next.js Runtime will work with no additional configuration. However if you are building and
 deploying locally using the Netlify CLI, you must deploy using `netlify deploy --build`. Running the build and deploy
-commands separately will not work, because the plugin will not generate the required configuration.
+commands separately will not work, because the Next.js Runtime will not generate the required configuration.
 
 ## Using `next/image`
 
@@ -53,12 +38,27 @@ In order to deliver the correct format to a visitor's browser, this uses a Netli
 site may not support Edge Functions, in which case it will instead fall back to delivering the original file format. You
 may also manually disable the Edge Function by setting the environment variable `NEXT_DISABLE_EDGE_IMAGES` to `true`.
 
+## Returning custom response headers on images handled by `ipx`
+
+Should you wish to return custom response headers on images handled by the
+[`netlify-ipx`](https://github.com/netlify/netlify-ipx) package, you can add them within your project's `netlify.toml`
+by targeting the `/_next/image/*` route:
+
+```
+[[headers]]
+  for = "/_next/image/*"
+
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000"
+    X-Test = 'foobar'
+```
+
 ## Next.js Middleware on Netlify
 
 Next.js Middleware works out of the box on Netlify, but check out the
-[docs on some caveats](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/middleware.md). By default,
-middleware runs using SSR. For better results, you should enable [Netlify Edge Functions](#netlify-edge-functions),
-which ensures middleware runs at the edge. To use Netlify Edge Functions for middleware or to enable
+[docs on some caveats](https://github.com/netlify/next-runtime/blob/main/docs/middleware.md). By default, middleware
+runs using SSR. For better results, you should enable [Netlify Edge Functions](#netlify-edge-functions), which ensures
+middleware runs at the edge. To use Netlify Edge Functions for middleware or to enable
 [edge server rendering](https://nextjs.org/blog/next-12-2#edge-server-rendering-experimental), set the environment
 variable `NEXT_USE_NETLIFY_EDGE` to `true`.
 
@@ -80,16 +80,16 @@ If you are using Nx, then you will need to point `publish` to the folder inside 
 
 ## Incremental Static Regeneration (ISR)
 
-The Essential Next.js plugin now fully supports ISR on Netlify. For more details see
-[the ISR docs](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/isr.md).
+The Next.js Runtime fully supports ISR on Netlify. For more details see
+[the ISR docs](https://github.com/netlify/next-runtime/blob/main/docs/isr.md).
 
 ## Use with `next export`
 
-If you are using `next export` to generate a static site, you do not need most of the functionality of this plugin and
-you can remove it. Alternatively you can
+If you are using `next export` to generate a static site, you do not need most of the functionality of this Next.js
+Runtime and you can remove it. Alternatively you can
 [set the environment variable](https://docs.netlify.com/configure-builds/environment-variables/)
-`NETLIFY_NEXT_PLUGIN_SKIP` to `true` and the plugin will handle caching but won't generate any functions for SSR
-support. See [`demos/next-export`](https://github.com/netlify/netlify-plugin-nextjs/tree/main/demos/next-export) for an
+`NETLIFY_NEXT_PLUGIN_SKIP` to `true` and the Next.js Runtime will handle caching but won't generate any functions for
+SSR support. See [`demos/next-export`](https://github.com/netlify/next-runtime/tree/main/demos/next-export) for an
 example.
 
 ## Asset optimization
@@ -100,29 +100,32 @@ that it is not enabled at **Site settings > Build & deploy > Post processing > A
 
 ## Generated functions
 
-This plugin works by generating three Netlify functions that handle requests that haven't been pre-rendered. These are
-`___netlify-handler` (for SSR and API routes), `___netlify-odb-handler` (for ISR and fallback routes), and `_ipx` (for
-images). You can see the requests for these in [the function logs](https://docs.netlify.com/functions/logs/). For ISR
-and fallback routes you will not see any requests that are served from the edge cache, just actual rendering requests.
-These are all internal functions, so you won't find them in your site's own functions directory.
+The Next.js Runtime works by generating three Netlify functions that handle requests that haven't been pre-rendered.
+These are `___netlify-handler` (for SSR and API routes), `___netlify-odb-handler` (for ISR and fallback routes), and
+`_ipx` (for images). You can see the requests for these in
+[the function logs](https://docs.netlify.com/functions/logs/). For ISR and fallback routes you will not see any requests
+that are served from the edge cache, just actual rendering requests. These are all internal functions, so you won't find
+them in your site's own functions directory.
 
-The plugin will also generate a Netlify Edge Function called 'ipx' to handle image content negotiation, and if Edge
-runtime or middleware is enabled it will also generate edge functions for middleware and edge routes.
+The Next.js Runtime will also generate a Netlify Edge Function called 'ipx' to handle image content negotiation, and if
+Edge runtime or middleware is enabled it will also generate edge functions for middleware and edge routes.
 
-## Migrating from an older version of the plugin
+## Manually installing the Next.js Runtime
 
-You can manually upgrade from the previous version of the plugin by running the following command:
+The Next.js Runtime installs automatically for new Next.js sites on Netlify. You can also install it manually like this:
 
 ```shell
-npm install -D @netlify/plugin-nextjs@latest
+npm install -D @netlify/plugin-nextjs
 ```
 
-Change the `publish` directory to `.next`:
+...then add the following to your `netlify.toml` file:
 
 ```toml
-[build]
-publish = ".next"
+[[plugins]]
+package = "@netlify/plugin-nextjs"
 ```
+
+## Manually upgrading from an older version of the Next.js Runtime
 
 If you previously set these values, they're no longer needed and can be removed:
 
@@ -130,17 +133,16 @@ If you previously set these values, they're no longer needed and can be removed:
 - `node_bundler = "esbuild"` in `netlify.toml`
 - `external_node_modules` in `netlify.toml`
 
-The `serverless` and `experimental-serverless-trace` targets are deprecated in Next 12, and all builds with this plugin
-will now use the default `server` target. If you previously set the target in your `next.config.js`, you should remove
-it.
+The `serverless` and `experimental-serverless-trace` targets are deprecated in Next 12, and all builds with this Next
+Runtime will now use the default `server` target. If you previously set the target in your `next.config.js`, you should
+remove it.
 
 If you currently use redirects or rewrites on your site, see
-[the Rewrites and Redirects guide](https://github.com/netlify/netlify-plugin-nextjs/blob/main/docs/redirects-rewrites.md)
-for information on changes to how they are handled in this version. In particular, note that `_redirects` and `_headers`
+[the Rewrites and Redirects guide](https://github.com/netlify/next-runtime/blob/main/docs/redirects-rewrites.md) for
+information on changes to how they are handled in this version. In particular, note that `_redirects` and `_headers`
 files must be placed in `public`, not in the root of the site.
 
 ## Feedback
 
-If you think you have found a bug in the plugin,
-[please open an issue](https://github.com/netlify/netlify-plugin-nextjs/issues). If you have comments or feature
-requests, [see the dicussion board](https://github.com/netlify/netlify-plugin-nextjs/discussions)
+If you think you have found a bug in this repo, [please open an issue](https://github.com/netlify/next-runtime/issues).
+If you have comments or feature requests, [see the dicussion board](https://github.com/netlify/next-runtime/discussions)

@@ -1,5 +1,6 @@
 /* eslint-disable max-lines */
 import type { NetlifyConfig } from '@netlify/build'
+import type { Header } from '@netlify/build/types/config/netlify_config'
 import globby from 'globby'
 import { join } from 'pathe'
 
@@ -213,12 +214,21 @@ export const findModuleFromBase = ({ paths, candidates }): string | null => {
 
 export const isNextAuthInstalled = (): boolean => {
   try {
-    // eslint-disable-next-line import/no-unassigned-import, import/no-unresolved, n/no-missing-require
+    // eslint-disable-next-line import/no-unassigned-import, import/no-extraneous-dependencies, n/no-extraneous-require
     require('next-auth')
     return true
   } catch {
     // Ignore the MODULE_NOT_FOUND error
     return false
   }
+}
+
+export const getCustomImageResponseHeaders = (headers: Header[]): Record<string, string> | null => {
+  const customImageResponseHeaders = headers.find((header) => header.for?.startsWith('/_next/image/'))
+
+  if (customImageResponseHeaders) {
+    return customImageResponseHeaders?.values as Record<string, string>
+  }
+  return null
 }
 /* eslint-enable max-lines */

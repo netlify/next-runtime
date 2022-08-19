@@ -1,12 +1,21 @@
-import { NextURL } from 'next/dist/server/web/next-url'
+import type { NextURL } from 'next/dist/server/web/next-url'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 import { MiddlewareResponse } from './response'
 
+export interface NextOptions {
+  /**
+   * Include conditional request headers in the request to the origin.
+   * If you do this, you must ensure you check the response for a 304 Not Modified response
+   * and handle it and the missing bode accordingly.
+   */
+  sendConditionalRequest?: boolean
+}
+
 // TODO: add Context type
 type Context = {
-  next: () => Promise<Response>
+  next: (options?: NextOptions) => Promise<Response>
 }
 
 /**
@@ -40,9 +49,12 @@ export class MiddlewareRequest extends Request {
     })
   }
 
-  async next(): Promise<MiddlewareResponse> {
+  /**
+   * Passes the request to the origin, allowing you to access the response
+   */
+  async next(options?: NextOptions): Promise<MiddlewareResponse> {
     this.applyHeaders()
-    const response = await this.context.next()
+    const response = await this.context.next(options)
     return new MiddlewareResponse(response)
   }
 

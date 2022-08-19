@@ -60,7 +60,7 @@ export const matchesRewrite = (file: string, rewrites: Rewrites): boolean => {
 }
 
 export const getMiddleware = async (publish: string): Promise<Array<string>> => {
-  if (process.env.NEXT_USE_NETLIFY_EDGE) {
+  if (!process.env.NEXT_DISABLE_NETLIFY_EDGE) {
     return []
   }
   const manifestPath = join(publish, 'server', 'middleware-manifest.json')
@@ -280,6 +280,8 @@ export const moveStaticPages = async ({
   }
 }
 
+const PATCH_WARNING = `/* File patched by Netlify */`
+
 /**
  * Attempt to patch a source file, preserving a backup
  */
@@ -294,7 +296,13 @@ const patchFile = async ({
     console.warn('File was not found')
     return false
   }
-  const content = await readFile(file, 'utf8')
+  let content = await readFile(file, 'utf8')
+
+  // If the file has already been patched, patch the backed-up original instead
+  if (content.includes(PATCH_WARNING) && existsSync(`${file}.orig`)) {
+    content = await readFile(`${file}.orig`, 'utf8')
+  }
+
   const newContent = replacements.reduce((acc, [from, to]) => {
     if (acc.includes(to)) {
       console.log('Already patched. Skipping.')
@@ -307,7 +315,7 @@ const patchFile = async ({
     return false
   }
   await writeFile(`${file}.orig`, content)
-  await writeFile(file, newContent)
+  await writeFile(file, `${newContent}\n${PATCH_WARNING}`)
   console.log('Done')
   return true
 }
@@ -356,19 +364,19 @@ const baseServerReplacements: Array<[string, string]> = [
 const nextServerReplacements: Array<[string, string]> = [
   [
     `getMiddlewareManifest() {\n        if (this.minimalMode) return null;`,
-    `getMiddlewareManifest() {\n        if (this.minimalMode || process.env.NEXT_USE_NETLIFY_EDGE) return null;`,
+    `getMiddlewareManifest() {\n        if (this.minimalMode || !process.env.NEXT_DISABLE_NETLIFY_EDGE) return null;`,
   ],
   [
     `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode) return []`,
-    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || process.env.NEXT_USE_NETLIFY_EDGE) return [];`,
+    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || !process.env.NEXT_DISABLE_NETLIFY_EDGE) return [];`,
   ],
   [
     `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode) return undefined;`,
-    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || process.env.NEXT_USE_NETLIFY_EDGE) return undefined;`,
+    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || !process.env.NEXT_DISABLE_NETLIFY_EDGE) return undefined;`,
   ],
   [
     `getMiddlewareManifest() {\n        if (this.minimalMode) {`,
-    `getMiddlewareManifest() {\n        if (!this.minimalMode && !process.env.NEXT_USE_NETLIFY_EDGE) {`,
+    `getMiddlewareManifest() {\n        if (!this.minimalMode && process.env.NEXT_DISABLE_NETLIFY_EDGE) {`,
   ],
 ]
 

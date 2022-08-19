@@ -12,12 +12,12 @@ export default function Home() {
       <main>
         <h1>Canary Next App</h1>
         <div>
-          <p>Here's where we test out Next's canary features to ensure they work with our plugin .</p>
+          <p>Here's where we test out Next's canary features to ensure they work with our Next Runtime .</p>
         </div>
       </main>
 
       <Image
-        src="https://raw.githubusercontent.com/netlify/netlify-plugin-nextjs/main/next-on-netlify.png"
+        src="https://raw.githubusercontent.com/netlify/next-runtime/main/next-on-netlify.png"
         alt="Picture of the author"
         width={540}
         height={191}
