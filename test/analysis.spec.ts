@@ -1,6 +1,6 @@
-import { extractConfigFromFile } from '../plugin/src/helpers/analysis'
+import { extractConfigFromFile } from '../packages/runtime/src/helpers/analysis'
 import { resolve } from 'pathe'
-import { getDependenciesOfFile } from '../plugin/src/helpers/files'
+import { getDependenciesOfFile } from '../packages/runtime/src/helpers/files'
 describe('static source analysis', () => {
   beforeEach(() => {
     //  Spy on console.error
