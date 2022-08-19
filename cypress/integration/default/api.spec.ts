@@ -4,9 +4,7 @@ describe('Extended API routes', () => {
       expect(response.status).to.equal(202)
     })
   })
-  it('returns 404 for scheduled route', () => {
-    cy.request('/api/hello-scheduled').then((response) => {
-      expect(response.status).to.equal(404)
-    })
+  it('correctly returns 404 for scheduled route', () => {
+    cy.request({ url: '/api/hello-scheduled', failOnStatusCode: false }).its('status').should('equal', 404)
   })
 })
