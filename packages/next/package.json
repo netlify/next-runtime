@@ -1,6 +1,6 @@
 {
   "name": "@netlify/next",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Enhanced Next.js features on Netlify",
   "main": "lib/index.js",
   "files": [
