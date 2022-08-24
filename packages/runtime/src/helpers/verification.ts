@@ -11,6 +11,8 @@ import { satisfies } from 'semver'
 
 import { LAMBDA_MAX_SIZE } from '../constants'
 
+import { isBundleSizeCheckDisabled } from './utils'
+
 // This is when nft support was added
 const REQUIRED_BUILD_VERSION = '>=18.16.0'
 
@@ -105,6 +107,15 @@ export const checkForRootPublish = ({
 }
 
 export const checkZipSize = async (file: string, maxSize: number = LAMBDA_MAX_SIZE): Promise<void> => {
+  // Requires contacting the Netlify Support team to fully enable.
+  // Enabling this without contacting them can result in failed deploys.
+  if (isBundleSizeCheckDisabled()) {
+    console.warn(
+      'Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.',
+    )
+    return
+  }
+
   if (!existsSync(file)) {
     console.warn(`Could not check zip size because ${file} does not exist`)
     return
