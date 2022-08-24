@@ -105,6 +105,8 @@ export const checkForRootPublish = ({
 }
 
 export const checkZipSize = async (file: string, maxSize: number = LAMBDA_MAX_SIZE): Promise<void> => {
+  // Experimental: We can skip checking for the bundle size on the plugin side.
+  // Please reach out to the Netlify support team if you'd like to enable this feature
   if (!process.env.NETLIFY_CHECK_BUNDLE_SIZE) {
     console.log('Skipping the bundle size check. Set env var "NETLIFY_CHECK_BUNDLE_SIZE=true" to enable checking the bundle size')
     return
