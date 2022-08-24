@@ -105,6 +105,11 @@ export const checkForRootPublish = ({
 }
 
 export const checkZipSize = async (file: string, maxSize: number = LAMBDA_MAX_SIZE): Promise<void> => {
+  if (!process.env.NETLIFY_CHECK_BUNDLE_SIZE) {
+    console.log('Skipping the bundle size check. Set env var "NETLIFY_CHECK_BUNDLE_SIZE=true" to enable checking the bundle size')
+    return
+  }
+
   if (!existsSync(file)) {
     console.warn(`Could not check zip size because ${file} does not exist`)
     return
