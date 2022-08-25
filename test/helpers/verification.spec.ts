@@ -1,11 +1,15 @@
-import { checkNextSiteHasBuilt } from '../../packages/runtime/src/helpers/verification'
+import Chance from 'chance'
+import { checkNextSiteHasBuilt, checkZipSize } from '../../packages/runtime/src/helpers/verification'
 import { outdent } from 'outdent'
 
 import type { NetlifyPluginUtils } from '@netlify/build'
 type FailBuild = NetlifyPluginUtils['build']['failBuild']
 
+const chance = new Chance()
+
 jest.mock('fs', () => {
   return {
+    ...jest.requireActual('fs'),
     existsSync: jest.fn(),
   }
 })
@@ -76,5 +80,23 @@ describe('checkNextSiteHasBuilt', () => {
     checkNextSiteHasBuilt({ publish: '.next', failBuild: failBuildMock })
 
     expect(failBuildMock).toHaveBeenCalledWith(expectedFailureMessage)
+  })
+})
+
+describe('checkZipSize', () => {
+  let consoleSpy
+
+  beforeEach(() => {
+    consoleSpy = jest.spyOn(global.console, 'warn')
+  })
+
+  afterEach(() => {
+    delete process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK
+  })
+
+  it('emits a warning that DISABLE_BUNDLE_ZIP_SIZE_CHECK was enabled', async () => {
+    process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'true'
+    await checkZipSize(chance.string())
+    expect(consoleSpy).toHaveBeenCalledWith('Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.')
   })
 })
