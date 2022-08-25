@@ -9,6 +9,7 @@ const chance = new Chance()
 
 jest.mock('fs', () => {
   return {
+    ...jest.requireActual('fs'),
     existsSync: jest.fn(),
   }
 })
@@ -90,13 +91,12 @@ describe('checkZipSize', () => {
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
     delete process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK
   })
 
   it('emits a warning that DISABLE_BUNDLE_ZIP_SIZE_CHECK was enabled', async () => {
-    process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'false'
+    process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'true'
     await checkZipSize(chance.string())
-    expect(consoleSpy).toHaveBeenCalledWith('Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.')
+    expect(consoleSpy).toHaveBeenCalledWith('Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.')
   })
 })
