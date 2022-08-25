@@ -111,7 +111,7 @@ export const checkZipSize = async (file: string, maxSize: number = LAMBDA_MAX_SI
   // Enabling this without contacting them can result in failed deploys.
   if (isBundleSizeCheckDisabled()) {
     console.warn(
-      'Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.',
+      'Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.',
     )
     return
   }
