@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.19.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.18.1...plugin-nextjs-v4.19.0) (2022-08-25)
+
+
+### Features
+
+* allows disabling function size check ([#1570](https://github.com/netlify/next-runtime/issues/1570)) ([6a046de](https://github.com/netlify/next-runtime/commit/6a046de211f6987d68e547ff70ea75a7f72b74c9))
+
 ## [4.18.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.18.0...plugin-nextjs-v4.18.1) (2022-08-25)
 
 
