@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.20.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.19.0...plugin-nextjs-v4.20.0) (2022-08-26)
+
+
+### Features
+
+* improve messaging on middleware detection ([#1575](https://github.com/netlify/next-runtime/issues/1575)) ([73d6b8e](https://github.com/netlify/next-runtime/commit/73d6b8ed0d8cffda467e335870846fc99b12e67e))
+
 ## [4.19.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.18.1...plugin-nextjs-v4.19.0) (2022-08-25)
 
 
