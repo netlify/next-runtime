@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.21.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.20.0...plugin-nextjs-v4.21.0) (2022-08-30)
+
+
+### Features
+
+* only run next-dev middleware in dev ([#1582](https://github.com/netlify/next-runtime/issues/1582)) ([9baf979](https://github.com/netlify/next-runtime/commit/9baf979d141693b06478bc0c926f6c7e30296e73))
+
 ## [4.20.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.19.0...plugin-nextjs-v4.20.0) (2022-08-26)
 
 
