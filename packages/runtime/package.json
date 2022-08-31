@@ -48,9 +48,6 @@
     "watch": "tsc --watch",
     "prepare": "npm run build"
   },
-  "peerDependencies": {
-    "next": "*"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/netlify/next-runtime.git"
