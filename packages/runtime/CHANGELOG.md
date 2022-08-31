@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.21.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.21.0...plugin-nextjs-v4.21.1) (2022-08-31)
+
+
+### Bug Fixes
+
+* remove Next.js as a peer dependency ([#1584](https://github.com/netlify/next-runtime/issues/1584)) ([6be4dc0](https://github.com/netlify/next-runtime/commit/6be4dc08e5339efb84e180e9ea02ce0bc6efe5b5))
+
 ## [4.21.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.20.0...plugin-nextjs-v4.21.0) (2022-08-30)
 
 
