@@ -56,26 +56,29 @@ const generateLocaleRedirects = ({
   return redirects
 }
 
-const generateCustom404Redirects = ({ i18n }: Pick<NextConfig, 'i18n'>): NetlifyConfig['redirects'] => {
+const generate404Redirects = ({
+  i18n,
+  basePath,
+}: Pick<NextConfig, 'i18n' | 'basePath'>): NetlifyConfig['redirects'] => {
   const redirects: NetlifyConfig['redirects'] = []
 
   if (i18n) {
     i18n.locales.forEach((locale) => {
       redirects.push({
-        from: `/${locale}/*`,
-        to: `/server/pages/${locale}/404.html`,
+        from: `${basePath}/${locale}/*`,
+        to: `${basePath}/server/pages/${locale}/404.html`,
         status: 404,
       })
     })
     redirects.push({
-      from: '/*',
-      to: `/server/pages/${i18n.defaultLocale}/404.html`,
+      from: `${basePath}/*`,
+      to: `${basePath}/server/pages/${i18n.defaultLocale}/404.html`,
       status: 404,
     })
   } else {
     redirects.push({
-      from: '/*',
-      to: '/server/pages/404.html',
+      from: `${basePath}/*`,
+      to: `${basePath}/server/pages/404.html`,
       status: 404,
     })
   }
@@ -323,6 +326,8 @@ export const generateRedirects = async ({
   })
   netlifyConfig.redirects.push(...dynamicRewrites)
   routesThatMatchMiddleware.push(...dynamicRoutesThatMatchMiddleware)
+
+  netlifyConfig.redirects.push(...generate404Redirects({ i18n, basePath }))
 
   const middlewareMatches = new Set(routesThatMatchMiddleware).size
   if (middlewareMatches > 0) {
