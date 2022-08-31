@@ -23,6 +23,14 @@ import {
 const matchesMiddleware = (middleware: Array<string>, route: string): boolean =>
   middleware.some((middlewarePath) => route.startsWith(middlewarePath))
 
+const generateHiddenPathRedirects = ({ basePath }: Pick<NextConfig, 'basePath'>): NetlifyConfig['redirects'] =>
+  HIDDEN_PATHS.map((path) => ({
+    from: `${basePath}${path}`,
+    to: '/404.html',
+    status: 404,
+    force: true,
+  }))
+
 const generateLocaleRedirects = ({
   i18n,
   basePath,
@@ -262,20 +270,11 @@ export const generateRedirects = async ({
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 
-  netlifyConfig.redirects.push(
-    ...HIDDEN_PATHS.map((path) => ({
-      from: `${basePath}${path}`,
-      to: '/404.html',
-      status: 404,
-      force: true,
-    })),
-  )
+  netlifyConfig.redirects.push(...generateHiddenPathRedirects({ basePath }))
 
   if (i18n && i18n.localeDetection !== false) {
     netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))
   }
-
-  netlifyConfig.redirects.push(...generateCustom404Redirects({ i18n }))
 
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
