@@ -14,6 +14,7 @@ import { RoutesManifest } from './types'
 import {
   getApiRewrites,
   getPreviewRewrites,
+  is404Route,
   isApiRoute,
   redirectsForNextRoute,
   redirectsForNextRouteWithData,
@@ -65,12 +66,30 @@ const generateLocaleRedirects = ({
 }
 
 const generate404Redirects = ({
-  i18n,
+  staticRouteEntries,
   basePath,
-}: Pick<NextConfig, 'i18n' | 'basePath'>): NetlifyConfig['redirects'] => {
+  i18n,
+  buildId,
+}: {
+  staticRouteEntries: Array<[string, SsgRoute]>
+  basePath: string
+  i18n: NextConfig['i18n']
+  buildId: string
+}): NetlifyConfig['redirects'] => {
   const redirects: NetlifyConfig['redirects'] = []
 
-  if (i18n) {
+  const isIsr404 = staticRouteEntries.some(
+    ([route, { initialRevalidateSeconds }]) => is404Route(route, i18n) && initialRevalidateSeconds !== false,
+  )
+
+  if (isIsr404) {
+    redirects.push({
+        from: `${basePath}/*`,
+        to: ODB_FUNCTION_PATH,
+        status: 404,
+      },
+    )
+  } else if (i18n?.locales?.length) {
     i18n.locales.forEach((locale) => {
       redirects.push({
         from: `${basePath}/${locale}/*`,
@@ -161,7 +180,7 @@ const generateStaticIsrRewrites = ({
   const staticRoutePaths = new Set<string>()
   const staticIsrRewrites: NetlifyConfig['redirects'] = []
   staticRouteEntries.forEach(([route, { initialRevalidateSeconds }]) => {
-    if (isApiRoute(route)) {
+    if (isApiRoute(route) || is404Route(route, i18n)) {
       return
     }
     staticRoutePaths.add(route)
@@ -229,7 +248,7 @@ const generateDynamicRewrites = ({
   const dynamicRewrites: NetlifyConfig['redirects'] = []
   const dynamicRoutesThatMatchMiddleware: Array<string> = []
   dynamicRoutes.forEach((route) => {
-    if (isApiRoute(route.page)) {
+    if (isApiRoute(route.page) || is404Route(route.page, i18n)) {
       return
     }
     if (route.page in prerenderedDynamicRoutes) {
@@ -306,7 +325,7 @@ export const generateRedirects = async ({
 
   // Add rewrites for all static SSR routes. This is Next 12+
   staticRoutes?.forEach((route) => {
-    if (staticRoutePaths.has(route.page) || isApiRoute(route.page)) {
+    if (staticRoutePaths.has(route.page) || isApiRoute(route.page) || is404Route(route.page)) {
       // Prerendered static routes are either handled by the CDN or are ISR
       return
     }
@@ -326,7 +345,7 @@ export const generateRedirects = async ({
   netlifyConfig.redirects.push(...dynamicRewrites)
   routesThatMatchMiddleware.push(...dynamicRoutesThatMatchMiddleware)
 
-  netlifyConfig.redirects.push(...generate404Redirects({ i18n, basePath }))
+  netlifyConfig.redirects.push(...generate404Redirects({ staticRouteEntries, basePath, i18n, buildId }))
 
   const middlewareMatches = new Set(routesThatMatchMiddleware).size
   if (middlewareMatches > 0) {

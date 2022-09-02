@@ -73,6 +73,9 @@ const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n):
 
 export const isApiRoute = (route: string) => route.startsWith('/api/') || route === '/api'
 
+export const is404Route = (route: string, i18n?: I18n) =>
+  i18n ? i18n.locales.some((locale) => route === `/${locale}/404`) : route === '/404'
+
 export const redirectsForNextRoute = ({
   route,
   buildId,
