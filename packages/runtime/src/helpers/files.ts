@@ -333,6 +333,9 @@ const getServerFile = (root: string, includeBase = true) => {
   return findModuleFromBase({ candidates, paths: [root] })
 }
 
+// force manual revalidation so the ODB handler always receives fresh content
+// ensure fallback behaviour is bypassed for pre-rendered pages
+// ensure ISR 404 pages send the correct SWR cache headers
 const baseServerReplacements: Array<[string, string]> = [
   [`checkIsManualRevalidate(req, this.renderOpts.previewProps)`, `checkIsManualRevalidate({ headers: null }, null)`],
   [`isManualRevalidate && (fallbackMode !== false || hadCache)`, `isManualRevalidate && hadCache`],
