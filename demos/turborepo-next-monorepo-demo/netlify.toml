@@ -1,14 +1,12 @@
 [build]
 command = "npm run build"
-# publish = "dist/apps/demo-monorepo/.next"
-# ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
-
-# [dev]
-# command = "npm run start"
-# targetPort = 4200
+# If we wanted to publish `docs` as well as `web`, we'd need to have netlify.toml
+# files in each project folder.
+# See https://docs.netlify.com/configure-builds/monorepos/#build-multiple-sites-from-a-monorepo
+publish = "apps/web/.next"
 
 [[plugins]]
-package = "./local-plugin"
+package = "./packages/local-plugin"
 
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
