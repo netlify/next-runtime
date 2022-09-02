@@ -10,3 +10,7 @@ package = "./packages/local-plugin"
 
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
+
+[[edge_functions]]
+path = "/edge"
+function = "edge"
