@@ -334,7 +334,9 @@ const getServerFile = (root: string, includeBase = true) => {
 }
 
 const baseServerReplacements: Array<[string, string]> = [
-  [`let ssgCacheKey = `, `let ssgCacheKey = process.env._BYPASS_SSG || `],
+  [`checkIsManualRevalidate(req, this.renderOpts.previewProps)`, `checkIsManualRevalidate({ headers: null }, null)`],
+  [`isManualRevalidate && (fallbackMode !== false || hadCache)`, `isManualRevalidate && hadCache`],
+  [`private: isPreviewMode || is404Page && cachedData`, `private: isPreviewMode && cachedData`],
 ]
 
 const nextServerReplacements: Array<[string, string]> = [
