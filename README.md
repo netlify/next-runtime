@@ -2,19 +2,8 @@
 
 # Next.js Runtime
 
-<p align="center">
-  <a aria-label="npm version" href="https://www.npmjs.com/package/@netlify/plugin-nextjs">
-    <img alt="" src="https://img.shields.io/npm/v/@netlify/plugin-nextjs">
-  </a>
-  <a aria-label="MIT License" href="https://img.shields.io/npm/l/@netlify/plugin-nextjs">
-    <img alt="" src="https://img.shields.io/npm/l/@netlify/plugin-nextjs">
-  </a>
-</p>
-
-## What's new in this version
-
-For full details of everything that's new, check out
-[the v4 release notes](https://github.com/netlify/next-runtime/blob/main/docs/release-notes/v4.md)
+Next.js is supported natively on Netlify, and in most cases you will not need to install or configure anything. This
+repo includes the packages used to support Next.js on Netlify.
 
 ## Deploying
 
@@ -55,21 +44,9 @@ by targeting the `/_next/image/*` route:
 
 ## Next.js Middleware on Netlify
 
-Next.js Middleware works out of the box on Netlify, but check out the
-[docs on some caveats](https://github.com/netlify/next-runtime/blob/main/docs/middleware.md). By default, middleware
-runs using SSR. For better results, you should enable [Netlify Edge Functions](#netlify-edge-functions), which ensures
-middleware runs at the edge. To use Netlify Edge Functions for middleware or to enable
-[edge server rendering](https://nextjs.org/blog/next-12-2#edge-server-rendering-experimental), set the environment
-variable `NEXT_USE_NETLIFY_EDGE` to `true`.
-
-### No nested middleware in Next 12.2.0
-
-In Next 12.2.0, nested middleware [has been deprecated](https://nextjs.org/docs/messages/middleware-upgrade-guide) in
-favor of root level middleware. If you are not using edge functions then this means that you won't get the benefits of
-using a CDN, and ISR will not work.
-
-To fix this issue, you can run your middleware on [Netlify Edge Functions](#netlify-edge-functions) by setting the
-environment variable `NEXT_USE_NETLIFY_EDGE` to `true`.
+Next.js Middleware works out of the box on Netlify. By default, middleware runs using Netlify Edge Functions. For legacy
+support for runnign Middleware at the origin, set the environment variable `NEXT_DISABLE_NETLIFY_EDGE` to `true`. Be
+aware that this will result in slower performance, as all pages that match middleware must use SSR.
 
 ## Monorepos
 
@@ -127,7 +104,7 @@ package = "@netlify/plugin-nextjs"
 
 ## Manually upgrading from an older version of the Next.js Runtime
 
-If you previously set these values, they're no longer needed and can be removed:
+If you previously set these values, they're no longer needed and should be removed:
 
 - `distDir` in your `next.config.js`
 - `node_bundler = "esbuild"` in `netlify.toml`
@@ -144,5 +121,6 @@ files must be placed in `public`, not in the root of the site.
 
 ## Feedback
 
-If you think you have found a bug in this repo, [please open an issue](https://github.com/netlify/next-runtime/issues).
-If you have comments or feature requests, [see the dicussion board](https://github.com/netlify/next-runtime/discussions)
+If you think you have found a bug in Next.js on Netlify,
+[please open an issue](https://github.com/netlify/next-runtime/issues). If you have comments or feature requests,
+[see the discussion board](https://github.com/netlify/next-runtime/discussions)
