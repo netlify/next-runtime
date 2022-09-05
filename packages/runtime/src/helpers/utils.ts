@@ -231,4 +231,7 @@ export const getCustomImageResponseHeaders = (headers: Header[]): Record<string,
   }
   return null
 }
+
+export const isBundleSizeCheckDisabled = () =>
+  process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK === '1' || process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK === 'true'
 /* eslint-enable max-lines */

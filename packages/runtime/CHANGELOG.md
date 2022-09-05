@@ -1,5 +1,64 @@
 # Changelog
 
+## [4.21.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.21.0...plugin-nextjs-v4.21.1) (2022-08-31)
+
+
+### Bug Fixes
+
+* remove Next.js as a peer dependency ([#1584](https://github.com/netlify/next-runtime/issues/1584)) ([6be4dc0](https://github.com/netlify/next-runtime/commit/6be4dc08e5339efb84e180e9ea02ce0bc6efe5b5))
+
+## [4.21.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.20.0...plugin-nextjs-v4.21.0) (2022-08-30)
+
+
+### Features
+
+* only run next-dev middleware in dev ([#1582](https://github.com/netlify/next-runtime/issues/1582)) ([9baf979](https://github.com/netlify/next-runtime/commit/9baf979d141693b06478bc0c926f6c7e30296e73))
+
+## [4.20.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.19.0...plugin-nextjs-v4.20.0) (2022-08-26)
+
+
+### Features
+
+* improve messaging on middleware detection ([#1575](https://github.com/netlify/next-runtime/issues/1575)) ([73d6b8e](https://github.com/netlify/next-runtime/commit/73d6b8ed0d8cffda467e335870846fc99b12e67e))
+
+## [4.19.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.18.1...plugin-nextjs-v4.19.0) (2022-08-25)
+
+
+### Features
+
+* allows disabling function size check ([#1570](https://github.com/netlify/next-runtime/issues/1570)) ([6a046de](https://github.com/netlify/next-runtime/commit/6a046de211f6987d68e547ff70ea75a7f72b74c9))
+
+## [4.18.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.18.0...plugin-nextjs-v4.18.1) (2022-08-25)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.2.3 ([#1571](https://github.com/netlify/next-runtime/issues/1571)) ([471ce8d](https://github.com/netlify/next-runtime/commit/471ce8d5a32f3a83f05844c8966644040defa101))
+
+## [4.18.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.17.0...plugin-nextjs-v4.18.0) (2022-08-22)
+
+
+### Features
+
+* ✨  change over to next-runtime ([#1540](https://github.com/netlify/next-runtime/issues/1540)) ([7ecf41d](https://github.com/netlify/next-runtime/commit/7ecf41d1908bc1879761ce5324fe231c75673ead))
+* add edge middleware support to `ntl dev` ([#1546](https://github.com/netlify/next-runtime/issues/1546)) ([b208ff4](https://github.com/netlify/next-runtime/commit/b208ff463499565d86cc15747b95895b3da18e55))
+* default edge middleware to on ([#1547](https://github.com/netlify/next-runtime/issues/1547)) ([9578fa9](https://github.com/netlify/next-runtime/commit/9578fa9d924362f5479f42be287028684a35ea12))
+* **graph:** populate graph token for ISR ([#1525](https://github.com/netlify/next-runtime/issues/1525)) ([573b913](https://github.com/netlify/next-runtime/commit/573b9137241882359411f448acd044a32c2c8169))
+* skip run if @netlify/plugin-nextjs installed ([#1536](https://github.com/netlify/next-runtime/issues/1536)) ([0b4cf8c](https://github.com/netlify/next-runtime/commit/0b4cf8c6df7745fed91a59b90ab0e9f7f909b033))
+* support custom response headers on images served via IPX ([#1515](https://github.com/netlify/next-runtime/issues/1515)) ([40cb8a9](https://github.com/netlify/next-runtime/commit/40cb8a9643794121c9253ffb48555f029c7ae9af))
+
+
+### Bug Fixes
+
+* check for middleware manifest before providing to Object.keys ([#1559](https://github.com/netlify/next-runtime/issues/1559)) ([f500f51](https://github.com/netlify/next-runtime/commit/f500f516281e3a2ebdd82cedaee91c05b0a438c0))
+* **deps:** update dependency @netlify/functions to ^1.1.0 ([#1526](https://github.com/netlify/next-runtime/issues/1526)) ([8a98d72](https://github.com/netlify/next-runtime/commit/8a98d7237f9168342e3bfeb9dbcc9240d694dcdd))
+* **deps:** update dependency @netlify/functions to ^1.2.0 ([#1543](https://github.com/netlify/next-runtime/issues/1543)) ([81381eb](https://github.com/netlify/next-runtime/commit/81381eb0955b7ab6db12da1c23a3f315b6754459))
+* **deps:** update dependency @netlify/ipx to ^1.2.1 ([#1534](https://github.com/netlify/next-runtime/issues/1534)) ([086a703](https://github.com/netlify/next-runtime/commit/086a703c87fb196d3b84c698dfb1621be6a0713b))
+* **deps:** update dependency @netlify/ipx to ^1.2.2 ([#1544](https://github.com/netlify/next-runtime/issues/1544)) ([097e624](https://github.com/netlify/next-runtime/commit/097e624261fad97da3411439f8e7c3baa0f706c1))
+* ensure newly-created middleware works ([#1558](https://github.com/netlify/next-runtime/issues/1558)) ([39f3b4b](https://github.com/netlify/next-runtime/commit/39f3b4b87393bd38421bd01eca13e68a608a0f85))
+* handle missing config base ([#1555](https://github.com/netlify/next-runtime/issues/1555)) ([f69d9db](https://github.com/netlify/next-runtime/commit/f69d9dbdf3d461f8ed370a9acb577fa33201f093))
+* use individual next/server deno imports ([#1556](https://github.com/netlify/next-runtime/issues/1556)) ([0667662](https://github.com/netlify/next-runtime/commit/0667662bb125a06c72b399fa08b5a2e10eb89d4d))
+
 ## [4.17.0](https://github.com/netlify/next-runtime/compare/next-runtime-v4.16.0...next-runtime-v4.17.0) (2022-08-17)
 
 
