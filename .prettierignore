@@ -22,7 +22,6 @@ lib
 tsconfig.json
 demos/nx-next-monorepo-demo
 
-packages/next/CHANGELOG.md
-packages/runtime/CHANGELOG.md
+**/CHANGELOG.md
 packages/runtime/lib
 packages/runtime/dist-types
