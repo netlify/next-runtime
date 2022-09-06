@@ -45,7 +45,7 @@ by targeting the `/_next/image/*` route:
 ## Next.js Middleware on Netlify
 
 Next.js Middleware works out of the box on Netlify. By default, middleware runs using Netlify Edge Functions. For legacy
-support for runnign Middleware at the origin, set the environment variable `NEXT_DISABLE_NETLIFY_EDGE` to `true`. Be
+support for running Middleware at the origin, set the environment variable `NEXT_DISABLE_NETLIFY_EDGE` to `true`. Be
 aware that this will result in slower performance, as all pages that match middleware must use SSR.
 
 ## Monorepos
@@ -109,6 +109,7 @@ If you previously set these values, they're no longer needed and should be remov
 - `distDir` in your `next.config.js`
 - `node_bundler = "esbuild"` in `netlify.toml`
 - `external_node_modules` in `netlify.toml`
+- The environment variable `NEXT_USE_NETLIFY_EDGE` can be removed as this is now the default
 
 The `serverless` and `experimental-serverless-trace` targets are deprecated in Next 12, and all builds with this Next
 Runtime will now use the default `server` target. If you previously set the target in your `next.config.js`, you should

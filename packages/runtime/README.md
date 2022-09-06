@@ -12,4 +12,6 @@
 </p>
 
 This package handles the build process for Next.js sites on Netlify. You should not normally need to install it
-yourself, as it is used automatically during builds of Next.js sites.
+yourself, as it is used automatically during builds of Next.js sites. See
+[the docs for using Next.js on Netlify](https://docs.netlify.com/integrations/frameworks/next-js/overview/) for more
+details.

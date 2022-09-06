@@ -16,9 +16,9 @@ The `@netlify/next` package makes Next.js even better.
 ## Next.js Advanced Middleware
 
 Regular Next.js Middleware doesn’t provide access to the actual response, or allow you to modify the request. The
-`@netlify/next` library brings the power of Netlify Edge Functions to Next.js Middleware. It gives full access request
-and response objects, allowing you to modify requests before they are sent to your Next.js app, and modify responses
-before they are sent to the browser. This allows you to personalize pages on the fly, even if they are
+`@netlify/next` library brings the power of Netlify Edge Functions to Next.js Middleware. It gives full access to the
+request and response objects, allowing you to modify requests before they are sent to your Next.js app, and modify
+responses before they are sent to the browser. This allows you to personalize pages on the fly, even if they are
 statically-generated. It includes baked-in support for:
 
 - HTML rewrites
