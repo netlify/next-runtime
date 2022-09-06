@@ -184,7 +184,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
       path: '/_next/image*',
     })
   }
-  if (!process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+  if (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'false') {
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
     if (!middlewareManifest) {
       console.error("Couldn't find the middleware manifest")
