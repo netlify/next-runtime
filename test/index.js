@@ -513,8 +513,12 @@ describe('onBuild()', () => {
     expect(existsSync(handlerFile)).toBeTruthy()
     expect(existsSync(odbHandlerFile)).toBeTruthy()
 
-    expect(readFileSync(handlerFile, 'utf8')).toMatch(`(config, "../../..", pageRoot, staticManifest, 'ssr')`)
-    expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`(config, "../../..", pageRoot, staticManifest, 'odb')`)
+    expect(readFileSync(handlerFile, 'utf8')).toMatch(
+      `(config, "../../..", pageRoot, prerenderManifest, staticManifest, 'ssr')`,
+    )
+    expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(
+      `(config, "../../..", pageRoot, prerenderManifest, staticManifest, 'odb')`,
+    )
     expect(readFileSync(handlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
     expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
   })
@@ -1030,12 +1034,12 @@ describe('utility functions', () => {
     await patchNextFiles(process.cwd())
     const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
     const patchedData = await readFileSync(serverFile, 'utf8')
-    expect(patchedData.includes('_BYPASS_SSG')).toBeTruthy()
+    expect(patchedData.includes('private: isPreviewMode && cachedData')).toBeTruthy()
 
     await unpatchNextFiles(process.cwd())
 
     const unPatchedData = await readFileSync(serverFile, 'utf8')
-    expect(unPatchedData.includes('_BYPASS_SSG')).toBeFalsy()
+    expect(unPatchedData.includes('private: isPreviewMode && cachedData')).toBeFalsy()
   })
 })
 
