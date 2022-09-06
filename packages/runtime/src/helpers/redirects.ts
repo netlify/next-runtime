@@ -69,12 +69,10 @@ const generate404Redirects = ({
   staticRouteEntries,
   basePath,
   i18n,
-  buildId,
 }: {
   staticRouteEntries: Array<[string, SsgRoute]>
   basePath: string
   i18n: NextConfig['i18n']
-  buildId: string
 }): NetlifyConfig['redirects'] => {
   const redirects: NetlifyConfig['redirects'] = []
 
@@ -84,11 +82,10 @@ const generate404Redirects = ({
 
   if (isIsr404) {
     redirects.push({
-        from: `${basePath}/*`,
-        to: ODB_FUNCTION_PATH,
-        status: 404,
-      },
-    )
+      from: `${basePath}/*`,
+      to: ODB_FUNCTION_PATH,
+      status: 404,
+    })
   } else if (i18n?.locales?.length) {
     i18n.locales.forEach((locale) => {
       redirects.push({
@@ -345,7 +342,7 @@ export const generateRedirects = async ({
   netlifyConfig.redirects.push(...dynamicRewrites)
   routesThatMatchMiddleware.push(...dynamicRoutesThatMatchMiddleware)
 
-  netlifyConfig.redirects.push(...generate404Redirects({ staticRouteEntries, basePath, i18n, buildId }))
+  netlifyConfig.redirects.push(...generate404Redirects({ staticRouteEntries, basePath, i18n }))
 
   const middlewareMatches = new Set(routesThatMatchMiddleware).size
   if (middlewareMatches > 0) {
