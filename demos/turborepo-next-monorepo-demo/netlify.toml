@@ -5,6 +5,9 @@ command = "npm run build"
 # See https://docs.netlify.com/configure-builds/monorepos/#build-multiple-sites-from-a-monorepo
 publish = "apps/web/.next"
 
+[dev]
+command = "npm run dev"
+
 [[plugins]]
 package = "./packages/local-plugin"
 
