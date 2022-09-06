@@ -103,6 +103,7 @@
     "demos/plugin-wrapper",
     "demos/server-components",
     "demos/middleware",
-    "demos/custom-routes"
+    "demos/custom-routes",
+    "demos/next-with-edge-functions"
   ]
 }
