@@ -123,12 +123,20 @@ const writeEdgeFunction = async ({
   }
 }
 
+type NetlifyPluginConstantsWithEdgeFunctions = NetlifyPluginConstants & {
+  // Until https://github.com/netlify/build/pull/4481 lands
+  INTERNAL_EDGE_FUNCTIONS_SRC?: string
+}
+
+export const cleanupEdgeFunctions = async ({
+  INTERNAL_EDGE_FUNCTIONS_SRC = '.netlify/edge-functions',
+}: NetlifyPluginConstantsWithEdgeFunctions) => {
+  await emptyDir(INTERNAL_EDGE_FUNCTIONS_SRC)
+}
+
 export const writeDevEdgeFunction = async ({
   INTERNAL_EDGE_FUNCTIONS_SRC = '.netlify/edge-functions',
-}: NetlifyPluginConstants & {
-  // The constants type needs an update
-  INTERNAL_EDGE_FUNCTIONS_SRC?: string
-}) => {
+}: NetlifyPluginConstantsWithEdgeFunctions) => {
   const manifest: FunctionManifest = {
     functions: [
       {
