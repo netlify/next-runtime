@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.21.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.21.1...plugin-nextjs-v4.21.2) (2022-09-06)
+
+
+### Bug Fixes
+
+* clean up edge functions during build ([#1588](https://github.com/netlify/next-runtime/issues/1588)) ([ae2c103](https://github.com/netlify/next-runtime/commit/ae2c1038ea8554858da4dd91bebf1381f71b63d1))
+* **deps:** update dependency @netlify/ipx to ^1.2.4 ([#1590](https://github.com/netlify/next-runtime/issues/1590)) ([70d38ca](https://github.com/netlify/next-runtime/commit/70d38cad88c8bea7c8ed7332c91018a50d64b6fb))
+* watch for creation of middleware ([#1592](https://github.com/netlify/next-runtime/issues/1592)) ([3ae0ee6](https://github.com/netlify/next-runtime/commit/3ae0ee6d60667290d2fabc76b754ee2a82e1ca3e))
+
 ## [4.21.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.21.0...plugin-nextjs-v4.21.1) (2022-08-31)
 
 
