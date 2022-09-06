@@ -25,7 +25,7 @@ type Mutable<T> = {
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
-  // eslint-disable-next-line max-params
+// eslint-disable-next-line max-params
 const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
@@ -49,7 +49,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   conf.experimental.isrFlushToDisk = false
   // This is our flag that we use when patching the source
   // eslint-disable-next-line no-underscore-dangle
-  process.env._BYPASS_SSG = 'true'
+  process.env._REVALIDATE_SSG = 'true'
   for (const [key, value] of Object.entries(conf.env)) {
     process.env[key] = String(value)
   }
