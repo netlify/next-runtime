@@ -333,10 +333,8 @@ const getServerFile = (root: string, includeBase = true) => {
   return findModuleFromBase({ candidates, paths: [root] })
 }
 
-// ensure fallback behaviour is bypassed for pre-rendered pages
 // ensure ISR 404 pages send the correct SWR cache headers
 const baseServerReplacements: Array<[string, string]> = [
-  [`isManualRevalidate && (fallbackMode !== false || hadCache)`, `isManualRevalidate && hadCache`],
   [`private: isPreviewMode || is404Page && cachedData`, `private: isPreviewMode && cachedData`],
 ]
 
