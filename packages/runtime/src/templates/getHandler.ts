@@ -1,7 +1,6 @@
 import { HandlerContext, HandlerEvent } from '@netlify/functions'
 // Aliasing like this means the editor may be able to syntax-highlight the string
 import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
-import type { PrerenderManifest } from 'next/dist/build'
 import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
@@ -26,15 +25,8 @@ type Mutable<T> = {
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
-const makeHandler = (
-  conf: NextConfig,
-  app,
-  pageRoot,
-  prerenderManifest: PrerenderManifest,
-  staticManifest: Array<[string, string]> = [],
-  mode = 'ssr',
   // eslint-disable-next-line max-params
-) => {
+const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -89,10 +81,6 @@ const makeHandler = (
     })
     const requestHandler = nextServer.getRequestHandler()
     const server = new Server(async (req, res) => {
-      if (prerenderManifest.preview) {
-        // force manual revalidation for fresh content
-        req.headers['x-prerender-revalidate'] = prerenderManifest.preview.previewModeId
-      }
       try {
         await requestHandler(req, res)
       } catch (error) {
@@ -169,16 +157,15 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
 
   const { builder } = require("@netlify/functions");
   const { config }  = require("${publishDir}/required-server-files.json")
-  let prerenderManifest, staticManifest
+  let staticManifest
   try {
-    prerenderManifest = require("${publishDir}/prerender-manifest.json")
     staticManifest = require("${publishDir}/static-manifest.json")
   } catch {}
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", config.target === "server" ? "server" : "serverless", "pages"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})(config, "${appDir}", pageRoot, prerenderManifest, staticManifest, 'odb'));`
-      : `(${makeHandler.toString()})(config, "${appDir}", pageRoot, prerenderManifest, staticManifest, 'ssr');`
+      ? `builder((${makeHandler.toString()})(config, "${appDir}", pageRoot, staticManifest, 'odb'));`
+      : `(${makeHandler.toString()})(config, "${appDir}", pageRoot, staticManifest, 'ssr');`
   }
 `
