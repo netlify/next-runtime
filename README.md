@@ -1,4 +1,4 @@
-![Next.js Runtime](next-on-netlify.png)
+![Next.js Runtime](next-js-runtime.png)
 
 # Next.js Runtime
 
