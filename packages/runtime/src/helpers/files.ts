@@ -340,19 +340,19 @@ const baseServerReplacements: Array<[string, string]> = [
 const nextServerReplacements: Array<[string, string]> = [
   [
     `getMiddlewareManifest() {\n        if (this.minimalMode) return null;`,
-    `getMiddlewareManifest() {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE === false)) return null;`,
+    `getMiddlewareManifest() {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'false')) return null;`,
   ],
   [
     `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode) return []`,
-    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE === false)) return [];`,
+    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'false')) return [];`,
   ],
   [
     `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode) return undefined;`,
-    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE === false)) return undefined;`,
+    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'false')) return undefined;`,
   ],
   [
     `getMiddlewareManifest() {\n        if (this.minimalMode) {`,
-    `getMiddlewareManifest() {\n        if (!this.minimalMode && (process.env.NEXT_DISABLE_NETLIFY_EDGE === true)) {`,
+    `getMiddlewareManifest() {\n        if (!this.minimalMode && (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'true')) {`,
   ],
 ]
 
