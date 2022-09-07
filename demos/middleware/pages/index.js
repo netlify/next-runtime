@@ -26,6 +26,12 @@ export default function Home() {
           <Link href="/shows/rewrite-external">Rewrite to external URL</Link>
         </p>
         <p>
+          <Link href="/shows/redirectme">Redirect URL</Link>
+        </p>
+        <p>
+          <Link href="/shows/redirectexternal">Redirect to external URL</Link>
+        </p>
+        <p>
           <Link href="/shows/static/3">Add header to static page</Link>
         </p>
         <p>

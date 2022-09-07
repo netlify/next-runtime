@@ -1,1 +1,1 @@
-module.exports = require('../../../plugin/lib')
+module.exports = require('../../../packages/runtime/lib')

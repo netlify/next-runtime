@@ -21,12 +21,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/netlify/netlify-plugin-nextjs.git"
+    "url": "git+https://github.com/netlify/next-runtime.git"
   },
-  "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/netlify/netlify-plugin-nextjs/issues"
+    "url": "https://github.com/netlify/next-runtime/issues"
   },
-  "homepage": "https://github.com/netlify/netlify-plugin-nextjs#readme"
+  "homepage": "https://github.com/netlify/next-runtime#readme"
 }

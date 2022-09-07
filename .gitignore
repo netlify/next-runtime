@@ -146,8 +146,7 @@ Temporary Items
 .netlify
 demos/default/.next
 .parcel-cache
-plugin/lib
-plugin/dist-types
+packages/*/lib
 
 # Cypress
 cypress/screenshots

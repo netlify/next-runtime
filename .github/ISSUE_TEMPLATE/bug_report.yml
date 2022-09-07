@@ -39,11 +39,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Check out [CONTRIBUTING.md](https://github.com/netlify/netlify-plugin-nextjs/blob/main/CONTRIBUTING.md#what-is-a-reproducible-test-case) for advice on producing a reproduction repo.
+        Check out [CONTRIBUTING.md](https://github.com/netlify/next-runtime/blob/main/CONTRIBUTING.md#what-is-a-reproducible-test-case) for advice on producing a reproduction repo.
   - type: input
-    id: plugin-version
+    id: runtime-version
     attributes:
-      label: Plugin version
+      label: Next Runtime version
       description: The version of `@netlify/plugin-nextjs` that you are using. (This is in the build logs)
       placeholder: x.x.x
     validations:
@@ -74,7 +74,7 @@ body:
       value: |
         <details>
           <summary>`netlify.toml`</summary>
-          
+
         ```toml
         # Paste content of your `netlify.toml` file here
         ```
@@ -89,7 +89,7 @@ body:
       value: |
         <details>
           <summary>`_redirects`</summary>
-          
+
         ```toml
         # Paste content of your `_redirects` file here
         ```
@@ -104,7 +104,7 @@ body:
       value: |
         <details>
           <summary>`next.config.js`</summary>
-          
+
         ```toml
         # Paste content of your `next.config.js` file here. Check there is no private info in there.
         ```
@@ -118,7 +118,7 @@ body:
       value: |
         <details>
           <summary>Build logs</summary>
-          
+
         ```
         # Paste logs here
         ```
@@ -133,7 +133,7 @@ body:
       value: |
         <details>
           <summary>Function logs</summary>
-          
+
         ```
         # Paste logs here
         ```
@@ -150,7 +150,7 @@ body:
       value: |
         <details>
           <summary>generated .next JSON files</summary>
-          
+
         ```
         # Paste file contents here. Please check there isn't any private info in them
         # You can either build locally, or download the deploy from Netlify by clicking the arrow next to the deploy time.

@@ -1,4 +1,4 @@
-name: Plugin Tests
+name: Next Runtime Tests
 
 on:
   pull_request:
@@ -25,22 +25,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Installing with latest Node.js
+      - name: Installing with LTS Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '*'
+          node-version: 'lts/*'
           check-latest: true
       - name: NPM Install
         run: npm install
       - name: Switching to Node.js ${{ matrix.node-version }} to run tests
         uses: actions/setup-node@v2
-        if: "${{ matrix.node-version != '*' }}"
+        if: "${{ matrix.node-version != 'lts/*' }}"
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: true
       - name: Linting
         run: npm run format:ci
-        if: "${{ matrix.node-version == '*' }}"
+        if: "${{ matrix.node-version == 'lts/*' }}"
       - name: Run tests against next@latest
         run: npm test
   canary:
@@ -61,10 +61,10 @@ jobs:
     if: github.ref_name == 'main'
     steps:
       - uses: actions/checkout@v2
-      - name: Installing with latest Node.js
+      - name: Installing with LTS Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '*'
+          node-version: 'lts/*'
           check-latest: true
       - name: NPM Install
         run: npm install
@@ -72,7 +72,7 @@ jobs:
         run: npm install -D next@canary --legacy-peer-deps
       - name: Switching to Node.js ${{ matrix.node-version }} to run tests
         uses: actions/setup-node@v2
-        if: "${{ matrix.node-version != '*' }}"
+        if: "${{ matrix.node-version != 'lts/*' }}"
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: true

@@ -1,23 +1,27 @@
-import { checkNextSiteHasBuilt } from '../../plugin/src/helpers/verification'
+import Chance from 'chance'
+import { checkNextSiteHasBuilt, checkZipSize } from '../../packages/runtime/src/helpers/verification'
 import { outdent } from 'outdent'
 
 import type { NetlifyPluginUtils } from '@netlify/build'
 type FailBuild = NetlifyPluginUtils['build']['failBuild']
 
+const chance = new Chance()
+
 jest.mock('fs', () => {
   return {
-    existsSync: jest.fn()
+    ...jest.requireActual('fs'),
+    existsSync: jest.fn(),
   }
 })
 
 describe('checkNextSiteHasBuilt', () => {
   let failBuildMock
   const { existsSync } = require('fs')
-  
+
   beforeEach(() => {
-    failBuildMock = (jest.fn() as unknown) as FailBuild
+    failBuildMock = jest.fn() as unknown as FailBuild
   })
-  
+
   afterEach(() => {
     jest.clearAllMocks()
     jest.resetAllMocks()
@@ -37,7 +41,7 @@ describe('checkNextSiteHasBuilt', () => {
   })
 
   it('returns error message prompt to change publish directory to ".next"', () => {
-    // False for not initially finding the specified 'publish' directory, 
+    // False for not initially finding the specified 'publish' directory,
     // True for successfully finding a '.next' directory with a production build
     existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true)
 
@@ -76,5 +80,23 @@ describe('checkNextSiteHasBuilt', () => {
     checkNextSiteHasBuilt({ publish: '.next', failBuild: failBuildMock })
 
     expect(failBuildMock).toHaveBeenCalledWith(expectedFailureMessage)
+  })
+})
+
+describe('checkZipSize', () => {
+  let consoleSpy
+
+  beforeEach(() => {
+    consoleSpy = jest.spyOn(global.console, 'warn')
+  })
+
+  afterEach(() => {
+    delete process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK
+  })
+
+  it('emits a warning that DISABLE_BUNDLE_ZIP_SIZE_CHECK was enabled', async () => {
+    process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'true'
+    await checkZipSize(chance.string())
+    expect(consoleSpy).toHaveBeenCalledWith('Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.')
   })
 })

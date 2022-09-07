@@ -9,6 +9,7 @@
     "ntl": "ntl-internal"
   },
   "dependencies": {
+    "@netlify/next": "*",
     "@netlify/plugin-nextjs": "*",
     "next": "^12.2.0",
     "react": "18.0.0",
