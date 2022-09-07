@@ -26,7 +26,7 @@ export interface I18n {
   locales: string[]
 }
 
-export interface Redirect extends NextRedirect {
+export type Redirect = NextRedirect & {
   regex: string
   internal?: boolean
 }
