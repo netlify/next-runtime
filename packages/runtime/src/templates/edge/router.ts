@@ -84,12 +84,7 @@ function matchHas(request: Request, has?: RouteHas[]): Params | false {
   if (!has?.length) {
     return {}
   }
-  return nextMatchHas(
-    request,
-    // y u no narrow `has` type?
-    has,
-    searchParamsToUrlQuery(url.searchParams),
-  )
+  return nextMatchHas(request, has, searchParamsToUrlQuery(url.searchParams))
 }
 
 /**

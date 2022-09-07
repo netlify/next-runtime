@@ -359,3 +359,37 @@ const TEST_ROUTE = /\/\[[^/]+?\](?=\/|$)/
 export function isDynamicRoute(route: string): boolean {
   return TEST_ROUTE.test(route)
 }
+
+// packages/next/shared/lib/router/utils/middleware-route-matcher.ts
+
+export interface MiddlewareRouteMatch {
+  (pathname: string | null | undefined, request: Pick<Request, 'headers' | 'url'>, query: Params): boolean
+}
+
+export interface MiddlewareMatcher {
+  regexp: string
+  locale?: false
+  has?: RouteHas[]
+}
+
+export function getMiddlewareRouteMatcher(matchers: MiddlewareMatcher[]): MiddlewareRouteMatch {
+  return (pathname: string | null | undefined, req: Pick<Request, 'headers' | 'url'>, query: Params) => {
+    for (const matcher of matchers) {
+      const routeMatch = new RegExp(matcher.regexp).exec(pathname!)
+      if (!routeMatch) {
+        continue
+      }
+
+      if (matcher.has) {
+        const hasParams = matchHas(req, matcher.has, query)
+        if (!hasParams) {
+          continue
+        }
+      }
+
+      return true
+    }
+
+    return false
+  }
+}
