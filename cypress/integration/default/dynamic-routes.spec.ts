@@ -44,10 +44,10 @@ describe('Dynamic Routing', () => {
       expect(res.body).to.contain('Under the Dome')
     })
   })
-  it('serves custom 404 on a non-prerendered dynamic route with fallback: false', () => {
+  it('renders custom 404 on a non-prerendered dynamic route with fallback: false', () => {
     cy.request({ url: '/getStaticProps/3/', failOnStatusCode: false }).then((res) => {
       expect(res.status).to.eq(404)
-      expect(res.headers).to.not.have.property('x-render-mode')
+      expect(res.headers).to.have.property('x-render-mode', 'ssr')
       expect(res.body).to.contain('Custom 404')
     })
   })
@@ -88,10 +88,10 @@ describe('Dynamic Routing', () => {
       expect(res.body).to.contain('Under the Dome')
     })
   })
-  it('serves custom 404 on a non-prerendered dynamic route with revalidate and fallback: false', () => {
+  it('renders custom 404 on a non-prerendered dynamic route with revalidate and fallback: false', () => {
     cy.request({ url: '/getStaticProps/withRevalidate/3/', failOnStatusCode: false }).then((res) => {
       expect(res.status).to.eq(404)
-      expect(res.headers).to.not.have.property('x-render-mode')
+      expect(res.headers).to.have.property('x-render-mode', 'ssr')
       expect(res.body).to.contain('Custom 404')
     })
   })
