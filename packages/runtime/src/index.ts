@@ -152,16 +152,18 @@ const plugin: NetlifyPlugin = {
       netlifyConfig,
       nextConfig: { basePath, i18n },
     })
-
-    await setupImageFunction({
-      constants,
-      imageconfig: images,
-      netlifyConfig,
-      basePath,
-      remotePatterns: getRemotePatterns(experimental, images),
-      responseHeaders: getCustomImageResponseHeaders(netlifyConfig.headers),
-    })
-
+    
+    if (!process.env.DISABLE_IPX) {
+      await setupImageFunction({
+        constants,
+        imageconfig: images,
+        netlifyConfig,
+        basePath,
+        remotePatterns: getRemotePatterns(experimental, images),
+        responseHeaders: getCustomImageResponseHeaders(netlifyConfig.headers),
+      })
+    }
+    
     await generateRedirects({
       netlifyConfig,
       nextConfig: { basePath, i18n, trailingSlash, appDir },
