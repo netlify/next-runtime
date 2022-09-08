@@ -205,7 +205,7 @@ export const isBundleSizeCheckDisabled = () =>
 // In v12.2.6-canary.12 the types had not yet been updated.
 // Once this type is available from the next package, this should
 // be removed
-type ImagesConfig = Partial<ImageConfigComplete> &
+export type ImagesConfig = Partial<ImageConfigComplete> &
   Required<ImageConfigComplete> & {
     remotePatterns?: RemotePattern[]
   }
