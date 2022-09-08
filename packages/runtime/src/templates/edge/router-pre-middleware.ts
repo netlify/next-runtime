@@ -3,7 +3,12 @@ import routesManifest from '../edge-shared/routes-manifest.json' assert { type: 
 import { runPreMiddleware } from '../edge-shared/router.ts'
 import type { RoutesManifest } from '../edge-shared/next-utils.ts'
 
-Deno.env.set('NETLIFY_NEXT_EDGE_ROUTER', 'true')
+declare global {
+  // deno-lint-ignore no-var
+  var NETLIFY_NEXT_EDGE_ROUTER: boolean
+}
+
+globalThis.NETLIFY_NEXT_EDGE_ROUTER = true
 
 /**
  * Stage 1 routing

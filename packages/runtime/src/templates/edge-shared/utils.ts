@@ -8,10 +8,7 @@ export interface FetchEventResult {
 
 type NextDataTransform = <T>(data: T) => T
 
-export const useEdgeRouter = () => {
-  const useEdge = Deno.env.get('NETLIFY_NEXT_EDGE_ROUTER')
-  return useEdge === 'true' || useEdge === '1'
-}
+export const useEdgeRouter = () => Boolean(globalThis.NETLIFY_NEXT_EDGE_ROUTER)
 
 /**
  * This is how Next handles rewritten URLs.
