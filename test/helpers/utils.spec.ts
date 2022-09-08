@@ -86,7 +86,7 @@ describe('getRemotePatterns', () => {
     ]
     const result = getRemotePatterns(mockExperimentalConfig, mockImages)
   
-    expect(result).toStrictEqual(mockExperimentalConfig.images?.remotePatterns)  
+    expect(result).toStrictEqual(mockImages.remotePatterns)  
   })
   it('returns an empty array', () => {
     const result = getRemotePatterns(mockExperimentalConfig, mockImages)
