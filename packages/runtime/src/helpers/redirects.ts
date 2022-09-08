@@ -9,6 +9,7 @@ import { join } from 'pathe'
 
 import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
 
+import { usesEdgeRouter } from './edge'
 import { getMiddleware } from './files'
 import { RoutesManifest } from './types'
 import {
@@ -240,7 +241,7 @@ export const generateRedirects = async ({
     })),
   )
 
-  if (i18n && i18n.localeDetection !== false) {
+  if (i18n && i18n.localeDetection !== false && !usesEdgeRouter()) {
     netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))
   }
 

@@ -21,6 +21,7 @@ import {
   writeEdgeFunctions,
   loadMiddlewareManifest,
   cleanupEdgeFunctions,
+  usesEdgeRouter,
 } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles, writeStaticRouteManifest } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
@@ -148,7 +149,9 @@ const plugin: NetlifyPlugin = {
 
     await movePublicFiles({ appDir, outdir, publish })
 
-    await writeStaticRouteManifest({ appDir, outdir, publish })
+    if (usesEdgeRouter()) {
+      await writeStaticRouteManifest({ appDir, outdir, publish })
+    }
 
     await patchNextFiles(basePath)
 
@@ -221,8 +224,9 @@ const plugin: NetlifyPlugin = {
     const nextConfig = await getNextConfig({ publish, failBuild })
 
     const { basePath, appDir } = nextConfig
-
-    generateCustomHeaders(nextConfig, headers)
+    if (!usesEdgeRouter()) {
+      generateCustomHeaders(nextConfig, headers)
+    }
 
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })

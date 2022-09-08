@@ -130,7 +130,7 @@ export function applyRewriteRule({ request, rule }: { request: Request; rule: Re
   })
 
   if (destination.hostname === 'n') {
-    destination.hostname = new URL(request.url).hostname
+    destination.host = new URL(request.url).host
   }
 
   return new Request(destination.href, request)
@@ -152,7 +152,7 @@ export function applyRedirectRule({ request, rule }: { request: Request; rule: R
   })
 
   if (destination.hostname === 'n') {
-    destination.hostname = new URL(request.url).hostname
+    destination.host = new URL(request.url).host
   }
 
   return Response.redirect(destination.href, rule.statusCode)
@@ -267,6 +267,7 @@ export function runPostMiddleware(
   manifest: RoutesManifest,
   staticRoutes: Set<string>,
   skipBeforeFiles = false,
+  loopChecker = 10,
 ): Request | Response {
   // Everyone gets the beforeFiles rewrites, unless we're re-running after matching fallback
   let result = skipBeforeFiles
@@ -300,7 +301,7 @@ export function runPostMiddleware(
     }
   }
 
-  // Now we check dynamic routes, so we can
+  // Now we check dynamic routes
   const dynamicRoute = matchDynamicRoute(result, manifest.dynamicRoutes)
   if (dynamicRoute) {
     result.headers.set('x-matched-path', dynamicRoute)
@@ -315,7 +316,10 @@ export function runPostMiddleware(
 
   // If the fallback matched, we go right back to checking for static routes
   if (fallbackRewrite) {
-    return runPostMiddleware(fallbackRewrite, manifest, staticRoutes, true)
+    if (loopChecker <= 0) {
+      throw new Error('Fallback rewrite loop detected')
+    }
+    return runPostMiddleware(fallbackRewrite, manifest, staticRoutes, true, loopChecker - 1)
   }
   // 404
   return result

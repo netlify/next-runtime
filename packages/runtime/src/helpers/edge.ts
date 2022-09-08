@@ -3,7 +3,7 @@ import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
-import { copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
+import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 
@@ -33,6 +33,8 @@ interface EdgeFunctionDefinitionV2 {
 
 type EdgeFunctionDefinition = EdgeFunctionDefinitionV1 | EdgeFunctionDefinitionV2
 
+const EDGE_ROUTER_PRE_MIDDLEWARE = 'router-pre-middleware'
+const EDGE_ROUTER_POST_MIDDLEWARE = 'router-post-middleware'
 export interface FunctionManifest {
   version: 1
   functions: Array<
@@ -99,6 +101,11 @@ const getMiddlewareBundle = async ({
   return chunks.join('\n')
 }
 
+const getEdgeTemplatePath = (file: string) => join(__dirname, '..', '..', 'src', 'templates', 'edge', file)
+
+export const usesEdgeRouter = () =>
+  process.env.NETLIFY_NEXT_EDGE_ROUTER === '1' || process.env.NETLIFY_NEXT_EDGE_ROUTER === 'true'
+
 const copyEdgeSourceFile = ({
   file,
   target,
@@ -107,7 +114,7 @@ const copyEdgeSourceFile = ({
   file: string
   edgeFunctionDir: string
   target?: string
-}) => fs.copyFile(join(__dirname, '..', '..', 'src', 'templates', 'edge', file), join(edgeFunctionDir, target ?? file))
+}) => fs.copyFile(getEdgeTemplatePath(file), join(edgeFunctionDir, target ?? file))
 
 const writeEdgeFunction = async ({
   edgeFunctionDefinition,
@@ -139,9 +146,6 @@ const writeEdgeFunction = async ({
     file: 'runtime.ts',
     target: 'index.ts',
   })
-
-  await copyEdgeSourceFile({ edgeFunctionDir, file: 'utils.ts' })
-  await copyEdgeSourceFile({ edgeFunctionDir, file: 'next-utils.ts' })
 
   const matchers: EdgeFunctionDefinitionV2['matchers'] = []
 
@@ -194,6 +198,26 @@ export const writeDevEdgeFunction = async ({
   await copyEdgeSourceFile({ edgeFunctionDir, file: 'utils.ts' })
 }
 
+export const writeEdgeRouter = async ({
+  edgeFunctionRoot = '.netlify/edge-functions',
+  publishDir = '.next',
+}: {
+  edgeFunctionRoot: string
+  publishDir: string
+}) => {
+  for (const file of [EDGE_ROUTER_PRE_MIDDLEWARE, EDGE_ROUTER_POST_MIDDLEWARE]) {
+    const edgeFunctionDir = join(edgeFunctionRoot, file)
+    await ensureDir(edgeFunctionDir)
+    await copyEdgeSourceFile({
+      file: `${file}.ts`,
+      edgeFunctionDir,
+      target: 'index.ts',
+    })
+  }
+  for (const file of ['routes-manifest.json', 'public-manifest.json']) {
+    await fs.copyFile(join(publishDir, file), join(edgeFunctionRoot, 'edge-shared', file))
+  }
+}
 /**
  * Writes Edge Functions for the Next middleware
  */
@@ -205,6 +229,8 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
 
   const edgeFunctionRoot = resolve('.netlify', 'edge-functions')
   await emptyDir(edgeFunctionRoot)
+
+  await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
 
   if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
     console.log(
@@ -222,6 +248,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
       path: '/_next/image*',
     })
   }
+
   if (!process.env.NEXT_DISABLE_NETLIFY_EDGE) {
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
     if (!middlewareManifest) {
@@ -249,6 +276,22 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
         })
         manifest.functions.push(...functionDefinitions)
       }
+    }
+
+    if (usesEdgeRouter()) {
+      console.log('Using experimental Netlify Next.js Edge Router')
+      await writeEdgeRouter({ edgeFunctionRoot, publishDir: netlifyConfig.build.publish })
+      // Pre-middleware routing runs first...
+      manifest.functions.unshift({
+        function: EDGE_ROUTER_PRE_MIDDLEWARE,
+        path: '/*',
+      })
+
+      // ...and (you guessed it) post-middleware routing runs last
+      manifest.functions.push({
+        function: EDGE_ROUTER_POST_MIDDLEWARE,
+        path: '/*',
+      })
     }
   }
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)

@@ -8,6 +8,8 @@ import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_
 import { getHandler } from '../templates/getHandler'
 import { getPageResolver } from '../templates/getPageResolver'
 
+import { usesEdgeRouter } from './edge'
+
 export const generateFunctions = async (
   { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
   appDir: string,
@@ -17,7 +19,12 @@ export const generateFunctions = async (
   const publishDir = relative(functionDir, resolve(PUBLISH_DIR))
 
   const writeHandler = async (func: string, isODB: boolean) => {
-    const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
+    const handlerSource = await getHandler({
+      isODB,
+      publishDir,
+      appDir: relative(functionDir, appDir),
+      minimalMode: usesEdgeRouter(),
+    })
     await ensureDir(join(functionsDir, func))
     await writeFile(join(functionsDir, func, `${func}.js`), handlerSource)
     await copyFile(bridgeFile, join(functionsDir, func, 'bridge.js'))

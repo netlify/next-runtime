@@ -14,6 +14,7 @@ import slash from 'slash'
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
 
 import { NextConfig } from './config'
+import { usesEdgeRouter } from './edge'
 import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
 
@@ -96,9 +97,14 @@ export const moveStaticPages = async ({
   const prerenderManifest: PrerenderManifest = await readJson(
     join(netlifyConfig.build.publish, 'prerender-manifest.json'),
   )
-  const { redirects, rewrites }: RoutesManifest = await readJson(
+  let { redirects, rewrites }: RoutesManifest = await readJson(
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
+
+  if (usesEdgeRouter()) {
+    redirects = []
+    rewrites = []
+  }
 
   const isrFiles = new Set<string>()
 

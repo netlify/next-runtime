@@ -8,6 +8,11 @@ export interface FetchEventResult {
 
 type NextDataTransform = <T>(data: T) => T
 
+export const useEdgeRouter = () => {
+  const useEdge = Deno.env.get('NETLIFY_NEXT_EDGE_ROUTER')
+  return useEdge === 'true' || useEdge === '1'
+}
+
 /**
  * This is how Next handles rewritten URLs.
  */
@@ -137,19 +142,23 @@ export const buildResponse = async ({
     if (isDataReq) {
       res.headers.set('x-nextjs-rewrite', relativeUrl)
     }
+    res.headers.set('x-middleware-rewrite', relativeUrl)
+
+    // The edge router handles rewrites itself, so we don't need to do anything here
+    if (useEdgeRouter()) {
+      return addMiddlewareHeaders(context.next(), res)
+    }
     if (rewriteUrl.hostname !== baseUrl.hostname) {
       // Netlify Edge Functions don't support proxying to external domains, but Next middleware does
       const proxied = fetch(new Request(rewriteUrl.toString(), request))
       return addMiddlewareHeaders(proxied, res)
     }
-    res.headers.set('x-middleware-rewrite', relativeUrl)
-
     return addMiddlewareHeaders(context.rewrite(rewrite), res)
   }
 
   const redirect = res.headers.get('Location')
 
-  // Data requests shouldn;t automatically redirect in the browser (they might be HTML pages): they're handled by the router
+  // Data requests shouldn't automatically redirect in the browser (they might be HTML pages): they're handled by the router
   if (redirect && isDataReq) {
     res.headers.delete('location')
     res.headers.set('x-nextjs-redirect', relativizeURL(redirect, request.url))

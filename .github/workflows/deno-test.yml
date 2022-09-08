@@ -18,4 +18,4 @@ jobs:
         with:
           deno-version: vx.x.x
       - name: Test Deno
-        run: deno test packages/runtime/src/templates/edge/
+        run: deno test packages/runtime/src/templates/edge-shared/

@@ -25,8 +25,16 @@ type Mutable<T> = {
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
-// eslint-disable-next-line max-params
-const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
+
+const makeHandler = (
+  conf: NextConfig,
+  app,
+  pageRoot,
+  staticManifest: Array<[string, string]> = [],
+  mode = 'ssr',
+  minimalMode = false,
+  // eslint-disable-next-line max-params
+) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -78,7 +86,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
       customServer: false,
       hostname: url.hostname,
       port,
-      minimalMode: true,
+      minimalMode,
     })
     const requestHandler = nextServer.getRequestHandler()
     const server = new Server(async (req, res) => {
@@ -153,9 +161,16 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   }
 }
 
-export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDir = '../../..' }): string =>
+export const getHandler = ({
+  isODB = false,
+  publishDir = '../../../.next',
+  appDir = '../../..',
+  minimalMode = false,
+}): string => {
+  const handlerSource = makeHandler.toString()
+  const minimal = minimalMode ? ', true' : 'false'
   // This is a string, but if you have the right editor plugin it should format as js
-  javascript`
+  return javascript/* javascript */ `
   const { Server } = require("http");
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
@@ -172,7 +187,8 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", config.target === "server" ? "server" : "serverless", "pages"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})(config, "${appDir}", pageRoot, staticManifest, 'odb'));`
-      : `(${makeHandler.toString()})(config, "${appDir}", pageRoot, staticManifest, 'ssr');`
+      ? `builder((${handlerSource})(config, "${appDir}", pageRoot, staticManifest, 'odb', ${minimal}));`
+      : `(${handlerSource})(config, "${appDir}", pageRoot, staticManifest, 'ssr', ${minimal});`
   }
 `
+}
