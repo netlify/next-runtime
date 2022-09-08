@@ -211,8 +211,8 @@ export type ImagesConfig = Partial<ImageConfigComplete> &
   }
 export const getRemotePatterns = (experimental: ExperimentalConfig, images: ImagesConfig) => {
   // Where remote patterns is configured pre-v12.2.5
-  if (experimental.images) {
-    return experimental.images.remotePatterns || []
+  if (experimental.images?.remotePatterns) {
+    return experimental.images.remotePatterns
   }
 
   // Where remote patterns is configured after v12.2.5

@@ -1,6 +1,5 @@
 import Chance from 'chance'
 import { ExperimentalConfig } from 'next/dist/server/config-shared'
-import { ImageConfigComplete } from 'next/dist/shared/lib/image-config'
 import { getCustomImageResponseHeaders, getRemotePatterns, ImagesConfig } from '../../packages/runtime/src/helpers/utils'
 
 const chance = new Chance()
@@ -88,6 +87,7 @@ describe('getRemotePatterns', () => {
   
     expect(result).toStrictEqual(mockImages.remotePatterns)  
   })
+  
   it('returns an empty array', () => {
     const result = getRemotePatterns(mockExperimentalConfig, mockImages)
     expect(result).toStrictEqual([])
