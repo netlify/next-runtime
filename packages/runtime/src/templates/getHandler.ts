@@ -168,7 +168,7 @@ export const getHandler = ({
   minimalMode = false,
 }): string => {
   const handlerSource = makeHandler.toString()
-  const minimal = minimalMode ? ', true' : 'false'
+  const minimal = minimalMode ? 'true' : 'false'
   // This is a string, but if you have the right editor plugin it should format as js
   return javascript/* javascript */ `
   const { Server } = require("http");
