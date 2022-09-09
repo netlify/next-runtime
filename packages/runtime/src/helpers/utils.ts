@@ -10,6 +10,10 @@ import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX, HAN
 
 import { I18n } from './types'
 
+type ExperimentalConfigWithLegacy = ExperimentalConfig & {
+  images?: Pick<ImageConfigComplete, 'remotePatterns'>
+}
+
 export const toNetlifyRoute = (nextRoute: string): Array<string> => {
   const netlifyRoutes = [nextRoute]
 
@@ -74,6 +78,9 @@ const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n):
 }
 
 export const isApiRoute = (route: string) => route.startsWith('/api/') || route === '/api'
+
+export const is404Route = (route: string, i18n?: I18n) =>
+  i18n ? i18n.locales.some((locale) => route === `/${locale}/404`) : route === '/404'
 
 export const redirectsForNextRoute = ({
   route,
@@ -209,7 +216,7 @@ export type ImagesConfig = Partial<ImageConfigComplete> &
   Required<ImageConfigComplete> & {
     remotePatterns?: RemotePattern[]
   }
-export const getRemotePatterns = (experimental: ExperimentalConfig, images: ImagesConfig) => {
+export const getRemotePatterns = (experimental: ExperimentalConfigWithLegacy, images: ImagesConfig) => {
   // Where remote patterns is configured pre-v12.2.5
   if (experimental.images?.remotePatterns) {
     return experimental.images.remotePatterns

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/netlify/next-runtime/compare/next-v1.2.0...next-v1.3.0) (2022-09-09)
+
+
+### Features
+
+* add support for Next 12.3 middleware matchers ([#1612](https://github.com/netlify/next-runtime/issues/1612)) ([fd88b98](https://github.com/netlify/next-runtime/commit/fd88b9829f93953a06ba0d1269ac8ba5f51f6874))
+
 ## [1.2.0](https://github.com/netlify/next-runtime/compare/next-v1.1.1...next-v1.2.0) (2022-09-08)
 
 

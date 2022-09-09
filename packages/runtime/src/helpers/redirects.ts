@@ -14,6 +14,7 @@ import { RoutesManifest } from './types'
 import {
   getApiRewrites,
   getPreviewRewrites,
+  is404Route,
   isApiRoute,
   redirectsForNextRoute,
   redirectsForNextRouteWithData,
@@ -22,6 +23,14 @@ import {
 
 const matchesMiddleware = (middleware: Array<string>, route: string): boolean =>
   middleware.some((middlewarePath) => route.startsWith(middlewarePath))
+
+const generateHiddenPathRedirects = ({ basePath }: Pick<NextConfig, 'basePath'>): NetlifyConfig['redirects'] =>
+  HIDDEN_PATHS.map((path) => ({
+    from: `${basePath}${path}`,
+    to: '/404.html',
+    status: 404,
+    force: true,
+  }))
 
 const generateLocaleRedirects = ({
   i18n,
@@ -123,7 +132,7 @@ const generateStaticIsrRewrites = ({
   const staticRoutePaths = new Set<string>()
   const staticIsrRewrites: NetlifyConfig['redirects'] = []
   staticRouteEntries.forEach(([route, { initialRevalidateSeconds }]) => {
-    if (isApiRoute(route)) {
+    if (isApiRoute(route) || is404Route(route, i18n)) {
       return
     }
     staticRoutePaths.add(route)
@@ -191,7 +200,7 @@ const generateDynamicRewrites = ({
   const dynamicRewrites: NetlifyConfig['redirects'] = []
   const dynamicRoutesThatMatchMiddleware: Array<string> = []
   dynamicRoutes.forEach((route) => {
-    if (isApiRoute(route.page)) {
+    if (isApiRoute(route.page) || is404Route(route.page, i18n)) {
       return
     }
     if (route.page in prerenderedDynamicRoutes) {
@@ -231,14 +240,7 @@ export const generateRedirects = async ({
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 
-  netlifyConfig.redirects.push(
-    ...HIDDEN_PATHS.map((path) => ({
-      from: `${basePath}${path}`,
-      to: '/404.html',
-      status: 404,
-      force: true,
-    })),
-  )
+  netlifyConfig.redirects.push(...generateHiddenPathRedirects({ basePath }))
 
   if (i18n && i18n.localeDetection !== false) {
     netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))
@@ -274,7 +276,7 @@ export const generateRedirects = async ({
 
   // Add rewrites for all static SSR routes. This is Next 12+
   staticRoutes?.forEach((route) => {
-    if (staticRoutePaths.has(route.page) || isApiRoute(route.page)) {
+    if (staticRoutePaths.has(route.page) || isApiRoute(route.page) || is404Route(route.page)) {
       // Prerendered static routes are either handled by the CDN or are ISR
       return
     }
