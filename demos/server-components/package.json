@@ -11,7 +11,7 @@
   "private": true,
   "dependencies": {
     "ms": "2.1.3",
-    "next": "^12.3.0",
+    "next": "^12.2.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
