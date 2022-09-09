@@ -121,10 +121,20 @@ const plugin: NetlifyPlugin = {
 
       if (userDefinedNextAuthUrl) {
         console.log(
-          `NextAuth package detected, NEXTAUTH_URL environment variable set by user to ${userDefinedNextAuthUrl}`,
+          `NextAuth package detected, NEXTAUTH_URL environment variable set by user in next.config.js to ${userDefinedNextAuthUrl}`,
         )
+      } else if (process.env.NEXTAUTH_URL) {
+        // When the value is specified in the netlify.toml or the Netlify UI (will be evaluated in this order)
+        const nextAuthUrl = `${process.env.NEXTAUTH_URL}${basePath}`
+
+        console.log(
+          `NextAuth package detected, NEXTAUTH_URL environment variable set by user in Netlify configuration to ${nextAuthUrl}`,
+        )
+        config.config.env.NEXTAUTH_URL = nextAuthUrl
+
+        await updateRequiredServerFiles(publish, config)
       } else {
-        const nextAuthUrl = `${process.env.URL}${basePath}`
+        const nextAuthUrl = `${process.env.DEPLOY_PRIME_URL}${basePath}`
 
         console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
         config.config.env.NEXTAUTH_URL = nextAuthUrl
