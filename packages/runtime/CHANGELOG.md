@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.23.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.22.0...plugin-nextjs-v4.23.0) (2022-09-09)
+
+
+### Features
+
+* add support for Next 12.3 middleware matchers ([#1612](https://github.com/netlify/next-runtime/issues/1612)) ([fd88b98](https://github.com/netlify/next-runtime/commit/fd88b9829f93953a06ba0d1269ac8ba5f51f6874))
+
+
+### Bug Fixes
+
+* correct handling of edge dev utils ([#1616](https://github.com/netlify/next-runtime/issues/1616)) ([62c135d](https://github.com/netlify/next-runtime/commit/62c135d8ffccc412128264124e3aa359cbb40691))
+* **deps:** update dependency @netlify/ipx to ^1.2.5 ([#1615](https://github.com/netlify/next-runtime/issues/1615)) ([362d5dd](https://github.com/netlify/next-runtime/commit/362d5ddad3457e801d45406e06de6484aeccf42a))
+* support non-prerendered dynamic routes with fallback false ([#1541](https://github.com/netlify/next-runtime/issues/1541)) ([92a015c](https://github.com/netlify/next-runtime/commit/92a015c28ce3df4f2c1bfbe56f766bc00c3f06f8))
+
 ## [4.22.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.21.3...plugin-nextjs-v4.22.0) (2022-09-08)
 
 
