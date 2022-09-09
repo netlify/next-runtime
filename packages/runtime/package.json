@@ -12,7 +12,7 @@
   "dependencies": {
     "@netlify/esbuild": "0.14.25",
     "@netlify/functions": "^1.2.0",
-    "@netlify/ipx": "^1.2.4",
+    "@netlify/ipx": "^1.2.5",
     "@vercel/node-bridge": "^2.1.0",
     "chalk": "^4.1.2",
     "execa": "^5.1.1",
