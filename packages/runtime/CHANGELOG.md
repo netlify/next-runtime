@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.22.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.21.3...plugin-nextjs-v4.22.0) (2022-09-08)
+
+
+### Features
+
+* support updated remotePatterns configuration ([#1607](https://github.com/netlify/next-runtime/issues/1607)) ([e7bed15](https://github.com/netlify/next-runtime/commit/e7bed15d6b7d2fd121b4cd6a3c9f1579b1ae90e3))
+
+## [4.21.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.21.2...plugin-nextjs-v4.21.3) (2022-09-08)
+
+
+### Bug Fixes
+
+* handle stricter Next type ([#1597](https://github.com/netlify/next-runtime/issues/1597)) ([368ab3c](https://github.com/netlify/next-runtime/commit/368ab3cde9a2145144a112ca1c0459665b790321))
+
 ## [4.21.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.21.1...plugin-nextjs-v4.21.2) (2022-09-06)
 
 

@@ -1,0 +1,19 @@
+[build]
+command = "npm run build"
+# If we wanted to publish `docs` as well as `web`, we'd need to have netlify.toml
+# files in each project folder.
+# See https://docs.netlify.com/configure-builds/monorepos/#build-multiple-sites-from-a-monorepo
+publish = "apps/web/.next"
+
+[dev]
+command = "npm run dev"
+
+[[plugins]]
+package = "./packages/local-plugin"
+
+[[plugins]]
+package = "@netlify/plugin-local-install-core"
+
+[[edge_functions]]
+path = "/edge"
+function = "edge"
