@@ -177,11 +177,11 @@ export const writeDevEdgeFunction = async ({
   const edgeFunctionRoot = resolve(INTERNAL_EDGE_FUNCTIONS_SRC)
   await emptyDir(edgeFunctionRoot)
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
+  await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
 
   const edgeFunctionDir = join(edgeFunctionRoot, 'next-dev')
   await ensureDir(edgeFunctionDir)
   await copyEdgeSourceFile({ edgeFunctionDir, file: 'next-dev.js', target: 'index.js' })
-  await copyEdgeSourceFile({ edgeFunctionDir, file: 'utils.ts' })
 }
 
 /**
