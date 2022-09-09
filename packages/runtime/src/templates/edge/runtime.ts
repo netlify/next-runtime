@@ -1,7 +1,7 @@
 import type { Context } from 'https://edge.netlify.com'
 
 import edgeFunction from './bundle.js'
-import { buildResponse } from './utils.ts'
+import { buildResponse } from '../edge-shared/utils.ts'
 
 export interface FetchEventResult {
   response: Response

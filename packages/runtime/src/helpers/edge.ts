@@ -3,10 +3,35 @@ import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
-import { copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
+import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
+import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 
-type EdgeFunctionDefinition = MiddlewareManifest['middleware']['name']
+// This is the format as of next@12.2
+interface EdgeFunctionDefinitionV1 {
+  env: string[]
+  files: string[]
+  name: string
+  page: string
+  regexp: string
+}
+
+export interface MiddlewareMatcher {
+  regexp: string
+  locale?: false
+  has?: RouteHas[]
+}
+
+// This is the format after next@12.3.0
+interface EdgeFunctionDefinitionV2 {
+  env: string[]
+  files: string[]
+  name: string
+  page: string
+  matchers: MiddlewareMatcher[]
+}
+
+type EdgeFunctionDefinition = EdgeFunctionDefinitionV1 | EdgeFunctionDefinitionV2
 
 export interface FunctionManifest {
   version: 1
@@ -74,6 +99,8 @@ const getMiddlewareBundle = async ({
   return chunks.join('\n')
 }
 
+const getEdgeTemplatePath = (file: string) => join(__dirname, '..', '..', 'src', 'templates', 'edge', file)
+
 const copyEdgeSourceFile = ({
   file,
   target,
@@ -82,10 +109,7 @@ const copyEdgeSourceFile = ({
   file: string
   edgeFunctionDir: string
   target?: string
-}) => fs.copyFile(join(__dirname, '..', '..', 'src', 'templates', 'edge', file), join(edgeFunctionDir, target ?? file))
-
-// Edge functions don't support lookahead expressions
-const stripLookahead = (regex: string) => regex.replace('^/(?!_next)', '^/')
+}) => fs.copyFile(getEdgeTemplatePath(file), join(edgeFunctionDir, target ?? file))
 
 const writeEdgeFunction = async ({
   edgeFunctionDefinition,
@@ -95,10 +119,12 @@ const writeEdgeFunction = async ({
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
   netlifyConfig: NetlifyConfig
-}): Promise<{
-  function: string
-  pattern: string
-}> => {
+}): Promise<
+  Array<{
+    function: string
+    pattern: string
+  }>
+> => {
   const name = sanitizeName(edgeFunctionDefinition.name)
   const edgeFunctionDir = join(edgeFunctionRoot, name)
 
@@ -116,11 +142,21 @@ const writeEdgeFunction = async ({
     target: 'index.ts',
   })
 
-  await copyEdgeSourceFile({ edgeFunctionDir, file: 'utils.ts' })
-  return {
-    function: name,
-    pattern: stripLookahead(edgeFunctionDefinition.regexp),
+  const matchers: EdgeFunctionDefinitionV2['matchers'] = []
+
+  // The v1 middleware manifest has a single regexp, but the v2 has an array of matchers
+  if ('regexp' in edgeFunctionDefinition) {
+    matchers.push({ regexp: edgeFunctionDefinition.regexp })
+  } else {
+    matchers.push(...edgeFunctionDefinition.matchers)
   }
+  await writeJson(join(edgeFunctionDir, 'matchers.json'), matchers)
+
+  // We add a defintion for each matching path
+  return matchers.map((matcher) => {
+    const pattern = matcher.regexp
+    return { function: name, pattern }
+  })
 }
 
 type NetlifyPluginConstantsWithEdgeFunctions = NetlifyPluginConstants & {
@@ -168,6 +204,8 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   const edgeFunctionRoot = resolve('.netlify', 'edge-functions')
   await emptyDir(edgeFunctionRoot)
 
+  await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
+
   if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
     console.log(
       'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
@@ -193,23 +231,23 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
 
     for (const middleware of middlewareManifest.sortedMiddleware) {
       const edgeFunctionDefinition = middlewareManifest.middleware[middleware]
-      const functionDefinition = await writeEdgeFunction({
+      const functionDefinitions = await writeEdgeFunction({
         edgeFunctionDefinition,
         edgeFunctionRoot,
         netlifyConfig,
       })
-      manifest.functions.push(functionDefinition)
+      manifest.functions.push(...functionDefinitions)
     }
     // Older versions of the manifest format don't have the functions field
     // No, the version field was not incremented
     if (typeof middlewareManifest.functions === 'object') {
       for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
-        const functionDefinition = await writeEdgeFunction({
+        const functionDefinitions = await writeEdgeFunction({
           edgeFunctionDefinition,
           edgeFunctionRoot,
           netlifyConfig,
         })
-        manifest.functions.push(functionDefinition)
+        manifest.functions.push(...functionDefinitions)
       }
     }
   }

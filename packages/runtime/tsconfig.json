@@ -9,6 +9,7 @@
         "src/**/*.js"
     ],
     "exclude": [
-        "src/templates/edge/*"
+        "src/templates/edge/*",
+        "src/templates/edge-shared/*"
     ]
 }
