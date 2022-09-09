@@ -18,6 +18,8 @@ export async function middleware(req: NextRequest) {
     res.setPageProp('message', message)
     res.setPageProp('showAd', true)
 
+    res.headers.set('x-modified-edge', 'true')
+    res.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
     return res
   }
 
@@ -36,6 +38,13 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith('/cookies')) {
     response = NextResponse.next()
     response.cookies.set('netlifyCookie', 'true')
+    return response
+  }
+
+  if (pathname.startsWith('/conditional')) {
+    response = NextResponse.next()
+    response.headers.set('x-modified-edge', 'true')
+    response.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
     return response
   }
 
@@ -78,4 +87,23 @@ export async function middleware(req: NextRequest) {
 
     return response
   }
+}
+
+export const config = {
+  matcher: [
+    '/api/:all*',
+    '/headers',
+    { source: '/static' },
+    { source: '/shows/:all*' },
+    {
+      source: '/conditional',
+      has: [
+        {
+          type: 'header',
+          key: 'x-my-header',
+          value: 'my-value',
+        },
+      ],
+    },
+  ],
 }

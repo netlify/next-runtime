@@ -20,3 +20,26 @@ describe('Standard middleware', () => {
     })
   })
 })
+
+describe('Middleware matchers', () => {
+  it('does not apply "has" matcher when headers are not sent', () => {
+    cy.request('/conditional').then((response) => {
+      expect(response.headers).not.to.have.property('x-is-deno', 'true')
+      expect(response.headers).not.to.have.property('x-modified-edge', 'true')
+    })
+  })
+
+  it('matches when headers are sent', () => {
+    cy.request({ url: '/conditional', headers: { 'x-my-header': 'my-value' } }).then((response) => {
+      expect(response.headers).to.have.property('x-is-deno', 'true')
+      expect(response.headers).to.have.property('x-modified-edge', 'true')
+    })
+  })
+
+  it('matches when headers are sent', () => {
+    cy.request('/_next/data/build-id/static.json').then((response) => {
+      expect(response.headers).to.have.property('x-is-deno', 'true')
+      expect(response.headers).to.have.property('x-modified-edge', 'true')
+    })
+  })
+})
