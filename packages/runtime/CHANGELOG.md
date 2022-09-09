@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.23.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.0...plugin-nextjs-v4.23.1) (2022-09-09)
+
+
+### Bug Fixes
+
+* respect variable set in Netlify config ([#1613](https://github.com/netlify/next-runtime/issues/1613)) ([18c4663](https://github.com/netlify/next-runtime/commit/18c4663cf3b898733aea4deda0ab73f916e89e03))
+
 ## [4.23.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.22.0...plugin-nextjs-v4.23.0) (2022-09-09)
 
 
