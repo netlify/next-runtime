@@ -164,21 +164,13 @@ const writeEdgeFunction = async ({
     return { function: name, pattern }
   })
 }
-
-type NetlifyPluginConstantsWithEdgeFunctions = NetlifyPluginConstants & {
-  // Until https://github.com/netlify/build/pull/4481 lands
-  INTERNAL_EDGE_FUNCTIONS_SRC?: string
-}
-
-export const cleanupEdgeFunctions = async ({
+export const cleanupEdgeFunctions = ({
   INTERNAL_EDGE_FUNCTIONS_SRC = '.netlify/edge-functions',
-}: NetlifyPluginConstantsWithEdgeFunctions) => {
-  await emptyDir(INTERNAL_EDGE_FUNCTIONS_SRC)
-}
+}: NetlifyPluginConstants) => emptyDir(INTERNAL_EDGE_FUNCTIONS_SRC)
 
 export const writeDevEdgeFunction = async ({
   INTERNAL_EDGE_FUNCTIONS_SRC = '.netlify/edge-functions',
-}: NetlifyPluginConstantsWithEdgeFunctions) => {
+}: NetlifyPluginConstants) => {
   const manifest: FunctionManifest = {
     functions: [
       {
@@ -191,11 +183,11 @@ export const writeDevEdgeFunction = async ({
   const edgeFunctionRoot = resolve(INTERNAL_EDGE_FUNCTIONS_SRC)
   await emptyDir(edgeFunctionRoot)
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
+  await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
 
   const edgeFunctionDir = join(edgeFunctionRoot, 'next-dev')
   await ensureDir(edgeFunctionDir)
   await copyEdgeSourceFile({ edgeFunctionDir, file: 'next-dev.js', target: 'index.js' })
-  await copyEdgeSourceFile({ edgeFunctionDir, file: 'utils.ts' })
 }
 
 export const writeEdgeRouter = async ({

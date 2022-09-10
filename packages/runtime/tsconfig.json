@@ -11,6 +11,5 @@
     "exclude": [
         "src/templates/edge/*",
         "src/templates/edge-shared/*"
-
     ]
 }

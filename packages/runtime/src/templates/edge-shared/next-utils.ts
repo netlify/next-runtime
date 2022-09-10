@@ -361,6 +361,7 @@ export function isDynamicRoute(route: string): boolean {
 }
 
 // packages/next/shared/lib/router/utils/middleware-route-matcher.ts
+// 12.3 middleware route matcher
 
 export interface MiddlewareRouteMatch {
   (pathname: string | null | undefined, request: Pick<Request, 'headers' | 'url'>, query: Params): boolean
