@@ -8,17 +8,13 @@ const nextConfig = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
-  },
-  experimental: {
-    images: {
-      remotePatterns: [
-        {
-          protocol: 'https',
-          hostname: '*.githubusercontent.com',
-        },
-      ],
-    },
-  },
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.githubusercontent.com',
+      },
+    ],
+  }
 }
 
 module.exports = nextConfig

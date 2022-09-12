@@ -1,7 +1,11 @@
 import type { Context } from 'https://edge.netlify.com'
-
+// Available at build time
+import matchers from './matchers.json' assert { type: 'json' }
 import edgeFunction from './bundle.js'
-import { buildResponse } from './utils.ts'
+import { buildResponse } from '../edge-shared/utils.ts'
+import { getMiddlewareRouteMatcher, MiddlewareRouteMatch, searchParamsToUrlQuery } from '../edge-shared/next-utils.ts'
+
+const matchesMiddleware: MiddlewareRouteMatch = getMiddlewareRouteMatcher(matchers || [])
 
 export interface FetchEventResult {
   response: Response
@@ -49,7 +53,14 @@ const handler = async (req: Request, context: Context) => {
     // Don't run in dev
     return
   }
+
   const url = new URL(req.url)
+
+  // While we have already checked the path when mapping to the edge function,
+  // Next.js supports extra rules that we need to check here too.
+  if (!matchesMiddleware(url.pathname, req, searchParamsToUrlQuery(url.searchParams))) {
+    return
+  }
 
   const geo = {
     country: context.geo.country?.code,
