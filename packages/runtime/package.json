@@ -10,7 +10,7 @@
     "manifest.yml"
   ],
   "dependencies": {
-    "@netlify/esbuild": "0.14.25",
+    "@netlify/esbuild": "0.14.39",
     "@netlify/functions": "^1.2.0",
     "@netlify/ipx": "^1.2.5",
     "@vercel/node-bridge": "^2.1.0",
