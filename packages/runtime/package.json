@@ -10,7 +10,7 @@
     "manifest.yml"
   ],
   "dependencies": {
-    "@netlify/esbuild": "0.14.25",
+    "@netlify/esbuild": "0.14.39",
     "@netlify/functions": "^1.2.0",
     "@netlify/ipx": "^1.2.5",
     "@vercel/node-bridge": "^2.1.0",
@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^27.17.2",
+    "@netlify/build": "^27.18.4",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.1",
     "@types/merge-stream": "^1.1.2",
