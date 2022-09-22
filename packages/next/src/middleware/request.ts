@@ -83,7 +83,7 @@ export class MiddlewareRequest extends Request {
   }
 
   get nextUrl() {
-    return this.nextRequest.url
+    return this.nextRequest.nextUrl
   }
 
   get url() {
