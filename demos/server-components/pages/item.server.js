@@ -1,4 +1,3 @@
-
 import ItemPage from '../components/item.server'
 
 export default function Item({ id }) {
