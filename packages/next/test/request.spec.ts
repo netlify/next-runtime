@@ -19,12 +19,12 @@ describe('MiddlewareRequest', () => {
     const context = {
       geo: {
         country: {
-          code: '',
+          code: chance.country(),
         },
         subdivision: {
-          code: '',
+          code: chance.province(),
         },
-        city: '',
+        city: chance.city(),
       },
       ip,
     }
