@@ -3,7 +3,7 @@ import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
-import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
+import { copy, copyFile, emptyDir, ensureDir, readJson, writeJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 
@@ -246,9 +246,4 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
 
-export const enableEdgeInNextConfig = async (publish: string) => {
-  const configFile = join(publish, 'required-server-files.json')
-  const config = await readJSON(configFile)
-  await writeJSON(configFile, config)
-}
 /* eslint-enable max-lines */

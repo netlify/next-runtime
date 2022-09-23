@@ -16,12 +16,7 @@ import {
   generateCustomHeaders,
 } from './helpers/config'
 import { onPreDev } from './helpers/dev'
-import {
-  enableEdgeInNextConfig,
-  writeEdgeFunctions,
-  loadMiddlewareManifest,
-  cleanupEdgeFunctions,
-} from './helpers/edge'
+import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver, getApiRouteConfigs } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
@@ -182,8 +177,6 @@ const plugin: NetlifyPlugin = {
 
     if (usingEdge) {
       await writeEdgeFunctions(netlifyConfig)
-
-      await enableEdgeInNextConfig(publish)
 
       console.log(outdent`
         ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
