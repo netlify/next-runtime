@@ -72,6 +72,8 @@ delete globalThis.window
 
 `
 
+const IMPORT_UNSUPPORTED = [`Object.defineProperty(globalThis,"__import_unsupported"`,
+`    Object.defineProperty(globalThis, "__import_unsupported"`]
 /**
  * Concatenates the Next edge function code with the required chunks and adds an export
  */
@@ -86,7 +88,9 @@ const getMiddlewareBundle = async ({
   const chunks: Array<string> = [bootstrap]
   for (const file of edgeFunctionDefinition.files) {
     const filePath = join(publish, file)
-    const data = await fs.readFile(filePath, 'utf8')
+    
+    let data = await fs.readFile(filePath, 'utf8')
+    data = IMPORT_UNSUPPORTED.reduce((acc, val) => acc.replace(val, `if(!('__import_unsupported' in globalThis)) ${val}`), data)
     chunks.push('{', data, '}')
   }
 
