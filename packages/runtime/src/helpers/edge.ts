@@ -90,10 +90,6 @@ const getMiddlewareBundle = async ({
     chunks.push('{', data, '}')
   }
 
-  const middleware = await fs.readFile(join(publish, `server`, `${edgeFunctionDefinition.name}.js`), 'utf8')
-
-  chunks.push(middleware)
-
   const exports = /* js */ `export default _ENTRIES["middleware_${edgeFunctionDefinition.name}"].default;`
   chunks.push(exports)
   return chunks.join('\n')

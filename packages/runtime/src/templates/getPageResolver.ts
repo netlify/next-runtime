@@ -11,9 +11,9 @@ import { HANDLER_FUNCTION_NAME } from '../constants'
 
 export const getPageResolver = async ({ publish, target }: { publish: string; target: string }) => {
   const functionDir = posix.resolve(posix.join('.netlify', 'functions', HANDLER_FUNCTION_NAME))
-  const root = posix.resolve(slash(publish), target === 'server' ? 'server' : 'serverless', 'pages')
+  const root = posix.resolve(slash(publish), target === 'server' ? 'server' : 'serverless')
 
-  const pages = await glob('**/*.js', {
+  const pages = await glob('{pages,app}/**/*.js', {
     cwd: root,
     dot: true,
   })
