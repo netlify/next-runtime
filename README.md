@@ -48,6 +48,12 @@ Next.js Middleware works out of the box on Netlify. By default, middleware runs 
 support for running Middleware at the origin, set the environment variable `NEXT_DISABLE_NETLIFY_EDGE` to `true`. Be
 aware that this will result in slower performance, as all pages that match middleware must use SSR.
 
+### Limitations
+
+Due to how the site configuration is handled when it's run using Netlify Edge Functions, data such as `locale` and `defaultLocale` will be missing on the `req.nextUrl` object when running `netlify dev`. 
+
+However, this data is available on `req.nextUrl` in a production environment.
+
 ## Monorepos
 
 If you are using a monorepo you will need to change `publish` to point to the full path to the built `.next` directory,
