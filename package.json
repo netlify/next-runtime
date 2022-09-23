@@ -18,7 +18,7 @@
     "postinstall": "run-s build install-husky",
     "install-husky": "if-env CI=1 || husky install node_modules/@netlify/eslint-config-node/.husky",
     "test": "run-s build:demo test:jest",
-    "test:jest": "jest --testMatch=**/test/request.spec.ts",
+    "test:jest": "jest",
     "test:jest:update": "jest --updateSnapshot",
     "test:update": "run-s build build:demo test:jest:update"
   },
