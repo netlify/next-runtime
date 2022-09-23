@@ -2,6 +2,8 @@
 import type { NetlifyConfig } from '@netlify/build'
 import type { Header } from '@netlify/build/types/config/netlify_config'
 import globby from 'globby'
+import type { ExperimentalConfig } from 'next/dist/server/config-shared'
+import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { join } from 'pathe'
 
 import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX, HANDLER_FUNCTION_PATH } from '../constants'
@@ -22,6 +24,10 @@ export const getFunctionNameForPage = (page: string, background = false) =>
     .replace(OPTIONAL_CATCH_ALL_REGEX, '-SPLAT')
     .replace(DYNAMIC_PARAMETER_REGEX, '_$1-PARAM')
     .replace(RESERVED_FILENAME, '_')}-${background ? 'background' : 'handler'}`
+
+type ExperimentalConfigWithLegacy = ExperimentalConfig & {
+  images?: Pick<ImageConfigComplete, 'remotePatterns'>
+}
 
 export const toNetlifyRoute = (nextRoute: string): Array<string> => {
   const netlifyRoutes = [nextRoute]
@@ -87,6 +93,9 @@ const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n):
 }
 
 export const isApiRoute = (route: string) => route.startsWith('/api/') || route === '/api'
+
+export const is404Route = (route: string, i18n?: I18n) =>
+  i18n ? i18n.locales.some((locale) => route === `/${locale}/404`) : route === '/404'
 
 export const redirectsForNextRoute = ({
   route,
@@ -234,4 +243,24 @@ export const getCustomImageResponseHeaders = (headers: Header[]): Record<string,
 
 export const isBundleSizeCheckDisabled = () =>
   process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK === '1' || process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK === 'true'
+
+// In v12.2.6-canary.12 the types had not yet been updated.
+// Once this type is available from the next package, this should
+// be removed
+export type ImagesConfig = Partial<ImageConfigComplete> &
+  Required<ImageConfigComplete> & {
+    remotePatterns?: RemotePattern[]
+  }
+export const getRemotePatterns = (experimental: ExperimentalConfigWithLegacy, images: ImagesConfig) => {
+  // Where remote patterns is configured pre-v12.2.5
+  if (experimental.images?.remotePatterns) {
+    return experimental.images.remotePatterns
+  }
+
+  // Where remote patterns is configured after v12.2.5
+  if (images.remotePatterns) {
+    return images.remotePatterns || []
+  }
+  return []
+}
 /* eslint-enable max-lines */

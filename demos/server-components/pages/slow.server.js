@@ -15,7 +15,9 @@ import useData from '../lib/use-data'
 import Skeletons from '../components/skeletons'
 
 function StoryWithData({ id }) {
-  const { data } = useData(`s-${id}`, () => fetchData(`item/${id}`).then(transform))
+  const { data } = useData(`s-${id}`, () =>
+    fetchData(`item/${id}`).then(transform)
+  )
   return <Story {...data} />
 }
 

@@ -231,12 +231,12 @@ describe('onBuild()', () => {
   })
 
   afterEach(() => {
-    delete process.env.URL
+    delete process.env.DEPLOY_PRIME_URL
   })
 
   test('does not set NEXTAUTH_URL if value is already set', async () => {
     const mockUserDefinedSiteUrl = chance.url()
-    process.env.URL = chance.url()
+    process.env.DEPLOY_PRIME_URL = chance.url()
 
     await moveNextDist()
 
@@ -253,13 +253,28 @@ describe('onBuild()', () => {
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
 
+  test('sets the NEXTAUTH_URL specified in the netlify.toml or in the Netlify UI', async () => {
+    const mockSiteUrl = chance.url()
+    process.env.NEXTAUTH_URL = mockSiteUrl
+
+    await moveNextDist()
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(mockSiteUrl)
+    delete process.env.NEXTAUTH_URL
+  })
+
   test('sets NEXTAUTH_URL when next-auth package is detected', async () => {
     const mockSiteUrl = chance.url()
 
     // Value represents the main address to the site and is either
     // a Netlify subdomain or custom domain set by the user.
     // See https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata
-    process.env.URL = mockSiteUrl
+    process.env.DEPLOY_PRIME_URL = mockSiteUrl
 
     await moveNextDist()
 
@@ -273,7 +288,7 @@ describe('onBuild()', () => {
 
   test('includes the basePath on NEXTAUTH_URL when present', async () => {
     const mockSiteUrl = chance.url()
-    process.env.URL = mockSiteUrl
+    process.env.DEPLOY_PRIME_URL = mockSiteUrl
 
     await moveNextDist()
 
@@ -1031,12 +1046,14 @@ describe('utility functions', () => {
     await patchNextFiles(process.cwd())
     const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
     const patchedData = await readFileSync(serverFile, 'utf8')
-    expect(patchedData.includes('_BYPASS_SSG')).toBeTruthy()
+    expect(patchedData.includes('_REVALIDATE_SSG')).toBeTruthy()
+    expect(patchedData.includes('private: isPreviewMode && cachedData')).toBeTruthy()
 
     await unpatchNextFiles(process.cwd())
 
     const unPatchedData = await readFileSync(serverFile, 'utf8')
-    expect(unPatchedData.includes('_BYPASS_SSG')).toBeFalsy()
+    expect(unPatchedData.includes('_REVALIDATE_SSG')).toBeFalsy()
+    expect(unPatchedData.includes('private: isPreviewMode && cachedData')).toBeFalsy()
   })
 })
 

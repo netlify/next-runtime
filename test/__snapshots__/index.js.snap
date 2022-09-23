@@ -429,12 +429,6 @@ Array [
   },
   Object {
     "force": false,
-    "from": "/_next/data/build-id/en/404.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
     "from": "/_next/data/build-id/en/500.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -657,12 +651,6 @@ Array [
   },
   Object {
     "force": false,
-    "from": "/_next/data/build-id/es/404.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
     "from": "/_next/data/build-id/es/500.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -844,12 +832,6 @@ Array [
   Object {
     "force": false,
     "from": "/_next/data/build-id/es/static/:id.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/404.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
@@ -1078,12 +1060,6 @@ Array [
   },
   Object {
     "force": false,
-    "from": "/404",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
     "from": "/500",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -1178,12 +1154,6 @@ Array [
   Object {
     "force": false,
     "from": "/es/",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/es/404",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
@@ -1376,12 +1346,6 @@ Array [
   Object {
     "force": false,
     "from": "/fr/",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/fr/404",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
