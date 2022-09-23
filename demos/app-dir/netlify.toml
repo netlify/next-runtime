@@ -1,0 +1,15 @@
+[build]
+command = "next build"
+publish = ".next"
+ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
+
+[build.environment]
+TERM = "xterm"
+NODE_VERSION = "17"
+
+[[plugins]]
+package = "../plugin-wrapper/"
+
+# This is a fake plugin, that makes it run npm install
+[[plugins]]
+package = "@netlify/plugin-local-install-core"
