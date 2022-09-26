@@ -1,4 +1,5 @@
-module.exports = {
+/* eslint-disable */
+export default {
   displayName: 'demo-monorepo',
   preset: '../../jest.preset.js',
   transform: {
