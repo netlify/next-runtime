@@ -7,6 +7,8 @@ import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, wri
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 
+import { RoutesManifest } from './types'
+
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
   env: string[]
@@ -48,13 +50,17 @@ export interface FunctionManifest {
   import_map?: string
 }
 
-export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> => {
-  const middlewarePath = resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json')
-  if (!existsSync(middlewarePath)) {
-    return null
+const maybeLoadJson = <T>(path: string): Promise<T> | null => {
+  if (existsSync(path)) {
+    return readJson(path)
   }
-  return readJson(middlewarePath)
 }
+
+export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> =>
+  maybeLoadJson(resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json'))
+
+export const loadAppPathRoutesManifest = (netlifyConfig: NetlifyConfig): Promise<Record<string, string> | null> =>
+  maybeLoadJson(resolve(netlifyConfig.build.publish, 'app-path-routes-manifest.json'))
 
 /**
  * Convert the Next middleware name into a valid Edge Function name
@@ -120,10 +126,14 @@ const writeEdgeFunction = async ({
   edgeFunctionDefinition,
   edgeFunctionRoot,
   netlifyConfig,
+  pageRegexMap,
+  appPathRoutesManifest = {},
 }: {
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
   netlifyConfig: NetlifyConfig
+  pageRegexMap?: Map<string, string>
+  appPathRoutesManifest?: Record<string, string>
 }): Promise<
   Array<{
     function: string
@@ -155,6 +165,15 @@ const writeEdgeFunction = async ({
   } else {
     matchers.push(...edgeFunctionDefinition.matchers)
   }
+
+  // If the EF matches a page, it's an app dir page so needs a matcher too
+  if (pageRegexMap && edgeFunctionDefinition.page in appPathRoutesManifest) {
+    const regexp = pageRegexMap.get(appPathRoutesManifest[edgeFunctionDefinition.page])
+    if (regexp) {
+      matchers.push({ regexp })
+    }
+  }
+
   await writeJson(join(edgeFunctionDir, 'matchers.json'), matchers)
 
   // We add a defintion for each matching path
@@ -192,7 +211,13 @@ export const writeDevEdgeFunction = async ({
 /**
  * Writes Edge Functions for the Next middleware
  */
-export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
+export const writeEdgeFunctions = async ({
+  netlifyConfig,
+  routesManifest,
+}: {
+  netlifyConfig: NetlifyConfig
+  routesManifest: RoutesManifest
+}) => {
   const manifest: FunctionManifest = {
     functions: [],
     version: 1,
@@ -238,11 +263,20 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
     // Older versions of the manifest format don't have the functions field
     // No, the version field was not incremented
     if (typeof middlewareManifest.functions === 'object') {
+      // When using the app dir, we also need to check if the EF matches a page
+      const appPathRoutesManifest = await loadAppPathRoutesManifest(netlifyConfig)
+
+      const pageRegexMap = new Map(
+        [...routesManifest.dynamicRoutes, ...routesManifest.staticRoutes].map((route) => [route.page, route.regex]),
+      )
+
       for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
         const functionDefinitions = await writeEdgeFunction({
           edgeFunctionDefinition,
           edgeFunctionRoot,
           netlifyConfig,
+          pageRegexMap,
+          appPathRoutesManifest,
         })
         manifest.functions.push(...functionDefinitions)
       }
