@@ -25,7 +25,7 @@ export async function getStaticProps(context) {
     props: {
       show: data,
     },
-    revalidate: 1,
+    revalidate: 60,
   }
 }
 
