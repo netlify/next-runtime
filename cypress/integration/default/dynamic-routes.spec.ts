@@ -16,7 +16,7 @@ describe('Static Routing', () => {
   it('renders correct page via ODB on a static route', () => {
     cy.request('/getStaticProps/with-revalidate/').then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-render-mode', 'isr')
+      expect(res.headers).to.have.property('x-render-mode', 'odb ttl=60')
       expect(res.body).to.contain('Dancing with the Stars')
     })
   })
@@ -84,7 +84,7 @@ describe('Dynamic Routing', () => {
   it('renders correct page via ODB on a prerendered dynamic route with revalidate and fallback: false', () => {
     cy.request('/getStaticProps/withRevalidate/1/').then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-render-mode', 'isr')
+      expect(res.headers).to.have.property('x-render-mode', 'odb ttl=60')
       expect(res.body).to.contain('Under the Dome')
     })
   })
@@ -98,14 +98,14 @@ describe('Dynamic Routing', () => {
   it('renders correct page via ODB on a prerendered dynamic route with revalidate and fallback: true', () => {
     cy.request('/getStaticProps/withRevalidate/withFallback/1/').then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-render-mode', 'isr')
+      expect(res.headers).to.have.property('x-render-mode', 'odb ttl=60')
       expect(res.body).to.contain('Under the Dome')
     })
   })
   it('renders fallback page via ODB on a non-prerendered dynamic route with revalidate and fallback: true', () => {
     cy.request('/getStaticProps/withRevalidate/withFallback/3/').then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-render-mode', 'isr')
+      expect(res.headers).to.have.property('x-render-mode', 'odb ttl=60')
       // expect 'Bitten' until https://github.com/netlify/pillar-runtime/issues/438 is fixed
       expect(res.body).to.contain('Bitten')
     })
@@ -113,14 +113,14 @@ describe('Dynamic Routing', () => {
   it('renders correct page via ODB on a prerendered dynamic route with revalidate and fallback: blocking', () => {
     cy.request('/getStaticProps/withRevalidate/withFallbackBlocking/1/').then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-render-mode', 'isr')
+      expect(res.headers).to.have.property('x-render-mode', 'odb ttl=60')
       expect(res.body).to.contain('Under the Dome')
     })
   })
   it('renders correct page via ODB on a non-prerendered dynamic route with revalidate and fallback: blocking', () => {
     cy.request('/getStaticProps/withRevalidate/withFallbackBlocking/3/').then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-render-mode', 'isr')
+      expect(res.headers).to.have.property('x-render-mode', 'odb ttl=60')
       expect(res.body).to.contain('Bitten')
     })
   })
