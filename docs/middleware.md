@@ -1,19 +1,15 @@
-# Using Next 12 middleware on Netlify
+# Using Next.js 12 middleware on Netlify
 
-Next 12 introduces a new feature called [Middleware](https://nextjs.org/docs/middleware), in which functions run before
+Next.js 12 introduces a new feature called [Middleware](https://nextjs.org/docs/middleware), in which functions run before
 a request has finished processing. Middleware can be used to modify the request or replace the response. For example, it
 can change headers, rewrite the request path, or return a different response entirely.
 
 Next.js Middleware can run either in an edge function (highly recommended for version 12.2+ as ISR will not work
 otherwise) or at the origin. On Netlify, Middleware runs at the origin as part of the normal Next.js server.
 
-If you'd like to run Middleware at the edge, set the environment variable `NEXT_USE_NETLIFY_EDGE` to `true`.
+## How to deploy Next.js 12 middleware
 
-## How to deploy Next 12 middleware
-
-Next 12 Middleware works out of the box with Netlify, and most functions will work unchanged. See
-[the middleware docs](https://nextjs.org/docs/middleware) for details of how to create them. There are however a few
-workarounds that are currently required for some features during the beta period:
+Next.js 12 Middleware works out of the box with Netlify, and most functions will work unchanged. By default, middleware runs using Netlify Edge Functions. For legacy support for running Middleware at the origin, set the environment variable `NEXT_DISABLE_NETLIFY_EDGE` to `true`. Be aware that this will result in slower performance, as all pages that match middleware must use SSR. See [the middleware docs](https://nextjs.org/docs/middleware) for details of how to create Next.js middleware. There are however a few workarounds that are currently required for some features during the beta period:
 
 ### `geo`
 
