@@ -1,7 +1,7 @@
-import { useHeaders } from 'next/dist/client/components/hooks-server'
+import { headers } from 'next/dist/client/components/hooks-server'
 
 export default function Page() {
-  const headers = useHeaders()
+  const headers = headers()
 
   const hasHeader =
     'x-use-headers' in headers && headers['x-use-headers'] === 'value'

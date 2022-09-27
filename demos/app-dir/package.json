@@ -9,8 +9,8 @@
   "license": "MIT",
   "dependencies": {
     "nanoid": "^2.1.11",
-    "next": "^12.3.2-canary.7",
-    "react": "^0.0.0-experimental-d1bb1c586-20220922",
-    "react-dom": "^0.0.0-experimental-d1bb1c586-20220922"
+    "next": "12.3.2-canary.10",
+    "react": "0.0.0-experimental-cb5084d1c-20220924",
+    "react-dom": "0.0.0-experimental-cb5084d1c-20220924"
   }
 }

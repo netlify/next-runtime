@@ -7,10 +7,10 @@ export default function Page() {
       <h1 id="render-id">{nanoid()}</h1>
       <h2 id="from-navigation">hello from /navigation</h2>
       <Link href="/hooks/use-cookies" id="use-cookies">
-        useCookies
+        cookies
       </Link>
       <Link href="/hooks/use-headers" id="use-headers">
-        useHeaders
+        headers
       </Link>
     </>
   )
