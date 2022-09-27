@@ -99,7 +99,7 @@ const getMiddlewareBundle = async ({
 
     let data = await fs.readFile(filePath, 'utf8')
     data = IMPORT_UNSUPPORTED.reduce(
-      (acc, val) => acc.replace(val, `if(!('__import_unsupported' in globalThis)) ${val}`),
+      (acc, val) => acc.replace(val, `('__import_unsupported' in globalThis)||${val}`),
       data,
     )
     chunks.push('{', data, '}')
