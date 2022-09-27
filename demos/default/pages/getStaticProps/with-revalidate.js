@@ -25,7 +25,8 @@ export async function getStaticProps(context) {
     props: {
       show: data,
     },
-    revalidate: 60,
+    // ODB handler will use the minimum TTL=60s
+    revalidate: 1,
   }
 }
 
