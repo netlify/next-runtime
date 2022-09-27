@@ -78,7 +78,7 @@ module.exports = {
     includePaths: [path.join(__dirname, 'styles-sass-test')],
   },
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false,
     images: {
       remotePatterns: [
         {
