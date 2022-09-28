@@ -8,6 +8,7 @@ import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middlew
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 
 import { getRequiredServerFiles } from './config'
+import { isEnvSet } from './utils'
 
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
@@ -205,7 +206,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   const nextConfig = nextConfigFile.config
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
-  if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
+  if (!process.env.NEXT_DISABLE_EDGE_IMAGES || !isEnvSet('DISABLE_IPX')) {
     console.log(
       'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
     )

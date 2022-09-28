@@ -567,7 +567,7 @@ describe('onBuild()', () => {
     const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
     const imageConfigJson = await readJson(imageConfigPath)
 
-    expect(imageConfigJson.domains.length).toBe(1)
+    expect(imageConfigJson.domains.length).toBe(2)
     expect(imageConfigJson.remotePatterns.length).toBe(1)
     expect(imageConfigJson.responseHeaders).toStrictEqual({
       'X-Foo': mockHeaderValue,
