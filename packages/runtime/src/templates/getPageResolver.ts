@@ -14,16 +14,13 @@ export const getPageResolver = async ({ publish, target }: { publish: string; ta
   const functionDir = posix.resolve(posix.join('.netlify', 'functions', HANDLER_FUNCTION_NAME))
   const root = posix.resolve(slash(publish), target === 'server' ? 'server' : 'serverless')
 
-  const pages = await glob('{pages,app}/**/*.{js.nft.json,js}', {
+  const pages = await glob('{pages,app}/**/*.{js.nft.json}', {
     cwd: root,
     dot: true,
   })
 
   const dependencies = await Promise.all(
     pages.map(async (page) => {
-      if (page.endsWith('.js')) {
-        return posix.join(root, page)
-      }
       const dir = posix.dirname(page)
       const { files } = await readJSON(posix.join(root, page))
       return files.map((file) => posix.resolve(root, dir, file))
