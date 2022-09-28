@@ -1,20 +1,32 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
+module.exports = {
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
-  images: {
-    formats: ['image/avif', 'image/webp'],
-    remotePatterns: [
+  experimental: {
+    appDir: true,
+    legacyBrowsers: false,
+    browsersListForSwc: true,
+    sri: {
+      algorithm: 'sha256',
+    },
+  },
+  rewrites: async () => {
+    return {
+      afterFiles: [
+        {
+          source: '/rewritten-to-dashboard',
+          destination: '/dashboard',
+        },
+      ],
+    }
+  },
+  redirects: () => {
+    return [
       {
-        protocol: 'https',
-        hostname: '*.githubusercontent.com',
+        source: '/redirect/a',
+        destination: '/dashboard',
+        permanent: false,
       },
-    ],
-  }
+    ]
+  },
 }
-
-module.exports = nextConfig
