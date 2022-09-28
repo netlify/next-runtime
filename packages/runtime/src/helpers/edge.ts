@@ -7,6 +7,8 @@ import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, wri
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 
+import { getRequiredServerFiles } from './config'
+
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
   env: string[]
@@ -197,6 +199,11 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   await emptyDir(edgeFunctionRoot)
 
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
+
+  const { publish } = netlifyConfig.build
+  const nextConfigFile = await getRequiredServerFiles(publish)
+  const nextConfig = nextConfigFile.config
+  await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
   if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
     console.log(
