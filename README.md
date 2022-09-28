@@ -42,6 +42,10 @@ by targeting the `/_next/image/*` route:
     X-Test = 'foobar'
 ```
 
+## Disabling `ipx`
+
+If you wish to disable the use of the `ipx` package, set the `DISABLE_IPX` environment variable to `true`.
+
 ## Next.js Middleware on Netlify
 
 Next.js Middleware works out of the box on Netlify. By default, middleware runs using Netlify Edge Functions. For legacy
