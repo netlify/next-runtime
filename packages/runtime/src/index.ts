@@ -91,23 +91,23 @@ const plugin: NetlifyPlugin = {
 
     if (middlewareManifest?.functions && Object.keys(middlewareManifest.functions).length !== 0) {
       usingEdge = true
-      if (process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+      if (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'true' || process.env.NEXT_DISABLE_NETLIFY_EDGE === '1') {
         failBuild(outdent`
           You are using Next.js experimental edge runtime, but have set NEXT_DISABLE_NETLIFY_EDGE to true. This is not supported.
-          To use edge runtime, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`}.
+          To use edge runtime, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`} or set it to false.
         `)
       }
     }
 
     if (middlewareManifest?.middleware && Object.keys(middlewareManifest.middleware).length !== 0) {
       usingEdge = true
-      if (process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+      if (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'true' || process.env.NEXT_DISABLE_NETLIFY_EDGE === '1') {
         console.log(
           redBright(outdent`
             You are using Next.js Middleware without Netlify Edge Functions.
             This is deprecated because it negatively affects performance and will disable ISR and static rendering.
             It also disables advanced middleware features from @netlify/next
-            To get the best performance and use Netlify Edge Functions, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`}.
+            To get the best performance and use Netlify Edge Functions, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`} or set it to false.
           `),
         )
       }
