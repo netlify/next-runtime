@@ -68,6 +68,8 @@ If you are using Nx, then you will need to point `publish` to the folder inside 
 The Next.js Runtime fully supports ISR on Netlify. For more details see
 [the ISR docs](https://github.com/netlify/next-runtime/blob/main/docs/isr.md).
 
+Note that Netlify has a minimum TTL of 60 seconds for revalidation.
+
 ## Use with `next export`
 
 If you are using `next export` to generate a static site, you do not need most of the functionality of this Next.js
