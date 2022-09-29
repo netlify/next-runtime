@@ -50,6 +50,12 @@ aware that this will result in slower performance, as all pages that match middl
 
 For more details on Next.js Middleware with Netlify, see the [middleware docs](https://github.com/netlify/next-runtime/blob/main/docs/middleware.md).
 
+### Limitations
+
+Due to how the site configuration is handled when it's run using Netlify Edge Functions, data such as `locale` and `defaultLocale` will be missing on the `req.nextUrl` object when running `netlify dev`. 
+
+However, this data is available on `req.nextUrl` in a production environment.
+
 ## Monorepos
 
 If you are using a monorepo you will need to change `publish` to point to the full path to the built `.next` directory,
@@ -61,6 +67,8 @@ If you are using Nx, then you will need to point `publish` to the folder inside 
 
 The Next.js Runtime fully supports ISR on Netlify. For more details see
 [the ISR docs](https://github.com/netlify/next-runtime/blob/main/docs/isr.md).
+
+Note that Netlify has a minimum TTL of 60 seconds for revalidation.
 
 ## Use with `next export`
 

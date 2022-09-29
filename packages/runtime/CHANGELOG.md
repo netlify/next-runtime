@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.23.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.2...plugin-nextjs-v4.23.3) (2022-09-28)
+
+
+### Bug Fixes
+
+* add missing data to middleware request object ([#1634](https://github.com/netlify/next-runtime/issues/1634)) ([0c05726](https://github.com/netlify/next-runtime/commit/0c057265b9297ceb38d49c675159cc50b9df23a3))
+
 ## [4.23.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.1...plugin-nextjs-v4.23.2) (2022-09-26)
 
 

@@ -129,15 +129,15 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
         // Long-expiry TTL is basically no TTL, so we'll skip it
         if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
           result.ttl = ttl
-          requestMode = 'isr'
+          requestMode = `odb ttl=${ttl}`
         }
       }
       multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
     }
-    multiValueHeaders['x-render-mode'] = [requestMode]
-    console.log(
-      `[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()}${result.ttl > 0 ? ` ${result.ttl}s` : ''})`,
-    )
+    multiValueHeaders['x-nf-render-mode'] = [requestMode]
+
+    console.log(`[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()})`)
+
     return {
       ...result,
       multiValueHeaders,
