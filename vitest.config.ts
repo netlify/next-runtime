@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    testTimeout: 60000,
+    testTimeout: 1000 * 60 * 2,
     include: ['test/e2e/**/*.spec.ts'],
     reporters: process.env.GITHUB_ACTIONS ? new GithubActionsReporter() : 'default',
   },
