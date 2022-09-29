@@ -20,7 +20,7 @@
     "test": "run-s build:demo test:jest",
     "test:jest": "jest",
     "test:e2e": "vitest test/e2e",
-    "playwright:install": "playwright install-deps chromium",
+    "playwright:install": "playwright install --with-deps chromium",
     "test:jest:update": "jest --updateSnapshot",
     "test:update": "run-s build build:demo test:jest:update"
   },
