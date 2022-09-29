@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeAll } from 'vitest'
 
 import { fetchViaHTTP, renderViaHTTP, waitFor } from '../next-test-lib/next-test-utils'
 import { load } from 'cheerio'
@@ -6,6 +6,9 @@ import webdriver from '../next-test-lib/next-webdriver'
 const nextUrl = process.env.SITE_URL || 'http://localhost:8888'
 
 describe('app dir', () => {
+  beforeAll(() => {
+    process.env.HEADLESS = 'true'
+  })
   it('should use application/octet-stream for flight', async () => {
     const res = await fetchViaHTTP(
       nextUrl,
