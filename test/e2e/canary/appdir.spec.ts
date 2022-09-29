@@ -205,23 +205,27 @@ describe('app dir', () => {
       expect(await browser.url()).toBe(`${nextUrl}/rewritten-to-dashboard`)
     })
 
-    it('should support rewrites on client-side navigation', async () => {
-      const browser = await webdriver(nextUrl, '/rewrites')
+    it(
+      'should support rewrites on client-side navigation',
+      async () => {
+        const browser = await webdriver(nextUrl, '/rewrites')
 
-      try {
-        // Click the link.
-        await browser.elementById('link').click()
-        await browser.waitForElementByCss('#from-dashboard')
+        try {
+          // Click the link.
+          await browser.elementById('link').click()
+          await browser.waitForElementByCss('#from-dashboard')
 
-        // Check to see that we were rewritten and not redirected.
-        expect(await browser.url()).toBe(`${nextUrl}/rewritten-to-dashboard`)
+          // Check to see that we were rewritten and not redirected.
+          expect(await browser.url()).toBe(`${nextUrl}/rewritten-to-dashboard`)
 
-        // Check to see that the page we navigated to is in fact the dashboard.
-        expect(await browser.elementByCss('#from-dashboard').text()).toBe('hello from app/dashboard')
-      } finally {
-        await browser.close()
-      }
-    })
+          // Check to see that the page we navigated to is in fact the dashboard.
+          expect(await browser.elementByCss('#from-dashboard').text()).toBe('hello from app/dashboard')
+        } finally {
+          await browser.close()
+        }
+      },
+      { timeout: 1000 * 60 * 2 },
+    )
   })
 
   it('should not rerender layout when navigating between routes in the same layout', async () => {
