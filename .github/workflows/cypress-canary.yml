@@ -39,7 +39,7 @@ jobs:
         id: deploy
         uses: ./.github/actions/wait-for-netlify-deploy
         with:
-          site-name: netlify-plugin-nextjs-demo
+          site-name: next-plugin-canary
           timeout: 300
 
       - name: Deploy successful
