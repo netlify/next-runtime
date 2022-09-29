@@ -8,7 +8,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "nanoid": "^2.1.11",
+    "nanoid": "^3.3.4",
     "next": "^12.3.2-canary.13",
     "react": "0.0.0-experimental-ae7ad8b4c-20220927",
     "react-dom": "0.0.0-experimental-ae7ad8b4c-20220927"

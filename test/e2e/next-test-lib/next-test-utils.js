@@ -1,14 +1,13 @@
 // @ts-check
 import spawn from 'cross-spawn'
-import { existsSync, readFileSync, unlinkSync, writeFileSync, createReadStream } from 'fs'
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
 import { writeFile } from 'fs-extra'
 import getPort from 'get-port'
-import http from 'http'
-import https from 'https'
 import server from 'next/dist/server/next'
-import fetch from 'node-fetch'
+import { fetch } from 'undici'
 import path from 'path'
 import qs from 'querystring'
+import { TextDecoderStream } from 'stream/web'
 
 export const nextServer = server
 
@@ -101,39 +100,37 @@ export function renderViaAPI(app, pathname, query) {
   return app.renderToHTML({ url }, {}, pathname, query)
 }
 
-/**
- * @param {string | number} appPort
- * @param {string} pathname
- * @param {Record<string, any> | string | undefined} [query]
- * @param {import('node-fetch').RequestInit} [opts]
- * @returns {Promise<string>}
- */
-export function renderViaHTTP(appPort, pathname, query, opts) {
-  return fetchViaHTTP(appPort, pathname, query, opts).then((res) => res.text())
+async function processChunkedResponse(response) {
+  let text = ''
+  const stream = response.body.pipeThrough(new TextDecoderStream())
+
+  for await (const chunk of stream) {
+    text += chunk
+  }
+  return text
 }
 
 /**
  * @param {string | number} appPort
  * @param {string} pathname
  * @param {Record<string, any> | string | undefined} [query]
- * @param {import('node-fetch').RequestInit} [opts]
- * @returns {Promise<Response & {buffer: any} & {headers: any}>}
+ * @param {import("undici").RequestInit} [opts]
+ * @returns {Promise<string>}
+ */
+export function renderViaHTTP(appPort, pathname, query, opts) {
+  return fetchViaHTTP(appPort, pathname, query, opts).then(processChunkedResponse)
+}
+
+/**
+ * @param {string | number} appPort
+ * @param {string} pathname
+ * @param {Record<string, any> | string | undefined} [query]
+ * @param {import("undici").RequestInit} [opts]
+ * @returns {Promise<import("undici").Response>}
  */
 export function fetchViaHTTP(appPort, pathname, query, opts) {
   const url = `${pathname}${typeof query === 'string' ? query : query ? `?${qs.stringify(query)}` : ''}`
-  return fetch(getFullUrl(appPort, url), {
-    // in node.js v17 fetch favors IPv6 but Next.js is
-    // listening on IPv4 by default so force IPv4 DNS resolving
-    agent: (parsedUrl) => {
-      if (parsedUrl.protocol === 'https:') {
-        return new https.Agent({ family: 4 })
-      }
-      if (parsedUrl.protocol === 'http:') {
-        return new http.Agent({ family: 4 })
-      }
-    },
-    ...opts,
-  })
+  return fetch(getFullUrl(appPort, url), opts)
 }
 
 export function findPort() {
