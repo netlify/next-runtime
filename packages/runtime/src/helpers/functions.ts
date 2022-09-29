@@ -7,6 +7,7 @@ import { join, relative, resolve } from 'pathe'
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
 import { getHandler } from '../templates/getHandler'
 import { getPageResolver } from '../templates/getPageResolver'
+
 import { isEnvSet } from './utils'
 
 export const generateFunctions = async (
@@ -70,8 +71,7 @@ export const setupImageFunction = async ({
   remotePatterns: RemotePattern[]
   responseHeaders?: Record<string, string>
 }): Promise<void> => {
-  
-  if(!isEnvSet('DISABLE_IPX')) {
+  if (!isEnvSet('DISABLE_IPX')) {
     const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
     const functionName = `${IMAGE_FUNCTION_NAME}.js`
     const functionDirectory = join(functionsPath, IMAGE_FUNCTION_NAME)
@@ -83,7 +83,7 @@ export const setupImageFunction = async ({
       remotePatterns,
       responseHeaders,
     })
-    
+
     await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
 
     const imagePath = imageconfig.path || '/_next/image'
@@ -96,12 +96,12 @@ export const setupImageFunction = async ({
       to: `${basePath}/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
       status: 301,
     })
-  
+
     netlifyConfig.redirects.push({
       from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,
       to: `/.netlify/builders/${IMAGE_FUNCTION_NAME}`,
       status: 200,
-    })  
+    })
   }
 
   if (basePath) {

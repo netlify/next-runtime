@@ -25,12 +25,7 @@ import {
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
-import {
-  shouldSkip,
-  isNextAuthInstalled,
-  getCustomImageResponseHeaders,
-  getRemotePatterns,
-} from './helpers/utils'
+import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
@@ -69,7 +64,6 @@ const plugin: NetlifyPlugin = {
     netlifyConfig.build.environment.NEXT_PRIVATE_TARGET = 'server'
   },
 
-  // eslint-disable-next-line max-lines-per-function
   async onBuild({
     constants,
     netlifyConfig,

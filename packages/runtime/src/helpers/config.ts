@@ -8,6 +8,7 @@ import slash from 'slash'
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
 import type { RoutesManifest } from './types'
+import { isEnvSet } from './utils'
 
 const ROUTES_MANIFEST_FILE = 'routes-manifest.json'
 
@@ -77,7 +78,9 @@ const resolveModuleRoot = (moduleName) => {
   }
 }
 
-const DEFAULT_EXCLUDED_MODULES = ['sharp', 'electron']
+const configureDefaultExcludedModules = () => (isEnvSet('DISABLE_IPX') ? ['electron'] : ['sharp', 'electron'])
+
+const DEFAULT_EXCLUDED_MODULES = configureDefaultExcludedModules()
 
 export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore = [] }) => {
   const config = await getRequiredServerFiles(publish)
@@ -85,8 +88,10 @@ export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore
   const cssFilesToInclude = files.filter((f) => f.startsWith(`${publish}/static/css/`))
 
   /* eslint-disable no-underscore-dangle */
-  netlifyConfig.functions._ipx ||= {}
-  netlifyConfig.functions._ipx.node_bundler = 'nft'
+  if (!isEnvSet('DISABLE_IPX')) {
+    netlifyConfig.functions._ipx ||= {}
+    netlifyConfig.functions._ipx.node_bundler = 'nft'
+  }
 
   /* eslint-enable no-underscore-dangle */
   ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
