@@ -7,8 +7,8 @@ import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, wri
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 
-import { RoutesManifest } from './types'
 import { getRequiredServerFiles } from './config'
+import { RoutesManifest } from './types'
 
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
