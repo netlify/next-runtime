@@ -15,11 +15,9 @@ export function middleware(request) {
   }
 
   if (request.nextUrl.pathname.startsWith('/internal/test')) {
-    const method = request.nextUrl.pathname.endsWith('rewrite')
-      ? 'rewrite'
-      : 'redirect'
+    const method = request.nextUrl.pathname.endsWith('rewrite') ? 'rewrite' : 'redirect'
 
-    const internal = ['__flight__', '__flight_router_state_tree__']
+    const internal = ['__rsc__', '__next_router_state_tree__']
     if (internal.some((name) => request.headers.has(name))) {
       return NextResponse[method](new URL('/internal/failure', request.url))
     }
