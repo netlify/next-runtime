@@ -7,6 +7,7 @@ import { join, relative, resolve } from 'pathe'
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
 import { getHandler } from '../templates/getHandler'
 import { getPageResolver } from '../templates/getPageResolver'
+import { isEnvSet } from './utils'
 
 export const generateFunctions = async (
   { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
@@ -69,35 +70,39 @@ export const setupImageFunction = async ({
   remotePatterns: RemotePattern[]
   responseHeaders?: Record<string, string>
 }): Promise<void> => {
-  const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
-  const functionName = `${IMAGE_FUNCTION_NAME}.js`
-  const functionDirectory = join(functionsPath, IMAGE_FUNCTION_NAME)
+  
+  if(!isEnvSet('DISABLE_IPX')) {
+    const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
+    const functionName = `${IMAGE_FUNCTION_NAME}.js`
+    const functionDirectory = join(functionsPath, IMAGE_FUNCTION_NAME)
 
-  await ensureDir(functionDirectory)
-  await writeJSON(join(functionDirectory, 'imageconfig.json'), {
-    ...imageconfig,
-    basePath: [basePath, IMAGE_FUNCTION_NAME].join('/'),
-    remotePatterns,
-    responseHeaders,
-  })
-  await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
+    await ensureDir(functionDirectory)
+    await writeJSON(join(functionDirectory, 'imageconfig.json'), {
+      ...imageconfig,
+      basePath: [basePath, IMAGE_FUNCTION_NAME].join('/'),
+      remotePatterns,
+      responseHeaders,
+    })
+    
+    await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
 
-  const imagePath = imageconfig.path || '/_next/image'
+    const imagePath = imageconfig.path || '/_next/image'
 
-  // If we have edge functions then the request will have already been rewritten
-  // so this won't match. This is matched if edge is disabled or unavailable.
-  netlifyConfig.redirects.push({
-    from: `${imagePath}*`,
-    query: { url: ':url', w: ':width', q: ':quality' },
-    to: `${basePath}/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
-    status: 301,
-  })
-
-  netlifyConfig.redirects.push({
-    from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,
-    to: `/.netlify/builders/${IMAGE_FUNCTION_NAME}`,
-    status: 200,
-  })
+    // If we have edge functions then the request will have already been rewritten
+    // so this won't match. This is matched if edge is disabled or unavailable.
+    netlifyConfig.redirects.push({
+      from: `${imagePath}*`,
+      query: { url: ':url', w: ':width', q: ':quality' },
+      to: `${basePath}/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
+      status: 301,
+    })
+  
+    netlifyConfig.redirects.push({
+      from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,
+      to: `/.netlify/builders/${IMAGE_FUNCTION_NAME}`,
+      status: 200,
+    })  
+  }
 
   if (basePath) {
     // next/image generates image static URLs that still point at the site root

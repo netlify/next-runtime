@@ -30,7 +30,6 @@ import {
   isNextAuthInstalled,
   getCustomImageResponseHeaders,
   getRemotePatterns,
-  isEnvSet,
 } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
@@ -170,16 +169,14 @@ const plugin: NetlifyPlugin = {
       nextConfig: { basePath, i18n },
     })
 
-    if (!isEnvSet('DISABLE_IPX')) {
-      await setupImageFunction({
-        constants,
-        imageconfig: images,
-        netlifyConfig,
-        basePath,
-        remotePatterns: getRemotePatterns(experimental, images),
-        responseHeaders: getCustomImageResponseHeaders(netlifyConfig.headers),
-      })
-    }
+    await setupImageFunction({
+      constants,
+      imageconfig: images,
+      netlifyConfig,
+      basePath,
+      remotePatterns: getRemotePatterns(experimental, images),
+      responseHeaders: getCustomImageResponseHeaders(netlifyConfig.headers),
+    })
 
     await generateRedirects({
       netlifyConfig,
