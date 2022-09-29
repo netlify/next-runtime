@@ -22,7 +22,8 @@
     "@reach/visually-hidden": "^0.16.0",
     "next": "^12.3.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "sharp": "^0.31.1"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "*",
