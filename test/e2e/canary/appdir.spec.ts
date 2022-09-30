@@ -1221,22 +1221,21 @@ describe('app dir', () => {
     })
   })
 
-  describe('404', () => {
-    it.skip('should trigger 404 in a server component', async () => {
+  describe('not-found', () => {
+    it.skip('should trigger not-found in a server component', async () => {
       const browser = await webdriver(nextUrl, '/not-found/servercomponent')
 
-      expect(await browser.waitForElementByCss('#not-found-component').text()).toBe('404!')
+      expect(await browser.waitForElementByCss('#not-found-component').text()).toBe('Not Found!')
     })
 
-    it.skip('should trigger 404 in a client component', async () => {
+    it.skip('should trigger not-found in a client component', async () => {
       const browser = await webdriver(nextUrl, '/not-found/clientcomponent')
-      expect(await browser.waitForElementByCss('#not-found-component').text()).toBe('404!')
+      expect(await browser.waitForElementByCss('#not-found-component').text()).toBe('Not Found!')
     })
-
-    it('should trigger 404 client-side', async () => {
+    it('should trigger not-found client-side', async () => {
       const browser = await webdriver(nextUrl, '/not-found/client-side')
       await browser.elementByCss('button').click().waitForElementByCss('#not-found-component')
-      expect(await browser.elementByCss('#not-found-component').text()).toBe('404!')
+      expect(await browser.elementByCss('#not-found-component').text()).toBe('Not Found!')
     })
   })
 
