@@ -44,7 +44,9 @@ by targeting the `/_next/image/*` route:
 
 ## Disabling `ipx`
 
-If you wish to disable the use of the `ipx` package, set the `DISABLE_IPX` environment variable to `true`.
+If you wish to disable the use of the `ipx` package, set the `DISABLE_IPX` environment variable to `true`. Please note that some requests to `/_next/image/*` may fail unless an image loader, such as Cloudinary or Imgix, is specified as a replacement for `ipx`. 
+
+See the [Next.js documentation](https://nextjs.org/docs/api-reference/next/image#built-in-loaders) for options.
 
 ## Next.js Middleware on Netlify
 

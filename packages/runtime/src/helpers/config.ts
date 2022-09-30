@@ -78,9 +78,7 @@ const resolveModuleRoot = (moduleName) => {
   }
 }
 
-const configureDefaultExcludedModules = () => (isEnvSet('DISABLE_IPX') ? ['electron'] : ['sharp', 'electron'])
-
-const DEFAULT_EXCLUDED_MODULES = configureDefaultExcludedModules()
+const DEFAULT_EXCLUDED_MODULES = ['sharp', 'electron']
 
 export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore = [] }) => {
   const config = await getRequiredServerFiles(publish)

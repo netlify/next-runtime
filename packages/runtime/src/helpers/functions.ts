@@ -71,7 +71,21 @@ export const setupImageFunction = async ({
   remotePatterns: RemotePattern[]
   responseHeaders?: Record<string, string>
 }): Promise<void> => {
-  if (!isEnvSet('DISABLE_IPX')) {
+  const imagePath = imageconfig.path || '/_next/image'
+  
+  if (isEnvSet('DISABLE_IPX')) {
+    // If no image loader is specified, need to redirect to a 404 page since there's no
+    // backing loader to serve local site images
+    if (!imageconfig.loader) {
+      netlifyConfig.redirects.push({
+        from: `${imagePath}*`,
+        query: { url: ':url', w: ':width', q: ':quality' },
+        to: '/404.html',
+        status: 404,
+        force: true
+      })  
+    }
+  } else {
     const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
     const functionName = `${IMAGE_FUNCTION_NAME}.js`
     const functionDirectory = join(functionsPath, IMAGE_FUNCTION_NAME)
@@ -85,8 +99,6 @@ export const setupImageFunction = async ({
     })
 
     await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
-
-    const imagePath = imageconfig.path || '/_next/image'
 
     // If we have edge functions then the request will have already been rewritten
     // so this won't match. This is matched if edge is disabled or unavailable.
