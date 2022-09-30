@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-
+import crypto from 'crypto'
 import { fetchViaHTTP, renderViaHTTP, waitFor } from '../next-test-lib/next-test-utils'
 import { load } from 'cheerio'
 import webdriver from '../next-test-lib/next-webdriver'
@@ -1104,7 +1104,7 @@ describe('app dir', () => {
       elements.each((i, el) => {
         const { integrity } = el.attribs
         expect(integrity).toBeDefined()
-        expect(integrity).toStartWith('sha256-')
+        expect(integrity.startsWith('sha256-')).toBeTruthy()
 
         const { src } = el.attribs
         expect(src).toBeDefined()
@@ -1121,7 +1121,7 @@ describe('app dir', () => {
 
         const hash = crypto.createHash('sha256').update(content).digest().toString('base64')
 
-        expect(integrity).toEndWith(hash)
+        expect(integrity.endsWith(hash)).toBeTruthy()
       }
     })
 
@@ -1155,14 +1155,13 @@ describe('app dir', () => {
     // TODO-APP: disable failing test and investigate later
     it.skip('should render the template that is a server component and rerender on navigation', async () => {
       const browser = await webdriver(nextUrl, '/template/servercomponent')
-      expect(await browser.elementByCss('h1').text()).toStartWith('Template')
-
+      expect((await browser.elementByCss('h1').text()).startsWith('Template')).toBeTruthy()
       const currentTime = await browser.elementByCss('#performance-now').text()
 
       await browser.elementByCss('#link').click()
       await browser.waitForElementByCss('#other-page')
 
-      expect(await browser.elementByCss('h1').text()).toStartWith('Template')
+      expect((await browser.elementByCss('h1').text()).startsWith('Template')).toBeTruthy()
 
       // template should rerender on navigation even when it's a server component
       expect(await browser.elementByCss('#performance-now').text()).toBe(currentTime)
@@ -1205,7 +1204,7 @@ describe('app dir', () => {
         .filter((x) => x.source === 'error')
         .map((x) => x.message)
         .join('\n')
-      expect(errors).toInclude('Error during SSR')
+      expect(errors).includes('Error during SSR')
     })
   })
 
