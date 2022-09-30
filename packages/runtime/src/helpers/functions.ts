@@ -72,18 +72,18 @@ export const setupImageFunction = async ({
   responseHeaders?: Record<string, string>
 }): Promise<void> => {
   const imagePath = imageconfig.path || '/_next/image'
-  
+
   if (isEnvSet('DISABLE_IPX')) {
     // If no image loader is specified, need to redirect to a 404 page since there's no
     // backing loader to serve local site images
-    if (!imageconfig.loader) {
+    if (imageconfig.loader && imageconfig.loader === 'default') {
       netlifyConfig.redirects.push({
         from: `${imagePath}*`,
         query: { url: ':url', w: ':width', q: ':quality' },
         to: '/404.html',
         status: 404,
-        force: true
-      })  
+        force: true,
+      })
     }
   } else {
     const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
