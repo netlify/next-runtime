@@ -661,9 +661,7 @@ describe('app dir', () => {
         expect(await browser.elementByCss('#slow-page-message').text()).toBe('hello from slow page')
       })
     })
-    // Skipping until the adapter doesn't use a global to see if it's middleware
-    // See todo: https://github.com/vercel/next.js/blob/canary/packages/next/server/web/adapter.ts#L49
-    describe.skip('middleware', () => {
+    describe('middleware', () => {
       it.each(['rewrite', 'redirect'])(
         `should strip internal query parameters from requests to middleware for %s`,
         async (method) => {

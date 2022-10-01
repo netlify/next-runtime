@@ -71,12 +71,13 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 /**
  * Initialization added to the top of the edge function bundle
  */
-const bootstrap = /* js */ `
-globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-globalThis._ENTRIES ||= {}
-// Deno defines "window", but naughty libraries think this means it's a browser
-delete globalThis.window
-
+const preamble = /* js */ `
+  // Deno defines "window", but naughty libraries think this means it's a browser
+  delete globalThis.window
+  globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
+  // Next uses "self" as a function-scoped global-like object
+  const self = {}
+  let _ENTRIES = {}
 `
 
 const IMPORT_UNSUPPORTED = [
@@ -94,7 +95,7 @@ const getMiddlewareBundle = async ({
   netlifyConfig: NetlifyConfig
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
-  const chunks: Array<string> = [bootstrap]
+  const chunks: Array<string> = [preamble]
   for (const file of edgeFunctionDefinition.files) {
     const filePath = join(publish, file)
 
