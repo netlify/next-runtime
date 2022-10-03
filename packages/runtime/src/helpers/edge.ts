@@ -203,6 +203,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   const { publish } = netlifyConfig.build
   const nextConfigFile = await getRequiredServerFiles(publish)
   const nextConfig = nextConfigFile.config
+  await ensureDir(join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
   if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
