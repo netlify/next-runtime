@@ -203,7 +203,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   const { publish } = netlifyConfig.build
   const nextConfigFile = await getRequiredServerFiles(publish)
   const nextConfig = nextConfigFile.config
-  await ensureDir(join(edgeFunctionRoot, 'edge-shared'))
+  await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
   if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
@@ -223,7 +223,6 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
     })
   }
   if (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1') {
-    await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
     if (!middlewareManifest) {
       console.error("Couldn't find the middleware manifest")
