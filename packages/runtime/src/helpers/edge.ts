@@ -280,7 +280,10 @@ export const writeEdgeFunctions = async ({
       const appPathRoutesManifest = await loadAppPathRoutesManifest(netlifyConfig)
 
       const pageRegexMap = new Map(
-        [...routesManifest.dynamicRoutes, ...routesManifest.staticRoutes].map((route) => [route.page, route.regex]),
+        [...(routesManifest.dynamicRoutes || []), ...(routesManifest.staticRoutes || [])].map((route) => [
+          route.page,
+          route.regex,
+        ]),
       )
 
       for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
