@@ -16,7 +16,7 @@ commands separately will not work, because the Next.js Runtime will not generate
 If you use [`next/image`](https://nextjs.org/docs/basic-features/image-optimization), your images will be automatically
 optimized at runtime, ensuring that they are served at the best size and format. The image will be processed on the
 first request which means it may take longer to load, but the generated image is then cached at the edge and served as a
-static file to future visitors. By default, Next will deliver WebP images if the browser supports it. WebP is a new
+static file to future visitors. By default, Next.js will deliver WebP images if the browser supports it. WebP is a new
 image format with wide browser support that will usually generate smaller files than png or jpg. You can additionally
 enable the AVIF format, which is often even smaller in filesize than WebP. The drawback is that with particularly large
 images AVIF may take too long to generate, meaning the function times-out. You can configure
@@ -48,6 +48,14 @@ Next.js Middleware works out of the box on Netlify. By default, middleware runs 
 support for running Middleware at the origin, set the environment variable `NEXT_DISABLE_NETLIFY_EDGE` to `true`. Be
 aware that this will result in slower performance, as all pages that match middleware must use SSR.
 
+For more details on Next.js Middleware with Netlify, see the [middleware docs](https://github.com/netlify/next-runtime/blob/main/docs/middleware.md).
+
+### Limitations
+
+Due to how the site configuration is handled when it's run using Netlify Edge Functions, data such as `locale` and `defaultLocale` will be missing on the `req.nextUrl` object when running `netlify dev`. 
+
+However, this data is available on `req.nextUrl` in a production environment.
+
 ## Monorepos
 
 If you are using a monorepo you will need to change `publish` to point to the full path to the built `.next` directory,
@@ -59,6 +67,8 @@ If you are using Nx, then you will need to point `publish` to the folder inside 
 
 The Next.js Runtime fully supports ISR on Netlify. For more details see
 [the ISR docs](https://github.com/netlify/next-runtime/blob/main/docs/isr.md).
+
+Note that Netlify has a minimum TTL of 60 seconds for revalidation.
 
 ## Use with `next export`
 
@@ -111,7 +121,7 @@ If you previously set these values, they're no longer needed and should be remov
 - `external_node_modules` in `netlify.toml`
 - The environment variable `NEXT_USE_NETLIFY_EDGE` can be removed as this is now the default
 
-The `serverless` and `experimental-serverless-trace` targets are deprecated in Next 12, and all builds with this Next
+The `serverless` and `experimental-serverless-trace` targets are deprecated in Next.js 12, and all builds with this Next.js
 Runtime will now use the default `server` target. If you previously set the target in your `next.config.js`, you should
 remove it.
 

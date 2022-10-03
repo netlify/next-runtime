@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.23.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.2...plugin-nextjs-v4.23.3) (2022-09-28)
+
+
+### Bug Fixes
+
+* add missing data to middleware request object ([#1634](https://github.com/netlify/next-runtime/issues/1634)) ([0c05726](https://github.com/netlify/next-runtime/commit/0c057265b9297ceb38d49c675159cc50b9df23a3))
+
+## [4.23.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.1...plugin-nextjs-v4.23.2) (2022-09-26)
+
+
+### Bug Fixes
+
+* check NEXT_DISABLE_NETLIFY_EDGE value rather than if truthy ([#1603](https://github.com/netlify/next-runtime/issues/1603)) ([5cf8c52](https://github.com/netlify/next-runtime/commit/5cf8c52ead9a9013906201697a6a4a32fd8368f7))
+* **deps:** update dependency @netlify/esbuild to v0.14.39 ([#1623](https://github.com/netlify/next-runtime/issues/1623)) ([3dc7b23](https://github.com/netlify/next-runtime/commit/3dc7b2386471b5993fe425b5d5735e945fcd9417))
+
 ## [4.23.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.0...plugin-nextjs-v4.23.1) (2022-09-09)
 
 

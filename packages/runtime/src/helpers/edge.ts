@@ -9,6 +9,8 @@ import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middlew
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
 
+import { getRequiredServerFiles } from './config'
+
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
   env: string[]
@@ -198,6 +200,11 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   const edgeFunctionRoot = resolve('.netlify', 'edge-functions')
   await emptyDir(edgeFunctionRoot)
 
+  const { publish } = netlifyConfig.build
+  const nextConfigFile = await getRequiredServerFiles(publish)
+  const nextConfig = nextConfigFile.config
+  await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
+
   if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
     console.log(
       'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
@@ -214,9 +221,8 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
       path: '/_next/image*',
     })
   }
-  if (!process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+  if (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1') {
     await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
-
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
     if (!middlewareManifest) {
       console.error("Couldn't find the middleware manifest")
