@@ -17,13 +17,11 @@ package = "@netlify/plugin-local-install-core"
 # Uncomment this if testing the built files rather than dev
 [dev]
 framework = "#static"
-
-[[redirects]]
-from = "/_next/static/*"
-to = "/static/:splat"
-status = 200
-
-[[redirects]]
-from = "/*"
-to = "/.netlify/functions/___netlify-handler"
-status = 200
+# [[redirects]]
+# from = "/_next/static/*"
+# to = "/static/:splat"
+# status = 200
+# [[redirects]]
+# from = "/*"
+# to = "/.netlify/functions/___netlify-handler"
+# status = 200
