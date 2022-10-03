@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.23.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.3...plugin-nextjs-v4.23.4) (2022-10-03)
+
+
+### Bug Fixes
+
+* correctly enable edge images ([#1631](https://github.com/netlify/next-runtime/issues/1631)) ([8bcbad0](https://github.com/netlify/next-runtime/commit/8bcbad0038d85e2bf2618883b82ceb1e724e103b))
+
 ## [4.23.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.2...plugin-nextjs-v4.23.3) (2022-09-28)
 
 
