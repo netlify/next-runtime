@@ -1,17 +1,8 @@
 import Link from 'next/link'
 
-const Show = ({ show }) => (
+const Show = () => (
   <div>
-    <p>
-      This page uses getStaticProps() to pre-fetch a TV show, but will return a 404 if the current time ends in 0-4.
-    </p>
-
-    <hr />
-
-    <h1>Show #{show.id}</h1>
-    <p>{show.name}</p>
-
-    <hr />
+    <p>This page is ISR, but will return a 404 if the current time ends in 0-4.</p>
 
     <Link href="/">
       <a>Go back home</a>
@@ -20,14 +11,8 @@ const Show = ({ show }) => (
 )
 
 export async function getStaticProps(context) {
-  const res = await fetch(`https://api.tvmaze.com/shows/71`)
-  const data = await res.json()
-  console.log(data)
-
   return {
-    props: {
-      show: data,
-    },
+    props: {},
     notFound: new Date().getMinutes() % 10 < 5,
     revalidate: 60,
   }
