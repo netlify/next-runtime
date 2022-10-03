@@ -90,7 +90,7 @@ export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore
 
   /* eslint-enable no-underscore-dangle */
   ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
-    netlifyConfig.functions[functionName] ||= { included_files: [], external_node_modules: ['react', 'react-dom'] }
+    netlifyConfig.functions[functionName] ||= { included_files: [], external_node_modules: [] }
     netlifyConfig.functions[functionName].node_bundler = 'nft'
     netlifyConfig.functions[functionName].included_files ||= []
     netlifyConfig.functions[functionName].included_files.push(

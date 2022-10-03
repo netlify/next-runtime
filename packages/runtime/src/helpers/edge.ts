@@ -169,6 +169,7 @@ const writeEdgeFunction = async ({
   }
 
   // If the EF matches a page, it's an app dir page so needs a matcher too
+  // The object will be empty if appDir isn't enabled in the Next config
   if (pageRegexMap && edgeFunctionDefinition.page in appPathRoutesManifest) {
     const regexp = pageRegexMap.get(appPathRoutesManifest[edgeFunctionDefinition.page])
     if (regexp) {

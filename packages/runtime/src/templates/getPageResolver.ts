@@ -14,7 +14,7 @@ export const getPageResolver = async ({ publish, target }: { publish: string; ta
   const functionDir = posix.resolve(posix.join('.netlify', 'functions', HANDLER_FUNCTION_NAME))
   const root = posix.resolve(slash(publish), target === 'server' ? 'server' : 'serverless')
 
-  const pages = await glob('{pages,app}/**/*.{js.nft.json}', {
+  const pages = await glob('{pages,app}/**/*.js.nft.json', {
     cwd: root,
     dot: true,
   })

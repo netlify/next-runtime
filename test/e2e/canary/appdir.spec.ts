@@ -1,3 +1,7 @@
+/*
+ * Adapted from https://github.com/vercel/next.js/blob/canary/test/e2e/app-dir/index.test.ts
+ */
+
 import { describe, it, expect, beforeAll } from 'vitest'
 import crypto from 'crypto'
 import { fetchViaHTTP, renderViaHTTP, waitFor } from '../next-test-lib/next-test-utils'
