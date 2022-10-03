@@ -72,8 +72,7 @@ export const setupImageFunction = async ({
   responseHeaders?: Record<string, string>
 }): Promise<void> => {
   const imagePath = imageconfig.path || '/_next/image'
-  console.log('DISABLE?', process.env.DISABLE_IPX)
-  
+
   if (isEnvSet('DISABLE_IPX')) {
     // If no image loader is specified, need to redirect to a 404 page since there's no
     // backing loader to serve local site images once deployed to Netlify
