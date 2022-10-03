@@ -75,7 +75,7 @@ export const setupImageFunction = async ({
   if (destr(process.env.DISABLE_IPX)) {
     // If no image loader is specified, need to redirect to a 404 page since there's no
     // backing loader to serve local site images once deployed to Netlify
-    if (!IS_LOCAL && imageconfig.loader && imageconfig.loader === 'default') {
+    if (!IS_LOCAL && imageconfig.loader === 'default') {
       netlifyConfig.redirects.push({
         from: `${imagePath}*`,
         query: { url: ':url', w: ':width', q: ':quality' },
