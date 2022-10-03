@@ -3,6 +3,7 @@ import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
 import { bold, redBright } from 'chalk'
+import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
@@ -86,7 +87,7 @@ const plugin: NetlifyPlugin = {
     if (
       middlewareManifest?.functions &&
       Object.keys(middlewareManifest.functions).length !== 0 &&
-      process.env.NEXT_DISABLE_NETLIFY_EDGE
+      destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)
     ) {
       failBuild(outdent`
         You are using Next.js experimental edge runtime, but have set NEXT_DISABLE_NETLIFY_EDGE to true. This is not supported.
@@ -97,7 +98,7 @@ const plugin: NetlifyPlugin = {
     if (
       middlewareManifest?.middleware &&
       Object.keys(middlewareManifest.middleware).length !== 0 &&
-      process.env.NEXT_DISABLE_NETLIFY_EDGE
+      destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)
     ) {
       console.log(
         redBright(outdent`
@@ -149,7 +150,7 @@ const plugin: NetlifyPlugin = {
 
     await patchNextFiles(basePath)
 
-    if (!process.env.SERVE_STATIC_FILES_FROM_ORIGIN) {
+    if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
       await moveStaticPages({ target, netlifyConfig, i18n, basePath })
     }
 

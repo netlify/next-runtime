@@ -4,6 +4,7 @@ import { resolve, join } from 'path'
 
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { greenBright } from 'chalk'
+import destr from 'destr'
 import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
@@ -206,12 +207,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
-  if (
-    process.env.NEXT_DISABLE_EDGE_IMAGES !== '1' &&
-    process.env.NEXT_DISABLE_EDGE_IMAGES !== 'true' &&
-    process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' &&
-    process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1'
-  ) {
+  if (!destr(process.env.NEXT_DISABLE_EDGE_IMAGES) && !destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
     console.log(
       'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
     )
@@ -227,7 +223,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
       path: '/_next/image*',
     })
   }
-  if (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1') {
+  if (!destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
     if (!middlewareManifest) {
       console.error("Couldn't find the middleware manifest")
