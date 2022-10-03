@@ -229,6 +229,4 @@ export const getRemotePatterns = (experimental: ExperimentalConfigWithLegacy, im
   return []
 }
 
-export const isEnvSet = (envVar: string) => process.env[envVar] === 'true' || process.env[envVar] === '1'
-
 /* eslint-enable max-lines */

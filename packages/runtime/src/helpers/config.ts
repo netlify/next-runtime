@@ -1,4 +1,5 @@
 import type { NetlifyConfig } from '@netlify/build'
+import destr from 'destr'
 import { readJSON, writeJSON } from 'fs-extra'
 import type { Header } from 'next/dist/lib/load-custom-routes'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'
@@ -8,7 +9,6 @@ import slash from 'slash'
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
 import type { RoutesManifest } from './types'
-import { isEnvSet } from './utils'
 
 const ROUTES_MANIFEST_FILE = 'routes-manifest.json'
 
@@ -86,13 +86,13 @@ export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore
   const cssFilesToInclude = files.filter((f) => f.startsWith(`${publish}/static/css/`))
 
   /* eslint-disable no-underscore-dangle */
-  if (!isEnvSet('DISABLE_IPX')) {
+  if (!destr(process.env.DISABLE_IPX)) {
     netlifyConfig.functions._ipx ||= {}
     netlifyConfig.functions._ipx.node_bundler = 'nft'
   }
 
   /* eslint-enable no-underscore-dangle */
-  [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
+  ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName) => {
     netlifyConfig.functions[functionName] ||= { included_files: [], external_node_modules: [] }
     netlifyConfig.functions[functionName].node_bundler = 'nft'
     netlifyConfig.functions[functionName].included_files ||= []

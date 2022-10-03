@@ -1,5 +1,6 @@
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
+import destr from 'destr'
 import { copyFile, ensureDir, writeFile, writeJSON } from 'fs-extra'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { join, relative, resolve } from 'pathe'
@@ -7,8 +8,6 @@ import { join, relative, resolve } from 'pathe'
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
 import { getHandler } from '../templates/getHandler'
 import { getPageResolver } from '../templates/getPageResolver'
-
-import { isEnvSet } from './utils'
 
 export const generateFunctions = async (
   { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
@@ -73,7 +72,7 @@ export const setupImageFunction = async ({
 }): Promise<void> => {
   const imagePath = imageconfig.path || '/_next/image'
 
-  if (isEnvSet('DISABLE_IPX')) {
+  if (destr(process.env.DISABLE_IPX)) {
     // If no image loader is specified, need to redirect to a 404 page since there's no
     // backing loader to serve local site images once deployed to Netlify
     if (!IS_LOCAL && imageconfig.loader && imageconfig.loader === 'default') {

@@ -599,6 +599,29 @@ describe('onBuild()', () => {
     
     delete process.env.DISABLE_IPX
   })
+  
+  test('generates an ipx edge function by default', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
+  })
+
+  test('does not generate an ipx edge function if the feature is disabled', async () => {
+    process.env.NEXT_DISABLE_EDGE_IMAGES = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
+    delete process.env.NEXT_DISABLE_EDGE_IMAGES
+  })
+
+  test('does not generate an ipx edge function if Netlify Edge is disabled', async () => {
+    process.env.NEXT_DISABLE_NETLIFY_EDGE = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
+    delete process.env.NEXT_DISABLE_NETLIFY_EDGE
+  })
 })
 
 describe('onPostBuild', () => {
