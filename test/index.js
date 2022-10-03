@@ -565,13 +565,41 @@ describe('onBuild()', () => {
     const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
     const imageConfigJson = await readJson(imageConfigPath)
 
-    expect(imageConfigJson.domains.length).toBe(1)
+    expect(imageConfigJson.domains.length).toBe(2)
     expect(imageConfigJson.remotePatterns.length).toBe(1)
     expect(imageConfigJson.responseHeaders).toStrictEqual({
       'X-Foo': mockHeaderValue,
     })
   })
 
+  test('generates an ipx function by default', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeTruthy()
+  })
+
+  test('does not generate an ipx function when DISABLE_IPX is set', async () => {
+    process.env.DISABLE_IPX = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeFalsy()
+    delete process.env.DISABLE_IPX
+  })
+
+  test('creates 404 redirect when DISABLE_IPX is set', async () => {
+    process.env.DISABLE_IPX = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    const nextImageRedirect = netlifyConfig.redirects.find(redirect => redirect.from.includes('/_next/image'))
+    
+    expect(nextImageRedirect).toBeDefined()
+    expect(nextImageRedirect.to).toEqual("/404.html")
+    expect(nextImageRedirect.status).toEqual(404)
+    expect(nextImageRedirect.force).toEqual(true)
+    
+    delete process.env.DISABLE_IPX
+  })
+  
   test('generates an ipx edge function by default', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)

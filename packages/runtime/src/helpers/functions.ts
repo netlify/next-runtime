@@ -1,5 +1,6 @@
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
+import destr from 'destr'
 import { copyFile, ensureDir, writeFile, writeJSON } from 'fs-extra'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { join, relative, resolve } from 'pathe'
@@ -55,7 +56,7 @@ export const generatePagesResolver = async ({
 
 // Move our next/image function into the correct functions directory
 export const setupImageFunction = async ({
-  constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC },
+  constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, IS_LOCAL },
   imageconfig = {},
   netlifyConfig,
   basePath,
@@ -69,35 +70,50 @@ export const setupImageFunction = async ({
   remotePatterns: RemotePattern[]
   responseHeaders?: Record<string, string>
 }): Promise<void> => {
-  const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
-  const functionName = `${IMAGE_FUNCTION_NAME}.js`
-  const functionDirectory = join(functionsPath, IMAGE_FUNCTION_NAME)
-
-  await ensureDir(functionDirectory)
-  await writeJSON(join(functionDirectory, 'imageconfig.json'), {
-    ...imageconfig,
-    basePath: [basePath, IMAGE_FUNCTION_NAME].join('/'),
-    remotePatterns,
-    responseHeaders,
-  })
-  await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
-
   const imagePath = imageconfig.path || '/_next/image'
 
-  // If we have edge functions then the request will have already been rewritten
-  // so this won't match. This is matched if edge is disabled or unavailable.
-  netlifyConfig.redirects.push({
-    from: `${imagePath}*`,
-    query: { url: ':url', w: ':width', q: ':quality' },
-    to: `${basePath}/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
-    status: 301,
-  })
+  if (destr(process.env.DISABLE_IPX)) {
+    // If no image loader is specified, need to redirect to a 404 page since there's no
+    // backing loader to serve local site images once deployed to Netlify
+    if (!IS_LOCAL && imageconfig.loader === 'default') {
+      netlifyConfig.redirects.push({
+        from: `${imagePath}*`,
+        query: { url: ':url', w: ':width', q: ':quality' },
+        to: '/404.html',
+        status: 404,
+        force: true,
+      })
+    }
+  } else {
+    const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
+    const functionName = `${IMAGE_FUNCTION_NAME}.js`
+    const functionDirectory = join(functionsPath, IMAGE_FUNCTION_NAME)
 
-  netlifyConfig.redirects.push({
-    from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,
-    to: `/.netlify/builders/${IMAGE_FUNCTION_NAME}`,
-    status: 200,
-  })
+    await ensureDir(functionDirectory)
+    await writeJSON(join(functionDirectory, 'imageconfig.json'), {
+      ...imageconfig,
+      basePath: [basePath, IMAGE_FUNCTION_NAME].join('/'),
+      remotePatterns,
+      responseHeaders,
+    })
+
+    await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
+
+    // If we have edge functions then the request will have already been rewritten
+    // so this won't match. This is matched if edge is disabled or unavailable.
+    netlifyConfig.redirects.push({
+      from: `${imagePath}*`,
+      query: { url: ':url', w: ':width', q: ':quality' },
+      to: `${basePath}/${IMAGE_FUNCTION_NAME}/w_:width,q_:quality/:url`,
+      status: 301,
+    })
+
+    netlifyConfig.redirects.push({
+      from: `${basePath}/${IMAGE_FUNCTION_NAME}/*`,
+      to: `/.netlify/builders/${IMAGE_FUNCTION_NAME}`,
+      status: 200,
+    })
+  }
 
   if (basePath) {
     // next/image generates image static URLs that still point at the site root
