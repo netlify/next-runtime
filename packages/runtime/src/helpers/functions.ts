@@ -57,7 +57,7 @@ export const generatePagesResolver = async ({
 
 // Move our next/image function into the correct functions directory
 export const setupImageFunction = async ({
-  constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC },
+  constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, IS_LOCAL },
   imageconfig = {},
   netlifyConfig,
   basePath,
@@ -72,11 +72,12 @@ export const setupImageFunction = async ({
   responseHeaders?: Record<string, string>
 }): Promise<void> => {
   const imagePath = imageconfig.path || '/_next/image'
-
+  console.log('DISABLE?', process.env.DISABLE_IPX)
+  
   if (isEnvSet('DISABLE_IPX')) {
     // If no image loader is specified, need to redirect to a 404 page since there's no
-    // backing loader to serve local site images
-    if (imageconfig.loader && imageconfig.loader === 'default') {
+    // backing loader to serve local site images once deployed to Netlify
+    if (!IS_LOCAL && imageconfig.loader && imageconfig.loader === 'default') {
       netlifyConfig.redirects.push({
         from: `${imagePath}*`,
         query: { url: ':url', w: ':width', q: ':quality' },
