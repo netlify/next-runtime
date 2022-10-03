@@ -2,7 +2,8 @@
 import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
-import { greenBright, bold, redBright } from 'chalk'
+import { bold, redBright } from 'chalk'
+import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
@@ -16,12 +17,7 @@ import {
   generateCustomHeaders,
 } from './helpers/config'
 import { onPreDev } from './helpers/dev'
-import {
-  enableEdgeInNextConfig,
-  writeEdgeFunctions,
-  loadMiddlewareManifest,
-  cleanupEdgeFunctions,
-} from './helpers/edge'
+import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
 import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
@@ -88,30 +84,30 @@ const plugin: NetlifyPlugin = {
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
 
-    let usingEdge = false
-
-    if (middlewareManifest?.functions && Object.keys(middlewareManifest.functions).length !== 0) {
-      usingEdge = true
-      if (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'true' || process.env.NEXT_DISABLE_NETLIFY_EDGE === '1') {
-        failBuild(outdent`
-          You are using Next.js experimental edge runtime, but have set NEXT_DISABLE_NETLIFY_EDGE to true. This is not supported.
-          To use edge runtime, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`} or set it to false.
-        `)
-      }
+    if (
+      middlewareManifest?.functions &&
+      Object.keys(middlewareManifest.functions).length !== 0 &&
+      destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)
+    ) {
+      failBuild(outdent`
+        You are using Next.js experimental edge runtime, but have set NEXT_DISABLE_NETLIFY_EDGE to true. This is not supported.
+        To use edge runtime, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`}.
+      `)
     }
 
-    if (middlewareManifest?.middleware && Object.keys(middlewareManifest.middleware).length !== 0) {
-      usingEdge = true
-      if (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'true' || process.env.NEXT_DISABLE_NETLIFY_EDGE === '1') {
-        console.log(
-          redBright(outdent`
-            You are using Next.js Middleware without Netlify Edge Functions.
-            This is deprecated because it negatively affects performance and will disable ISR and static rendering.
-            It also disables advanced middleware features from @netlify/next
-            To get the best performance and use Netlify Edge Functions, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`} or set it to false.
-          `),
-        )
-      }
+    if (
+      middlewareManifest?.middleware &&
+      Object.keys(middlewareManifest.middleware).length !== 0 &&
+      destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)
+    ) {
+      console.log(
+        redBright(outdent`
+          You are using Next.js Middleware without Netlify Edge Functions.
+          This is deprecated because it negatively affects performance and will disable ISR and static rendering.
+          It also disables advanced middleware features from @netlify/next
+          To get the best performance and use Netlify Edge Functions, remove the env var ${bold`NEXT_DISABLE_NETLIFY_EDGE`}.
+        `),
+      )
     }
 
     if (isNextAuthInstalled()) {
@@ -154,7 +150,7 @@ const plugin: NetlifyPlugin = {
 
     await patchNextFiles(basePath)
 
-    if (!process.env.SERVE_STATIC_FILES_FROM_ORIGIN) {
+    if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
       await moveStaticPages({ target, netlifyConfig, i18n, basePath })
     }
 
@@ -178,16 +174,7 @@ const plugin: NetlifyPlugin = {
       buildId,
     })
 
-    if (usingEdge) {
-      await writeEdgeFunctions(netlifyConfig)
-
-      await enableEdgeInNextConfig(publish)
-
-      console.log(outdent`
-        ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
-        This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
-      `)
-    }
+    await writeEdgeFunctions(netlifyConfig)
   },
 
   async onPostBuild({
