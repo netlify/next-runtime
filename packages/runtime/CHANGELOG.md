@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.24.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.4...plugin-nextjs-v4.24.0) (2022-10-03)
+
+
+### Features
+
+* Add ability to disable ipx ([#1653](https://github.com/netlify/next-runtime/issues/1653)) ([ee7ceda](https://github.com/netlify/next-runtime/commit/ee7ceda4ba7b9822188865cac02074b034b761af))
+
 ## [4.23.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.3...plugin-nextjs-v4.23.4) (2022-10-03)
 
 
