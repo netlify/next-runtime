@@ -206,7 +206,12 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
-  if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
+  if (
+    process.env.NEXT_DISABLE_EDGE_IMAGES !== '1' &&
+    process.env.NEXT_DISABLE_EDGE_IMAGES !== 'true' &&
+    process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' &&
+    process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1'
+  ) {
     console.log(
       'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
     )
