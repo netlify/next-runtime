@@ -128,8 +128,15 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
         const ttl = getMaxAge(cacheHeader)
         // Long-expiry TTL is basically no TTL, so we'll skip it
         if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
-          result.ttl = ttl
-          requestMode = `odb ttl=${ttl}`
+          // ODBs currently have a minimum TTL of 60 seconds
+          result.ttl = Math.max(ttl, 60)
+        }
+        // Only cache 404s ephemerally
+        if (ttl === ONE_YEAR_IN_SECONDS && result.statusCode === 404) {
+          result.ttl = 60
+        }
+        if (result.ttl > 0) {
+          requestMode = `odb ttl=${result.ttl}`
         }
       }
       multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
