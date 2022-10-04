@@ -6,12 +6,12 @@ exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
         require.resolve('../../../.next/server/chunks/162.js')
-        require.resolve('../../../.next/server/chunks/237.js')
         require.resolve('../../../.next/server/chunks/274.js')
-        require.resolve('../../../.next/server/chunks/577.js')
+        require.resolve('../../../.next/server/chunks/5237.js')
+        require.resolve('../../../.next/server/chunks/6577.js')
         require.resolve('../../../.next/server/chunks/747.js')
-        require.resolve('../../../.next/server/chunks/753.js')
-        require.resolve('../../../.next/server/chunks/97.js')
+        require.resolve('../../../.next/server/chunks/8753.js')
+        require.resolve('../../../.next/server/chunks/9097.js')
         require.resolve('../../../.next/server/chunks/header.js')
         require.resolve('../../../.next/server/webpack-api-runtime.js')
         require.resolve('../../../.next/server/webpack-runtime.js')
@@ -74,12 +74,12 @@ exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
         require.resolve('../../../.next/server/chunks/162.js')
-        require.resolve('../../../.next/server/chunks/237.js')
         require.resolve('../../../.next/server/chunks/274.js')
-        require.resolve('../../../.next/server/chunks/577.js')
+        require.resolve('../../../.next/server/chunks/5237.js')
+        require.resolve('../../../.next/server/chunks/6577.js')
         require.resolve('../../../.next/server/chunks/747.js')
-        require.resolve('../../../.next/server/chunks/753.js')
-        require.resolve('../../../.next/server/chunks/97.js')
+        require.resolve('../../../.next/server/chunks/8753.js')
+        require.resolve('../../../.next/server/chunks/9097.js')
         require.resolve('../../../.next/server/chunks/header.js')
         require.resolve('../../../.next/server/webpack-api-runtime.js')
         require.resolve('../../../.next/server/webpack-runtime.js')
@@ -142,12 +142,12 @@ exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
         require.resolve('../../../web/.next/server/chunks/162.js')
-        require.resolve('../../../web/.next/server/chunks/237.js')
         require.resolve('../../../web/.next/server/chunks/274.js')
-        require.resolve('../../../web/.next/server/chunks/577.js')
+        require.resolve('../../../web/.next/server/chunks/5237.js')
+        require.resolve('../../../web/.next/server/chunks/6577.js')
         require.resolve('../../../web/.next/server/chunks/747.js')
-        require.resolve('../../../web/.next/server/chunks/753.js')
-        require.resolve('../../../web/.next/server/chunks/97.js')
+        require.resolve('../../../web/.next/server/chunks/8753.js')
+        require.resolve('../../../web/.next/server/chunks/9097.js')
         require.resolve('../../../web/.next/server/chunks/header.js')
         require.resolve('../../../web/.next/server/webpack-api-runtime.js')
         require.resolve('../../../web/.next/server/webpack-runtime.js')
@@ -210,12 +210,12 @@ exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
         require.resolve('../../../web/.next/server/chunks/162.js')
-        require.resolve('../../../web/.next/server/chunks/237.js')
         require.resolve('../../../web/.next/server/chunks/274.js')
-        require.resolve('../../../web/.next/server/chunks/577.js')
+        require.resolve('../../../web/.next/server/chunks/5237.js')
+        require.resolve('../../../web/.next/server/chunks/6577.js')
         require.resolve('../../../web/.next/server/chunks/747.js')
-        require.resolve('../../../web/.next/server/chunks/753.js')
-        require.resolve('../../../web/.next/server/chunks/97.js')
+        require.resolve('../../../web/.next/server/chunks/8753.js')
+        require.resolve('../../../web/.next/server/chunks/9097.js')
         require.resolve('../../../web/.next/server/chunks/header.js')
         require.resolve('../../../web/.next/server/webpack-api-runtime.js')
         require.resolve('../../../web/.next/server/webpack-runtime.js')
@@ -635,6 +635,12 @@ Array [
   },
   Object {
     "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
     "from": "/_next/data/build-id/en/getStaticProps/with-revalidate.json",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
@@ -857,6 +863,12 @@ Array [
   },
   Object {
     "force": true,
+    "from": "/_next/data/build-id/es/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
     "from": "/_next/data/build-id/es/getStaticProps/with-revalidate.json",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
@@ -1040,6 +1052,12 @@ Array [
     "from": "/_next/data/build-id/fr/getStaticProps/static.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/fr/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": true,
@@ -1335,6 +1353,12 @@ Array [
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
+    "force": true,
+    "from": "/es/getStaticProps/with-revalidate-404",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
     "force": false,
     "from": "/es/getStaticProps/withFallback/:id",
     "status": 200,
@@ -1527,6 +1551,12 @@ Array [
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
+    "force": true,
+    "from": "/fr/getStaticProps/with-revalidate-404",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
     "force": false,
     "from": "/fr/getStaticProps/withFallback/:id",
     "status": 200,
@@ -1667,6 +1697,12 @@ Array [
   Object {
     "force": true,
     "from": "/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/with-revalidate-404",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
