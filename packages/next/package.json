@@ -32,6 +32,6 @@
   },
   "homepage": "https://github.com/netlify/next-runtime#readme",
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=14.0.0"
   }
 }
