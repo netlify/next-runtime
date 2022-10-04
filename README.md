@@ -42,6 +42,14 @@ by targeting the `/_next/image/*` route:
     X-Test = 'foobar'
 ```
 
+## Disabling included image loader
+
+If you wish to disable the use of the image loader which is bundled into the runtime by default, set the `DISABLE_IPX` environment variable to `true`. 
+
+This should only be done if the site is not using `next/image` or is using a different loader (such as Cloudinary or Imgix).
+
+See the [Next.js documentation](https://nextjs.org/docs/api-reference/next/image#built-in-loaders) for image loader options.
+
 ## Next.js Middleware on Netlify
 
 Next.js Middleware works out of the box on Netlify. By default, middleware runs using Netlify Edge Functions. For legacy

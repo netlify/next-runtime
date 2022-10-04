@@ -59,7 +59,8 @@ describe('getRemotePatterns', () => {
       formats: [ 'image/avif', 'image/webp' ],
       dangerouslyAllowSVG: false,
       contentSecurityPolicy: "script-src 'none'; frame-src 'none'; sandbox;",
-      unoptimized: false
+      unoptimized: false,
+      remotePatterns: []
     } as ImagesConfig
   
   })
