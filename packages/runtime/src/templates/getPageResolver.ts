@@ -13,7 +13,7 @@ import { HANDLER_FUNCTION_NAME } from '../constants'
 export const getPageResolver = async ({ publish, target }: { publish: string; target: string }) => {
   const functionDir = posix.resolve(posix.join('.netlify', 'functions', HANDLER_FUNCTION_NAME))
   const root = posix.resolve(slash(publish), target === 'server' ? 'server' : 'serverless')
-
+  console.log({ root, functionDir })
   const pages = await glob('{pages,app}/**/*.js.nft.json', {
     cwd: root,
     dot: true,
@@ -23,13 +23,24 @@ export const getPageResolver = async ({ publish, target }: { publish: string; ta
     pages.map(async (page) => {
       const dir = posix.dirname(page)
       const { files } = await readJSON(posix.join(root, page))
-      return files.map((file) => posix.resolve(root, dir, file))
+
+      return files.map((file) => {
+        const resolved = posix.resolve(root, dir, file)
+        console.log('glob', { root, dir, file, resolved })
+        return resolved
+      })
     }),
   )
 
   const deduped = [...new Set(dependencies.flat())]
 
-  const pageFiles = deduped.map((file) => `require.resolve('${posix.relative(functionDir, file)}')`).sort()
+  const pageFiles = deduped
+    .map((file) => {
+      const relative = posix.relative(functionDir, file)
+      console.log({ functionDir, file, relative })
+      return `require.resolve('${relative}')`
+    })
+    .sort()
 
   return outdent`
     // This file is purely to allow nft to know about these pages.
