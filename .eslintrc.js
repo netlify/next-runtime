@@ -45,6 +45,7 @@ module.exports = {
         // unsupported by Node 12, i.e. optional chaining
         // TODO: re-enable after dropping support for Node 12
         'n/no-unsupported-features/es-syntax': 'off',
+        '@typescript-eslint/no-extra-semi': 'off',
       },
     },
     {
