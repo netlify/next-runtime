@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.24.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.0...plugin-nextjs-v4.24.1) (2022-10-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.3.0 ([#1660](https://github.com/netlify/next-runtime/issues/1660)) ([4e7e2ae](https://github.com/netlify/next-runtime/commit/4e7e2aeee431ed66d67c96115981aaafca06381a))
+* set undefined ODB 404 TTLs to 60 seconds ([#1647](https://github.com/netlify/next-runtime/issues/1647)) ([029b497](https://github.com/netlify/next-runtime/commit/029b497681e4c383b182f775e772bb4602bd872a))
+
 ## [4.24.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.4...plugin-nextjs-v4.24.0) (2022-10-03)
 
 
