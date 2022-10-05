@@ -38,7 +38,7 @@ const handler = async (req: Request, context: Context) => {
   if (!source) {
     errors.push('Missing "url" parameter')
   } else if (!source.startsWith('http') && !source.startsWith('/')) {
-    errors.push('The "url" parameter must be a valid URL')
+    errors.push('The "url" parameter must be a valid URL or path')
   }
 
   if (!width) {
