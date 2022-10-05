@@ -41,7 +41,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, page) => {
   } catch {}
 
   // React assumes you want development mode if NODE_ENV is unset.
-  // eslint-disable-next-line @typescript-eslint/no-extra-semi
+
   ;(process.env as Mutable<NodeJS.ProcessEnv>).NODE_ENV ||= 'production'
 
   // We don't want to write ISR files to disk in the lambda environment

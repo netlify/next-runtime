@@ -1,6 +1,7 @@
 import type { Context } from 'https://edge.netlify.com'
 // Available at build time
 import matchers from './matchers.json' assert { type: 'json' }
+import nextConfig from '../edge-shared/nextConfig.json' assert { type: 'json' }
 import edgeFunction from './bundle.js'
 import { buildResponse } from '../edge-shared/utils.ts'
 import { getMiddlewareRouteMatcher, MiddlewareRouteMatch, searchParamsToUrlQuery } from '../edge-shared/next-utils.ts'
@@ -32,7 +33,7 @@ export interface RequestData {
     name?: string
     params?: { [key: string]: string }
   }
-  url: string
+  url: URL
   body?: ReadableStream<Uint8Array>
 }
 
@@ -81,10 +82,11 @@ const handler = async (req: Request, context: Context) => {
   const request: RequestData = {
     headers: Object.fromEntries(req.headers.entries()),
     geo,
-    url: url.toString(),
+    url,
     method: req.method,
     ip: context.ip,
     body: req.body ?? undefined,
+    nextConfig,
   }
 
   try {

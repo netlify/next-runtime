@@ -1,5 +1,5 @@
 {
-  "root": "apps/demo-monorepo",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/demo-monorepo",
   "projectType": "application",
   "targets": {
@@ -12,16 +12,24 @@
         "outputPath": "dist/apps/demo-monorepo"
       },
       "configurations": {
+        "development": {
+          "outputPath": "apps/demo-monorepo"
+        },
         "production": {}
       }
     },
     "serve": {
       "executor": "@nrwl/next:server",
+      "defaultConfiguration": "development",
       "options": {
         "buildTarget": "demo-monorepo:build",
         "dev": true
       },
       "configurations": {
+        "development": {
+          "buildTarget": "demo-monorepo:build:development",
+          "dev": true
+        },
         "production": {
           "buildTarget": "demo-monorepo:build:production",
           "dev": false
@@ -38,7 +46,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/apps/demo-monorepo"],
       "options": {
-        "jestConfig": "apps/demo-monorepo/jest.config.js",
+        "jestConfig": "apps/demo-monorepo/jest.config.ts",
         "passWithNoTests": true
       }
     },

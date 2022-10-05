@@ -1,4 +1,5 @@
 import type { NetlifyConfig } from '@netlify/build'
+import destr from 'destr'
 import { readJSON, writeJSON } from 'fs-extra'
 import type { Header } from 'next/dist/lib/load-custom-routes'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'
@@ -85,8 +86,10 @@ export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore
   const cssFilesToInclude = files.filter((f) => f.startsWith(`${publish}/static/css/`))
 
   /* eslint-disable no-underscore-dangle */
-  netlifyConfig.functions._ipx ||= {}
-  netlifyConfig.functions._ipx.node_bundler = 'nft'
+  if (!destr(process.env.DISABLE_IPX)) {
+    netlifyConfig.functions._ipx ||= {}
+    netlifyConfig.functions._ipx.node_bundler = 'nft'
+  }
 
   /* eslint-enable no-underscore-dangle */
   ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, '_api_*'].forEach((functionName) => {

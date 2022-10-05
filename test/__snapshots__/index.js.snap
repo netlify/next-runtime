@@ -21,6 +21,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/getStaticProps/[id].js')
         require.resolve('../../../.next/server/pages/getStaticProps/env.js')
         require.resolve('../../../.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate-404.js')
         require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate.js')
         require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[...slug].js')
         require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[id].js')
@@ -57,6 +58,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/getStaticProps/[id].js')
         require.resolve('../../../.next/server/pages/getStaticProps/env.js')
         require.resolve('../../../.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate-404.js')
         require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate.js')
         require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[...slug].js')
         require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[id].js')
@@ -93,6 +95,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/getStaticProps/[id].js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/env.js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate-404.js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate.js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[...slug].js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[id].js')
@@ -129,6 +132,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/getStaticProps/[id].js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/env.js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate-404.js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate.js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[...slug].js')
         require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[id].js')
@@ -507,6 +511,12 @@ Array [
   },
   Object {
     "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
     "from": "/_next/data/build-id/en/getStaticProps/with-revalidate.json",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
@@ -729,6 +739,12 @@ Array [
   },
   Object {
     "force": true,
+    "from": "/_next/data/build-id/es/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
     "from": "/_next/data/build-id/es/getStaticProps/with-revalidate.json",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
@@ -912,6 +928,12 @@ Array [
     "from": "/_next/data/build-id/fr/getStaticProps/static.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/fr/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": true,
@@ -1242,6 +1264,12 @@ Array [
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
+    "force": true,
+    "from": "/es/getStaticProps/with-revalidate-404",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
     "force": false,
     "from": "/es/getStaticProps/withFallback/:id",
     "status": 200,
@@ -1434,6 +1462,12 @@ Array [
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
+    "force": true,
+    "from": "/fr/getStaticProps/with-revalidate-404",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
     "force": false,
     "from": "/fr/getStaticProps/withFallback/:id",
     "status": 200,
@@ -1574,6 +1608,12 @@ Array [
   Object {
     "force": true,
     "from": "/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/with-revalidate-404",
     "status": 200,
     "to": "/.netlify/builders/___netlify-odb-handler",
   },

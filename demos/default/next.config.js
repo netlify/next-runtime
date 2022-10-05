@@ -71,20 +71,18 @@ module.exports = {
   },
   // https://nextjs.org/docs/basic-features/image-optimization#domains
   images: {
-    domains: ['raw.githubusercontent.com'],
+    domains: ['raw.githubusercontent.com', 'upload.wikimedia.org'],
+    remotePatterns: [
+      {
+        hostname: '*.imgur.com',
+      }
+    ]
   },
   // https://nextjs.org/docs/basic-features/built-in-css-support#customizing-sass-options
   sassOptions: {
     includePaths: [path.join(__dirname, 'styles-sass-test')],
   },
   experimental: {
-    optimizeCss: true,
-    images: {
-      remotePatterns: [
-        {
-          hostname: '*.imgur.com',
-        },
-      ],
-    },
-  },
+    optimizeCss: false,
+  }
 }

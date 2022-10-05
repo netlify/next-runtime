@@ -1,5 +1,5 @@
 {
-  "root": "apps/demo-monorepo-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/demo-monorepo-e2e/src",
   "projectType": "application",
   "targets": {
@@ -7,7 +7,8 @@
       "executor": "@nrwl/cypress:cypress",
       "options": {
         "cypressConfig": "apps/demo-monorepo-e2e/cypress.json",
-        "devServerTarget": "demo-monorepo:serve"
+        "devServerTarget": "demo-monorepo:serve:development",
+        "testingType": "e2e"
       },
       "configurations": {
         "production": {
