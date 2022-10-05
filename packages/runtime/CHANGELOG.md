@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.24.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.1...plugin-nextjs-v4.24.2) (2022-10-05)
+
+
+### Bug Fixes
+
+* validate next/image params ([#1661](https://github.com/netlify/next-runtime/issues/1661)) ([c0937cf](https://github.com/netlify/next-runtime/commit/c0937cf67e84d5e14c99670910ac33fc2dd0e166))
+
 ## [4.24.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.0...plugin-nextjs-v4.24.1) (2022-10-05)
 
 

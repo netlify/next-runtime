@@ -10,5 +10,6 @@ export const handler: Handler = createIPXHandler({
   domains,
   remotePatterns,
   responseHeaders,
+  localPrefix: '/_next/static/media/',
 }) as Handler
 /* eslint-enable n/no-missing-import, import/no-unresolved, @typescript-eslint/ban-ts-comment  */
