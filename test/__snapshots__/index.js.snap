@@ -1087,11 +1087,6 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/api",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
     "from": "/api/*",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
