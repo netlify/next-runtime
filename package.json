@@ -46,7 +46,7 @@
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.16.0",
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^27.18.2",
+    "@netlify/build": "^27.20.2",
     "@netlify/eslint-config-node": "^7.0.0",
     "@testing-library/cypress": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
@@ -63,6 +63,7 @@
     "eslint-plugin-unicorn": "^43.0.2",
     "husky": "^7.0.4",
     "jest": "^27.0.0",
+    "jest-fetch-mock": "^3.0.3",
     "netlify-plugin-cypress": "^2.2.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.1.2",
@@ -81,6 +82,9 @@
     "node": ">=16.0.0"
   },
   "jest": {
+    "setupFiles": [
+      "./jestSetup.js"
+    ],
     "testMatch": [
       "**/test/**/*.js",
       "**/test/**/*.ts",

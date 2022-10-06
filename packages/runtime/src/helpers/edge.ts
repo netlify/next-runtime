@@ -3,9 +3,14 @@ import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
+import { greenBright } from 'chalk'
+import destr from 'destr'
 import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
+import { outdent } from 'outdent'
+
+import { getRequiredServerFiles } from './config'
 
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
@@ -38,10 +43,12 @@ export interface FunctionManifest {
   functions: Array<
     | {
         function: string
+        name?: string
         path: string
       }
     | {
         function: string
+        name?: string
         pattern: string
       }
   >
@@ -196,9 +203,17 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   const edgeFunctionRoot = resolve('.netlify', 'edge-functions')
   await emptyDir(edgeFunctionRoot)
 
+  const { publish } = netlifyConfig.build
+  const nextConfigFile = await getRequiredServerFiles(publish)
+  const nextConfig = nextConfigFile.config
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
+  await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
-  if (!process.env.NEXT_DISABLE_EDGE_IMAGES) {
+  if (
+    !destr(process.env.NEXT_DISABLE_EDGE_IMAGES) &&
+    !destr(process.env.NEXT_DISABLE_NETLIFY_EDGE) &&
+    !destr(process.env.DISABLE_IPX)
+  ) {
     console.log(
       'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
     )
@@ -214,14 +229,17 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
       path: '/_next/image*',
     })
   }
-  if (!process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+  if (!destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
     if (!middlewareManifest) {
       console.error("Couldn't find the middleware manifest")
       return
     }
 
+    let usesEdge = false
+
     for (const middleware of middlewareManifest.sortedMiddleware) {
+      usesEdge = true
       const edgeFunctionDefinition = middlewareManifest.middleware[middleware]
       const functionDefinitions = await writeEdgeFunction({
         edgeFunctionDefinition,
@@ -234,6 +252,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
     // No, the version field was not incremented
     if (typeof middlewareManifest.functions === 'object') {
       for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
+        usesEdge = true
         const functionDefinitions = await writeEdgeFunction({
           edgeFunctionDefinition,
           edgeFunctionRoot,
@@ -241,6 +260,12 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
         })
         manifest.functions.push(...functionDefinitions)
       }
+    }
+    if (usesEdge) {
+      console.log(outdent`
+        ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
+        This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
+      `)
     }
   }
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)

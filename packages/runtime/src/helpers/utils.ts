@@ -228,4 +228,5 @@ export const getRemotePatterns = (experimental: ExperimentalConfigWithLegacy, im
   }
   return []
 }
+
 /* eslint-enable max-lines */

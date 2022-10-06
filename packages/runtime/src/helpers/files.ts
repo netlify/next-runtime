@@ -60,7 +60,7 @@ export const matchesRewrite = (file: string, rewrites: Rewrites): boolean => {
 }
 
 export const getMiddleware = async (publish: string): Promise<Array<string>> => {
-  if (!process.env.NEXT_DISABLE_NETLIFY_EDGE) {
+  if (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1') {
     return []
   }
   const manifestPath = join(publish, 'server', 'middleware-manifest.json')
@@ -346,19 +346,19 @@ const baseServerReplacements: Array<[string, string]> = [
 const nextServerReplacements: Array<[string, string]> = [
   [
     `getMiddlewareManifest() {\n        if (this.minimalMode) return null;`,
-    `getMiddlewareManifest() {\n        if (this.minimalMode || !process.env.NEXT_DISABLE_NETLIFY_EDGE) return null;`,
+    `getMiddlewareManifest() {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return null;`,
   ],
   [
     `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode) return []`,
-    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || !process.env.NEXT_DISABLE_NETLIFY_EDGE) return [];`,
+    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return [];`,
   ],
   [
     `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode) return undefined;`,
-    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || !process.env.NEXT_DISABLE_NETLIFY_EDGE) return undefined;`,
+    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return undefined;`,
   ],
   [
     `getMiddlewareManifest() {\n        if (this.minimalMode) {`,
-    `getMiddlewareManifest() {\n        if (!this.minimalMode && process.env.NEXT_DISABLE_NETLIFY_EDGE) {`,
+    `getMiddlewareManifest() {\n        if (!this.minimalMode && (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'true' || process.env.NEXT_DISABLE_NETLIFY_EDGE === '1')) {`,
   ],
 ]
 

@@ -4,7 +4,7 @@ describe('Default site', () => {
   })
 
   it('loads home page', () => {
-    cy.findByRole('heading', { name: 'Welcome to nx-nextjs-monorepo!' })
+    cy.findByRole('heading', { name: 'Hello there, Welcome demo-monorepo 👋' })
 
     cy.visit('//')
     cy.url().should('eq', `${Cypress.config().baseUrl}/`)
