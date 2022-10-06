@@ -8,6 +8,7 @@ import { join } from 'pathe'
 
 import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX, HANDLER_FUNCTION_PATH } from '../constants'
 
+import { ApiRouteType } from './analysis'
 import type { ApiRouteConfig } from './functions'
 import { I18n } from './types'
 
@@ -148,14 +149,14 @@ export const getApiRewrites = (basePath: string, apiRoutes: Array<ApiRouteConfig
     const [from] = toNetlifyRoute(`${basePath}${apiRoute.route}`)
 
     // Scheduled functions can't be invoked directly, so we 404 them.
-    if (apiRoute.config.type === 'experimental-scheduled') {
+    if (apiRoute.config.type === ApiRouteType.SCHEDULED) {
       return { from, to: '/404.html', status: 404 }
     }
     return {
       from,
       to: `/.netlify/functions/${getFunctionNameForPage(
         apiRoute.route,
-        apiRoute.config.type === 'experimental-background',
+        apiRoute.config.type === ApiRouteType.BACKGROUND,
       )}`,
       status: 200,
     }
@@ -163,11 +164,6 @@ export const getApiRewrites = (basePath: string, apiRoutes: Array<ApiRouteConfig
 
   return [
     ...apiRewrites,
-    {
-      from: `${basePath}/api`,
-      to: HANDLER_FUNCTION_PATH,
-      status: 200,
-    },
     {
       from: `${basePath}/api/*`,
       to: HANDLER_FUNCTION_PATH,

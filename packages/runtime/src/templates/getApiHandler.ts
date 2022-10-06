@@ -3,7 +3,7 @@ import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
 import { outdent as javascript } from 'outdent'
 
-import { ApiConfig } from '../helpers/analysis'
+import { ApiConfig, ApiRouteType } from '../helpers/analysis'
 import type { NextConfig } from '../helpers/config'
 
 import type { NextServerType } from './handlerUtils'
@@ -133,7 +133,7 @@ export const getApiHandler = ({
   const { Bridge } = require("./bridge");
   const { getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
 
-  ${config.type === 'experimental-scheduled' ? `const { schedule } = require("@netlify/functions")` : ''}
+  ${config.type === ApiRouteType.SCHEDULED ? `const { schedule } = require("@netlify/functions")` : ''}
 
 
   const { config }  = require("${publishDir}/required-server-files.json")
@@ -142,6 +142,6 @@ export const getApiHandler = ({
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "serverless", "pages"));
   const handler = (${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)})
   exports.handler = ${
-    config.type === 'experimental-scheduled' ? `schedule(${JSON.stringify(config.schedule)}, handler);` : 'handler'
+    config.type === ApiRouteType.SCHEDULED ? `schedule(${JSON.stringify(config.schedule)}, handler);` : 'handler'
   }
 `

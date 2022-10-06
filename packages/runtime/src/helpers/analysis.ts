@@ -4,6 +4,13 @@ import { extractExportedConstValue, UnsupportedValueError } from 'next/dist/buil
 import { parseModule } from 'next/dist/build/analysis/parse-module'
 import { relative } from 'pathe'
 
+// I have no idea what eslint is up to here but it gives an error
+// eslint-disable-next-line no-shadow
+export enum ApiRouteType {
+  SCHEDULED = 'experimental-scheduled',
+  BACKGROUND = 'experimental-background',
+}
+
 export interface ApiStandardConfig {
   type?: never
   runtime?: 'nodejs' | 'experimental-edge'
@@ -11,13 +18,13 @@ export interface ApiStandardConfig {
 }
 
 export interface ApiScheduledConfig {
-  type: 'experimental-scheduled'
+  type: ApiRouteType.SCHEDULED
   runtime?: 'nodejs'
   schedule: string
 }
 
 export interface ApiBackgroundConfig {
-  type: 'experimental-background'
+  type: ApiRouteType.BACKGROUND
   runtime?: 'nodejs'
   schedule?: never
 }
@@ -25,13 +32,12 @@ export interface ApiBackgroundConfig {
 export type ApiConfig = ApiStandardConfig | ApiScheduledConfig | ApiBackgroundConfig
 
 export const validateConfigValue = (config: ApiConfig, apiFilePath: string): config is ApiConfig => {
-  if (config.type === 'experimental-scheduled') {
+  if (config.type === ApiRouteType.SCHEDULED) {
     if (!config.schedule) {
       console.error(
-        `Invalid config value in ${relative(
-          process.cwd(),
-          apiFilePath,
-        )}: schedule is required when type is "experimental-scheduled"`,
+        `Invalid config value in ${relative(process.cwd(), apiFilePath)}: schedule is required when type is "${
+          ApiRouteType.SCHEDULED
+        }"`,
       )
       return false
     }
@@ -47,13 +53,12 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
     return true
   }
 
-  if (!config.type || config.type === 'experimental-background') {
+  if (!config.type || config.type === ApiRouteType.BACKGROUND) {
     if (config.schedule) {
       console.error(
-        `Invalid config value in ${relative(
-          process.cwd(),
-          apiFilePath,
-        )}: schedule is not allowed unless type is "experimental-scheduled"`,
+        `Invalid config value in ${relative(process.cwd(), apiFilePath)}: schedule is not allowed unless type is "${
+          ApiRouteType.SCHEDULED
+        }"`,
       )
       return false
     }
