@@ -8,6 +8,7 @@ import { fetchViaHTTP, renderViaHTTP, waitFor } from '../next-test-lib/next-test
 import { load } from 'cheerio'
 import webdriver from '../next-test-lib/next-webdriver'
 const nextUrl = process.env.SITE_URL || 'http://localhost:8888'
+const next = { url: nextUrl }
 
 describe('app dir', () => {
   beforeAll(() => {
@@ -77,6 +78,11 @@ describe('app dir', () => {
     expect(html).toContain('hello from dynamic on client')
   })
 
+  it('should serve polyfills for browsers that do not support modules', async () => {
+    const html = await renderViaHTTP(nextUrl, '/dashboard/index')
+    expect(html).toMatch(/<script src="\/_next\/static\/chunks\/polyfills(-\w+)?\.js" nomodule="">/)
+  })
+
   // TODO-APP: handle css modules fouc in dev
   it.skip('should handle css imports in next/dynamic correctly', async () => {
     const browser = await webdriver(nextUrl, '/dashboard/index')
@@ -116,8 +122,8 @@ describe('app dir', () => {
     // Should render the page text
     expect($('p').text()).toBe('hello from app/dashboard/rootonly/hello')
   })
-  // TODO Disabling because this also fails upstream
-  it.skip('should use new root layout when provided', async () => {
+
+  it('should use new root layout when provided', async () => {
     const html = await renderViaHTTP(nextUrl, '/dashboard/another')
     const $ = load(html)
 
@@ -178,7 +184,6 @@ describe('app dir', () => {
 
   it('should serve dynamic parameter', async () => {
     const html = await renderViaHTTP(nextUrl, '/dashboard/deployments/123')
-
     const $ = load(html)
     // Should include the page text with the parameter
     expect($('p').text()).toBe('hello from app/dashboard/deployments/[id]. ID is: 123')
@@ -205,35 +210,50 @@ describe('app dir', () => {
     expect(html).toContain('hello from app/partial-match-[id]. ID is: 123')
   })
 
-  describe.skip('rewrites', () => {
-    // TODO-APP:
+  describe('rewrites', () => {
+    // TODO-APP: rewrite url is broken
     it.skip('should support rewrites on initial load', async () => {
       const browser = await webdriver(nextUrl, '/rewritten-to-dashboard')
       expect(await browser.elementByCss('h1').text()).toBe('Dashboard')
       expect(await browser.url()).toBe(`${nextUrl}/rewritten-to-dashboard`)
     })
 
-    it(
-      'should support rewrites on client-side navigation',
-      async () => {
-        const browser = await webdriver(nextUrl, '/rewrites')
+    it('should support rewrites on client-side navigation from pages to app with existing pages path', async () => {
+      const browser = await webdriver(nextUrl, '/link-to-rewritten-path')
 
-        try {
-          // Click the link.
-          await browser.elementById('link').click()
-          await browser.waitForElementByCss('#from-dashboard')
+      try {
+        // Click the link.
+        await browser.elementById('link-to-rewritten-path').click()
+        await browser.waitForElementByCss('#from-dashboard')
 
-          // Check to see that we were rewritten and not redirected.
-          expect(await browser.url()).toBe(`${nextUrl}/rewritten-to-dashboard`)
+        // Check to see that we were rewritten and not redirected.
+        // TODO-APP: rewrite url is broken
+        // expect(await browser.url()).toBe(`${nextUrl}/rewritten-to-dashboard`)
 
-          // Check to see that the page we navigated to is in fact the dashboard.
-          expect(await browser.elementByCss('#from-dashboard').text()).toBe('hello from app/dashboard')
-        } finally {
-          await browser.close()
-        }
-      },
-      { timeout: 1000 * 60 * 2 },
-    )
+        // Check to see that the page we navigated to is in fact the dashboard.
+        expect(await browser.elementByCss('#from-dashboard').text()).toBe('hello from app/dashboard')
+      } finally {
+        await browser.close()
+      }
+    })
+
+    it('should support rewrites on client-side navigation', async () => {
+      const browser = await webdriver(nextUrl, '/rewrites')
+
+      try {
+        // Click the link.
+        await browser.elementById('link').click()
+        await browser.waitForElementByCss('#from-dashboard')
+
+        // Check to see that we were rewritten and not redirected.
+        expect(await browser.url()).toBe(`${nextUrl}/rewritten-to-dashboard`)
+
+        // Check to see that the page we navigated to is in fact the dashboard.
+        expect(await browser.elementByCss('#from-dashboard').text()).toBe('hello from app/dashboard')
+      } finally {
+        await browser.close()
+      }
+    })
   })
 
   it('should not rerender layout when navigating between routes in the same layout', async () => {
@@ -261,22 +281,19 @@ describe('app dir', () => {
     }
   })
 
-  it(
-    'should handle hash in initial url',
-    async () => {
-      const browser = await webdriver(nextUrl, '/dashboard#abc')
-      try {
-        // Check if hash is preserved
-        expect(await browser.eval('window.location.hash')).toBe('#abc')
-        await waitFor(1000)
-        // Check again to be sure as it might be timed different
-        expect(await browser.eval('window.location.hash')).toBe('#abc')
-      } finally {
-        await browser.close()
-      }
-    },
-    { timeout: 1000 * 60 * 2 },
-  )
+  it('should handle hash in initial url', async () => {
+    const browser = await webdriver(nextUrl, '/dashboard#abc')
+
+    try {
+      // Check if hash is preserved
+      expect(await browser.eval('window.location.hash')).toBe('#abc')
+      await waitFor(1000)
+      // Check again to be sure as it might be timed different
+      expect(await browser.eval('window.location.hash')).toBe('#abc')
+    } finally {
+      await browser.close()
+    }
+  })
 
   describe('parallel routes', () => {
     it('should match parallel routes', async () => {
@@ -359,6 +376,7 @@ describe('app dir', () => {
       }
     })
 
+    // TODO-APP: Re-enable this test.
     it('should soft push', async () => {
       const browser = await webdriver(nextUrl, '/link-soft-push')
 
@@ -465,18 +483,17 @@ describe('app dir', () => {
       }
     })
 
-    // TODO-APP: should enable when implemented
-    it.skip('should allow linking from app page to pages page', async () => {
+    it('should allow linking from app page to pages page', async () => {
       const browser = await webdriver(nextUrl, '/pages-linking')
 
       try {
         // Click the link.
         await browser.elementById('app-link').click()
-        await browser.waitForElementByCss('#pages-link')
+        expect(await browser.waitForElementByCss('#pages-link').text()).toBe('To App Page')
 
         // Click the other link.
         await browser.elementById('pages-link').click()
-        await browser.waitForElementByCss('#app-link')
+        expect(await browser.waitForElementByCss('#app-link').text()).toBe('To Pages Page')
       } finally {
         await browser.close()
       }
@@ -665,6 +682,7 @@ describe('app dir', () => {
         expect(await browser.elementByCss('#slow-page-message').text()).toBe('hello from slow page')
       })
     })
+
     describe('middleware', () => {
       it.each(['rewrite', 'redirect'])(
         `should strip internal query parameters from requests to middleware for %s`,
@@ -801,7 +819,7 @@ describe('app dir', () => {
           const browser = await webdriver(nextUrl, '/api/preview')
 
           try {
-            await browser.loadPage(`${nextUrl}/hooks/use-preview-data`, {
+            await browser.loadPage(nextUrl + '/hooks/use-preview-data', {
               disableCache: false,
               beforePageLoad: null,
             })
@@ -982,6 +1000,15 @@ describe('app dir', () => {
           'rgb(0, 0, 255)',
         )
       })
+
+      it('should not include unused css modules in the page in prod', async () => {
+        const browser = await webdriver(nextUrl, '/css/css-page')
+        expect(
+          await browser.eval(
+            `[...document.styleSheets].some(({ rules }) => [...rules].some(rule => rule.selectorText.includes('this_should_not_be_included')))`,
+          ),
+        ).toBe(false)
+      })
     })
 
     describe('client layouts', () => {
@@ -1083,7 +1110,7 @@ describe('app dir', () => {
 
         // Expect all inline scripts to have the nonce value.
         elements.each((i, el) => {
-          expect(el.attribs.nonce).toBe(nonce)
+          expect(el.attribs['nonce']).toBe(nonce)
         })
       }
     })
@@ -1105,11 +1132,11 @@ describe('app dir', () => {
       // For each of these attributes, ensure that there's an integrity
       // attribute and starts with the correct integrity hash prefix.
       elements.each((i, el) => {
-        const { integrity } = el.attribs
+        const integrity = el.attribs['integrity']
         expect(integrity).toBeDefined()
         expect(integrity.startsWith('sha256-')).toBeTruthy()
 
-        const { src } = el.attribs
+        const src = el.attribs['src']
         expect(src).toBeDefined()
 
         files.push([src, integrity])
@@ -1159,6 +1186,7 @@ describe('app dir', () => {
     it.skip('should render the template that is a server component and rerender on navigation', async () => {
       const browser = await webdriver(nextUrl, '/template/servercomponent')
       expect((await browser.elementByCss('h1').text()).startsWith('Template')).toBeTruthy()
+
       const currentTime = await browser.elementByCss('#performance-now').text()
 
       await browser.elementByCss('#link').click()
@@ -1213,9 +1241,7 @@ describe('app dir', () => {
 
   describe('known bugs', () => {
     it('should not share flight data between requests', async () => {
-      const fetches = await Promise.all(
-        [...Array.from({ length: 5 })].map(() => renderViaHTTP(nextUrl, '/loading-bug/electronics')),
-      )
+      const fetches = await Promise.all([...new Array(5)].map(() => renderViaHTTP(nextUrl, '/loading-bug/electronics')))
 
       for (const text of fetches) {
         const $ = load(text)
@@ -1268,14 +1294,14 @@ describe('app dir', () => {
       it('should redirect from next.config.js', async () => {
         const browser = await webdriver(nextUrl, '/redirect/a')
         expect(await browser.elementByCss('h1').text()).toBe('Dashboard')
-        expect(await browser.url()).toBe(`${nextUrl}/dashboard`)
+        expect(await browser.url()).toBe(nextUrl + '/dashboard')
       })
 
       it('should redirect from next.config.js with link navigation', async () => {
         const browser = await webdriver(nextUrl, '/redirect/next-config-redirect')
         await browser.elementByCss('#redirect-a').click().waitForElementByCss('h1')
         expect(await browser.elementByCss('h1').text()).toBe('Dashboard')
-        expect(await browser.url()).toBe(`${nextUrl}/dashboard`)
+        expect(await browser.url()).toBe(nextUrl + '/dashboard')
       })
     })
 
@@ -1283,15 +1309,48 @@ describe('app dir', () => {
       it('should redirect from middleware', async () => {
         const browser = await webdriver(nextUrl, '/redirect-middleware-to-dashboard')
         expect(await browser.elementByCss('h1').text()).toBe('Dashboard')
-        expect(await browser.url()).toBe(`${nextUrl}/dashboard`)
+        expect(await browser.url()).toBe(nextUrl + '/dashboard')
       })
 
       it('should redirect from middleware with link navigation', async () => {
         const browser = await webdriver(nextUrl, '/redirect/next-middleware-redirect')
         await browser.elementByCss('#redirect-middleware').click().waitForElementByCss('h1')
         expect(await browser.elementByCss('h1').text()).toBe('Dashboard')
-        expect(await browser.url()).toBe(`${nextUrl}/dashboard`)
+        expect(await browser.url()).toBe(nextUrl + '/dashboard')
       })
+    })
+  })
+
+  describe('nested navigation', () => {
+    it('should navigate to nested pages', async () => {
+      const browser = await webdriver(nextUrl, '/nested-navigation')
+      expect(await browser.elementByCss('h1').text()).toBe('Home')
+
+      const pages = [
+        ['Electronics', ['Phones', 'Tablets', 'Laptops']],
+        ['Clothing', ['Tops', 'Shorts', 'Shoes']],
+        ['Books', ['Fiction', 'Biography', 'Education']],
+      ] as const
+
+      for (const [category, subCategories] of pages) {
+        expect(
+          await browser
+            .elementByCss(`a[href="/nested-navigation/${category.toLowerCase()}"]`)
+            .click()
+            .waitForElementByCss(`#all-${category.toLowerCase()}`)
+            .text(),
+        ).toBe(`All ${category}`)
+
+        for (const subcategory of subCategories) {
+          expect(
+            await browser
+              .elementByCss(`a[href="/nested-navigation/${category.toLowerCase()}/${subcategory.toLowerCase()}"]`)
+              .click()
+              .waitForElementByCss(`#${subcategory.toLowerCase()}`)
+              .text(),
+          ).toBe(`${subcategory}`)
+        }
+      }
     })
   })
 })
