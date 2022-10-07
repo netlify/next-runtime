@@ -15,7 +15,7 @@ const Images = () => (
     <p>
       <Image src={logo} alt="netlify logomark" />
       <Image
-        src="https://raw.githubusercontent.com/netlify/next-runtime/main/next-on-netlify.png"
+        src="https://raw.githubusercontent.com/netlify/next-runtime/main/demos/default/public/next-on-netlify.png"
         alt="Picture of the author"
         width={500}
         height={500}

@@ -17,7 +17,7 @@ export default function Home() {
       </main>
 
       <Image
-        src="https://raw.githubusercontent.com/netlify/next-runtime/main/next-on-netlify.png"
+        src="https://raw.githubusercontent.com/netlify/next-runtime/main/demos/default/public/next-on-netlify.png"
         alt="Picture of the author"
         width={540}
         height={191}

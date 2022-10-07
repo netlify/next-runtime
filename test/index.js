@@ -468,8 +468,6 @@ describe('onBuild()', () => {
       '.next/BUILD_ID',
       '.next/static/chunks/webpack-middleware*.js',
       '!.next/server/**/*.js.nft.json',
-      '.next/static/css/1152424140993be6.css',
-      '.next/static/css/84099ae0bbc955fa.css',
       '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
@@ -567,11 +565,62 @@ describe('onBuild()', () => {
     const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
     const imageConfigJson = await readJson(imageConfigPath)
 
-    expect(imageConfigJson.domains.length).toBe(1)
+    expect(imageConfigJson.domains.length).toBe(2)
     expect(imageConfigJson.remotePatterns.length).toBe(1)
     expect(imageConfigJson.responseHeaders).toStrictEqual({
       'X-Foo': mockHeaderValue,
     })
+  })
+
+  test('generates an ipx function by default', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeTruthy()
+  })
+
+  test('does not generate an ipx function when DISABLE_IPX is set', async () => {
+    process.env.DISABLE_IPX = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeFalsy()
+    delete process.env.DISABLE_IPX
+  })
+
+  test('creates 404 redirect when DISABLE_IPX is set', async () => {
+    process.env.DISABLE_IPX = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    const nextImageRedirect = netlifyConfig.redirects.find(redirect => redirect.from.includes('/_next/image'))
+    
+    expect(nextImageRedirect).toBeDefined()
+    expect(nextImageRedirect.to).toEqual("/404.html")
+    expect(nextImageRedirect.status).toEqual(404)
+    expect(nextImageRedirect.force).toEqual(true)
+    
+    delete process.env.DISABLE_IPX
+  })
+  
+  test('generates an ipx edge function by default', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
+  })
+
+  test('does not generate an ipx edge function if the feature is disabled', async () => {
+    process.env.NEXT_DISABLE_EDGE_IMAGES = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
+    delete process.env.NEXT_DISABLE_EDGE_IMAGES
+  })
+
+  test('does not generate an ipx edge function if Netlify Edge is disabled', async () => {
+    process.env.NEXT_DISABLE_NETLIFY_EDGE = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
+    delete process.env.NEXT_DISABLE_NETLIFY_EDGE
   })
 })
 

@@ -1,5 +1,56 @@
 # Changelog
 
+## [4.24.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.2...plugin-nextjs-v4.24.3) (2022-10-06)
+
+
+### Bug Fixes
+
+* remove localPrefix ([#1665](https://github.com/netlify/next-runtime/issues/1665)) ([571c0f5](https://github.com/netlify/next-runtime/commit/571c0f5254ffc62526f2a46d1d93d604bdd828b7))
+
+## [4.24.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.1...plugin-nextjs-v4.24.2) (2022-10-05)
+
+
+### Bug Fixes
+
+* validate next/image params ([#1661](https://github.com/netlify/next-runtime/issues/1661)) ([c0937cf](https://github.com/netlify/next-runtime/commit/c0937cf67e84d5e14c99670910ac33fc2dd0e166))
+
+## [4.24.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.0...plugin-nextjs-v4.24.1) (2022-10-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.3.0 ([#1660](https://github.com/netlify/next-runtime/issues/1660)) ([4e7e2ae](https://github.com/netlify/next-runtime/commit/4e7e2aeee431ed66d67c96115981aaafca06381a))
+* set undefined ODB 404 TTLs to 60 seconds ([#1647](https://github.com/netlify/next-runtime/issues/1647)) ([029b497](https://github.com/netlify/next-runtime/commit/029b497681e4c383b182f775e772bb4602bd872a))
+
+## [4.24.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.4...plugin-nextjs-v4.24.0) (2022-10-03)
+
+
+### Features
+
+* Add ability to disable ipx ([#1653](https://github.com/netlify/next-runtime/issues/1653)) ([ee7ceda](https://github.com/netlify/next-runtime/commit/ee7ceda4ba7b9822188865cac02074b034b761af))
+
+## [4.23.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.3...plugin-nextjs-v4.23.4) (2022-10-03)
+
+
+### Bug Fixes
+
+* correctly enable edge images ([#1631](https://github.com/netlify/next-runtime/issues/1631)) ([8bcbad0](https://github.com/netlify/next-runtime/commit/8bcbad0038d85e2bf2618883b82ceb1e724e103b))
+
+## [4.23.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.2...plugin-nextjs-v4.23.3) (2022-09-28)
+
+
+### Bug Fixes
+
+* add missing data to middleware request object ([#1634](https://github.com/netlify/next-runtime/issues/1634)) ([0c05726](https://github.com/netlify/next-runtime/commit/0c057265b9297ceb38d49c675159cc50b9df23a3))
+
+## [4.23.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.1...plugin-nextjs-v4.23.2) (2022-09-26)
+
+
+### Bug Fixes
+
+* check NEXT_DISABLE_NETLIFY_EDGE value rather than if truthy ([#1603](https://github.com/netlify/next-runtime/issues/1603)) ([5cf8c52](https://github.com/netlify/next-runtime/commit/5cf8c52ead9a9013906201697a6a4a32fd8368f7))
+* **deps:** update dependency @netlify/esbuild to v0.14.39 ([#1623](https://github.com/netlify/next-runtime/issues/1623)) ([3dc7b23](https://github.com/netlify/next-runtime/commit/3dc7b2386471b5993fe425b5d5735e945fcd9417))
+
 ## [4.23.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.23.0...plugin-nextjs-v4.23.1) (2022-09-09)
 
 
