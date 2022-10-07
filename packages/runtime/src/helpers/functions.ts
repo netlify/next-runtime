@@ -1,8 +1,11 @@
+/* eslint-disable max-lines */
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
+import chalk from 'chalk'
 import destr from 'destr'
-import { copyFile, ensureDir, readJSON, writeFile, writeJSON } from 'fs-extra'
+import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON } from 'fs-extra'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
+import { outdent } from 'outdent'
 import { join, relative, resolve } from 'pathe'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
@@ -10,7 +13,7 @@ import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getPageResolver, getSinglePageResolver } from '../templates/getPageResolver'
 
-import { ApiConfig, extractConfigFromFile } from './analysis'
+import { ApiConfig, ApiRouteType, extractConfigFromFile } from './analysis'
 import { getSourceFileForPage } from './files'
 import { getFunctionNameForPage } from './utils'
 
@@ -36,7 +39,7 @@ export const generateFunctions = async (
       page: route,
       config,
     })
-    const functionName = getFunctionNameForPage(route, config.type === 'experimental-background')
+    const functionName = getFunctionNameForPage(route, config.type === ApiRouteType.BACKGROUND)
     await ensureDir(join(functionsDir, functionName))
     await writeFile(join(functionsDir, functionName, `${functionName}.js`), apiHandlerSource)
     await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
@@ -173,3 +176,43 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
     }),
   )
 }
+
+interface FunctionsManifest {
+  functions: Array<{ name: string; schedule?: string }>
+}
+
+/**
+ * Warn the user of the caveats if they're using background or scheduled API routes
+ */
+
+export const warnOnApiRoutes = async ({
+  FUNCTIONS_DIST,
+}: Pick<NetlifyPluginConstants, 'FUNCTIONS_DIST'>): Promise<void> => {
+  const functionsManifestPath = join(FUNCTIONS_DIST, 'manifest.json')
+  if (!existsSync(functionsManifestPath)) {
+    return
+  }
+
+  const { functions }: FunctionsManifest = await readJSON(functionsManifestPath)
+
+  if (functions.some((func) => func.name.endsWith('-background'))) {
+    console.warn(
+      outdent`
+        ${chalk.yellowBright`Using background API routes`}
+        If your account type does not support background functions, the deploy will fail.
+        During local development, background API routes will run as regular API routes, but in production they will immediately return an empty "202 Accepted" response.
+      `,
+    )
+  }
+
+  if (functions.some((func) => func.schedule)) {
+    console.warn(
+      outdent`
+        ${chalk.yellowBright`Using scheduled API routes`} 
+        These are run on a schedule when deployed to production.
+        You can test them locally by loading them in your browser but this will not be available when deployed, and any returned value is ignored.
+      `,
+    )
+  }
+}
+/* eslint-enable max-lines */

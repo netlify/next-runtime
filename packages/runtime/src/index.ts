@@ -19,7 +19,13 @@ import {
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
-import { generateFunctions, setupImageFunction, generatePagesResolver, getApiRouteConfigs } from './helpers/functions'
+import {
+  generateFunctions,
+  setupImageFunction,
+  generatePagesResolver,
+  getApiRouteConfigs,
+  warnOnApiRoutes,
+} from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
 import {
@@ -217,6 +223,7 @@ const plugin: NetlifyPlugin = {
 
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
+    await warnOnApiRoutes({ FUNCTIONS_DIST })
   },
 }
 // The types haven't been updated yet
