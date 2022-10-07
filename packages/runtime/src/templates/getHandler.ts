@@ -26,6 +26,7 @@ type Mutable<T> = {
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 
+// eslint-disable-next-line max-lines-per-function
 const makeHandler = (
   conf: NextConfig,
   app,

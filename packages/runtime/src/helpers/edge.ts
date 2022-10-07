@@ -5,7 +5,7 @@ import { resolve, join } from 'path'
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { greenBright } from 'chalk'
 import destr from 'destr'
-import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
+import { copy, copyFile, emptyDir, ensureDir, readJson, writeJSON, writeJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
@@ -110,8 +110,7 @@ const getMiddlewareBundle = async ({
 
 const getEdgeTemplatePath = (file: string) => join(__dirname, '..', '..', 'src', 'templates', 'edge', file)
 
-export const usesEdgeRouter = () =>
-  process.env.NETLIFY_NEXT_EDGE_ROUTER === '1' || process.env.NETLIFY_NEXT_EDGE_ROUTER === 'true'
+export const usesEdgeRouter = destr(process.env.NETLIFY_NEXT_EDGE_ROUTER)
 
 const copyEdgeSourceFile = ({
   file,
@@ -127,10 +126,12 @@ const writeEdgeFunction = async ({
   edgeFunctionDefinition,
   edgeFunctionRoot,
   netlifyConfig,
+  edgeRouter,
 }: {
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
   netlifyConfig: NetlifyConfig
+  edgeRouter: boolean
 }): Promise<
   Array<{
     function: string
@@ -167,7 +168,7 @@ const writeEdgeFunction = async ({
 
   // We add a defintion for each matching path
   return matchers.map((matcher) => {
-    const pattern = matcher.regexp
+    const pattern = edgeRouter ? '.*' : matcher.regexp
     return { function: name, pattern }
   })
 }
@@ -262,7 +263,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
       return
     }
 
-    let usesEdge = false
+    let usesEdge = usesEdgeRouter
 
     for (const middleware of middlewareManifest.sortedMiddleware) {
       usesEdge = true
@@ -271,24 +272,12 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
         edgeFunctionDefinition,
         edgeFunctionRoot,
         netlifyConfig,
+        edgeRouter: usesEdgeRouter,
       })
       manifest.functions.push(...functionDefinitions)
     }
-    // Older versions of the manifest format don't have the functions field
-    // No, the version field was not incremented
-    if (typeof middlewareManifest.functions === 'object') {
-      for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
-        usesEdge = true
-        const functionDefinitions = await writeEdgeFunction({
-          edgeFunctionDefinition,
-          edgeFunctionRoot,
-          netlifyConfig,
-        })
-        manifest.functions.push(...functionDefinitions)
-      }
-    }
 
-    if (usesEdgeRouter()) {
+    if (usesEdgeRouter) {
       console.log('Using experimental Netlify Next.js Edge Router')
       await writeEdgeRouter({ edgeFunctionRoot, publishDir: publish })
       // Pre-middleware routing runs first...
@@ -303,6 +292,21 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
         path: '/*',
       })
     }
+
+    if (typeof middlewareManifest.functions === 'object') {
+      // Functions run after routing
+      for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
+        usesEdge = true
+        const functionDefinitions = await writeEdgeFunction({
+          edgeFunctionDefinition,
+          edgeFunctionRoot,
+          netlifyConfig,
+          edgeRouter: usesEdgeRouter,
+        })
+        manifest.functions.push(...functionDefinitions)
+      }
+    }
+
     if (usesEdge) {
       console.log(outdent`
         ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
@@ -313,9 +317,4 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
 
-export const enableEdgeInNextConfig = async (publish: string) => {
-  const configFile = join(publish, 'required-server-files.json')
-  const config = await readJSON(configFile)
-  await writeJSON(configFile, config)
-}
 /* eslint-enable max-lines */
