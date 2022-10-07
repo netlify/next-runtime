@@ -1,10 +1,10 @@
 import { dirname, join, resolve } from 'path'
 
 import { readJSON } from 'fs-extra'
+import globby from 'globby'
 import { outdent } from 'outdent'
 import { relative } from 'pathe'
 import slash from 'slash'
-import glob from 'tiny-glob'
 
 import { HANDLER_FUNCTION_NAME } from '../constants'
 
@@ -14,7 +14,7 @@ import { HANDLER_FUNCTION_NAME } from '../constants'
 export const getPageResolver = async ({ publish, target }: { publish: string; target: string }) => {
   const functionDir = resolve(join('.netlify', 'functions', HANDLER_FUNCTION_NAME))
   const root = resolve(slash(publish), target === 'server' ? 'server' : 'serverless')
-  const pages = await glob('{pages,app}/**/*.js.nft.json', {
+  const pages = await globby('{pages,app}/**/*.js.nft.json', {
     cwd: root,
     dot: true,
   })
@@ -23,7 +23,7 @@ export const getPageResolver = async ({ publish, target }: { publish: string; ta
     pages.map(async (page) => {
       const dir = dirname(page)
       const { files } = await readJSON(join(root, page))
-      return files.map((file) => resolve(root, dir, file))
+      return files?.map((file) => resolve(root, dir, file))
     }),
   )
 
