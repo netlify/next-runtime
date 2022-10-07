@@ -12,15 +12,18 @@ TERM = "xterm"
 NODE_VERSION = "16.15.1"
 
 [[headers]]
-  for = "/_next/image/*"
-  
-  [headers.values]
-    Strict-Transport-Security = "max-age=31536000"
-    X-Test = 'foobar'
+for = "/_next/image/*"
+
+[headers.values]
+Strict-Transport-Security = "max-age=31536000"
+X-Test = 'foobar'
 
 [[plugins]]
-package = "../plugin-wrapper/"
+package = "@netlify/plugin-nextjs"
 
 # This is a fake plugin, that makes it run npm install
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
+
+[[plugins]]
+package = "../plugin-wrapper"

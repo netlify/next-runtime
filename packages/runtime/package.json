@@ -2,11 +2,12 @@
   "name": "@netlify/plugin-nextjs",
   "version": "4.24.3",
   "description": "Run Next.js seamlessly on Netlify",
-  "main": "lib/index.js",
+  "main": "index.js",
   "files": [
     "lib/**/*",
     "src/templates/edge/*",
     "src/templates/edge-shared/*",
+    "index.js",
     "manifest.yml"
   ],
   "dependencies": {
