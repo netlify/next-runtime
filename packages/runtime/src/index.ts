@@ -74,12 +74,11 @@ const plugin: NetlifyPlugin = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental } = await getNextConfig(
-      {
+    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental, routesManifest } =
+      await getNextConfig({
         publish,
         failBuild,
-      },
-    )
+      })
     await cleanupEdgeFunctions(constants)
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
@@ -178,7 +177,7 @@ const plugin: NetlifyPlugin = {
       buildId,
     })
 
-    await writeEdgeFunctions(netlifyConfig)
+    await writeEdgeFunctions({ netlifyConfig, routesManifest })
   },
 
   async onPostBuild({

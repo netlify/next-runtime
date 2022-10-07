@@ -1,19 +1,16 @@
 {
-  "name": "canary",
-  "version": "0.1.0",
-  "private": true,
+  "name": "app-dir",
+  "version": "1.0.0",
+  "description": "",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "build": "next build"
   },
+  "author": "",
+  "license": "MIT",
   "dependencies": {
-    "next": "^12.2.0",
-    "react": "18.1.0",
-    "react-dom": "18.1.0"
-  },
-  "devDependencies": {
-    "eslint": "8.22.0"
+    "nanoid": "^3.3.4",
+    "next": "^12.3.2-canary.22",
+    "react": "^0.0.0-experimental-e40893d09-20221005",
+    "react-dom": "^0.0.0-experimental-e40893d09-20221005"
   }
 }

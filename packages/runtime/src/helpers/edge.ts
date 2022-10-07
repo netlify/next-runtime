@@ -11,6 +11,7 @@ import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
 
 import { getRequiredServerFiles } from './config'
+import { RoutesManifest } from './types'
 
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
@@ -57,13 +58,17 @@ export interface FunctionManifest {
   import_map?: string
 }
 
-export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> => {
-  const middlewarePath = resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json')
-  if (!existsSync(middlewarePath)) {
-    return null
+const maybeLoadJson = <T>(path: string): Promise<T> | null => {
+  if (existsSync(path)) {
+    return readJson(path)
   }
-  return readJson(middlewarePath)
 }
+
+export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> =>
+  maybeLoadJson(resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json'))
+
+export const loadAppPathRoutesManifest = (netlifyConfig: NetlifyConfig): Promise<Record<string, string> | null> =>
+  maybeLoadJson(resolve(netlifyConfig.build.publish, 'app-path-routes-manifest.json'))
 
 /**
  * Convert the Next middleware name into a valid Edge Function name
@@ -73,14 +78,19 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 /**
  * Initialization added to the top of the edge function bundle
  */
-const bootstrap = /* js */ `
-globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-globalThis._ENTRIES ||= {}
-// Deno defines "window", but naughty libraries think this means it's a browser
-delete globalThis.window
-
+const preamble = /* js */ `
+  // Deno defines "window", but naughty libraries think this means it's a browser
+  delete globalThis.window
+  globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
+  // Next uses "self" as a function-scoped global-like object
+  const self = {}
+  let _ENTRIES = {}
 `
 
+const IMPORT_UNSUPPORTED = [
+  `Object.defineProperty(globalThis,"__import_unsupported"`,
+  `    Object.defineProperty(globalThis, "__import_unsupported"`,
+]
 /**
  * Concatenates the Next edge function code with the required chunks and adds an export
  */
@@ -92,16 +102,17 @@ const getMiddlewareBundle = async ({
   netlifyConfig: NetlifyConfig
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
-  const chunks: Array<string> = [bootstrap]
+  const chunks: Array<string> = [preamble]
   for (const file of edgeFunctionDefinition.files) {
     const filePath = join(publish, file)
-    const data = await fs.readFile(filePath, 'utf8')
+
+    let data = await fs.readFile(filePath, 'utf8')
+    data = IMPORT_UNSUPPORTED.reduce(
+      (acc, val) => acc.replace(val, `('__import_unsupported' in globalThis)||${val}`),
+      data,
+    )
     chunks.push('{', data, '}')
   }
-
-  const middleware = await fs.readFile(join(publish, `server`, `${edgeFunctionDefinition.name}.js`), 'utf8')
-
-  chunks.push(middleware)
 
   const exports = /* js */ `export default _ENTRIES["middleware_${edgeFunctionDefinition.name}"].default;`
   chunks.push(exports)
@@ -127,11 +138,15 @@ const writeEdgeFunction = async ({
   edgeFunctionRoot,
   netlifyConfig,
   edgeRouter,
+  pageRegexMap,
+  appPathRoutesManifest = {},
 }: {
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
   netlifyConfig: NetlifyConfig
   edgeRouter: boolean
+  pageRegexMap?: Map<string, string>
+  appPathRoutesManifest?: Record<string, string>
 }): Promise<
   Array<{
     function: string
@@ -162,6 +177,15 @@ const writeEdgeFunction = async ({
     matchers.push({ regexp: edgeFunctionDefinition.regexp })
   } else {
     matchers.push(...edgeFunctionDefinition.matchers)
+  }
+
+  // If the EF matches a page, it's an app dir page so needs a matcher too
+  // The object will be empty if appDir isn't enabled in the Next config
+  if (pageRegexMap && edgeFunctionDefinition.page in appPathRoutesManifest) {
+    const regexp = pageRegexMap.get(appPathRoutesManifest[edgeFunctionDefinition.page])
+    if (regexp) {
+      matchers.push({ regexp })
+    }
   }
 
   await writeJson(join(edgeFunctionDir, 'matchers.json'), matchers)
@@ -221,7 +245,13 @@ export const writeEdgeRouter = async ({
 /**
  * Writes Edge Functions for the Next middleware
  */
-export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
+export const writeEdgeFunctions = async ({
+  netlifyConfig,
+  routesManifest,
+}: {
+  netlifyConfig: NetlifyConfig
+  routesManifest: RoutesManifest
+}) => {
   const manifest: FunctionManifest = {
     functions: [],
     version: 1,
@@ -294,6 +324,16 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
     }
 
     if (typeof middlewareManifest.functions === 'object') {
+      // When using the app dir, we also need to check if the EF matches a page
+      const appPathRoutesManifest = await loadAppPathRoutesManifest(netlifyConfig)
+
+      const pageRegexMap = new Map(
+        [...(routesManifest.dynamicRoutes || []), ...(routesManifest.staticRoutes || [])].map((route) => [
+          route.page,
+          route.regex,
+        ]),
+      )
+
       // Functions run after routing
       for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
         usesEdge = true
@@ -302,6 +342,8 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
           edgeFunctionRoot,
           netlifyConfig,
           edgeRouter: usesEdgeRouter,
+          pageRegexMap,
+          appPathRoutesManifest,
         })
         manifest.functions.push(...functionDefinitions)
       }
