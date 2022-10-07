@@ -43,10 +43,12 @@ export interface FunctionManifest {
   functions: Array<
     | {
         function: string
+        name?: string
         path: string
       }
     | {
         function: string
+        name?: string
         pattern: string
       }
   >

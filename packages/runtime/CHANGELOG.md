@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.24.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.2...plugin-nextjs-v4.24.3) (2022-10-06)
+
+
+### Bug Fixes
+
+* remove localPrefix ([#1665](https://github.com/netlify/next-runtime/issues/1665)) ([571c0f5](https://github.com/netlify/next-runtime/commit/571c0f5254ffc62526f2a46d1d93d604bdd828b7))
+
 ## [4.24.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.1...plugin-nextjs-v4.24.2) (2022-10-05)
 
 
