@@ -8,7 +8,7 @@ on:
     paths:
       - 'test/e2e/canary/**/*.{js,jsx,ts,tsx}'
       - 'demos/canary/**/*'
-      - 'src/**/*.{ts,js}'
+      - 'packages/**/*.{ts,js}'
 jobs:
   vitest:
     name: Vitest
@@ -56,6 +56,6 @@ jobs:
 
       - name: Run e2e tests
         if: ${{ steps.deploy.outputs.origin-url }}
-        run: npm run test:e2e -- tests/e2e/canary
+        run: npm run test:e2e -- test/e2e/canary
         env:
           SITE_URL: ${{ steps.deploy.outputs.origin-url }}

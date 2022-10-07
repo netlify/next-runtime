@@ -56,6 +56,6 @@ jobs:
 
       - name: Run e2e tests
         if: ${{ steps.deploy.outputs.origin-url }}
-        run: npm run test:e2e -- tests/e2e/router
+        run: npm run test:e2e -- test/e2e/router
         env:
           SITE_URL: ${{ steps.deploy.outputs.origin-url }}
