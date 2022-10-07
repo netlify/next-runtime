@@ -6,6 +6,11 @@ export interface FetchEventResult {
   waitUntil: Promise<any>
 }
 
+declare global {
+  // deno-lint-ignore no-var
+  var NETLIFY_NEXT_EDGE_ROUTER: boolean
+}
+
 type NextDataTransform = <T>(data: T) => T
 
 export const useEdgeRouter = () => Boolean(globalThis.NETLIFY_NEXT_EDGE_ROUTER)
@@ -141,7 +146,7 @@ export const buildResponse = async ({
     }
     res.headers.set('x-middleware-rewrite', relativeUrl)
 
-    // The edge router handles rewrites itself, so we don't need to do anything here
+    // The edge router handles rewrites itself, so we don't need to redirect or rewrite here
     if (useEdgeRouter()) {
       return addMiddlewareHeaders(context.next(), res)
     }
