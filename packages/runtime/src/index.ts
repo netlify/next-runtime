@@ -147,7 +147,7 @@ const plugin: NetlifyPlugin = {
 
     await movePublicFiles({ appDir, outdir, publish })
 
-    if (usesEdgeRouter()) {
+    if (usesEdgeRouter) {
       await writeStaticRouteManifest({ appDir, outdir, publish })
     }
 
@@ -213,7 +213,7 @@ const plugin: NetlifyPlugin = {
     const nextConfig = await getNextConfig({ publish, failBuild })
 
     const { basePath, appDir } = nextConfig
-    if (!usesEdgeRouter()) {
+    if (!usesEdgeRouter) {
       generateCustomHeaders(nextConfig, headers)
     }
 

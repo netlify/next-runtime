@@ -101,7 +101,7 @@ export const moveStaticPages = async ({
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 
-  if (usesEdgeRouter()) {
+  if (usesEdgeRouter) {
     redirects = []
     rewrites = []
   }

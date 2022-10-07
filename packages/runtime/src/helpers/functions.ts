@@ -24,7 +24,7 @@ export const generateFunctions = async (
       isODB,
       publishDir,
       appDir: relative(functionDir, appDir),
-      minimalMode: usesEdgeRouter(),
+      minimalMode: usesEdgeRouter,
     })
     await ensureDir(join(functionsDir, func))
     await writeFile(join(functionsDir, func, `${func}.js`), handlerSource)

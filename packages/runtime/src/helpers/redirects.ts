@@ -243,7 +243,7 @@ export const generateRedirects = async ({
 
   netlifyConfig.redirects.push(...generateHiddenPathRedirects({ basePath }))
 
-  if (i18n && i18n.localeDetection !== false && !usesEdgeRouter()) {
+  if (i18n && i18n.localeDetection !== false && !usesEdgeRouter) {
     netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))
   }
 
