@@ -4,6 +4,7 @@ module.exports = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  generateBuildId: () => 'build-id',
   async rewrites() {
     // no-rewrites comment
     return {

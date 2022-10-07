@@ -1,4 +1,4 @@
-name: Run e2e (canary demo)
+name: Run e2e (edge router)
 on:
   pull_request:
     types: [opened, labeled, unlabeled, synchronize]
@@ -6,9 +6,9 @@ on:
     branches:
       - main
     paths:
-      - 'test/e2e/canary/**/*.{js,jsx,ts,tsx}'
-      - 'demos/canary/**/*'
-      - 'src/**/*.{ts,js}'
+      - 'test/e2e/router/**/*.{js,jsx,ts,tsx}'
+      - 'demos/custom-routes/**/*'
+      - 'packages/**/*.{ts,js}'
 jobs:
   vitest:
     name: Vitest
@@ -47,7 +47,7 @@ jobs:
         id: deploy
         uses: ./.github/actions/wait-for-netlify-deploy
         with:
-          site-name: next-plugin-canary
+          site-name: nextjs-plugin-custom-routes-demo
           timeout: 300
 
       - name: Deploy successful
@@ -56,6 +56,6 @@ jobs:
 
       - name: Run e2e tests
         if: ${{ steps.deploy.outputs.origin-url }}
-        run: npm run test:e2e -- tests/e2e/canary
+        run: npm run test:e2e -- tests/e2e/router
         env:
           SITE_URL: ${{ steps.deploy.outputs.origin-url }}

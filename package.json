@@ -19,7 +19,7 @@
     "install-husky": "if-env CI=1 || husky install node_modules/@netlify/eslint-config-node/.husky",
     "test": "run-s build:demo test:jest",
     "test:jest": "jest",
-    "test:e2e": "vitest test/e2e",
+    "test:e2e": "vitest",
     "playwright:install": "playwright install --with-deps chromium",
     "test:jest:update": "jest --updateSnapshot",
     "test:update": "run-s build build:demo test:jest:update"

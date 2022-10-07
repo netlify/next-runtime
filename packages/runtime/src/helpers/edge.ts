@@ -192,7 +192,7 @@ const writeEdgeFunction = async ({
 
   // We add a defintion for each matching path
   return matchers.map((matcher) => {
-    const pattern = edgeRouter ? '.*' : matcher.regexp
+    const pattern = edgeRouter ? '^.*$' : matcher.regexp
     return { function: name, pattern }
   })
 }
