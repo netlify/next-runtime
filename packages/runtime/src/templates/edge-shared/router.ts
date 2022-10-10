@@ -26,7 +26,14 @@ function preparedDestinationToUrl({ newUrl, parsedDestination }: ReturnType<type
   transformedUrl.port = parsedDestination.port ?? ''
   transformedUrl.protocol = parsedDestination.protocol ?? ''
   for (const [name, value] of Object.entries(parsedDestination.query)) {
-    transformedUrl.searchParams.set(name, String(value))
+    if (Array.isArray(value)) {
+      // Arrays of values need to be appended as multiple values
+      for (const v of value) {
+        transformedUrl.searchParams.append(name, v)
+      }
+    } else {
+      transformedUrl.searchParams.set(name, value)
+    }
   }
   return transformedUrl
 }
