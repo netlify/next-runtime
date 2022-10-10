@@ -17,7 +17,6 @@ globalThis.NETLIFY_NEXT_EDGE_ROUTER = true
 
 const handler = async (request: Request, context: Context) => {
   const manifest: RoutesManifest = routesManifest as unknown as RoutesManifest
-  console.log({ manifest })
 
   // Get changed response headers
   const extraHeaders = applyHeaderRules(request, manifest.headers)

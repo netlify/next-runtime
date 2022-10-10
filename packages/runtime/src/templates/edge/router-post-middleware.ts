@@ -31,9 +31,10 @@ const handler = async (request: Request, context: Context) => {
 
   // External rewrite
   if (resultUrl.hostname !== 'n' && resultUrl.hostname !== requestUrl.hostname) {
+    console.log('external proxy', result.url)
     return fetch(result, { redirect: 'manual' })
   }
-
+  console.log('rewrite', result.url)
   return context.rewrite(result.url)
 }
 export default handler

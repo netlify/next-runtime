@@ -152,6 +152,7 @@ export function applyRedirectRule({ request, rule }: { request: Request; rule: R
   if (!params) {
     return false
   }
+  console.log('matches redirect', rule)
   const destination = generateDestinationUrl({
     query: new URL(request.url).searchParams,
     destination: rule.destination,
