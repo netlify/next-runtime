@@ -6,7 +6,7 @@ import { runPostMiddleware } from '../edge-shared/router.ts'
 import type { RoutesManifest } from '../edge-shared/next-utils.ts'
 
 /**
- * Stage 1 routing
+ * Stage 2 routing
  */
 
 // deno-lint-ignore require-await

@@ -17,6 +17,7 @@ globalThis.NETLIFY_NEXT_EDGE_ROUTER = true
 
 const handler = async (request: Request, context: Context) => {
   const manifest: RoutesManifest = routesManifest as unknown as RoutesManifest
+  console.log({ manifest })
 
   // Get changed response headers
   const extraHeaders = applyHeaderRules(request, manifest.headers)
@@ -24,6 +25,7 @@ const handler = async (request: Request, context: Context) => {
   const redirect = applyRedirectRules(request, manifest.redirects)
   let response: Response
   if (redirect) {
+    console.log({ redirect })
     response = redirect
   } else if (extraHeaders.length === 0) {
     // No redirect and no new headers, so we can skip to the next function
