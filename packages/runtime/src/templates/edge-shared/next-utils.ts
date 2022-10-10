@@ -36,7 +36,7 @@ export type RouteHas =
       value: string
     }
 
-export type Rewrite = {
+export type RewriteRule = {
   source: string
   destination: string
   basePath?: false
@@ -45,7 +45,7 @@ export type Rewrite = {
   regex: string
 }
 
-export type Header = {
+export type HeaderRule = {
   source: string
   basePath?: false
   locale?: false
@@ -53,7 +53,7 @@ export type Header = {
   has?: RouteHas[]
   regex: string
 }
-export type Redirect = {
+export type RedirectRule = {
   source: string
   destination: string
   basePath?: false
@@ -73,12 +73,12 @@ export type DynamicRoute = {
 
 export type RoutesManifest = {
   basePath: string
-  redirects: Redirect[]
-  headers: Header[]
+  redirects: RedirectRule[]
+  headers: HeaderRule[]
   rewrites: {
-    beforeFiles: Rewrite[]
-    afterFiles: Rewrite[]
-    fallback: Rewrite[]
+    beforeFiles: RewriteRule[]
+    afterFiles: RewriteRule[]
+    fallback: RewriteRule[]
   }
   dynamicRoutes: DynamicRoute[]
 }

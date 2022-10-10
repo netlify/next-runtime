@@ -3,19 +3,19 @@ import { Match, match } from 'https://deno.land/x/path_to_regexp@v6.2.1/index.ts
 import {
   compileNonPath,
   DynamicRoute,
-  Header,
+  HeaderRule,
   matchHas as nextMatchHas,
   prepareDestination,
-  Redirect,
-  Rewrite,
+  RedirectRule,
+  RewriteRule,
   RouteHas,
   RoutesManifest,
   searchParamsToUrlQuery,
 } from './next-utils.ts'
 
 type Params = Record<string, string>
-export type Rule = Rewrite | Header | Redirect
-
+export type Rule = RewriteRule | HeaderRule | RedirectRule
+export type NextHeaders = Map<string, string>
 /**
  * Converts Next.js's internal parsed URL response to a `URL` object.
  */
@@ -117,7 +117,7 @@ export function matchesRule({ request, rule }: { request: Request; rule: Rule })
  * Applies a rewrite rule to a request if it matches. Returns the new request, or `false` if it does not match.
  */
 
-export function applyRewriteRule({ request, rule }: { request: Request; rule: Rewrite }): Request | false {
+export function applyRewriteRule({ request, rule }: { request: Request; rule: RewriteRule }): Request | false {
   const params = matchesRule({ request, rule })
   if (!params) {
     return false
@@ -140,7 +140,7 @@ export function applyRewriteRule({ request, rule }: { request: Request; rule: Re
  * Applies a redirect rule to a request. If it matches, returns a redirect response, otherwise `false`.
  */
 
-export function applyRedirectRule({ request, rule }: { request: Request; rule: Redirect }): Response | false {
+export function applyRedirectRule({ request, rule }: { request: Request; rule: RedirectRule }): Response | false {
   const params = matchesRule({ request, rule })
   if (!params) {
     return false
@@ -162,13 +162,20 @@ export function applyRedirectRule({ request, rule }: { request: Request; rule: R
  * Applies a header rule to a request. If it matches, returns a new request with the headers, otherwise `false`.
  */
 
-export function applyHeaderRule({ request, rule }: { request: Request; rule: Header }): Request | false {
+export function applyHeaderRule({
+  request,
+  rule,
+  headers,
+}: {
+  request: Request
+  rule: HeaderRule
+  headers: NextHeaders
+}): NextHeaders | false {
   const params = matchesRule({ request, rule })
   if (!params) {
     return false
   }
   const hasParams = Object.keys(params).length > 0
-  const headers = new Headers(request.headers)
   for (const { key, value } of rule.headers) {
     if (hasParams) {
       headers.set(compileNonPath(key, params), compileNonPath(value, params))
@@ -176,20 +183,17 @@ export function applyHeaderRule({ request, rule }: { request: Request; rule: Hea
       headers.set(key, value)
     }
   }
-  return new Request(request.url, {
-    ...request,
-    headers,
-  })
+  return headers
 }
 
-export function applyHeaders(request: Request, rules: Header[]): Request {
-  // Apply all headers rules in order
-  return rules.reduce((request, rule) => {
-    return applyHeaderRule({ request, rule }) || request
-  }, request)
+export function applyHeaderRules(request: Request, rules: HeaderRule[]): Array<[key: string, value: string]> {
+  const headers = rules.reduce((headers, rule) => {
+    return applyHeaderRule({ request, rule, headers }) || headers
+  }, new Map<string, string>())
+  return [...headers.entries()]
 }
 
-export function applyRedirects(request: Request, rules: Redirect[]): Response | false {
+export function applyRedirectRules(request: Request, rules: RedirectRule[]): Response | false {
   // Redirects only apply the first matching rule
   for (const rule of rules) {
     const match = applyRedirectRule({ request, rule })
@@ -200,14 +204,14 @@ export function applyRedirects(request: Request, rules: Redirect[]): Response | 
   return false
 }
 
-export function applyRewrites({
+export function applyRewriteRules({
   request,
   rules,
   staticRoutes,
   checkStaticRoutes = false,
 }: {
   request: Request
-  rules: Rewrite[]
+  rules: RewriteRule[]
   checkStaticRoutes?: boolean
   staticRoutes?: Set<string>
 }): Request | false {
@@ -248,18 +252,6 @@ export function matchDynamicRoute(request: Request, routes: DynamicRoute[]): str
 }
 
 /**
- * Run the rules that run before middleware
- */
-export function runPreMiddleware(request: Request, manifest: RoutesManifest): Request | Response {
-  const output: Request = applyHeaders(request, manifest.headers)
-  const redirect = applyRedirects(output, manifest.redirects)
-  if (redirect) {
-    return Response.redirect(redirect.url, redirect.status)
-  }
-  return output
-}
-
-/**
  * Run the rules that run after middleware
  */
 export function runPostMiddleware(
@@ -272,7 +264,7 @@ export function runPostMiddleware(
   // Everyone gets the beforeFiles rewrites, unless we're re-running after matching fallback
   let result = skipBeforeFiles
     ? request
-    : applyRewrites({
+    : applyRewriteRules({
         request,
         rules: manifest.rewrites.beforeFiles,
       }) || request
@@ -285,7 +277,7 @@ export function runPostMiddleware(
   }
 
   // afterFiles rewrites also check if it matches a static file after every match
-  const afterRewrite = applyRewrites({
+  const afterRewrite = applyRewriteRules({
     request: result,
     rules: manifest.rewrites.afterFiles,
     checkStaticRoutes: true,
@@ -309,7 +301,7 @@ export function runPostMiddleware(
   }
 
   // Finally, check for fallback rewrites
-  const fallbackRewrite = applyRewrites({
+  const fallbackRewrite = applyRewriteRules({
     request: result,
     rules: manifest.rewrites.fallback,
   })

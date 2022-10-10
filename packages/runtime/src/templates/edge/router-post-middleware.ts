@@ -23,14 +23,14 @@ const handler = async (request: Request, context: Context) => {
   for (const header of result.headers.entries()) {
     request.headers.set(...header)
   }
-  const resultUrl = new URL(result.url)
-
   if (result.url === request.url) {
     return
   }
+  const resultUrl = new URL(result.url)
+  const requestUrl = new URL(request.url)
 
   // External rewrite
-  if (resultUrl.hostname !== 'n') {
+  if (resultUrl.hostname !== 'n' && resultUrl.hostname !== requestUrl.hostname) {
     return fetch(result, { redirect: 'manual' })
   }
 
