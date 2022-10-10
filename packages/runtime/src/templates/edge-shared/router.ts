@@ -232,7 +232,7 @@ export function applyRewriteRules({
 
   // Apply all rewrite rules in order
   for (const rule of rules) {
-    const rewritten = applyRewriteRule({ request, rule })
+    const rewritten = applyRewriteRule({ request: result || request, rule })
     if (rewritten) {
       result = rewritten
       if (!checkStaticRoutes) {
