@@ -222,6 +222,10 @@ export function applyRewriteRules({
   checkStaticRoutes?: boolean
   staticRoutes?: Set<string>
 }): Request | false {
+  if (!rules?.length) {
+    return false
+  }
+
   let result: Request | false = false
 
   if (checkStaticRoutes && !staticRoutes) {
