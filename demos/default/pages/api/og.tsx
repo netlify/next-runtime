@@ -18,7 +18,7 @@ export default function () {
           justifyContent: 'center',
         }}
       >
-        Hello world!
+        Hi, it's {new Date().toLocaleTimeString()}!
       </div>
     ),
     {
