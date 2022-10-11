@@ -24,6 +24,7 @@ export default function () {
     {
       width: 1200,
       height: 600,
+      debug: true,
     },
   )
 }

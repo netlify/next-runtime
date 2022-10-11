@@ -92,7 +92,6 @@ const handler = async (req: Request, context: Context) => {
 
   try {
     const result = await edgeFunction({ request })
-    console.log({ result })
     return buildResponse({ result, request: req, context })
   } catch (error) {
     console.error(error)

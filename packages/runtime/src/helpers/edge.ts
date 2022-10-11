@@ -104,7 +104,6 @@ const preamble = /* js */ `
       // There's a race condition on first run, but if we await it then we're ok
       const siteUrl = await SITE_URL
       const requestUrl = new URL(url.href.replace('blob:', siteUrl + "/server/edge-chunks/asset_"))
-      console.log({requestUrl})
       return _fetch(requestUrl, init)
     }
     return _fetch(url, init)
