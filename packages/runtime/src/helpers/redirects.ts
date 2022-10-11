@@ -240,6 +240,13 @@ export const generateRedirects = async ({
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 
+  // no-op to override the exclusion of the server folder
+  netlifyConfig.redirects.push({
+    from: `${basePath}/server/edge-chunks/*`,
+    to: `${basePath}/server/edge-chunks/:splat`,
+    status: 200,
+  })
+
   netlifyConfig.redirects.push(...generateHiddenPathRedirects({ basePath }))
 
   if (i18n && i18n.localeDetection !== false) {
