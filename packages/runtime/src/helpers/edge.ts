@@ -78,8 +78,8 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
  * Initialization added to the top of the edge function bundle
  */
 const preamble = /* js */ `
-  import {
-  decode as base64Decode,
+import {
+  decode as _base64Decode,
 } from "https://deno.land/std@0.159.0/encoding/base64.ts";
  // Deno defines "window", but naughty libraries think this means it's a browser
  delete globalThis.window
@@ -87,24 +87,15 @@ const preamble = /* js */ `
  // Next uses "self" as a function-scoped global-like object
  const self = {}
  let _ENTRIES = {}
- let resolveSiteUrl
-
-//   The site URL isn't available until we've had a request, so we make a promise which we resolve once we have the URL
- let SITE_URL = new Promise(resolve => {
-    resolveSiteUrl = resolve
- })
- export function setSiteUrl(url) {
-    resolveSiteUrl(url)
- }
 
 //  Next uses blob: urls to refer to local assets, so we need to intercept these
  const _fetch = globalThis.fetch
  const fetch = async (url, init) => {
     if (typeof url === 'object' && url.href?.startsWith('blob:')) {
-      // There's a race condition on first run, but if we await it then we're ok
-      const siteUrl = await SITE_URL
-      const requestUrl = new URL(url.href.replace('blob:', siteUrl + "/server/edge-chunks/asset_"))
-      return _fetch(requestUrl, init)
+      const key = url.href.slice(5)
+      if (key in _ASSETS) {
+        return new Response(_base64Decode(_ASSETS[key]))
+      }
     }
     return _fetch(url, init)
  }
@@ -133,7 +124,15 @@ const getMiddlewareBundle = async ({
   if ('wasm' in edgeFunctionDefinition) {
     for (const { name, filePath } of edgeFunctionDefinition.wasm) {
       const wasm = await fs.readFile(join(publish, filePath))
-      chunks.push(`const ${name} = base64Decode(${JSON.stringify(wasm.toString('base64'))}).buffer`)
+      chunks.push(`const ${name} = _base64Decode(${JSON.stringify(wasm.toString('base64'))}).buffer`)
+    }
+  }
+
+  if ('assets' in edgeFunctionDefinition) {
+    chunks.push(`const _ASSETS = {}`)
+    for (const { name, filePath } of edgeFunctionDefinition.assets) {
+      const wasm = await fs.readFile(join(publish, filePath))
+      chunks.push(`_ASSETS[${JSON.stringify(name)}] = ${JSON.stringify(wasm.toString('base64'))}`)
     }
   }
 

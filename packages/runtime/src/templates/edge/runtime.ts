@@ -2,7 +2,7 @@ import type { Context } from 'https://edge.netlify.com'
 // Available at build time
 import matchers from './matchers.json' assert { type: 'json' }
 import nextConfig from '../edge-shared/nextConfig.json' assert { type: 'json' }
-import edgeFunction, { setSiteUrl } from './bundle.js'
+import edgeFunction from './bundle.js'
 import { buildResponse } from '../edge-shared/utils.ts'
 import { getMiddlewareRouteMatcher, MiddlewareRouteMatch, searchParamsToUrlQuery } from '../edge-shared/next-utils.ts'
 
@@ -56,7 +56,6 @@ const handler = async (req: Request, context: Context) => {
   // }
 
   const url = new URL(req.url)
-  setSiteUrl(url.origin)
 
   // While we have already checked the path when mapping to the edge function,
   // Next.js supports extra rules that we need to check here too.
