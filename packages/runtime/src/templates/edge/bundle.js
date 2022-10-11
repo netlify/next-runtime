@@ -5,3 +5,5 @@
  * @returns {Promise<import("./utils.ts").FetchEventResult>}
  */
 export default async ({ request }) => {}
+
+export const setSiteUrl = (url) => {}

@@ -21,6 +21,10 @@ interface EdgeFunctionDefinitionV1 {
   regexp: string
 }
 
+interface AssetRef {
+  name: string
+  filePath: string
+}
 export interface MiddlewareMatcher {
   regexp: string
   locale?: false
@@ -34,6 +38,8 @@ interface EdgeFunctionDefinitionV2 {
   name: string
   page: string
   matchers: MiddlewareMatcher[]
+  wasm?: AssetRef[]
+  assets?: AssetRef[]
 }
 
 type EdgeFunctionDefinition = EdgeFunctionDefinitionV1 | EdgeFunctionDefinitionV2
@@ -71,17 +77,49 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 /**
  * Initialization added to the top of the edge function bundle
  */
-const bootstrap = /* js */ `
-globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-globalThis._ENTRIES ||= {}
-// Deno defines "window", but naughty libraries think this means it's a browser
-delete globalThis.window
+const preamble = /* js */ `
+  import {
+  decode as base64Decode,
+} from "https://deno.land/std@0.159.0/encoding/base64.ts";
+ // Deno defines "window", but naughty libraries think this means it's a browser
+ delete globalThis.window
+ globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
+ // Next uses "self" as a function-scoped global-like object
+ const self = {}
+ let _ENTRIES = {}
+ let resolveSiteUrl
+
+//   The site URL isn't available until we've had a request, so we make a promise which we resolve once we have the URL
+ let SITE_URL = new Promise(resolve => {
+    resolveSiteUrl = resolve
+ })
+ export function setSiteUrl(url) {
+    resolveSiteUrl(url)
+ }
+
+//  Next uses blob: urls to refer to local assets, so we need to intercept these
+ const _fetch = globalThis.fetch
+ const fetch = async (url, init) => {
+    if (typeof url === 'object' && url.href?.startsWith('blob:')) {
+      // There's a race condition on first run, but if we await it then we're ok
+      const siteUrl = await SITE_URL
+      const requestUrl = new URL(url.href.replace('blob:', siteUrl + "/server/edge-chunks/asset_"))
+      return _fetch(requestUrl, init)
+    }
+    return _fetch(url, init)
+ }
+
+
 
 `
 
-/**
- * Concatenates the Next edge function code with the required chunks and adds an export
- */
+const IMPORT_UNSUPPORTED = [
+  `Object.defineProperty(globalThis,"__import_unsupported"`,
+  `    Object.defineProperty(globalThis, "__import_unsupported"`,
+]
+//
+// Concatenates the Next edge function code with the required chunks and adds an export
+//
 const getMiddlewareBundle = async ({
   edgeFunctionDefinition,
   netlifyConfig,
@@ -90,16 +128,25 @@ const getMiddlewareBundle = async ({
   netlifyConfig: NetlifyConfig
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
-  const chunks: Array<string> = [bootstrap]
-  for (const file of edgeFunctionDefinition.files) {
-    const filePath = join(publish, file)
-    const data = await fs.readFile(filePath, 'utf8')
-    chunks.push('{', data, '}')
+  const chunks: Array<string> = [preamble]
+
+  if ('wasm' in edgeFunctionDefinition) {
+    for (const { name, filePath } of edgeFunctionDefinition.wasm) {
+      const wasm = await fs.readFile(join(publish, filePath))
+      chunks.push(`const ${name} = base64Decode(${JSON.stringify(wasm.toString('base64'))}).buffer`)
+    }
   }
 
-  const middleware = await fs.readFile(join(publish, `server`, `${edgeFunctionDefinition.name}.js`), 'utf8')
+  for (const file of edgeFunctionDefinition.files) {
+    const filePath = join(publish, file)
 
-  chunks.push(middleware)
+    let data = await fs.readFile(filePath, 'utf8')
+    data = IMPORT_UNSUPPORTED.reduce(
+      (acc, val) => acc.replace(val, `('__import_unsupported' in globalThis)||${val}`),
+      data,
+    )
+    chunks.push('{', data, '}')
+  }
 
   const exports = /* js */ `export default _ENTRIES["middleware_${edgeFunctionDefinition.name}"].default;`
   chunks.push(exports)

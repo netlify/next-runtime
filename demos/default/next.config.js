@@ -8,6 +8,9 @@ module.exports = {
     defaultLocale: 'en',
     locales: ['en', 'es', 'fr'],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async headers() {
     return [
       {
@@ -75,8 +78,8 @@ module.exports = {
     remotePatterns: [
       {
         hostname: '*.imgur.com',
-      }
-    ]
+      },
+    ],
   },
   // https://nextjs.org/docs/basic-features/built-in-css-support#customizing-sass-options
   sassOptions: {
@@ -84,5 +87,5 @@ module.exports = {
   },
   experimental: {
     optimizeCss: false,
-  }
+  },
 }
