@@ -81,30 +81,29 @@ const preamble = /* js */ `
 import {
   decode as _base64Decode,
 } from "https://deno.land/std@0.159.0/encoding/base64.ts";
- // Deno defines "window", but naughty libraries think this means it's a browser
- delete globalThis.window
- globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
- // Next uses "self" as a function-scoped global-like object
- const self = {}
- let _ENTRIES = {}
+// Deno defines "window", but naughty libraries think this means it's a browser
+delete globalThis.window
+globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
+// Next uses "self" as a function-scoped global-like object
+const self = {}
+let _ENTRIES = {}
 
 //  Next uses blob: urls to refer to local assets, so we need to intercept these
- const _fetch = globalThis.fetch
-  const fetch = async (url, init) => {
-    try {
-      if (typeof url === 'object' && url.href?.startsWith('blob:')) {
-        const key = url.href.slice(5)
-        if (key in _ASSETS) {
-          return new Response(_base64Decode(_ASSETS[key]))
-        }
+const _fetch = globalThis.fetch
+const fetch = async (url, init) => {
+  try {
+    if (typeof url === 'object' && url.href?.startsWith('blob:')) {
+      const key = url.href.slice(5)
+      if (key in _ASSETS) {
+        return new Response(_base64Decode(_ASSETS[key]))
       }
-      console.log('fetch', url)
-      return await _fetch(url, init)
-    } catch (error) {
-      console.error(error)
-      throw error
     }
+    return await _fetch(url, init)
+  } catch (error) {
+    console.error(error)
+    throw error
   }
+}
 
 `
 
