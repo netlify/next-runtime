@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.25.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.3...plugin-nextjs-v4.25.0) (2022-10-12)
+
+
+### Features
+
+* cache redirects for 60 seconds if no ttl provided ([#1677](https://github.com/netlify/next-runtime/issues/1677)) ([23d8d3b](https://github.com/netlify/next-runtime/commit/23d8d3b8fd2267053d83b4e89716ac0c2cd2ca96))
+
 ## [4.24.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.2...plugin-nextjs-v4.24.3) (2022-10-06)
 
 
