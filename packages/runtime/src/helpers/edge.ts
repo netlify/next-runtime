@@ -90,17 +90,21 @@ import {
 
 //  Next uses blob: urls to refer to local assets, so we need to intercept these
  const _fetch = globalThis.fetch
- const fetch = async (url, init) => {
-    if (typeof url === 'object' && url.href?.startsWith('blob:')) {
-      const key = url.href.slice(5)
-      if (key in _ASSETS) {
-        return new Response(_base64Decode(_ASSETS[key]))
+  const fetch = async (url, init) => {
+    try {
+      if (typeof url === 'object' && url.href?.startsWith('blob:')) {
+        const key = url.href.slice(5)
+        if (key in _ASSETS) {
+          return new Response(_base64Decode(_ASSETS[key]))
+        }
       }
+      console.log('fetch', url)
+      return await _fetch(url, init)
+    } catch (error) {
+      console.error(error)
+      throw error
     }
-    return _fetch(url, init)
- }
-
-
+  }
 
 `
 
