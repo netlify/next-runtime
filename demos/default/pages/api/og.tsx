@@ -8,12 +8,6 @@ export const config = {
 export default async function handler(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const username = searchParams.get('username')
-  if (!username) {
-    return new ImageResponse(<>Visit with &quot;?username=netlify&quot;</>, {
-      width: 1200,
-      height: 630,
-    })
-  }
 
   return new ImageResponse(
     (
@@ -34,17 +28,21 @@ export default async function handler(req: NextRequest) {
         <img
           width="256"
           height="256"
-          src={`https://github.com/${username}.png`}
+          src={`https://github.com/${username || 'netlify'}.png`}
           style={{
             borderRadius: 128,
           }}
         />
-        <p>github.com/{username}</p>
+        {username ? <p>github.com/{username}</p> : <p>Visit with &quot;?username=netlify&quot;</p>}
       </div>
     ),
     {
       width: 1200,
       height: 630,
+      headers: {
+        // By default this has an immutable cache, but this is for testing
+        'Cache-Control': 'public, max-age=0, must-revalidate',
+      },
     },
   )
 }
