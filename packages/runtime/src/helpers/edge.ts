@@ -74,7 +74,7 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 const preamble = /* js */ `
 
 globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-const _ENTRIES = {}
+let _ENTRIES = {}
 // Deno defines "window", but naughty libraries think this means it's a browser
 delete globalThis.window
 // Next uses "self" as a function-scoped global-like object
