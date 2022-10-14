@@ -21,8 +21,9 @@
     "@reach/dialog": "^0.16.2",
     "@reach/visually-hidden": "^0.16.0",
     "next": "^12.3.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
+    "@material-ui/core": "latest"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "*",
