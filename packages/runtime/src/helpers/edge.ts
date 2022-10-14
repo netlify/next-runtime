@@ -71,14 +71,21 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 /**
  * Initialization added to the top of the edge function bundle
  */
-const bootstrap = /* js */ `
+const preamble = /* js */ `
+
 globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-globalThis._ENTRIES ||= {}
+const _ENTRIES = {}
 // Deno defines "window", but naughty libraries think this means it's a browser
 delete globalThis.window
-
+// Next uses "self" as a function-scoped global-like object
+const self = {}
 `
 
+// Slightly different spacing in different versions!
+const IMPORT_UNSUPPORTED = [
+  `Object.defineProperty(globalThis,"__import_unsupported"`,
+  `    Object.defineProperty(globalThis, "__import_unsupported"`,
+]
 /**
  * Concatenates the Next edge function code with the required chunks and adds an export
  */
@@ -90,16 +97,19 @@ const getMiddlewareBundle = async ({
   netlifyConfig: NetlifyConfig
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
-  const chunks: Array<string> = [bootstrap]
+  const chunks: Array<string> = [preamble]
   for (const file of edgeFunctionDefinition.files) {
     const filePath = join(publish, file)
-    const data = await fs.readFile(filePath, 'utf8')
+
+    let data = await fs.readFile(filePath, 'utf8')
+    // Next defines an immutable global variable, which is fine unless you have more than one in the bundle
+    // This adds a check to see if the global is already defined
+    data = IMPORT_UNSUPPORTED.reduce(
+      (acc, val) => acc.replace(val, `('__import_unsupported' in globalThis)||${val}`),
+      data,
+    )
     chunks.push('{', data, '}')
   }
-
-  const middleware = await fs.readFile(join(publish, `server`, `${edgeFunctionDefinition.name}.js`), 'utf8')
-
-  chunks.push(middleware)
 
   const exports = /* js */ `export default _ENTRIES["middleware_${edgeFunctionDefinition.name}"].default;`
   chunks.push(exports)
