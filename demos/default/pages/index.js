@@ -247,4 +247,8 @@ Index.getInitialProps = async function () {
   return { shows: data.slice(0, 5), nodeEnv: process.env.NODE_ENV || null }
 }
 
+export async function getServerSideProps(context) {
+  console.log("I'm here!")
+}
+
 export default Index
