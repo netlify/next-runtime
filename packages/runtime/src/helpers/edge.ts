@@ -178,6 +178,7 @@ const writeEdgeFunction = async ({
 }): Promise<
   Array<{
     function: string
+    name: string
     pattern: string
   }>
 > => {
@@ -211,7 +212,7 @@ const writeEdgeFunction = async ({
   // We add a defintion for each matching path
   return matchers.map((matcher) => {
     const pattern = matcher.regexp
-    return { function: name, pattern }
+    return { function: name, pattern, name: edgeFunctionDefinition.name }
   })
 }
 export const cleanupEdgeFunctions = ({
@@ -225,6 +226,7 @@ export const writeDevEdgeFunction = async ({
     functions: [
       {
         function: 'next-dev',
+        name: 'netlify dev handler',
         path: '/*',
       },
     ],
@@ -275,6 +277,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
     )
     manifest.functions.push({
       function: 'ipx',
+      name: 'next/image handler',
       path: '/_next/image*',
     })
   }
