@@ -32,10 +32,10 @@ const Show = ({ errorCode, show }) => {
   )
 }
 
-Show.getInitialProps = async ({ res: req, query }) => {
-  console.log('RUNNING GET INITIAL PROPS IN PAGE')
+export const getServerSideProps = async ({ params }) => {
+  console.log('RUNNING GET SERVER SIDE PROPS IN PAGE')
   // Get the ID to render
-  const { id } = query
+  const { id } = params
 
   // Get the data
   const res = await fetch(`https://api.tvmaze.com/shows/${id}`)
@@ -44,7 +44,7 @@ Show.getInitialProps = async ({ res: req, query }) => {
   // Set error code if show item could not be found
   const errorCode = res.status > 200 ? res.status : false
 
-  return { errorCode, show: data }
+  return { props: {errorCode, show: data} }
 }
 
 export default Show

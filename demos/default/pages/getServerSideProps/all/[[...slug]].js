@@ -33,7 +33,6 @@ const Show = ({ errorCode, show }) => {
 }
 
 export const getServerSideProps = async ({ params }) => {
-  console.log('RUNNING GET SERVER SIDE PROPS IN PAGE')
   // The ID to render
   const { slug } = params
 
