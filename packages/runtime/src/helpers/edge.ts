@@ -77,14 +77,16 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
  * Initialization added to the top of the edge function bundle
  */
 const preamble = /* js */ `
-  // Deno defines "window", but naughty libraries think this means it's a browser
-  delete globalThis.window
-  globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-  // Next uses "self" as a function-scoped global-like object
-  const self = {}
-  let _ENTRIES = {}
+
+globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
+let _ENTRIES = {}
+// Deno defines "window", but naughty libraries think this means it's a browser
+delete globalThis.window
+// Next uses "self" as a function-scoped global-like object
+const self = {}
 `
 
+// Slightly different spacing in different versions!
 const IMPORT_UNSUPPORTED = [
   `Object.defineProperty(globalThis,"__import_unsupported"`,
   `    Object.defineProperty(globalThis, "__import_unsupported"`,
@@ -105,6 +107,8 @@ const getMiddlewareBundle = async ({
     const filePath = join(publish, file)
 
     let data = await fs.readFile(filePath, 'utf8')
+    // Next defines an immutable global variable, which is fine unless you have more than one in the bundle
+    // This adds a check to see if the global is already defined
     data = IMPORT_UNSUPPORTED.reduce(
       (acc, val) => acc.replace(val, `('__import_unsupported' in globalThis)||${val}`),
       data,
@@ -144,6 +148,7 @@ const writeEdgeFunction = async ({
 }): Promise<
   Array<{
     function: string
+    name: string
     pattern: string
   }>
 > => {
@@ -187,7 +192,7 @@ const writeEdgeFunction = async ({
   // We add a defintion for each matching path
   return matchers.map((matcher) => {
     const pattern = matcher.regexp
-    return { function: name, pattern }
+    return { function: name, pattern, name: edgeFunctionDefinition.name }
   })
 }
 export const cleanupEdgeFunctions = ({
@@ -201,6 +206,7 @@ export const writeDevEdgeFunction = async ({
     functions: [
       {
         function: 'next-dev',
+        name: 'netlify dev handler',
         path: '/*',
       },
     ],
@@ -257,6 +263,7 @@ export const writeEdgeFunctions = async ({
     )
     manifest.functions.push({
       function: 'ipx',
+      name: 'next/image handler',
       path: '/_next/image*',
     })
   }

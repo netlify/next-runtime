@@ -1,5 +1,25 @@
 # Changelog
 
+## [4.26.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.25.0...plugin-nextjs-v4.26.0) (2022-10-17)
+
+
+### Features
+
+* use display names for edge functions ([#1669](https://github.com/netlify/next-runtime/issues/1669)) ([310292a](https://github.com/netlify/next-runtime/commit/310292a00e2f4b8c8795a2f2093b6069dd3c78b2))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.3.1 ([#1686](https://github.com/netlify/next-runtime/issues/1686)) ([2b419a0](https://github.com/netlify/next-runtime/commit/2b419a0573cdaf59c90cd32074ee508c5185b7d5))
+* prevent Next from defining duplicate global property in edge functions ([#1682](https://github.com/netlify/next-runtime/issues/1682)) ([730df6b](https://github.com/netlify/next-runtime/commit/730df6bbfa8c697e79e1564fbeb5a53147f69505))
+
+## [4.25.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.3...plugin-nextjs-v4.25.0) (2022-10-12)
+
+
+### Features
+
+* cache redirects for 60 seconds if no ttl provided ([#1677](https://github.com/netlify/next-runtime/issues/1677)) ([23d8d3b](https://github.com/netlify/next-runtime/commit/23d8d3b8fd2267053d83b4e89716ac0c2cd2ca96))
+
 ## [4.24.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.24.2...plugin-nextjs-v4.24.3) (2022-10-06)
 
 
