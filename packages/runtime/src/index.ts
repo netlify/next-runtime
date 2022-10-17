@@ -19,7 +19,13 @@ import {
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
-import { generateFunctions, setupImageFunction, generatePagesResolver } from './helpers/functions'
+import {
+  generateFunctions,
+  setupImageFunction,
+  generatePagesResolver,
+  getApiRouteConfigs,
+  warnOnApiRoutes,
+} from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
 import {
@@ -142,13 +148,14 @@ const plugin: NetlifyPlugin = {
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
     await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
+    const apiRoutes = await getApiRouteConfigs(publish, appDir)
 
-    await generateFunctions(constants, appDir)
+    await generateFunctions(constants, appDir, apiRoutes)
     await generatePagesResolver({ target, constants })
 
     await movePublicFiles({ appDir, outdir, publish })
 
-    await patchNextFiles(basePath)
+    await patchNextFiles(appDir)
 
     if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
       await moveStaticPages({ target, netlifyConfig, i18n, basePath })
@@ -172,6 +179,7 @@ const plugin: NetlifyPlugin = {
       netlifyConfig,
       nextConfig: { basePath, i18n, trailingSlash, appDir },
       buildId,
+      apiRoutes,
     })
 
     await writeEdgeFunctions(netlifyConfig)
@@ -215,6 +223,7 @@ const plugin: NetlifyPlugin = {
 
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
+    await warnOnApiRoutes({ FUNCTIONS_DIST })
   },
 }
 // The types haven't been updated yet

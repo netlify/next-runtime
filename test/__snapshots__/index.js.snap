@@ -10,6 +10,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/enterPreview.js')
         require.resolve('../../../.next/server/pages/api/exitPreview.js')
         require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../.next/server/pages/api/hello.js')
         require.resolve('../../../.next/server/pages/api/og.js')
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
@@ -47,6 +48,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/enterPreview.js')
         require.resolve('../../../.next/server/pages/api/exitPreview.js')
         require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../.next/server/pages/api/hello.js')
         require.resolve('../../../.next/server/pages/api/og.js')
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
@@ -84,6 +86,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/enterPreview.js')
         require.resolve('../../../web/.next/server/pages/api/exitPreview.js')
         require.resolve('../../../web/.next/server/pages/api/hello-background.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../web/.next/server/pages/api/hello.js')
         require.resolve('../../../web/.next/server/pages/api/og.js')
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
@@ -121,6 +124,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/enterPreview.js')
         require.resolve('../../../web/.next/server/pages/api/exitPreview.js')
         require.resolve('../../../web/.next/server/pages/api/hello-background.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../web/.next/server/pages/api/hello.js')
         require.resolve('../../../web/.next/server/pages/api/og.js')
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
@@ -1087,14 +1091,44 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/api",
+    "from": "/api/*",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/api/*",
+    "from": "/api/enterPreview",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/functions/_api_enterPreview-handler",
+  },
+  Object {
+    "from": "/api/exitPreview",
+    "status": 200,
+    "to": "/.netlify/functions/_api_exitPreview-handler",
+  },
+  Object {
+    "from": "/api/hello",
+    "status": 200,
+    "to": "/.netlify/functions/_api_hello-handler",
+  },
+  Object {
+    "from": "/api/hello-background",
+    "status": 200,
+    "to": "/.netlify/functions/_api_hello-background-background",
+  },
+  Object {
+    "from": "/api/hello-scheduled",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "from": "/api/shows/:id",
+    "status": 200,
+    "to": "/.netlify/functions/_api_shows_id-PARAM-handler",
+  },
+  Object {
+    "from": "/api/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/_api_shows_params-SPLAT-handler",
   },
   Object {
     "force": false,
