@@ -43,3 +43,11 @@ describe('Middleware matchers', () => {
     })
   })
 })
+
+describe('Middleware with edge API', () => {
+  it('serves API routes from the edge runtime', () => {
+    cy.request('/api/edge').then((response) => {
+      expect(response.body).to.include('Hello world')
+    })
+  })
+})

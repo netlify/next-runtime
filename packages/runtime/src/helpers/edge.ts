@@ -107,13 +107,14 @@ const fetch = async (url, init) => {
 
 `
 
+// Slightly different spacing in different versions!
 const IMPORT_UNSUPPORTED = [
   `Object.defineProperty(globalThis,"__import_unsupported"`,
   `    Object.defineProperty(globalThis, "__import_unsupported"`,
 ]
-//
-// Concatenates the Next edge function code with the required chunks and adds an export
-//
+/**
+ * Concatenates the Next edge function code with the required chunks and adds an export
+ */
 const getMiddlewareBundle = async ({
   edgeFunctionDefinition,
   netlifyConfig,
@@ -143,6 +144,8 @@ const getMiddlewareBundle = async ({
     const filePath = join(publish, file)
 
     let data = await fs.readFile(filePath, 'utf8')
+    // Next defines an immutable global variable, which is fine unless you have more than one in the bundle
+    // This adds a check to see if the global is already defined
     data = IMPORT_UNSUPPORTED.reduce(
       (acc, val) => acc.replace(val, `('__import_unsupported' in globalThis)||${val}`),
       data,
