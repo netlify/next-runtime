@@ -33,6 +33,7 @@ const Show = ({ errorCode, show, env }) => {
 }
 
 export const getServerSideProps = async ({ params }) => {
+  console.log('RUNNING GET SERVER SIDE PROPS')
   // The ID to render
   const { id } = params
 
