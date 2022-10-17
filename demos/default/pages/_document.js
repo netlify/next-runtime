@@ -4,7 +4,7 @@ import React from 'react'
 
 class MyDocument extends Document {
   static async getInitialProps(ctx) {
-    console.log('RUNNING GET INITIAL PROPS')
+    console.log('RUNNING GET INITIAL PROPS IN DOCUMENT')
     const sheets = new ServerStyleSheets();
     const originalRenderPage = ctx.renderPage;
   

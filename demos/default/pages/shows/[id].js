@@ -33,6 +33,7 @@ const Show = ({ errorCode, show }) => {
 }
 
 Show.getInitialProps = async ({ res: req, query }) => {
+  console.log('RUNNING GET INITIAL PROPS IN PAGE')
   // Get the ID to render
   const { id } = query
 
