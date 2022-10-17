@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs, { existsSync } from 'fs'
 
 import { extractExportedConstValue, UnsupportedValueError } from 'next/dist/build/analysis/extract-const-value'
 import { parseModule } from 'next/dist/build/analysis/parse-module'
@@ -85,6 +85,9 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
  * Uses Next's swc static analysis to extract the config values from a file.
  */
 export const extractConfigFromFile = async (apiFilePath: string): Promise<ApiConfig> => {
+  if (!apiFilePath || !existsSync(apiFilePath)) {
+    return {}
+  }
   const fileContent = await fs.promises.readFile(apiFilePath, 'utf8')
   // No need to parse if there's no "config"
   if (!fileContent.includes('config')) {

@@ -18,6 +18,7 @@ import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
 
 const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
+const SOURCE_FILE_EXTENSIONS = ['js', 'jsx', 'ts', 'tsx']
 
 export const isDynamicRoute = (route) => TEST_ROUTE.test(route)
 
@@ -337,12 +338,13 @@ const getServerFile = (root: string, includeBase = true) => {
  * Find the source file for a given page route
  */
 export const getSourceFileForPage = (page: string, root: string) => {
-  for (const extension of ['ts', 'js']) {
+  for (const extension of SOURCE_FILE_EXTENSIONS) {
     const file = join(root, `${page}.${extension}`)
     if (existsSync(file)) {
       return file
     }
   }
+  console.log('Could not find source file for page', page)
 }
 
 /**
