@@ -2,16 +2,12 @@
 command = "next build"
 publish = ".next"
 
-[dev]
-framework = "#static"
-
 [[plugins]]
-package = "../plugin-wrapper/"
+package = "@netlify/plugin-nextjs"
 
 # This is a fake plugin, that makes it run npm install
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
 
-[[edge_functions]]
-path = "/"
-function = "helloOnTheEdge"
+[[plugins]]
+package = "../plugin-wrapper"
