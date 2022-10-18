@@ -18,7 +18,7 @@ describe('Enhanced middleware', () => {
   })
 
   it('modifies the page props', () => {
-    cy.request('/_next/data/build-id/static.json').then((response) => {
+    cy.request('/_next/data/build-id/en/static.json').then((response) => {
       expect(response.body).to.have.nested.property('pageProps.showAd', true)
       expect(response.body)
         .to.have.nested.property('pageProps.message')
