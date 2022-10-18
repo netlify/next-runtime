@@ -1,5 +1,3 @@
-<!--Please tag yourself as the Assignee and netlify/frameworks as the Reviewer -->
-
 ### Summary
 
 <!-- Provide a brief summary of the change. -->
