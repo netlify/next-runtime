@@ -1121,6 +1121,11 @@ Array [
     "to": "/404.html",
   },
   Object {
+    "from": "/api/og",
+    "status": 200,
+    "to": "/.netlify/functions/_api_og-handler",
+  },
+  Object {
     "from": "/api/shows/:id",
     "status": 200,
     "to": "/.netlify/functions/_api_shows_id-PARAM-handler",

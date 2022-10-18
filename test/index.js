@@ -1594,6 +1594,13 @@ describe('api route file analysis', () => {
           config: { schedule: '@hourly', type: 'experimental-scheduled' },
           route: '/api/hello-scheduled',
         },
+        {
+          compiled: 'pages/api/og.js',
+          config: {
+            runtime: 'experimental-edge',
+          },
+          route: '/api/og',
+        },
       ]),
     )
   })
