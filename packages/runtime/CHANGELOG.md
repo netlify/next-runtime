@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.27.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.0...plugin-nextjs-v4.27.1) (2022-10-18)
+
+
+### Bug Fixes
+
+* gracefully handle missing static analysis tools ([#1691](https://github.com/netlify/next-runtime/issues/1691)) ([34a039e](https://github.com/netlify/next-runtime/commit/34a039ec80a7c7f050fb5f2dab6f4b8ffddda38a))
+
+## [4.27.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.26.0...plugin-nextjs-v4.27.0) (2022-10-17)
+
+
+### Features
+
+* split api routes into separate functions ([#1495](https://github.com/netlify/next-runtime/issues/1495)) ([654c6de](https://github.com/netlify/next-runtime/commit/654c6defa99d33de5178409d43827b57a29821d8))
+
 ## [4.26.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.25.0...plugin-nextjs-v4.26.0) (2022-10-17)
 
 
