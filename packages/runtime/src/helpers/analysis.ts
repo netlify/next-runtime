@@ -1,7 +1,5 @@
 import fs, { existsSync } from 'fs'
 
-import { extractExportedConstValue, UnsupportedValueError } from 'next/dist/build/analysis/extract-const-value'
-import { parseModule } from 'next/dist/build/analysis/parse-module'
 import { relative } from 'pathe'
 
 // I have no idea what eslint is up to here but it gives an error
@@ -81,6 +79,9 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
   return false
 }
 
+let extractConstValue
+let parseModule
+let hasWarnedAboutNextVersion = false
 /**
  * Uses Next's swc static analysis to extract the config values from a file.
  */
@@ -88,6 +89,29 @@ export const extractConfigFromFile = async (apiFilePath: string): Promise<ApiCon
   if (!apiFilePath || !existsSync(apiFilePath)) {
     return {}
   }
+
+  try {
+    if (!extractConstValue) {
+      extractConstValue = require('next/dist/build/analysis/extract-const-value')
+    }
+    if (!parseModule) {
+      // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-var-requires
+      parseModule = require('next/dist/build/analysis/parse-module').parseModule
+    }
+  } catch (error) {
+    if (error.code === 'MODULE_NOT_FOUND') {
+      if (!hasWarnedAboutNextVersion) {
+        console.log("This version of Next.js doesn't support advanced API routes. Skipping...")
+        hasWarnedAboutNextVersion = true
+      }
+      // Old Next.js version
+      return {}
+    }
+    throw error
+  }
+
+  const { extractExportedConstValue, UnsupportedValueError } = extractConstValue
+
   const fileContent = await fs.promises.readFile(apiFilePath, 'utf8')
   // No need to parse if there's no "config"
   if (!fileContent.includes('config')) {
@@ -99,7 +123,7 @@ export const extractConfigFromFile = async (apiFilePath: string): Promise<ApiCon
   try {
     config = extractExportedConstValue(ast, 'config')
   } catch (error) {
-    if (error instanceof UnsupportedValueError) {
+    if (UnsupportedValueError && error instanceof UnsupportedValueError) {
       console.warn(`Unsupported config value in ${relative(process.cwd(), apiFilePath)}`)
     }
     return {}
