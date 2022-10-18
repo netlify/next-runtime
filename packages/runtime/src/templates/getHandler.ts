@@ -112,9 +112,9 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
 
     const { headers, ...result } = await getBridge(event).launcher(event, context)
 
-    if (headers[NF_LOGGING_HEADER] === '1') {
-      console.log('await getBridge(event).launcher(event, context)', { event, context, headers, result })
-    }
+    // if (true || headers[NF_LOGGING_HEADER] === '1') {
+    console.log('await getBridge(event).launcher(event, context)', { event, context, headers, result })
+    // }
 
     // Convert all headers to multiValueHeaders
 
