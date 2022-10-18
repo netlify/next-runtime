@@ -41,6 +41,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   } catch {}
 
   const ONE_YEAR_IN_SECONDS = 31536000
+  const NF_LOGGING_HEADER = 'x-nf-debug-logging'
 
   // React assumes you want development mode if NODE_ENV is unset.
   ;(process.env as Mutable<NodeJS.ProcessEnv>).NODE_ENV ||= 'production'
@@ -110,6 +111,10 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     }
 
     const { headers, ...result } = await getBridge(event).launcher(event, context)
+
+    if (headers[NF_LOGGING_HEADER] === '1') {
+      console.log('await getBridge(event).launcher(event, context)', { event, context, headers, result })
+    }
 
     // Convert all headers to multiValueHeaders
 
