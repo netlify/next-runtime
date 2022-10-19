@@ -10,12 +10,9 @@ targetPort = 4200
 [[plugins]]
 package = "../plugin-wrapper"
 
-[build.environment]
-# cache Cypress binary in local "node_modules" folder
-# so Netlify caches it
-CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
-# set TERM variable for terminal output
-TERM = "xterm"
+[[plugins]]
+package = "@netlify/plugin-nextjs"
 
+# This is a fake plugin, that makes it run npm install
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
