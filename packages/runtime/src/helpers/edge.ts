@@ -171,6 +171,7 @@ const writeEdgeFunction = async ({
   } else if (nextConfig.i18n) {
     matchers.push(
       ...edgeFunctionDefinition.matchers.map((matcher) => ({
+        ...matcher,
         regexp: makeLocaleOptional(matcher.regexp),
       })),
     )
