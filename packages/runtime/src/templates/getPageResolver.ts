@@ -3,10 +3,11 @@ import { dirname, join, resolve } from 'path'
 import { readJSON } from 'fs-extra'
 import globby from 'globby'
 import { outdent } from 'outdent'
-import { relative } from 'pathe'
+import { relative, resolve as resolvePosix } from 'pathe'
 import slash from 'slash'
 
 import { HANDLER_FUNCTION_NAME } from '../constants'
+import { getDependenciesOfFile } from '../helpers/files'
 
 // Generate a file full of require.resolve() calls for all the pages in the
 // build. This is used by the nft bundler to find all the pages.
@@ -38,5 +39,32 @@ export const getPageResolver = async ({ publish, target }: { publish: string; ta
             ${pageFiles.join('\n        ')}
         } catch {}
     }
+  `
+}
+
+/**
+ * API routes only need the dependencies for a single entrypoint, so we use the
+ * NFT trace file to get the dependencies.
+ */
+export const getSinglePageResolver = async ({
+  functionsDir,
+  sourceFile,
+}: {
+  functionsDir: string
+  sourceFile: string
+}) => {
+  const dependencies = await getDependenciesOfFile(sourceFile)
+  // We don't need the actual name, just the relative path.
+  const functionDir = resolvePosix(functionsDir, 'functionName')
+
+  const pageFiles = [sourceFile, ...dependencies]
+    .map((file) => `require.resolve('${relative(functionDir, file)}')`)
+    .sort()
+
+  return outdent/* javascript */ `
+    // This file is purely to allow nft to know about these pages. 
+      try {
+          ${pageFiles.join('\n        ')}
+      } catch {}
   `
 }

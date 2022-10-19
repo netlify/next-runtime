@@ -1,30 +1,69 @@
+/* eslint-disable max-lines */
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
+import chalk from 'chalk'
 import destr from 'destr'
-import { copyFile, ensureDir, writeFile, writeJSON } from 'fs-extra'
+import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON } from 'fs-extra'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
+import { outdent } from 'outdent'
 import { join, relative, resolve } from 'pathe'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
+import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
-import { getPageResolver } from '../templates/getPageResolver'
+import { getPageResolver, getSinglePageResolver } from '../templates/getPageResolver'
+
+import { ApiConfig, ApiRouteType, extractConfigFromFile } from './analysis'
+import { getSourceFileForPage } from './files'
+import { getFunctionNameForPage } from './utils'
+
+export interface ApiRouteConfig {
+  route: string
+  config: ApiConfig
+  compiled: string
+}
 
 export const generateFunctions = async (
   { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
   appDir: string,
+  apiRoutes: Array<ApiRouteConfig>,
 ): Promise<void> => {
-  const functionsDir = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
-  const functionDir = join(process.cwd(), functionsDir, HANDLER_FUNCTION_NAME)
-  const publishDir = relative(functionDir, resolve(PUBLISH_DIR))
+  const publish = resolve(PUBLISH_DIR)
+  const functionsDir = resolve(INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC)
+  console.log({ functionsDir })
+  const functionDir = join(functionsDir, HANDLER_FUNCTION_NAME)
+  const publishDir = relative(functionDir, publish)
 
-  const writeHandler = async (func: string, isODB: boolean) => {
-    const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
-    await ensureDir(join(functionsDir, func))
-    await writeFile(join(functionsDir, func, `${func}.js`), handlerSource)
-    await copyFile(bridgeFile, join(functionsDir, func, 'bridge.js'))
+  for (const { route, config, compiled } of apiRoutes) {
+    const apiHandlerSource = await getApiHandler({
+      page: route,
+      config,
+      publishDir,
+      appDir: relative(functionDir, appDir),
+    })
+    const functionName = getFunctionNameForPage(route, config.type === ApiRouteType.BACKGROUND)
+    await ensureDir(join(functionsDir, functionName))
+    await writeFile(join(functionsDir, functionName, `${functionName}.js`), apiHandlerSource)
+    await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
     await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
-      join(functionsDir, func, 'handlerUtils.js'),
+      join(functionsDir, functionName, 'handlerUtils.js'),
+    )
+    const resolverSource = await getSinglePageResolver({
+      functionsDir,
+      sourceFile: join(publish, 'server', compiled),
+    })
+    await writeFile(join(functionsDir, functionName, 'pages.js'), resolverSource)
+  }
+
+  const writeHandler = async (functionName: string, isODB: boolean) => {
+    const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
+    await ensureDir(join(functionsDir, functionName))
+    await writeFile(join(functionsDir, functionName, `${functionName}.js`), handlerSource)
+    await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
+      join(functionsDir, functionName, 'handlerUtils.js'),
     )
   }
 
@@ -124,3 +163,58 @@ export const setupImageFunction = async ({
     })
   }
 }
+
+/**
+ * Look for API routes, and extract the config from the source file.
+ */
+export const getApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
+  const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
+  const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
+  const pagesDir = join(baseDir, 'pages')
+  return Promise.all(
+    apiRoutes.map(async (apiRoute) => {
+      const filePath = getSourceFileForPage(apiRoute, pagesDir)
+      return { route: apiRoute, config: await extractConfigFromFile(filePath), compiled: pages[apiRoute] }
+    }),
+  )
+}
+
+interface FunctionsManifest {
+  functions: Array<{ name: string; schedule?: string }>
+}
+
+/**
+ * Warn the user of the caveats if they're using background or scheduled API routes
+ */
+
+export const warnOnApiRoutes = async ({
+  FUNCTIONS_DIST,
+}: Pick<NetlifyPluginConstants, 'FUNCTIONS_DIST'>): Promise<void> => {
+  const functionsManifestPath = join(FUNCTIONS_DIST, 'manifest.json')
+  if (!existsSync(functionsManifestPath)) {
+    return
+  }
+
+  const { functions }: FunctionsManifest = await readJSON(functionsManifestPath)
+
+  if (functions.some((func) => func.name.endsWith('-background'))) {
+    console.warn(
+      outdent`
+        ${chalk.yellowBright`Using background API routes`}
+        If your account type does not support background functions, the deploy will fail.
+        During local development, background API routes will run as regular API routes, but in production they will immediately return an empty "202 Accepted" response.
+      `,
+    )
+  }
+
+  if (functions.some((func) => func.schedule)) {
+    console.warn(
+      outdent`
+        ${chalk.yellowBright`Using scheduled API routes`} 
+        These are run on a schedule when deployed to production.
+        You can test them locally by loading them in your browser but this will not be available when deployed, and any returned value is ignored.
+      `,
+    )
+  }
+}
+/* eslint-enable max-lines */

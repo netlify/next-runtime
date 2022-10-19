@@ -5,7 +5,7 @@ import { resolve, join } from 'path'
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { greenBright } from 'chalk'
 import destr from 'destr'
-import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
+import { copy, copyFile, emptyDir, ensureDir, readJson, writeJSON, writeJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
@@ -321,9 +321,4 @@ export const writeEdgeFunctions = async ({
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
 
-export const enableEdgeInNextConfig = async (publish: string) => {
-  const configFile = join(publish, 'required-server-files.json')
-  const config = await readJSON(configFile)
-  await writeJSON(configFile, config)
-}
 /* eslint-enable max-lines */

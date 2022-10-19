@@ -8,7 +8,7 @@ import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
 import pLimit from 'p-limit'
-import { join } from 'pathe'
+import { join, resolve } from 'pathe'
 import slash from 'slash'
 
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
@@ -18,6 +18,7 @@ import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
 
 const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
+const SOURCE_FILE_EXTENSIONS = ['js', 'jsx', 'ts', 'tsx']
 
 export const isDynamicRoute = (route) => TEST_ROUTE.test(route)
 
@@ -331,6 +332,31 @@ const getServerFile = (root: string, includeBase = true) => {
   }
 
   return findModuleFromBase({ candidates, paths: [root] })
+}
+
+/**
+ * Find the source file for a given page route
+ */
+export const getSourceFileForPage = (page: string, root: string) => {
+  for (const extension of SOURCE_FILE_EXTENSIONS) {
+    const file = join(root, `${page}.${extension}`)
+    if (existsSync(file)) {
+      return file
+    }
+  }
+  console.log('Could not find source file for page', page)
+}
+
+/**
+ * Reads the node file trace file for a given file, and resolves the dependencies
+ */
+export const getDependenciesOfFile = async (file: string) => {
+  const nft = `${file}.nft.json`
+  if (!existsSync(nft)) {
+    return []
+  }
+  const dependencies = await readJson(nft, 'utf8')
+  return dependencies.files.map((dep) => resolve(file, dep))
 }
 
 const baseServerReplacements: Array<[string, string]> = [
