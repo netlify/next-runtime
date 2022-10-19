@@ -8,6 +8,9 @@ TERM = "xterm"
 NODE_VERSION = "17"
 
 [[plugins]]
+package = "@netlify/plugin-nextjs"
+
+[[plugins]]
 package = "../plugin-wrapper/"
 
 # This is a fake plugin, that makes it run npm install
