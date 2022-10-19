@@ -7,6 +7,10 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   generateBuildId: () => 'build-id',
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en'],
+  },
 }
 
 module.exports = nextConfig
