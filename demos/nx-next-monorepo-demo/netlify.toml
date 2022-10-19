@@ -8,11 +8,11 @@ command = "npm run start"
 targetPort = 4200
 
 [[plugins]]
+package = "../plugin-wrapper"
+
+[[plugins]]
 package = "@netlify/plugin-nextjs"
 
 # This is a fake plugin, that makes it run npm install
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
-
-[[plugins]]
-package = "../plugin-wrapper"

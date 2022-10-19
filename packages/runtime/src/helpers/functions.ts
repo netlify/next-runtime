@@ -38,6 +38,8 @@ export const generateFunctions = async (
     const apiHandlerSource = await getApiHandler({
       page: route,
       config,
+      publishDir,
+      appDir: relative(functionDir, appDir),
     })
     const functionName = getFunctionNameForPage(route, config.type === ApiRouteType.BACKGROUND)
     await ensureDir(join(functionsDir, functionName))
