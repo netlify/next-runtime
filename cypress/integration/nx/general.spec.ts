@@ -16,4 +16,11 @@ describe('Default site', () => {
       expect(res.headers['content-type']).to.match(/javascript/)
     })
   })
+
+  it('serves API routes', () => {
+    cy.request('/api/hello').then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body).to.deep.eq({ body: 'Hello world' })
+    })
+  })
 })
