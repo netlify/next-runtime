@@ -221,39 +221,33 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
-  if (
-    !destr(process.env.NEXT_DISABLE_EDGE_IMAGES) &&
-    !destr(process.env.NEXT_DISABLE_NETLIFY_EDGE) &&
-    !destr(process.env.DISABLE_IPX)
-  ) {
-    console.log(
-      'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
-    )
-    const edgeFunctionDir = join(edgeFunctionRoot, 'ipx')
-    await ensureDir(edgeFunctionDir)
-    await copyEdgeSourceFile({ edgeFunctionDir, file: 'ipx.ts', target: 'index.ts' })
-    await copyFile(
-      join('.netlify', 'functions-internal', '_ipx', 'imageconfig.json'),
-      join(edgeFunctionDir, 'imageconfig.json'),
-    )
-    manifest.functions.push({
-      function: 'ipx',
-      name: 'next/image handler',
-      path: '/_next/image*',
-    })
+  if (destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
+    return
   }
-  if (!destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
-    const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
-    if (!middlewareManifest) {
-      console.error("Couldn't find the middleware manifest")
-      return
-    }
 
-    let usesEdge = false
+  const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
+  if (!middlewareManifest) {
+    console.error("Couldn't find the middleware manifest")
+    return
+  }
 
-    for (const middleware of middlewareManifest.sortedMiddleware) {
+  let usesEdge = false
+
+  for (const middleware of middlewareManifest.sortedMiddleware) {
+    usesEdge = true
+    const edgeFunctionDefinition = middlewareManifest.middleware[middleware]
+    const functionDefinitions = await writeEdgeFunction({
+      edgeFunctionDefinition,
+      edgeFunctionRoot,
+      netlifyConfig,
+    })
+    manifest.functions.push(...functionDefinitions)
+  }
+  // Older versions of the manifest format don't have the functions field
+  // No, the version field was not incremented
+  if (typeof middlewareManifest.functions === 'object') {
+    for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
       usesEdge = true
-      const edgeFunctionDefinition = middlewareManifest.middleware[middleware]
       const functionDefinitions = await writeEdgeFunction({
         edgeFunctionDefinition,
         edgeFunctionRoot,
@@ -261,26 +255,33 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
       })
       manifest.functions.push(...functionDefinitions)
     }
-    // Older versions of the manifest format don't have the functions field
-    // No, the version field was not incremented
-    if (typeof middlewareManifest.functions === 'object') {
-      for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
-        usesEdge = true
-        const functionDefinitions = await writeEdgeFunction({
-          edgeFunctionDefinition,
-          edgeFunctionRoot,
-          netlifyConfig,
-        })
-        manifest.functions.push(...functionDefinitions)
-      }
-    }
-    if (usesEdge) {
-      console.log(outdent`
-        ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
-        This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
-      `)
-    }
   }
+
+  if (usesEdge || destr(process.env.NEXT_FORCE_EDGE_IMAGES)) {
+    if (!destr(process.env.NEXT_DISABLE_EDGE_IMAGES) && !destr(process.env.DISABLE_IPX)) {
+      console.log(
+        'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
+      )
+      const edgeFunctionDir = join(edgeFunctionRoot, 'ipx')
+      await ensureDir(edgeFunctionDir)
+      await copyEdgeSourceFile({ edgeFunctionDir, file: 'ipx.ts', target: 'index.ts' })
+      await copyFile(
+        join('.netlify', 'functions-internal', '_ipx', 'imageconfig.json'),
+        join(edgeFunctionDir, 'imageconfig.json'),
+      )
+      manifest.functions.push({
+        function: 'ipx',
+        name: 'next/image handler',
+        path: '/_next/image*',
+      })
+    }
+
+    console.log(outdent`
+      ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
+      This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
+    `)
+  }
+
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
 
