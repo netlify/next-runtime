@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.27.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.1...plugin-nextjs-v4.27.2) (2022-10-19)
+
+
+### Bug Fixes
+
+* handle custom publish dir for api routes ([#1697](https://github.com/netlify/next-runtime/issues/1697)) ([c24a520](https://github.com/netlify/next-runtime/commit/c24a520b4ad134ba9817e0531e64ed09a3921892))
+
 ## [4.27.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.0...plugin-nextjs-v4.27.1) (2022-10-18)
 
 
