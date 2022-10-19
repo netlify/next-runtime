@@ -68,5 +68,3 @@ describe('the middleware path matcher', () => {
     expect(checkPath('/shows/888', stripped)).toBe(true)
   })
 })
-
-// "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/shows(?:\\/((?!99|88).*))(.json)?[\\/#\\?]?$"
