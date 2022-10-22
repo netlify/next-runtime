@@ -95,6 +95,8 @@ const handler = async (req: Request, context: Context) => {
     nextConfig,
   }
 
+  console.log({ request })
+
   try {
     const result = await edgeFunction({ request })
     return buildResponse({ result, request: req, context })
