@@ -30,11 +30,14 @@ export const generateFunctions = async (
 ): Promise<void> => {
   const publish = resolve(PUBLISH_DIR)
   const functionsDir = resolve(INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC)
-  console.log({ functionsDir })
   const functionDir = join(functionsDir, HANDLER_FUNCTION_NAME)
   const publishDir = relative(functionDir, publish)
 
   for (const { route, config, compiled } of apiRoutes) {
+    // Don't write a lambda if the runtime is edge
+    if (config.runtime === 'experimental-edge') {
+      continue
+    }
     const apiHandlerSource = await getApiHandler({
       page: route,
       config,
