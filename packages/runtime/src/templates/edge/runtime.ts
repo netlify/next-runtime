@@ -13,6 +13,12 @@ export interface FetchEventResult {
   waitUntil: Promise<any>
 }
 
+export interface I18NConfig {
+  defaultLocale: string
+  localeDetection?: false
+  locales: string[]
+}
+
 export interface RequestData {
   geo?: {
     city?: string
@@ -26,14 +32,14 @@ export interface RequestData {
   method: string
   nextConfig?: {
     basePath?: string
-    i18n?: Record<string, unknown>
+    i18n?: I18NConfig | null
     trailingSlash?: boolean
   }
   page?: {
     name?: string
     params?: { [key: string]: string }
   }
-  url: URL
+  url: string
   body?: ReadableStream<Uint8Array>
 }
 
@@ -82,7 +88,7 @@ const handler = async (req: Request, context: Context) => {
   const request: RequestData = {
     headers: Object.fromEntries(req.headers.entries()),
     geo,
-    url,
+    url: req.url,
     method: req.method,
     ip: context.ip,
     body: req.body ?? undefined,
