@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.27.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.2...plugin-nextjs-v4.27.3) (2022-10-19)
+
+
+### Bug Fixes
+
+* correctly handle matchers with lookaheads and i18n ([#1693](https://github.com/netlify/next-runtime/issues/1693)) ([9d440ab](https://github.com/netlify/next-runtime/commit/9d440ab8ef1362c263ef7e131058c6a630945014))
+
 ## [4.27.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.1...plugin-nextjs-v4.27.2) (2022-10-19)
 
 

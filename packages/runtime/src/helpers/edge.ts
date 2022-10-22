@@ -10,7 +10,8 @@ import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middlew
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
 
-import { getRequiredServerFiles } from './config'
+import { getRequiredServerFiles, NextConfig } from './config'
+import { makeLocaleOptional, stripLookahead } from './matchers'
 import { RoutesManifest } from './types'
 
 // This is the format as of next@12.2
@@ -139,12 +140,14 @@ const writeEdgeFunction = async ({
   netlifyConfig,
   pageRegexMap,
   appPathRoutesManifest = {},
+  nextConfig,
 }: {
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
   netlifyConfig: NetlifyConfig
   pageRegexMap?: Map<string, string>
   appPathRoutesManifest?: Record<string, string>
+  nextConfig: NextConfig
 }): Promise<
   Array<{
     function: string
@@ -174,6 +177,13 @@ const writeEdgeFunction = async ({
   // The v1 middleware manifest has a single regexp, but the v2 has an array of matchers
   if ('regexp' in edgeFunctionDefinition) {
     matchers.push({ regexp: edgeFunctionDefinition.regexp })
+  } else if (nextConfig.i18n) {
+    matchers.push(
+      ...edgeFunctionDefinition.matchers.map((matcher) => ({
+        ...matcher,
+        regexp: makeLocaleOptional(matcher.regexp),
+      })),
+    )
   } else {
     matchers.push(...edgeFunctionDefinition.matchers)
   }
@@ -191,7 +201,7 @@ const writeEdgeFunction = async ({
 
   // We add a defintion for each matching path
   return matchers.map((matcher) => {
-    const pattern = matcher.regexp
+    const pattern = stripLookahead(matcher.regexp)
     return { function: name, pattern, name: edgeFunctionDefinition.name }
   })
 }
@@ -283,6 +293,7 @@ export const writeEdgeFunctions = async ({
         edgeFunctionDefinition,
         edgeFunctionRoot,
         netlifyConfig,
+        nextConfig,
       })
       manifest.functions.push(...functionDefinitions)
     }
@@ -307,6 +318,7 @@ export const writeEdgeFunctions = async ({
           netlifyConfig,
           pageRegexMap,
           appPathRoutesManifest,
+          nextConfig,
         })
         manifest.functions.push(...functionDefinitions)
       }
