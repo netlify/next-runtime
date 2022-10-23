@@ -56,10 +56,10 @@ declare global {
 globalThis.NFRequestContextMap ||= new Map()
 
 const handler = async (req: Request, context: Context) => {
-  if (Deno.env.get('NETLIFY_DEV')) {
-    // Don't run in dev
-    return
-  }
+  // if (Deno.env.get('NETLIFY_DEV')) {
+  //   // Don't run in dev
+  //   return
+  // }
 
   const url = new URL(req.url)
 
@@ -94,8 +94,6 @@ const handler = async (req: Request, context: Context) => {
     body: req.body ?? undefined,
     nextConfig,
   }
-
-  console.log({ request })
 
   try {
     const result = await edgeFunction({ request })
