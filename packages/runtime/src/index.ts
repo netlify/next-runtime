@@ -73,7 +73,6 @@ const plugin: NetlifyPlugin = {
       build: { failBuild },
     },
   }) {
-    console.log('on build')
     if (shouldSkip()) {
       return
     }

@@ -86,7 +86,6 @@ export const moveStaticPages = async ({
 }): Promise<void> => {
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
-  const root = join(outputDir, 'pages')
   const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
   const dataDir = join('_next', 'data', buildId)
   await ensureDir(join(netlifyConfig.build.publish, dataDir))
@@ -119,10 +118,13 @@ export const moveStaticPages = async ({
 
   const files: Array<string> = []
   const filesManifest: Record<string, string> = {}
-  const moveFile = async (file) => {
+  const moveFile = async (file: string) => {
+    // Strip the initial 'app' or 'pages' directory from the output path
+    const pathname = file.split('/').slice(1).join('/')
+    // .rsc data files go next to the html file
     const isData = file.endsWith('.json')
-    const source = join(root, file)
-    const targetFile = isData ? join(dataDir, file) : file
+    const source = join(outputDir, file)
+    const targetFile = isData ? join(dataDir, pathname) : pathname
     const targetPath = basePath ? join(basePath, targetFile) : targetFile
 
     files.push(file)
@@ -137,8 +139,8 @@ export const moveStaticPages = async ({
     }
   }
   // Move all static files, except error documents and nft manifests
-  const pages = await globby(['**/*.{html,json}', '!**/(500|404|*.js.nft).{html,json}'], {
-    cwd: root,
+  const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/(500|404|*.js.nft).{html,json}'], {
+    cwd: outputDir,
     dot: true,
   })
 
