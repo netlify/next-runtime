@@ -127,8 +127,8 @@ export const moveStaticPages = async ({
     const targetFile = isData ? join(dataDir, pathname) : pathname
     const targetPath = basePath ? join(basePath, targetFile) : targetFile
 
-    files.push(file)
-    filesManifest[file] = targetPath
+    files.push(pathname)
+    filesManifest[pathname] = targetPath
 
     const dest = join(netlifyConfig.build.publish, targetPath)
 
