@@ -1,0 +1,9 @@
+{
+  "name": "local-plugin",
+  "version": "1.0.0-alpha-local-wrapper",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

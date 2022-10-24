@@ -1,6 +1,6 @@
 import { HandlerContext, HandlerEvent } from '@netlify/functions'
-// Aliasing like this means the editor may be able to syntax-highlight the string
 import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
+// Aliasing like this means the editor may be able to syntax-highlight the string
 import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
@@ -156,14 +156,14 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
 
 export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDir = '../../..' }): string =>
   // This is a string, but if you have the right editor plugin it should format as js
-  javascript`
+  javascript/* javascript */ `
   const { Server } = require("http");
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
 
-  const { builder } = require("@netlify/functions");
+  ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")
   let staticManifest
   try {
