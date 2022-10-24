@@ -12,6 +12,7 @@
     "next": "^12.3.2-canary.38",
     "react": "latest",
     "react-dom": "latest",
+    "sass": "latest",
     "swr": "2.0.0-rc.0"
   },
   "devDependencies": {
