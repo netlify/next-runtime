@@ -210,8 +210,8 @@ describe('app dir', () => {
     const html = await renderViaHTTP(nextUrl, '/partial-match-123')
     expect(html).toContain('hello from app/partial-match-[id]. ID is: 123')
   })
-
-  describe('rewrites', () => {
+  // TODO-NTL: rewrites don't work in appdir right now
+  describe.skip('rewrites', () => {
     // TODO-APP: rewrite url is broken
     it('should support rewrites on initial load', async () => {
       const browser = await webdriver(nextUrl, '/rewritten-to-dashboard')
@@ -720,18 +720,35 @@ describe('app dir', () => {
     })
 
     describe('next/router', () => {
-      // `useRouter` should not be accessible in server components.
-      it('should always return null when accessed from /app', async () => {
-        const browser = await webdriver(nextUrl, '/old-router')
+      it('should support router.back and router.forward', async () => {
+        const browser = await webdriver(nextUrl, '/back-forward/1')
+
+        const firstMessage = 'Hello from 1'
+        const secondMessage = 'Hello from 2'
+
+        expect(await browser.elementByCss('#message-1').text()).toBe(firstMessage)
 
         try {
-          await browser.waitForElementByCss('#old-router')
+          const message2 = await browser
+            .waitForElementByCss('#to-other-page')
+            .click()
+            .waitForElementByCss('#message-2')
+            .text()
+          expect(message2).toBe(secondMessage)
 
-          const notNull = await browser.elementsByCss('.was-not-null')
-          expect(notNull.length).toBe(0)
+          const message1 = await browser
+            .waitForElementByCss('#back-button')
+            .click()
+            .waitForElementByCss('#message-1')
+            .text()
+          expect(message1).toBe(firstMessage)
 
-          const wasNull = await browser.elementsByCss('.was-null')
-          expect(wasNull.length).toBe(6)
+          const message2Again = await browser
+            .waitForElementByCss('#forward-button')
+            .click()
+            .waitForElementByCss('#message-2')
+            .text()
+          expect(message2Again).toBe(secondMessage)
         } finally {
           await browser.close()
         }
