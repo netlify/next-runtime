@@ -9,9 +9,10 @@
   "license": "MIT",
   "dependencies": {
     "nanoid": "^3.3.4",
-    "next": "^12.3.2-canary.34",
-    "react": "^0.0.0-experimental-9cdf8a99e-20221018",
-    "react-dom": "^0.0.0-experimental-9cdf8a99e-20221018"
+    "next": "^12.3.2-canary.38",
+    "react": "latest",
+    "react-dom": "latest",
+    "swr": "2.0.0-rc.0"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "file:plugin-wrapper",

@@ -51,6 +51,7 @@ describe('app dir', () => {
   it('should serve from pages', async () => {
     const html = await renderViaHTTP(nextUrl, '/')
     expect(html).toContain('hello from pages/index')
+    expect(html).toContain('swr-index')
   })
 
   it('should serve dynamic route from pages', async () => {
