@@ -138,7 +138,10 @@ const plugin: NetlifyPlugin = {
       } else {
         // Using the deploy prime url in production leads to issues because the unique deploy ID is part of the generated URL
         // and will not match the expected URL in the callback URL of an OAuth application.
-        const nextAuthUrl = process.env.CONTEXT === 'production' ? `${process.env.URL}${basePath}` : `${process.env.DEPLOY_PRIME_URL}${basePath}`
+        const nextAuthUrl =
+          process.env.CONTEXT === 'production'
+            ? `${process.env.URL}${basePath}`
+            : `${process.env.DEPLOY_PRIME_URL}${basePath}`
 
         console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
         config.config.env.NEXTAUTH_URL = nextAuthUrl
