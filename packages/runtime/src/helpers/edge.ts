@@ -10,7 +10,8 @@ import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middlew
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
 
-import { getRequiredServerFiles } from './config'
+import { getRequiredServerFiles, NextConfig } from './config'
+import { makeLocaleOptional, stripLookahead } from './matchers'
 
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
@@ -174,10 +175,12 @@ const writeEdgeFunction = async ({
   edgeFunctionDefinition,
   edgeFunctionRoot,
   netlifyConfig,
+  nextConfig,
 }: {
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
   netlifyConfig: NetlifyConfig
+  nextConfig: NextConfig
 }): Promise<
   Array<{
     function: string
@@ -207,14 +210,22 @@ const writeEdgeFunction = async ({
   // The v1 middleware manifest has a single regexp, but the v2 has an array of matchers
   if ('regexp' in edgeFunctionDefinition) {
     matchers.push({ regexp: edgeFunctionDefinition.regexp })
+  } else if (nextConfig.i18n) {
+    matchers.push(
+      ...edgeFunctionDefinition.matchers.map((matcher) => ({
+        ...matcher,
+        regexp: makeLocaleOptional(matcher.regexp),
+      })),
+    )
   } else {
     matchers.push(...edgeFunctionDefinition.matchers)
   }
+
   await writeJson(join(edgeFunctionDir, 'matchers.json'), matchers)
 
   // We add a defintion for each matching path
   return matchers.map((matcher) => {
-    const pattern = matcher.regexp
+    const pattern = stripLookahead(matcher.regexp)
     return { function: name, pattern, name: edgeFunctionDefinition.name }
   })
 }
@@ -300,6 +311,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
         edgeFunctionDefinition,
         edgeFunctionRoot,
         netlifyConfig,
+        nextConfig,
       })
       manifest.functions.push(...functionDefinitions)
     }
@@ -312,6 +324,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
           edgeFunctionDefinition,
           edgeFunctionRoot,
           netlifyConfig,
+          nextConfig,
         })
         manifest.functions.push(...functionDefinitions)
       }
