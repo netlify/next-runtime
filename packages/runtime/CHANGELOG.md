@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.28.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.3...plugin-nextjs-v4.28.0) (2022-10-25)
+
+
+### Features
+
+* add support for WebAssembly in edge runtime ([#1676](https://github.com/netlify/next-runtime/issues/1676)) ([530088c](https://github.com/netlify/next-runtime/commit/530088cd0e912d6fb3682a1a7a90a1d8d4202951))
+* support Next 13 ([#1714](https://github.com/netlify/next-runtime/issues/1714)) ([efcb47a](https://github.com/netlify/next-runtime/commit/efcb47a84697edd313f3d8643ebcc48f3bde11e3))
+
 ## [4.27.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.2...plugin-nextjs-v4.27.3) (2022-10-19)
 
 
