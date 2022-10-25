@@ -16,7 +16,7 @@
 			"\treturn (",
 			"\t\t<div>",
 			"\t\t<h1>$1</h1>",
-			"\t\t<Link href=\"\"><a>Read Docs</a></Link>",
+			"\t\t<Link href=\"\">Read Docs</Link>",
 			"\t\t<p>Description of feature</p>",
 			"\t\t<p>Example/test of feature</p>",
 			"\t\t</div>",

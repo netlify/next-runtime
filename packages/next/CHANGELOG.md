@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/netlify/next-runtime/compare/next-v1.3.1...next-v1.4.0) (2022-10-25)
+
+
+### Features
+
+* support Next 13 ([#1714](https://github.com/netlify/next-runtime/issues/1714)) ([efcb47a](https://github.com/netlify/next-runtime/commit/efcb47a84697edd313f3d8643ebcc48f3bde11e3))
+
 ## [1.3.1](https://github.com/netlify/next-runtime/compare/next-v1.3.0...next-v1.3.1) (2022-09-28)
 
 
