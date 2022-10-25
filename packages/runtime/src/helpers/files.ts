@@ -116,7 +116,7 @@ export const moveStaticPages = async ({
     }
   })
 
-  const files: Array<string> = []
+  let fileCount = 0
   const filesManifest: Record<string, string> = {}
   const moveFile = async (file: string) => {
     // Strip the initial 'app' or 'pages' directory from the output path
@@ -127,8 +127,8 @@ export const moveStaticPages = async ({
     const targetFile = isData ? join(dataDir, pathname) : pathname
     const targetPath = basePath ? join(basePath, targetFile) : targetFile
 
-    files.push(pathname)
-    filesManifest[pathname] = targetPath
+    fileCount += 1
+    filesManifest[file] = targetPath
 
     const dest = join(netlifyConfig.build.publish, targetPath)
 
@@ -180,7 +180,7 @@ export const moveStaticPages = async ({
     return limit(moveFile, filePath)
   })
   await Promise.all(promises)
-  console.log(`Moved ${files.length} files`)
+  console.log(`Moved ${fileCount} files`)
 
   if (matchedPages.size !== 0) {
     console.log(

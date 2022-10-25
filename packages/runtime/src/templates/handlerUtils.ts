@@ -22,19 +22,28 @@ export const downloadFile = async (url: string, destination: string): Promise<vo
   const httpx = url.startsWith('https') ? https : http
 
   await new Promise((resolve, reject) => {
-    const req = httpx.get(url, { timeout: 10000 }, (response) => {
-      if (response.statusCode < 200 || response.statusCode > 299) {
-        reject(new Error(`Failed to download ${url}: ${response.statusCode} ${response.statusMessage || ''}`))
-        return
-      }
-      const fileStream = createWriteStream(destination)
-      streamPipeline(response, fileStream)
-        .then(resolve)
-        .catch((error) => {
-          console.log(`Error downloading ${url}`, error)
-          reject(error)
-        })
-    })
+    const req = httpx.get(
+      url,
+      {
+        timeout: 10000,
+        headers: {
+          'x-nf-next-asset-req': 'true',
+        },
+      },
+      (response) => {
+        if (response.statusCode < 200 || response.statusCode > 299) {
+          reject(new Error(`Failed to download ${url}: ${response.statusCode} ${response.statusMessage || ''}`))
+          return
+        }
+        const fileStream = createWriteStream(destination)
+        streamPipeline(response, fileStream)
+          .then(resolve)
+          .catch((error) => {
+            console.log(`Error downloading ${url}`, error)
+            reject(error)
+          })
+      },
+    )
     req.on('error', (error) => {
       console.log(`Error downloading ${url}`, error)
       reject(error)
@@ -84,12 +93,10 @@ export const augmentFsModule = ({
   promises,
   staticManifest,
   pageRoot,
-  getBase,
 }: {
   promises: typeof fs.promises
   staticManifest: Array<[string, string]>
   pageRoot: string
-  getBase: () => string
 }) => {
   // Only do this if we have some static files moved to the CDN
   if (staticManifest.length === 0) {
@@ -108,24 +115,27 @@ export const augmentFsModule = ({
   const statsOrig = promises.stat
   // ...then money-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
-    const base = getBase()
+    // In production use the public URL (e.g. https://example.com). Otherwise use the deploy URL, e.g. https://deploy-preview-123--example.netlify.app
+    const baseUrl = process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
+    console.log('Using baseUrl', baseUrl)
+
     // We only care about page files
     if (file.startsWith(pageRoot)) {
-      // We only want the part after `pages/`
+      // We only want the part after `.next/server/`
       const filePath = file.slice(pageRoot.length + 1)
 
       // Is it in the CDN and not local?
       if (staticFiles.has(filePath) && !existsSync(file)) {
         // This name is safe to use, because it's one that was already created by Next
         const cacheFile = path.join(cacheDir, filePath)
-        const url = `${base}/${staticFiles.get(filePath)}`
+        const url = `${baseUrl}/${staticFiles.get(filePath)}`
 
         // If it's already downloading we can wait for it to finish
         if (downloadPromises.has(url)) {
           await downloadPromises.get(url)
         }
         // Have we already cached it? We download every time if running locally to avoid staleness
-        if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && base) {
+        if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && baseUrl) {
           await promises.mkdir(path.dirname(cacheFile), { recursive: true })
 
           try {
@@ -148,7 +158,7 @@ export const augmentFsModule = ({
   promises.stat = ((file, options) => {
     // We only care about page files
     if (file.startsWith(pageRoot)) {
-      // We only want the part after `pages/`
+      // We only want the part after `.next/server`
       const cacheFile = path.join(cacheDir, file.slice(pageRoot.length + 1))
       if (existsSync(cacheFile)) {
         return statsOrig(cacheFile, options)

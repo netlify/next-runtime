@@ -27,6 +27,8 @@ type Mutable<T> = {
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 // eslint-disable-next-line max-params
 const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
+  console.log('makeHandler', process.env)
+
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -53,10 +55,8 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   for (const [key, value] of Object.entries(conf.env)) {
     process.env[key] = String(value)
   }
-  // Set during the request as it needs the host header. Hoisted so we can define the function once
-  let base: string
 
-  augmentFsModule({ promises, staticManifest, pageRoot, getBase: () => base })
+  augmentFsModule({ promises, staticManifest, pageRoot })
 
   // We memoize this because it can be shared between requests, but don't instantiate it until
   // the first request because we need the host and port.
@@ -67,9 +67,6 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     }
     const url = new URL(event.rawUrl)
     const port = Number.parseInt(url.port) || 80
-    const { host } = event.headers
-    const protocol = event.headers['x-forwarded-proto'] || 'http'
-    base = `${protocol}://${host}`
 
     const NextServer: NextServerType = getNextServer()
     const nextServer = new NextServer({
@@ -94,6 +91,8 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   }
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
+    const baseUrl = process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
+    console.log('Using baseUrl', baseUrl, process.env)
     let requestMode = mode
     // Ensure that paths are encoded - but don't double-encode them
     event.path = new URL(event.rawUrl).pathname
@@ -170,7 +169,7 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
     staticManifest = require("${publishDir}/static-manifest.json")
   } catch {}
   const path = require("path");
-  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", config.target === "server" ? "server" : "serverless", "pages"));
+  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
       ? `builder((${makeHandler.toString()})(config, "${appDir}", pageRoot, staticManifest, 'odb'));`

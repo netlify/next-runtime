@@ -275,235 +275,331 @@ exports.resolvePages = () => {
 exports[`onBuild() generates static files manifest 1`] = `
 Array [
   Array [
+    "pages/en/broken-image.html",
     "en/broken-image.html",
-    "en/broken-image.html",
   ],
   Array [
+    "pages/en/css.html",
     "en/css.html",
-    "en/css.html",
   ],
   Array [
+    "pages/en/env.html",
     "en/env.html",
-    "en/env.html",
   ],
   Array [
+    "pages/en/font.html",
     "en/font.html",
-    "en/font.html",
   ],
   Array [
-    "en/getStaticProps/1.html",
+    "pages/en/getStaticProps/1.html",
     "en/getStaticProps/1.html",
   ],
   Array [
-    "en/getStaticProps/1.json",
+    "pages/en/getStaticProps/1.json",
     "_next/data/build-id/en/getStaticProps/1.json",
   ],
   Array [
-    "en/getStaticProps/2.html",
+    "pages/en/getStaticProps/2.html",
     "en/getStaticProps/2.html",
   ],
   Array [
-    "en/getStaticProps/2.json",
+    "pages/en/getStaticProps/2.json",
     "_next/data/build-id/en/getStaticProps/2.json",
   ],
   Array [
-    "en/getStaticProps/env.html",
+    "pages/en/getStaticProps/env.html",
     "en/getStaticProps/env.html",
   ],
   Array [
-    "en/getStaticProps/env.json",
+    "pages/en/getStaticProps/env.json",
     "_next/data/build-id/en/getStaticProps/env.json",
   ],
   Array [
-    "en/getStaticProps/static.html",
+    "pages/en/getStaticProps/static.html",
     "en/getStaticProps/static.html",
   ],
   Array [
-    "en/getStaticProps/static.json",
+    "pages/en/getStaticProps/static.json",
     "_next/data/build-id/en/getStaticProps/static.json",
   ],
   Array [
-    "en/getStaticProps/withFallback/1.html",
+    "pages/en/getStaticProps/with-revalidate.html",
+    "en/getStaticProps/with-revalidate.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/with-revalidate.json",
+    "_next/data/build-id/en/getStaticProps/with-revalidate.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallback/1.html",
     "en/getStaticProps/withFallback/1.html",
   ],
   Array [
-    "en/getStaticProps/withFallback/1.json",
+    "pages/en/getStaticProps/withFallback/1.json",
     "_next/data/build-id/en/getStaticProps/withFallback/1.json",
   ],
   Array [
-    "en/getStaticProps/withFallback/2.html",
+    "pages/en/getStaticProps/withFallback/2.html",
     "en/getStaticProps/withFallback/2.html",
   ],
   Array [
-    "en/getStaticProps/withFallback/2.json",
+    "pages/en/getStaticProps/withFallback/2.json",
     "_next/data/build-id/en/getStaticProps/withFallback/2.json",
   ],
   Array [
-    "en/getStaticProps/withFallback/my/path/1.html",
+    "pages/en/getStaticProps/withFallback/my/path/1.html",
     "en/getStaticProps/withFallback/my/path/1.html",
   ],
   Array [
-    "en/getStaticProps/withFallback/my/path/1.json",
+    "pages/en/getStaticProps/withFallback/my/path/1.json",
     "_next/data/build-id/en/getStaticProps/withFallback/my/path/1.json",
   ],
   Array [
-    "en/getStaticProps/withFallback/my/path/2.html",
+    "pages/en/getStaticProps/withFallback/my/path/2.html",
     "en/getStaticProps/withFallback/my/path/2.html",
   ],
   Array [
-    "en/getStaticProps/withFallback/my/path/2.json",
+    "pages/en/getStaticProps/withFallback/my/path/2.json",
     "_next/data/build-id/en/getStaticProps/withFallback/my/path/2.json",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/1.html",
+    "pages/en/getStaticProps/withFallbackBlocking/1.html",
     "en/getStaticProps/withFallbackBlocking/1.html",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/1.json",
+    "pages/en/getStaticProps/withFallbackBlocking/1.json",
     "_next/data/build-id/en/getStaticProps/withFallbackBlocking/1.json",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/2.html",
+    "pages/en/getStaticProps/withFallbackBlocking/2.html",
     "en/getStaticProps/withFallbackBlocking/2.html",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/2.json",
+    "pages/en/getStaticProps/withFallbackBlocking/2.json",
     "_next/data/build-id/en/getStaticProps/withFallbackBlocking/2.json",
   ],
   Array [
+    "pages/en/getStaticProps/withRevalidate/1.html",
+    "en/getStaticProps/withRevalidate/1.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/1.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/1.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/2.html",
+    "en/getStaticProps/withRevalidate/2.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/2.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/2.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallback/1.html",
+    "en/getStaticProps/withRevalidate/withFallback/1.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallback/1.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/1.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallback/2.html",
+    "en/getStaticProps/withRevalidate/withFallback/2.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallback/2.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/2.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/1.html",
+    "en/getStaticProps/withRevalidate/withFallbackBlocking/1.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/1.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/1.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/2.html",
+    "en/getStaticProps/withRevalidate/withFallbackBlocking/2.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/2.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/2.json",
+  ],
+  Array [
+    "pages/en/image.html",
     "en/image.html",
-    "en/image.html",
   ],
   Array [
+    "pages/en/layouts.html",
     "en/layouts.html",
-    "en/layouts.html",
   ],
   Array [
-    "en/previewTest.html",
+    "pages/en/old/image.html",
+    "en/old/image.html",
+  ],
+  Array [
+    "pages/en/previewTest.html",
     "en/previewTest.html",
   ],
   Array [
-    "en/previewTest.json",
+    "pages/en/previewTest.json",
     "_next/data/build-id/en/previewTest.json",
   ],
   Array [
+    "pages/en/redirectme.html",
+    "en/redirectme.html",
+  ],
+  Array [
+    "pages/en/script.html",
     "en/script.html",
-    "en/script.html",
   ],
   Array [
+    "pages/en/static.html",
     "en/static.html",
-    "en/static.html",
   ],
   Array [
+    "pages/es/broken-image.html",
     "es/broken-image.html",
-    "es/broken-image.html",
   ],
   Array [
+    "pages/es/css.html",
     "es/css.html",
-    "es/css.html",
   ],
   Array [
+    "pages/es/env.html",
     "es/env.html",
-    "es/env.html",
   ],
   Array [
+    "pages/es/font.html",
     "es/font.html",
-    "es/font.html",
   ],
   Array [
-    "es/getStaticProps/env.html",
+    "pages/es/getStaticProps/env.html",
     "es/getStaticProps/env.html",
   ],
   Array [
-    "es/getStaticProps/env.json",
+    "pages/es/getStaticProps/env.json",
     "_next/data/build-id/es/getStaticProps/env.json",
   ],
   Array [
-    "es/getStaticProps/static.html",
+    "pages/es/getStaticProps/static.html",
     "es/getStaticProps/static.html",
   ],
   Array [
-    "es/getStaticProps/static.json",
+    "pages/es/getStaticProps/static.json",
     "_next/data/build-id/es/getStaticProps/static.json",
   ],
   Array [
+    "pages/es/getStaticProps/with-revalidate.html",
+    "es/getStaticProps/with-revalidate.html",
+  ],
+  Array [
+    "pages/es/getStaticProps/with-revalidate.json",
+    "_next/data/build-id/es/getStaticProps/with-revalidate.json",
+  ],
+  Array [
+    "pages/es/image.html",
     "es/image.html",
-    "es/image.html",
   ],
   Array [
+    "pages/es/layouts.html",
     "es/layouts.html",
-    "es/layouts.html",
   ],
   Array [
-    "es/previewTest.html",
+    "pages/es/old/image.html",
+    "es/old/image.html",
+  ],
+  Array [
+    "pages/es/previewTest.html",
     "es/previewTest.html",
   ],
   Array [
-    "es/previewTest.json",
+    "pages/es/previewTest.json",
     "_next/data/build-id/es/previewTest.json",
   ],
   Array [
+    "pages/es/redirectme.html",
+    "es/redirectme.html",
+  ],
+  Array [
+    "pages/es/script.html",
     "es/script.html",
-    "es/script.html",
   ],
   Array [
+    "pages/es/static.html",
     "es/static.html",
-    "es/static.html",
   ],
   Array [
+    "pages/fr/broken-image.html",
     "fr/broken-image.html",
-    "fr/broken-image.html",
   ],
   Array [
+    "pages/fr/css.html",
     "fr/css.html",
-    "fr/css.html",
   ],
   Array [
+    "pages/fr/env.html",
     "fr/env.html",
-    "fr/env.html",
   ],
   Array [
+    "pages/fr/font.html",
     "fr/font.html",
-    "fr/font.html",
   ],
   Array [
-    "fr/getStaticProps/env.html",
+    "pages/fr/getStaticProps/env.html",
     "fr/getStaticProps/env.html",
   ],
   Array [
-    "fr/getStaticProps/env.json",
+    "pages/fr/getStaticProps/env.json",
     "_next/data/build-id/fr/getStaticProps/env.json",
   ],
   Array [
-    "fr/getStaticProps/static.html",
+    "pages/fr/getStaticProps/static.html",
     "fr/getStaticProps/static.html",
   ],
   Array [
-    "fr/getStaticProps/static.json",
+    "pages/fr/getStaticProps/static.json",
     "_next/data/build-id/fr/getStaticProps/static.json",
   ],
   Array [
+    "pages/fr/getStaticProps/with-revalidate.html",
+    "fr/getStaticProps/with-revalidate.html",
+  ],
+  Array [
+    "pages/fr/getStaticProps/with-revalidate.json",
+    "_next/data/build-id/fr/getStaticProps/with-revalidate.json",
+  ],
+  Array [
+    "pages/fr/image.html",
     "fr/image.html",
-    "fr/image.html",
   ],
   Array [
+    "pages/fr/layouts.html",
     "fr/layouts.html",
-    "fr/layouts.html",
   ],
   Array [
-    "fr/previewTest.html",
+    "pages/fr/old/image.html",
+    "fr/old/image.html",
+  ],
+  Array [
+    "pages/fr/previewTest.html",
     "fr/previewTest.html",
   ],
   Array [
-    "fr/previewTest.json",
+    "pages/fr/previewTest.json",
     "_next/data/build-id/fr/previewTest.json",
   ],
   Array [
-    "fr/script.html",
+    "pages/fr/redirectme.html",
+    "fr/redirectme.html",
+  ],
+  Array [
+    "pages/fr/script.html",
     "fr/script.html",
   ],
   Array [
-    "fr/static.html",
+    "pages/fr/static.html",
     "fr/static.html",
   ],
 ]
