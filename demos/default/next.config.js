@@ -75,8 +75,8 @@ module.exports = {
     remotePatterns: [
       {
         hostname: '*.imgur.com',
-      }
-    ]
+      },
+    ],
   },
   // https://nextjs.org/docs/basic-features/built-in-css-support#customizing-sass-options
   sassOptions: {
@@ -84,5 +84,5 @@ module.exports = {
   },
   experimental: {
     optimizeCss: false,
-  }
+  },
 }
