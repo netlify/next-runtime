@@ -9,7 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "nanoid": "^3.3.4",
-    "next": "^12.3.2-canary.39",
+    "next": "^12.3.2-canary.40",
     "react": "latest",
     "react-dom": "latest",
     "sass": "latest",
