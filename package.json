@@ -82,7 +82,7 @@
     "vitest-github-actions-reporter": "^0.8.3"
   },
   "dependencies": {
-    "next": "^12.3.0"
+    "next": "^12.3.2-canary.43"
   },
   "engines": {
     "node": ">=16.0.0"

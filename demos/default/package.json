@@ -21,7 +21,7 @@
     "@reach/dialog": "^0.16.2",
     "@reach/visually-hidden": "^0.16.0",
     "@vercel/og": "^0.0.15",
-    "next": "^12.3.0",
+    "next": "^12.3.2-canary.43",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },

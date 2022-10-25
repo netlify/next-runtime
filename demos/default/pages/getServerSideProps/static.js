@@ -17,9 +17,7 @@ const Show = ({ show }) => (
 
     <hr />
 
-    <Link href="/">
-      <a>Go back home</a>
-    </Link>
+    <Link href="/">Go back home</Link>
   </div>
 )
 

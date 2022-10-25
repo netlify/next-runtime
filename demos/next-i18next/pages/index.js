@@ -17,7 +17,7 @@ export default function IndexPage() {
       </p>
       <div>
         <Link href="/" locale={router.locale === 'en' ? 'fr' : 'en'}>
-          <a>Change locale</a>
+          Change locale
         </Link>
       </div>
       <p>The text below will be translated:</p>
