@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import img from './unsplash.jpg'
 import logo from './logomark.svg'
 
