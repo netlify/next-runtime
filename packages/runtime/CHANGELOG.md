@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.28.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.0...plugin-nextjs-v4.28.1) (2022-10-25)
+
+
+### Bug Fixes
+
+* use process.env.URL when deploying to production ([#1680](https://github.com/netlify/next-runtime/issues/1680)) ([4b08911](https://github.com/netlify/next-runtime/commit/4b08911bb0578d8c5963b7eecdaa0dac54cc7bad))
+
 ## [4.28.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.3...plugin-nextjs-v4.28.0) (2022-10-25)
 
 
