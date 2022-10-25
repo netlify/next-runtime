@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 
 // This should cause an error, because broken-domain is not part of the configured next.config.js image domains
 const Images = () => (
