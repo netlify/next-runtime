@@ -591,16 +591,16 @@ describe('onBuild()', () => {
     process.env.DISABLE_IPX = '1'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
-    const nextImageRedirect = netlifyConfig.redirects.find(redirect => redirect.from.includes('/_next/image'))
-    
+    const nextImageRedirect = netlifyConfig.redirects.find((redirect) => redirect.from.includes('/_next/image'))
+
     expect(nextImageRedirect).toBeDefined()
-    expect(nextImageRedirect.to).toEqual("/404.html")
+    expect(nextImageRedirect.to).toEqual('/404.html')
     expect(nextImageRedirect.status).toEqual(404)
     expect(nextImageRedirect.force).toEqual(true)
-    
+
     delete process.env.DISABLE_IPX
   })
-  
+
   test('generates an ipx edge function by default', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -618,6 +618,14 @@ describe('onBuild()', () => {
   test('does not generate an ipx edge function if Netlify Edge is disabled', async () => {
     process.env.NEXT_DISABLE_NETLIFY_EDGE = '1'
     await moveNextDist()
+
+    // We need to pretend there's no edge API routes, because otherwise it'll fail
+    // when we try to disable edge runtime.
+    const manifest = path.join('.next', 'server', 'middleware-manifest.json')
+    const manifestContent = await readJson(manifest)
+    manifestContent.functions = {}
+    await writeJSON(manifest, manifestContent)
+
     await nextRuntime.onBuild(defaultArgs)
 
     expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
@@ -1585,6 +1593,13 @@ describe('api route file analysis', () => {
           compiled: 'pages/api/hello-scheduled.js',
           config: { schedule: '@hourly', type: 'experimental-scheduled' },
           route: '/api/hello-scheduled',
+        },
+        {
+          compiled: 'pages/api/og.js',
+          config: {
+            runtime: 'experimental-edge',
+          },
+          route: '/api/og',
         },
       ]),
     )

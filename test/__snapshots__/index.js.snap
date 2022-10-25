@@ -12,6 +12,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/hello-background.js')
         require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../.next/server/pages/api/hello.js')
+        require.resolve('../../../.next/server/pages/api/og.js')
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../.next/server/pages/api/shows/[id].js')
         require.resolve('../../../.next/server/pages/deep/import.js')
@@ -49,6 +50,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/hello-background.js')
         require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../.next/server/pages/api/hello.js')
+        require.resolve('../../../.next/server/pages/api/og.js')
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../.next/server/pages/api/shows/[id].js')
         require.resolve('../../../.next/server/pages/deep/import.js')
@@ -86,6 +88,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/hello-background.js')
         require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../web/.next/server/pages/api/hello.js')
+        require.resolve('../../../web/.next/server/pages/api/og.js')
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
         require.resolve('../../../web/.next/server/pages/deep/import.js')
@@ -123,6 +126,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/hello-background.js')
         require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../web/.next/server/pages/api/hello.js')
+        require.resolve('../../../web/.next/server/pages/api/og.js')
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
         require.resolve('../../../web/.next/server/pages/deep/import.js')
@@ -1115,6 +1119,11 @@ Array [
     "from": "/api/hello-scheduled",
     "status": 404,
     "to": "/404.html",
+  },
+  Object {
+    "from": "/api/og",
+    "status": 200,
+    "to": "/.netlify/functions/_api_og-handler",
   },
   Object {
     "from": "/api/shows/:id",
