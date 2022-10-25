@@ -31,9 +31,7 @@ const Index = ({ shows, nodeEnv }) => {
           {shows.map(({ id, name }) => (
             <li key={id}>
               <Link href={`/shows/${id}`}>
-                <a>
-                  #{id}: {name}
-                </a>
+                #{id}: {name}
               </Link>
             </li>
           ))}
@@ -46,9 +44,7 @@ const Index = ({ shows, nodeEnv }) => {
           {shows.slice(0, 3).map(({ id, name }) => (
             <li key={id}>
               <Link href={`/shows/${id}`}>
-                <a>
-                  #{id}: {name}
-                </a>
+                #{id}: {name}
               </Link>
             </li>
           ))}
@@ -58,19 +54,13 @@ const Index = ({ shows, nodeEnv }) => {
 
         <ul data-testid="list-catch-all">
           <li>
-            <Link href={`/shows/73/whatever/path/you/want`}>
-              <a>/shows/73/whatever/path/you/want</a>
-            </Link>
+            <Link href={`/shows/73/whatever/path/you/want`}>/shows/73/whatever/path/you/want</Link>
           </li>
           <li>
-            <Link href={`/shows/94/whatever/path/you`}>
-              <a>/shows/94/whatever/path/you</a>
-            </Link>
+            <Link href={`/shows/94/whatever/path/you`}>/shows/94/whatever/path/you</Link>
           </li>
           <li>
-            <Link href={`/shows/106/whatever/path`}>
-              <a>/shows/106/whatever/path</a>
-            </Link>
+            <Link href={`/shows/106/whatever/path`}>/shows/106/whatever/path</Link>
           </li>
         </ul>
 
@@ -78,14 +68,10 @@ const Index = ({ shows, nodeEnv }) => {
 
         <ul data-testid="list-static">
           <li>
-            <Link href="/static">
-              <a>Static NextJS page: /static</a>
-            </Link>
+            <Link href="/static">Static NextJS page: /static</Link>
           </li>
           <li>
-            <Link href="/static/123456789">
-              <a>Static NextJS page with dynamic routing: /static/:id</a>
-            </Link>
+            <Link href="/static/123456789">Static NextJS page with dynamic routing: /static/:id</Link>
           </li>
         </ul>
 
@@ -98,131 +84,91 @@ const Index = ({ shows, nodeEnv }) => {
         <p>Click on the links below to see the above text change</p>
         <ul data-testid="list-localization">
           <li>
-            <Link href="/fr">
-              <a>/fr</a>
-            </Link>
+            <Link href="/fr">/fr</Link>
           </li>
           <li>
-            <Link href="/en">
-              <a>/en (default locale)</a>
-            </Link>
+            <Link href="/en">/en (default locale)</Link>
           </li>
         </ul>
         <h2>Page types</h2>
         <ul>
           <li>
-            <Link href="/getServerSideProps/static">
-              <a>/getServerSideProps/static (SSR)</a>
-            </Link>
+            <Link href="/getServerSideProps/static">/getServerSideProps/static (SSR)</Link>
           </li>
           <li>
-            <Link href="/getServerSideProps/1">
-              <a>/getServerSideProps/1 (SSR)</a>
-            </Link>
+            <Link href="/getServerSideProps/1">/getServerSideProps/1 (SSR)</Link>
           </li>
           <li>
-            <Link href="/getServerSideProps/all/1">
-              <a>/getServerSideProps/all/1 (SSR)</a>
-            </Link>
+            <Link href="/getServerSideProps/all/1">/getServerSideProps/all/1 (SSR)</Link>
           </li>
           <li>
-            <Link href="/getStaticProps/static">
-              <a>/getStaticProps/static (CDN)</a>
-            </Link>
+            <Link href="/getStaticProps/static">/getStaticProps/static (CDN)</Link>
           </li>
           <li>
-            <Link href="/getStaticProps/1">
-              <a>/getStaticProps/1 (CDN)</a>
-            </Link>
+            <Link href="/getStaticProps/1">/getStaticProps/1 (CDN)</Link>
           </li>
           <li>
-            <Link href="/getStaticProps/3">
-              <a>/getStaticProps/3 (404)</a>
-            </Link>
+            <Link href="/getStaticProps/3">/getStaticProps/3 (404)</Link>
           </li>
           <li>
-            <Link href="/getStaticProps/withFallback/1">
-              <a>/getStaticProps/withFallback/1 (CDN)</a>
-            </Link>
+            <Link href="/getStaticProps/withFallback/1">/getStaticProps/withFallback/1 (CDN)</Link>
           </li>
           <li>
-            <Link href="/getStaticProps/withFallback/3">
-              <a>/getStaticProps/withFallback/3 (ODB)</a>
-            </Link>
+            <Link href="/getStaticProps/withFallback/3">/getStaticProps/withFallback/3 (ODB)</Link>
           </li>
           <li>
-            <Link href="/getStaticProps/withFallbackBlocking/1">
-              <a>/getStaticProps/withFallbackBlocking/1 (CDN)</a>
-            </Link>
+            <Link href="/getStaticProps/withFallbackBlocking/1">/getStaticProps/withFallbackBlocking/1 (CDN)</Link>
           </li>
           <li>
-            <Link href="/getStaticProps/withFallbackBlocking/3">
-              <a>/getStaticProps/withFallbackBlocking/3 (ODB)</a>
-            </Link>
+            <Link href="/getStaticProps/withFallbackBlocking/3">/getStaticProps/withFallbackBlocking/3 (ODB)</Link>
           </li>
           <li>
-            <Link href="/getStaticProps/with-revalidate">
-              <a>/getStaticProps/with-revalidate (ODB)</a>
-            </Link>
+            <Link href="/getStaticProps/with-revalidate">/getStaticProps/with-revalidate (ODB)</Link>
           </li>
           <li>
-            <Link href="/getStaticProps/withRevalidate/1">
-              <a>/getStaticProps/withRevalidate/1 (ODB)</a>
-            </Link>
+            <Link href="/getStaticProps/withRevalidate/1">/getStaticProps/withRevalidate/1 (ODB)</Link>
           </li>
           <li>
-            <Link href="/getStaticProps/withRevalidate/3">
-              <a>/getStaticProps/withRevalidate/3 (404)</a>
-            </Link>
+            <Link href="/getStaticProps/withRevalidate/3">/getStaticProps/withRevalidate/3 (404)</Link>
           </li>
           <li>
             <Link href="/getStaticProps/withRevalidate/withFallback/1">
-              <a>/getStaticProps/withRevalidate/withFallback/1 (ODB)</a>
+              /getStaticProps/withRevalidate/withFallback/1 (ODB)
             </Link>
           </li>
           <li>
             <Link href="/getStaticProps/withRevalidate/withFallback/3">
-              <a>/getStaticProps/withRevalidate/withFallback/3 (ODB)</a>
+              /getStaticProps/withRevalidate/withFallback/3 (ODB)
             </Link>
           </li>
           <li>
             <Link href="/getStaticProps/withRevalidate/withFallbackBlocking/1">
-              <a>/getStaticProps/withRevalidate/withFallbackBlocking/1 (ODB)</a>
+              /getStaticProps/withRevalidate/withFallbackBlocking/1 (ODB)
             </Link>
           </li>
           <li>
             <Link href="/getStaticProps/withRevalidate/withFallbackBlocking/3">
-              <a>/getStaticProps/withRevalidate/withFallbackBlocking/3 (ODB)</a>
+              /getStaticProps/withRevalidate/withFallbackBlocking/3 (ODB)
             </Link>
           </li>
           <li>
-            <Link href="/old/image">
-              <a>Rewrite (should display image)</a>
-            </Link>
+            <Link href="/old/image">Rewrite (should display image)</Link>
           </li>
           <li>
-            <Link href="/rewriteToStatic">
-              <a>Rewrite to static (should show getStaticProps/1)</a>
-            </Link>
+            <Link href="/rewriteToStatic">Rewrite to static (should show getStaticProps/1)</Link>
           </li>
         </ul>
         <h4>Preview mode</h4>
         <p>Preview mode: </p>
         <ul>
           <li>
-            <Link href="/previewTest">
-              <a>Check for preview mode</a>
-            </Link>
+            <Link href="/previewTest">Check for preview mode</Link>
           </li>
           <li>
-            <Link href="/api/enterPreview">
-              <a>Enter preview</a>
-            </Link>
+            <Link href="/api/enterPreview">Enter preview</Link>
           </li>
           <li>
-            <Link href="/api/exitPreview">
-              <a>Exit preview</a>
-            </Link>
+            <Link href="/api/exitPreview">Exit preview</Link>
           </li>
         </ul>
       </div>

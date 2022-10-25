@@ -11,9 +11,7 @@ const Show = ({ show, time }) => (
     <p>Rendered at {time} (slowly)</p>
     <hr />
 
-    <Link href="/">
-      <a>Go back home</a>
-    </Link>
+    <Link href="/">Go back home</Link>
   </div>
 )
 
