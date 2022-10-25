@@ -23,6 +23,10 @@ interface EdgeFunctionDefinitionV1 {
   regexp: string
 }
 
+interface AssetRef {
+  name: string
+  filePath: string
+}
 export interface MiddlewareMatcher {
   regexp: string
   locale?: false
@@ -36,6 +40,8 @@ interface EdgeFunctionDefinitionV2 {
   name: string
   page: string
   matchers: MiddlewareMatcher[]
+  wasm?: AssetRef[]
+  assets?: AssetRef[]
 }
 
 type EdgeFunctionDefinition = EdgeFunctionDefinitionV1 | EdgeFunctionDefinitionV2
@@ -78,13 +84,33 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
  * Initialization added to the top of the edge function bundle
  */
 const preamble = /* js */ `
-
-globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-let _ENTRIES = {}
+import {
+  decode as _base64Decode,
+} from "https://deno.land/std@0.159.0/encoding/base64.ts";
 // Deno defines "window", but naughty libraries think this means it's a browser
 delete globalThis.window
+globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
 // Next uses "self" as a function-scoped global-like object
 const self = {}
+let _ENTRIES = {}
+
+//  Next uses blob: urls to refer to local assets, so we need to intercept these
+const _fetch = globalThis.fetch
+const fetch = async (url, init) => {
+  try {
+    if (typeof url === 'object' && url.href?.startsWith('blob:')) {
+      const key = url.href.slice(5)
+      if (key in _ASSETS) {
+        return new Response(_base64Decode(_ASSETS[key]))
+      }
+    }
+    return await _fetch(url, init)
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
 `
 
 // Slightly different spacing in different versions!
@@ -104,6 +130,22 @@ const getMiddlewareBundle = async ({
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
   const chunks: Array<string> = [preamble]
+
+  if ('wasm' in edgeFunctionDefinition) {
+    for (const { name, filePath } of edgeFunctionDefinition.wasm) {
+      const wasm = await fs.readFile(join(publish, filePath))
+      chunks.push(`const ${name} = _base64Decode(${JSON.stringify(wasm.toString('base64'))}).buffer`)
+    }
+  }
+
+  if ('assets' in edgeFunctionDefinition) {
+    chunks.push(`const _ASSETS = {}`)
+    for (const { name, filePath } of edgeFunctionDefinition.assets) {
+      const wasm = await fs.readFile(join(publish, filePath))
+      chunks.push(`_ASSETS[${JSON.stringify(name)}] = ${JSON.stringify(wasm.toString('base64'))}`)
+    }
+  }
+
   for (const file of edgeFunctionDefinition.files) {
     const filePath = join(publish, file)
 
