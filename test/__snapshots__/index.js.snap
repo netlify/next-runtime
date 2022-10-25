@@ -323,6 +323,14 @@ Array [
     "_next/data/build-id/en/getStaticProps/static.json",
   ],
   Array [
+    "pages/en/getStaticProps/with-revalidate-404.html",
+    "en/getStaticProps/with-revalidate-404.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/with-revalidate-404.json",
+    "_next/data/build-id/en/getStaticProps/with-revalidate-404.json",
+  ],
+  Array [
     "pages/en/getStaticProps/with-revalidate.html",
     "en/getStaticProps/with-revalidate.html",
   ],
@@ -491,6 +499,14 @@ Array [
     "_next/data/build-id/es/getStaticProps/static.json",
   ],
   Array [
+    "pages/es/getStaticProps/with-revalidate-404.html",
+    "es/getStaticProps/with-revalidate-404.html",
+  ],
+  Array [
+    "pages/es/getStaticProps/with-revalidate-404.json",
+    "_next/data/build-id/es/getStaticProps/with-revalidate-404.json",
+  ],
+  Array [
     "pages/es/getStaticProps/with-revalidate.html",
     "es/getStaticProps/with-revalidate.html",
   ],
@@ -561,6 +577,14 @@ Array [
   Array [
     "pages/fr/getStaticProps/static.json",
     "_next/data/build-id/fr/getStaticProps/static.json",
+  ],
+  Array [
+    "pages/fr/getStaticProps/with-revalidate-404.html",
+    "fr/getStaticProps/with-revalidate-404.html",
+  ],
+  Array [
+    "pages/fr/getStaticProps/with-revalidate-404.json",
+    "_next/data/build-id/fr/getStaticProps/with-revalidate-404.json",
   ],
   Array [
     "pages/fr/getStaticProps/with-revalidate.html",
