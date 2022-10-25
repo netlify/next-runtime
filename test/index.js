@@ -232,6 +232,8 @@ describe('onBuild()', () => {
 
   afterEach(() => {
     delete process.env.DEPLOY_PRIME_URL
+    delete process.env.URL
+    delete process.env.CONTEXT
   })
 
   test('does not set NEXTAUTH_URL if value is already set', async () => {
@@ -252,6 +254,53 @@ describe('onBuild()', () => {
 
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
+
+  test('sets the NEXTAUTH_URL to the DEPLOY_PRIME_URL when CONTEXT env variable is not \'production\'', async () => {
+    const mockUserDefinedSiteUrl = chance.url()
+    process.env.DEPLOY_PRIME_URL = mockUserDefinedSiteUrl
+    process.env.URL = chance.url()
+    
+    // See https://docs.netlify.com/configure-builds/environment-variables/#build-metadata for all possible values
+    process.env.CONTEXT = 'deploy-preview'
+
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    initialConfig.config.env.NEXTAUTH_URL = mockUserDefinedSiteUrl
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
+  })
+  
+  test('sets the NEXTAUTH_URL to the user defined site URL when CONTEXT env variable is \'production\'', async () => {
+    const mockUserDefinedSiteUrl = chance.url()
+    process.env.DEPLOY_PRIME_URL = chance.url()
+    process.env.URL = mockUserDefinedSiteUrl
+
+    // See https://docs.netlify.com/configure-builds/environment-variables/#build-metadata for all possible values
+    process.env.CONTEXT = 'production'
+
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    initialConfig.config.env.NEXTAUTH_URL = mockUserDefinedSiteUrl
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
+  })
+  
 
   test('sets the NEXTAUTH_URL specified in the netlify.toml or in the Netlify UI', async () => {
     const mockSiteUrl = chance.url()
