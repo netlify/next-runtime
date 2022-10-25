@@ -278,7 +278,7 @@ describe('onBuild()', () => {
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
   
-  test('sets the NEXTAUTH_URL to the URL when CONTEXT env variable is \'production\'', async () => {
+  test('sets the NEXTAUTH_URL to the user defined site URL when CONTEXT env variable is \'production\'', async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = chance.url()
     process.env.URL = mockUserDefinedSiteUrl
