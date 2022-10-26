@@ -106,7 +106,6 @@
   },
   "workspaces": [
     "packages/*",
-    "demos/canary",
     "demos/default",
     "demos/next-auth",
     "demos/static-root",
