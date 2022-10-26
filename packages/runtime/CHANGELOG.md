@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.28.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.1...plugin-nextjs-v4.28.2) (2022-10-26)
+
+
+### Bug Fixes
+
+* follow redirects when downloading a file from the CDN ([#1719](https://github.com/netlify/next-runtime/issues/1719)) ([1d27a99](https://github.com/netlify/next-runtime/commit/1d27a993361e2b979861eee2f33229ddf83bf98c))
+
 ## [4.28.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.0...plugin-nextjs-v4.28.1) (2022-10-25)
 
 
