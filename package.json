@@ -82,7 +82,7 @@
     "vitest-github-actions-reporter": "^0.8.3"
   },
   "dependencies": {
-    "next": "^12.3.2-canary.43"
+    "next": "^13.0.0"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -106,6 +106,7 @@
   },
   "workspaces": [
     "packages/*",
+    "demos/canary",
     "demos/default",
     "demos/next-auth",
     "demos/static-root",
