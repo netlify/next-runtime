@@ -1,6 +1,5 @@
 import fs, { createWriteStream, existsSync } from 'fs'
-import http from 'http'
-import https from 'https'
+import { http, https } from 'follow-redirects'
 import { tmpdir } from 'os'
 import path from 'path'
 import { pipeline } from 'stream'
