@@ -14,7 +14,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "next": "^12.3.2-canary.43"
+    "next": "^13.0.0"
   },
   "scripts": {
     "build": "next build",
