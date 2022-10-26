@@ -1,10 +1,10 @@
 import fs, { createWriteStream, existsSync } from 'fs'
-import { http, https } from 'follow-redirects'
 import { tmpdir } from 'os'
 import path from 'path'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 
+import { http, https } from 'follow-redirects'
 import type NextNodeServer from 'next/dist/server/next-server'
 
 export type NextServerType = typeof NextNodeServer
