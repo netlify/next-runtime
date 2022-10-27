@@ -1,11 +1,10 @@
 import fs, { createWriteStream, existsSync } from 'fs'
-import http from 'http'
-import https from 'https'
 import { tmpdir } from 'os'
 import path from 'path'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 
+import { http, https } from 'follow-redirects'
 import type NextNodeServer from 'next/dist/server/next-server'
 
 export type NextServerType = typeof NextNodeServer
@@ -22,28 +21,19 @@ export const downloadFile = async (url: string, destination: string): Promise<vo
   const httpx = url.startsWith('https') ? https : http
 
   await new Promise((resolve, reject) => {
-    const req = httpx.get(
-      url,
-      {
-        timeout: 10000,
-        headers: {
-          'x-nf-next-asset-req': 'true',
-        },
-      },
-      (response) => {
-        if (response.statusCode < 200 || response.statusCode > 299) {
-          reject(new Error(`Failed to download ${url}: ${response.statusCode} ${response.statusMessage || ''}`))
-          return
-        }
-        const fileStream = createWriteStream(destination)
-        streamPipeline(response, fileStream)
-          .then(resolve)
-          .catch((error) => {
-            console.log(`Error downloading ${url}`, error)
-            reject(error)
-          })
-      },
-    )
+    const req = httpx.get(url, { timeout: 10000, maxRedirects: 1 }, (response) => {
+      if (response.statusCode < 200 || response.statusCode > 299) {
+        reject(new Error(`Failed to download ${url}: ${response.statusCode} ${response.statusMessage || ''}`))
+        return
+      }
+      const fileStream = createWriteStream(destination)
+      streamPipeline(response, fileStream)
+        .then(resolve)
+        .catch((error) => {
+          console.log(`Error downloading ${url}`, error)
+          reject(error)
+        })
+    })
     req.on('error', (error) => {
       console.log(`Error downloading ${url}`, error)
       reject(error)
