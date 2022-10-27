@@ -19,7 +19,7 @@ describe('next/images', () => {
 
   it('should show image allow-listed with remotePatterns', () => {
     cy.visit('/image')
-    cy.findByRole('img', { name: /tawny frogmouth/i })
+    cy.findByRole('img', { name: /shiba inu dog looks through a window/i })
       .should('be.visible')
       .and(($img) => {
         // "naturalWidth" and "naturalHeight" are set when the image loads
@@ -28,11 +28,18 @@ describe('next/images', () => {
   })
 
   it('should show throw if an image is not on the domains or remotePatterns allowlist', () => {
-    cy.request({ url: '/broken-image', failOnStatusCode: false }).then((response) => {
-      expect(response.status).to.be.eq(500)
-      expect(response.body).to.include(
-        `Invalid src prop (https://broken-domain/netlify/next-runtime/main/next-on-netlify.png)`,
-      )
+    cy.visit('/broken-image')
+
+    // The image renders broken on the site
+    cy.findByRole('img', { name: /picture of the author/i }).then(($img) => {
+      // eslint-disable-next-line promise/no-nesting
+      cy.request({ url: $img[0].src, failOnStatusCode: false }).then((response) => {
+        // Navigating to the image itself give a forbidden error with a message explaining why.
+        expect(response.status).to.eq(403)
+        expect(response.body).to.include(
+          'URL not on allowlist: https://broken-domain/netlify/next-runtime/main/next-on-netlify.png',
+        )
+      })
     })
   })
 })
