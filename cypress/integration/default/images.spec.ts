@@ -28,10 +28,10 @@ describe('next/images', () => {
   })
 
   it('should show throw if an image is not on the domains or remotePatterns allowlist', () => {
-    cy.request('/broken-image').then((response) => {
-      expect(response.status).to.eq(500)
+    cy.request({ url: '/broken-image', failOnStatusCode: false }).then((response) => {
+      expect(response.status).to.be.eq(500)
       expect(response.body).to.include(
-        'hostname "broken-domain" is not configured under images in your `next.config.js`',
+        `Invalid src prop (https://broken-domain/netlify/next-runtime/main/next-on-netlify.png)`,
       )
     })
   })
