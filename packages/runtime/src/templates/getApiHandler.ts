@@ -66,8 +66,6 @@ const makeHandler = (conf: NextConfig, app, pageRoot, page) => {
 
     const NextServer: NextServerType = getNextServer()
     const nextServer = new NextServer({
-      // We know we're just an API route, so can enable minimal mode
-      minimalMode: true,
       conf,
       dir,
       customServer: false,
