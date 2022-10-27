@@ -26,4 +26,13 @@ describe('next/images', () => {
         expect($img[0].naturalWidth, 'image has natural width').to.be.greaterThan(0)
       })
   })
+
+  it('should show throw if an image is not on the domains or remotePatterns allowlist', () => {
+    cy.request('/broken-image').then((response) => {
+      expect(response.status).to.eq(500)
+      expect(response.body).to.include(
+        'hostname "broken-domain" is not configured under images in your `next.config.js`',
+      )
+    })
+  })
 })
