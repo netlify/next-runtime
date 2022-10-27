@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.28.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.2...plugin-nextjs-v4.28.3) (2022-10-27)
+
+
+### Bug Fixes
+
+* disable minimal mode for API routes ([#1727](https://github.com/netlify/next-runtime/issues/1727)) ([da8f440](https://github.com/netlify/next-runtime/commit/da8f4405a1f7fd3da6789743f93400d678109022))
+
 ## [4.28.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.1...plugin-nextjs-v4.28.2) (2022-10-26)
 
 
