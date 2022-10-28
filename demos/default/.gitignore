@@ -36,3 +36,4 @@ yarn-error.log*
 netlify/functions
 .netlify/functions
 .netlify/cache
+cachedResponses/*
