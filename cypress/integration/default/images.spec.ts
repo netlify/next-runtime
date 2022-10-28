@@ -37,7 +37,7 @@ describe('next/images', () => {
         // Navigating to the image itself give a forbidden error with a message explaining why.
         expect(response.status).to.eq(403)
         expect(response.body).to.include(
-          'URL not on allowlist: https://broken-domain/netlify/next-runtime/main/next-on-netlify.png',
+          'URL not on allowlist: https://netlify-plugin-nextjs-demo.netlify.app/next-on-netlify.png',
         )
       })
     })
