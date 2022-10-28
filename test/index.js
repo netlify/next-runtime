@@ -255,11 +255,11 @@ describe('onBuild()', () => {
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
 
-  test('sets the NEXTAUTH_URL to the DEPLOY_PRIME_URL when CONTEXT env variable is not \'production\'', async () => {
+  test("sets the NEXTAUTH_URL to the DEPLOY_PRIME_URL when CONTEXT env variable is not 'production'", async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = mockUserDefinedSiteUrl
     process.env.URL = chance.url()
-    
+
     // See https://docs.netlify.com/configure-builds/environment-variables/#build-metadata for all possible values
     process.env.CONTEXT = 'deploy-preview'
 
@@ -277,8 +277,8 @@ describe('onBuild()', () => {
 
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
-  
-  test('sets the NEXTAUTH_URL to the user defined site URL when CONTEXT env variable is \'production\'', async () => {
+
+  test("sets the NEXTAUTH_URL to the user defined site URL when CONTEXT env variable is 'production'", async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = chance.url()
     process.env.URL = mockUserDefinedSiteUrl
@@ -300,7 +300,6 @@ describe('onBuild()', () => {
 
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
-  
 
   test('sets the NEXTAUTH_URL specified in the netlify.toml or in the Netlify UI', async () => {
     const mockSiteUrl = chance.url()
@@ -615,7 +614,7 @@ describe('onBuild()', () => {
     const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
     const imageConfigJson = await readJson(imageConfigPath)
 
-    expect(imageConfigJson.domains.length).toBe(2)
+    expect(imageConfigJson.domains.length).toBe(1)
     expect(imageConfigJson.remotePatterns.length).toBe(1)
     expect(imageConfigJson.responseHeaders).toStrictEqual({
       'X-Foo': mockHeaderValue,
