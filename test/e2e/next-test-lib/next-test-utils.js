@@ -2,14 +2,10 @@
 import spawn from 'cross-spawn'
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
 import { writeFile } from 'fs-extra'
-import getPort from 'get-port'
-import server from 'next/dist/server/next'
 import { fetch } from 'undici'
 import path from 'path'
 import qs from 'querystring'
 import { TextDecoderStream } from 'stream/web'
-
-export const nextServer = server
 
 export function initNextServerScript(scriptPath, successRegexp, env, failRegexp, opts) {
   return new Promise((resolve, reject) => {
@@ -131,10 +127,6 @@ export function renderViaHTTP(appPort, pathname, query, opts) {
 export function fetchViaHTTP(appPort, pathname, query, opts) {
   const url = `${pathname}${typeof query === 'string' ? query : query ? `?${qs.stringify(query)}` : ''}`
   return fetch(getFullUrl(appPort, url), opts)
-}
-
-export function findPort() {
-  return getPort()
 }
 
 export function runNextCommand(argv, options = {}) {

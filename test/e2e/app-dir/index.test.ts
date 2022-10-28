@@ -1,14 +1,7 @@
 import { createNext, FileRef } from 'e2e-utils'
 import crypto from 'crypto'
 import { NextInstance } from 'test/lib/next-modes/base'
-import {
-  check,
-  fetchViaHTTP,
-  getRedboxHeader,
-  hasRedbox,
-  renderViaHTTP,
-  waitFor,
-} from 'next-test-utils'
+import { check, fetchViaHTTP, getRedboxHeader, hasRedbox, renderViaHTTP, waitFor } from 'next-test-utils'
 import path from 'path'
 import cheerio from 'cheerio'
 import webdriver from 'next-webdriver'
@@ -34,49 +27,16 @@ describe('app dir', () => {
     })
     afterAll(() => next.destroy())
 
-    it('should not share edge workers', async () => {
-      const controller1 = new AbortController()
-      const controller2 = new AbortController()
-      fetchViaHTTP(next.url, '/slow-page-no-loading', undefined, {
-        signal: controller1.signal,
-      }).catch(() => {})
-      fetchViaHTTP(next.url, '/slow-page-no-loading', undefined, {
-        signal: controller2.signal,
-      }).catch(() => {})
-
-      await waitFor(1000)
-      controller1.abort()
-
-      const controller3 = new AbortController()
-      fetchViaHTTP(next.url, '/slow-page-no-loading', undefined, {
-        signal: controller3.signal,
-      }).catch(() => {})
-      await waitFor(1000)
-      controller2.abort()
-      controller3.abort()
-
-      const res = await fetchViaHTTP(next.url, '/slow-page-no-loading')
-      expect(res.status).toBe(200)
-      expect(await res.text()).toContain('hello from slow page')
-      expect(next.cliOutput).not.toContain(
-        'A separate worker must be used for each render'
-      )
-    })
-
     if ((global as any).isNextStart) {
       it('should generate build traces correctly', async () => {
         const trace = JSON.parse(
-          await next.readFile(
-            '.next/server/app/dashboard/deployments/[id]/page.js.nft.json'
-          )
+          await next.readFile('.next/server/app/dashboard/deployments/[id]/page.js.nft.json'),
         ) as { files: string[] }
-        expect(trace.files.some((file) => file.endsWith('data.json'))).toBe(
-          true
-        )
+        expect(trace.files.some((file) => file.endsWith('data.json'))).toBe(true)
       })
     }
 
-    it('should use application/octet-stream for flight', async () => {
+    fit('should use application/octet-stream for flight', async () => {
       const res = await fetchViaHTTP(
         next.url,
         '/dashboard/deployments/123',
@@ -85,7 +45,7 @@ describe('app dir', () => {
           headers: {
             __rsc__: '1',
           },
-        }
+        },
       )
       expect(res.headers.get('Content-Type')).toBe('application/octet-stream')
     })
@@ -99,7 +59,7 @@ describe('app dir', () => {
           headers: {
             __rsc__: '1',
           },
-        }
+        },
       )
       expect(res.headers.get('Content-Type')).toBe('application/octet-stream')
     })
@@ -146,9 +106,7 @@ describe('app dir', () => {
 
       it('should serve polyfills for browsers that do not support modules', async () => {
         const html = await renderViaHTTP(next.url, '/dashboard/index')
-        expect(html).toMatch(
-          /<script src="\/_next\/static\/chunks\/polyfills(-\w+)?\.js" nomodule="">/
-        )
+        expect(html).toMatch(/<script src="\/_next\/static\/chunks\/polyfills(-\w+)?\.js" nomodule="">/)
       })
     }
 
@@ -157,15 +115,11 @@ describe('app dir', () => {
       const browser = await webdriver(next.url, '/dashboard/index')
 
       expect(
-        await browser.eval(
-          `window.getComputedStyle(document.querySelector('#css-text-dynamic-server')).color`
-        )
+        await browser.eval(`window.getComputedStyle(document.querySelector('#css-text-dynamic-server')).color`),
       ).toBe('rgb(0, 0, 255)')
-      expect(
-        await browser.eval(
-          `window.getComputedStyle(document.querySelector('#css-text-lazy')).color`
-        )
-      ).toBe('rgb(128, 0, 128)')
+      expect(await browser.eval(`window.getComputedStyle(document.querySelector('#css-text-lazy')).color`)).toBe(
+        'rgb(128, 0, 128)',
+      )
     })
 
     it('should include layouts when no direct parent layout', async () => {
@@ -213,10 +167,7 @@ describe('app dir', () => {
     })
 
     it('should not create new root layout when nested (optional)', async () => {
-      const html = await renderViaHTTP(
-        next.url,
-        '/dashboard/deployments/breakdown'
-      )
+      const html = await renderViaHTTP(next.url, '/dashboard/deployments/breakdown')
       const $ = cheerio.load(html)
 
       // new root has to provide it's own custom root layout or the default
@@ -229,9 +180,7 @@ describe('app dir', () => {
       expect($('h2').text()).toBe('Custom dashboard')
 
       // Should render the page text
-      expect($('p').text()).toBe(
-        'hello from app/dashboard/(custom)/deployments/breakdown'
-      )
+      expect($('p').text()).toBe('hello from app/dashboard/(custom)/deployments/breakdown')
     })
 
     it('should include parent document when no direct parent layout', async () => {
@@ -264,9 +213,7 @@ describe('app dir', () => {
       const html = await renderViaHTTP(next.url, '/dashboard/deployments/123')
       const $ = cheerio.load(html)
       // Should include the page text with the parameter
-      expect($('p').text()).toBe(
-        'hello from app/dashboard/deployments/[id]. ID is: 123'
-      )
+      expect($('p').text()).toBe('hello from app/dashboard/deployments/[id]. ID is: 123')
     })
 
     it('should include document html and body', async () => {
@@ -298,9 +245,7 @@ describe('app dir', () => {
       const links = $('link[rel=stylesheet]')
       links.each((_, link) => {
         const href = $(link).attr('href')
-        isDev
-          ? expect(href).toMatch(/\?ts=/)
-          : expect(href).not.toMatch(/\?ts=/)
+        isDev ? expect(href).toMatch(/\?ts=/) : expect(href).not.toMatch(/\?ts=/)
       })
     })
 
@@ -325,9 +270,7 @@ describe('app dir', () => {
           // expect(await browser.url()).toBe(`${next.url}/rewritten-to-dashboard`)
 
           // Check to see that the page we navigated to is in fact the dashboard.
-          expect(await browser.elementByCss('#from-dashboard').text()).toBe(
-            'hello from app/dashboard'
-          )
+          expect(await browser.elementByCss('#from-dashboard').text()).toBe('hello from app/dashboard')
         } finally {
           await browser.close()
         }
@@ -345,9 +288,7 @@ describe('app dir', () => {
           expect(await browser.url()).toBe(`${next.url}/rewritten-to-dashboard`)
 
           // Check to see that the page we navigated to is in fact the dashboard.
-          expect(await browser.elementByCss('#from-dashboard').text()).toBe(
-            'hello from app/dashboard'
-          )
+          expect(await browser.elementByCss('#from-dashboard').text()).toBe('hello from app/dashboard')
         } finally {
           await browser.close()
         }
@@ -380,7 +321,7 @@ describe('app dir', () => {
         } finally {
           await browser.close()
         }
-      }
+      },
     )
 
     it('should handle hash in initial url', async () => {
@@ -593,15 +534,11 @@ describe('app dir', () => {
         try {
           // Click the link.
           await browser.elementById('app-link').click()
-          expect(await browser.waitForElementByCss('#pages-link').text()).toBe(
-            'To App Page'
-          )
+          expect(await browser.waitForElementByCss('#pages-link').text()).toBe('To App Page')
 
           // Click the other link.
           await browser.elementById('pages-link').click()
-          expect(await browser.waitForElementByCss('#app-link').text()).toBe(
-            'To Pages Page'
-          )
+          expect(await browser.waitForElementByCss('#app-link').text()).toBe('To Pages Page')
         } finally {
           await browser.close()
         }
@@ -617,18 +554,12 @@ describe('app dir', () => {
         expect(html).toContain('hello from app/should-not-serve-server')
 
         // Should not serve `.server`
-        const res = await fetchViaHTTP(
-          next.url,
-          '/should-not-serve-server.server'
-        )
+        const res = await fetchViaHTTP(next.url, '/should-not-serve-server.server')
         expect(res.status).toBe(404)
         expect(await res.text()).toContain('This page could not be found')
 
         // Should not serve `.server.js`
-        const res2 = await fetchViaHTTP(
-          next.url,
-          '/should-not-serve-server.server.js'
-        )
+        const res2 = await fetchViaHTTP(next.url, '/should-not-serve-server.server.js')
         expect(res2.status).toBe(404)
         expect(await res2.text()).toContain('This page could not be found')
       })
@@ -639,18 +570,12 @@ describe('app dir', () => {
         expect(html).toContain('hello from app/should-not-serve-client')
 
         // Should not serve `.client`
-        const res = await fetchViaHTTP(
-          next.url,
-          '/should-not-serve-client.client'
-        )
+        const res = await fetchViaHTTP(next.url, '/should-not-serve-client.client')
         expect(res.status).toBe(404)
         expect(await res.text()).toContain('This page could not be found')
 
         // Should not serve `.client.js`
-        const res2 = await fetchViaHTTP(
-          next.url,
-          '/should-not-serve-client.client.js'
-        )
+        const res2 = await fetchViaHTTP(next.url, '/should-not-serve-client.client.js')
         expect(res2.status).toBe(404)
         expect(await res2.text()).toContain('This page could not be found')
       })
@@ -663,22 +588,13 @@ describe('app dir', () => {
 
       describe('dynamic routes', () => {
         it('should only pass params that apply to the layout', async () => {
-          const html = await renderViaHTTP(
-            next.url,
-            '/dynamic/books/hello-world'
-          )
+          const html = await renderViaHTTP(next.url, '/dynamic/books/hello-world')
           const $ = cheerio.load(html)
 
           expect($('#dynamic-layout-params').text()).toBe('{}')
-          expect($('#category-layout-params').text()).toBe(
-            '{"category":"books"}'
-          )
-          expect($('#id-layout-params').text()).toBe(
-            '{"category":"books","id":"hello-world"}'
-          )
-          expect($('#id-page-params').text()).toBe(
-            '{"category":"books","id":"hello-world"}'
-          )
+          expect($('#category-layout-params').text()).toBe('{"category":"books"}')
+          expect($('#id-layout-params').text()).toBe('{"category":"books","id":"hello-world"}')
+          expect($('#id-page-params').text()).toBe('{"category":"books","id":"hello-world"}')
         })
       })
 
@@ -686,10 +602,7 @@ describe('app dir', () => {
         it('should handle optional segments', async () => {
           const params = ['this', 'is', 'a', 'test']
           const route = params.join('/')
-          const html = await renderViaHTTP(
-            next.url,
-            `/catch-all-optional/${route}`
-          )
+          const html = await renderViaHTTP(next.url, `/catch-all-optional/${route}`)
           const $ = cheerio.load(html)
           expect($('#text').attr('data-params')).toBe(route)
         })
@@ -702,13 +615,9 @@ describe('app dir', () => {
 
         it('should handle optional catch-all segments link', async () => {
           const browser = await webdriver(next.url, '/catch-all-link')
-          expect(
-            await browser
-              .elementByCss('#to-catch-all-optional')
-              .click()
-              .waitForElementByCss('#text')
-              .text()
-          ).toBe(`hello from /catch-all-optional/this/is/a/test`)
+          expect(await browser.elementByCss('#to-catch-all-optional').click().waitForElementByCss('#text').text()).toBe(
+            `hello from /catch-all-optional/this/is/a/test`,
+          )
         })
 
         it('should handle required segments', async () => {
@@ -731,13 +640,9 @@ describe('app dir', () => {
 
         it('should handle catch-all segments link', async () => {
           const browser = await webdriver(next.url, '/catch-all-link')
-          expect(
-            await browser
-              .elementByCss('#to-catch-all')
-              .click()
-              .waitForElementByCss('#text')
-              .text()
-          ).toBe(`hello from /catch-all/this/is/a/test`)
+          expect(await browser.elementByCss('#to-catch-all').click().waitForElementByCss('#text').text()).toBe(
+            `hello from /catch-all/this/is/a/test`,
+          )
         })
       })
 
@@ -745,9 +650,7 @@ describe('app dir', () => {
         it('should serve server-side', async () => {
           const html = await renderViaHTTP(next.url, '/client-component-route')
           const $ = cheerio.load(html)
-          expect($('p').text()).toBe(
-            'hello from app/client-component-route. count: 0'
-          )
+          expect($('p').text()).toBe('hello from app/client-component-route. count: 0')
         })
 
         // TODO-APP: investigate hydration not kicking in on some runs
@@ -755,9 +658,7 @@ describe('app dir', () => {
           const browser = await webdriver(next.url, '/client-component-route')
 
           // After hydration count should be 1
-          expect(await browser.elementByCss('p').text()).toBe(
-            'hello from app/client-component-route. count: 1'
-          )
+          expect(await browser.elementByCss('p').text()).toBe('hello from app/client-component-route. count: 1')
         })
       })
 
@@ -775,14 +676,10 @@ describe('app dir', () => {
           const browser = await webdriver(next.url, '/client-nested')
 
           // After hydration count should be 1
-          expect(await browser.elementByCss('h1').text()).toBe(
-            'Client Nested. Count: 1'
-          )
+          expect(await browser.elementByCss('h1').text()).toBe('Client Nested. Count: 1')
 
           // After hydration count should be 1
-          expect(await browser.elementByCss('p').text()).toBe(
-            'hello from app/client-nested'
-          )
+          expect(await browser.elementByCss('p').text()).toBe('hello from app/client-nested')
         })
       })
 
@@ -801,46 +698,30 @@ describe('app dir', () => {
           // TODO-APP: `await webdriver()` causes waiting for the full page to complete streaming. At that point "Loading..." is replaced by the actual content
           // expect(await browser.elementByCss('#loading').text()).toBe('Loading...')
 
-          expect(await browser.elementByCss('#slow-page-message').text()).toBe(
-            'hello from slow page'
-          )
+          expect(await browser.elementByCss('#slow-page-message').text()).toBe('hello from slow page')
         })
 
         it('should render loading.js in initial html for slow layout', async () => {
-          const html = await renderViaHTTP(
-            next.url,
-            '/slow-layout-with-loading/slow'
-          )
+          const html = await renderViaHTTP(next.url, '/slow-layout-with-loading/slow')
           const $ = cheerio.load(html)
 
           expect($('#loading').text()).toBe('Loading...')
         })
 
         it('should render loading.js in browser for slow layout', async () => {
-          const browser = await webdriver(
-            next.url,
-            '/slow-layout-with-loading/slow',
-            {
-              waitHydration: false,
-            }
-          )
+          const browser = await webdriver(next.url, '/slow-layout-with-loading/slow', {
+            waitHydration: false,
+          })
           // TODO-APP: `await webdriver()` causes waiting for the full page to complete streaming. At that point "Loading..." is replaced by the actual content
           // expect(await browser.elementByCss('#loading').text()).toBe('Loading...')
 
-          expect(
-            await browser.elementByCss('#slow-layout-message').text()
-          ).toBe('hello from slow layout')
+          expect(await browser.elementByCss('#slow-layout-message').text()).toBe('hello from slow layout')
 
-          expect(await browser.elementByCss('#page-message').text()).toBe(
-            'Hello World'
-          )
+          expect(await browser.elementByCss('#page-message').text()).toBe('Hello World')
         })
 
         it('should render loading.js in initial html for slow layout and page', async () => {
-          const html = await renderViaHTTP(
-            next.url,
-            '/slow-layout-and-page-with-loading/slow'
-          )
+          const html = await renderViaHTTP(next.url, '/slow-layout-and-page-with-loading/slow')
           const $ = cheerio.load(html)
 
           expect($('#loading-layout').text()).toBe('Loading layout...')
@@ -848,24 +729,16 @@ describe('app dir', () => {
         })
 
         it('should render loading.js in browser for slow layout and page', async () => {
-          const browser = await webdriver(
-            next.url,
-            '/slow-layout-and-page-with-loading/slow',
-            {
-              waitHydration: false,
-            }
-          )
+          const browser = await webdriver(next.url, '/slow-layout-and-page-with-loading/slow', {
+            waitHydration: false,
+          })
           // TODO-APP: `await webdriver()` causes waiting for the full page to complete streaming. At that point "Loading..." is replaced by the actual content
           // expect(await browser.elementByCss('#loading-layout').text()).toBe('Loading...')
           // expect(await browser.elementByCss('#loading-page').text()).toBe('Loading...')
 
-          expect(
-            await browser.elementByCss('#slow-layout-message').text()
-          ).toBe('hello from slow layout')
+          expect(await browser.elementByCss('#slow-layout-message').text()).toBe('hello from slow layout')
 
-          expect(await browser.elementByCss('#slow-page-message').text()).toBe(
-            'hello from slow page'
-          )
+          expect(await browser.elementByCss('#slow-page-message').text()).toBe('hello from slow page')
         })
       })
 
@@ -881,17 +754,12 @@ describe('app dir', () => {
               // middleware sees any flight data on the request it'll redirect to
               // a page with an element of #failure, otherwise, we'll see the
               // element for #success.
-              await browser
-                .waitForElementByCss(`#navigate-${method}`)
-                .elementById(`navigate-${method}`)
-                .click()
-              expect(
-                await browser.waitForElementByCss('#success', 3000).text()
-              ).toBe('Success')
+              await browser.waitForElementByCss(`#navigate-${method}`).elementById(`navigate-${method}`).click()
+              expect(await browser.waitForElementByCss('#success', 3000).text()).toBe('Success')
             } finally {
               await browser.close()
             }
-          }
+          },
         )
       })
 
@@ -902,9 +770,7 @@ describe('app dir', () => {
           const firstMessage = 'Hello from 1'
           const secondMessage = 'Hello from 2'
 
-          expect(await browser.elementByCss('#message-1').text()).toBe(
-            firstMessage
-          )
+          expect(await browser.elementByCss('#message-1').text()).toBe(firstMessage)
 
           try {
             const message2 = await browser
@@ -995,23 +861,13 @@ describe('app dir', () => {
         describe('headers function', () => {
           it('should have access to incoming headers in a server component', async () => {
             // Check to see that we can't see the header when it's not present.
-            let html = await renderViaHTTP(
-              next.url,
-              '/hooks/use-headers',
-              {},
-              { headers: {} }
-            )
+            let html = await renderViaHTTP(next.url, '/hooks/use-headers', {}, { headers: {} })
             let $ = cheerio.load(html)
             expect($('#does-not-have-header').length).toBe(1)
             expect($('#has-header').length).toBe(0)
 
             // Check to see that we can see the header when it's present.
-            html = await renderViaHTTP(
-              next.url,
-              '/hooks/use-headers',
-              {},
-              { headers: { 'x-use-headers': 'value' } }
-            )
+            html = await renderViaHTTP(next.url, '/hooks/use-headers', {}, { headers: { 'x-use-headers': 'value' } })
             $ = cheerio.load(html)
             expect($('#has-header').length).toBe(1)
             expect($('#does-not-have-header').length).toBe(0)
@@ -1076,10 +932,7 @@ describe('app dir', () => {
         describe('useSearchParams', () => {
           // TODO-APP: should enable when implemented
           it.skip('should throw an error when imported', async () => {
-            const res = await fetchViaHTTP(
-              next.url,
-              '/hooks/use-search-params/server'
-            )
+            const res = await fetchViaHTTP(next.url, '/hooks/use-search-params/server')
             expect(res.status).toBe(500)
             expect(await res.text()).toContain('Internal Server Error')
           })
@@ -1088,10 +941,7 @@ describe('app dir', () => {
         describe('usePathname', () => {
           // TODO-APP: should enable when implemented
           it.skip('should throw an error when imported', async () => {
-            const res = await fetchViaHTTP(
-              next.url,
-              '/hooks/use-pathname/server'
-            )
+            const res = await fetchViaHTTP(next.url, '/hooks/use-pathname/server')
             expect(res.status).toBe(500)
             expect(await res.text()).toContain('Internal Server Error')
           })
@@ -1100,10 +950,7 @@ describe('app dir', () => {
         describe('useLayoutSegments', () => {
           // TODO-APP: should enable when implemented
           it.skip('should throw an error when imported', async () => {
-            const res = await fetchViaHTTP(
-              next.url,
-              '/hooks/use-layout-segments/server'
-            )
+            const res = await fetchViaHTTP(next.url, '/hooks/use-layout-segments/server')
             expect(res.status).toBe(500)
             expect(await res.text()).toContain('Internal Server Error')
           })
@@ -1112,10 +959,7 @@ describe('app dir', () => {
         describe('useSelectedLayoutSegment', () => {
           // TODO-APP: should enable when implemented
           it.skip('should throw an error when imported', async () => {
-            const res = await fetchViaHTTP(
-              next.url,
-              '/hooks/use-selected-layout-segment/server'
-            )
+            const res = await fetchViaHTTP(next.url, '/hooks/use-selected-layout-segment/server')
             expect(res.status).toBe(500)
             expect(await res.text()).toContain('Internal Server Error')
           })
@@ -1129,20 +973,13 @@ describe('app dir', () => {
           it('should have the correct pathname', async () => {
             const html = await renderViaHTTP(next.url, '/hooks/use-pathname')
             const $ = cheerio.load(html)
-            expect($('#pathname').attr('data-pathname')).toBe(
-              '/hooks/use-pathname'
-            )
+            expect($('#pathname').attr('data-pathname')).toBe('/hooks/use-pathname')
           })
 
           it('should have the canonical url pathname on rewrite', async () => {
-            const html = await renderViaHTTP(
-              next.url,
-              '/rewritten-use-pathname'
-            )
+            const html = await renderViaHTTP(next.url, '/rewritten-use-pathname')
             const $ = cheerio.load(html)
-            expect($('#pathname').attr('data-pathname')).toBe(
-              '/rewritten-use-pathname'
-            )
+            expect($('#pathname').attr('data-pathname')).toBe('/rewritten-use-pathname')
           })
         })
 
@@ -1150,7 +987,7 @@ describe('app dir', () => {
           it('should have the correct search params', async () => {
             const html = await renderViaHTTP(
               next.url,
-              '/hooks/use-search-params?first=value&second=other%20value&third'
+              '/hooks/use-search-params?first=value&second=other%20value&third',
             )
             const $ = cheerio.load(html)
             expect($('#params-first').text()).toBe('value')
@@ -1160,10 +997,7 @@ describe('app dir', () => {
           })
 
           it('should have the canonical url search params on rewrite', async () => {
-            const html = await renderViaHTTP(
-              next.url,
-              '/rewritten-use-search-params?first=a&second=b&third=c'
-            )
+            const html = await renderViaHTTP(next.url, '/rewritten-use-search-params?first=a&second=b&third=c')
             const $ = cheerio.load(html)
             expect($('#params-first').text()).toBe('a')
             expect($('#params-second').text()).toBe('b')
@@ -1194,10 +1028,7 @@ describe('app dir', () => {
 
           if (!(global as any).isNextDeploy) {
             it('should have consistent query and params handling', async () => {
-              const html = await renderViaHTTP(
-                next.url,
-                '/param-and-query/params?slug=query'
-              )
+              const html = await renderViaHTTP(next.url, '/param-and-query/params?slug=query')
               const $ = cheerio.load(html)
               const el = $('#params-and-query')
               expect(el.attr('data-params')).toBe('params')
@@ -1215,22 +1046,16 @@ describe('app dir', () => {
             ${'/hooks/use-selected-layout-segment/first/slug2/second/a/b'} | ${['first', 'slug2', '(group)', 'second', 'a/b']}       | ${['slug2', '(group)', 'second', 'a/b']}
             ${'/hooks/use-selected-layout-segment/rewritten'}              | ${['first', 'slug3', '(group)', 'second', 'catch/all']} | ${['slug3', '(group)', 'second', 'catch/all']}
             ${'/hooks/use-selected-layout-segment/rewritten-middleware'}   | ${['first', 'slug3', '(group)', 'second', 'catch/all']} | ${['slug3', '(group)', 'second', 'catch/all']}
-          `(
-            'should have the correct layout segments at $path',
-            async ({ path, outerLayout, innerLayout }) => {
-              const html = await renderViaHTTP(next.url, path)
-              const $ = cheerio.load(html)
+          `('should have the correct layout segments at $path', async ({ path, outerLayout, innerLayout }) => {
+            const html = await renderViaHTTP(next.url, path)
+            const $ = cheerio.load(html)
 
-              expect(JSON.parse($('#outer-layout').text())).toEqual(outerLayout)
-              expect(JSON.parse($('#inner-layout').text())).toEqual(innerLayout)
-            }
-          )
+            expect(JSON.parse($('#outer-layout').text())).toEqual(outerLayout)
+            expect(JSON.parse($('#inner-layout').text())).toEqual(innerLayout)
+          })
 
           it('should return an empty array in pages', async () => {
-            const html = await renderViaHTTP(
-              next.url,
-              '/hooks/use-selected-layout-segment/first/slug2/second/a/b'
-            )
+            const html = await renderViaHTTP(next.url, '/hooks/use-selected-layout-segment/first/slug2/second/a/b')
             const $ = cheerio.load(html)
 
             expect(JSON.parse($('#page-layout-segments').text())).toEqual([])
@@ -1246,38 +1071,23 @@ describe('app dir', () => {
           try {
             const browser = await webdriver(next.url, '/client-component-route')
 
-            const ssrInitial = await renderViaHTTP(
-              next.url,
-              '/client-component-route'
-            )
+            const ssrInitial = await renderViaHTTP(next.url, '/client-component-route')
 
-            expect(ssrInitial).toContain(
-              'hello from app/client-component-route'
-            )
+            expect(ssrInitial).toContain('hello from app/client-component-route')
 
-            expect(await browser.elementByCss('p').text()).toContain(
-              'hello from app/client-component-route'
-            )
+            expect(await browser.elementByCss('p').text()).toContain('hello from app/client-component-route')
 
-            await next.patchFile(
-              filePath,
-              origContent.replace('hello from', 'swapped from')
-            )
+            await next.patchFile(filePath, origContent.replace('hello from', 'swapped from'))
 
             await check(() => browser.elementByCss('p').text(), /swapped from/)
 
-            const ssrUpdated = await renderViaHTTP(
-              next.url,
-              '/client-component-route'
-            )
+            const ssrUpdated = await renderViaHTTP(next.url, '/client-component-route')
             expect(ssrUpdated).toContain('swapped from')
 
             await next.patchFile(filePath, origContent)
 
             await check(() => browser.elementByCss('p').text(), /hello from/)
-            expect(
-              await renderViaHTTP(next.url, '/client-component-route')
-            ).toContain('hello from')
+            expect(await renderViaHTTP(next.url, '/client-component-route')).toContain('hello from')
           } finally {
             await next.patchFile(filePath, origContent)
           }
@@ -1291,47 +1101,37 @@ describe('app dir', () => {
           const browser = await webdriver(next.url, '/dashboard')
 
           // Should body text in red
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('.p')).color`
-            )
-          ).toBe('rgb(255, 0, 0)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('.p')).color`)).toBe(
+            'rgb(255, 0, 0)',
+          )
 
           // Should inject global css for .green selectors
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('.green')).color`
-            )
-          ).toBe('rgb(0, 128, 0)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('.green')).color`)).toBe(
+            'rgb(0, 128, 0)',
+          )
         })
 
         it('should support css modules inside server layouts', async () => {
           const browser = await webdriver(next.url, '/css/css-nested')
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('#server-cssm')).color`
-            )
-          ).toBe('rgb(0, 128, 0)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('#server-cssm')).color`)).toBe(
+            'rgb(0, 128, 0)',
+          )
         })
       })
 
       describe('server pages', () => {
         it('should support global css inside server pages', async () => {
           const browser = await webdriver(next.url, '/css/css-page')
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('h1')).color`
-            )
-          ).toBe('rgb(255, 0, 0)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('h1')).color`)).toBe(
+            'rgb(255, 0, 0)',
+          )
         })
 
         it('should support css modules inside server pages', async () => {
           const browser = await webdriver(next.url, '/css/css-page')
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('#cssm')).color`
-            )
-          ).toBe('rgb(0, 0, 255)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('#cssm')).color`)).toBe(
+            'rgb(0, 0, 255)',
+          )
         })
 
         if (!isDev) {
@@ -1339,20 +1139,17 @@ describe('app dir', () => {
             const browser = await webdriver(next.url, '/css/css-page/unused')
             expect(
               await browser.eval(
-                `[...document.styleSheets].some(({ rules }) => [...rules].some(rule => rule.selectorText.includes('this_should_not_be_included')))`
-              )
+                `[...document.styleSheets].some(({ rules }) => [...rules].some(rule => rule.selectorText.includes('this_should_not_be_included')))`,
+              ),
             ).toBe(false)
           })
 
           it('should not include unused css modules in nested pages in prod', async () => {
-            const browser = await webdriver(
-              next.url,
-              '/css/css-page/unused-nested/inner'
-            )
+            const browser = await webdriver(next.url, '/css/css-page/unused-nested/inner')
             expect(
               await browser.eval(
-                `[...document.styleSheets].some(({ rules }) => [...rules].some(rule => rule.selectorText.includes('this_should_not_be_included_in_inner_path')))`
-              )
+                `[...document.styleSheets].some(({ rules }) => [...rules].some(rule => rule.selectorText.includes('this_should_not_be_included_in_inner_path')))`,
+              ),
             ).toBe(false)
           })
         }
@@ -1363,22 +1160,18 @@ describe('app dir', () => {
           const browser = await webdriver(next.url, '/client-nested')
 
           // Should render h1 in red
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('h1')).color`
-            )
-          ).toBe('rgb(255, 0, 0)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('h1')).color`)).toBe(
+            'rgb(255, 0, 0)',
+          )
         })
 
         it('should support global css inside client layouts', async () => {
           const browser = await webdriver(next.url, '/client-nested')
 
           // Should render button in red
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('button')).color`
-            )
-          ).toBe('rgb(255, 0, 0)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('button')).color`)).toBe(
+            'rgb(255, 0, 0)',
+          )
         })
       })
 
@@ -1387,22 +1180,18 @@ describe('app dir', () => {
           const browser = await webdriver(next.url, '/client-component-route')
 
           // Should render p in red
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('p')).color`
-            )
-          ).toBe('rgb(255, 0, 0)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('p')).color`)).toBe(
+            'rgb(255, 0, 0)',
+          )
         })
 
         it('should support global css inside client pages', async () => {
           const browser = await webdriver(next.url, '/client-component-route')
 
           // Should render `b` in blue
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('b')).color`
-            )
-          ).toBe('rgb(0, 0, 255)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('b')).color`)).toBe(
+            'rgb(0, 0, 255)',
+          )
         })
       })
     })
@@ -1410,10 +1199,7 @@ describe('app dir', () => {
     describe('searchParams prop', () => {
       describe('client component', () => {
         it('should have the correct search params', async () => {
-          const html = await renderViaHTTP(
-            next.url,
-            '/search-params-prop?first=value&second=other%20value&third'
-          )
+          const html = await renderViaHTTP(next.url, '/search-params-prop?first=value&second=other%20value&third')
           const $ = cheerio.load(html)
           const el = $('#params')
           expect(el.attr('data-param-first')).toBe('value')
@@ -1423,10 +1209,7 @@ describe('app dir', () => {
         })
 
         it('should have the correct search params on rewrite', async () => {
-          const html = await renderViaHTTP(
-            next.url,
-            '/search-params-prop-rewrite'
-          )
+          const html = await renderViaHTTP(next.url, '/search-params-prop-rewrite')
           const $ = cheerio.load(html)
           const el = $('#params')
           expect(el.attr('data-param-first')).toBe('value')
@@ -1436,10 +1219,7 @@ describe('app dir', () => {
         })
 
         it('should have the correct search params on middleware rewrite', async () => {
-          const html = await renderViaHTTP(
-            next.url,
-            '/search-params-prop-middleware-rewrite'
-          )
+          const html = await renderViaHTTP(next.url, '/search-params-prop-middleware-rewrite')
           const $ = cheerio.load(html)
           const el = $('#params')
           expect(el.attr('data-param-first')).toBe('value')
@@ -1453,7 +1233,7 @@ describe('app dir', () => {
         it('should have the correct search params', async () => {
           const html = await renderViaHTTP(
             next.url,
-            '/search-params-prop/server?first=value&second=other%20value&third'
+            '/search-params-prop/server?first=value&second=other%20value&third',
           )
           const $ = cheerio.load(html)
           const el = $('#params')
@@ -1464,10 +1244,7 @@ describe('app dir', () => {
         })
 
         it('should have the correct search params on rewrite', async () => {
-          const html = await renderViaHTTP(
-            next.url,
-            '/search-params-prop-server-rewrite'
-          )
+          const html = await renderViaHTTP(next.url, '/search-params-prop-server-rewrite')
           const $ = cheerio.load(html)
           const el = $('#params')
           expect(el.attr('data-param-first')).toBe('value')
@@ -1477,10 +1254,7 @@ describe('app dir', () => {
         })
 
         it('should have the correct search params on middleware rewrite', async () => {
-          const html = await renderViaHTTP(
-            next.url,
-            '/search-params-prop-server-middleware-rewrite'
-          )
+          const html = await renderViaHTTP(next.url, '/search-params-prop-server-middleware-rewrite')
           const $ = cheerio.load(html)
           const el = $('#params')
           expect(el.attr('data-param-first')).toBe('value')
@@ -1497,15 +1271,11 @@ describe('app dir', () => {
           const browser = await webdriver(next.url, '/css/sass/inner')
           // .sass
           expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('#sass-server-layout')).color`
-            )
+            await browser.eval(`window.getComputedStyle(document.querySelector('#sass-server-layout')).color`),
           ).toBe('rgb(165, 42, 42)')
           // .scss
           expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('#scss-server-layout')).color`
-            )
+            await browser.eval(`window.getComputedStyle(document.querySelector('#scss-server-layout')).color`),
           ).toBe('rgb(222, 184, 135)')
         })
 
@@ -1514,14 +1284,14 @@ describe('app dir', () => {
           // .sass
           expect(
             await browser.eval(
-              `window.getComputedStyle(document.querySelector('#sass-server-layout')).backgroundColor`
-            )
+              `window.getComputedStyle(document.querySelector('#sass-server-layout')).backgroundColor`,
+            ),
           ).toBe('rgb(233, 150, 122)')
           // .scss
           expect(
             await browser.eval(
-              `window.getComputedStyle(document.querySelector('#scss-server-layout')).backgroundColor`
-            )
+              `window.getComputedStyle(document.querySelector('#scss-server-layout')).backgroundColor`,
+            ),
           ).toBe('rgb(139, 0, 0)')
         })
       })
@@ -1530,32 +1300,24 @@ describe('app dir', () => {
         it('should support global sass/scss inside server pages', async () => {
           const browser = await webdriver(next.url, '/css/sass/inner')
           // .sass
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('#sass-server-page')).color`
-            )
-          ).toBe('rgb(245, 222, 179)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('#sass-server-page')).color`)).toBe(
+            'rgb(245, 222, 179)',
+          )
           // .scss
-          expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('#scss-server-page')).color`
-            )
-          ).toBe('rgb(255, 99, 71)')
+          expect(await browser.eval(`window.getComputedStyle(document.querySelector('#scss-server-page')).color`)).toBe(
+            'rgb(255, 99, 71)',
+          )
         })
 
         it('should support sass/scss modules inside server pages', async () => {
           const browser = await webdriver(next.url, '/css/sass/inner')
           // .sass
           expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('#sass-server-page')).backgroundColor`
-            )
+            await browser.eval(`window.getComputedStyle(document.querySelector('#sass-server-page')).backgroundColor`),
           ).toBe('rgb(75, 0, 130)')
           // .scss
           expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('#scss-server-page')).backgroundColor`
-            )
+            await browser.eval(`window.getComputedStyle(document.querySelector('#scss-server-page')).backgroundColor`),
           ).toBe('rgb(0, 255, 255)')
         })
       })
@@ -1565,15 +1327,11 @@ describe('app dir', () => {
           const browser = await webdriver(next.url, '/css/sass-client/inner')
           // .sass
           expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('#sass-client-layout')).color`
-            )
+            await browser.eval(`window.getComputedStyle(document.querySelector('#sass-client-layout')).color`),
           ).toBe('rgb(165, 42, 42)')
           // .scss
           expect(
-            await browser.eval(
-              `window.getComputedStyle(document.querySelector('#scss-client-layout')).color`
-            )
+            await browser.eval(`window.getComputedStyle(document.querySelector('#scss-client-layout')).color`),
           ).toBe('rgb(222, 184, 135)')
         })
 
@@ -1582,14 +1340,14 @@ describe('app dir', () => {
           // .sass
           expect(
             await browser.eval(
-              `window.getComputedStyle(document.querySelector('#sass-client-layout')).backgroundColor`
-            )
+              `window.getComputedStyle(document.querySelector('#sass-client-layout')).backgroundColor`,
+            ),
           ).toBe('rgb(233, 150, 122)')
           // .scss
           expect(
             await browser.eval(
-              `window.getComputedStyle(document.querySelector('#scss-client-layout')).backgroundColor`
-            )
+              `window.getComputedStyle(document.querySelector('#scss-client-layout')).backgroundColor`,
+            ),
           ).toBe('rgb(139, 0, 0)')
         })
       })
@@ -1600,32 +1358,24 @@ describe('app dir', () => {
         const browser = await webdriver(next.url, '/css/sass-client/inner')
         await waitFor(5000)
         // .sass
-        expect(
-          await browser.eval(
-            `window.getComputedStyle(document.querySelector('#sass-client-page')).color`
-          )
-        ).toBe('rgb(245, 222, 179)')
+        expect(await browser.eval(`window.getComputedStyle(document.querySelector('#sass-client-page')).color`)).toBe(
+          'rgb(245, 222, 179)',
+        )
         // .scss
-        expect(
-          await browser.eval(
-            `window.getComputedStyle(document.querySelector('#scss-client-page')).color`
-          )
-        ).toBe('rgb(255, 99, 71)')
+        expect(await browser.eval(`window.getComputedStyle(document.querySelector('#scss-client-page')).color`)).toBe(
+          'rgb(255, 99, 71)',
+        )
       })
 
       it('should support sass/scss modules inside client pages', async () => {
         const browser = await webdriver(next.url, '/css/sass-client/inner')
         // .sass
         expect(
-          await browser.eval(
-            `window.getComputedStyle(document.querySelector('#sass-client-page')).backgroundColor`
-          )
+          await browser.eval(`window.getComputedStyle(document.querySelector('#sass-client-page')).backgroundColor`),
         ).toBe('rgb(75, 0, 130)')
         // .scss
         expect(
-          await browser.eval(
-            `window.getComputedStyle(document.querySelector('#scss-client-page')).backgroundColor`
-          )
+          await browser.eval(`window.getComputedStyle(document.querySelector('#scss-client-page')).backgroundColor`),
         ).toBe('rgb(0, 255, 255)')
       })
     })
@@ -1733,20 +1483,14 @@ describe('app dir', () => {
           expect(res.status).toBe(200)
           const content = await res.text()
 
-          const hash = crypto
-            .createHash('sha256')
-            .update(content)
-            .digest()
-            .toString('base64')
+          const hash = crypto.createHash('sha256').update(content).digest().toString('base64')
 
           expect(integrity).toEndWith(hash)
         }
       })
 
       it('throws when escape characters are included in nonce', async () => {
-        const res = await fetchWithPolicy(
-          `script-src 'nonce-"><script></script>"'`
-        )
+        const res = await fetchWithPolicy(`script-src 'nonce-"><script></script>"'`)
 
         expect(res.status).toBe(500)
       })
@@ -1778,36 +1522,26 @@ describe('app dir', () => {
         async () => {
           const browser = await webdriver(next.url, '/template/servercomponent')
           // eslint-disable-next-line jest/no-standalone-expect
-          expect(await browser.elementByCss('h1').text()).toStartWith(
-            'Template'
-          )
+          expect(await browser.elementByCss('h1').text()).toStartWith('Template')
 
-          const currentTime = await browser
-            .elementByCss('#performance-now')
-            .text()
+          const currentTime = await browser.elementByCss('#performance-now').text()
 
           await browser.elementByCss('#link').click()
           await browser.waitForElementByCss('#other-page')
 
           // eslint-disable-next-line jest/no-standalone-expect
-          expect(await browser.elementByCss('h1').text()).toStartWith(
-            'Template'
-          )
+          expect(await browser.elementByCss('h1').text()).toStartWith('Template')
 
           // template should rerender on navigation even when it's a server component
           // eslint-disable-next-line jest/no-standalone-expect
-          expect(await browser.elementByCss('#performance-now').text()).toBe(
-            currentTime
-          )
+          expect(await browser.elementByCss('#performance-now').text()).toBe(currentTime)
 
           await browser.elementByCss('#link').click()
           await browser.waitForElementByCss('#page')
 
           // eslint-disable-next-line jest/no-standalone-expect
-          expect(await browser.elementByCss('#performance-now').text()).toBe(
-            currentTime
-          )
-        }
+          expect(await browser.elementByCss('#performance-now').text()).toBe(currentTime)
+        },
       )
     })
 
@@ -1822,10 +1556,7 @@ describe('app dir', () => {
         } else {
           await browser
           expect(
-            await browser
-              .waitForElementByCss('#error-boundary-message')
-              .elementByCss('#error-boundary-message')
-              .text()
+            await browser.waitForElementByCss('#error-boundary-message').elementByCss('#error-boundary-message').text(),
           ).toBe('An error occurred: this is a test')
         }
       })
@@ -1835,13 +1566,10 @@ describe('app dir', () => {
 
         if (isDev) {
           expect(
-            await browser
-              .waitForElementByCss('#error-boundary-message')
-              .elementByCss('#error-boundary-message')
-              .text()
+            await browser.waitForElementByCss('#error-boundary-message').elementByCss('#error-boundary-message').text(),
           ).toBe('this is a test')
           expect(
-            await browser.waitForElementByCss('#error-boundary-digest').text()
+            await browser.waitForElementByCss('#error-boundary-digest').text(),
             // Digest of the error message should be stable.
           ).not.toBe('')
           // TODO-APP: ensure error overlay is shown for errors that happened before/during hydration
@@ -1849,23 +1577,18 @@ describe('app dir', () => {
           // expect(await getRedboxHeader(browser)).toMatch(/this is a test/)
         } else {
           await browser
-          expect(
-            await browser.waitForElementByCss('#error-boundary-message').text()
-          ).toBe(
-            'An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.'
+          expect(await browser.waitForElementByCss('#error-boundary-message').text()).toBe(
+            'An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.',
           )
           expect(
-            await browser.waitForElementByCss('#error-boundary-digest').text()
+            await browser.waitForElementByCss('#error-boundary-digest').text(),
             // Digest of the error message should be stable.
           ).not.toBe('')
         }
       })
 
       it('should use default error boundary for prod and overlay for dev when no error component specified', async () => {
-        const browser = await webdriver(
-          next.url,
-          '/error/global-error-boundary'
-        )
+        const browser = await webdriver(next.url, '/error/global-error-boundary')
         await browser.elementByCss('#error-trigger-button').click()
         // .waitForElementByCss('body')
 
@@ -1874,13 +1597,8 @@ describe('app dir', () => {
           console.log('getRedboxHeader', await getRedboxHeader(browser))
           // expect(await getRedboxHeader(browser)).toMatch(/An error occurred: this is a test/)
         } else {
-          expect(
-            await browser
-              .waitForElementByCss('body')
-              .elementByCss('body')
-              .text()
-          ).toBe(
-            'Application error: a client-side exception has occurred (see the browser console for more information).'
+          expect(await browser.waitForElementByCss('body').elementByCss('body').text()).toBe(
+            'Application error: a client-side exception has occurred (see the browser console for more information).',
           )
         }
       })
@@ -1891,31 +1609,20 @@ describe('app dir', () => {
 
           // Try triggering and resetting a few times in a row
           for (let i = 0; i < 5; i++) {
-            await browser
-              .elementByCss('#error-trigger-button')
-              .click()
-              .waitForElementByCss('#error-boundary-message')
+            await browser.elementByCss('#error-trigger-button').click().waitForElementByCss('#error-boundary-message')
 
-            expect(
-              await browser.elementByCss('#error-boundary-message').text()
-            ).toBe('An error occurred: this is a test')
+            expect(await browser.elementByCss('#error-boundary-message').text()).toBe(
+              'An error occurred: this is a test',
+            )
 
-            await browser
-              .elementByCss('#reset')
-              .click()
-              .waitForElementByCss('#error-trigger-button')
+            await browser.elementByCss('#reset').click().waitForElementByCss('#error-trigger-button')
 
-            expect(
-              await browser.elementByCss('#error-trigger-button').text()
-            ).toBe('Trigger Error!')
+            expect(await browser.elementByCss('#error-trigger-button').text()).toBe('Trigger Error!')
           }
         })
 
         it('should hydrate empty shell to handle server-side rendering errors', async () => {
-          const browser = await webdriver(
-            next.url,
-            '/error/ssr-error-client-component'
-          )
+          const browser = await webdriver(next.url, '/error/ssr-error-client-component')
           const logs = await browser.log()
           const errors = logs
             .filter((x) => x.source === 'error')
@@ -1929,9 +1636,7 @@ describe('app dir', () => {
     describe('known bugs', () => {
       it('should not share flight data between requests', async () => {
         const fetches = await Promise.all(
-          [...new Array(5)].map(() =>
-            renderViaHTTP(next.url, '/loading-bug/electronics')
-          )
+          [...new Array(5)].map(() => renderViaHTTP(next.url, '/loading-bug/electronics')),
         )
 
         for (const text of fetches) {
@@ -1941,30 +1646,18 @@ describe('app dir', () => {
       })
       it('should handle as on next/link', async () => {
         const browser = await webdriver(next.url, '/link-with-as')
-        expect(
-          await browser
-            .elementByCss('#link-to-info-123')
-            .click()
-            .waitForElementByCss('#message')
-            .text()
-        ).toBe(`hello from app/dashboard/deployments/info/[id]. ID is: 123`)
+        expect(await browser.elementByCss('#link-to-info-123').click().waitForElementByCss('#message').text()).toBe(
+          `hello from app/dashboard/deployments/info/[id]. ID is: 123`,
+        )
       })
       it('should handle next/link back to initially loaded page', async () => {
         const browser = await webdriver(next.url, '/linking/about')
-        expect(
-          await browser
-            .elementByCss('a[href="/linking"]')
-            .click()
-            .waitForElementByCss('#home-page')
-            .text()
-        ).toBe(`Home page`)
+        expect(await browser.elementByCss('a[href="/linking"]').click().waitForElementByCss('#home-page').text()).toBe(
+          `Home page`,
+        )
 
         expect(
-          await browser
-            .elementByCss('a[href="/linking/about"]')
-            .click()
-            .waitForElementByCss('#about-page')
-            .text()
+          await browser.elementByCss('a[href="/linking/about"]').click().waitForElementByCss('#about-page').text(),
         ).toBe(`About page`)
       })
     })
@@ -1973,57 +1666,31 @@ describe('app dir', () => {
       it('should trigger not-found in a server component', async () => {
         const browser = await webdriver(next.url, '/not-found/servercomponent')
 
-        expect(
-          await browser.waitForElementByCss('#not-found-component').text()
-        ).toBe('Not Found!')
-        expect(
-          await browser
-            .waitForElementByCss('meta[name="robots"]')
-            .getAttribute('content')
-        ).toBe('noindex')
+        expect(await browser.waitForElementByCss('#not-found-component').text()).toBe('Not Found!')
+        expect(await browser.waitForElementByCss('meta[name="robots"]').getAttribute('content')).toBe('noindex')
       })
 
       it('should trigger not-found in a client component', async () => {
         const browser = await webdriver(next.url, '/not-found/clientcomponent')
-        expect(
-          await browser.waitForElementByCss('#not-found-component').text()
-        ).toBe('Not Found!')
-        expect(
-          await browser
-            .waitForElementByCss('meta[name="robots"]')
-            .getAttribute('content')
-        ).toBe('noindex')
+        expect(await browser.waitForElementByCss('#not-found-component').text()).toBe('Not Found!')
+        expect(await browser.waitForElementByCss('meta[name="robots"]').getAttribute('content')).toBe('noindex')
       })
       it('should trigger not-found client-side', async () => {
         const browser = await webdriver(next.url, '/not-found/client-side')
-        await browser
-          .elementByCss('button')
-          .click()
-          .waitForElementByCss('#not-found-component')
-        expect(await browser.elementByCss('#not-found-component').text()).toBe(
-          'Not Found!'
-        )
-        expect(
-          await browser
-            .waitForElementByCss('meta[name="robots"]')
-            .getAttribute('content')
-        ).toBe('noindex')
+        await browser.elementByCss('button').click().waitForElementByCss('#not-found-component')
+        expect(await browser.elementByCss('#not-found-component').text()).toBe('Not Found!')
+        expect(await browser.waitForElementByCss('meta[name="robots"]').getAttribute('content')).toBe('noindex')
       })
     })
 
     describe('bots', () => {
       if (!(global as any).isNextDeploy) {
         it('should block rendering for bots and return 404 status', async () => {
-          const res = await fetchViaHTTP(
-            next.url,
-            '/not-found/servercomponent',
-            '',
-            {
-              headers: {
-                'User-Agent': 'Googlebot',
-              },
-            }
-          )
+          const res = await fetchViaHTTP(next.url, '/not-found/servercomponent', '', {
+            headers: {
+              'User-Agent': 'Googlebot',
+            },
+          })
 
           expect(res.status).toBe(404)
           expect(await res.text()).toInclude('"noindex"')
@@ -2036,30 +1703,21 @@ describe('app dir', () => {
         it('should redirect in a server component', async () => {
           const browser = await webdriver(next.url, '/redirect/servercomponent')
           await browser.waitForElementByCss('#result-page')
-          expect(await browser.elementByCss('#result-page').text()).toBe(
-            'Result Page'
-          )
+          expect(await browser.elementByCss('#result-page').text()).toBe('Result Page')
         })
 
         it('should redirect in a client component', async () => {
           const browser = await webdriver(next.url, '/redirect/clientcomponent')
           await browser.waitForElementByCss('#result-page')
-          expect(await browser.elementByCss('#result-page').text()).toBe(
-            'Result Page'
-          )
+          expect(await browser.elementByCss('#result-page').text()).toBe('Result Page')
         })
 
         // TODO-APP: Enable in development
         it('should redirect client-side', async () => {
           const browser = await webdriver(next.url, '/redirect/client-side')
-          await browser
-            .elementByCss('button')
-            .click()
-            .waitForElementByCss('#result-page')
+          await browser.elementByCss('button').click().waitForElementByCss('#result-page')
           // eslint-disable-next-line jest/no-standalone-expect
-          expect(await browser.elementByCss('#result-page').text()).toBe(
-            'Result Page'
-          )
+          expect(await browser.elementByCss('#result-page').text()).toBe('Result Page')
         })
       })
 
@@ -2071,14 +1729,8 @@ describe('app dir', () => {
         })
 
         it('should redirect from next.config.js with link navigation', async () => {
-          const browser = await webdriver(
-            next.url,
-            '/redirect/next-config-redirect'
-          )
-          await browser
-            .elementByCss('#redirect-a')
-            .click()
-            .waitForElementByCss('h1')
+          const browser = await webdriver(next.url, '/redirect/next-config-redirect')
+          await browser.elementByCss('#redirect-a').click().waitForElementByCss('h1')
           expect(await browser.elementByCss('h1').text()).toBe('Dashboard')
           expect(await browser.url()).toBe(next.url + '/dashboard')
         })
@@ -2086,23 +1738,14 @@ describe('app dir', () => {
 
       describe('middleware redirects', () => {
         it('should redirect from middleware', async () => {
-          const browser = await webdriver(
-            next.url,
-            '/redirect-middleware-to-dashboard'
-          )
+          const browser = await webdriver(next.url, '/redirect-middleware-to-dashboard')
           expect(await browser.elementByCss('h1').text()).toBe('Dashboard')
           expect(await browser.url()).toBe(next.url + '/dashboard')
         })
 
         it('should redirect from middleware with link navigation', async () => {
-          const browser = await webdriver(
-            next.url,
-            '/redirect/next-middleware-redirect'
-          )
-          await browser
-            .elementByCss('#redirect-middleware')
-            .click()
-            .waitForElementByCss('h1')
+          const browser = await webdriver(next.url, '/redirect/next-middleware-redirect')
+          await browser.elementByCss('#redirect-middleware').click().waitForElementByCss('h1')
           expect(await browser.elementByCss('h1').text()).toBe('Dashboard')
           expect(await browser.url()).toBe(next.url + '/dashboard')
         })
@@ -2123,23 +1766,19 @@ describe('app dir', () => {
         for (const [category, subCategories] of pages) {
           expect(
             await browser
-              .elementByCss(
-                `a[href="/nested-navigation/${category.toLowerCase()}"]`
-              )
+              .elementByCss(`a[href="/nested-navigation/${category.toLowerCase()}"]`)
               .click()
               .waitForElementByCss(`#all-${category.toLowerCase()}`)
-              .text()
+              .text(),
           ).toBe(`All ${category}`)
 
           for (const subcategory of subCategories) {
             expect(
               await browser
-                .elementByCss(
-                  `a[href="/nested-navigation/${category.toLowerCase()}/${subcategory.toLowerCase()}"]`
-                )
+                .elementByCss(`a[href="/nested-navigation/${category.toLowerCase()}/${subcategory.toLowerCase()}"]`)
                 .click()
                 .waitForElementByCss(`#${subcategory.toLowerCase()}`)
-                .text()
+                .text(),
             ).toBe(`${subcategory}`)
           }
         }
@@ -2154,34 +1793,18 @@ describe('app dir', () => {
           // Wait for lazyOnload scripts to be ready.
           await new Promise((resolve) => setTimeout(resolve, 1000))
 
-          expect(await browser.eval(`window._script_order`)).toStrictEqual([
-            1,
-            1.5,
-            2,
-            2.5,
-            'render',
-            3,
-            4,
-          ])
+          expect(await browser.eval(`window._script_order`)).toStrictEqual([1, 1.5, 2, 2.5, 'render', 3, 4])
         })
       }
 
       it('should insert preload tags for beforeInteractive and afterInteractive scripts', async () => {
         const html = await renderViaHTTP(next.url, '/script')
-        expect(html).toContain(
-          '<link href="/test1.js" rel="preload" as="script"/>'
-        )
-        expect(html).toContain(
-          '<link href="/test2.js" rel="preload" as="script"/>'
-        )
-        expect(html).toContain(
-          '<link href="/test3.js" rel="preload" as="script"/>'
-        )
+        expect(html).toContain('<link href="/test1.js" rel="preload" as="script"/>')
+        expect(html).toContain('<link href="/test2.js" rel="preload" as="script"/>')
+        expect(html).toContain('<link href="/test3.js" rel="preload" as="script"/>')
 
         // test4.js has lazyOnload which doesn't need to be preloaded
-        expect(html).not.toContain(
-          '<script src="/test4.js" rel="preload" as="script"/>'
-        )
+        expect(html).not.toContain('<script src="/test4.js" rel="preload" as="script"/>')
       })
     })
   }
