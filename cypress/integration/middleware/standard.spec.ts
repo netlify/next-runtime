@@ -67,9 +67,4 @@ describe('Middleware with edge API', () => {
       expect(response.body).to.include('Hello world')
     })
   })
-  it('serves API routes from the edge runtime', () => {
-    cy.request('/api/edge').then((response) => {
-      expect(response.body).to.include('Hello world')
-    })
-  })
 })
