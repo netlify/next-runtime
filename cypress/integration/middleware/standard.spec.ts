@@ -19,6 +19,12 @@ describe('Standard middleware', () => {
       expect(response.headers).to.have.property('x-modified-edge', 'true')
     })
   })
+
+  it('adds cookies', () => {
+    cy.request('/cookies').then(() => {
+      cy.getCookie('netlifyCookie').should('have.property', 'value', 'true')
+    })
+  })
 })
 
 describe('Middleware matchers', () => {
@@ -56,6 +62,11 @@ describe('Middleware matchers', () => {
 })
 
 describe('Middleware with edge API', () => {
+  it('serves API routes from the edge runtime', () => {
+    cy.request('/api/edge').then((response) => {
+      expect(response.body).to.include('Hello world')
+    })
+  })
   it('serves API routes from the edge runtime', () => {
     cy.request('/api/edge').then((response) => {
       expect(response.body).to.include('Hello world')
