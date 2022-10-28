@@ -19,6 +19,12 @@ describe('Standard middleware', () => {
       expect(response.headers).to.have.property('x-modified-edge', 'true')
     })
   })
+
+  it('adds cookies', () => {
+    cy.request('/cookies').then(() => {
+      cy.getCookie('netlifyCookie').should('have.property', 'value', 'true')
+    })
+  })
 })
 
 describe('Middleware matchers', () => {
