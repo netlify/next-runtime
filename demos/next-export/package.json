@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "next": "^12.3.0"
+    "next": "^13.0.0"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "*",

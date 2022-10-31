@@ -1,5 +1,34 @@
 # Changelog
 
+## [4.28.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.2...plugin-nextjs-v4.28.3) (2022-10-27)
+
+
+### Bug Fixes
+
+* disable minimal mode for API routes ([#1727](https://github.com/netlify/next-runtime/issues/1727)) ([da8f440](https://github.com/netlify/next-runtime/commit/da8f4405a1f7fd3da6789743f93400d678109022))
+
+## [4.28.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.1...plugin-nextjs-v4.28.2) (2022-10-26)
+
+
+### Bug Fixes
+
+* follow redirects when downloading a file from the CDN ([#1719](https://github.com/netlify/next-runtime/issues/1719)) ([1d27a99](https://github.com/netlify/next-runtime/commit/1d27a993361e2b979861eee2f33229ddf83bf98c))
+
+## [4.28.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.0...plugin-nextjs-v4.28.1) (2022-10-25)
+
+
+### Bug Fixes
+
+* use process.env.URL when deploying to production ([#1680](https://github.com/netlify/next-runtime/issues/1680)) ([4b08911](https://github.com/netlify/next-runtime/commit/4b08911bb0578d8c5963b7eecdaa0dac54cc7bad))
+
+## [4.28.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.3...plugin-nextjs-v4.28.0) (2022-10-25)
+
+
+### Features
+
+* add support for WebAssembly in edge runtime ([#1676](https://github.com/netlify/next-runtime/issues/1676)) ([530088c](https://github.com/netlify/next-runtime/commit/530088cd0e912d6fb3682a1a7a90a1d8d4202951))
+* support Next 13 ([#1714](https://github.com/netlify/next-runtime/issues/1714)) ([efcb47a](https://github.com/netlify/next-runtime/commit/efcb47a84697edd313f3d8643ebcc48f3bde11e3))
+
 ## [4.27.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.2...plugin-nextjs-v4.27.3) (2022-10-19)
 
 

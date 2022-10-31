@@ -232,11 +232,59 @@ describe('onBuild()', () => {
 
   afterEach(() => {
     delete process.env.DEPLOY_PRIME_URL
+    delete process.env.URL
+    delete process.env.CONTEXT
   })
 
   test('does not set NEXTAUTH_URL if value is already set', async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = chance.url()
+
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    initialConfig.config.env.NEXTAUTH_URL = mockUserDefinedSiteUrl
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
+  })
+
+  test("sets the NEXTAUTH_URL to the DEPLOY_PRIME_URL when CONTEXT env variable is not 'production'", async () => {
+    const mockUserDefinedSiteUrl = chance.url()
+    process.env.DEPLOY_PRIME_URL = mockUserDefinedSiteUrl
+    process.env.URL = chance.url()
+
+    // See https://docs.netlify.com/configure-builds/environment-variables/#build-metadata for all possible values
+    process.env.CONTEXT = 'deploy-preview'
+
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    initialConfig.config.env.NEXTAUTH_URL = mockUserDefinedSiteUrl
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
+  })
+
+  test("sets the NEXTAUTH_URL to the user defined site URL when CONTEXT env variable is 'production'", async () => {
+    const mockUserDefinedSiteUrl = chance.url()
+    process.env.DEPLOY_PRIME_URL = chance.url()
+    process.env.URL = mockUserDefinedSiteUrl
+
+    // See https://docs.netlify.com/configure-builds/environment-variables/#build-metadata for all possible values
+    process.env.CONTEXT = 'production'
 
     await moveNextDist()
 
@@ -566,7 +614,7 @@ describe('onBuild()', () => {
     const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
     const imageConfigJson = await readJson(imageConfigPath)
 
-    expect(imageConfigJson.domains.length).toBe(2)
+    expect(imageConfigJson.domains.length).toBe(1)
     expect(imageConfigJson.remotePatterns.length).toBe(1)
     expect(imageConfigJson.responseHeaders).toStrictEqual({
       'X-Foo': mockHeaderValue,
@@ -591,16 +639,16 @@ describe('onBuild()', () => {
     process.env.DISABLE_IPX = '1'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
-    const nextImageRedirect = netlifyConfig.redirects.find(redirect => redirect.from.includes('/_next/image'))
-    
+    const nextImageRedirect = netlifyConfig.redirects.find((redirect) => redirect.from.includes('/_next/image'))
+
     expect(nextImageRedirect).toBeDefined()
-    expect(nextImageRedirect.to).toEqual("/404.html")
+    expect(nextImageRedirect.to).toEqual('/404.html')
     expect(nextImageRedirect.status).toEqual(404)
     expect(nextImageRedirect.force).toEqual(true)
-    
+
     delete process.env.DISABLE_IPX
   })
-  
+
   test('generates an ipx edge function by default', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -618,6 +666,14 @@ describe('onBuild()', () => {
   test('does not generate an ipx edge function if Netlify Edge is disabled', async () => {
     process.env.NEXT_DISABLE_NETLIFY_EDGE = '1'
     await moveNextDist()
+
+    // We need to pretend there's no edge API routes, because otherwise it'll fail
+    // when we try to disable edge runtime.
+    const manifest = path.join('.next', 'server', 'middleware-manifest.json')
+    const manifestContent = await readJson(manifest)
+    manifestContent.functions = {}
+    await writeJSON(manifest, manifestContent)
+
     await nextRuntime.onBuild(defaultArgs)
 
     expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
@@ -1585,6 +1641,13 @@ describe('api route file analysis', () => {
           compiled: 'pages/api/hello-scheduled.js',
           config: { schedule: '@hourly', type: 'experimental-scheduled' },
           route: '/api/hello-scheduled',
+        },
+        {
+          compiled: 'pages/api/og.js',
+          config: {
+            runtime: 'experimental-edge',
+          },
+          route: '/api/og',
         },
       ]),
     )

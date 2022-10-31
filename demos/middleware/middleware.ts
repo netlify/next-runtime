@@ -94,6 +94,7 @@ export const config = {
     '/api/:all*',
     '/headers',
     { source: '/static' },
+    { source: '/cookies' },
     { source: '/shows/((?!99|88).*)' },
     {
       source: '/conditional',
