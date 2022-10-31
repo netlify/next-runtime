@@ -1,0 +1,2196 @@
+[functions]
+
+  [functions._ipx]
+  node_bundler = "nft"
+
+  [functions.___netlify-handler]
+  included_files = [
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".env.production.local",
+    "./public/locales/**",
+    "./next-i18next.config.js",
+    ".next/server/**",
+    ".next/serverless/**",
+    ".next/*.json",
+    ".next/BUILD_ID",
+    ".next/static/chunks/webpack-middleware*.js",
+    "!.next/server/**/*.js.nft.json",
+    "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+    "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/compiled/webpack/bundle4.js",
+    "!node_modules/next/dist/compiled/webpack/bundle5.js",
+    "!../../../../node_modules/sharp/**/*",
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".env.production.local",
+    "./public/locales/**",
+    "./next-i18next.config.js",
+    ".next/server/**",
+    ".next/serverless/**",
+    ".next/*.json",
+    ".next/BUILD_ID",
+    ".next/static/chunks/webpack-middleware*.js",
+    "!.next/server/**/*.js.nft.json",
+    "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+    "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/compiled/webpack/bundle4.js",
+    "!node_modules/next/dist/compiled/webpack/bundle5.js",
+    "!../../../../node_modules/sharp/**/*"
+  ]
+  external_node_modules = []
+  node_bundler = "nft"
+
+  [functions.___netlify-odb-handler]
+  included_files = [
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".env.production.local",
+    "./public/locales/**",
+    "./next-i18next.config.js",
+    ".next/server/**",
+    ".next/serverless/**",
+    ".next/*.json",
+    ".next/BUILD_ID",
+    ".next/static/chunks/webpack-middleware*.js",
+    "!.next/server/**/*.js.nft.json",
+    "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+    "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/compiled/webpack/bundle4.js",
+    "!node_modules/next/dist/compiled/webpack/bundle5.js",
+    "!../../../../node_modules/sharp/**/*",
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".env.production.local",
+    "./public/locales/**",
+    "./next-i18next.config.js",
+    ".next/server/**",
+    ".next/serverless/**",
+    ".next/*.json",
+    ".next/BUILD_ID",
+    ".next/static/chunks/webpack-middleware*.js",
+    "!.next/server/**/*.js.nft.json",
+    "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+    "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/compiled/webpack/bundle4.js",
+    "!node_modules/next/dist/compiled/webpack/bundle5.js",
+    "!../../../../node_modules/sharp/**/*"
+  ]
+  external_node_modules = []
+  node_bundler = "nft"
+
+  [functions."_api_*"]
+  included_files = [
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".env.production.local",
+    "./public/locales/**",
+    "./next-i18next.config.js",
+    ".next/server/**",
+    ".next/serverless/**",
+    ".next/*.json",
+    ".next/BUILD_ID",
+    ".next/static/chunks/webpack-middleware*.js",
+    "!.next/server/**/*.js.nft.json",
+    "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+    "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/compiled/webpack/bundle4.js",
+    "!node_modules/next/dist/compiled/webpack/bundle5.js",
+    "!../../../../node_modules/sharp/**/*",
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".env.production.local",
+    "./public/locales/**",
+    "./next-i18next.config.js",
+    ".next/server/**",
+    ".next/serverless/**",
+    ".next/*.json",
+    ".next/BUILD_ID",
+    ".next/static/chunks/webpack-middleware*.js",
+    "!.next/server/**/*.js.nft.json",
+    "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+    "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+    "!node_modules/next/dist/compiled/webpack/bundle4.js",
+    "!node_modules/next/dist/compiled/webpack/bundle5.js",
+    "!../../../../node_modules/sharp/**/*"
+  ]
+  external_node_modules = []
+  node_bundler = "nft"
+
+[build]
+command = "next build"
+publish = ".next"
+
+  [build.environment]
+  NEXT_PRIVATE_TARGET = "server"
+
+[[plugins]]
+package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+from = "/_next/image*"
+to = "/_ipx/w_:width,q_:quality/:url"
+status = 301
+
+  [redirects.query]
+  url = ":url"
+  w = ":width"
+  q = ":quality"
+
+[[redirects]]
+from = "/_ipx/*"
+to = "/.netlify/builders/_ipx"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/index.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/app-linking.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/catch-all-link.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/client-component-route.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/client-nested.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/css/css-client.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/css/css-nested.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/css/css-page.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/css/css-page/unused.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/css/css-page/unused-nested.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/css/css-page/unused-nested/inner.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/css/sass/inner.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/css/sass-client/inner.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard/another.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard/changelog.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard/deployments/breakdown.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard/deployments/info.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard/hello.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard/index.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard/integrations.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/edge-apis/cookies.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/error/client-component.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/error/global-error-boundary.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/error/server-component.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/error/server-component/custom-digest.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/error/ssr-error-client-component.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/exists-but-not-routed.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-cookies.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-headers.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-layout-segments/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-params/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-pathname.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-pathname/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-preview-data.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-router.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-router/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-router/sub-page.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-search-params.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-search-params/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-selected-layout-segment/first.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-selected-layout-segment/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/internal.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/internal/failure.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/internal/success.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/link-hard-replace.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/link-hard-replace/subpage.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/link-soft-push.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/link-soft-replace.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/link-soft-replace/subpage.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/link-to-rewritten-path.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/link-with-as.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/linking.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/linking/about.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/navigation.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/nested-navigation.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/not-found/client-side.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/not-found/clientcomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/not-found/servercomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/pages-linking.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/parallel.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/parallel/nested.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/parallel/nested-2.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/partial-match-[id].json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/redirect/client-side.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/redirect/clientcomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/redirect/next-config-redirect.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/redirect/next-middleware-redirect.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/redirect/result.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/redirect/servercomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/rewrites.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/same-layout/first.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/same-layout/second.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/script.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/search-params-prop.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/search-params-prop/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/shared-component-route.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/should-not-serve-client.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/should-not-serve-server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/slow-layout-and-page-with-loading/slow.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/slow-layout-with-loading/slow.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/slow-page-no-loading.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/slow-page-with-loading.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/template/clientcomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/template/clientcomponent/other.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/template/servercomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/template/servercomponent/other.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/test-page.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/with-id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/back-forward/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/blog/:slug.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/catch-all/:slug/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/catch-all-optional.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/catch-all-optional/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard/deployments/info/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard/deployments/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dashboard/project/:projectId.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/dynamic/:category/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-selected-layout-segment/first/:dynamic.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-selected-layout-segment/first/:dynamic/second.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/hooks/use-selected-layout-segment/first/:dynamic/second/:catchall/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/link-hard-push/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/link-hard-replace/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/loading-bug/:categorySlug.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/nested-navigation/:categorySlug.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/nested-navigation/:categorySlug/:subCategorySlug.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/ZpQjv_OIcjl1OA6EhRwS1/param-and-query/:slug.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/static/*"
+to = "/static/:splat"
+status = 200
+
+[[redirects]]
+from = "/cache/*"
+to = "/404.html"
+status = 404
+force = true
+
+[[redirects]]
+from = "/server/*"
+to = "/404.html"
+status = 404
+force = true
+
+[[redirects]]
+from = "/serverless/*"
+to = "/404.html"
+status = 404
+force = true
+
+[[redirects]]
+from = "/trace"
+to = "/404.html"
+status = 404
+force = true
+
+[[redirects]]
+from = "/traces"
+to = "/404.html"
+status = 404
+force = true
+
+[[redirects]]
+from = "/routes-manifest.json"
+to = "/404.html"
+status = 404
+force = true
+
+[[redirects]]
+from = "/build-manifest.json"
+to = "/404.html"
+status = 404
+force = true
+
+[[redirects]]
+from = "/prerender-manifest.json"
+to = "/404.html"
+status = 404
+force = true
+
+[[redirects]]
+from = "/react-loadable-manifest.json"
+to = "/404.html"
+status = 404
+force = true
+
+[[redirects]]
+from = "/BUILD_ID"
+to = "/404.html"
+status = 404
+force = true
+
+[[redirects]]
+from = "/api/hello"
+to = "/.netlify/functions/_api_hello-handler"
+status = 200
+
+[[redirects]]
+from = "/api/preview"
+to = "/.netlify/functions/_api_preview-handler"
+status = 200
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hello.txt"
+to = "/hello.txt"
+status = 200
+
+  [redirects.conditions]
+  Cookie = [
+    "__prerender_bypass",
+    "__next_preview_data"
+  ]
+
+[[redirects]]
+from = "/test1.js"
+to = "/test1.js"
+status = 200
+
+  [redirects.conditions]
+  Cookie = [
+    "__prerender_bypass",
+    "__next_preview_data"
+  ]
+
+[[redirects]]
+from = "/test2.js"
+to = "/test2.js"
+status = 200
+
+  [redirects.conditions]
+  Cookie = [
+    "__prerender_bypass",
+    "__next_preview_data"
+  ]
+
+[[redirects]]
+from = "/test3.js"
+to = "/test3.js"
+status = 200
+
+  [redirects.conditions]
+  Cookie = [
+    "__prerender_bypass",
+    "__next_preview_data"
+  ]
+
+[[redirects]]
+from = "/test4.js"
+to = "/test4.js"
+status = 200
+
+  [redirects.conditions]
+  Cookie = [
+    "__prerender_bypass",
+    "__next_preview_data"
+  ]
+
+[[redirects]]
+from = "/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+force = true
+
+  [redirects.conditions]
+  Cookie = [
+    "__prerender_bypass",
+    "__next_preview_data"
+  ]
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/index.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/app-linking.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/app-linking"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/catch-all-link.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/catch-all-link"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/client-component-route.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/client-component-route"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/client-nested.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/client-nested"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/css/css-client.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/css/css-client"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/css/css-nested.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/css/css-nested"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/css/css-page.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/css/css-page"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/css/css-page/unused.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/css/css-page/unused"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/css/css-page/unused-nested.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/css/css-page/unused-nested"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/css/css-page/unused-nested/inner.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/css/css-page/unused-nested/inner"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/css/sass/inner.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/css/sass/inner"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/css/sass-client/inner.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/css/sass-client/inner"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard/another.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard/another"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard/changelog.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard/changelog"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard/deployments/breakdown.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard/deployments/breakdown"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard/deployments/info.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard/deployments/info"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard/hello.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard/hello"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard/index.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard/index"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard/integrations.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard/integrations"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/edge-apis/cookies.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/edge-apis/cookies"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/error/client-component.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/error/client-component"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/error/global-error-boundary.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/error/global-error-boundary"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/error/server-component.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/error/server-component"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/error/server-component/custom-digest.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/error/server-component/custom-digest"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/error/ssr-error-client-component.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/error/ssr-error-client-component"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/exists-but-not-routed.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/exists-but-not-routed"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-cookies.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-cookies"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-headers.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-headers"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-layout-segments/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-layout-segments/server"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-params/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-params/server"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-pathname.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-pathname"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-pathname/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-pathname/server"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-preview-data.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-preview-data"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-router.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-router"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-router/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-router/server"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-router/sub-page.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-router/sub-page"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-search-params.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-search-params"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-search-params/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-search-params/server"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-selected-layout-segment/first.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-selected-layout-segment/first"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-selected-layout-segment/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-selected-layout-segment/server"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/internal.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/internal"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/internal/failure.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/internal/failure"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/internal/success.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/internal/success"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/link-hard-replace.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/link-hard-replace"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/link-hard-replace/subpage.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/link-hard-replace/subpage"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/link-soft-push.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/link-soft-push"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/link-soft-replace.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/link-soft-replace"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/link-soft-replace/subpage.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/link-soft-replace/subpage"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/link-to-rewritten-path.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/link-to-rewritten-path"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/link-with-as.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/link-with-as"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/linking.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/linking"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/linking/about.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/linking/about"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/navigation.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/navigation"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/nested-navigation.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/nested-navigation"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/not-found/client-side.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/not-found/client-side"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/not-found/clientcomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/not-found/clientcomponent"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/not-found/servercomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/not-found/servercomponent"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/pages-linking.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/pages-linking"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/parallel.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/parallel"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/parallel/nested.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/parallel/nested"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/parallel/nested-2.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/parallel/nested-2"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/partial-match-[id].json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/partial-match-[id]"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/redirect/client-side.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/redirect/client-side"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/redirect/clientcomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/redirect/clientcomponent"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/redirect/next-config-redirect.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/redirect/next-config-redirect"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/redirect/next-middleware-redirect.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/redirect/next-middleware-redirect"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/redirect/result.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/redirect/result"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/redirect/servercomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/redirect/servercomponent"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/rewrites.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/rewrites"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/same-layout/first.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/same-layout/first"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/same-layout/second.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/same-layout/second"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/script.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/script"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/search-params-prop.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/search-params-prop"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/search-params-prop/server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/search-params-prop/server"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/shared-component-route.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/shared-component-route"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/should-not-serve-client.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/should-not-serve-client"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/should-not-serve-server.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/should-not-serve-server"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/slow-layout-and-page-with-loading/slow.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/slow-layout-and-page-with-loading/slow"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/slow-layout-with-loading/slow.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/slow-layout-with-loading/slow"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/slow-page-no-loading.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/slow-page-no-loading"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/slow-page-with-loading.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/slow-page-with-loading"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/template/clientcomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/template/clientcomponent"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/template/clientcomponent/other.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/template/clientcomponent/other"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/template/servercomponent.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/template/servercomponent"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/template/servercomponent/other.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/template/servercomponent/other"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/test-page.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/test-page"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/with-id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/with-id"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/back-forward/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/back-forward/:id"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/blog/:slug.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/blog/:slug"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/catch-all/:slug/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/catch-all/:slug/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/catch-all-optional.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/catch-all-optional/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/catch-all-optional"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/catch-all-optional/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard/deployments/info/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard/deployments/info/:id"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard/deployments/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard/deployments/:id"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dashboard/project/:projectId.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dashboard/project/:projectId"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/dynamic/:category/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/dynamic/:category/:id"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-selected-layout-segment/first/:dynamic.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-selected-layout-segment/first/:dynamic"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-selected-layout-segment/first/:dynamic/second.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-selected-layout-segment/first/:dynamic/second"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/hooks/use-selected-layout-segment/first/:dynamic/second/:catchall/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/hooks/use-selected-layout-segment/first/:dynamic/second/:catchall/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/link-hard-push/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/link-hard-push/:id"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/link-hard-replace/:id.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/link-hard-replace/:id"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/loading-bug/:categorySlug.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/loading-bug/:categorySlug"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/nested-navigation/:categorySlug.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/nested-navigation/:categorySlug"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/nested-navigation/:categorySlug/:subCategorySlug.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/nested-navigation/:categorySlug/:subCategorySlug"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/_next/data/aWqf-6vZ13vGzNKalg7pn/param-and-query/:slug.json"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/param-and-query/:slug"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[[redirects]]
+from = "/*"
+to = "/.netlify/functions/___netlify-handler"
+status = 200
+
+[context]
+
+  [context.production]
+
+    [context.production.environment]
+    NEXT_PRIVATE_TARGET = "server"
+
+    [context.production.functions]
+
+      [context.production.functions._ipx]
+      node_bundler = "nft"
+
+      [context.production.functions.___netlify-handler]
+      included_files = [
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*",
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*"
+      ]
+      external_node_modules = []
+      node_bundler = "nft"
+
+      [context.production.functions.___netlify-odb-handler]
+      included_files = [
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*",
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*"
+      ]
+      external_node_modules = []
+      node_bundler = "nft"
+
+      [context.production.functions."_api_*"]
+      included_files = [
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*",
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*"
+      ]
+      external_node_modules = []
+      node_bundler = "nft"
+
+    [context.production.build]
+
+      [context.production.build.environment]
+      NEXT_PRIVATE_TARGET = "server"
+
+  [context."mk/e2e-test"]
+
+    [context."mk/e2e-test".environment]
+    NEXT_PRIVATE_TARGET = "server"
+
+    [context."mk/e2e-test".functions]
+
+      [context."mk/e2e-test".functions._ipx]
+      node_bundler = "nft"
+
+      [context."mk/e2e-test".functions.___netlify-handler]
+      included_files = [
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*",
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*"
+      ]
+      external_node_modules = []
+      node_bundler = "nft"
+
+      [context."mk/e2e-test".functions.___netlify-odb-handler]
+      included_files = [
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*",
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*"
+      ]
+      external_node_modules = []
+      node_bundler = "nft"
+
+      [context."mk/e2e-test".functions."_api_*"]
+      included_files = [
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*",
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "./public/locales/**",
+        "./next-i18next.config.js",
+        ".next/server/**",
+        ".next/serverless/**",
+        ".next/*.json",
+        ".next/BUILD_ID",
+        ".next/static/chunks/webpack-middleware*.js",
+        "!.next/server/**/*.js.nft.json",
+        "!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*",
+        "!node_modules/next/dist/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm",
+        "!node_modules/next/dist/compiled/webpack/bundle4.js",
+        "!node_modules/next/dist/compiled/webpack/bundle5.js",
+        "!../../../../node_modules/sharp/**/*"
+      ]
+      external_node_modules = []
+      node_bundler = "nft"
+
+    [context."mk/e2e-test".build]
+
+      [context."mk/e2e-test".build.environment]
+      NEXT_PRIVATE_TARGET = "server"
