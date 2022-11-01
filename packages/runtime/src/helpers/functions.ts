@@ -165,9 +165,9 @@ export const setupImageFunction = async ({
 }
 
 /**
- * Look for API routes, and extract the config from the source file.
+ * Look for advanced API routes (background and scheduled functions), and extract the config from the source file.
  */
-export const getApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
+export const getAdvancedApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
   const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
   const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
   const pagesDir = join(baseDir, 'pages')
@@ -179,6 +179,7 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
     }),
   )
 
+  // We only want to return the API routes that are background or scheduled functions
   return settledApiRoutes.filter((apiRoute) => apiRoute.config.type !== undefined)
 }
 
