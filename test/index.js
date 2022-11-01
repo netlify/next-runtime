@@ -13,7 +13,7 @@ const os = require('os')
 const cpy = require('cpy')
 const { dir: getTmpDir } = require('tmp-promise')
 const { downloadFile } = require('../packages/runtime/src/templates/handlerUtils')
-const { getAdvancedApiRouteConfigs } = require('../packages/runtime/src/helpers/functions')
+const { getExtendedApiRouteConfigs } = require('../packages/runtime/src/helpers/functions')
 const nextRuntimeFactory = require('../packages/runtime/src')
 const nextRuntime = nextRuntimeFactory({})
 
@@ -1623,7 +1623,7 @@ describe('function helpers', () => {
 describe('api route file analysis', () => {
   it('extracts correct route configs from source files', async () => {
     await moveNextDist()
-    const configs = await getAdvancedApiRouteConfigs('.next', process.cwd())
+    const configs = await getExtendedApiRouteConfigs('.next', process.cwd())
     // Using a Set means the order doesn't matter
     expect(new Set(configs)).toEqual(
       new Set([

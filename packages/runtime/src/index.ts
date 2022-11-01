@@ -23,7 +23,7 @@ import {
   generateFunctions,
   setupImageFunction,
   generatePagesResolver,
-  getAdvancedApiRouteConfigs,
+  getExtendedApiRouteConfigs,
   warnOnApiRoutes,
 } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
@@ -152,7 +152,7 @@ const plugin: NetlifyPlugin = {
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
     await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
-    const apiRoutes = await getAdvancedApiRouteConfigs(publish, appDir)
+    const apiRoutes = await getExtendedApiRouteConfigs(publish, appDir)
 
     await generateFunctions(constants, appDir, apiRoutes)
     await generatePagesResolver({ target, constants })
