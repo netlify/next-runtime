@@ -171,12 +171,23 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
   const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
   const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
   const pagesDir = join(baseDir, 'pages')
-  return Promise.all(
+
+  return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
       const filePath = getSourceFileForPage(apiRoute, pagesDir)
       return { route: apiRoute, config: await extractConfigFromFile(filePath), compiled: pages[apiRoute] }
     }),
   )
+}
+
+/**
+ * Looks for extended API routes (background and scheduled functions) and extract the config from the source file.
+ */
+export const getExtendedApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
+  const settledApiRoutes = await getApiRouteConfigs(publish, baseDir)
+
+  // We only want to return the API routes that are background or scheduled functions
+  return settledApiRoutes.filter((apiRoute) => apiRoute.config.type !== undefined)
 }
 
 interface FunctionsManifest {
@@ -210,7 +221,7 @@ export const warnOnApiRoutes = async ({
   if (functions.some((func) => func.schedule)) {
     console.warn(
       outdent`
-        ${chalk.yellowBright`Using scheduled API routes`} 
+        ${chalk.yellowBright`Using scheduled API routes`}
         These are run on a schedule when deployed to production.
         You can test them locally by loading them in your browser but this will not be available when deployed, and any returned value is ignored.
       `,
