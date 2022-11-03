@@ -1,1 +1,2 @@
 name: netlify-next-runtime-experimental
+excludedVersionsRange: '4.0.0 - 4.25.0'
