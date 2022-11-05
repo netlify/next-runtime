@@ -533,7 +533,18 @@ describe('onBuild()', () => {
     expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toEqual('nft')
   })
 
-  test('generates a file referencing all page sources', async () => {
+  it('generates a file referencing all page sources', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+
+    for (const route of ['_api_hello-background-background', '_api_hello-scheduled-handler']) {
+      const expected = path.resolve(constants.INTERNAL_FUNCTIONS_SRC, route, 'pages.js')
+      expect(existsSync(expected)).toBeTruthy()
+      expect(readFileSync(expected, 'utf8')).toMatchSnapshot(`for ${route}`)
+    }
+  })
+
+  test('generates a file referencing all API route sources', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')

@@ -39,16 +39,18 @@ export const getPageResolver = async ({ publish, target }: { publish: string; ta
  */
 export const getSinglePageResolver = async ({
   functionsDir,
-  sourceFile,
+  sourceFiles,
 }: {
   functionsDir: string
-  sourceFile: string
+  sourceFiles: Array<string>
 }) => {
-  const dependencies = await getDependenciesOfFile(sourceFile)
+  const dependencies = await Promise.all(sourceFiles.map((sourceFile) => getDependenciesOfFile(sourceFile)))
   // We don't need the actual name, just the relative path.
   const functionDir = resolve(functionsDir, 'functionName')
 
-  const pageFiles = [sourceFile, ...dependencies]
+  const deduped = [...new Set(dependencies.flat())]
+
+  const pageFiles = [...sourceFiles, ...deduped]
     .map((file) => `require.resolve('${relative(functionDir, file)}')`)
     .sort()
 

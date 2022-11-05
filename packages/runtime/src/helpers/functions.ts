@@ -49,9 +49,13 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
+
+    const resolveSourceFile = (file: string) => join(publish, 'server', file)
+
     const resolverSource = await getSinglePageResolver({
       functionsDir,
-      sourceFile: join(publish, 'server', compiled),
+      // These extra pages are always included by Next.js
+      sourceFiles: [compiled, 'pages/_app.js', 'pages/_document.js', 'pages/_error.js'].map(resolveSourceFile),
     })
     await writeFile(join(functionsDir, functionName, 'pages.js'), resolverSource)
   }
