@@ -21,9 +21,9 @@ export class NextDeployInstance extends NextInstance {
     // ensure Netlify CLI is installed
     try {
       const res = await execa('ntl', ['--version'])
-      require('console').log(`Using Netlify CLI version:`, res.stdout)
+      console.log(`Using Netlify CLI version:`, res.stdout)
     } catch (_) {
-      require('console').log(`Installing Netlify CLI`)
+      console.log(`Installing Netlify CLI`)
       await execa('npm', ['i', '-g', 'netlify-cli@latest'], {
         stdio: 'inherit',
       })
@@ -37,7 +37,7 @@ export class NextDeployInstance extends NextInstance {
       throw err
     }
 
-    require('console').log(`Deploying project at ${this.testDir}`)
+    console.log(`Deploying project at ${this.testDir}`)
 
     const deployRes = await execa('ntl', ['deploy', '--build', '--json'], {
       cwd: this.testDir,
