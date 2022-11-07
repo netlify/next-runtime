@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import type { NetlifyConfig } from '@netlify/build'
 import destr from 'destr'
 import { readJSON, writeJSON } from 'fs-extra'
@@ -80,7 +81,28 @@ const resolveModuleRoot = (moduleName) => {
 
 const DEFAULT_EXCLUDED_MODULES = ['sharp', 'electron']
 
-export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore = [] }) => {
+export const hasManuallyAddedModule = ({
+  netlifyConfig,
+  moduleName,
+}: {
+  netlifyConfig: NetlifyConfig
+  moduleName: string
+}) =>
+  /* eslint-disable camelcase */
+  Object.values(netlifyConfig.functions).some(({ included_files = [] }) =>
+    included_files.some((inc) => inc.includes(`node_modules/${moduleName}`)),
+  )
+/* eslint-enable camelcase */
+
+export const configureHandlerFunctions = async ({
+  netlifyConfig,
+  publish,
+  ignore = [],
+}: {
+  netlifyConfig: NetlifyConfig
+  publish: string
+  ignore: Array<string>
+}) => {
   const config = await getRequiredServerFiles(publish)
   const files = config.files || []
   const cssFilesToInclude = files.filter((f) => f.startsWith(`${publish}/static/css/`))
@@ -90,6 +112,11 @@ export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore
     netlifyConfig.functions._ipx ||= {}
     netlifyConfig.functions._ipx.node_bundler = 'nft'
   }
+
+  // If the user has manually added the module to included_files, then don't exclude it
+  const excludedModules = DEFAULT_EXCLUDED_MODULES.filter(
+    (moduleName) => !hasManuallyAddedModule({ netlifyConfig, moduleName }),
+  )
 
   /* eslint-enable no-underscore-dangle */
   ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, '_api_*'].forEach((functionName) => {
@@ -109,6 +136,7 @@ export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore
       `${publish}/BUILD_ID`,
       `${publish}/static/chunks/webpack-middleware*.js`,
       `!${publish}/server/**/*.js.nft.json`,
+      '!**/node_modules/@next/swc*/**/*',
       ...cssFilesToInclude,
       ...ignore.map((path) => `!${slash(path)}`),
     )
@@ -123,7 +151,7 @@ export const configureHandlerFunctions = async ({ netlifyConfig, publish, ignore
       )
     }
 
-    DEFAULT_EXCLUDED_MODULES.forEach((moduleName) => {
+    excludedModules.forEach((moduleName) => {
       const moduleRoot = resolveModuleRoot(moduleName)
       if (moduleRoot) {
         netlifyConfig.functions[functionName].included_files.push(`!${moduleRoot}/**/*`)
@@ -156,11 +184,11 @@ const buildHeader = (buildHeaderParams: BuildHeaderParams) => {
 const sanitizePath = (path: string) => path.replace(/:[^*/]+\*$/, '*')
 
 /**
- * Persist NEXT.js custom headers to the Netlify configuration so the headers work with static files
+ * Persist Next.js custom headers to the Netlify configuration so the headers work with static files
  * See {@link https://nextjs.org/docs/api-reference/next.config.js/headers} for more information on custom
  * headers in Next.js
  *
- * @param nextConfig - The NextJS configuration
+ * @param nextConfig - The Next.js configuration
  * @param netlifyHeaders - Existing headers that are already configured in the Netlify configuration
  */
 export const generateCustomHeaders = (nextConfig: NextConfig, netlifyHeaders: NetlifyHeaders = []) => {
@@ -210,3 +238,4 @@ export const generateCustomHeaders = (nextConfig: NextConfig, netlifyHeaders: Ne
     }
   }
 }
+/* eslint-enable max-lines */
