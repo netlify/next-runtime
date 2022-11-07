@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.28.6](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.5...plugin-nextjs-v4.28.6) (2022-11-07)
+
+
+### Bug Fixes
+
+* exclude swc by default, and don't exclude sharp if included ([#1745](https://github.com/netlify/next-runtime/issues/1745)) ([383c186](https://github.com/netlify/next-runtime/commit/383c186a988d972f84b1d04b1626f0670f71b065))
+
 ## [4.28.5](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.4...plugin-nextjs-v4.28.5) (2022-11-07)
 
 
