@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.28.5](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.4...plugin-nextjs-v4.28.5) (2022-11-07)
+
+
+### Bug Fixes
+
+* resolve _app deps in API routes ([#1738](https://github.com/netlify/next-runtime/issues/1738)) ([df6fcda](https://github.com/netlify/next-runtime/commit/df6fcda60eab1b60c9cfb3710106e4bdec2ff1eb))
+
 ## [4.28.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.3...plugin-nextjs-v4.28.4) (2022-11-02)
 
 

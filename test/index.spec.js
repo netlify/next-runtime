@@ -162,6 +162,7 @@ beforeEach(async () => {
   netlifyConfig.headers = []
   netlifyConfig.functions[HANDLER_FUNCTION_NAME] && (netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files = [])
   netlifyConfig.functions[ODB_FUNCTION_NAME] && (netlifyConfig.functions[ODB_FUNCTION_NAME].included_files = [])
+  netlifyConfig.functions['_api_*'] && (netlifyConfig.functions['_api_*'].included_files = [])
   await useFixture('serverless_next_config')
 })
 
@@ -517,6 +518,7 @@ describe('onBuild()', () => {
       '.next/BUILD_ID',
       '.next/static/chunks/webpack-middleware*.js',
       '!.next/server/**/*.js.nft.json',
+      '!**/node_modules/@next/swc*/**/*',
       '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
@@ -531,6 +533,43 @@ describe('onBuild()', () => {
     }
     expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toEqual('nft')
     expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toEqual('nft')
+  })
+
+  const excludesSharp = (includedFiles) => includedFiles.some((file) => file.startsWith('!') && file.includes('sharp'))
+
+  it("doesn't exclude sharp if manually included", async () => {
+    await moveNextDist()
+
+    const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, '_api_*']
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    // Should exclude by default
+    for (const func of functions) {
+      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeTruthy()
+    }
+
+    // ...but if the user has added it, we shouldn't exclude it
+    for (const func of functions) {
+      netlifyConfig.functions[func].included_files = ['node_modules/sharp/**/*']
+    }
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    for (const func of functions) {
+      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+    }
+
+    // ...even if it's in a subdirectory
+    for (const func of functions) {
+      netlifyConfig.functions[func].included_files = ['subdirectory/node_modules/sharp/**/*']
+    }
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    for (const func of functions) {
+      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+    }
   })
 
   it('generates a file referencing all page sources', async () => {
