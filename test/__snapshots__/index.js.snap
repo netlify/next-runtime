@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`onBuild() generates a file referencing all page sources 1`] = `
-"// This file is purely to allow nft to know about these pages.
+exports[`onBuild() generates a file referencing all API route sources 1`] = `
+"// This file is purely to allow nft to know about these pages. It should be temporary.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
@@ -134,6 +134,35 @@ exports.resolvePages = () => {
         require.resolve('../../../package.json')
     } catch {}
 }"
+`;
+
+exports[`onBuild() generates a file referencing all page sources: for _api_hello-background-background 1`] = `
+"// This file is purely to allow nft to know about these pages. 
+  try {
+      require.resolve('../../../.next/server/package.json')
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/pages/chunks/274.js')
+        require.resolve('../../../.next/server/pages/webpack-api-runtime.js')
+        require.resolve('../../../.next/server/pages/webpack-runtime.js')
+  } catch {}"
+`;
+
+exports[`onBuild() generates a file referencing all page sources: for _api_hello-scheduled-handler 1`] = `
+"// This file is purely to allow nft to know about these pages. 
+  try {
+      require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/package.json')
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../.next/server/pages/chunks/274.js')
+        require.resolve('../../../.next/server/pages/webpack-api-runtime.js')
+        require.resolve('../../../.next/server/pages/webpack-runtime.js')
+  } catch {}"
 `;
 
 exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 1`] = `
@@ -1336,21 +1365,6 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/api/enterPreview",
-    "status": 200,
-    "to": "/.netlify/functions/_api_enterPreview-handler",
-  },
-  Object {
-    "from": "/api/exitPreview",
-    "status": 200,
-    "to": "/.netlify/functions/_api_exitPreview-handler",
-  },
-  Object {
-    "from": "/api/hello",
-    "status": 200,
-    "to": "/.netlify/functions/_api_hello-handler",
-  },
-  Object {
     "from": "/api/hello-background",
     "status": 200,
     "to": "/.netlify/functions/_api_hello-background-background",
@@ -1359,21 +1373,6 @@ Array [
     "from": "/api/hello-scheduled",
     "status": 404,
     "to": "/404.html",
-  },
-  Object {
-    "from": "/api/og",
-    "status": 200,
-    "to": "/.netlify/functions/_api_og-handler",
-  },
-  Object {
-    "from": "/api/shows/:id",
-    "status": 200,
-    "to": "/.netlify/functions/_api_shows_id-PARAM-handler",
-  },
-  Object {
-    "from": "/api/shows/:params/*",
-    "status": 200,
-    "to": "/.netlify/functions/_api_shows_params-SPLAT-handler",
   },
   Object {
     "force": false,

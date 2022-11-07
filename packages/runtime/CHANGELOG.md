@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.28.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.3...plugin-nextjs-v4.28.4) (2022-11-02)
+
+
+### Bug Fixes
+
+* only split extended routes to decrease build times ([#1731](https://github.com/netlify/next-runtime/issues/1731)) ([1e6fb8c](https://github.com/netlify/next-runtime/commit/1e6fb8cf2a1b00d57ae0a2df945514988ebb7dd3))
+
 ## [4.28.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.2...plugin-nextjs-v4.28.3) (2022-10-27)
 
 
