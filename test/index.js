@@ -13,7 +13,7 @@ const os = require('os')
 const cpy = require('cpy')
 const { dir: getTmpDir } = require('tmp-promise')
 const { downloadFile } = require('../packages/runtime/src/templates/handlerUtils')
-const { getApiRouteConfigs } = require('../packages/runtime/src/helpers/functions')
+const { getExtendedApiRouteConfigs } = require('../packages/runtime/src/helpers/functions')
 const nextRuntimeFactory = require('../packages/runtime/src')
 const nextRuntime = nextRuntimeFactory({})
 
@@ -162,6 +162,7 @@ beforeEach(async () => {
   netlifyConfig.headers = []
   netlifyConfig.functions[HANDLER_FUNCTION_NAME] && (netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files = [])
   netlifyConfig.functions[ODB_FUNCTION_NAME] && (netlifyConfig.functions[ODB_FUNCTION_NAME].included_files = [])
+  netlifyConfig.functions['_api_*'] && (netlifyConfig.functions['_api_*'].included_files = [])
   await useFixture('serverless_next_config')
 })
 
@@ -255,11 +256,11 @@ describe('onBuild()', () => {
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
 
-  test('sets the NEXTAUTH_URL to the DEPLOY_PRIME_URL when CONTEXT env variable is not \'production\'', async () => {
+  test("sets the NEXTAUTH_URL to the DEPLOY_PRIME_URL when CONTEXT env variable is not 'production'", async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = mockUserDefinedSiteUrl
     process.env.URL = chance.url()
-    
+
     // See https://docs.netlify.com/configure-builds/environment-variables/#build-metadata for all possible values
     process.env.CONTEXT = 'deploy-preview'
 
@@ -277,8 +278,8 @@ describe('onBuild()', () => {
 
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
-  
-  test('sets the NEXTAUTH_URL to the user defined site URL when CONTEXT env variable is \'production\'', async () => {
+
+  test("sets the NEXTAUTH_URL to the user defined site URL when CONTEXT env variable is 'production'", async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = chance.url()
     process.env.URL = mockUserDefinedSiteUrl
@@ -300,7 +301,6 @@ describe('onBuild()', () => {
 
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
-  
 
   test('sets the NEXTAUTH_URL specified in the netlify.toml or in the Netlify UI', async () => {
     const mockSiteUrl = chance.url()
@@ -518,6 +518,7 @@ describe('onBuild()', () => {
       '.next/BUILD_ID',
       '.next/static/chunks/webpack-middleware*.js',
       '!.next/server/**/*.js.nft.json',
+      '!**/node_modules/@next/swc*/**/*',
       '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
@@ -534,7 +535,55 @@ describe('onBuild()', () => {
     expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toEqual('nft')
   })
 
-  test('generates a file referencing all page sources', async () => {
+  const excludesSharp = (includedFiles) => includedFiles.some((file) => file.startsWith('!') && file.includes('sharp'))
+
+  it("doesn't exclude sharp if manually included", async () => {
+    await moveNextDist()
+
+    const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, '_api_*']
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    // Should exclude by default
+    for (const func of functions) {
+      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeTruthy()
+    }
+
+    // ...but if the user has added it, we shouldn't exclude it
+    for (const func of functions) {
+      netlifyConfig.functions[func].included_files = ['node_modules/sharp/**/*']
+    }
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    for (const func of functions) {
+      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+    }
+
+    // ...even if it's in a subdirectory
+    for (const func of functions) {
+      netlifyConfig.functions[func].included_files = ['subdirectory/node_modules/sharp/**/*']
+    }
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    for (const func of functions) {
+      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+    }
+  })
+
+  it('generates a file referencing all page sources', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+
+    for (const route of ['_api_hello-background-background', '_api_hello-scheduled-handler']) {
+      const expected = path.resolve(constants.INTERNAL_FUNCTIONS_SRC, route, 'pages.js')
+      expect(existsSync(expected)).toBeTruthy()
+      expect(readFileSync(expected, 'utf8')).toMatchSnapshot(`for ${route}`)
+    }
+  })
+
+  test('generates a file referencing all API route sources', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
@@ -615,7 +664,7 @@ describe('onBuild()', () => {
     const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
     const imageConfigJson = await readJson(imageConfigPath)
 
-    expect(imageConfigJson.domains.length).toBe(2)
+    expect(imageConfigJson.domains.length).toBe(1)
     expect(imageConfigJson.remotePatterns.length).toBe(1)
     expect(imageConfigJson.responseHeaders).toStrictEqual({
       'X-Foo': mockHeaderValue,
@@ -1624,31 +1673,19 @@ describe('function helpers', () => {
 describe('api route file analysis', () => {
   it('extracts correct route configs from source files', async () => {
     await moveNextDist()
-    const configs = await getApiRouteConfigs('.next', process.cwd())
+    const configs = await getExtendedApiRouteConfigs('.next', process.cwd())
     // Using a Set means the order doesn't matter
     expect(new Set(configs)).toEqual(
       new Set([
-        { compiled: 'pages/api/enterPreview.js', config: {}, route: '/api/enterPreview' },
         {
           compiled: 'pages/api/hello-background.js',
           config: { type: 'experimental-background' },
           route: '/api/hello-background',
         },
-        { compiled: 'pages/api/exitPreview.js', config: {}, route: '/api/exitPreview' },
-        { compiled: 'pages/api/shows/[...params].js', config: {}, route: '/api/shows/[...params]' },
-        { compiled: 'pages/api/shows/[id].js', config: {}, route: '/api/shows/[id]' },
-        { compiled: 'pages/api/hello.js', config: {}, route: '/api/hello' },
         {
           compiled: 'pages/api/hello-scheduled.js',
           config: { schedule: '@hourly', type: 'experimental-scheduled' },
           route: '/api/hello-scheduled',
-        },
-        {
-          compiled: 'pages/api/og.js',
-          config: {
-            runtime: 'experimental-edge',
-          },
-          route: '/api/og',
         },
       ]),
     )
