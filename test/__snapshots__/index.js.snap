@@ -1,16 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`onBuild() generates a file referencing all API route sources 1`] = `
-"// This file is purely to allow nft to know about these pages. It should be temporary.
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
-        require.resolve('../../../.next/server/chunks/162.js')
+        require.resolve('../../../.next/server/chunks/1987.js')
         require.resolve('../../../.next/server/chunks/274.js')
+        require.resolve('../../../.next/server/chunks/4271.js')
         require.resolve('../../../.next/server/chunks/5237.js')
         require.resolve('../../../.next/server/chunks/6577.js')
-        require.resolve('../../../.next/server/chunks/747.js')
-        require.resolve('../../../.next/server/chunks/8753.js')
         require.resolve('../../../.next/server/chunks/9097.js')
         require.resolve('../../../.next/server/chunks/header.js')
         require.resolve('../../../.next/server/webpack-api-runtime.js')
@@ -68,17 +67,16 @@ exports.resolvePages = () => {
 }"
 `;
 
-exports[`onBuild() generates a file referencing all page sources 2`] = `
+exports[`onBuild() generates a file referencing all API route sources 2`] = `
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
-        require.resolve('../../../.next/server/chunks/162.js')
+        require.resolve('../../../.next/server/chunks/1987.js')
         require.resolve('../../../.next/server/chunks/274.js')
+        require.resolve('../../../.next/server/chunks/4271.js')
         require.resolve('../../../.next/server/chunks/5237.js')
         require.resolve('../../../.next/server/chunks/6577.js')
-        require.resolve('../../../.next/server/chunks/747.js')
-        require.resolve('../../../.next/server/chunks/8753.js')
         require.resolve('../../../.next/server/chunks/9097.js')
         require.resolve('../../../.next/server/chunks/header.js')
         require.resolve('../../../.next/server/webpack-api-runtime.js')
@@ -170,12 +168,11 @@ exports[`onBuild() generates a file referencing all when publish dir is a subdir
 exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
-        require.resolve('../../../web/.next/server/chunks/162.js')
+        require.resolve('../../../web/.next/server/chunks/1987.js')
         require.resolve('../../../web/.next/server/chunks/274.js')
+        require.resolve('../../../web/.next/server/chunks/4271.js')
         require.resolve('../../../web/.next/server/chunks/5237.js')
         require.resolve('../../../web/.next/server/chunks/6577.js')
-        require.resolve('../../../web/.next/server/chunks/747.js')
-        require.resolve('../../../web/.next/server/chunks/8753.js')
         require.resolve('../../../web/.next/server/chunks/9097.js')
         require.resolve('../../../web/.next/server/chunks/header.js')
         require.resolve('../../../web/.next/server/webpack-api-runtime.js')
@@ -238,12 +235,11 @@ exports[`onBuild() generates a file referencing all when publish dir is a subdir
 exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
-        require.resolve('../../../web/.next/server/chunks/162.js')
+        require.resolve('../../../web/.next/server/chunks/1987.js')
         require.resolve('../../../web/.next/server/chunks/274.js')
+        require.resolve('../../../web/.next/server/chunks/4271.js')
         require.resolve('../../../web/.next/server/chunks/5237.js')
         require.resolve('../../../web/.next/server/chunks/6577.js')
-        require.resolve('../../../web/.next/server/chunks/747.js')
-        require.resolve('../../../web/.next/server/chunks/8753.js')
         require.resolve('../../../web/.next/server/chunks/9097.js')
         require.resolve('../../../web/.next/server/chunks/header.js')
         require.resolve('../../../web/.next/server/webpack-api-runtime.js')
