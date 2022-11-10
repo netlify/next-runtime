@@ -454,10 +454,10 @@ Array [
     "to": "/fr/",
   },
   Object {
-    "force": false,
+    "force": true,
     "from": "/",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "from": "/_ipx/*",
@@ -633,10 +633,10 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "force": false,
+    "force": true,
     "from": "/_next/data/build-id/en/index.json",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
@@ -691,6 +691,12 @@ Array [
     "from": "/_next/data/build-id/en/static/:id.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/es.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
@@ -826,12 +832,6 @@ Array [
   },
   Object {
     "force": false,
-    "from": "/_next/data/build-id/es/index.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
     "from": "/_next/data/build-id/es/layouts.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -883,6 +883,12 @@ Array [
     "from": "/_next/data/build-id/es/static/:id.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/fr.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
@@ -1013,12 +1019,6 @@ Array [
   Object {
     "force": false,
     "from": "/_next/data/build-id/fr/image.json",
-    "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": false,
-    "from": "/_next/data/build-id/fr/index.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
@@ -1177,10 +1177,10 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "force": false,
-    "from": "/es/",
+    "force": true,
+    "from": "/es",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
@@ -1375,10 +1375,10 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "force": false,
-    "from": "/fr/",
+    "force": true,
+    "from": "/fr",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
