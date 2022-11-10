@@ -86,8 +86,6 @@ const plugin: NetlifyPlugin = {
         failBuild,
       })
 
-    console.log({ appDir })
-
     const dotNextDir = join(appDir, distDir)
 
     // This is the *generated* publish dir. The user specifies .next, be we actually use this subdirectory
