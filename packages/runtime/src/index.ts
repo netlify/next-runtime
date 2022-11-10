@@ -4,7 +4,7 @@ import { join, relative } from 'path'
 import type { NetlifyPlugin } from '@netlify/build'
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
-import { existsSync, readFileSync } from 'fs-extra'
+import { copy, ensureDir, existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
@@ -26,7 +26,7 @@ import {
   getExtendedApiRouteConfigs,
   warnOnApiRoutes,
 } from './helpers/functions'
-import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
+import { generateRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
@@ -80,12 +80,20 @@ const plugin: NetlifyPlugin = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental } = await getNextConfig(
-      {
+    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental, distDir } =
+      await getNextConfig({
         publish,
         failBuild,
-      },
-    )
+      })
+
+    console.log({ appDir })
+
+    const dotNextDir = join(appDir, distDir)
+
+    // This is the *generated* publish dir. The user specifies .next, be we actually use this subdirectory
+    const publishDir = join(dotNextDir, 'dist')
+    await ensureDir(publishDir)
+
     await cleanupEdgeFunctions(constants)
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
@@ -117,7 +125,7 @@ const plugin: NetlifyPlugin = {
     }
 
     if (isNextAuthInstalled()) {
-      const config = await getRequiredServerFiles(publish)
+      const config = await getRequiredServerFiles(dotNextDir)
 
       const userDefinedNextAuthUrl = config.config.env.NEXTAUTH_URL
 
@@ -134,7 +142,7 @@ const plugin: NetlifyPlugin = {
         )
         config.config.env.NEXTAUTH_URL = nextAuthUrl
 
-        await updateRequiredServerFiles(publish, config)
+        await updateRequiredServerFiles(dotNextDir, config)
       } else {
         // Using the deploy prime url in production leads to issues because the unique deploy ID is part of the generated URL
         // and will not match the expected URL in the callback URL of an OAuth application.
@@ -145,30 +153,27 @@ const plugin: NetlifyPlugin = {
         console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
         config.config.env.NEXTAUTH_URL = nextAuthUrl
 
-        await updateRequiredServerFiles(publish, config)
+        await updateRequiredServerFiles(dotNextDir, config)
       }
     }
 
-    const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
+    const buildId = readFileSync(join(dotNextDir, 'BUILD_ID'), 'utf8').trim()
 
-    await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
-    const apiRoutes = await getExtendedApiRouteConfigs(publish, appDir)
+    await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), dotNextDir) })
+    const apiRoutes = await getExtendedApiRouteConfigs(dotNextDir, appDir)
 
     await generateFunctions(constants, appDir, apiRoutes)
     await generatePagesResolver({ target, constants })
 
-    await movePublicFiles({ appDir, outdir, publish })
+    await movePublicFiles({ appDir, outdir, publishDir })
 
     await patchNextFiles(appDir)
 
     if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
-      await moveStaticPages({ target, netlifyConfig, i18n, basePath })
+      await moveStaticPages({ distDir: dotNextDir, i18n, basePath, publishDir })
     }
 
-    await generateStaticRedirects({
-      netlifyConfig,
-      nextConfig: { basePath, i18n },
-    })
+    await copy(join(dotNextDir, 'static'), join(publishDir, '_next', 'static'))
 
     await setupImageFunction({
       constants,
@@ -190,20 +195,16 @@ const plugin: NetlifyPlugin = {
   },
 
   async onPostBuild({
-    netlifyConfig: {
-      build: { publish },
-      redirects,
-      headers,
-    },
+    netlifyConfig,
     utils: {
       status,
       cache,
       functions,
       build: { failBuild },
     },
-    constants: { FUNCTIONS_DIST },
+    constants: { FUNCTIONS_DIST, PUBLISH_DIR },
   }) {
-    await saveCache({ cache, publish })
+    await saveCache({ cache, publish: netlifyConfig.build.publish })
 
     if (shouldSkip()) {
       status.show({
@@ -219,15 +220,16 @@ const plugin: NetlifyPlugin = {
 
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
-    const nextConfig = await getNextConfig({ publish, failBuild })
+    const nextConfig = await getNextConfig({ publish: netlifyConfig.build.publish, failBuild })
 
     const { basePath, appDir } = nextConfig
 
-    generateCustomHeaders(nextConfig, headers)
+    generateCustomHeaders(nextConfig, netlifyConfig.headers)
 
-    warnForProblematicUserRewrites({ basePath, redirects })
+    warnForProblematicUserRewrites({ basePath, redirects: netlifyConfig.redirects })
     warnForRootRedirects({ appDir })
     await warnOnApiRoutes({ FUNCTIONS_DIST })
+    netlifyConfig.build.publish = join(PUBLISH_DIR, 'dist')
   },
 }
 // The types haven't been updated yet
