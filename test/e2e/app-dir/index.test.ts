@@ -36,7 +36,7 @@ describe('app dir', () => {
       })
     }
 
-    fit('should use application/octet-stream for flight', async () => {
+    it('should use application/octet-stream for flight', async () => {
       const res = await fetchViaHTTP(
         next.url,
         '/dashboard/deployments/123',

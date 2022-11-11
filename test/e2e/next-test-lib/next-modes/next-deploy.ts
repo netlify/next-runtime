@@ -13,8 +13,18 @@ export class NextDeployInstance extends NextInstance {
   }
 
   public async setup() {
+    if (process.env.SITE_URL) {
+      process.env.NEXT_TEST_SKIP_CLEANUP = 'true'
+      console.log('Using SITE_URL', process.env.SITE_URL)
+      this._url = process.env.SITE_URL
+      this._parsedUrl = new URL(this._url)
+      this._buildId = 'build-id'
+      return
+    }
+
     await super.createTestDir()
-    await execa('npm', ['i'], {
+    // We use yarn because it's better at handling local dependencies
+    await execa('yarn', [], {
       cwd: this.testDir,
       stdio: 'inherit',
     })
