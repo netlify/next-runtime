@@ -1087,16 +1087,6 @@ Array [
     "to": "/_ipx/w_:width,q_:quality/:url",
   },
   Object {
-    "from": "/_next/static/*",
-    "status": 200,
-    "to": "/static/:splat",
-  },
-  Object {
-    "from": "/:locale/_next/static/*",
-    "status": 200,
-    "to": "/static/:splat",
-  },
-  Object {
     "conditions": Object {
       "Cookie": Array [
         "__prerender_bypass",
@@ -1139,24 +1129,6 @@ Array [
     "from": "/broken-image",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/BUILD_ID",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/build-manifest.json",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/cache/*",
-    "status": 404,
-    "to": "/404.html",
   },
   Object {
     "force": false,
@@ -1711,22 +1683,10 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "force": true,
-    "from": "/prerender-manifest.json",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
     "force": false,
     "from": "/previewTest",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/react-loadable-manifest.json",
-    "status": 404,
-    "to": "/404.html",
   },
   Object {
     "force": false,
@@ -1735,28 +1695,10 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "force": true,
-    "from": "/routes-manifest.json",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
     "force": false,
     "from": "/script",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/server/*",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/serverless/*",
-    "status": 404,
-    "to": "/404.html",
   },
   Object {
     "force": false,
@@ -1781,18 +1723,6 @@ Array [
     "from": "/static/:id",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/trace",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/traces",
-    "status": 404,
-    "to": "/404.html",
   },
 ]
 `;
