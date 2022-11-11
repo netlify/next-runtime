@@ -115,6 +115,14 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
 
     const multiValueHeaders = getMultiValueHeaders(headers)
 
+    if (event.headers['x-next-debug-logging']) {
+      const response = {
+        headers: multiValueHeaders,
+        statusCode: result.statusCode,
+      }
+      console.log('Origin response:', JSON.stringify(response, null, 2))
+    }
+
     if (multiValueHeaders['set-cookie']?.[0]?.includes('__prerender_bypass')) {
       delete multiValueHeaders.etag
       multiValueHeaders['cache-control'] = ['no-cache']
