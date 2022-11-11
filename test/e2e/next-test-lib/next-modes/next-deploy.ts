@@ -53,6 +53,7 @@ export class NextDeployInstance extends NextInstance {
       cwd: this.testDir,
       reject: false,
       env: {
+        NETLIFY_SITE_ID: process.env.NETLIFY_SITE_ID || '1d5a5c76-d445-4ae5-b694-b0d3f2e2c395',
         NODE_ENV: 'production',
         DISABLE_IPX: platform() === 'linux' ? undefined : '1',
       },

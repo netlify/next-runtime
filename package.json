@@ -18,6 +18,7 @@
     "postinstall": "run-s build install-husky",
     "install-husky": "if-env CI=1 || husky install node_modules/@netlify/eslint-config-node/.husky",
     "test": "run-s build:demo test:jest",
+    "test:next": "jest -c test/e2e/jest.config.js test/e2e/app-dir/index.test.ts",
     "test:jest": "jest",
     "test:e2e": "vitest test/e2e/canary",
     "playwright:install": "playwright install --with-deps chromium",
