@@ -94,6 +94,23 @@ globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT
 const self = {}
 let _ENTRIES = {}
 
+class Response extends globalThis.Response {
+  constructor(body, init) {
+    super(body, init);
+    // Next.js uses this extension to the Headers API implemented by Cloudflare workerd
+    this.headers.getAll = (name) => {
+      name = name.toLowerCase();
+      if (name !== "set-cookie") {
+        throw new Error("Headers.getAll is only supported for Set-Cookie");
+      }
+      return [...this.headers.entries()]
+        .filter(([key]) => key === name)
+        .map(([, value]) => value);
+    };
+  }
+}
+
+
 //  Next uses blob: urls to refer to local assets, so we need to intercept these
 const _fetch = globalThis.fetch
 const fetch = async (url, init) => {
