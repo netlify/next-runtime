@@ -53,10 +53,11 @@ export class NextDeployInstance extends NextInstance {
     }
     try {
       const data = JSON.parse(deployRes.stdout)
-      this._url = data.url
+      this._url = data.deploy_url
       console.log(`Deployed to ${this._url}`)
       this._parsedUrl = new URL(this._url)
     } catch (err) {
+      console.error(err)
       throw new Error(`Failed to parse deploy output: ${deployRes.stdout}`)
     }
     this._buildId = (
