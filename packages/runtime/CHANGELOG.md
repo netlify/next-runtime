@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.28.7](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.6...plugin-nextjs-v4.28.7) (2022-11-11)
+
+
+### Bug Fixes
+
+* publish from subdirectory ([#1756](https://github.com/netlify/next-runtime/issues/1756)) ([1faf191](https://github.com/netlify/next-runtime/commit/1faf1911f2b2fbf87bb0c75c26eba951a0ddfa3a))
+
 ## [4.28.6](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.5...plugin-nextjs-v4.28.6) (2022-11-07)
 
 
