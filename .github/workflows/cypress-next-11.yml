@@ -39,7 +39,7 @@ jobs:
         id: deploy
         uses: ./.github/actions/wait-for-netlify-deploy
         with:
-          site-name: next-plugin-next-11-demo
+          site-name: nextjs-plugin-next-11-demo
           timeout: 300
 
       - name: Deploy successful
