@@ -1,6 +1,7 @@
 /* eslint-disable max-lines */
 import { cpus } from 'os'
 
+import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
 import { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir, readFileSync } from 'fs-extra'
 import globby from 'globby'
@@ -59,11 +60,11 @@ export const matchesRewrite = (file: string, rewrites: Rewrites): boolean => {
   return matchesRedirect(file, rewrites.beforeFiles)
 }
 
-export const getMiddleware = async (distDir: string): Promise<Array<string>> => {
+export const getMiddleware = async (publish: string): Promise<Array<string>> => {
   if (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1') {
     return []
   }
-  const manifestPath = join(distDir, 'server', 'middleware-manifest.json')
+  const manifestPath = join(publish, 'server', 'middleware-manifest.json')
   if (existsSync(manifestPath)) {
     const manifest = await readJson(manifestPath, { throws: false })
     return manifest?.sortedMiddleware ?? []
@@ -73,28 +74,32 @@ export const getMiddleware = async (distDir: string): Promise<Array<string>> => 
 
 // eslint-disable-next-line max-lines-per-function
 export const moveStaticPages = async ({
-  distDir,
+  netlifyConfig,
+  target,
   i18n,
   basePath,
-  publishDir,
 }: {
-  distDir: string
+  netlifyConfig: NetlifyConfig
+  target: 'server' | 'serverless' | 'experimental-serverless-trace'
   i18n: NextConfig['i18n']
   basePath?: string
-  publishDir
 }): Promise<void> => {
   console.log('Moving static page files to serve from CDN...')
-  const outputDir = join(distDir, 'server')
+  const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
   const root = join(outputDir, 'pages')
-  const buildId = readFileSync(join(distDir, 'BUILD_ID'), 'utf8').trim()
+  const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
   const dataDir = join('_next', 'data', buildId)
-  await ensureDir(join(publishDir, dataDir))
+  await ensureDir(join(netlifyConfig.build.publish, dataDir))
   // Load the middleware manifest so we can check if a file matches it before moving
-  const middlewarePaths = await getMiddleware(distDir)
+  const middlewarePaths = await getMiddleware(netlifyConfig.build.publish)
   const middleware = middlewarePaths.map((path) => path.slice(1))
 
-  const prerenderManifest: PrerenderManifest = await readJson(join(distDir, 'prerender-manifest.json'))
-  const { redirects, rewrites }: RoutesManifest = await readJson(join(distDir, 'routes-manifest.json'))
+  const prerenderManifest: PrerenderManifest = await readJson(
+    join(netlifyConfig.build.publish, 'prerender-manifest.json'),
+  )
+  const { redirects, rewrites }: RoutesManifest = await readJson(
+    join(netlifyConfig.build.publish, 'routes-manifest.json'),
+  )
 
   const isrFiles = new Set<string>()
 
@@ -123,7 +128,7 @@ export const moveStaticPages = async ({
     files.push(file)
     filesManifest[file] = targetPath
 
-    const dest = join(publishDir, targetPath)
+    const dest = join(netlifyConfig.build.publish, targetPath)
 
     try {
       await move(source, dest)
@@ -237,10 +242,10 @@ export const moveStaticPages = async ({
   }
 
   // Write the manifest for use in the serverless functions
-  await writeJson(join(distDir, 'static-manifest.json'), Object.entries(filesManifest))
+  await writeJson(join(netlifyConfig.build.publish, 'static-manifest.json'), Object.entries(filesManifest))
 
   if (i18n?.defaultLocale) {
-    const rootPath = basePath ? join(publishDir, basePath) : publishDir
+    const rootPath = basePath ? join(netlifyConfig.build.publish, basePath) : netlifyConfig.build.publish
     // Copy the default locale into the root
     const defaultLocaleDir = join(rootPath, i18n.defaultLocale)
     if (existsSync(defaultLocaleDir)) {
@@ -422,13 +427,12 @@ export const unpatchNextFiles = async (root: string): Promise<void> => {
 export const movePublicFiles = async ({
   appDir,
   outdir,
-  publishDir,
+  publish,
 }: {
   appDir: string
   outdir?: string
-  publishDir: string
+  publish: string
 }): Promise<void> => {
-  await ensureDir(publishDir)
   // `outdir` is a config property added when using Next.js with Nx. It's typically
   // a relative path outside of the appDir, e.g. '../../dist/apps/<app-name>', and
   // the parent directory of the .next directory.
@@ -437,7 +441,7 @@ export const movePublicFiles = async ({
   // directory from the original app directory.
   const publicDir = outdir ? join(appDir, outdir, 'public') : join(appDir, 'public')
   if (existsSync(publicDir)) {
-    await copy(publicDir, `${publishDir}/`)
+    await copy(publicDir, `${publish}/`)
   }
 }
 /* eslint-enable max-lines */
