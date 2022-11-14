@@ -1,0 +1,73 @@
+name: Run e2e (Next 11 demo)
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+  push:
+    branches:
+      - main
+    paths:
+      - 'demos/next-11/**/*.{js,jsx,ts,tsx}'
+      - 'cypress/integration/next-11/**/*.{ts,js}'
+      - 'src/**/*.{ts,js}'
+jobs:
+  cypress:
+    name: Cypress
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2, 3, 4]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate Github token
+        uses: navikt/github-app-token-generator@v1
+        id: get-token
+        with:
+          private-key: ${{ secrets.TOKENS_PRIVATE_KEY }}
+          app-id: ${{ secrets.TOKENS_APP_ID }}
+
+      - name: Checkout @netlify/wait-for-deploy-action
+        uses: actions/checkout@v2
+        with:
+          repository: netlify/wait-for-deploy-action
+          token: ${{ steps.get-token.outputs.token }}
+          path: ./.github/actions/wait-for-netlify-deploy
+
+      - name: Wait for Netlify Deploy
+        id: deploy
+        uses: ./.github/actions/wait-for-netlify-deploy
+        with:
+          site-name: next-plugin-next-11-demo
+          timeout: 300
+
+      - name: Deploy successful
+        if: ${{ steps.deploy.outputs.origin-url }}
+        run: echo ${{ steps.deploy.outputs.origin-url }}
+
+      - name: Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - run: npm install
+
+      - name: Cypress run
+        if: ${{ steps.deploy.outputs.origin-url }}
+        id: cypress
+        uses: cypress-io/github-action@v2
+        with:
+          browser: chrome
+          headless: true
+          record: true
+          parallel: true
+          config-file: cypress/config/next-11.json
+          group: 'Next Runtime - Next 11'
+          spec: cypress/integration/next-11/*
+        env:
+          DEBUG: '@cypress/github-action'
+          CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}
+          CYPRESS_NETLIFY_CONTEXT: ${{ steps.deploy.outputs.context }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.NEXT_11_CYPRESS_RECORD_KEY }}
