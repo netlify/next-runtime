@@ -12,3 +12,4 @@ package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
 package = "../plugin-wrapper"
+
