@@ -107,22 +107,21 @@ const changeCwd = function (cwd) {
 const onBuildHasRun = (netlifyConfig) =>
   Boolean(netlifyConfig.functions[HANDLER_FUNCTION_NAME]?.included_files?.some((file) => file.includes('BUILD_ID')))
 
-const rewriteAppDir = async function (dir = '.next', appDir) {
-  const manifest = path.join(appDir, dir, 'required-server-files.json')
+const rewriteAppDir = async function (dir = '.next') {
+  const manifest = path.join(dir, 'required-server-files.json')
   const manifestContent = await readJson(manifest)
-  manifestContent.appDir = appDir
+  manifestContent.appDir = process.cwd()
 
   await writeJSON(manifest, manifestContent)
 }
 
 // Move .next from sample project to current directory
-export const moveNextDist = async function (dotNext = '.next', app = '.') {
-  const appDir = path.join(process.cwd(), app)
+export const moveNextDist = async function (dir = '.next') {
   await stubModules(['next', 'sharp'])
-  await ensureDir(dirname(dotNext))
-  await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(appDir, dotNext))
-  await copy(path.join(SAMPLE_PROJECT_DIR, 'pages'), path.join(appDir, 'pages'))
-  await rewriteAppDir(dotNext, appDir)
+  await ensureDir(dirname(dir))
+  await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
+  await copy(path.join(SAMPLE_PROJECT_DIR, 'pages'), path.join(process.cwd(), 'pages'))
+  await rewriteAppDir(dir)
 }
 
 const stubModules = async function (modules) {
@@ -467,17 +466,17 @@ describe('onBuild()', () => {
     expect(data).toMatchSnapshot()
   })
 
-  test('moves static files to dist', async () => {
+  test('moves static files to root', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
     data.forEach(([_, file]) => {
-      expect(existsSync(path.resolve(path.join('.next', 'dist', file)))).toBeTruthy()
+      expect(existsSync(path.resolve(path.join('.next', file)))).toBeTruthy()
       expect(existsSync(path.resolve(path.join('.next', 'server', 'pages', file)))).toBeFalsy()
     })
   })
 
-  test('copies default locale files to top level in dist', async () => {
+  test('copies default locale files to top level', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
@@ -489,7 +488,7 @@ describe('onBuild()', () => {
         return
       }
       const trimmed = file.substring(locale.length)
-      expect(existsSync(path.resolve(path.join('.next', 'dist', trimmed)))).toBeTruthy()
+      expect(existsSync(path.resolve(path.join('.next', trimmed)))).toBeTruthy()
     })
   })
 
@@ -597,14 +596,13 @@ describe('onBuild()', () => {
   })
 
   test('generates a file referencing all when publish dir is a subdirectory', async () => {
-    const dotNext = '.next'
-    const app = 'web'
-    await moveNextDist(dotNext, app)
-    netlifyConfig.build.publish = path.resolve(app, dotNext)
+    const dir = 'web/.next'
+    await moveNextDist(dir)
+    netlifyConfig.build.publish = path.resolve(dir)
     const config = {
       ...defaultArgs,
       netlifyConfig,
-      constants: { ...constants, PUBLISH_DIR: path.join(app, dotNext) },
+      constants: { ...constants, PUBLISH_DIR: dir },
     }
     await nextRuntime.onBuild(config)
     const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
