@@ -17,7 +17,7 @@ jobs:
           node-version: 'lts/*'
       - name: NPM Install
         run: npm install
-      - name: Run tests against next@latest
+      - name: Run Next.js e2e test suite
         run: npm run test:next
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
