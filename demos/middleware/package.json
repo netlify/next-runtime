@@ -11,9 +11,9 @@
   "dependencies": {
     "@netlify/next": "*",
     "@netlify/plugin-nextjs": "*",
-    "next": "^13.0.0",
-    "react": "18.0.0",
-    "react-dom": "18.0.0"
+    "next": "^13.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
