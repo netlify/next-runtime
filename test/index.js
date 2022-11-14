@@ -1203,13 +1203,13 @@ describe('utility functions', () => {
     const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
     const patchedData = await readFileSync(serverFile, 'utf8')
     expect(patchedData.includes('_REVALIDATE_SSG')).toBeTruthy()
-    expect(patchedData.includes('private: isPreviewMode && false')).toBeTruthy()
+    expect(patchedData.includes('private: isPreviewMode || false')).toBeTruthy()
 
     await unpatchNextFiles(process.cwd())
 
     const unPatchedData = await readFileSync(serverFile, 'utf8')
     expect(unPatchedData.includes('_REVALIDATE_SSG')).toBeFalsy()
-    expect(unPatchedData.includes('private: isPreviewMode && false')).toBeFalsy()
+    expect(unPatchedData.includes('private: isPreviewMode || false')).toBeFalsy()
   })
 })
 
