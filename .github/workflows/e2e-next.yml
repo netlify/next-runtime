@@ -1,0 +1,24 @@
+name: Next.js e2e test suite
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Installing with LTS Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 'lts/*'
+      - name: NPM Install
+        run: npm install
+      - name: Run tests against next@latest
+        run: npm run test:next
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395

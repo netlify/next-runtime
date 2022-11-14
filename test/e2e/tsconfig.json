@@ -1,0 +1,12 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": ".", 
+        "paths": {
+          "e2e-utils": ["next-test-lib/e2e-utils.ts"],
+          "test/lib/next-modes/base": ["next-test-lib/next-modes/base.ts"],
+          "next-test-utils": ["next-test-lib/next-test-utils.js"],
+          "next-webdriver": ["next-test-lib/next-webdriver.ts"]
+        }
+    }
+}
