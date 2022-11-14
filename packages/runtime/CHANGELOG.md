@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.29.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.0...plugin-nextjs-v4.29.1) (2022-11-14)
+
+
+### Bug Fixes
+
+* exclude sourcemaps from bundle ([#1772](https://github.com/netlify/next-runtime/issues/1772)) ([4cad33e](https://github.com/netlify/next-runtime/commit/4cad33e7adef50f2d45d46a162c480f3297bc4f3))
+* polyfill headers.getAll ([#1766](https://github.com/netlify/next-runtime/issues/1766)) ([b400efb](https://github.com/netlify/next-runtime/commit/b400efb895a5a9444e2d483c8e7a3dcd8bcdc5b0))
+* revert publish from subdirectory ([#1771](https://github.com/netlify/next-runtime/issues/1771)) ([0554d6a](https://github.com/netlify/next-runtime/commit/0554d6a84b26a4c8465a2d42eb25ff8bb0b0a0c3))
+
 ## [4.29.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.7...plugin-nextjs-v4.29.0) (2022-11-11)
 
 
