@@ -138,6 +138,14 @@ If you currently use redirects or rewrites on your site, see
 information on changes to how they are handled in this version. In particular, note that `_redirects` and `_headers`
 files must be placed in `public`, not in the root of the site.
 
+## Using with pnpm
+If your site uses pnpm to manage dependencies, currently you must [enable public hoisting](https://pnpm.io/npmrc#public-hoist-pattern). 
+The simplest way to do this is to create a `.npmrc` file in the root of your project with the content:
+
+```ini
+public-hoist-pattern[]=*
+```
+
 ## Feedback
 
 If you think you have found a bug in Next.js on Netlify,

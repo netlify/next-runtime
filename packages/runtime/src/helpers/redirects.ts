@@ -7,7 +7,7 @@ import type { PrerenderManifest, SsgRoute } from 'next/dist/build'
 import { outdent } from 'outdent'
 import { join } from 'pathe'
 
-import { HANDLER_FUNCTION_PATH, ODB_FUNCTION_PATH } from '../constants'
+import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
 
 import { getMiddleware } from './files'
 import { ApiRouteConfig } from './functions'
@@ -24,6 +24,14 @@ import {
 
 const matchesMiddleware = (middleware: Array<string>, route: string): boolean =>
   middleware.some((middlewarePath) => route.startsWith(middlewarePath))
+
+const generateHiddenPathRedirects = ({ basePath }: Pick<NextConfig, 'basePath'>): NetlifyConfig['redirects'] =>
+  HIDDEN_PATHS.map((path) => ({
+    from: `${basePath}${path}`,
+    to: '/404.html',
+    status: 404,
+    force: true,
+  }))
 
 const generateLocaleRedirects = ({
   i18n,
@@ -56,6 +64,21 @@ const generateLocaleRedirects = ({
     })
   })
   return redirects
+}
+
+export const generateStaticRedirects = ({
+  netlifyConfig,
+  nextConfig: { i18n, basePath },
+}: {
+  netlifyConfig: NetlifyConfig
+  nextConfig: Pick<NextConfig, 'i18n' | 'basePath'>
+}) => {
+  // Static files are in `static`
+  netlifyConfig.redirects.push({ from: `${basePath}/_next/static/*`, to: `/static/:splat`, status: 200 })
+
+  if (i18n) {
+    netlifyConfig.redirects.push({ from: `${basePath}/:locale/_next/static/*`, to: `/static/:splat`, status: 200 })
+  }
 }
 
 /**
@@ -219,6 +242,8 @@ export const generateRedirects = async ({
   const { dynamicRoutes, staticRoutes }: RoutesManifest = await readJSON(
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
+
+  netlifyConfig.redirects.push(...generateHiddenPathRedirects({ basePath }))
 
   if (i18n && i18n.localeDetection !== false) {
     netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))

@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.29.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.7...plugin-nextjs-v4.29.0) (2022-11-11)
+
+
+### Features
+
+* add next debug logging ([#1761](https://github.com/netlify/next-runtime/issues/1761)) ([9607031](https://github.com/netlify/next-runtime/commit/960703136af8bcedc26345c31ca25da08366984e))
+
 ## [4.28.7](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.6...plugin-nextjs-v4.28.7) (2022-11-11)
 
 
