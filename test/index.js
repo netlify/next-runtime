@@ -520,7 +520,7 @@ describe('onBuild()', () => {
       '!.next/server/**/*.js.nft.json',
       '!.next/server/**/*.map',
       '!**/node_modules/@next/swc*/**/*',
-      '!node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
+      '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
       '!node_modules/next/dist/compiled/webpack/bundle4.js',
