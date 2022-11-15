@@ -44,7 +44,7 @@ export const downloadFile = async (url: string, destination: string): Promise<vo
 /**
  * Parse maxage from a cache-control header
  */
-export const getMaxAge = (header: string): number => {
+export const getMaxAge = (header = ''): number => {
   const parts = header.split(',')
   let maxAge
   for (const part of parts) {
