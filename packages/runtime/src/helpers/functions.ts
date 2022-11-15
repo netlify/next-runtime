@@ -174,11 +174,14 @@ export const setupImageFunction = async ({
 export const getApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
   const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
   const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
+  // two possible places
+  // Ref: https://nextjs.org/docs/advanced-features/src-directory
   const pagesDir = join(baseDir, 'pages')
+  const srcPagesDir = join(baseDir, 'src', 'pages')
 
   return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
-      const filePath = getSourceFileForPage(apiRoute, pagesDir)
+      const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir])
       return { route: apiRoute, config: await extractConfigFromFile(filePath), compiled: pages[apiRoute] }
     }),
   )
