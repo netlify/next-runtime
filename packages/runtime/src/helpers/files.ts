@@ -365,8 +365,6 @@ const baseServerReplacements: Array<[string, string]> = [
     `checkIsManualRevalidate(req, this.renderOpts.previewProps)`,
     `checkIsManualRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
   ],
-  // ensure ISR 404 pages send the correct SWR cache headers
-  [`private: isPreviewMode || is404Page`, `private: isPreviewMode || false`],
 ]
 
 const nextServerReplacements: Array<[string, string]> = [

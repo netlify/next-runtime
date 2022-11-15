@@ -130,25 +130,25 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
 
     // Sending SWR headers causes undefined behaviour with the Netlify CDN
     const cacheHeader = multiValueHeaders['cache-control']?.[0]
+    const ttl = getMaxAge(cacheHeader)
 
     if (cacheHeader?.includes('stale-while-revalidate')) {
-      if (requestMode === 'odb') {
-        const ttl = getMaxAge(cacheHeader)
-        // Long-expiry TTL is basically no TTL, so we'll skip it
-        if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
-          // ODBs currently have a minimum TTL of 60 seconds
-          result.ttl = Math.max(ttl, 60)
-        }
-        const ephemeralCodes = [301, 302, 307, 308, 404]
-        if (ttl === ONE_YEAR_IN_SECONDS && ephemeralCodes.includes(result.statusCode)) {
-          // Only cache for 60s if default TTL provided
-          result.ttl = 60
-        }
-        if (result.ttl > 0) {
-          requestMode = `odb ttl=${result.ttl}`
-        }
+      // Long-expiry TTL is basically no TTL, so we'll skip it
+      if (requestMode === 'odb' && ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
+        // ODBs currently have a minimum TTL of 60 seconds
+        result.ttl = Math.max(ttl, 60)
       }
       multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
+    }
+
+    // We don't want to cache not found or redirects for ever
+    const ephemeralCodes = [301, 302, 307, 308, 404]
+    if (ephemeralCodes.includes(result.statusCode) && requestMode === 'odb' && result.ttl === undefined) {
+      result.ttl = 60
+    }
+
+    if (result.ttl > 0) {
+      requestMode = `odb ttl=${result.ttl}`
     }
     multiValueHeaders['x-nf-render-mode'] = [requestMode]
 
