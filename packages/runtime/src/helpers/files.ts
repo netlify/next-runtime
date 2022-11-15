@@ -8,7 +8,7 @@ import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
 import pLimit from 'p-limit'
-import { join, resolve } from 'pathe'
+import { join, resolve, dirname } from 'pathe'
 import slash from 'slash'
 
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
@@ -356,7 +356,7 @@ export const getDependenciesOfFile = async (file: string) => {
     return []
   }
   const dependencies = await readJson(nft, 'utf8')
-  return dependencies.files.map((dep) => resolve(file, dep))
+  return dependencies.files.map((dep) => resolve(dirname(file), dep))
 }
 
 const baseServerReplacements: Array<[string, string]> = [
