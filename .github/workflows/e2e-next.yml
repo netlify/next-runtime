@@ -17,7 +17,7 @@ jobs:
       - id: set-test-chunks
         name: Set Chunks
         run:
-          echo "test-chunks=$(npx jest -c test/e2e/jest.config.js --listTests --json | jq -cM '[_nwise(length / 10 |
+          echo "test-chunks=$(npx jest -c test/e2e/jest.config.js --listTests --json | jq -cM '[_nwise(length / 24 |
           floor)]')" >> $GITHUB_OUTPUT
 
       - id: set-test-chunk-ids
