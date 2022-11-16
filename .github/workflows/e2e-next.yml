@@ -6,19 +6,38 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: E2E tests
+  setup:
     runs-on: ubuntu-latest
+    outputs:
+      test-chunks: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
+      test-chunk-ids: ${{ steps['set-test-chunk-ids'].outputs['test-chunk-ids'] }}
     steps:
       - uses: actions/checkout@v2
-      - name: Installing with LTS Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 'lts/*'
-      - name: NPM Install
-        run: npm install
-      - name: Run Next.js e2e test suite
-        run: npm run test:next
+      - run: npm install
+      - id: set-test-chunks
+        name: Set Chunks
+        run:
+          echo "::set-output name=test-chunks::$(npx jest -c test/e2e/jest.config.js --listTests --json | jq -cM
+          '[_nwise(length / 10 | floor)]')"
+      - id: set-test-chunk-ids
+        name: Set Chunk IDs
+        run: echo "::set-output name=test-chunk-ids::$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')"
         env:
+          CHUNKS: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
+  test:
+    runs-on: ubuntu-latest
+    name: test (chunk ${{ matrix.chunk }})
+    needs:
+      - setup
+    strategy:
+      matrix:
+        chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm install
+      - name: jest
+        run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest -c test/e2e/jest.config.js
+        env:
+          CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
           NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
