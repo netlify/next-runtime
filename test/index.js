@@ -1,4 +1,4 @@
-import { relative } from 'path/posix'
+import { relative } from 'pathe'
 import { getAllPageDependencies } from '../packages/runtime/src/templates/getPageResolver'
 
 jest.mock('../packages/runtime/src/helpers/utils', () => {
@@ -9,17 +9,7 @@ jest.mock('../packages/runtime/src/helpers/utils', () => {
 })
 
 const Chance = require('chance')
-const {
-  writeJSON,
-  unlink,
-  existsSync,
-  readFileSync,
-  copy,
-  ensureDir,
-  readJson,
-  exists,
-  pathExists,
-} = require('fs-extra')
+const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson, pathExists } = require('fs-extra')
 const path = require('path')
 const process = require('process')
 const os = require('os')
