@@ -1,4 +1,4 @@
-/* eslint-disable n/no-missing-import, import/no-unresolved, @typescript-eslint/ban-ts-comment  */
+/* eslint-disable import/no-unresolved, @typescript-eslint/ban-ts-comment  */
 import { Handler } from '@netlify/functions'
 import { createIPXHandler } from '@netlify/ipx'
 
@@ -11,4 +11,4 @@ export const handler: Handler = createIPXHandler({
   remotePatterns,
   responseHeaders,
 }) as Handler
-/* eslint-enable n/no-missing-import, import/no-unresolved, @typescript-eslint/ban-ts-comment  */
+/* eslint-enable import/no-unresolved, @typescript-eslint/ban-ts-comment  */
