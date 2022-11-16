@@ -2,7 +2,7 @@
 import spawn from 'cross-spawn'
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
 import { writeFile } from 'fs-extra'
-import { fetch } from 'undici'
+import fetch from 'node-fetch'
 import path from 'path'
 import qs from 'querystring'
 import { TextDecoderStream } from 'stream/web'
