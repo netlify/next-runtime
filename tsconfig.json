@@ -69,6 +69,7 @@
   // The following hack is to prevent TS using the chai types instead of jest types.
   // Source: https://github.com/cypress-io/cypress/issues/1087#issuecomment-552951441
   "include": [
+    "test",
     "node_modules/cypress",
   ],
   "exclude": [
