@@ -29,6 +29,16 @@ export async function middleware(req: NextRequest) {
     return request.next()
   }
 
+  if (pathname.startsWith('/api/geo')) {
+    req.headers.set('x-geo-country', req.geo.country)
+    req.headers.set('x-geo-region', req.geo.region)
+    req.headers.set('x-geo-city', req.geo.city)
+    req.headers.set('x-geo-longitude', req.geo.longitude)
+    req.headers.set('x-geo-latitude', req.geo.latitude)
+
+    return request.next()
+  }
+
   if (pathname.startsWith('/headers')) {
     // Add a header to the rewritten request
     req.headers.set('x-hello', 'world')

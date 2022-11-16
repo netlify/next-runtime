@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server'
 describe('Enhanced middleware', () => {
   it('adds request headers', () => {
     cy.request('/api/hello').then((response) => {
@@ -23,6 +24,17 @@ describe('Enhanced middleware', () => {
       expect(response.body)
         .to.have.nested.property('pageProps.message')
         .that.includes('This was static but has been transformed in')
+    })
+  })
+
+  it('adds geo data', () => {
+    cy.request('/api/geo-test').then((response) => {
+      expect(response.body).to.have.nested.property('headers.x-geo-country')
+      expect(response.body).to.have.nested.property('headers.x-geo-region')
+      expect(response.body).to.have.nested.property('headers.x-geo-city')
+      expect(response.body).to.have.nested.property('headers.x-geo-longitude')
+      expect(response.body).to.have.nested.property('headers.x-geo-latitude')
+      expect(response.body).to.have.nested.property('headers.x-geo-timezone')
     })
   })
 })
