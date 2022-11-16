@@ -1,9 +1,6 @@
-import { posix } from 'path'
-
 import glob from 'globby'
 import { outdent } from 'outdent'
-import { relative, resolve } from 'pathe'
-import slash from 'slash'
+import { join, relative, resolve } from 'pathe'
 
 import { HANDLER_FUNCTION_NAME } from '../constants'
 import { getDependenciesOfFile } from '../helpers/files'
@@ -17,15 +14,15 @@ export const getUniqueDependencies = async (sourceFiles: Array<string>) => {
 }
 
 export const getAllPageDependencies = async (publish: string) => {
-  const root = posix.resolve(slash(publish), 'server')
+  const root = resolve(publish, 'server')
 
   const pageFiles = await glob('{pages,app}/**/*.js', {
     cwd: root,
-    absolute: true,
     dot: true,
   })
-
-  return getUniqueDependencies(pageFiles)
+  // We don't use `absolute: true` because that returns Windows paths on Windows.
+  // Instead we use pathe to normalize the paths.
+  return getUniqueDependencies(pageFiles.map((pageFile) => join(root, pageFile)))
 }
 
 export const getResolverForDependencies = ({
@@ -47,7 +44,7 @@ export const getResolverForDependencies = ({
 }
 
 export const getResolverForPages = async (publish: string) => {
-  const functionDir = posix.resolve(posix.join('.netlify', 'functions', HANDLER_FUNCTION_NAME))
+  const functionDir = resolve('.netlify', 'functions', HANDLER_FUNCTION_NAME)
   const dependencies = await getAllPageDependencies(publish)
   return getResolverForDependencies({ dependencies, functionDir })
 }
