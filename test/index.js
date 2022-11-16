@@ -1279,14 +1279,8 @@ describe('function helpers', () => {
         await moveNextDist()
         await nextRuntime.onBuild(defaultArgs)
         const dependencies = await getAllPageDependencies(constants.PUBLISH_DIR)
-        const filesExist = await Promise.all(
-          dependencies.map(async (dep) => {
-            const exists = await pathExists(dep)
-            return [dep, exists]
-          }),
-        )
-        console.log(filesExist)
-        expect(filesExist.every(([dep, exists]) => exists)).toBeTruthy()
+        const filesExist = await Promise.all(dependencies.map((dep) => pathExists(dep)))
+        expect(filesExist.every((exists) => exists)).toBeTruthy()
       })
     })
 
