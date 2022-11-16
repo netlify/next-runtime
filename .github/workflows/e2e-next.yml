@@ -17,11 +17,12 @@ jobs:
       - id: set-test-chunks
         name: Set Chunks
         run:
-          echo "::set-output name=test-chunks::$(npx jest -c test/e2e/jest.config.js --listTests --json | jq -cM
-          '[_nwise(length / 10 | floor)]')"
+          echo "test-chunks=$(npx jest -c test/e2e/jest.config.js --listTests --json | jq -cM '[_nwise(length / 10 |
+          floor)]')" >> $GITHUB_OUTPUT
+
       - id: set-test-chunk-ids
         name: Set Chunk IDs
-        run: echo "::set-output name=test-chunk-ids::$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')"
+        run: echo "test-chunk-ids=$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')" >> $GITHUB_OUTPUT
         env:
           CHUNKS: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
   test:
@@ -30,6 +31,7 @@ jobs:
     needs:
       - setup
     strategy:
+      fail-fast: false
       matrix:
         chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
     steps:
