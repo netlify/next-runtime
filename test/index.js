@@ -1,4 +1,4 @@
-import { relative } from 'path/posix'
+import { relative } from 'pathe'
 import { getAllPageDependencies } from '../packages/runtime/src/templates/getPageResolver'
 
 jest.mock('../packages/runtime/src/helpers/utils', () => {
