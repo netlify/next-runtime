@@ -35,10 +35,10 @@ jobs:
       matrix:
         chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: npm install
       - name: Installing Node.js LTS
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 'lts/*'
           check-latest: true
@@ -51,7 +51,7 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
           NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
 
-      - uses: actions/upload-artifact@v2 # upload test results
+      - uses: actions/upload-artifact@v3 # upload test results
         if: ${{ always() }}
         with:
           name: test-results-${{ matrix.chunk }}
@@ -62,10 +62,13 @@ jobs:
     needs:
       - test
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: reports
       - uses: dorny/test-reporter@v1
         with:
-          artifact: /test-results-(.*)/
-          name: Jest Tests $1 # Name of the check run which will be created
-          path: '*.xml' # Path to test results (inside artifact .zip)
-          max-annotations: 50 # Maximum number of annotations to be created
+          name: Jest Tests
+          path: 'reports/**/*.xml' # Path to test results (inside artifact .zip)
+          max-annotations: 49 # Maximum number of annotations to be created
           reporter: jest-junit # Format of test results
