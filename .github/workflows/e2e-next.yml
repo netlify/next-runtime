@@ -37,6 +37,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: npm install
+      - name: Installing Node.js LTS
+        uses: actions/setup-node@v2
+        with:
+          node-version: 'lts/*'
+          check-latest: true
       - name: jest
         run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest -c test/e2e/jest.config.js
         env:
