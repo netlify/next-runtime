@@ -34,6 +34,7 @@ describe('Enhanced middleware', () => {
       expect(response.body).to.have.nested.property('headers.x-geo-city')
       expect(response.body).to.have.nested.property('headers.x-geo-longitude')
       expect(response.body).to.have.nested.property('headers.x-geo-latitude')
+      expect(response.body).to.have.nested.property('headers.x-geo-timezone')
     })
   })
 })

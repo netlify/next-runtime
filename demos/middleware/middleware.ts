@@ -35,6 +35,7 @@ export async function middleware(req: NextRequest) {
     req.headers.set('x-geo-city', req.geo.city)
     req.headers.set('x-geo-longitude', req.geo.longitude)
     req.headers.set('x-geo-latitude', req.geo.latitude)
+    req.headers.set('x-geo-timezone', req.geo.timezone)
 
     return request.next()
   }
