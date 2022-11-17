@@ -44,8 +44,8 @@ jobs:
           check-latest: true
       - name: jest
         run:
-          echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest -c
-          test/e2e/jest.config.js  --reporters=jest-junit --reporters=default
+          echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest --reporters=jest-junit
+          --reporters=default -c test/e2e/jest.config.js
         env:
           CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
