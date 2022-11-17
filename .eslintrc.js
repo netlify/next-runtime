@@ -14,6 +14,7 @@ module.exports = {
     'no-await-in-loop': 0,
     'n/exports-style': 0,
     'n/global-require': 0,
+    'n/no-missing-import': 0,
     'n/prefer-global/process': 0,
     // Allow a single word inline so that it can do language tags for syntax highlighting
     // ['error', { ignorePattern: /^ (\w+) $/ }],
