@@ -2,6 +2,7 @@
 /** @type {import('@jest/types').Config.InitialOptions} */
 
 const config = {
+  maxWorkers: 1,
   rootDir: __dirname,
   testMatch: ['**/test/**/*.test.js', '**/test/**/*.test.ts'],
   transform: {

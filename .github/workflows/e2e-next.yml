@@ -12,7 +12,7 @@ jobs:
       test-chunks: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
       test-chunk-ids: ${{ steps['set-test-chunk-ids'].outputs['test-chunk-ids'] }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: npm install
       - id: set-test-chunks
         name: Set Chunks
@@ -44,20 +44,21 @@ jobs:
           check-latest: true
       - name: jest
         run:
-          echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest -c test/e2e/jest.config.js
-          --reporters=jest-junit --reporters=default
+          echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest -c
+          test/e2e/jest.config.js  --reporters=jest-junit --reporters=default
         env:
           CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
           NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
 
       - uses: actions/upload-artifact@v2 # upload test results
-        if: success() || failure() # run this step even if previous step failed
+        if: ${{ always() }}
         with:
           name: test-results-${{ matrix.chunk }}
           path: reports/jest-*.xml
   report:
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     needs:
       - test
     steps:
