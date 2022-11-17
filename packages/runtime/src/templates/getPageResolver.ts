@@ -1,9 +1,6 @@
-import { posix } from 'path'
-
+import glob from 'globby'
 import { outdent } from 'outdent'
-import { relative, resolve } from 'pathe'
-import slash from 'slash'
-import glob from 'tiny-glob'
+import { join, relative, resolve } from 'pathe'
 
 import { HANDLER_FUNCTION_NAME } from '../constants'
 import { getDependenciesOfFile } from '../helpers/files'
@@ -11,20 +8,33 @@ import { getDependenciesOfFile } from '../helpers/files'
 // Generate a file full of require.resolve() calls for all the pages in the
 // build. This is used by the nft bundler to find all the pages.
 
-export const getPageResolver = async ({ publish, target }: { publish: string; target: string }) => {
-  const functionDir = posix.resolve(posix.join('.netlify', 'functions', HANDLER_FUNCTION_NAME))
-  const root = posix.resolve(slash(publish), target === 'server' ? 'server' : 'serverless', 'pages')
+export const getUniqueDependencies = async (sourceFiles: Array<string>) => {
+  const dependencies = await Promise.all(sourceFiles.map((sourceFile) => getDependenciesOfFile(sourceFile)))
+  return [...new Set([...sourceFiles, ...dependencies.flat()])].sort()
+}
 
-  const pages = await glob('**/*.js', {
+export const getAllPageDependencies = async (publish: string) => {
+  const root = resolve(publish, 'server')
+
+  const pageFiles = await glob('{pages,app}/**/*.js', {
     cwd: root,
     dot: true,
   })
-  const pageFiles = pages
-    .map((page) => `require.resolve('${posix.relative(functionDir, posix.join(root, slash(page)))}')`)
-    .sort()
+  // We don't use `absolute: true` because that returns Windows paths on Windows.
+  // Instead we use pathe to normalize the paths.
+  return getUniqueDependencies(pageFiles.map((pageFile) => join(root, pageFile)))
+}
 
-  return outdent`
-    // This file is purely to allow nft to know about these pages. It should be temporary.
+export const getResolverForDependencies = ({
+  dependencies,
+  functionDir,
+}: {
+  dependencies: string[]
+  functionDir: string
+}) => {
+  const pageFiles = dependencies.map((file) => `require.resolve('${relative(functionDir, file)}')`)
+  return outdent/* javascript */ `
+    // This file is purely to allow nft to know about these pages. 
     exports.resolvePages = () => {
         try {
             ${pageFiles.join('\n        ')}
@@ -33,31 +43,21 @@ export const getPageResolver = async ({ publish, target }: { publish: string; ta
   `
 }
 
-/**
- * API routes only need the dependencies for a single entrypoint, so we use the
- * NFT trace file to get the dependencies.
- */
-export const getSinglePageResolver = async ({
+export const getResolverForPages = async (publish: string) => {
+  const functionDir = resolve('.netlify', 'functions', HANDLER_FUNCTION_NAME)
+  const dependencies = await getAllPageDependencies(publish)
+  return getResolverForDependencies({ dependencies, functionDir })
+}
+
+export const getResolverForSourceFiles = async ({
   functionsDir,
   sourceFiles,
 }: {
   functionsDir: string
   sourceFiles: Array<string>
 }) => {
-  const dependencies = await Promise.all(sourceFiles.map((sourceFile) => getDependenciesOfFile(sourceFile)))
   // We don't need the actual name, just the relative path.
   const functionDir = resolve(functionsDir, 'functionName')
-
-  const deduped = [...new Set(dependencies.flat())]
-
-  const pageFiles = [...sourceFiles, ...deduped]
-    .map((file) => `require.resolve('${relative(functionDir, file)}')`)
-    .sort()
-
-  return outdent/* javascript */ `
-    // This file is purely to allow nft to know about these pages. 
-      try {
-          ${pageFiles.join('\n        ')}
-      } catch {}
-  `
+  const dependencies = await getUniqueDependencies(sourceFiles)
+  return getResolverForDependencies({ dependencies, functionDir })
 }
