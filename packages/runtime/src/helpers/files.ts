@@ -361,10 +361,7 @@ export const getDependenciesOfFile = async (file: string) => {
 
 const baseServerReplacements: Array<[string, string]> = [
   // force manual revalidate during cache fetches
-  [
-    `checkIsManualRevalidate(req, this.renderOpts.previewProps)`,
-    `checkIsManualRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
-  ],
+  [`let ssgCacheKey = `, `let ssgCacheKey = process.env._BYPASS_SSG || `],
   // ensure ISR 404 pages send the correct SWR cache headers
   [`private: isPreviewMode || is404Page`, `private: isPreviewMode || false`],
 ]
