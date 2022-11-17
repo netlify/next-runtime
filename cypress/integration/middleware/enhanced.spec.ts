@@ -27,7 +27,7 @@ describe('Enhanced middleware', () => {
   })
 
   it('adds geo data', () => {
-    cy.request('/api/geo-test').then((response) => {
+    cy.request('/api/geo').then((response) => {
       expect(response.body).to.have.nested.property('headers.x-geo-country')
       expect(response.body).to.have.nested.property('headers.x-geo-region')
       expect(response.body).to.have.nested.property('headers.x-geo-city')
