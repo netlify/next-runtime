@@ -3,7 +3,6 @@
 
 const config = {
   rootDir: __dirname,
-  setupFiles: ['../../jestSetup.js'],
   testMatch: ['**/test/**/*.test.js', '**/test/**/*.test.ts'],
   transform: {
     '\\.[jt]sx?$': 'babel-jest',
