@@ -25,6 +25,9 @@ describe('MiddlewareRequest', () => {
           code: chance.province(),
         },
         city: chance.city(),
+        latitude: chance.latitude(),
+        longitude: chance.longitude(),
+        timezone: chance.timezone(),
       },
       ip,
     }
@@ -33,6 +36,9 @@ describe('MiddlewareRequest', () => {
       country: context.geo.country?.code,
       region: context.geo.subdivision?.code,
       city: context.geo.city,
+      latitude: context.geo.latitude?.toString(),
+      longitude: context.geo.longitude?.toString(),
+      timezone: context.geo.timezone,
     }
 
     const req = new URL(url)
