@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server'
 describe('Enhanced middleware', () => {
   it('adds request headers', () => {
     cy.request('/api/hello').then((response) => {
