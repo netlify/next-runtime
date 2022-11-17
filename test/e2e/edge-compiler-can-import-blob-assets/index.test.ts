@@ -10,10 +10,10 @@ describe('Edge Compiler can import asset assets', () => {
   let next: NextInstance
 
   // TODO: remove after this is supported for deploy
-  if ((global as any).isNextDeploy) {
-    it('should skip for deploy for now', () => {})
-    return
-  }
+  // if ((global as any).isNextDeploy) {
+  //   it('should skip for deploy for now', () => {})
+  //   return
+  // }
 
   beforeAll(async () => {
     next = await createNext({
@@ -38,7 +38,7 @@ describe('Edge Compiler can import asset assets', () => {
       },
       {
         compress: true,
-      }
+      },
     )
     expect(await response.text()).toContain('Example Domain')
   })
@@ -55,9 +55,7 @@ describe('Edge Compiler can import asset assets', () => {
       handler: 'image-file',
     })
     const buffer: Buffer = await response.buffer()
-    const image = await fs.readFile(
-      path.join(__dirname, './app/src/vercel.png')
-    )
+    const image = await fs.readFile(path.join(__dirname, './app/src/vercel.png'))
     expect(buffer.equals(image)).toBeTrue()
   })
 
@@ -72,23 +70,16 @@ describe('Edge Compiler can import asset assets', () => {
   })
 
   it('extracts all the assets from the bundle', async () => {
-    const manifestPath = path.join(
-      next.testDir,
-      '.next/server/middleware-manifest.json'
-    )
+    const manifestPath = path.join(next.testDir, '.next/server/middleware-manifest.json')
     const manifest: MiddlewareManifest = await readJson(manifestPath)
-    const orderedAssets = manifest.functions['/api/edge'].assets.sort(
-      (a, z) => {
-        return String(a.name).localeCompare(z.name)
-      }
-    )
+    const orderedAssets = manifest.functions['/api/edge'].assets.sort((a, z) => {
+      return String(a.name).localeCompare(z.name)
+    })
 
     expect(orderedAssets).toMatchObject([
       {
         name: expect.stringMatching(/^text-file\.[0-9a-f]{16}\.txt$/),
-        filePath: expect.stringMatching(
-          /^server\/edge-chunks\/asset_text-file/
-        ),
+        filePath: expect.stringMatching(/^server\/edge-chunks\/asset_text-file/),
       },
       {
         name: expect.stringMatching(/^vercel\.[0-9a-f]{16}\.png$/),
