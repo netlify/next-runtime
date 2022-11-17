@@ -10,6 +10,7 @@ const config = {
   },
   verbose: true,
   testTimeout: 60000,
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
   moduleNameMapper: {
     'e2e-utils': '<rootDir>/next-test-lib/e2e-utils.ts',
     'test/lib/next-modes/base': '<rootDir>/next-test-lib/next-modes/base.ts',

@@ -109,7 +109,7 @@
     "outputDirectory": "reports",
     "outputName": "jest-junit.xml",
     "ancestorSeparator": " > ",
-    "uniqueOutputName": "false",
+    "uniqueOutputName": "true",
     "suiteNameTemplate": "{filepath}",
     "classNameTemplate": "{classname}",
     "titleTemplate": "{title}"
