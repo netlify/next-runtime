@@ -66,6 +66,6 @@ jobs:
         with:
           artifact: /test-results-(.*)/
           name: Jest Tests $1 # Name of the check run which will be created
-          path: 'reports/*.xml' # Path to test results (inside artifact .zip)
+          path: '*.xml' # Path to test results (inside artifact .zip)
           max-annotations: 50 # Maximum number of annotations to be created
           reporter: jest-junit # Format of test results
