@@ -17,8 +17,8 @@ function baseNextConfig(): Parameters<typeof createNext>[0] {
           const instance$ = WebAssembly.instantiate(wasm);
 
           export async function increment(a) {
-            const { exports } = await instance$;
-            return exports.add_one(a);
+            const { instance } = await instance$;
+            return instance.exports.add_one(a);
           }
         `,
       'pages/index.js': `
@@ -57,8 +57,8 @@ describe('edge api endpoints can use wasm files', () => {
           const instance$ = WebAssembly.instantiate(wasm);
 
           export async function increment(a) {
-            const { exports } = await instance$;
-            return exports.add_one(a);
+            const { instance } = await instance$;
+            return instance.exports.add_one(a);
           }
         `,
       },
@@ -101,16 +101,12 @@ describe('middleware can use wasm files', () => {
 
   if (!(global as any).isNextDeploy) {
     it('lists the necessary wasm bindings in the manifest', async () => {
-      const manifestPath = path.join(
-        next.testDir,
-        '.next/server/middleware-manifest.json'
-      )
+      const manifestPath = path.join(next.testDir, '.next/server/middleware-manifest.json')
       const manifest = await fs.readJSON(manifestPath)
       expect(manifest.middleware['/']).toMatchObject({
         wasm: [
           {
-            filePath:
-              'server/edge-chunks/wasm_58ccff8b2b94b5dac6ef8957082ecd8f6d34186d.wasm',
+            filePath: 'server/edge-chunks/wasm_58ccff8b2b94b5dac6ef8957082ecd8f6d34186d.wasm',
             name: 'wasm_58ccff8b2b94b5dac6ef8957082ecd8f6d34186d',
           },
         ],
