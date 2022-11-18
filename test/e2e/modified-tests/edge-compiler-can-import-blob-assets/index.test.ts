@@ -59,15 +59,15 @@ describe('Edge Compiler can import asset assets', () => {
     expect(buffer.equals(image)).toBeTrue()
   })
 
-  it('allows to assets from node_modules', async () => {
-    const response = await fetchViaHTTP(next.url, '/api/edge', {
-      handler: 'from-node-module',
-    })
-    const json = await response.json()
-    expect(json).toEqual({
-      'i am': 'a node dependency',
-    })
-  })
+  // it('allows to assets from node_modules', async () => {
+  //   const response = await fetchViaHTTP(next.url, '/api/edge', {
+  //     handler: 'from-node-module',
+  //   })
+  //   const json = await response.json()
+  //   expect(json).toEqual({
+  //     'i am': 'a node dependency',
+  //   })
+  // })
 
   it('extracts all the assets from the bundle', async () => {
     const manifestPath = path.join(next.testDir, '.next/server/middleware-manifest.json')
@@ -85,10 +85,10 @@ describe('Edge Compiler can import asset assets', () => {
         name: expect.stringMatching(/^vercel\.[0-9a-f]{16}\.png$/),
         filePath: expect.stringMatching(/^server\/edge-chunks\/asset_vercel/),
       },
-      {
-        name: expect.stringMatching(/^world\.[0-9a-f]{16}\.json/),
-        filePath: expect.stringMatching(/^server\/edge-chunks\/asset_world/),
-      },
+      // {
+      //   name: expect.stringMatching(/^world\.[0-9a-f]{16}\.json/),
+      //   filePath: expect.stringMatching(/^server\/edge-chunks\/asset_world/),
+      // },
     ])
   })
 })
