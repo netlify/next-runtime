@@ -53,13 +53,14 @@ jobs:
       - uses: phoenix-actions/test-reporting@v8
         if: ${{ always() }}
         name: Report Test Results
+        id: test-report
         with:
           name: E2E Test chunk ${{ matrix.chunk }}
           path: 'reports/**/*.xml' # Path to test results (inside artifact .zip)
-          output-to: 'checks'
+          output-to: 'step-summary'
           max-annotations: 0 # Maximum number of annotations to be created
           reporter: jest-junit # Format of test results
-      - name: Read output variables
+      - name: Report URL
         if: success() || failure()
         run: |
           echo "url is ${{ steps.test-report.outputs.runHtmlUrl }}"
