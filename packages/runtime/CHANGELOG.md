@@ -1,5 +1,28 @@
 # Changelog
 
+## [4.29.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.0...plugin-nextjs-v4.29.1) (2022-11-14)
+
+
+### Bug Fixes
+
+* exclude sourcemaps from bundle ([#1772](https://github.com/netlify/next-runtime/issues/1772)) ([4cad33e](https://github.com/netlify/next-runtime/commit/4cad33e7adef50f2d45d46a162c480f3297bc4f3))
+* polyfill headers.getAll ([#1766](https://github.com/netlify/next-runtime/issues/1766)) ([b400efb](https://github.com/netlify/next-runtime/commit/b400efb895a5a9444e2d483c8e7a3dcd8bcdc5b0))
+* revert publish from subdirectory ([#1771](https://github.com/netlify/next-runtime/issues/1771)) ([0554d6a](https://github.com/netlify/next-runtime/commit/0554d6a84b26a4c8465a2d42eb25ff8bb0b0a0c3))
+
+## [4.29.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.7...plugin-nextjs-v4.29.0) (2022-11-11)
+
+
+### Features
+
+* add next debug logging ([#1761](https://github.com/netlify/next-runtime/issues/1761)) ([9607031](https://github.com/netlify/next-runtime/commit/960703136af8bcedc26345c31ca25da08366984e))
+
+## [4.28.7](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.6...plugin-nextjs-v4.28.7) (2022-11-11)
+
+
+### Bug Fixes
+
+* publish from subdirectory ([#1756](https://github.com/netlify/next-runtime/issues/1756)) ([1faf191](https://github.com/netlify/next-runtime/commit/1faf1911f2b2fbf87bb0c75c26eba951a0ddfa3a))
+
 ## [4.28.6](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.5...plugin-nextjs-v4.28.6) (2022-11-07)
 
 

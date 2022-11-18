@@ -136,6 +136,7 @@ export const configureHandlerFunctions = async ({
       `${publish}/BUILD_ID`,
       `${publish}/static/chunks/webpack-middleware*.js`,
       `!${publish}/server/**/*.js.nft.json`,
+      `!${publish}/server/**/*.map`,
       '!**/node_modules/@next/swc*/**/*',
       ...cssFilesToInclude,
       ...ignore.map((path) => `!${slash(path)}`),

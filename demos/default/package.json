@@ -18,12 +18,13 @@
   },
   "homepage": "https://github.com/netlify/next-runtime#readme",
   "dependencies": {
+    "@netlify/next": "*",
     "@reach/dialog": "^0.16.2",
     "@reach/visually-hidden": "^0.16.0",
-    "@vercel/og": "^0.0.15",
-    "next": "^13.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "@vercel/og": "^0.0.20",
+    "next": "^13.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "*",
