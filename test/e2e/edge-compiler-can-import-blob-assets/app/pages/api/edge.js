@@ -27,13 +27,13 @@ const handlers = new Map([
       return fetch(url)
     },
   ],
-  [
-    'from-node-module',
-    async () => {
-      const url = new URL('my-pkg/hello/world.json', import.meta.url)
-      return fetch(url)
-    },
-  ],
+  // [
+  //   'from-node-module',
+  //   async () => {
+  //     const url = new URL('my-pkg/hello/world.json', import.meta.url)
+  //     return fetch(url)
+  //   },
+  // ],
   [
     'remote-full',
     async () => {
@@ -50,5 +50,4 @@ const handlers = new Map([
   ],
 ])
 
-const defaultHandler = async () =>
-  new Response('Invalid handler', { status: 400 })
+const defaultHandler = async () => new Response('Invalid handler', { status: 400 })

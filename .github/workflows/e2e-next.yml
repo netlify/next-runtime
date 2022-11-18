@@ -76,10 +76,12 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: reports
+      - name: Combine reports
+        run: npx junit-report-merger combined.xml reports/**/*.xml
       - uses: phoenix-actions/test-reporting@v10
         with:
           name: Jest Tests
           output-to: 'step-summary'
-          path: 'reports/**/*.xml' # Path to test results (inside artifact .zip)
-          max-annotations: 0 # Maximum number of annotations to be created
-          reporter: jest-junit # Format of test results
+          path: 'combined.xml'
+          max-annotations: 0 # Annotations were done in the test steps
+          reporter: jest-junit
