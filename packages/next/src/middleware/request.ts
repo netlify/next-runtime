@@ -5,16 +5,9 @@ import type { NextRequest as InternalNextRequest } from 'next/server'
 import { MiddlewareResponse } from './response'
 
 export type NextRequest = InternalNextRequest & {
-  get geo():
-    | {
-        city?: string
-        country?: string
-        region?: string
-        latitude?: string
-        longitude?: string
-        timezone?: string
-      }
-    | undefined
+  get geo(): {
+    timezone?: string
+  }
 }
 
 export interface NextOptions {
