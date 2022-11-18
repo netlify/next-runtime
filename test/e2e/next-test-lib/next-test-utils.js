@@ -378,12 +378,12 @@ export function waitFor(millis) {
 }
 
 // check for content in 1 second intervals timing out after
-// 30 seconds
+// 10 seconds
 export async function check(contentFn, regex, hardError = true) {
   let content
   let lastErr
 
-  for (let tries = 0; tries < 30; tries++) {
+  for (let tries = 0; tries < 10; tries++) {
     try {
       content = await contentFn()
       if (typeof regex === 'string') {
@@ -400,11 +400,11 @@ export async function check(contentFn, regex, hardError = true) {
       lastErr = err
     }
   }
-  console.error('TIMED OUT CHECK: ', { regex, content, lastErr })
 
   if (hardError) {
     throw new Error('TIMED OUT: ' + regex + '\n\n' + content)
   }
+  console.error('TIMED OUT CHECK: ', { regex, content, lastErr })
   return false
 }
 

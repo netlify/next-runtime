@@ -60,7 +60,7 @@ describe('Middleware fetches with body', () => {
         {
           body,
           method: 'POST',
-        }
+        },
       )
 
       expect(res.status).toBe(413)
@@ -81,21 +81,18 @@ describe('Middleware fetches with body', () => {
         {
           body,
           method: 'POST',
-        }
+        },
       )
       const data = await res.json()
 
       expect(res.status).toBe(200)
       expect(data.body.length).toBe(bodySize)
-      expect(data.body.split('B1C2D3E4F5G6H7I8J9K0LaMbNcOdPeQf').length).toBe(
-        bodySize / 32 + 1
-      )
+      expect(data.body.split('B1C2D3E4F5G6H7I8J9K0LaMbNcOdPeQf').length).toBe(bodySize / 32 + 1)
     })
 
     it('should be able to send and return body greater than default highWaterMark (16KiB)', async () => {
       const bodySize = 16 * 1024 + 1
-      const body =
-        'CD1E2F3G4H5I6J7K8L9M0NaObPcQdReS'.repeat(bodySize / 32) + 'C'
+      const body = 'CD1E2F3G4H5I6J7K8L9M0NaObPcQdReS'.repeat(bodySize / 32) + 'C'
 
       const res = await fetchViaHTTP(
         next.url,
@@ -104,15 +101,13 @@ describe('Middleware fetches with body', () => {
         {
           body,
           method: 'POST',
-        }
+        },
       )
       const data = await res.json()
 
       expect(res.status).toBe(200)
       expect(data.body.length).toBe(bodySize)
-      expect(data.body.split('CD1E2F3G4H5I6J7K8L9M0NaObPcQdReS').length).toBe(
-        512 + 1
-      )
+      expect(data.body.split('CD1E2F3G4H5I6J7K8L9M0NaObPcQdReS').length).toBe(512 + 1)
     })
   })
 
@@ -128,7 +123,7 @@ describe('Middleware fetches with body', () => {
         {
           body,
           method: 'POST',
-        }
+        },
       )
 
       expect(res.status).toBe(413)
@@ -149,20 +144,19 @@ describe('Middleware fetches with body', () => {
         {
           body,
           method: 'POST',
-        }
+        },
       )
       const data = await res.json()
 
       expect(res.status).toBe(200)
       expect(data.body.length).toBe(bodySize)
-      expect(data.body.split('DEF1G2H3I4J5K6L7M8N9O0PaQbRcSdTe').length).toBe(
-        bodySize / 32 + 1
-      )
+      expect(data.body.split('DEF1G2H3I4J5K6L7M8N9O0PaQbRcSdTe').length).toBe(bodySize / 32 + 1)
     })
   })
 
   describe('with custom bodyParser sizeLimit (5mb)', () => {
-    it('should return 413 for body equal to 10mb', async () => {
+    // NTL: disabled because of EF bug
+    it.skip('should return 413 for body equal to 10mb', async () => {
       const bodySize = 10 * 1024 * 1024
       const body = 't'.repeat(bodySize)
 
@@ -173,7 +167,7 @@ describe('Middleware fetches with body', () => {
         {
           body,
           method: 'POST',
-        }
+        },
       )
 
       expect(res.status).toBe(413)
@@ -194,7 +188,7 @@ describe('Middleware fetches with body', () => {
         {
           body,
           method: 'POST',
-        }
+        },
       )
 
       expect(res.status).toBe(413)
@@ -216,15 +210,13 @@ describe('Middleware fetches with body', () => {
           {
             body,
             method: 'POST',
-          }
+          },
         )
         const data = await res.json()
 
         expect(res.status).toBe(200)
         expect(data.body.length).toBe(bodySize)
-        expect(data.body.split('FGHI1J2K3L4M5N6O7P8Q9R0SaTbUcVdW').length).toBe(
-          bodySize / 32 + 1
-        )
+        expect(data.body.split('FGHI1J2K3L4M5N6O7P8Q9R0SaTbUcVdW').length).toBe(bodySize / 32 + 1)
       })
     }
   })
@@ -241,16 +233,14 @@ describe('Middleware fetches with body', () => {
         {
           body,
           method: 'POST',
-        }
+        },
       )
       const data = await res.json()
 
       expect(res.status).toBe(200)
       expect(data.body).toBeUndefined()
       expect(data.rawBody.length).toBe(bodySize)
-      expect(
-        data.rawBody.split('HIJK1L2M3N4O5P6Q7R8S9T0UaVbWcXdY').length
-      ).toBe(bodySize / 32 + 1)
+      expect(data.rawBody.split('HIJK1L2M3N4O5P6Q7R8S9T0UaVbWcXdY').length).toBe(bodySize / 32 + 1)
     })
 
     it('should be able to send and return with body greater than 16KiB', async () => {
@@ -264,16 +254,14 @@ describe('Middleware fetches with body', () => {
         {
           body,
           method: 'POST',
-        }
+        },
       )
       const data = await res.json()
 
       expect(res.status).toBe(200)
       expect(data.body).toBeUndefined()
       expect(data.rawBody.length).toBe(bodySize)
-      expect(
-        data.rawBody.split('JKLM1N2O3P4Q5R6S7T8U9V0WaXbYcZdA').length
-      ).toBe(bodySize / 32 + 1)
+      expect(data.rawBody.split('JKLM1N2O3P4Q5R6S7T8U9V0WaXbYcZdA').length).toBe(bodySize / 32 + 1)
     })
   })
 })
