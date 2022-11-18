@@ -58,7 +58,7 @@ jobs:
           name: E2E Test chunk ${{ matrix.chunk }}
           path: 'reports/**/*.xml' # Path to test results (inside artifact .zip)
           output-to: 'step-summary'
-          max-annotations: 0 # Maximum number of annotations to be created
+          max-annotations: 49 # Maximum number of annotations to be created
           reporter: jest-junit # Format of test results
       - name: Report URL
         if: success() || failure()
