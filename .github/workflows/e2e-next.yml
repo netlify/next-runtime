@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: 'lts/*'
           check-latest: true
-      - name: jest
+      - name: Run tests
         run:
           echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest --reporters=jest-junit
           --reporters=default -c test/e2e/jest.config.js
@@ -50,7 +50,7 @@ jobs:
           CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
           NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
-      - uses: phoenix-actions/test-reporting@v8
+      - uses: phoenix-actions/test-reporting@v10
         if: ${{ always() }}
         name: Report Test Results
         id: test-report
@@ -63,26 +63,27 @@ jobs:
       - name: Report URL
         if: success() || failure()
         run: |
-          echo "url is ${{ steps.test-report.outputs.runHtmlUrl }}"
+          echo "${{ steps.test-report.outputs.runHtmlUrl }}"
 
-      # - uses: actions/upload-artifact@v3 # upload test results
-      #   if: ${{ always() }}
-      #   with:
-      #     name: test-results-${{ matrix.chunk }}
-      #     path: reports/jest-*.xml
-  # report:
-  #   runs-on: ubuntu-latest
-  #   if: ${{ always() }}
-  #   needs:
-  #     - test
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         path: reports
-  #     - uses: dorny/test-reporter@v1
-  #       with:
-  #         name: Jest Tests
-  #         path: 'reports/**/*.xml' # Path to test results (inside artifact .zip)
-  #         max-annotations: 49 # Maximum number of annotations to be created
-  #         reporter: jest-junit # Format of test results
+      - uses: actions/upload-artifact@v3 # upload test results
+        if: ${{ always() }}
+        with:
+          name: test-results-${{ matrix.chunk }}
+          path: reports/jest-*.xml
+  report:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - test
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: reports
+      - uses: phoenix-actions/test-reporting@v10
+        with:
+          name: Jest Tests
+          output-to: 'step-summary'
+          path: 'reports/**/*.xml' # Path to test results (inside artifact .zip)
+          max-annotations: 49 # Maximum number of annotations to be created
+          reporter: jest-junit # Format of test results
