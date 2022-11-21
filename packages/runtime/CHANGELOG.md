@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.29.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.1...plugin-nextjs-v4.29.2) (2022-11-21)
+
+
+### Bug Fixes
+
+* add longitude, latitude, and timezone to RequestData.geo ([#1777](https://github.com/netlify/next-runtime/issues/1777)) ([3f35549](https://github.com/netlify/next-runtime/commit/3f355497f02726a54aa0b5f391c3e9684d45228f))
+* resolve all pages using nft ([#1780](https://github.com/netlify/next-runtime/issues/1780)) ([267ff0b](https://github.com/netlify/next-runtime/commit/267ff0b5ecf5d9fe5154955542887d9c0c573b85))
+
 ## [4.29.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.0...plugin-nextjs-v4.29.1) (2022-11-14)
 
 
