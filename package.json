@@ -19,6 +19,8 @@
     "install-husky": "if-env CI=1 || husky install node_modules/@netlify/eslint-config-node/.husky",
     "test": "run-s build:demo test:jest",
     "test:next": "jest -c test/e2e/jest.config.js",
+    "test:next:disabled": "jest -c test/e2e/jest.config.disabled.js",
+    "test:next:all": "jest -c test/e2e/jest.config.all.js",
     "test:jest": "jest",
     "playwright:install": "playwright install --with-deps chromium",
     "test:jest:update": "jest --updateSnapshot",
