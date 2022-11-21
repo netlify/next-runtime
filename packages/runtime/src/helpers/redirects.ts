@@ -188,6 +188,7 @@ const generateDynamicRewrites = ({
   basePath,
   buildId,
   i18n,
+  is404Isr,
 }: {
   dynamicRoutes: RoutesManifest['dynamicRoutes']
   prerenderedDynamicRoutes: PrerenderManifest['dynamicRoutes']
@@ -195,6 +196,7 @@ const generateDynamicRewrites = ({
   i18n: NextConfig['i18n']
   buildId: string
   middleware: Array<string>
+  is404Isr: Boolean
 }): {
   dynamicRoutesThatMatchMiddleware: Array<string>
   dynamicRewrites: NetlifyConfig['redirects']
@@ -208,7 +210,7 @@ const generateDynamicRewrites = ({
     if (route.page in prerenderedDynamicRoutes) {
       if (matchesMiddleware(middleware, route.page)) {
         dynamicRoutesThatMatchMiddleware.push(route.page)
-      } else if (prerenderedDynamicRoutes[route.page].fallback === false) {
+      } else if (prerenderedDynamicRoutes[route.page].fallback === false && !is404Isr) {
         dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
       } else {
         dynamicRewrites.push(
@@ -266,6 +268,10 @@ export const generateRedirects = async ({
 
   const staticRouteEntries = Object.entries(prerenderedStaticRoutes)
 
+  const is404Isr = staticRouteEntries.some(
+    ([route, { initialRevalidateSeconds }]) => is404Route(route, i18n) && initialRevalidateSeconds !== false,
+  )
+
   const routesThatMatchMiddleware: Array<string> = []
 
   const { staticRoutePaths, staticIsrRewrites, staticIsrRoutesThatMatchMiddleware } = generateStaticIsrRewrites({
@@ -298,6 +304,7 @@ export const generateRedirects = async ({
     basePath,
     buildId,
     i18n,
+    is404Isr,
   })
   netlifyConfig.redirects.push(...dynamicRewrites)
   routesThatMatchMiddleware.push(...dynamicRoutesThatMatchMiddleware)
