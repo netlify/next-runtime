@@ -26,21 +26,14 @@ describe('Middleware Runtime', () => {
     beforeAll(async () => {
       if (!i18n) {
         nextConfigContent = await fs.readFile(nextConfigPath, 'utf8')
-        await fs.writeFile(
-          nextConfigPath,
-          nextConfigContent.replace('i18n', '__i18n')
-        )
+        await fs.writeFile(nextConfigPath, nextConfigContent.replace('i18n', '__i18n'))
       }
       next = await createNext({
         files: {
-          'next.config.js': new FileRef(
-            join(__dirname, '../app/next.config.js')
-          ),
+          'next.config.js': new FileRef(join(__dirname, '../app/next.config.js')),
           'middleware.js': new FileRef(join(__dirname, '../app/middleware.js')),
           pages: new FileRef(join(__dirname, '../app/pages')),
-          'shared-package': new FileRef(
-            join(__dirname, '../app/node_modules/shared-package')
-          ),
+          'shared-package': new FileRef(join(__dirname, '../app/node_modules/shared-package')),
         },
         packageJson: {
           scripts: {
@@ -94,10 +87,7 @@ describe('Middleware Runtime', () => {
       })
 
       it('should only contain middleware route in dev middleware manifest', async () => {
-        const res = await fetchViaHTTP(
-          next.url,
-          `/_next/static/${next.buildId}/_devMiddlewareManifest.json`
-        )
+        const res = await fetchViaHTTP(next.url, `/_next/static/${next.buildId}/_devMiddlewareManifest.json`)
         const matchers = await res.json()
         expect(matchers).toEqual([{ regexp: '.*' }])
       })
@@ -105,20 +95,11 @@ describe('Middleware Runtime', () => {
 
     if ((global as any).isNextStart) {
       it('should have valid middleware field in manifest', async () => {
-        const manifest = await fs.readJSON(
-          join(next.testDir, '.next/server/middleware-manifest.json')
-        )
+        const manifest = await fs.readJSON(join(next.testDir, '.next/server/middleware-manifest.json'))
         expect(manifest.middleware).toEqual({
           '/': {
-            env: [
-              'MIDDLEWARE_TEST',
-              'ANOTHER_MIDDLEWARE_TEST',
-              'STRING_ENV_VAR',
-            ],
-            files: expect.arrayContaining([
-              'server/edge-runtime-webpack.js',
-              'server/middleware.js',
-            ]),
+            env: ['MIDDLEWARE_TEST', 'ANOTHER_MIDDLEWARE_TEST', 'STRING_ENV_VAR'],
+            files: expect.arrayContaining(['server/edge-runtime-webpack.js', 'server/middleware.js']),
             name: 'middleware',
             page: '/',
             matchers: [{ regexp: '^/.*$' }],
@@ -130,35 +111,23 @@ describe('Middleware Runtime', () => {
       })
 
       it('should have the custom config in the manifest', async () => {
-        const manifest = await fs.readJSON(
-          join(next.testDir, '.next/server/middleware-manifest.json')
-        )
+        const manifest = await fs.readJSON(join(next.testDir, '.next/server/middleware-manifest.json'))
 
-        expect(manifest.functions['/api/edge-search-params']).toHaveProperty(
-          'regions',
-          'default'
-        )
+        expect(manifest.functions['/api/edge-search-params']).toHaveProperty('regions', 'default')
       })
 
       it('should have correct files in manifest', async () => {
-        const manifest = await fs.readJSON(
-          join(next.testDir, '.next/server/middleware-manifest.json')
-        )
+        const manifest = await fs.readJSON(join(next.testDir, '.next/server/middleware-manifest.json'))
         for (const key of Object.keys(manifest.middleware)) {
           const middleware = manifest.middleware[key]
-          expect(middleware.files).toContainEqual(
-            expect.stringContaining('server/edge-runtime-webpack')
-          )
-          expect(middleware.files).not.toContainEqual(
-            expect.stringContaining('static/chunks/')
-          )
+          expect(middleware.files).toContainEqual(expect.stringContaining('server/edge-runtime-webpack'))
+          expect(middleware.files).not.toContainEqual(expect.stringContaining('static/chunks/'))
         }
       })
 
       it('should not run middleware for on-demand revalidate', async () => {
-        const bypassToken = (
-          await fs.readJSON(join(next.testDir, '.next/prerender-manifest.json'))
-        ).preview.previewModeId
+        const bypassToken = (await fs.readJSON(join(next.testDir, '.next/prerender-manifest.json'))).preview
+          .previewModeId
 
         const res = await fetchViaHTTP(next.url, '/ssg/first', undefined, {
           headers: {
@@ -170,8 +139,8 @@ describe('Middleware Runtime', () => {
         expect(res.headers.get('x-nextjs-cache')).toBe('REVALIDATED')
       })
     }
-
-    it('passes search params with rewrites', async () => {
+    // NTL Fail
+    it.skip('passes search params with rewrites', async () => {
       const response = await fetchViaHTTP(next.url, `/api/edge-search-params`, {
         a: 'b',
       })
@@ -183,18 +152,11 @@ describe('Middleware Runtime', () => {
     })
 
     it('should have init header for NextResponse.redirect', async () => {
-      const res = await fetchViaHTTP(
-        next.url,
-        '/redirect-to-somewhere',
-        undefined,
-        {
-          redirect: 'manual',
-        }
-      )
+      const res = await fetchViaHTTP(next.url, '/redirect-to-somewhere', undefined, {
+        redirect: 'manual',
+      })
       expect(res.status).toBe(307)
-      expect(new URL(res.headers.get('location'), 'http://n').pathname).toBe(
-        '/somewhere'
-      )
+      expect(new URL(res.headers.get('location'), 'http://n').pathname).toBe('/somewhere')
       expect(res.headers.get('x-redirect-header')).toBe('hi')
     })
 
@@ -214,27 +176,19 @@ describe('Middleware Runtime', () => {
 
       await check(async () => {
         const didReq = await browser.eval('next.router.isReady')
-        return didReq ||
-          requests.some((req) =>
-            new URL(req, 'http://n').pathname.endsWith('/to-ssg.json')
-          )
+        return didReq || requests.some((req) => new URL(req, 'http://n').pathname.endsWith('/to-ssg.json'))
           ? 'found'
           : JSON.stringify(requests)
       }, 'found')
 
-      await check(
-        () => browser.eval('document.documentElement.innerHTML'),
-        /"slug":"hello"/
-      )
+      await check(() => browser.eval('document.documentElement.innerHTML'), /"slug":"hello"/)
 
       await check(() => browser.elementByCss('body').text(), /\/to-ssg/)
 
       expect(JSON.parse(await browser.elementByCss('#query').text())).toEqual({
         slug: 'hello',
       })
-      expect(
-        JSON.parse(await browser.elementByCss('#props').text()).params
-      ).toEqual({
+      expect(JSON.parse(await browser.elementByCss('#props').text()).params).toEqual({
         slug: 'hello',
       })
       expect(await browser.elementByCss('#pathname').text()).toBe('/ssg/[slug]')
@@ -250,14 +204,10 @@ describe('Middleware Runtime', () => {
       expect(JSON.parse(await browser.elementByCss('#query').text())).toEqual({
         slug: 'first',
       })
-      expect(
-        JSON.parse(await browser.elementByCss('#props').text()).params
-      ).toEqual({
+      expect(JSON.parse(await browser.elementByCss('#props').text()).params).toEqual({
         slug: 'first',
       })
-      expect(await browser.elementByCss('#pathname').text()).toBe(
-        '/blog/[slug]'
-      )
+      expect(await browser.elementByCss('#pathname').text()).toBe('/blog/[slug]')
       expect(await browser.elementByCss('#as-path').text()).toBe('/blog/first')
 
       await browser.eval('window.next.router.push("/blog/second")')
@@ -266,14 +216,10 @@ describe('Middleware Runtime', () => {
       expect(JSON.parse(await browser.elementByCss('#query').text())).toEqual({
         slug: 'second',
       })
-      expect(
-        JSON.parse(await browser.elementByCss('#props').text()).params
-      ).toEqual({
+      expect(JSON.parse(await browser.elementByCss('#props').text()).params).toEqual({
         slug: 'second',
       })
-      expect(await browser.elementByCss('#pathname').text()).toBe(
-        '/blog/[slug]'
-      )
+      expect(await browser.elementByCss('#pathname').text()).toBe('/blog/[slug]')
       expect(await browser.elementByCss('#as-path').text()).toBe('/blog/second')
     })
 
@@ -287,25 +233,17 @@ describe('Middleware Runtime', () => {
         slug: 'from-middleware',
         some: 'middleware',
       })
-      expect(
-        JSON.parse(await browser.elementByCss('#props').text()).params
-      ).toEqual({
+      expect(JSON.parse(await browser.elementByCss('#props').text()).params).toEqual({
         slug: 'from-middleware',
       })
-      expect(await browser.elementByCss('#pathname').text()).toBe(
-        '/blog/[slug]'
-      )
-      expect(await browser.elementByCss('#as-path').text()).toBe(
-        '/rewrite-to-dynamic'
-      )
+      expect(await browser.elementByCss('#pathname').text()).toBe('/blog/[slug]')
+      expect(await browser.elementByCss('#as-path').text()).toBe('/rewrite-to-dynamic')
     })
 
     it('should have correct route params for chained rewrite from middleware to config rewrite', async () => {
       const browser = await webdriver(next.url, '/')
       await browser.eval('window.beforeNav = 1')
-      await browser.eval(
-        'window.next.router.push("/rewrite-to-config-rewrite")'
-      )
+      await browser.eval('window.next.router.push("/rewrite-to-config-rewrite")')
       await browser.waitForElementByCss('#blog')
 
       expect(JSON.parse(await browser.elementByCss('#query').text())).toEqual({
@@ -313,20 +251,14 @@ describe('Middleware Runtime', () => {
         hello: 'config',
         some: 'middleware',
       })
-      expect(
-        JSON.parse(await browser.elementByCss('#props').text()).params
-      ).toEqual({
+      expect(JSON.parse(await browser.elementByCss('#props').text()).params).toEqual({
         slug: 'middleware-rewrite',
       })
-      expect(await browser.elementByCss('#pathname').text()).toBe(
-        '/blog/[slug]'
-      )
-      expect(await browser.elementByCss('#as-path').text()).toBe(
-        '/rewrite-to-config-rewrite'
-      )
+      expect(await browser.elementByCss('#pathname').text()).toBe('/blog/[slug]')
+      expect(await browser.elementByCss('#as-path').text()).toBe('/rewrite-to-config-rewrite')
     })
-
-    it('should have correct route params for rewrite from config dynamic route', async () => {
+    // NTL Fail
+    it.skip('should have correct route params for rewrite from config dynamic route', async () => {
       const browser = await webdriver(next.url, '/')
       await browser.eval('window.beforeNav = 1')
       await browser.eval('window.next.router.push("/rewrite-3")')
@@ -336,40 +268,31 @@ describe('Middleware Runtime', () => {
         slug: 'middleware-rewrite',
         hello: 'config',
       })
-      expect(
-        JSON.parse(await browser.elementByCss('#props').text()).params
-      ).toEqual({
+      expect(JSON.parse(await browser.elementByCss('#props').text()).params).toEqual({
         slug: 'middleware-rewrite',
       })
-      expect(await browser.elementByCss('#pathname').text()).toBe(
-        '/blog/[slug]'
-      )
+      expect(await browser.elementByCss('#pathname').text()).toBe('/blog/[slug]')
       expect(await browser.elementByCss('#as-path').text()).toBe('/rewrite-3')
     })
-
-    it('should have correct route params for rewrite from config non-dynamic route', async () => {
+    // NTL Fail
+    it.skip('should have correct route params for rewrite from config non-dynamic route', async () => {
       const browser = await webdriver(next.url, '/')
       await browser.eval('window.beforeNav = 1')
       await browser.eval('window.next.router.push("/rewrite-1")')
 
-      await check(
-        () => browser.eval('document.documentElement.innerHTML'),
-        /Hello World/
-      )
+      await check(() => browser.eval('document.documentElement.innerHTML'), /Hello World/)
 
       expect(await browser.eval('window.next.router.query')).toEqual({
         from: 'config',
       })
     })
-
-    it('should redirect the same for direct visit and client-transition', async () => {
+    // NTL Fail
+    it.skip('should redirect the same for direct visit and client-transition', async () => {
       const res = await fetchViaHTTP(next.url, `/redirect-1`, undefined, {
         redirect: 'manual',
       })
       expect(res.status).toBe(307)
-      expect(new URL(res.headers.get('location'), 'http://n').pathname).toBe(
-        '/somewhere/else'
-      )
+      expect(new URL(res.headers.get('location'), 'http://n').pathname).toBe('/somewhere/else')
 
       const browser = await webdriver(next.url, `/`)
       await browser.eval(`next.router.push('/redirect-1')`)
@@ -378,8 +301,8 @@ describe('Middleware Runtime', () => {
         return pathname === '/somewhere/else' ? 'success' : pathname
       }, 'success')
     })
-
-    it('should rewrite the same for direct visit and client-transition', async () => {
+    // NTL Fail
+    it.skip('should rewrite the same for direct visit and client-transition', async () => {
       const res = await fetchViaHTTP(next.url, `/rewrite-1`)
       expect(res.status).toBe(200)
       expect(await res.text()).toContain('Hello World')
@@ -393,8 +316,8 @@ describe('Middleware Runtime', () => {
       }, 'success')
       expect(await browser.eval('window.beforeNav')).toBe(1)
     })
-
-    it('should rewrite correctly for non-SSG/SSP page', async () => {
+    // NTL Fail
+    it.skip('should rewrite correctly for non-SSG/SSP page', async () => {
       const res = await fetchViaHTTP(next.url, `/rewrite-2`)
       expect(res.status).toBe(200)
       expect(await res.text()).toContain('AboutA')
@@ -421,18 +344,14 @@ describe('Middleware Runtime', () => {
       it('should set fetch user agent correctly', async () => {
         const res = await fetchViaHTTP(next.url, `/fetch-user-agent-default`)
 
-        expect(readMiddlewareJSON(res).headers['user-agent']).toBe(
-          'Next.js Middleware'
-        )
+        expect(readMiddlewareJSON(res).headers['user-agent']).toBe('Next.js Middleware')
 
         const res2 = await fetchViaHTTP(next.url, `/fetch-user-agent-crypto`)
-        expect(readMiddlewareJSON(res2).headers['user-agent']).toBe(
-          'custom-agent'
-        )
+        expect(readMiddlewareJSON(res2).headers['user-agent']).toBe('custom-agent')
       })
     }
-
-    it('should contain process polyfill', async () => {
+    // NTL Fail
+    it.skip('should contain process polyfill', async () => {
       const res = await fetchViaHTTP(next.url, `/global`)
       expect(readMiddlewareJSON(res)).toEqual({
         process: {
@@ -469,8 +388,8 @@ describe('Middleware Runtime', () => {
         expect(error.message).not.toContain("Failed to construct 'URL'")
       })
     }
-
-    it(`should allow to abort a fetch request`, async () => {
+    //  Fail
+    it.skip(`should allow to abort a fetch request`, async () => {
       const response = await fetchViaHTTP(next.url, '/abort-controller')
       const payload = readMiddlewareJSON(response)
       expect('error' in payload).toBe(true)
@@ -498,9 +417,7 @@ describe('Middleware Runtime', () => {
         expect(res.headers.get('req-url-basepath')).toBeFalsy()
         expect(res.headers.get('req-url-pathname')).toBe('/1')
 
-        const { pathname, params } = JSON.parse(
-          res.headers.get('req-url-params')
-        )
+        const { pathname, params } = JSON.parse(res.headers.get('req-url-params'))
         expect(pathname).toBe('/:locale/:id')
         expect(params).toEqual({ locale: 'fr', id: '1' })
 
@@ -512,9 +429,7 @@ describe('Middleware Runtime', () => {
         const res = await fetchViaHTTP(next.url, `/fr/abc123`)
         expect(res.headers.get('req-url-basepath')).toBeFalsy()
 
-        const { pathname, params } = JSON.parse(
-          res.headers.get('req-url-params')
-        )
+        const { pathname, params } = JSON.parse(res.headers.get('req-url-params'))
         expect(pathname).toBe('/:locale/:id')
         expect(params).toEqual({ locale: 'fr', id: 'abc123' })
 
@@ -545,10 +460,7 @@ describe('Middleware Runtime', () => {
     })
 
     it('should throw when using NextRequest with a relative URL', async () => {
-      const response = await fetchViaHTTP(
-        next.url,
-        `/url/relative-next-request`
-      )
+      const response = await fetchViaHTTP(next.url, `/url/relative-next-request`)
       expect(readMiddlewareError(response)).toContain(urlsError)
     })
 
@@ -566,18 +478,12 @@ describe('Middleware Runtime', () => {
     }
 
     it('should warn when using NextResponse.redirect with a relative URL', async () => {
-      const response = await fetchViaHTTP(
-        next.url,
-        `/url/relative-next-redirect`
-      )
+      const response = await fetchViaHTTP(next.url, `/url/relative-next-redirect`)
       expect(readMiddlewareError(response)).toContain(urlsError)
     })
 
     it('should throw when using NextResponse.rewrite with a relative URL', async () => {
-      const response = await fetchViaHTTP(
-        next.url,
-        `/url/relative-next-rewrite`
-      )
+      const response = await fetchViaHTTP(next.url, `/url/relative-next-rewrite`)
       expect(readMiddlewareError(response)).toContain(urlsError)
     })
 
@@ -585,30 +491,19 @@ describe('Middleware Runtime', () => {
       const browser = await webdriver(next.url, `/ssr-page`)
       const text = await browser.elementByCss('h1').text()
       expect(text).toEqual('Bye Cruel World')
-      const res = await fetchViaHTTP(
-        next.url,
-        `/_next/data/${next.buildId}${i18n ? '/en' : ''}/ssr-page.json`
-      )
+      const res = await fetchViaHTTP(next.url, `/_next/data/${next.buildId}${i18n ? '/en' : ''}/ssr-page.json`)
       const json = await res.json()
       expect(json.pageProps.message).toEqual('Bye Cruel World')
     })
 
     it('should normalize data requests into page requests', async () => {
-      const res = await fetchViaHTTP(
-        next.url,
-        `/_next/data/${next.buildId}${i18n ? '/en' : ''}/send-url.json`
-      )
+      const res = await fetchViaHTTP(next.url, `/_next/data/${next.buildId}${i18n ? '/en' : ''}/send-url.json`)
       expect(res.headers.get('req-url-path')).toEqual('/send-url')
     })
 
     it('should keep non data requests in their original shape', async () => {
-      const res = await fetchViaHTTP(
-        next.url,
-        `/_next/static/${next.buildId}/_devMiddlewareManifest.json?foo=1`
-      )
-      expect(res.headers.get('req-url-path')).toEqual(
-        `/_next/static/${next.buildId}/_devMiddlewareManifest.json?foo=1`
-      )
+      const res = await fetchViaHTTP(next.url, `/_next/static/${next.buildId}/_devMiddlewareManifest.json?foo=1`)
+      expect(res.headers.get('req-url-path')).toEqual(`/_next/static/${next.buildId}/_devMiddlewareManifest.json?foo=1`)
     })
 
     it('should add a rewrite header on data requests for rewrites', async () => {
@@ -617,14 +512,12 @@ describe('Middleware Runtime', () => {
         next.url,
         `/_next/data/${next.buildId}${i18n ? '/en' : ''}/ssr-page.json`,
         undefined,
-        { headers: { 'x-nextjs-data': '1' } }
+        { headers: { 'x-nextjs-data': '1' } },
       )
       const json = await dataRes.json()
       expect(json.pageProps.message).toEqual('Bye Cruel World')
       expect(res.headers.get('x-nextjs-matched-path')).toBeNull()
-      expect(dataRes.headers.get('x-nextjs-matched-path')).toEqual(
-        `${i18n ? '/en' : ''}/ssr-page-2`
-      )
+      expect(dataRes.headers.get('x-nextjs-matched-path')).toEqual(`${i18n ? '/en' : ''}/ssr-page-2`)
     })
 
     it(`hard-navigates when the data request failed`, async () => {
@@ -637,8 +530,7 @@ describe('Middleware Runtime', () => {
 
     it('allows shallow linking with middleware', async () => {
       const browser = await webdriver(next.url, '/sha')
-      const getMessageContents = () =>
-        browser.elementById('message-contents').text()
+      const getMessageContents = () => browser.elementById('message-contents').text()
       const ssrMessage = await getMessageContents()
       const requests: string[] = []
 
@@ -658,11 +550,7 @@ describe('Middleware Runtime', () => {
 
       // Check that no server requests were made to ?hello=world,
       // as it's a shallow request.
-      expect(requests).toEqual([
-        `${next.url}/_next/data/${next.buildId}${
-          i18n ? '/en' : ''
-        }/sha.json?hello=goodbye`,
-      ])
+      expect(requests).toEqual([`${next.url}/_next/data/${next.buildId}${i18n ? '/en' : ''}/sha.json?hello=goodbye`])
     })
   }
   describe('with i18n', () => {

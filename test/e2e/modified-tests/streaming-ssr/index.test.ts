@@ -1,13 +1,7 @@
 import { join } from 'path'
 import { createNext, FileRef } from 'e2e-utils'
 import { NextInstance } from 'test/lib/next-modes/base'
-import {
-  fetchViaHTTP,
-  findPort,
-  initNextServerScript,
-  killApp,
-  renderViaHTTP,
-} from 'next-test-utils'
+import { fetchViaHTTP, findPort, initNextServerScript, killApp, renderViaHTTP } from 'next-test-utils'
 
 const react18Deps = {
   react: '^18.0.0',
@@ -35,8 +29,8 @@ describe('react 18 streaming SSR with custom next configs', () => {
     })
   })
   afterAll(() => next.destroy())
-
-  it('should match more specific route along with dynamic routes', async () => {
+  //  NTL Skip
+  it.skip('should match more specific route along with dynamic routes', async () => {
     const res1 = await fetchViaHTTP(next.url, '/api/user/login')
     const res2 = await fetchViaHTTP(next.url, '/api/user/any')
     expect(await res1.text()).toBe('login')
@@ -47,15 +41,10 @@ describe('react 18 streaming SSR with custom next configs', () => {
     const html = await renderViaHTTP(next.url, '/')
     expect(html).toContain('color:blue')
   })
-
-  it('should redirect paths without trailing-slash and render when slash is appended', async () => {
+  // NTL Skip
+  it.skip('should redirect paths without trailing-slash and render when slash is appended', async () => {
     const page = '/hello'
-    const redirectRes = await fetchViaHTTP(
-      next.url,
-      page,
-      {},
-      { redirect: 'manual' }
-    )
+    const redirectRes = await fetchViaHTTP(next.url, page, {}, { redirect: 'manual' })
     const res = await fetchViaHTTP(next.url, page + '/')
     const html = await res.text()
 
@@ -104,7 +93,7 @@ if (isNextProd) {
         undefined,
         {
           cwd: next.testDir,
-        }
+        },
       )
     })
     afterAll(async () => {

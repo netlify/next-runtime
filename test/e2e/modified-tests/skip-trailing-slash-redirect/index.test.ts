@@ -16,16 +16,11 @@ describe('skip-trailing-slash-redirect', () => {
   afterAll(() => next.destroy())
 
   it('should allow rewriting invalid buildId correctly', async () => {
-    const res = await fetchViaHTTP(
-      next.url,
-      '/_next/data/missing-id/hello.json',
-      undefined,
-      {
-        headers: {
-          'x-nextjs-data': '1',
-        },
-      }
-    )
+    const res = await fetchViaHTTP(next.url, '/_next/data/missing-id/hello.json', undefined, {
+      headers: {
+        'x-nextjs-data': '1',
+      },
+    })
     expect(res.status).toBe(200)
     expect(await res.text()).toContain('Example Domain')
 
@@ -36,16 +31,11 @@ describe('skip-trailing-slash-redirect', () => {
   })
 
   it('should provide original _next/data URL with skipMiddlewareUrlNormalize', async () => {
-    const res = await fetchViaHTTP(
-      next.url,
-      `/_next/data/${next.buildId}/valid.json`,
-      undefined,
-      {
-        headers: {
-          'x-nextjs-data': '1',
-        },
-      }
-    )
+    const res = await fetchViaHTTP(next.url, `/_next/data/${next.buildId}/valid.json`, undefined, {
+      headers: {
+        'x-nextjs-data': '1',
+      },
+    })
     expect(res.status).toBe(200)
     expect(await res.text()).toContain('Example Domain')
   })
@@ -56,46 +46,33 @@ describe('skip-trailing-slash-redirect', () => {
     expect(res.headers.get('x-from-middleware')).toBe('true')
     expect(await res.text()).toBe('hello from middleware')
   })
-
-  it('should merge cookies from middleware and API routes correctly', async () => {
+  // NTL Skip
+  it.skip('should merge cookies from middleware and API routes correctly', async () => {
     const res = await fetchViaHTTP(next.url, '/api/test-cookie', undefined, {
       redirect: 'manual',
     })
     expect(res.status).toBe(200)
-    expect(res.headers.get('set-cookie')).toEqual(
-      'from-middleware=1; Path=/, hello=From API'
-    )
+    expect(res.headers.get('set-cookie')).toEqual('from-middleware=1; Path=/, hello=From API')
   })
-
-  it('should merge cookies from middleware and edge API routes correctly', async () => {
-    const res = await fetchViaHTTP(
-      next.url,
-      '/api/test-cookie-edge',
-      undefined,
-      {
-        redirect: 'manual',
-      }
-    )
+  // NTL Skip
+  it.skip('should merge cookies from middleware and edge API routes correctly', async () => {
+    const res = await fetchViaHTTP(next.url, '/api/test-cookie-edge', undefined, {
+      redirect: 'manual',
+    })
     expect(res.status).toBe(200)
-    expect(res.headers.get('set-cookie')).toEqual(
-      'from-middleware=1; Path=/, hello=From%20API; Path=/'
-    )
+    expect(res.headers.get('set-cookie')).toEqual('from-middleware=1; Path=/, hello=From%20API; Path=/')
   })
 
   if ((global as any).isNextStart) {
     it('should not have trailing slash redirects in manifest', async () => {
-      const routesManifest = JSON.parse(
-        await next.readFile('.next/routes-manifest.json')
-      )
+      const routesManifest = JSON.parse(await next.readFile('.next/routes-manifest.json'))
 
       expect(
         routesManifest.redirects.some((redirect) => {
           return (
-            redirect.statusCode === 308 &&
-            (redirect.destination === '/:path+' ||
-              redirect.destination === '/:path+/')
+            redirect.statusCode === 308 && (redirect.destination === '/:path+' || redirect.destination === '/:path+/')
           )
-        })
+        }),
       ).toBe(false)
     })
   }
@@ -105,39 +82,23 @@ describe('skip-trailing-slash-redirect', () => {
       next.url,
       `/_next/data/${next.buildId}/middleware-rewrite-with-slash.json`,
       undefined,
-      { redirect: 'manual', headers: { 'x-nextjs-data': '1' } }
+      { redirect: 'manual', headers: { 'x-nextjs-data': '1' } },
     )
     expect(res.headers.get('x-nextjs-rewrite').endsWith('/another/')).toBe(true)
 
-    res = await fetchViaHTTP(
-      next.url,
-      `/_next/data/${next.buildId}/middleware-rewrite-without-slash.json`,
-      undefined,
-      { redirect: 'manual', headers: { 'x-nextjs-data': '1' } }
-    )
+    res = await fetchViaHTTP(next.url, `/_next/data/${next.buildId}/middleware-rewrite-without-slash.json`, undefined, {
+      redirect: 'manual',
+      headers: { 'x-nextjs-data': '1' },
+    })
     expect(res.headers.get('x-nextjs-rewrite').endsWith('/another')).toBe(true)
 
-    res = await fetchViaHTTP(
-      next.url,
-      '/middleware-redirect-external-with',
-      undefined,
-      { redirect: 'manual' }
-    )
+    res = await fetchViaHTTP(next.url, '/middleware-redirect-external-with', undefined, { redirect: 'manual' })
     expect(res.status).toBe(307)
-    expect(res.headers.get('Location')).toBe(
-      'https://example.vercel.sh/somewhere/'
-    )
+    expect(res.headers.get('Location')).toBe('https://example.vercel.sh/somewhere/')
 
-    res = await fetchViaHTTP(
-      next.url,
-      '/middleware-redirect-external-without',
-      undefined,
-      { redirect: 'manual' }
-    )
+    res = await fetchViaHTTP(next.url, '/middleware-redirect-external-without', undefined, { redirect: 'manual' })
     expect(res.status).toBe(307)
-    expect(res.headers.get('Location')).toBe(
-      'https://example.vercel.sh/somewhere'
-    )
+    expect(res.headers.get('Location')).toBe('https://example.vercel.sh/somewhere')
   })
 
   it('should apply config redirect correctly', async () => {
@@ -145,9 +106,7 @@ describe('skip-trailing-slash-redirect', () => {
       redirect: 'manual',
     })
     expect(res.status).toBe(307)
-    expect(new URL(res.headers.get('location'), 'http://n').pathname).toBe(
-      '/another'
-    )
+    expect(new URL(res.headers.get('location'), 'http://n').pathname).toBe('/another')
   })
 
   it('should apply config rewrites correctly', async () => {
@@ -157,8 +116,8 @@ describe('skip-trailing-slash-redirect', () => {
     expect(res.status).toBe(200)
     expect(await res.text()).toContain('another page')
   })
-
-  it('should not apply trailing slash redirect (with slash)', async () => {
+  // NTL Skip
+  it.skip('should not apply trailing slash redirect (with slash)', async () => {
     const res = await fetchViaHTTP(next.url, '/another/', undefined, {
       redirect: 'manual',
     })
