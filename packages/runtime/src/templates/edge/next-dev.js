@@ -43,11 +43,14 @@ const handler = async (req, context) => {
     return
   }
 
-  //  This is the format expected by Next.js
+  //  This is the format expected by Next.js along with the timezone which we support.
   const geo = {
     country: context.geo.country?.code,
     region: context.geo.subdivision?.code,
     city: context.geo.city,
+    latitude: context.geo.latitude?.toString(),
+    longitude: context.geo.longitude?.toString(),
+    timezone: context.geo.timezone,
   }
 
   // A default request id is fine locally

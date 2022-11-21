@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-
-import { MiddlewareRequest } from '@netlify/next'
+import { MiddlewareRequest, NextRequest } from '@netlify/next'
 
 export async function middleware(req: NextRequest) {
   let response
@@ -26,6 +24,17 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith('/api/hello')) {
     // Add a header to the request
     req.headers.set('x-hello', 'world')
+    return request.next()
+  }
+
+  if (pathname.startsWith('/api/geo')) {
+    req.headers.set('x-geo-country', req.geo.country)
+    req.headers.set('x-geo-region', req.geo.region)
+    req.headers.set('x-geo-city', req.geo.city)
+    req.headers.set('x-geo-longitude', req.geo.longitude)
+    req.headers.set('x-geo-latitude', req.geo.latitude)
+    req.headers.set('x-geo-timezone', req.geo.timezone)
+
     return request.next()
   }
 
