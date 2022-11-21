@@ -16,12 +16,14 @@ jobs:
       - run: npm install
       - id: set-test-chunks
         name: Set Chunks
+        # Extracts the list of all test files, then uses js to split them into groups to allocate to each worker. The JSON is sent to the job output
         run:
           echo "test-chunks=$(npx jest -c test/e2e/jest.config.js --listTests --json | jq -cM '[_nwise(length / 24 |
           floor)]')" >> $GITHUB_OUTPUT
 
       - id: set-test-chunk-ids
         name: Set Chunk IDs
+        # Extracts the chunk IDs from the JSON output and sends them to the job output. These will just be a sequence of array indices
         run: echo "test-chunk-ids=$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')" >> $GITHUB_OUTPUT
         env:
           CHUNKS: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
@@ -33,6 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Creates a job for each chunk ID. This will be assinged one or more test files to run
         chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
     steps:
       - uses: actions/checkout@v3
@@ -44,6 +47,7 @@ jobs:
           check-latest: true
       - name: Run tests
         run:
+          # Gets the list of test files for the current chunk ID and runs them, saving the results as a JUnit XML file
           echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest --reporters=jest-junit
           --reporters=default -c test/e2e/jest.config.js
         env:
@@ -53,6 +57,7 @@ jobs:
       - uses: phoenix-actions/test-reporting@v10
         if: ${{ always() }}
         name: Report Test Results
+        # Generates annotations for the test failures
         id: test-report
         with:
           name: E2E Test chunk ${{ matrix.chunk }}
@@ -61,7 +66,8 @@ jobs:
           max-annotations: 49 # Maximum number of annotations to be created
           reporter: jest-junit # Format of test results
 
-      - uses: actions/upload-artifact@v3 # upload test results
+      - uses: actions/upload-artifact@v3
+        # upload test results
         if: ${{ always() }}
         with:
           name: test-results-${{ matrix.chunk }}
@@ -78,10 +84,12 @@ jobs:
           path: reports
       - name: Combine reports
         run: npx junit-report-merger combined.xml reports/**/*.xml
+        # The test reporter can handle multiple files, but these are arbitrary chunks and combining them gives more useful results
       - uses: phoenix-actions/test-reporting@v10
         with:
           name: Jest Tests
           output-to: 'step-summary'
           path: 'combined.xml'
-          max-annotations: 0 # Annotations were done in the test steps
+          # Annotations were done in the test steps. This is just the summary
+          max-annotations: 0
           reporter: jest-junit
