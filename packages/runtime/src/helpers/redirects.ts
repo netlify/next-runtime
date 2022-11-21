@@ -196,7 +196,7 @@ const generateDynamicRewrites = ({
   i18n: NextConfig['i18n']
   buildId: string
   middleware: Array<string>
-  is404Isr: Boolean
+  is404Isr: boolean
 }): {
   dynamicRoutesThatMatchMiddleware: Array<string>
   dynamicRewrites: NetlifyConfig['redirects']
