@@ -19,6 +19,7 @@ import {
   isApiRoute,
   redirectsForNextRoute,
   redirectsForNextRouteWithData,
+  redirectsForNext404Route,
   routeToDataRoute,
 } from './utils'
 
@@ -207,9 +208,11 @@ const generateDynamicRewrites = ({
     if (route.page in prerenderedDynamicRoutes) {
       if (matchesMiddleware(middleware, route.page)) {
         dynamicRoutesThatMatchMiddleware.push(route.page)
+      } else if (prerenderedDynamicRoutes[route.page].fallback === false) {
+        dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
       } else {
         dynamicRewrites.push(
-          ...redirectsForNextRoute({ buildId, route: route.page, basePath, to: ODB_FUNCTION_PATH, status: 200, i18n }),
+          ...redirectsForNextRoute({ route: route.page, buildId, basePath, to: ODB_FUNCTION_PATH, i18n }),
         )
       }
     } else {
