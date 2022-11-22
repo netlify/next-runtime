@@ -1,8 +1,14 @@
 import type { NextURL } from 'next/dist/server/web/next-url'
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import type { NextRequest as InternalNextRequest } from 'next/server'
 
 import { MiddlewareResponse } from './response'
+
+export type NextRequest = InternalNextRequest & {
+  get geo(): {
+    timezone?: string
+  }
+}
 
 export interface NextOptions {
   /**
