@@ -15,8 +15,10 @@ jobs:
       - run: npm install
       - id: set-test-files
         name: Get test files
-        # Extracts the list of all test files as JSON and assign to the job output
-        run: echo "test-files=$(npx jest -c test/e2e/jest.config.js --listTests --json)" >> $GITHUB_OUTPUT
+        # Extracts the list of all test files as JSON and trims to be relative to the test dir to be easier to read
+        run:
+          echo "test-files=$(npx jest -c test/e2e/jest.config.js --listTests --json | jq -cM 'map(.[env.PWD | length +
+          10:])')" >> $GITHUB_OUTPUT
 
   test:
     runs-on: ubuntu-latest
