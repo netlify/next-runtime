@@ -111,7 +111,7 @@ const fetch = async (url, init) => {
         return new Response(_base64Decode(_ASSETS[key]))
       }
     }
-    return _fetch(url, init)
+    return await _fetch(url, init)
   } catch (error) {
     console.error(error)
     throw error

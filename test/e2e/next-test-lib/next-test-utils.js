@@ -122,8 +122,8 @@ export function renderViaHTTP(appPort, pathname, query, opts) {
  * @param {string | number} appPort
  * @param {string} pathname
  * @param {Record<string, any> | string | undefined} query
- * @param {import("undici").RequestInit} opts
- * @returns {Promise<import("undici").Response>}
+ * @param {RequestInit} opts
+ * @returns {Promise<Response>}
  */
 export async function fetchViaHTTP(appPort, pathname, query = undefined, opts = undefined, useUndici = false) {
   const url = `${pathname}${typeof query === 'string' ? query : query ? `?${qs.stringify(query)}` : ''}`
