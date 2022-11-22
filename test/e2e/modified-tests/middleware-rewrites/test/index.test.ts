@@ -7,6 +7,7 @@ import { NextInstance } from 'test/lib/next-modes/base'
 import { check, fetchViaHTTP } from 'next-test-utils'
 import { createNext, FileRef } from 'e2e-utils'
 import escapeStringRegexp from 'escape-string-regexp'
+const usuallySkip = process.env.RUN_SKIPPED_TESTS ? it : it.skip
 
 describe('Middleware Rewrite', () => {
   let next: NextInstance
@@ -56,7 +57,7 @@ describe('Middleware Rewrite', () => {
     })
 
     // NTL Fail
-    it.skip('should have props for afterFiles rewrite to SSG page', async () => {
+    usuallySkip('should have props for afterFiles rewrite to SSG page', async () => {
       let browser = await webdriver(next.url, '/')
       await browser.eval(`next.router.push("/afterfiles-rewrite-ssg")`)
 
@@ -78,7 +79,7 @@ describe('Middleware Rewrite', () => {
     })
 
     // TODO: middleware effect headers aren't available here
-    it.skip('includes the locale in rewrites by default', async () => {
+    usuallySkip('includes the locale in rewrites by default', async () => {
       const res = await fetchViaHTTP(next.url, `/rewrite-me-to-about`)
       expect(res.headers.get('x-middleware-rewrite')?.endsWith('/en/about')).toEqual(true)
     })
@@ -189,7 +190,7 @@ describe('Middleware Rewrite', () => {
       await check(() => browser.eval('document.documentElement.innerHTML'), /Example Domain/)
     })
     // NTL Fail
-    it.skip('should rewrite to fallback: true page successfully', async () => {
+    usuallySkip('should rewrite to fallback: true page successfully', async () => {
       const randomSlug = `another-${Date.now()}`
       const res2 = await fetchViaHTTP(next.url, `/to-blog/${randomSlug}`)
       expect(res2.status).toBe(200)

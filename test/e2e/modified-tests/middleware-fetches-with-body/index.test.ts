@@ -1,6 +1,7 @@
 import { createNext } from 'e2e-utils'
 import { NextInstance } from 'test/lib/next-modes/base'
 import { fetchViaHTTP } from 'next-test-utils'
+const usuallySkip = process.env.RUN_SKIPPED_TESTS ? it : it.skip
 
 describe('Middleware fetches with body', () => {
   let next: NextInstance
@@ -156,7 +157,7 @@ describe('Middleware fetches with body', () => {
 
   describe('with custom bodyParser sizeLimit (5mb)', () => {
     // NTL: disabled because of EF bug
-    it.skip('should return 413 for body equal to 10mb', async () => {
+    usuallySkip('should return 413 for body equal to 10mb', async () => {
       const bodySize = 10 * 1024 * 1024
       const body = 't'.repeat(bodySize)
 

@@ -6,6 +6,8 @@ import { promises as fs } from 'fs'
 import { readJson } from 'fs-extra'
 import type { MiddlewareManifest } from 'next/build/webpack/plugins/middleware-plugin'
 
+const usuallySkip = process.env.RUN_SKIPPED_TESTS ? it : it.skip
+
 describe('Edge Compiler can import asset assets', () => {
   let next: NextInstance
 
@@ -22,14 +24,14 @@ describe('Edge Compiler can import asset assets', () => {
   })
   afterAll(() => next.destroy())
   // NTL Fail
-  it.skip('allows to fetch a remote URL', async () => {
+  usuallySkip('allows to fetch a remote URL', async () => {
     const response = await fetchViaHTTP(next.url, '/api/edge', {
       handler: 'remote-full',
     })
     expect(await response.text()).toContain('Example Domain')
   })
   // NTL Fail
-  it.skip('allows to fetch a remote URL with a path and basename', async () => {
+  usuallySkip('allows to fetch a remote URL with a path and basename', async () => {
     const response = await fetchViaHTTP(
       next.url,
       '/api/edge',
@@ -50,7 +52,7 @@ describe('Edge Compiler can import asset assets', () => {
     expect(html).toContain('Hello, from text-file.txt!')
   })
   // NTL Fail
-  it.skip('allows to fetch image assets', async () => {
+  usuallySkip('allows to fetch image assets', async () => {
     const response = await fetchViaHTTP(next.url, '/api/edge', {
       handler: 'image-file',
     })

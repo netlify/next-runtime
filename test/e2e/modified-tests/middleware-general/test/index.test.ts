@@ -8,6 +8,7 @@ import { check, fetchViaHTTP, waitFor } from 'next-test-utils'
 import { createNext, FileRef } from 'e2e-utils'
 
 const urlsError = 'Please use only absolute URLs'
+const usuallySkip = process.env.RUN_SKIPPED_TESTS ? it : it.skip
 
 describe('Middleware Runtime', () => {
   let next: NextInstance
@@ -140,7 +141,7 @@ describe('Middleware Runtime', () => {
       })
     }
     // NTL Fail
-    it.skip('passes search params with rewrites', async () => {
+    usuallySkip('passes search params with rewrites', async () => {
       const response = await fetchViaHTTP(next.url, `/api/edge-search-params`, {
         a: 'b',
       })
@@ -258,7 +259,7 @@ describe('Middleware Runtime', () => {
       expect(await browser.elementByCss('#as-path').text()).toBe('/rewrite-to-config-rewrite')
     })
     // NTL Fail
-    it.skip('should have correct route params for rewrite from config dynamic route', async () => {
+    usuallySkip('should have correct route params for rewrite from config dynamic route', async () => {
       const browser = await webdriver(next.url, '/')
       await browser.eval('window.beforeNav = 1')
       await browser.eval('window.next.router.push("/rewrite-3")')
@@ -275,7 +276,7 @@ describe('Middleware Runtime', () => {
       expect(await browser.elementByCss('#as-path').text()).toBe('/rewrite-3')
     })
     // NTL Fail
-    it.skip('should have correct route params for rewrite from config non-dynamic route', async () => {
+    usuallySkip('should have correct route params for rewrite from config non-dynamic route', async () => {
       const browser = await webdriver(next.url, '/')
       await browser.eval('window.beforeNav = 1')
       await browser.eval('window.next.router.push("/rewrite-1")')
@@ -287,7 +288,7 @@ describe('Middleware Runtime', () => {
       })
     })
     // NTL Fail
-    it.skip('should redirect the same for direct visit and client-transition', async () => {
+    usuallySkip('should redirect the same for direct visit and client-transition', async () => {
       const res = await fetchViaHTTP(next.url, `/redirect-1`, undefined, {
         redirect: 'manual',
       })
@@ -302,7 +303,7 @@ describe('Middleware Runtime', () => {
       }, 'success')
     })
     // NTL Fail
-    it.skip('should rewrite the same for direct visit and client-transition', async () => {
+    usuallySkip('should rewrite the same for direct visit and client-transition', async () => {
       const res = await fetchViaHTTP(next.url, `/rewrite-1`)
       expect(res.status).toBe(200)
       expect(await res.text()).toContain('Hello World')
@@ -317,7 +318,7 @@ describe('Middleware Runtime', () => {
       expect(await browser.eval('window.beforeNav')).toBe(1)
     })
     // NTL Fail
-    it.skip('should rewrite correctly for non-SSG/SSP page', async () => {
+    usuallySkip('should rewrite correctly for non-SSG/SSP page', async () => {
       const res = await fetchViaHTTP(next.url, `/rewrite-2`)
       expect(res.status).toBe(200)
       expect(await res.text()).toContain('AboutA')
@@ -351,7 +352,7 @@ describe('Middleware Runtime', () => {
       })
     }
     // NTL Fail
-    it.skip('should contain process polyfill', async () => {
+    usuallySkip('should contain process polyfill', async () => {
       const res = await fetchViaHTTP(next.url, `/global`)
       expect(readMiddlewareJSON(res)).toEqual({
         process: {
@@ -389,7 +390,7 @@ describe('Middleware Runtime', () => {
       })
     }
     //  Fail
-    it.skip(`should allow to abort a fetch request`, async () => {
+    usuallySkip(`should allow to abort a fetch request`, async () => {
       const response = await fetchViaHTTP(next.url, '/abort-controller')
       const payload = readMiddlewareJSON(response)
       expect('error' in payload).toBe(true)

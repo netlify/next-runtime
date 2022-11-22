@@ -3,6 +3,7 @@ import { NextInstance } from 'test/lib/next-modes/base'
 import { check, fetchViaHTTP } from 'next-test-utils'
 import { join } from 'path'
 import webdriver from 'next-webdriver'
+const usuallySkip = process.env.RUN_SKIPPED_TESTS ? it : it.skip
 
 describe('skip-trailing-slash-redirect', () => {
   let next: NextInstance
@@ -47,7 +48,7 @@ describe('skip-trailing-slash-redirect', () => {
     expect(await res.text()).toBe('hello from middleware')
   })
   // NTL Skip
-  it.skip('should merge cookies from middleware and API routes correctly', async () => {
+  usuallySkip('should merge cookies from middleware and API routes correctly', async () => {
     const res = await fetchViaHTTP(next.url, '/api/test-cookie', undefined, {
       redirect: 'manual',
     })
@@ -55,7 +56,7 @@ describe('skip-trailing-slash-redirect', () => {
     expect(res.headers.get('set-cookie')).toEqual('from-middleware=1; Path=/, hello=From API')
   })
   // NTL Skip
-  it.skip('should merge cookies from middleware and edge API routes correctly', async () => {
+  usuallySkip('should merge cookies from middleware and edge API routes correctly', async () => {
     const res = await fetchViaHTTP(next.url, '/api/test-cookie-edge', undefined, {
       redirect: 'manual',
     })
@@ -117,7 +118,7 @@ describe('skip-trailing-slash-redirect', () => {
     expect(await res.text()).toContain('another page')
   })
   // NTL Skip
-  it.skip('should not apply trailing slash redirect (with slash)', async () => {
+  usuallySkip('should not apply trailing slash redirect (with slash)', async () => {
     const res = await fetchViaHTTP(next.url, '/another/', undefined, {
       redirect: 'manual',
     })
