@@ -17,8 +17,8 @@ jobs:
         name: Get test files
         # Extracts the list of all test files as JSON and trims to be relative to the test dir to be easier to read
         run:
-          echo "test-files=$(npx jest -c test/e2e/jest.config.js --listTests --json | jq -cM 'map(.[env.PWD | length +
-          10:])')" >> $GITHUB_OUTPUT
+          echo "test-files=$(npx jest -c test/e2e/jest.config.all.js --listTests --json | jq -cM 'map(.[env.PWD | length
+          + 10:])')" >> $GITHUB_OUTPUT
 
   test:
     runs-on: ubuntu-latest
@@ -34,10 +34,11 @@ jobs:
       - uses: actions/checkout@v3
       - run: npm install
       - name: Run tests
-        run: npx jest --reporters=jest-junit --reporters=default -c test/e2e/jest.config.js ${{ matrix.test-file }}
+        run: npx jest --reporters=jest-junit --reporters=default -c test/e2e/jest.config.all.js ${{ matrix.test-file }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
           NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
+          RUN_SKIPPED_TESTS: true
       # - uses: phoenix-actions/test-reporting@v10
       #   if: ${{ always() }}
       #   name: Report Test Results
