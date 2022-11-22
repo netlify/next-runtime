@@ -116,7 +116,9 @@ const fetch = async (url, init) => {
         return new Response(_base64Decode(_ASSETS[key]))
       }
     }
-    return await _fetch(url, init)
+    const res = await _fetch(url, init)
+    // Ensure that the response is a an instance of our Response subclass
+    return new Response(res.body, res)
   } catch (error) {
     console.error(error)
     throw error
