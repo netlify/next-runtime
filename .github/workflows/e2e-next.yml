@@ -26,15 +26,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Creates a job for each chunk ID. This will be assinged one or more test files to run
+        # Creates a job for each chunk ID. This will be assigned one or more test files to run
         test-file: ${{ fromJson(needs.setup.outputs['test-files']) }}
     steps:
       - uses: actions/checkout@v3
       - run: npm install
       - name: Run tests
-        run:
-          # Runs the test for the current matrix job, saving the results as a JUnit XML file
-          npx jest --reporters=jest-junit --reporters=default -c test/e2e/jest.config.js ${{ matrix.test-file }}
+        run: npx jest --reporters=jest-junit --reporters=default -c test/e2e/jest.config.js ${{ matrix.test-file }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
       # - uses: phoenix-actions/test-reporting@v10
       #   if: ${{ always() }}
       #   name: Report Test Results
@@ -50,6 +51,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         # upload test results
         if: ${{ always() }}
+        name: Upload test results
         with:
           name: test-results
           path: reports/jest-*.xml
