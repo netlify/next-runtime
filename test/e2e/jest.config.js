@@ -4,6 +4,7 @@
 const config = {
   maxWorkers: 1,
   rootDir: __dirname,
+  setupFilesAfterEnv: ['<rootDir>/jest-setup-after-env.ts'],
   testMatch: [
     '**/test/e2e/tests/**/*.test.js',
     '**/test/e2e/tests/**/*.test.ts',
