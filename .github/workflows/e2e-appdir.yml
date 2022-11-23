@@ -40,7 +40,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
           NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
-
+          NEXT_TEST_VERSION: canary
       - uses: actions/upload-artifact@v3
         # upload test results
         if: ${{ always() }}

@@ -21,7 +21,7 @@
     "test:next": "jest -c test/e2e/jest.config.js",
     "test:next:disabled": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.disabled.js",
     "test:next:all": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.all.js",
-    "test:next:appdir": "jest -c test/e2e/jest.config.appdir.js",
+    "test:next:appdir": "NEXT_TEST_VERSION=canary jest -c test/e2e/jest.config.appdir.js",
     "test:jest": "jest",
     "playwright:install": "playwright install --with-deps chromium",
     "test:jest:update": "jest --updateSnapshot",
