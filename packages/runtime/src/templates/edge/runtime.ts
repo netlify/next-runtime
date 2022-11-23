@@ -26,6 +26,7 @@ export interface RequestData {
     region?: string
     latitude?: string
     longitude?: string
+    timezone?: string
   }
   headers: Record<string, string>
   ip?: string
@@ -69,10 +70,13 @@ const handler = async (req: Request, context: Context) => {
     return
   }
 
-  const geo = {
+  const geo: RequestData['geo'] = {
     country: context.geo.country?.code,
     region: context.geo.subdivision?.code,
     city: context.geo.city,
+    latitude: context.geo.latitude?.toString(),
+    longitude: context.geo.longitude?.toString(),
+    timezone: context.geo.timezone,
   }
 
   const requestId = req.headers.get('x-nf-request-id')

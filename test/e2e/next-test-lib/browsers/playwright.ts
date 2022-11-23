@@ -2,7 +2,7 @@ import { BrowserInterface, Event } from './base'
 import fs from 'fs-extra'
 import { chromium, webkit, firefox, Browser, BrowserContext, Page, ElementHandle, devices } from 'playwright-chromium'
 import path from 'path'
-
+import destr from 'destr'
 let page: Page
 let browser: Browser
 let context: BrowserContext
@@ -34,7 +34,8 @@ export class Playwright extends BrowserInterface {
 
   async setup(browserName: string, locale?: string) {
     if (browser) return
-    const headless = !!process.env.HEADLESS
+    // Headless by default
+    const headless = destr(process.env.HEADLESS) ?? true
     let device
 
     if (process.env.DEVICE_NAME) {

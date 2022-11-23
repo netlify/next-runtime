@@ -11,7 +11,7 @@ import { join, relative, resolve } from 'pathe'
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
-import { getPageResolver, getSinglePageResolver } from '../templates/getPageResolver'
+import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, ApiRouteType, extractConfigFromFile } from './analysis'
 import { getSourceFileForPage } from './files'
@@ -55,7 +55,7 @@ export const generateFunctions = async (
 
     const resolveSourceFile = (file: string) => join(publish, 'server', file)
 
-    const resolverSource = await getSinglePageResolver({
+    const resolverSource = await getResolverForSourceFiles({
       functionsDir,
       // These extra pages are always included by Next.js
       sourceFiles: [compiled, 'pages/_app.js', 'pages/_document.js', 'pages/_error.js'].map(resolveSourceFile),
@@ -83,18 +83,13 @@ export const generateFunctions = async (
  * This is just so that the nft bundler knows about them. We'll eventually do this better.
  */
 export const generatePagesResolver = async ({
-  constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, PUBLISH_DIR },
-  target,
-}: {
-  constants: NetlifyPluginConstants
-  target: string
-}): Promise<void> => {
+  INTERNAL_FUNCTIONS_SRC,
+  FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC,
+  PUBLISH_DIR,
+}: NetlifyPluginConstants): Promise<void> => {
   const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
 
-  const jsSource = await getPageResolver({
-    publish: PUBLISH_DIR,
-    target,
-  })
+  const jsSource = await getResolverForPages(PUBLISH_DIR)
 
   await writeFile(join(functionsPath, ODB_FUNCTION_NAME, 'pages.js'), jsSource)
   await writeFile(join(functionsPath, HANDLER_FUNCTION_NAME, 'pages.js'), jsSource)

@@ -1,6 +1,7 @@
 import { extractConfigFromFile } from '../packages/runtime/src/helpers/analysis'
 import { resolve } from 'pathe'
 import { getDependenciesOfFile } from '../packages/runtime/src/helpers/files'
+import { dirname } from 'path'
 describe('static source analysis', () => {
   beforeEach(() => {
     //  Spy on console.error
@@ -85,7 +86,7 @@ describe('dependency tracing', () => {
   it('generates dependency list from a source file', async () => {
     const dependencies = await getDependenciesOfFile(resolve(__dirname, 'fixtures/analysis/background.js'))
     expect(dependencies).toEqual(
-      ['fixtures/webpack-api-runtime.js', 'package.json'].map((dep) => resolve(__dirname, dep)),
+      ['test/webpack-api-runtime.js', 'package.json'].map((dep) => resolve(dirname(__dirname), dep)),
     )
   })
 })

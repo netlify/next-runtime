@@ -4,31 +4,16 @@ const execa = require('execa')
 const fs = require('fs-extra')
 const childProcess = require('child_process')
 const { randomBytes } = require('crypto')
-const { linkPackages } =
-  require('../../.github/actions/next-stats-action/src/prepare/repo-setup')()
 
-async function createNextInstall(
-  dependencies,
-  installCommand,
-  packageJson = {},
-  packageLockPath = ''
-) {
+async function createNextInstall(dependencies, installCommand, packageJson = {}, packageLockPath = '') {
   const tmpDir = await fs.realpath(process.env.NEXT_TEST_DIR || os.tmpdir())
   const origRepoDir = path.join(__dirname, '../../')
-  const installDir = path.join(
-    tmpDir,
-    `next-install-${randomBytes(32).toString('hex')}`
-  )
-  const tmpRepoDir = path.join(
-    tmpDir,
-    `next-repo-${randomBytes(32).toString('hex')}`
-  )
+  const installDir = path.join(tmpDir, `next-install-${randomBytes(32).toString('hex')}`)
+  const tmpRepoDir = path.join(tmpDir, `next-repo-${randomBytes(32).toString('hex')}`)
 
   // ensure swc binary is present in the native folder if
   // not already built
-  for (const folder of await fs.readdir(
-    path.join(origRepoDir, 'node_modules/@next')
-  )) {
+  for (const folder of await fs.readdir(path.join(origRepoDir, 'node_modules/@next'))) {
     if (folder.startsWith('swc-')) {
       const swcPkgPath = path.join(origRepoDir, 'node_modules/@next', folder)
       const outputPath = path.join(origRepoDir, 'packages/next-swc/native')
@@ -36,8 +21,7 @@ async function createNextInstall(
         filter: (item) => {
           return (
             item === swcPkgPath ||
-            (item.endsWith('.node') &&
-              !fs.pathExistsSync(path.join(outputPath, path.basename(item))))
+            (item.endsWith('.node') && !fs.pathExistsSync(path.join(outputPath, path.basename(item))))
           )
         },
       })
@@ -82,22 +66,17 @@ async function createNextInstall(
         private: true,
       },
       null,
-      2
-    )
+      2,
+    ),
   )
 
   if (packageLockPath) {
-    await fs.copy(
-      packageLockPath,
-      path.join(installDir, path.basename(packageLockPath))
-    )
+    await fs.copy(packageLockPath, path.join(installDir, path.basename(packageLockPath)))
   }
 
   if (installCommand) {
     const installString =
-      typeof installCommand === 'function'
-        ? installCommand({ dependencies: combinedDependencies })
-        : installCommand
+      typeof installCommand === 'function' ? installCommand({ dependencies: combinedDependencies }) : installCommand
 
     console.log('running install command', installString)
 

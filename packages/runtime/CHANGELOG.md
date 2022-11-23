@@ -1,5 +1,22 @@
 # Changelog
 
+## [4.29.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.1...plugin-nextjs-v4.29.2) (2022-11-21)
+
+
+### Bug Fixes
+
+* add longitude, latitude, and timezone to RequestData.geo ([#1777](https://github.com/netlify/next-runtime/issues/1777)) ([3f35549](https://github.com/netlify/next-runtime/commit/3f355497f02726a54aa0b5f391c3e9684d45228f))
+* resolve all pages using nft ([#1780](https://github.com/netlify/next-runtime/issues/1780)) ([267ff0b](https://github.com/netlify/next-runtime/commit/267ff0b5ecf5d9fe5154955542887d9c0c573b85))
+
+## [4.29.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.0...plugin-nextjs-v4.29.1) (2022-11-14)
+
+
+### Bug Fixes
+
+* exclude sourcemaps from bundle ([#1772](https://github.com/netlify/next-runtime/issues/1772)) ([4cad33e](https://github.com/netlify/next-runtime/commit/4cad33e7adef50f2d45d46a162c480f3297bc4f3))
+* polyfill headers.getAll ([#1766](https://github.com/netlify/next-runtime/issues/1766)) ([b400efb](https://github.com/netlify/next-runtime/commit/b400efb895a5a9444e2d483c8e7a3dcd8bcdc5b0))
+* revert publish from subdirectory ([#1771](https://github.com/netlify/next-runtime/issues/1771)) ([0554d6a](https://github.com/netlify/next-runtime/commit/0554d6a84b26a4c8465a2d42eb25ff8bb0b0a0c3))
+
 ## [4.29.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.7...plugin-nextjs-v4.29.0) (2022-11-11)
 
 

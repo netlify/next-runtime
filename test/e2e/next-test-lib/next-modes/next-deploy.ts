@@ -1,146 +1,84 @@
-import os from 'os'
-import path from 'path'
+import path, { dirname, relative } from 'path'
 import execa from 'execa'
 import fs from 'fs-extra'
+import { platform } from 'os'
 import { NextInstance } from './base'
-import {
-  TEST_PROJECT_NAME,
-  TEST_TEAM_NAME,
-  TEST_TOKEN,
-} from '../../../scripts/reset-vercel-project.mjs'
-import fetch from 'node-fetch'
 
 export class NextDeployInstance extends NextInstance {
   private _cliOutput: string
   private _buildId: string
 
   public get buildId() {
-    // get deployment ID via fetch since we can't access
-    // build artifacts directly
     return this._buildId
   }
 
   public async setup() {
-    await super.createTestDir({ skipInstall: true })
-
-    // ensure Vercel CLI is installed
+    if (process.env.SITE_URL) {
+      process.env.NEXT_TEST_SKIP_CLEANUP = 'true'
+      console.log('Using SITE_URL', process.env.SITE_URL)
+      this._url = process.env.SITE_URL
+      this._parsedUrl = new URL(this._url)
+      this._buildId = 'build-id'
+      return
+    }
+    const testName = process.env.TEST_FILE_PATH && relative(process.cwd(), process.env.TEST_FILE_PATH)
+    await super.createTestDir()
+    // We use yarn because it's better at handling local dependencies
+    await execa('yarn', [], {
+      cwd: this.testDir,
+      stdio: 'inherit',
+    })
+    // ensure Netlify CLI is installed
     try {
-      const res = await execa('vercel', ['--version'])
-      require('console').log(`Using Vercel CLI version:`, res.stdout)
+      const res = await execa('ntl', ['--version'])
+      console.log(`Using Netlify CLI version:`, res.stdout)
     } catch (_) {
-      require('console').log(`Installing Vercel CLI`)
-      await execa('npm', ['i', '-g', 'vercel@latest'], {
+      console.log(`Installing Netlify CLI`)
+      await execa('npm', ['i', '-g', 'netlify-cli@latest'], {
         stdio: 'inherit',
       })
     }
-    const vercelFlags = ['--scope', TEST_TEAM_NAME]
-    const vercelEnv = { ...process.env, TOKEN: TEST_TOKEN }
 
-    // create auth file in CI
-    if (process.env.NEXT_TEST_JOB) {
-      const vcConfigDir = path.join(os.homedir(), '.vercel')
-      await fs.ensureDir(vcConfigDir)
-      await fs.writeFile(
-        path.join(vcConfigDir, 'auth.json'),
-        JSON.stringify({ token: TEST_TOKEN })
-      )
-      vercelFlags.push('--global-config', vcConfigDir)
-    }
-    require('console').log(`Linking project at ${this.testDir}`)
-
-    // link the project
-    const linkRes = await execa(
-      'vercel',
-      ['link', '-p', TEST_PROJECT_NAME, '--confirm', ...vercelFlags],
-      {
-        cwd: this.testDir,
-        env: vercelEnv,
+    const NETLIFY_SITE_ID = process.env.NETLIFY_SITE_ID || '1d5a5c76-d445-4ae5-b694-b0d3f2e2c395'
+    console.log(`Deploys site for test: ${testName}`)
+    try {
+      const statRes = await execa('ntl', ['status', '--json'], {
+        env: { NETLIFY_SITE_ID, NODE_ENV: 'production' },
+      })
+    } catch (err) {
+      if (err.message.includes("You don't appear to be in a folder that is linked to a site")) {
+        throw new Error(`Site is not linked. Please set "NETLIFY_AUTH_TOKEN" and "NETLIFY_SITE_ID"`)
       }
-    )
-
-    if (linkRes.exitCode !== 0) {
-      throw new Error(
-        `Failed to link project ${linkRes.stdout} ${linkRes.stderr} (${linkRes.exitCode})`
-      )
-    }
-    require('console').log(`Deploying project at ${this.testDir}`)
-
-    const additionalEnv = []
-
-    for (const key of Object.keys(this.env || {})) {
-      additionalEnv.push('--build-env')
-      additionalEnv.push(`${key}=${this.env[key]}`)
-      additionalEnv.push('--env')
-      additionalEnv.push(`${key}=${this.env[key]}`)
+      throw err
     }
 
-    if (process.env.VERCEL_CLI_VERSION) {
-      additionalEnv.push('--build-env')
-      additionalEnv.push(`VERCEL_CLI_VERSION=${process.env.VERCEL_CLI_VERSION}`)
-    }
+    console.log(`Deploying project at ${this.testDir}`)
 
-    const deployRes = await execa(
-      'vercel',
-      [
-        'deploy',
-        '--build-env',
-        'NEXT_PRIVATE_TEST_MODE=1',
-        '--build-env',
-        'NEXT_TELEMETRY_DISABLED=1',
-        ...additionalEnv,
-        '--force',
-        ...vercelFlags,
-      ],
-      {
-        cwd: this.testDir,
-        env: vercelEnv,
-      }
-    )
+    const deployRes = await execa('ntl', ['deploy', '--build', '--json', '--message', testName], {
+      cwd: this.testDir,
+      reject: false,
+      env: {
+        NETLIFY_SITE_ID,
+        NODE_ENV: 'production',
+        DISABLE_IPX: platform() === 'linux' ? undefined : '1',
+      },
+    })
 
     if (deployRes.exitCode !== 0) {
-      throw new Error(
-        `Failed to deploy project ${linkRes.stdout} ${linkRes.stderr} (${linkRes.exitCode})`
-      )
+      throw new Error(`Failed to deploy project ${deployRes.stdout} ${deployRes.stderr} (${deployRes.exitCode})`)
     }
-    // the CLI gives just the deployment URL back when not a TTY
-    this._url = deployRes.stdout
-    this._parsedUrl = new URL(this._url)
-
-    require('console').log(`Deployment URL: ${this._url}`)
-    const buildIdUrl = `${this._url}${
-      this.basePath || ''
-    }/_next/static/__BUILD_ID`
-
-    const buildIdRes = await fetch(buildIdUrl)
-
-    if (!buildIdRes.ok) {
-      require('console').error(
-        `Failed to load buildId ${buildIdUrl} (${buildIdRes.status})`
-      )
+    try {
+      const data = JSON.parse(deployRes.stdout)
+      this._url = data.deploy_url
+      console.log(`Deployed to ${this._url}`, data)
+      this._parsedUrl = new URL(this._url)
+    } catch (err) {
+      console.error(err)
+      throw new Error(`Failed to parse deploy output: ${deployRes.stdout}`)
     }
-    this._buildId = (await buildIdRes.text()).trim()
-
-    require('console').log(`Got buildId: ${this._buildId}`)
-
-    const cliOutputRes = await fetch(
-      `https://vercel.com/api/v1/deployments/${this._parsedUrl.hostname}/events?builds=1&direction=backward`,
-      {
-        headers: {
-          Authorization: `Bearer ${TEST_TOKEN}`,
-        },
-      }
-    )
-
-    if (!cliOutputRes.ok) {
-      throw new Error(
-        `Failed to get build output: ${await cliOutputRes.text()} (${
-          cliOutputRes.status
-        })`
-      )
-    }
-    this._cliOutput = (await cliOutputRes.json())
-      .map((line) => line.text || '')
-      .join('\n')
+    this._buildId = (
+      await fs.readFile(path.join(this.testDir, this.nextConfig?.distDir || '.next', 'BUILD_ID'), 'utf8')
+    ).trim()
   }
 
   public get cliOutput() {
@@ -160,10 +98,7 @@ export class NextDeployInstance extends NextInstance {
   public async deleteFile(filename: string): Promise<void> {
     throw new Error('deleteFile is not available in deploy test mode')
   }
-  public async renameFile(
-    filename: string,
-    newFilename: string
-  ): Promise<void> {
+  public async renameFile(filename: string, newFilename: string): Promise<void> {
     throw new Error('renameFile is not available in deploy test mode')
   }
 }

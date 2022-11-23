@@ -154,7 +154,7 @@ const plugin: NetlifyPlugin = {
     const apiRoutes = await getExtendedApiRouteConfigs(publish, appDir)
 
     await generateFunctions(constants, appDir, apiRoutes)
-    await generatePagesResolver({ target, constants })
+    await generatePagesResolver(constants)
 
     await movePublicFiles({ appDir, outdir, publish })
 

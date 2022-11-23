@@ -1,6 +1,6 @@
 import Chance from 'chance'
 import { NextURL } from 'next/dist/server/web/next-url'
-import { NextCookies } from 'next/dist/server/web/spec-extension/cookies'
+import { RequestCookies } from 'next/dist/server/web/spec-extension/cookies'
 import { NextRequest } from 'next/server'
 import { MiddlewareRequest } from '../src/middleware/request'
 
@@ -25,6 +25,9 @@ describe('MiddlewareRequest', () => {
           code: chance.province(),
         },
         city: chance.city(),
+        latitude: chance.latitude(),
+        longitude: chance.longitude(),
+        timezone: chance.timezone(),
       },
       ip,
     }
@@ -33,6 +36,9 @@ describe('MiddlewareRequest', () => {
       country: context.geo.country?.code,
       region: context.geo.subdivision?.code,
       city: context.geo.city,
+      latitude: context.geo.latitude?.toString(),
+      longitude: context.geo.longitude?.toString(),
+      timezone: context.geo.timezone,
     }
 
     const req = new URL(url)
@@ -93,7 +99,7 @@ describe('MiddlewareRequest', () => {
 
   it('returns the cookies object', () => {
     const mwRequest = new MiddlewareRequest(nextRequest)
-    expect(mwRequest.cookies).toBeInstanceOf(NextCookies)
+    expect(mwRequest.cookies).toBeInstanceOf(RequestCookies)
   })
 
   it('returns the geo object', () => {
