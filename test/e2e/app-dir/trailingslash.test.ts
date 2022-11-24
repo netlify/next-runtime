@@ -27,7 +27,7 @@ describe('app-dir trailingSlash handling', () => {
   }, 600000)
   afterAll(() => next.destroy())
 
-  it('should redirect route when requesting it directly', async () => {
+  it.skip('should redirect route when requesting it directly', async () => {
     const res = await fetchViaHTTP(
       next.url,
       '/a',

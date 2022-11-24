@@ -54,7 +54,7 @@ describe('app dir - rsc basics', () => {
       buildCommand: 'yarn build',
     })
     distDir = path.join(next.testDir, '.next')
-  })
+  }, 600000)
   afterAll(() => next.destroy())
 
   const { isNextDeploy, isNextDev } = global as any

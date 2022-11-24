@@ -239,8 +239,8 @@ describe('app-dir static/dynamic handling', () => {
       expect(firstTime).toBe($2('#now').text())
     }
   })
-
-  it('should handle dynamicParams: false correctly', async () => {
+  // NTL Skip
+  it.skip('should handle dynamicParams: false correctly', async () => {
     const validParams = ['tim', 'seb', 'styfle']
 
     for (const param of validParams) {
@@ -313,8 +313,8 @@ describe('app-dir static/dynamic handling', () => {
       expect($('#page').text()).toBe('/blog/[author]/[slug]')
     }
   })
-
-  it('should navigate to static path correctly', async () => {
+  // NTL Skip
+  it.skip('should navigate to static path correctly', async () => {
     const browser = await webdriver(next.url, '/blog/tim')
     await browser.eval('window.beforeNav = 1')
 

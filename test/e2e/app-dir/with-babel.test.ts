@@ -20,7 +20,7 @@ describe('with babel', () => {
         'react-dom': 'experimental',
       },
     })
-  })
+  }, 600000)
   afterAll(() => next.destroy())
 
   it('should support babel in app dir', async () => {

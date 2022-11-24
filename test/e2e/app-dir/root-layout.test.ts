@@ -25,7 +25,7 @@ describe('app-dir root layout', () => {
         'react-dom': 'experimental',
       },
     })
-  })
+  }, 600000)
   afterAll(() => next.destroy())
 
   if (isDev) {

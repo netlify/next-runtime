@@ -29,7 +29,7 @@ describe('app dir head', () => {
       })
 
       await next.start()
-    })
+    }, 600000)
     afterAll(() => next.destroy())
 
     it('should use head from index page', async () => {

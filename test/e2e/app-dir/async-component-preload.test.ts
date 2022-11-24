@@ -19,7 +19,7 @@ describe('async-component-preload', () => {
         'react-dom': 'latest',
       },
     })
-  })
+  }, 600000)
   afterAll(() => next.destroy())
 
   it('should handle redirect in an async page', async () => {

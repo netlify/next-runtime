@@ -20,7 +20,7 @@ describe.skip('app-dir with middleware', () => {
     next = await createNext({
       files: new FileRef(path.join(__dirname, 'app-middleware')),
     })
-  })
+  }, 600000)
 
   describe.each([
     {
