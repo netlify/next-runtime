@@ -29,10 +29,10 @@ describe('app dir - rsc basics', () => {
   let next: NextInstance
   let distDir: string
 
-  if ((global as any).isNextDeploy) {
-    it('should skip for deploy mode for now', () => {})
-    return
-  }
+  // if ((global as any).isNextDeploy) {
+  //   it('should skip for deploy mode for now', () => {})
+  //   return
+  // }
 
   beforeAll(async () => {
     next = await createNext({
@@ -83,15 +83,10 @@ describe('app dir - rsc basics', () => {
       if (content) inlineFlightContents.push(content)
     })
 
-    const internalQueries = [
-      '__nextFallback',
-      '__nextLocale',
-      '__nextDefaultLocale',
-      '__nextIsNotFound',
-    ]
+    const internalQueries = ['__nextFallback', '__nextLocale', '__nextDefaultLocale', '__nextIsNotFound']
 
     const hasNextInternalQuery = inlineFlightContents.some((content) =>
-      internalQueries.some((query) => content.includes(query))
+      internalQueries.some((query) => content.includes(query)),
     )
     expect(hasNextInternalQuery).toBe(false)
   })
@@ -141,18 +136,13 @@ describe('app dir - rsc basics', () => {
     await browser.waitForElementByCss('#goto-streaming-rsc').click()
 
     // Wait for navigation and streaming to finish.
-    await check(
-      () => browser.elementByCss('#content').text(),
-      'next_streaming_data'
-    )
+    await check(() => browser.elementByCss('#content').text(), 'next_streaming_data')
     expect(await browser.url()).toBe(`${next.url}/streaming-rsc`)
   })
 
   it('should handle streaming server components correctly', async () => {
     const browser = await webdriver(next.url, '/streaming-rsc')
-    const content = await browser.eval(
-      `document.querySelector('#content').innerText`
-    )
+    const content = await browser.eval(`document.querySelector('#content').innerText`)
     expect(content).toMatchInlineSnapshot('"next_streaming_data"')
   })
 
@@ -286,26 +276,23 @@ describe('app dir - rsc basics', () => {
   })
 
   it('should render css-in-js suspense boundary correctly', async () => {
-    await fetchViaHTTP(next.url, '/css-in-js/suspense', null, {}).then(
-      async (response) => {
-        const results = []
+    await fetchViaHTTP(next.url, '/css-in-js/suspense', null, {}).then(async (response) => {
+      const results = []
 
-        await resolveStreamResponse(response, (chunk: string) => {
-          // check if rsc refresh script for suspense show up, the test content could change with react version
-          const hasRCScript = /\$RC=function/.test(chunk)
-          if (hasRCScript) results.push('refresh-script')
+      await resolveStreamResponse(response, (chunk: string) => {
+        // check if rsc refresh script for suspense show up, the test content could change with react version
+        const hasRCScript = /\$RC=function/.test(chunk)
+        if (hasRCScript) results.push('refresh-script')
 
-          const isSuspenseyDataResolved =
-            /<style[^<>]*>(\s)*.+{padding:2px;(\s)*color:orange;}/.test(chunk)
-          if (isSuspenseyDataResolved) results.push('data')
+        const isSuspenseyDataResolved = /<style[^<>]*>(\s)*.+{padding:2px;(\s)*color:orange;}/.test(chunk)
+        if (isSuspenseyDataResolved) results.push('data')
 
-          const isFallbackResolved = chunk.includes('fallback')
-          if (isFallbackResolved) results.push('fallback')
-        })
+        const isFallbackResolved = chunk.includes('fallback')
+        if (isFallbackResolved) results.push('fallback')
+      })
 
-        expect(results).toEqual(['fallback', 'data', 'refresh-script'])
-      }
-    )
+      expect(results).toEqual(['fallback', 'data', 'refresh-script'])
+    })
     // // TODO-APP: fix streaming/suspense within browser for test suite
     // const browser = await webdriver(next.url, '/css-in-js', { waitHydration: false })
     // const footer = await browser.elementByCss('#footer')
@@ -357,7 +344,7 @@ describe('app dir - rsc basics', () => {
         headers: {
           ['RSC'.toString()]: '1',
         },
-      }
+      },
     ).then(async (response) => {
       const result = await resolveStreamResponse(response)
       expect(result).toContain('component:index.server')
@@ -365,29 +352,27 @@ describe('app dir - rsc basics', () => {
   })
 
   it('should support partial hydration with inlined server data', async () => {
-    await fetchViaHTTP(next.url, '/partial-hydration', null, {}).then(
-      async (response) => {
-        let gotFallback = false
-        let gotData = false
-        let gotInlinedData = false
+    await fetchViaHTTP(next.url, '/partial-hydration', null, {}).then(async (response) => {
+      let gotFallback = false
+      let gotData = false
+      let gotInlinedData = false
 
-        await resolveStreamResponse(response, (_, result) => {
-          gotInlinedData = result.includes('self.__next_f=')
-          gotData = result.includes('next_streaming_data')
-          if (!gotFallback) {
-            gotFallback = result.includes('next_streaming_fallback')
-            if (gotFallback) {
-              expect(gotData).toBe(false)
-              expect(gotInlinedData).toBe(false)
-            }
+      await resolveStreamResponse(response, (_, result) => {
+        gotInlinedData = result.includes('self.__next_f=')
+        gotData = result.includes('next_streaming_data')
+        if (!gotFallback) {
+          gotFallback = result.includes('next_streaming_fallback')
+          if (gotFallback) {
+            expect(gotData).toBe(false)
+            expect(gotInlinedData).toBe(false)
           }
-        })
+        }
+      })
 
-        expect(gotFallback).toBe(true)
-        expect(gotData).toBe(true)
-        expect(gotInlinedData).toBe(true)
-      }
-    )
+      expect(gotFallback).toBe(true)
+      expect(gotData).toBe(true)
+      expect(gotInlinedData).toBe(true)
+    })
   })
 
   // disable this flaky test
@@ -401,27 +386,17 @@ describe('app dir - rsc basics', () => {
 
     // Should support partial hydration: the boundary should still be pending
     // while another part is hydrated already.
-    expect(await browser.eval(`window.partial_hydration_suspense_result`)).toBe(
-      'next_streaming_fallback'
-    )
-    expect(await browser.eval(`window.partial_hydration_counter_result`)).toBe(
-      'count: 1'
-    )
+    expect(await browser.eval(`window.partial_hydration_suspense_result`)).toBe('next_streaming_fallback')
+    expect(await browser.eval(`window.partial_hydration_counter_result`)).toBe('count: 1')
   })
 
   if (!isNextDev) {
     it('should generate edge SSR manifests for Node.js', async () => {
       const distServerDir = path.join(distDir, 'server')
 
-      const requiredServerFiles = (
-        await fs.readJSON(path.join(distDir, 'required-server-files.json'))
-      ).files
+      const requiredServerFiles = (await fs.readJSON(path.join(distDir, 'required-server-files.json'))).files
 
-      const files = [
-        'middleware-build-manifest.js',
-        'middleware-manifest.json',
-        'flight-manifest.json',
-      ]
+      const files = ['middleware-build-manifest.js', 'middleware-manifest.json', 'flight-manifest.json']
 
       files.forEach((file) => {
         const filepath = path.join(distServerDir, file)

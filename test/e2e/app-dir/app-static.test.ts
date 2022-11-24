@@ -22,7 +22,7 @@ describe('app-dir static/dynamic handling', () => {
         'react-dom': 'latest',
       },
     })
-  })
+  }, 60000)
   afterAll(() => next.destroy())
 
   if ((global as any).isNextStart) {
@@ -70,9 +70,7 @@ describe('app-dir static/dynamic handling', () => {
     })
 
     it('should have correct prerender-manifest entries', async () => {
-      const manifest = JSON.parse(
-        await next.readFile('.next/prerender-manifest.json')
-      )
+      const manifest = JSON.parse(await next.readFile('.next/prerender-manifest.json'))
 
       Object.keys(manifest.dynamicRoutes).forEach((key) => {
         const item = manifest.dynamicRoutes[key]
@@ -179,10 +177,7 @@ describe('app-dir static/dynamic handling', () => {
     const html = await res.text()
     const $ = cheerio.load(html)
 
-    expect(JSON.parse($('#headers').text())).toIncludeAllMembers([
-      'cookie',
-      'another',
-    ])
+    expect(JSON.parse($('#headers').text())).toIncludeAllMembers(['cookie', 'another'])
     expect(JSON.parse($('#cookies').text())).toEqual([
       {
         name: 'myCookie',
@@ -264,12 +259,7 @@ describe('app-dir static/dynamic handling', () => {
     const invalidParams = ['timm', 'non-existent']
 
     for (const param of invalidParams) {
-      const invalidRes = await fetchViaHTTP(
-        next.url,
-        `/blog/${param}`,
-        undefined,
-        { redirect: 'manual' }
-      )
+      const invalidRes = await fetchViaHTTP(next.url, `/blog/${param}`, undefined, { redirect: 'manual' })
       expect(invalidRes.status).toBe(404)
       expect(await invalidRes.text()).toContain('page could not be found')
     }
@@ -277,12 +267,7 @@ describe('app-dir static/dynamic handling', () => {
 
   it('should work with forced dynamic path', async () => {
     for (const slug of ['first', 'second']) {
-      const res = await fetchViaHTTP(
-        next.url,
-        `/dynamic-no-gen-params-ssr/${slug}`,
-        undefined,
-        { redirect: 'manual' }
-      )
+      const res = await fetchViaHTTP(next.url, `/dynamic-no-gen-params-ssr/${slug}`, undefined, { redirect: 'manual' })
       expect(res.status).toBe(200)
       expect(await res.text()).toContain(`${slug}`)
     }
@@ -290,12 +275,7 @@ describe('app-dir static/dynamic handling', () => {
 
   it('should work with dynamic path no generateStaticParams', async () => {
     for (const slug of ['first', 'second']) {
-      const res = await fetchViaHTTP(
-        next.url,
-        `/dynamic-no-gen-params/${slug}`,
-        undefined,
-        { redirect: 'manual' }
-      )
+      const res = await fetchViaHTTP(next.url, `/dynamic-no-gen-params/${slug}`, undefined, { redirect: 'manual' })
       expect(res.status).toBe(200)
       expect(await res.text()).toContain(`${slug}`)
     }
@@ -322,14 +302,9 @@ describe('app-dir static/dynamic handling', () => {
     ]
 
     for (const params of paramsToCheck) {
-      const res = await fetchViaHTTP(
-        next.url,
-        `/blog/${params.author}/${params.slug}`,
-        undefined,
-        {
-          redirect: 'manual',
-        }
-      )
+      const res = await fetchViaHTTP(next.url, `/blog/${params.author}/${params.slug}`, undefined, {
+        redirect: 'manual',
+      })
       expect(res.status).toBe(200)
       const html = await res.text()
       const $ = cheerio.load(html)
@@ -343,9 +318,7 @@ describe('app-dir static/dynamic handling', () => {
     const browser = await webdriver(next.url, '/blog/tim')
     await browser.eval('window.beforeNav = 1')
 
-    expect(await browser.eval('document.documentElement.innerHTML')).toContain(
-      '/blog/[author]'
-    )
+    expect(await browser.eval('document.documentElement.innerHTML')).toContain('/blog/[author]')
     await browser.elementByCss('#author-2').click()
 
     await check(async () => {
@@ -358,9 +331,7 @@ describe('app-dir static/dynamic handling', () => {
 
     await check(async () => {
       const params = JSON.parse(await browser.elementByCss('#params').text())
-      return params.author === 'tim' && params.slug === 'first-post'
-        ? 'found'
-        : params
+      return params.author === 'tim' && params.slug === 'first-post' ? 'found' : params
     }, 'found')
 
     expect(await browser.eval('window.beforeNav')).toBe(1)
@@ -475,45 +446,30 @@ describe('app-dir static/dynamic handling', () => {
     describe('useSearchParams', () => {
       if (isDev) {
         it('should bail out to client rendering during SSG', async () => {
-          const res = await fetchViaHTTP(
-            next.url,
-            '/hooks/use-search-params/slug'
-          )
+          const res = await fetchViaHTTP(next.url, '/hooks/use-search-params/slug')
           const html = await res.text()
           expect(html).toInclude('<html id="__next_error__">')
         })
       }
 
       it('should have the correct values', async () => {
-        const browser = await webdriver(
-          next.url,
-          '/hooks/use-search-params/slug?first=value&second=other&third'
-        )
+        const browser = await webdriver(next.url, '/hooks/use-search-params/slug?first=value&second=other&third')
 
         expect(await browser.elementByCss('#params-first').text()).toBe('value')
-        expect(await browser.elementByCss('#params-second').text()).toBe(
-          'other'
-        )
+        expect(await browser.elementByCss('#params-second').text()).toBe('other')
         expect(await browser.elementByCss('#params-third').text()).toBe('')
-        expect(await browser.elementByCss('#params-not-real').text()).toBe(
-          'N/A'
-        )
+        expect(await browser.elementByCss('#params-not-real').text()).toBe('N/A')
       })
 
       // TODO-APP: re-enable after investigating rewrite params
       if (!(global as any).isNextDeploy) {
         it('should have values from canonical url on rewrite', async () => {
-          const browser = await webdriver(
-            next.url,
-            '/rewritten-use-search-params?first=a&second=b&third=c'
-          )
+          const browser = await webdriver(next.url, '/rewritten-use-search-params?first=a&second=b&third=c')
 
           expect(await browser.elementByCss('#params-first').text()).toBe('a')
           expect(await browser.elementByCss('#params-second').text()).toBe('b')
           expect(await browser.elementByCss('#params-third').text()).toBe('c')
-          expect(await browser.elementByCss('#params-not-real').text()).toBe(
-            'N/A'
-          )
+          expect(await browser.elementByCss('#params-not-real').text()).toBe('N/A')
         })
       }
     })
@@ -531,34 +487,27 @@ describe('app-dir static/dynamic handling', () => {
       it('should have the correct values', async () => {
         const browser = await webdriver(next.url, '/hooks/use-pathname/slug')
 
-        expect(await browser.elementByCss('#pathname').text()).toBe(
-          '/hooks/use-pathname/slug'
-        )
+        expect(await browser.elementByCss('#pathname').text()).toBe('/hooks/use-pathname/slug')
       })
 
       it('should have values from canonical url on rewrite', async () => {
         const browser = await webdriver(next.url, '/rewritten-use-pathname')
 
-        expect(await browser.elementByCss('#pathname').text()).toBe(
-          '/rewritten-use-pathname'
-        )
+        expect(await browser.elementByCss('#pathname').text()).toBe('/rewritten-use-pathname')
       })
     })
 
     if (!(global as any).isNextDeploy) {
       it('should show a message to leave feedback for `appDir`', async () => {
         expect(next.cliOutput).toContain(
-          `Thank you for testing \`appDir\` please leave your feedback at https://nextjs.link/app-feedback`
+          `Thank you for testing \`appDir\` please leave your feedback at https://nextjs.link/app-feedback`,
         )
       })
     }
 
     it('should keep querystring on static page', async () => {
       const browser = await webdriver(next.url, '/blog/tim?message=hello-world')
-      const checkUrl = async () =>
-        expect(await browser.url()).toBe(
-          next.url + '/blog/tim?message=hello-world'
-        )
+      const checkUrl = async () => expect(await browser.url()).toBe(next.url + '/blog/tim?message=hello-world')
 
       checkUrl()
       await waitFor(1000)

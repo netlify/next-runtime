@@ -78,7 +78,8 @@ describe('app dir rendering', () => {
   })
 
   describe('ISR', () => {
-    it('should revalidate the page when revalidate is configured', async () => {
+    // NTL Skip - we don't do 1s ISR, so this would take too long to run
+    it.skip('should revalidate the page when revalidate is configured', async () => {
       const getPage = async () => {
         const res = await fetchViaHTTP(next.url, 'isr-multiple/nested')
         const html = await res.text()
