@@ -134,9 +134,9 @@ const plugin: NetlifyPlugin = {
       //  pointing to [...nextauth].ts file
       //  See also https://next-auth.js.org/configuration/options#nextauth_url
 
-      const nextAuthUrl = `${
-        process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
-      }${basePath}/api/auth`
+      const nextAuthUrl = `${process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL}${
+        basePath ? `${basePath}/` : ''
+      }api/auth`
 
       console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
       config.config.env.NEXTAUTH_URL = nextAuthUrl
