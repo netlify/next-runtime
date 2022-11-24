@@ -119,34 +119,29 @@ const plugin: NetlifyPlugin = {
     if (isNextAuthInstalled()) {
       const config = await getRequiredServerFiles(publish)
 
-      const userDefinedNextAuthUrl = config.config.env.NEXTAUTH_URL
+      const userDefinedNextAuthUrl = config.config.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL
 
       if (userDefinedNextAuthUrl) {
         console.log(
-          `NextAuth package detected, NEXTAUTH_URL environment variable set by user in next.config.js to ${userDefinedNextAuthUrl}`,
+          `NextAuth package detected, NEXTAUTH_URL environment variable set by user in next.config.js or Netlify configuration to ${userDefinedNextAuthUrl}`,
         )
-      } else if (process.env.NEXTAUTH_URL) {
-        // When the value is specified in the netlify.toml or the Netlify UI (will be evaluated in this order)
-        const nextAuthUrl = `${process.env.NEXTAUTH_URL}${basePath}`
-
-        console.log(
-          `NextAuth package detected, NEXTAUTH_URL environment variable set by user in Netlify configuration to ${nextAuthUrl}`,
-        )
-        config.config.env.NEXTAUTH_URL = nextAuthUrl
-
-        await updateRequiredServerFiles(publish, config)
-      } else {
-        // Using the deploy prime url in production leads to issues because the unique deploy ID is part of the generated URL
-        // and will not match the expected URL in the callback URL of an OAuth application.
-        const nextAuthUrl = `${
-          process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
-        }${basePath}`
-
-        console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
-        config.config.env.NEXTAUTH_URL = nextAuthUrl
-
-        await updateRequiredServerFiles(publish, config)
+        return
       }
+      // Using the deploy prime url in production leads to issues because the unique deploy ID is part of the generated URL
+      // and will not match the expected URL in the callback URL of an OAuth application.
+
+      //  According to NextAuth documentation, if the we custom the basePath in next.config.js, we have to set a full path
+      //  pointing to [...nextauth].ts file
+      //  See also https://next-auth.js.org/configuration/options#nextauth_url
+
+      const nextAuthUrl = `${
+        process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
+      }${basePath}/api/auth`
+
+      console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
+      config.config.env.NEXTAUTH_URL = nextAuthUrl
+
+      await updateRequiredServerFiles(publish, config)
     }
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
