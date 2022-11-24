@@ -107,7 +107,6 @@ export const augmentFsModule = ({
   promises.readFile = (async (file, options) => {
     // In production use the public URL (e.g. https://example.com). Otherwise use the deploy URL, e.g. https://deploy-preview-123--example.netlify.app
     const baseUrl = process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
-    console.log('Using baseUrl', baseUrl)
 
     // We only care about page files
     if (file.startsWith(pageRoot)) {

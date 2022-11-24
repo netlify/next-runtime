@@ -91,8 +91,6 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   }
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
-    const baseUrl = process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
-    console.log('Using baseUrl', baseUrl, process.env)
     let requestMode = mode
     // Ensure that paths are encoded - but don't double-encode them
     event.path = new URL(event.rawUrl).pathname
