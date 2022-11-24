@@ -21,7 +21,7 @@ describe('app dir rendering', () => {
         'react-dom': 'experimental',
       },
     })
-  })
+  }, 600000)
   afterAll(() => next.destroy())
 
   it('should serve app/page.server.js at /', async () => {
