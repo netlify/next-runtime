@@ -53,11 +53,13 @@ export interface FunctionManifest {
         function: string
         name?: string
         path: string
+        cache?: 'manual'
       }
     | {
         function: string
         name?: string
         pattern: string
+        cache?: 'manual'
       }
   >
   import_map?: string
@@ -196,6 +198,7 @@ const writeEdgeFunction = async ({
   pageRegexMap,
   appPathRoutesManifest = {},
   nextConfig,
+  cache,
 }: {
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
@@ -203,6 +206,7 @@ const writeEdgeFunction = async ({
   pageRegexMap?: Map<string, string>
   appPathRoutesManifest?: Record<string, string>
   nextConfig: NextConfig
+  cache?: 'manual'
 }): Promise<
   Array<{
     function: string
@@ -257,7 +261,7 @@ const writeEdgeFunction = async ({
   // We add a defintion for each matching path
   return matchers.map((matcher) => {
     const pattern = stripLookahead(matcher.regexp)
-    return { function: name, pattern, name: edgeFunctionDefinition.name }
+    return { function: name, pattern, name: edgeFunctionDefinition.name, cache }
   })
 }
 export const cleanupEdgeFunctions = ({
@@ -374,6 +378,7 @@ export const writeEdgeFunctions = async ({
           pageRegexMap,
           appPathRoutesManifest,
           nextConfig,
+          cache: 'manual',
         })
         manifest.functions.push(...functionDefinitions)
       }
