@@ -26,7 +26,8 @@ const checkParent = (mod) => {
 checkParent(module)
 
 process.env.TEST_FILE_PATH = testFile
-
+// We only test "deploy" on Netlify
+process.env.NEXT_TEST_MODE = 'deploy'
 let testMode = 'deploy'
 
 if (!testFileRegex.test(testFile)) {
