@@ -25,6 +25,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL('/api/edge', req.url))
   }
 
+  if (pathname.startsWith('/rewrite-to-origin')) {
+    return NextResponse.rewrite(new URL('/api/hello', req.url))
+  }
+
+  if (pathname.startsWith('/rewrite-to-404')) {
+    return NextResponse.rewrite(new URL('/api/invalid', req.url))
+  }
+
   if (pathname.startsWith('/api/hello')) {
     // Add a header to the request
     req.headers.set('x-hello', 'world')
@@ -107,6 +115,8 @@ export const config = {
     '/api/:all*',
     '/headers',
     '/rewrite-to-edge',
+    '/rewrite-to-origin',
+    '/rewrite-to-404',
     { source: '/static' },
     { source: '/cookies' },
     { source: '/shows/((?!99|88).*)' },
