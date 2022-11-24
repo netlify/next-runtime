@@ -36,7 +36,8 @@ describe('app-dir trailingSlash handling', () => {
         redirect: 'manual',
       },
     )
-    expect(res.status).toBe(308)
+    // NTL - uses 301 instead of 308
+    expect(res.status).toBe(301)
     expect(res.headers.get('location')).toBe(next.url + '/a/')
   })
 

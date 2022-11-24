@@ -177,8 +177,8 @@ describe('app dir', () => {
       // Should render the page text
       expect($('p').text()).toBe('hello from app/dashboard/rootonly/hello')
     })
-
-    it('should use new root layout when provided', async () => {
+    // NTL Skip
+    it.skip('should use new root layout when provided', async () => {
       const html = await renderViaHTTP(next.url, '/dashboard/another')
       const $ = cheerio.load(html)
 
@@ -272,8 +272,8 @@ describe('app dir', () => {
       const html = await renderViaHTTP(next.url, '/partial-match-123')
       expect(html).toContain('hello from app/partial-match-[id]. ID is: 123')
     })
-
-    describe('rewrites', () => {
+    //  NTL Skip - edge rewrites not supported
+    describe.skip('rewrites', () => {
       // TODO-APP: rewrite url is broken
       it('should support rewrites on initial load', async () => {
         const browser = await webdriver(next.url, '/rewritten-to-dashboard')
