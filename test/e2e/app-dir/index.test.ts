@@ -272,8 +272,7 @@ describe('app dir', () => {
       const html = await renderViaHTTP(next.url, '/partial-match-123')
       expect(html).toContain('hello from app/partial-match-[id]. ID is: 123')
     })
-    //  NTL Skip - edge rewrites not supported
-    describe.skip('rewrites', () => {
+    describe('rewrites', () => {
       // TODO-APP: rewrite url is broken
       it('should support rewrites on initial load', async () => {
         const browser = await webdriver(next.url, '/rewritten-to-dashboard')
