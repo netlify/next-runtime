@@ -22,7 +22,7 @@ describe('app-dir static/dynamic handling', () => {
         'react-dom': 'latest',
       },
     })
-  }, 60000)
+  }, 600000)
   afterAll(() => next.destroy())
 
   if ((global as any).isNextStart) {
