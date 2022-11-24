@@ -58,7 +58,6 @@ export class MiddlewareRequest extends Request {
     this.applyHeaders()
     let response = await this.context.next(options)
 
-    // next i18n responses contain a relative location header, and a 301 status
     // Because our cdn lowercases urls, this gets problematic when trying to add redirects
     // This intercepts that redirect loop and rewrites the lowercase version so that the i18n url serves the right content.
     const locationHeader = response.headers.get('location')
