@@ -130,7 +130,7 @@ const plugin: NetlifyPlugin = {
       // Using the deploy prime url in production leads to issues because the unique deploy ID is part of the generated URL
       // and will not match the expected URL in the callback URL of an OAuth application.
 
-      //  According to NextAuth documentation, if the we custom the basePath in next.config.js, we have to set a full path
+      //  According to NextAuth documentation, if we set a custom basePath in next.config.js, we have to set a full path
       //  pointing to [...nextauth].ts file
       //  See also https://next-auth.js.org/configuration/options#nextauth_url
 
