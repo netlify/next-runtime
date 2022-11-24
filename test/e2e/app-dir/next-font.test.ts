@@ -25,7 +25,7 @@ describe('app dir next-font', () => {
       skipStart: true,
     })
     await next.start()
-  })
+  }, 600000)
   afterAll(() => next.destroy())
 
   describe('import values', () => {

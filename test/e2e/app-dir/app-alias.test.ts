@@ -27,7 +27,7 @@ describe('app-dir alias handling', () => {
         type: 'module',
       },
     })
-  })
+  }, 600000)
   afterAll(() => next.destroy())
 
   it('should handle typescript paths alias correctly', async () => {

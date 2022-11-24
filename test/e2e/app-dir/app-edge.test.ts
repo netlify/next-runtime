@@ -22,7 +22,7 @@ describe('app-dir edge SSR', () => {
         '@types/node': 'latest',
       },
     })
-  })
+  }, 600000)
   afterAll(() => next.destroy())
 
   it('should handle edge only routes', async () => {
