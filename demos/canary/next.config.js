@@ -1,50 +1,20 @@
-module.exports = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
   eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    appDir: true,
-    sri: {
-      algorithm: 'sha256',
-    },
-  },
-  rewrites: async () => {
-    return {
-      afterFiles: [
-        {
-          source: '/rewritten-to-dashboard',
-          destination: '/dashboard',
-        },
-        {
-          source: '/search-params-prop-rewrite',
-          destination: '/search-params-prop?first=value&second=other%20value&third',
-        },
-        {
-          source: '/search-params-prop-server-rewrite',
-          destination: '/search-params-prop/server?first=value&second=other%20value&third',
-        },
-        {
-          source: '/rewritten-use-search-params',
-          destination: '/hooks/use-search-params?first=value&second=other%20value&third',
-        },
-        {
-          source: '/rewritten-use-pathname',
-          destination: '/hooks/use-pathname',
-        },
-        {
-          source: '/hooks/use-selected-layout-segment/rewritten',
-          destination: '/hooks/use-selected-layout-segment/first/slug3/second/catch/all',
-        },
-      ],
-    }
-  },
-  redirects: () => {
-    return [
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
       {
-        source: '/redirect/a',
-        destination: '/dashboard',
-        permanent: false,
+        protocol: 'https',
+        hostname: '*.githubusercontent.com',
       },
-    ]
-  },
+    ],
+  }
 }
+
+module.exports = nextConfig

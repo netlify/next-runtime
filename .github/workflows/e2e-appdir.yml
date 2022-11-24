@@ -60,6 +60,7 @@ jobs:
           name: test-results
           path: reports/jest-*.xml
   report:
+    name: Report appDir e2e test results
     runs-on: ubuntu-latest
     if: ${{ always() }}
     needs:
