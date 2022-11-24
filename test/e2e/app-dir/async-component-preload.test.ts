@@ -4,10 +4,10 @@ import webdriver from 'next-webdriver'
 import path from 'path'
 
 describe('async-component-preload', () => {
-  if ((global as any).isNextDeploy) {
-    it('should skip next deploy for now', () => {})
-    return
-  }
+  //if ((global as any).isNextDeploy) {
+  //  it('should skip next deploy for now', () => {})
+  //  return
+  //}
 
   let next: NextInstance
 

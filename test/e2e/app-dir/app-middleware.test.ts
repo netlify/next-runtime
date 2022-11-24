@@ -7,10 +7,10 @@ import cheerio from 'cheerio'
 import path from 'path'
 
 describe('app-dir with middleware', () => {
-  if ((global as any).isNextDeploy) {
-    it('should skip next deploy for now', () => {})
-    return
-  }
+  //if ((global as any).isNextDeploy) {
+  //  it('should skip next deploy for now', () => {})
+  //  return
+  //}
 
   let next: NextInstance
 
@@ -65,7 +65,7 @@ describe('app-dir with middleware', () => {
             'x-from-client1': 'hello-from-client',
             'X-From-Client2': 'hello-from-client',
           },
-        }
+        },
       )
 
       const json = await toJson(res)
@@ -77,9 +77,7 @@ describe('app-dir with middleware', () => {
 
       // Should not be included in response headers.
       expect(res.headers.get('x-middleware-override-headers')).toBeNull()
-      expect(
-        res.headers.get('x-middleware-request-x-from-middleware')
-      ).toBeNull()
+      expect(res.headers.get('x-middleware-request-x-from-middleware')).toBeNull()
       expect(res.headers.get('x-middleware-request-x-from-client1')).toBeNull()
       expect(res.headers.get('x-middleware-request-x-from-client2')).toBeNull()
     })
@@ -89,8 +87,7 @@ describe('app-dir with middleware', () => {
         next.url,
         path,
         {
-          'update-headers':
-            'x-from-client1=new-value1,x-from-client2=new-value2',
+          'update-headers': 'x-from-client1=new-value1,x-from-client2=new-value2',
         },
         {
           headers: {
@@ -98,7 +95,7 @@ describe('app-dir with middleware', () => {
             'X-From-Client2': 'old-value2',
             'x-from-client3': 'old-value3',
           },
-        }
+        },
       )
       expect(await toJson(res)).toMatchObject({
         'x-from-client1': 'new-value1',
@@ -109,9 +106,7 @@ describe('app-dir with middleware', () => {
 
       // Should not be included in response headers.
       expect(res.headers.get('x-middleware-override-headers')).toBeNull()
-      expect(
-        res.headers.get('x-middleware-request-x-from-middleware')
-      ).toBeNull()
+      expect(res.headers.get('x-middleware-request-x-from-middleware')).toBeNull()
       expect(res.headers.get('x-middleware-request-x-from-client1')).toBeNull()
       expect(res.headers.get('x-middleware-request-x-from-client2')).toBeNull()
       expect(res.headers.get('x-middleware-request-x-from-client3')).toBeNull()
@@ -120,10 +115,10 @@ describe('app-dir with middleware', () => {
 })
 
 describe('app dir middleware without pages dir', () => {
-  if ((global as any).isNextDeploy) {
-    it('should skip next deploy for now', () => {})
-    return
-  }
+  //if ((global as any).isNextDeploy) {
+  //  it('should skip next deploy for now', () => {})
+  //  return
+  //}
 
   let next: NextInstance
 
@@ -132,9 +127,7 @@ describe('app dir middleware without pages dir', () => {
     next = await createNext({
       files: {
         app: new FileRef(path.join(__dirname, 'app-middleware/app')),
-        'next.config.js': new FileRef(
-          path.join(__dirname, 'app-middleware/next.config.js')
-        ),
+        'next.config.js': new FileRef(path.join(__dirname, 'app-middleware/next.config.js')),
         'middleware.js': `
           import { NextResponse } from 'next/server'
 

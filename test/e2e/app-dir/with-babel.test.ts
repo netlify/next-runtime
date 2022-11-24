@@ -5,10 +5,10 @@ import path from 'path'
 import cheerio from 'cheerio'
 
 describe('with babel', () => {
-  if ((global as any).isNextDeploy) {
-    it('should skip next deploy for now', () => {})
-    return
-  }
+  //if ((global as any).isNextDeploy) {
+  //  it('should skip next deploy for now', () => {})
+  //  return
+  //}
 
   let next: NextInstance
 

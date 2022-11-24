@@ -7,10 +7,10 @@ import { check } from 'next-test-utils'
 describe('app-dir create root layout', () => {
   const isDev = (global as any).isNextDev
 
-  if ((global as any).isNextDeploy) {
-    it('should skip next deploy for now', () => {})
-    return
-  }
+  //if ((global as any).isNextDeploy) {
+  //  it('should skip next deploy for now', () => {})
+  //  return
+  //}
 
   if (process.env.NEXT_TEST_REACT_VERSION === '^17') {
     it('should skip for react v17', () => {})
@@ -25,9 +25,7 @@ describe('app-dir create root layout', () => {
           next = await createNext({
             files: {
               app: new FileRef(path.join(__dirname, 'create-root-layout/app')),
-              'next.config.js': new FileRef(
-                path.join(__dirname, 'create-root-layout/next.config.js')
-              ),
+              'next.config.js': new FileRef(path.join(__dirname, 'create-root-layout/next.config.js')),
             },
             dependencies: {
               react: 'experimental',
@@ -41,16 +39,11 @@ describe('app-dir create root layout', () => {
           const outputIndex = next.cliOutput.length
           const browser = await webdriver(next.url, '/route')
 
-          expect(await browser.elementById('page-text').text()).toBe(
-            'Hello world!'
-          )
+          expect(await browser.elementById('page-text').text()).toBe('Hello world!')
 
-          await check(
-            () => next.cliOutput.slice(outputIndex),
-            /did not have a root layout/
-          )
+          await check(() => next.cliOutput.slice(outputIndex), /did not have a root layout/)
           expect(next.cliOutput.slice(outputIndex)).toMatch(
-            'Your page app/route/page.js did not have a root layout. We created app/layout.js and app/head.js for you.'
+            'Your page app/route/page.js did not have a root layout. We created app/layout.js and app/head.js for you.',
           )
 
           expect(await next.readFile('app/layout.js')).toMatchInlineSnapshot(`
@@ -84,12 +77,8 @@ describe('app-dir create root layout', () => {
         beforeAll(async () => {
           next = await createNext({
             files: {
-              app: new FileRef(
-                path.join(__dirname, 'create-root-layout/app-group-layout')
-              ),
-              'next.config.js': new FileRef(
-                path.join(__dirname, 'create-root-layout/next.config.js')
-              ),
+              app: new FileRef(path.join(__dirname, 'create-root-layout/app-group-layout')),
+              'next.config.js': new FileRef(path.join(__dirname, 'create-root-layout/next.config.js')),
             },
             dependencies: {
               react: 'experimental',
@@ -103,20 +92,14 @@ describe('app-dir create root layout', () => {
           const outputIndex = next.cliOutput.length
           const browser = await webdriver(next.url, '/')
 
-          expect(await browser.elementById('page-text').text()).toBe(
-            'Hello world'
-          )
+          expect(await browser.elementById('page-text').text()).toBe('Hello world')
 
-          await check(
-            () => next.cliOutput.slice(outputIndex),
-            /did not have a root layout/
-          )
+          await check(() => next.cliOutput.slice(outputIndex), /did not have a root layout/)
           expect(next.cliOutput.slice(outputIndex)).toInclude(
-            'Your page app/(group)/page.js did not have a root layout. We created app/(group)/layout.js and app/(group)/head.js for you.'
+            'Your page app/(group)/page.js did not have a root layout. We created app/(group)/layout.js and app/(group)/head.js for you.',
           )
 
-          expect(await next.readFile('app/(group)/layout.js'))
-            .toMatchInlineSnapshot(`
+          expect(await next.readFile('app/(group)/layout.js')).toMatchInlineSnapshot(`
                     "export default function RootLayout({ children }) {
                       return (
                         <html>
@@ -128,8 +111,7 @@ describe('app-dir create root layout', () => {
                     "
                 `)
 
-          expect(await next.readFile('app/(group)/head.js'))
-            .toMatchInlineSnapshot(`
+          expect(await next.readFile('app/(group)/head.js')).toMatchInlineSnapshot(`
             "export default function Head() {
               return (
                 <>
@@ -148,15 +130,8 @@ describe('app-dir create root layout', () => {
         beforeAll(async () => {
           next = await createNext({
             files: {
-              app: new FileRef(
-                path.join(
-                  __dirname,
-                  'create-root-layout/app-find-available-dir'
-                )
-              ),
-              'next.config.js': new FileRef(
-                path.join(__dirname, 'create-root-layout/next.config.js')
-              ),
+              app: new FileRef(path.join(__dirname, 'create-root-layout/app-find-available-dir')),
+              'next.config.js': new FileRef(path.join(__dirname, 'create-root-layout/next.config.js')),
             },
             dependencies: {
               react: 'experimental',
@@ -170,20 +145,14 @@ describe('app-dir create root layout', () => {
           const outputIndex = next.cliOutput.length
           const browser = await webdriver(next.url, '/route/second/inner')
 
-          expect(await browser.elementById('page-text').text()).toBe(
-            'Hello world'
-          )
+          expect(await browser.elementById('page-text').text()).toBe('Hello world')
 
-          await check(
-            () => next.cliOutput.slice(outputIndex),
-            /did not have a root layout/
-          )
+          await check(() => next.cliOutput.slice(outputIndex), /did not have a root layout/)
           expect(next.cliOutput.slice(outputIndex)).toInclude(
-            'Your page app/(group)/route/second/inner/page.js did not have a root layout. We created app/(group)/route/second/layout.js and app/(group)/route/second/head.js for you.'
+            'Your page app/(group)/route/second/inner/page.js did not have a root layout. We created app/(group)/route/second/layout.js and app/(group)/route/second/head.js for you.',
           )
 
-          expect(await next.readFile('app/(group)/route/second/layout.js'))
-            .toMatchInlineSnapshot(`
+          expect(await next.readFile('app/(group)/route/second/layout.js')).toMatchInlineSnapshot(`
                     "export default function RootLayout({ children }) {
                       return (
                         <html>
@@ -195,8 +164,7 @@ describe('app-dir create root layout', () => {
                     "
                 `)
 
-          expect(await next.readFile('app/(group)/route/second/head.js'))
-            .toMatchInlineSnapshot(`
+          expect(await next.readFile('app/(group)/route/second/head.js')).toMatchInlineSnapshot(`
             "export default function Head() {
               return (
                 <>
@@ -216,12 +184,8 @@ describe('app-dir create root layout', () => {
       beforeAll(async () => {
         next = await createNext({
           files: {
-            'app/page.tsx': new FileRef(
-              path.join(__dirname, 'create-root-layout/app/route/page.js')
-            ),
-            'next.config.js': new FileRef(
-              path.join(__dirname, 'create-root-layout/next.config.js')
-            ),
+            'app/page.tsx': new FileRef(path.join(__dirname, 'create-root-layout/app/route/page.js')),
+            'next.config.js': new FileRef(path.join(__dirname, 'create-root-layout/next.config.js')),
           },
           dependencies: {
             react: 'experimental',
@@ -238,16 +202,11 @@ describe('app-dir create root layout', () => {
         const outputIndex = next.cliOutput.length
         const browser = await webdriver(next.url, '/')
 
-        expect(await browser.elementById('page-text').text()).toBe(
-          'Hello world!'
-        )
+        expect(await browser.elementById('page-text').text()).toBe('Hello world!')
 
-        await check(
-          () => next.cliOutput.slice(outputIndex),
-          /did not have a root layout/
-        )
+        await check(() => next.cliOutput.slice(outputIndex), /did not have a root layout/)
         expect(next.cliOutput.slice(outputIndex)).toInclude(
-          'Your page app/page.tsx did not have a root layout. We created app/layout.tsx and app/head.tsx for you.'
+          'Your page app/page.tsx did not have a root layout. We created app/layout.tsx and app/head.tsx for you.',
         )
 
         expect(await next.readFile('app/layout.tsx')).toMatchInlineSnapshot(`
@@ -286,12 +245,8 @@ describe('app-dir create root layout', () => {
         const next = await createNext({
           skipStart: true,
           files: {
-            'app/page.js': new FileRef(
-              path.join(__dirname, 'create-root-layout/app/route/page.js')
-            ),
-            'next.config.js': new FileRef(
-              path.join(__dirname, 'create-root-layout/next.config.js')
-            ),
+            'app/page.js': new FileRef(path.join(__dirname, 'create-root-layout/app/route/page.js')),
+            'next.config.js': new FileRef(path.join(__dirname, 'create-root-layout/next.config.js')),
           },
           dependencies: {
             react: 'experimental',
@@ -301,7 +256,7 @@ describe('app-dir create root layout', () => {
 
         await expect(next.start()).rejects.toThrow('next build failed')
         expect(next.cliOutput).toInclude(
-          "page.js doesn't have a root layout. To fix this error, make sure every page has a root layout."
+          "page.js doesn't have a root layout. To fix this error, make sure every page has a root layout.",
         )
         await next.destroy()
       })

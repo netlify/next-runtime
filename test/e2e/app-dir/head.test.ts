@@ -6,10 +6,10 @@ import { renderViaHTTP } from 'next-test-utils'
 import webdriver from 'next-webdriver'
 
 describe('app dir head', () => {
-  if ((global as any).isNextDeploy) {
-    it('should skip next deploy for now', () => {})
-    return
-  }
+  //if ((global as any).isNextDeploy) {
+  //  it('should skip next deploy for now', () => {})
+  //  return
+  //}
 
   if (process.env.NEXT_TEST_REACT_VERSION === '^17') {
     it('should skip for react v17', () => {})
@@ -38,9 +38,7 @@ describe('app dir head', () => {
       const headTags = $('head').children().toArray()
 
       expect(headTags.find((el) => el.attribs.src === '/hello.js')).toBeTruthy()
-      expect(
-        headTags.find((el) => el.attribs.src === '/another.js')
-      ).toBeTruthy()
+      expect(headTags.find((el) => el.attribs.src === '/another.js')).toBeTruthy()
     })
 
     it('should use correct head for /blog', async () => {
@@ -49,15 +47,9 @@ describe('app dir head', () => {
       const headTags = $('head').children().toArray()
 
       expect(headTags.find((el) => el.attribs.src === '/hello3.js')).toBeFalsy()
-      expect(
-        headTags.find((el) => el.attribs.src === '/hello1.js')
-      ).toBeTruthy()
-      expect(
-        headTags.find((el) => el.attribs.src === '/hello2.js')
-      ).toBeTruthy()
-      expect(
-        headTags.find((el) => el.attribs.src === '/another.js')
-      ).toBeTruthy()
+      expect(headTags.find((el) => el.attribs.src === '/hello1.js')).toBeTruthy()
+      expect(headTags.find((el) => el.attribs.src === '/hello2.js')).toBeTruthy()
+      expect(headTags.find((el) => el.attribs.src === '/another.js')).toBeTruthy()
     })
 
     it('should use head from layout when not on page', async () => {
@@ -65,15 +57,9 @@ describe('app dir head', () => {
       const $ = cheerio.load(html)
       const headTags = $('head').children().toArray()
 
-      expect(
-        headTags.find((el) => el.attribs.src === '/hello1.js')
-      ).toBeTruthy()
-      expect(
-        headTags.find((el) => el.attribs.src === '/hello2.js')
-      ).toBeTruthy()
-      expect(
-        headTags.find((el) => el.attribs.src === '/another.js')
-      ).toBeTruthy()
+      expect(headTags.find((el) => el.attribs.src === '/hello1.js')).toBeTruthy()
+      expect(headTags.find((el) => el.attribs.src === '/hello2.js')).toBeTruthy()
+      expect(headTags.find((el) => el.attribs.src === '/another.js')).toBeTruthy()
     })
 
     it('should pass params to head for dynamic path', async () => {
@@ -82,15 +68,9 @@ describe('app dir head', () => {
       const headTags = $('head').children().toArray()
 
       expect(
-        headTags.find(
-          (el) =>
-            el.attribs.src === '/hello3.js' &&
-            el.attribs['data-slug'] === 'post-1'
-        )
+        headTags.find((el) => el.attribs.src === '/hello3.js' && el.attribs['data-slug'] === 'post-1'),
       ).toBeTruthy()
-      expect(
-        headTags.find((el) => el.attribs.src === '/another.js')
-      ).toBeTruthy()
+      expect(headTags.find((el) => el.attribs.src === '/another.js')).toBeTruthy()
     })
 
     it('should apply head when navigating client-side', async () => {
@@ -99,18 +79,12 @@ describe('app dir head', () => {
       const getTitle = () => browser.elementByCss('title').text()
 
       expect(await getTitle()).toBe('hello from index')
-      await browser
-        .elementByCss('#to-blog')
-        .click()
-        .waitForElementByCss('#layout', 2000)
+      await browser.elementByCss('#to-blog').click().waitForElementByCss('#layout', 2000)
 
       expect(await getTitle()).toBe('hello from blog layout')
       await browser.back().waitForElementByCss('#to-blog', 2000)
       expect(await getTitle()).toBe('hello from index')
-      await browser
-        .elementByCss('#to-blog-slug')
-        .click()
-        .waitForElementByCss('#layout', 2000)
+      await browser.elementByCss('#to-blog-slug').click().waitForElementByCss('#layout', 2000)
       expect(await getTitle()).toBe('hello from dynamic blog page post-1')
     })
   }

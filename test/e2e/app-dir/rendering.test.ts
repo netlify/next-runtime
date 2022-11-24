@@ -5,10 +5,10 @@ import path from 'path'
 import cheerio from 'cheerio'
 
 describe('app dir rendering', () => {
-  if ((global as any).isNextDeploy) {
-    it('should skip next deploy for now', () => {})
-    return
-  }
+  //if ((global as any).isNextDeploy) {
+  //  it('should skip next deploy for now', () => {})
+  //  return
+  //}
 
   const isDev = (global as any).isNextDev
   let next: NextInstance
@@ -103,8 +103,7 @@ describe('app dir rendering', () => {
       // expect(revalidateCacheHeader).toBe('STALE')
 
       // TODO: implement
-      const { $: $revalidated /* cacheHeader: revalidatedCacheHeader */ } =
-        await getPage()
+      const { $: $revalidated /* cacheHeader: revalidatedCacheHeader */ } = await getPage()
       // expect(revalidatedCacheHeader).toBe('REVALIDATED')
 
       const layoutNowRevalidated = $revalidated('#layout-now').text()

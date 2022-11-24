@@ -6,10 +6,10 @@ import path from 'path'
 import { readJSON } from 'fs-extra'
 
 describe('app-dir alias handling', () => {
-  if ((global as any).isNextDeploy) {
-    it('should skip next deploy for now', () => {})
-    return
-  }
+  //if ((global as any).isNextDeploy) {
+  //  it('should skip next deploy for now', () => {})
+  //  return
+  //}
 
   let next: NextInstance
 
@@ -37,18 +37,14 @@ describe('app-dir alias handling', () => {
 
   it('should resolve css imports from outside with src folder presented', async () => {
     const browser = await webdriver(next.url, '/button')
-    const fontSize = await browser
-      .elementByCss('button')
-      .getComputedCss('font-size')
+    const fontSize = await browser.elementByCss('button').getComputedCss('font-size')
     expect(fontSize).toBe('50px')
   })
 
   if (!(global as any).isNextDev) {
     it('should generate app-build-manifest correctly', async () => {
       // Remove other page CSS files:
-      const manifest = await readJSON(
-        path.join(next.testDir, '.next', 'app-build-manifest.json')
-      )
+      const manifest = await readJSON(path.join(next.testDir, '.next', 'app-build-manifest.json'))
 
       expect(manifest.pages).not.toBeEmptyObject()
     })

@@ -7,10 +7,10 @@ import webdriver from 'next-webdriver'
 
 describe('app dir next-font', () => {
   const isDev = (global as any).isNextDev
-  if ((global as any).isNextDeploy) {
-    it('should skip next deploy for now', () => {})
-    return
-  }
+  //if ((global as any).isNextDeploy) {
+  //  it('should skip next deploy for now', () => {})
+  //  return
+  //}
 
   let next: NextInstance
 
@@ -104,127 +104,57 @@ describe('app dir next-font', () => {
       const browser = await webdriver(next.url, '/')
 
       // layout
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-layout")).fontFamily'
-        )
-      ).toMatch(/^__font1_.{6}$/)
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-layout")).fontWeight'
-        )
-      ).toBe('400')
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-layout")).fontStyle'
-        )
-      ).toBe('normal')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-layout")).fontFamily')).toMatch(
+        /^__font1_.{6}$/,
+      )
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-layout")).fontWeight')).toBe('400')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-layout")).fontStyle')).toBe('normal')
 
       // page
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-page")).fontFamily'
-        )
-      ).toMatch(/^__font2_.{6}$/)
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-page")).fontWeight'
-        )
-      ).toBe('400')
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-page")).fontStyle'
-        )
-      ).toBe('normal')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-page")).fontFamily')).toMatch(
+        /^__font2_.{6}$/,
+      )
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-page")).fontWeight')).toBe('400')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-page")).fontStyle')).toBe('normal')
 
       // Comp
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-comp")).fontFamily'
-        )
-      ).toMatch(/^__font3_.{6}$/)
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-comp")).fontWeight'
-        )
-      ).toBe('900')
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-comp")).fontStyle'
-        )
-      ).toBe('italic')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-comp")).fontFamily')).toMatch(
+        /^__font3_.{6}$/,
+      )
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-comp")).fontWeight')).toBe('900')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-comp")).fontStyle')).toBe('italic')
     })
 
     it('should have correct styles at /client', async () => {
       const browser = await webdriver(next.url, '/client')
 
       // root layout
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-layout")).fontFamily'
-        )
-      ).toMatch(/^__font1_.{6}$/)
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-layout")).fontWeight'
-        )
-      ).toBe('400')
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#root-layout")).fontStyle'
-        )
-      ).toBe('normal')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-layout")).fontFamily')).toMatch(
+        /^__font1_.{6}$/,
+      )
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-layout")).fontWeight')).toBe('400')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#root-layout")).fontStyle')).toBe('normal')
 
       // layout
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#client-layout")).fontFamily'
-        )
-      ).toMatch(/^__font4_.{6}$/)
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#client-layout")).fontWeight'
-        )
-      ).toBe('100')
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#client-layout")).fontStyle'
-        )
-      ).toBe('normal')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#client-layout")).fontFamily')).toMatch(
+        /^__font4_.{6}$/,
+      )
+      expect(await browser.eval('getComputedStyle(document.querySelector("#client-layout")).fontWeight')).toBe('100')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#client-layout")).fontStyle')).toBe('normal')
 
       // page
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#client-page")).fontFamily'
-        )
-      ).toMatch(/^__font5_.{6}$/)
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#client-page")).fontWeight'
-        )
-      ).toBe('400')
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#client-page")).fontStyle'
-        )
-      ).toBe('italic')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#client-page")).fontFamily')).toMatch(
+        /^__font5_.{6}$/,
+      )
+      expect(await browser.eval('getComputedStyle(document.querySelector("#client-page")).fontWeight')).toBe('400')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#client-page")).fontStyle')).toBe('italic')
 
       // Comp
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#client-comp")).fontFamily'
-        )
-      ).toMatch(/^__font6_.{6}$/)
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#client-comp")).fontWeight'
-        )
-      ).toBe('400')
-      expect(
-        await browser.eval(
-          'getComputedStyle(document.querySelector("#client-comp")).fontStyle'
-        )
-      ).toBe('normal')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#client-comp")).fontFamily')).toMatch(
+        /^__font6_.{6}$/,
+      )
+      expect(await browser.eval('getComputedStyle(document.querySelector("#client-comp")).fontWeight')).toBe('400')
+      expect(await browser.eval('getComputedStyle(document.querySelector("#client-comp")).fontStyle')).toBe('normal')
     })
   })
 
@@ -355,14 +285,9 @@ describe('app dir next-font', () => {
         const font1Content = await next.readFile('fonts/index.js')
 
         // Break file
-        await next.patchFile(
-          'fonts/index.js',
-          font1Content.replace('./font1.woff2', './does-not-exist.woff2')
-        )
+        await next.patchFile('fonts/index.js', font1Content.replace('./font1.woff2', './does-not-exist.woff2'))
         expect(await hasRedbox(browser, true)).toBeTrue()
-        expect(await getRedboxSource(browser)).toInclude(
-          "Can't resolve './does-not-exist.woff2'"
-        )
+        expect(await getRedboxSource(browser)).toInclude("Can't resolve './does-not-exist.woff2'")
 
         // Fix file
         await next.patchFile('fonts/index.js', font1Content)

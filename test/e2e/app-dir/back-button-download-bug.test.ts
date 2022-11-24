@@ -5,10 +5,10 @@ import webdriver from 'next-webdriver'
 
 // TODO-APP: fix test as it's failing randomly
 describe.skip('app-dir back button download bug', () => {
-  if ((global as any).isNextDeploy) {
-    it('should skip next deploy for now', () => {})
-    return
-  }
+  //if ((global as any).isNextDeploy) {
+  //  it('should skip next deploy for now', () => {})
+  //  return
+  //}
 
   let next: NextInstance
 
@@ -28,11 +28,7 @@ describe.skip('app-dir back button download bug', () => {
 
   it('should redirect route when clicking link', async () => {
     const browser = await webdriver(next.url, '/')
-    const text = await browser
-      .elementByCss('#to-post-1')
-      .click()
-      .waitForElementByCss('#post-page')
-      .text()
+    const text = await browser.elementByCss('#to-post-1').click().waitForElementByCss('#post-page').text()
     expect(text).toBe('This is the post page')
 
     await browser.back()
