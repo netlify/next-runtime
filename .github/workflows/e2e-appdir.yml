@@ -41,18 +41,18 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
           NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
           NEXT_TEST_VERSION: canary
-      - uses: phoenix-actions/test-reporting@v10
-        if: ${{ always() }}
-        name: Report Test Results
-        # Generates annotations for the test failures
-        id: test-report
-        with:
-          name: E2E Test chunk ${{ matrix.chunk }}
-          path: 'reports/**/*.xml' # Path to test results (inside artifact .zip)
-          output-to: 'step-summary'
-          max-annotations: 49 # Maximum number of annotations to be created
-          reporter: jest-junit # Format of test results
-      - uses: actions/upload-artifact@v3
+      # - uses: phoenix-actions/test-reporting@v10
+      #   if: ${{ always() }}
+      #   name: Report Test Results
+      #   # Generates annotations for the test failures
+      #   id: test-report
+      #   with:
+      #     name: E2E Test chunk ${{ matrix.chunk }}
+      #     path: 'reports/**/*.xml' # Path to test results (inside artifact .zip)
+      #     output-to: 'step-summary'
+      #     max-annotations: 49 # Maximum number of annotations to be created
+      #     reporter: jest-junit # Format of test results
+      # - uses: actions/upload-artifact@v3
         # upload test results
         if: ${{ always() }}
         name: Upload test results
@@ -77,7 +77,7 @@ jobs:
         with:
           name: Jest Tests
           output-to: 'step-summary'
-          only-summary: 'true'
+          # only-summary: 'true'
           path: 'test-results.xml'
-          max-annotations: 0
+          max-annotations: 49
           reporter: jest-junit

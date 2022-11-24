@@ -142,7 +142,7 @@ describe('app dir middleware without pages dir', () => {
         `,
       },
     })
-  })
+  }, 600000)
 
   it(`Updates headers`, async () => {
     const html = await renderViaHTTP(next.url, '/headers')

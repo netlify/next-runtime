@@ -7,10 +7,10 @@ import { getRedboxSource, hasRedbox } from 'next-test-utils'
 describe('app-dir root layout', () => {
   const isDev = (global as any).isNextDev
 
-  //if ((global as any).isNextDeploy) {
-  //  it('should skip next deploy for now', () => {})
-  //  return
-  //}
+  if ((global as any).isNextDeploy) {
+    it('should skip next deploy for now', () => {})
+    return
+  }
 
   let next: NextInstance
 
