@@ -90,6 +90,7 @@ import {
 // Deno defines "window", but naughty libraries think this means it's a browser
 delete globalThis.window
 globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
+globalThis.EdgeRuntime = "netlify-edge"
 // Next uses "self" as a function-scoped global-like object
 const self = {}
 let _ENTRIES = {}
