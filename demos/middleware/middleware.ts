@@ -21,6 +21,10 @@ export async function middleware(req: NextRequest) {
     return res
   }
 
+  if (pathname.startsWith('/rewrite-to-edge')) {
+    return NextResponse.rewrite(new URL('/api/edge', req.url))
+  }
+
   if (pathname.startsWith('/api/hello')) {
     // Add a header to the request
     req.headers.set('x-hello', 'world')
@@ -102,6 +106,7 @@ export const config = {
   matcher: [
     '/api/:all*',
     '/headers',
+    '/rewrite-to-edge',
     { source: '/static' },
     { source: '/cookies' },
     { source: '/shows/((?!99|88).*)' },

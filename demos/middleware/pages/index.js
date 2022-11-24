@@ -26,6 +26,9 @@ export default function Home() {
           <Link href="/shows/rewrite-external">Rewrite to external URL</Link>
         </p>
         <p>
+          <Link href="/rewrite-to-edge">Rewrite to edge API route</Link>
+        </p>
+        <p>
           <Link href="/shows/redirectme">Redirect URL</Link>
         </p>
         <p>
