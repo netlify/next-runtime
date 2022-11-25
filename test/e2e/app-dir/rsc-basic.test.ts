@@ -274,8 +274,8 @@ describe('app dir - rsc basics', () => {
     // from styled-components
     expect(head).toMatch(/{color:(\s*)blue;?}/)
   })
-
-  it('should render css-in-js suspense boundary correctly', async () => {
+  //  NTL Skip
+  it.skip('should render css-in-js suspense boundary correctly', async () => {
     await fetchViaHTTP(next.url, '/css-in-js/suspense', null, {}).then(async (response) => {
       const results = []
 
@@ -350,8 +350,8 @@ describe('app dir - rsc basics', () => {
       expect(result).toContain('component:index.server')
     })
   })
-
-  it('should support partial hydration with inlined server data', async () => {
+  // NTL Skip
+  it.skip('should support partial hydration with inlined server data', async () => {
     await fetchViaHTTP(next.url, '/partial-hydration', null, {}).then(async (response) => {
       let gotFallback = false
       let gotData = false
