@@ -52,8 +52,8 @@ jobs:
       #     output-to: 'step-summary'
       #     max-annotations: 49 # Maximum number of annotations to be created
       #     reporter: jest-junit # Format of test results
-      # - uses: actions/upload-artifact@v3
-        # upload test results
+      # upload test results
+      - uses: actions/upload-artifact@v3
         if: ${{ always() }}
         name: Upload test results
         with:

@@ -59,7 +59,7 @@ describe('app dir - rsc basics', () => {
 
   const { isNextDeploy, isNextDev } = global as any
   const isReact17 = process.env.NEXT_TEST_REACT_VERSION === '^17'
-  if (isNextDeploy || isReact17) {
+  if (isReact17) {
     it('should skip tests for next-deploy and react 17', () => {})
     return
   }
