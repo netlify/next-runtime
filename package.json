@@ -85,8 +85,7 @@
     "typescript": "^4.3.4"
   },
   "dependencies": {
-    "next": "^13.0.3",
-    "@netlify/edge-functions": "^2.0.0"
+    "next": "^13.0.3"
   },
   "engines": {
     "node": ">=16.0.0"
