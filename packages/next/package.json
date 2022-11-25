@@ -33,8 +33,5 @@
   "homepage": "https://github.com/netlify/next-runtime#readme",
   "engines": {
     "node": ">=12.0.0"
-  },
-  "dependencies": {
-    "@netlify/edge-functions": "^2.0.0"
   }
 }
