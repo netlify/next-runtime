@@ -9,8 +9,7 @@ help you and to help the maintainers gather information.
 Before working on an issue, ask to be assigned to it. This makes it clear to other potential contributors that someone
 is working on the issue.
 
-When creating a PR, please fill out the template to the best of your abilities. Do not delete it. The information in the
-template helps maintainers review your pull request.
+When creating a PR, please use the template. The information in the template helps maintainers review your pull request.```
 
 This project was made with ❤️. The simplest way to give back is by starring and sharing it online.
 
