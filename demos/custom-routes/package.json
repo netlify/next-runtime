@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
+    "@netlify/next": "*",
     "@netlify/plugin-nextjs": "*",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.1",
