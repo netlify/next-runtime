@@ -2,12 +2,14 @@
 
 🎉 Thanks for considering contributing to this project! 🎉
 
-These guidelines will help you send a pull request.
+When contributing to this repository, please first discuss the change you wish to make via an
+[issue](https://github.com/netlify/next-runtime/issues/new/choose). Please use the issue templates. They are there to
+help you and to help the maintainers gather information.
 
-If you're submitting an issue instead, please skip this document.
+Before working on an issue, ask to be assigned to it. This makes it clear to other potential contributors that someone
+is working on the issue.
 
-If your pull request is related to a typo or the documentation being unclear, please click on the relevant page's `Edit`
-button (pencil icon) and directly suggest a correction instead.
+When creating a PR, please use the template. The information in the template helps maintainers review your pull request.```
 
 This project was made with ❤️. The simplest way to give back is by starring and sharing it online.
 
@@ -37,9 +39,9 @@ We use [Conventional Commit messages](https://www.conventionalcommits.org/) to a
 
 Most common commit message prefixes are:
 
-* `fix:` which represents bug fixes, and generate a patch release.
-* `feat:` which represents a new feature, and generate a minor release.
-* `feat!:`, `fix!:` or `refactor!:` and generate a major release.
+- `fix:` which represents bug fixes, and generate a patch release.
+- `feat:` which represents a new feature, and generate a minor release.
+- `feat!:`, `fix!:` or `refactor!:` and generate a major release.
 
 ## Releasing
 
