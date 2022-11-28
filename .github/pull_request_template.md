@@ -1,3 +1,5 @@
+<!-- Before opening a pull request, ensure you've read our contributing guildines, https://github.com/netlify/next-runtime/blob/main/CONTRIBUTING.md. -->
+
 ### Summary
 
 <!-- Provide a brief summary of the change. -->
