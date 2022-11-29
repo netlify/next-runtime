@@ -2,6 +2,7 @@ name: Next.js appdir test suite
 
 on:
   pull_request:
+    types: [opened, synchronize]
   push:
     branches: [main]
 

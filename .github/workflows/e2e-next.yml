@@ -2,6 +2,7 @@ name: Next.js e2e test suite
 
 on:
   pull_request:
+    types: [opened, synchronize]
   push:
     branches: [main]
 
