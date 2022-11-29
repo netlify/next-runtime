@@ -6,6 +6,7 @@
     "next": "^13.0.3"
   },
   "devDependencies": {
+    "@netlify/next": "*",
     "@netlify/plugin-nextjs": "*",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.1",
