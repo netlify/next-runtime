@@ -185,7 +185,7 @@ describe('Middleware Runtime', () => {
       await check(() => browser.eval('document.documentElement.innerHTML'), /"slug":"hello"/)
 
       await check(() => browser.elementByCss('body').text(), /\/to-ssg/)
-      // NTL Skip - why is this supposed to be true? The middleware adds a query param but it seems it's not meant to be here
+      // NTL Skip -  https://github.com/netlify/next-runtime/issues/1821
       // expect(JSON.parse(await browser.elementByCss('#query').text())).toEqual({
       //   slug: 'hello',
       // })
