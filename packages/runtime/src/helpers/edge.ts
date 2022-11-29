@@ -312,6 +312,7 @@ export const writeEdgeFunctions = async ({
   const { publish } = netlifyConfig.build
   const nextConfigFile = await getRequiredServerFiles(publish)
   const nextConfig = nextConfigFile.config
+  const usesAppDir = nextConfig.experimental?.appDir
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
@@ -378,7 +379,8 @@ export const writeEdgeFunctions = async ({
           pageRegexMap,
           appPathRoutesManifest,
           nextConfig,
-          cache: 'manual',
+          // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
+          cache: usesAppDir ? 'manual' : undefined,
         })
         manifest.functions.push(...functionDefinitions)
       }
