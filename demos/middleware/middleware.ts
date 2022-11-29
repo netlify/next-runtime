@@ -57,10 +57,6 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
-  if (pathname.startsWith('/rewrite-to-edge')) {
-    return NextResponse.rewrite(new URL('/api/edge', req.url))
-  }
-
   if (pathname.startsWith('/shows')) {
     if (pathname.startsWith('/shows/rewrite-absolute')) {
       response = NextResponse.rewrite(new URL('/shows/100', req.url))
@@ -106,7 +102,6 @@ export const config = {
   matcher: [
     '/api/:all*',
     '/headers',
-    '/rewrite-to-edge',
     { source: '/static' },
     { source: '/cookies' },
     { source: '/shows/((?!99|88).*)' },
