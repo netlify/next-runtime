@@ -112,13 +112,7 @@ following ways:
 
 ### From the UI (Recommended):
 
-You can go to:
-
-```text
-https://app.netlify.com/teams/slug/plugins/@netlify/plugin-nextjs/install
-```
-
-and choose the site to install the Next.js Runtime on. Make sure to replace `slug` with your team's slug. This method
+You can go to the [UI](https://app.netlify.com/plugins/@netlify/plugin-nextjs/install) and choose the site to install the Next.js Runtime on. This method
 is recommended because you will benefit from auto-upgrades to important fixes and feature updates.
 
 ### From `npm`:
