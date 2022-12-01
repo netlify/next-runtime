@@ -85,8 +85,6 @@ import {
 // Deno defines "window", but naughty libraries think this means it's a browser
 delete globalThis.window
 globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-// Next uses "self" as a function-scoped global-like object
-const self = {}
 let _ENTRIES = {}
 
 // Next.js uses this extension to the Headers API implemented by Cloudflare workerd
@@ -117,6 +115,9 @@ const fetch = async (url, init) => {
     throw error
   }
 }
+
+// Latest Next uses "self" as a function-scoped global-like object, but older versions expect it to equal "globalThis"
+const self = { ...globalThis, fetch }
 
 `
 
