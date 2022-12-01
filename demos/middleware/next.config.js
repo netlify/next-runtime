@@ -9,7 +9,7 @@ const nextConfig = {
   generateBuildId: () => 'build-id',
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en', 'de-DE'],
   },
 }
 
