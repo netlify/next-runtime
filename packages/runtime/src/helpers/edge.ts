@@ -116,7 +116,8 @@ const fetch = async (url, init) => {
   }
 }
 
-// Latest Next uses "self" as a function-scoped global-like object, but older versions expect it to equal "globalThis"
+// Next edge runtime uses "self" as a function-scoped global-like object, but some of the older polyfills expect it to equal globalThis
+// See https://nextjs.org/docs/basic-features/supported-browsers-features#polyfills
 const self = { ...globalThis, fetch }
 
 `
