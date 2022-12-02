@@ -1,14 +1,17 @@
-import type { Buffer } from 'buffer'
-import { resolve } from 'path'
-import { Transform } from 'stream'
+import { promises } from 'fs'
+import { join } from 'path'
 
 import { OnPreBuild } from '@netlify/build'
-import execa from 'execa'
-import { unlink } from 'fs-extra'
-import mergeStream from 'merge-stream'
+import { build } from '@netlify/esbuild'
+import { watch } from 'chokidar'
 
 import { writeDevEdgeFunction } from './edge'
 import { patchNextFiles } from './files'
+
+const fileList = (watched: Record<string, Array<string>>) =>
+  Object.entries(watched).flatMap(([dir, files]) => files.map((file) => `${dir}/${file}`))
+
+let watcher
 
 // The types haven't been updated yet
 export const onPreDev: OnPreBuild = async ({ constants, netlifyConfig }) => {
@@ -17,37 +20,73 @@ export const onPreDev: OnPreBuild = async ({ constants, netlifyConfig }) => {
   // Need to patch the files, because build might not have been run
   await patchNextFiles(base)
 
-  //  Clean up old functions
-  await unlink(resolve('.netlify', 'middleware.js')).catch(() => {
-    // Ignore if it doesn't exist
-  })
   await writeDevEdgeFunction(constants)
 
-  // Eventually we might want to do this via esbuild's API, but for now the CLI works fine
-  const common = [`--bundle`, `--outdir=${resolve('.netlify')}`, `--format=esm`, `--target=esnext`, '--watch']
-  const opts = {
-    all: true,
-    env: { ...process.env, FORCE_COLOR: '1' },
-  }
-  // TypeScript
-  const tsout = execa(`esbuild`, [...common, resolve(base, 'middleware.ts')], opts).all
-
-  // JavaScript
-  const jsout = execa(`esbuild`, [...common, resolve(base, 'middleware.js')], opts).all
-
-  const filter = new Transform({
-    transform(chunk: Buffer, encoding, callback) {
-      const str = chunk.toString(encoding)
-
-      // Skip if message includes this, because we run even when the files are missing
-      if (!str.includes('[ERROR] Could not resolve')) {
-        this.push(chunk)
-      }
-      callback()
-    },
+  watcher = watch(['middleware.js', 'middleware.ts', 'src/middleware.js', 'src/middleware.ts'], {
+    persistent: true,
+    atomic: true,
+    ignoreInitial: true,
+    cwd: base,
   })
 
-  mergeStream(tsout, jsout).pipe(filter).pipe(process.stdout)
+  const update = async (initial = false) => {
+    try {
+      await promises.unlink(join(base, '.netlify', 'middleware.js'))
+    } catch {}
 
-  // Don't return the promise because we don't want to wait for the child process to finish
+    const watchedFiles = fileList(watcher.getWatched())
+    if (watchedFiles.length === 0) {
+      if (!initial) {
+        console.log('No middleware found')
+      }
+      return
+    }
+    if (watchedFiles.length > 1) {
+      console.log('Multiple middleware files found:')
+      console.log(watchedFiles.join('\n'))
+      console.log('This is not supported.')
+
+      return
+    }
+    console.log(`${initial ? 'Building' : 'Rebuilding'} middleware ${watchedFiles[0]}...`)
+    try {
+      await build({
+        entryPoints: watchedFiles,
+        outfile: '.next/middleware.js',
+        bundle: true,
+        format: 'esm',
+        target: 'esnext',
+      })
+    } catch (error) {
+      console.error(error)
+      return
+    }
+
+    console.log('...done')
+  }
+
+  watcher
+    .on('change', (path) => {
+      console.log(`File ${path} has been changed`)
+      update()
+    })
+    .on('add', (path) => {
+      console.log(`File ${path} has been added`)
+      update()
+    })
+    .on('unlink', (path) => {
+      console.log(`File ${path} has been removed`)
+      update()
+    })
+    .on('ready', () => {
+      console.log('Initial scan complete. Ready for changes')
+      update(true)
+    })
+
+  const promise = new Promise<void>((resolve) => {
+    process.on('SIGINT', () => {
+      watcher.close()
+      resolve()
+    })
+  })
 }
