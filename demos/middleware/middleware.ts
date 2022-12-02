@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { MiddlewareRequest, NextRequest } from '@netlify/next'
 
+// Next.js replaces this with a stub polyfill. This import is just to test that stub.
+import pointlessFetch from 'isomorphic-unfetch'
+
 export async function middleware(req: NextRequest) {
   let response
   const { pathname } = req.nextUrl
@@ -58,6 +61,12 @@ export async function middleware(req: NextRequest) {
   }
 
   if (pathname.startsWith('/shows')) {
+    if (pathname.startsWith('/shows/222')) {
+      response = NextResponse.next()
+      const res = await pointlessFetch('http://www.example.com/')
+      response.headers.set('x-example-server', res.headers.get('server'))
+    }
+
     if (pathname.startsWith('/shows/rewrite-absolute')) {
       response = NextResponse.rewrite(new URL('/shows/100', req.url))
       response.headers.set('x-modified-in-rewrite', 'true')
