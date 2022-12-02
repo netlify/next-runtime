@@ -93,8 +93,6 @@ import {
 delete globalThis.window
 globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
 globalThis.EdgeRuntime = "netlify-edge"
-// Next uses "self" as a function-scoped global-like object
-const self = {}
 let _ENTRIES = {}
 
 // Next.js uses this extension to the Headers API implemented by Cloudflare workerd
@@ -125,6 +123,10 @@ const fetch = async (url, init) => {
     throw error
   }
 }
+
+// Next edge runtime uses "self" as a function-scoped global-like object, but some of the older polyfills expect it to equal globalThis
+// See https://nextjs.org/docs/basic-features/supported-browsers-features#polyfills
+const self = { ...globalThis, fetch }
 
 `
 
