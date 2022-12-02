@@ -85,27 +85,20 @@ import {
 // Deno defines "window", but naughty libraries think this means it's a browser
 delete globalThis.window
 globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-// Next uses "self" as a function-scoped global-like object
-const self = {}
 let _ENTRIES = {}
 
-class Response extends globalThis.Response {
-  constructor(body, init) {
-    super(body, init);
-    // Next.js uses this extension to the Headers API implemented by Cloudflare workerd
-    this.headers.getAll = (name) => {
-      name = name.toLowerCase();
-      if (name !== "set-cookie") {
-        throw new Error("Headers.getAll is only supported for Set-Cookie");
-      }
-      return [...this.headers.entries()]
-        .filter(([key]) => key === name)
-        .map(([, value]) => value);
-    };
-  }
+// Next.js uses this extension to the Headers API implemented by Cloudflare workerd
+if(!('getAll' in Headers.prototype)) {
+  Headers.prototype.getAll = function getAll(name) {
+    name = name.toLowerCase();
+    if (name !== "set-cookie") {
+      throw new Error("Headers.getAll is only supported for Set-Cookie");
+    }
+    return [...this.entries()]
+      .filter(([key]) => key === name)
+      .map(([, value]) => value);
+  };
 }
-
-
 //  Next uses blob: urls to refer to local assets, so we need to intercept these
 const _fetch = globalThis.fetch
 const fetch = async (url, init) => {
@@ -122,6 +115,10 @@ const fetch = async (url, init) => {
     throw error
   }
 }
+
+// Next edge runtime uses "self" as a function-scoped global-like object, but some of the older polyfills expect it to equal globalThis
+// See https://nextjs.org/docs/basic-features/supported-browsers-features#polyfills
+const self = { ...globalThis, fetch }
 
 `
 

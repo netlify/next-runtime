@@ -108,6 +108,7 @@ export class NextInstance {
             next: process.env.NEXT_TEST_VERSION || require('next/package.json').version,
           },
           scripts: {
+            build: 'next build',
             ...pkgScripts,
           },
         },
@@ -142,7 +143,7 @@ export class NextInstance {
     if (!fs.existsSync(path.join(this.testDir, 'netlify.toml'))) {
       const toml = /* toml */ `
         [build]
-        command = "next build"
+        command = "yarn build"
         publish = ".next"
         
         [[plugins]]

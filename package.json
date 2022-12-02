@@ -19,6 +19,8 @@
     "install-husky": "if-env CI=1 || husky install node_modules/@netlify/eslint-config-node/.husky",
     "test": "run-s build:demo test:jest",
     "test:next": "jest -c test/e2e/jest.config.js",
+    "test:next:disabled": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.disabled.js",
+    "test:next:all": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.all.js",
     "test:jest": "jest",
     "playwright:install": "playwright install --with-deps chromium",
     "test:jest:update": "jest --updateSnapshot",
@@ -48,8 +50,8 @@
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.16.0",
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^28.3.1",
-    "@netlify/eslint-config-node": "^7.0.0",
+    "@netlify/build": "^28.4.5",
+    "@netlify/eslint-config-node": "^7.0.1",
     "@testing-library/cypress": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
@@ -69,6 +71,7 @@
     "husky": "^7.0.4",
     "jest": "^27.0.0",
     "jest-fetch-mock": "^3.0.3",
+    "jest-junit": "^14.0.1",
     "netlify-plugin-cypress": "^2.2.0",
     "npm-run-all": "^4.1.5",
     "playwright-chromium": "^1.26.1",
@@ -103,6 +106,15 @@
     },
     "verbose": true,
     "testTimeout": 60000
+  },
+  "jest-junit": {
+    "outputDirectory": "reports",
+    "outputName": "jest-junit.xml",
+    "uniqueOutputName": "true",
+    "ancestorSeparator": " > ",
+    "suiteNameTemplate": "{filepath}",
+    "classNameTemplate": "{classname}",
+    "titleTemplate": "{title}"
   },
   "workspaces": [
     "packages/*",

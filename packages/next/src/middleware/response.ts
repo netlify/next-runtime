@@ -92,4 +92,9 @@ export class MiddlewareResponse extends NextResponse {
     // If we have the origin response, we should use its headers
     return this.originResponse?.headers || super.headers
   }
+
+  get status(): number {
+    // If we have the origin status, we should use it
+    return this.originResponse?.status || super.status
+  }
 }
