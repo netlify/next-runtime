@@ -152,29 +152,32 @@ export const moveStaticPages = async ({
   // Limit concurrent file moves to number of cpus or 2 if there is only 1
   const limit = pLimit(Math.max(2, cpus().length))
   const promises = pages.map((rawPath) => {
+    // Convert to POSIX path
     const filePath = slash(rawPath)
+    // Remove the initial 'app' or 'pages' directory from the output path
+    const pagePath = filePath.split('/').slice(1).join('/')
     // Don't move ISR files, as they're used for the first request
-    if (isrFiles.has(filePath)) {
+    if (isrFiles.has(pagePath)) {
       return
     }
-    if (isDynamicRoute(filePath)) {
+    if (isDynamicRoute(pagePath)) {
       return
     }
-    if (matchesRedirect(filePath, redirects)) {
-      matchedRedirects.add(filePath)
+    if (matchesRedirect(pagePath, redirects)) {
+      matchedRedirects.add(pagePath)
       return
     }
-    if (matchesRewrite(filePath, rewrites)) {
-      matchedRewrites.add(filePath)
+    if (matchesRewrite(pagePath, rewrites)) {
+      matchedRewrites.add(pagePath)
       return
     }
     // Middleware matches against the unlocalised path
-    const unlocalizedPath = stripLocale(rawPath, i18n?.locales)
+    const unlocalizedPath = stripLocale(pagePath, i18n?.locales)
     const middlewarePath = matchMiddleware(middleware, unlocalizedPath)
     // If a file matches middleware it can't be offloaded to the CDN, and needs to stay at the origin to be served by next/server
     if (middlewarePath) {
       matchingMiddleware.add(middlewarePath)
-      matchedPages.add(rawPath)
+      matchedPages.add(filePath)
       return
     }
     return limit(moveFile, filePath)
