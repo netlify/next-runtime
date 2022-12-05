@@ -16,7 +16,7 @@ const Show = ({ show }) => (
 )
 
 export async function getStaticProps(context) {
-  const res = await fetch(`https://api.tvmaze.com/shows/71`)
+  const res = await fetch(`https://tvproxy.netlify.app/shows/71`)
   const data = await res.json()
 
   return {

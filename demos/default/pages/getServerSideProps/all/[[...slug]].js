@@ -34,7 +34,7 @@ export const getServerSideProps = async ({ params }) => {
   // The ID to render
   const { slug } = params
 
-  const res = await fetch(`https://api.tvmaze.com/shows/${slug[0]}`)
+  const res = await fetch(`https://tvproxy.netlify.app/shows/${slug[0]}`)
   const data = await res.json()
 
   // Set error code if show item could not be found
