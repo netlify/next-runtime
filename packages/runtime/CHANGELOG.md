@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.29.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.2...plugin-nextjs-v4.29.3) (2022-12-05)
+
+
+### Bug Fixes
+
+* assign globals to `self` ([#1823](https://github.com/netlify/next-runtime/issues/1823)) ([993766b](https://github.com/netlify/next-runtime/commit/993766b0f9d9638c2b6ef838d76a666d38b45db7))
+* better headers.getAll polyfill ([#1801](https://github.com/netlify/next-runtime/issues/1801)) ([84579c1](https://github.com/netlify/next-runtime/commit/84579c159bf111b37ef56a5db92ebff5daea5821))
+* get source file for page in api routes ([#1778](https://github.com/netlify/next-runtime/issues/1778)) ([2a3ad3c](https://github.com/netlify/next-runtime/commit/2a3ad3c9a1d3e36eeaba86280f05b0ba5d8ea8a9))
+
 ## [4.29.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.1...plugin-nextjs-v4.29.2) (2022-11-21)
 
 
