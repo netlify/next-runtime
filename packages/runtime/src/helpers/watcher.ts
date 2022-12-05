@@ -5,7 +5,7 @@ import { build } from '@netlify/esbuild'
 import { watch } from 'chokidar'
 
 const fileList = (watched: Record<string, Array<string>>) =>
-  Object.entries(watched).flatMap(([dir, files]) => files.map((file) => `${dir}/${file}`))
+  Object.entries(watched).flatMap(([dir, files]) => files.map((file) => join(dir, file)))
 
 const start = async (base: string) => {
   const watcher = watch(['middleware.js', 'middleware.ts', 'src/middleware.js', 'src/middleware.ts'], {
