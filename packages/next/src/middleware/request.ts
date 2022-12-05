@@ -1,3 +1,4 @@
+import type { Context } from '@netlify/edge-functions'
 import type { NextURL } from 'next/dist/server/web/next-url'
 import { NextResponse } from 'next/server'
 import type { NextRequest as InternalNextRequest } from 'next/server'
@@ -17,11 +18,6 @@ export interface NextOptions {
    * and handle it and the missing bode accordingly.
    */
   sendConditionalRequest?: boolean
-}
-
-// TODO: add Context type
-type Context = {
-  next: (options?: NextOptions) => Promise<Response>
 }
 
 /**
@@ -60,7 +56,15 @@ export class MiddlewareRequest extends Request {
    */
   async next(options?: NextOptions): Promise<MiddlewareResponse> {
     this.applyHeaders()
-    const response = await this.context.next(options)
+    let response = await this.context.next(options)
+
+    // Because our cdn lowercases urls, this gets problematic when trying to add redirects
+    // This intercepts that redirect loop and rewrites the lowercase version so that the i18n url serves the right content.
+    const locationHeader = response.headers.get('location')
+    if (response.status === 301 && locationHeader?.startsWith('/')) {
+      response = await this.context.rewrite(locationHeader)
+    }
+
     return new MiddlewareResponse(response)
   }
 

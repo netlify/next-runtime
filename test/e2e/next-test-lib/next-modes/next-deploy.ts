@@ -1,4 +1,4 @@
-import path from 'path'
+import path, { dirname, relative } from 'path'
 import execa from 'execa'
 import fs from 'fs-extra'
 import { platform } from 'os'
@@ -21,7 +21,7 @@ export class NextDeployInstance extends NextInstance {
       this._buildId = 'build-id'
       return
     }
-
+    const testName = process.env.TEST_FILE_PATH && relative(process.cwd(), process.env.TEST_FILE_PATH)
     await super.createTestDir()
     // We use yarn because it's better at handling local dependencies
     await execa('yarn', [], {
@@ -40,9 +40,11 @@ export class NextDeployInstance extends NextInstance {
     }
 
     const NETLIFY_SITE_ID = process.env.NETLIFY_SITE_ID || '1d5a5c76-d445-4ae5-b694-b0d3f2e2c395'
-
+    console.log(`Deploys site for test: ${testName}`)
     try {
-      const statRes = await execa('ntl', ['status', '--json'], { env: { NETLIFY_SITE_ID, NODE_ENV: 'production' } })
+      const statRes = await execa('ntl', ['status', '--json'], {
+        env: { NETLIFY_SITE_ID, NODE_ENV: 'production' },
+      })
     } catch (err) {
       if (err.message.includes("You don't appear to be in a folder that is linked to a site")) {
         throw new Error(`Site is not linked. Please set "NETLIFY_AUTH_TOKEN" and "NETLIFY_SITE_ID"`)
@@ -52,7 +54,7 @@ export class NextDeployInstance extends NextInstance {
 
     console.log(`Deploying project at ${this.testDir}`)
 
-    const deployRes = await execa('ntl', ['deploy', '--build', '--json'], {
+    const deployRes = await execa('ntl', ['deploy', '--build', '--json', '--message', testName], {
       cwd: this.testDir,
       reject: false,
       env: {
@@ -68,7 +70,7 @@ export class NextDeployInstance extends NextInstance {
     try {
       const data = JSON.parse(deployRes.stdout)
       this._url = data.deploy_url
-      console.log(`Deployed to ${this._url}`)
+      console.log(`Deployed to ${this._url}`, data)
       this._parsedUrl = new URL(this._url)
     } catch (err) {
       console.error(err)

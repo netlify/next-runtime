@@ -46,6 +46,7 @@ module.exports = {
         // TODO: re-enable after dropping support for Node 12
         'n/no-unsupported-features/es-syntax': 'off',
         '@typescript-eslint/no-extra-semi': 'off',
+        'n/no-missing-import': 'off',
       },
     },
     {
