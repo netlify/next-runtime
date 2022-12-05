@@ -9,19 +9,26 @@ const fileList = (watched: Record<string, Array<string>>) =>
 
 const start = async (base: string) => {
   const watcher = watch(['middleware.js', 'middleware.ts', 'src/middleware.js', 'src/middleware.ts'], {
+    // Try and ensure renames just emit one event
     atomic: true,
+    // Don't emit for every watched file, just once after the scan is done
     ignoreInitial: true,
     cwd: base,
   })
 
   const update = async (initial = false) => {
     try {
+      // Start by deleting the old file. If we error out, we don't want to leave the old file around
       await promises.unlink(join(base, '.netlify', 'middleware.js'))
-    } catch {}
-
+    } catch {
+      // Ignore, because it's fine if it didn't exist
+    }
+    // The list of watched files is an object with the directory as the key and an array of files as the value.
+    // We need to flatten this into a list of files
     const watchedFiles = fileList(watcher.getWatched())
     if (watchedFiles.length === 0) {
       if (!initial) {
+        // Only log on subsequent builds, because having it on first build makes it seem like a warning, when it's a normal state
         console.log('No middleware found')
       }
       return
@@ -30,7 +37,7 @@ const start = async (base: string) => {
       console.log('Multiple middleware files found:')
       console.log(watchedFiles.join('\n'))
       console.log('This is not supported.')
-
+      // Return without compiling anything
       return
     }
     console.log(`${initial ? 'Building' : 'Rebuilding'} middleware ${watchedFiles[0]}...`)
@@ -66,6 +73,7 @@ const start = async (base: string) => {
       })
       .on('ready', () => {
         console.log('Initial scan complete. Ready for changes')
+        // This only happens on the first scan
         update(true)
       })
     await new Promise((resolve) => {
