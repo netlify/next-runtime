@@ -7,7 +7,7 @@ export default async (req, res) => {
   const { id } = query
 
   // Get the data
-  const fetchRes = await fetch(`https://api.tvmaze.com/shows/${id}`)
+  const fetchRes = await fetch(`https://tvproxy.netlify.app/shows/${id}`)
   const data = await fetchRes.json()
 
   // If show was found, return it
