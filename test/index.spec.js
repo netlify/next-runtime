@@ -1788,7 +1788,7 @@ describe('onPreDev', () => {
 
 const watcherPath = require.resolve('@netlify/plugin-nextjs/lib/helpers/watcher')
 
-describe.skip('the dev middleware watcher', () => {
+describe('the dev middleware watcher', () => {
   it('should compile once and exit if run with the --once flag', async () => {
     await moveNextDist('.next', true)
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
@@ -1810,7 +1810,7 @@ describe.skip('the dev middleware watcher', () => {
     expect(output.stdout).toBe('Initial scan complete. Ready for changes')
   })
 
-  it('should compile a middleware file and then exit when killed', async () => {
+  fit('should compile a middleware file and then exit when killed', async () => {
     await moveNextDist('.next', true)
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     expect(middlewareExists()).toBeFalsy()
