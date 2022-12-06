@@ -1788,7 +1788,7 @@ describe('onPreDev', () => {
 
 const watcherPath = require.resolve('@netlify/plugin-nextjs/lib/helpers/watcher')
 
-describe('the dev middleware watcher', () => {
+describe.skip('the dev middleware watcher', () => {
   it('should compile once and exit if run with the --once flag', async () => {
     await moveNextDist('.next', true)
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)

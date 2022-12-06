@@ -105,8 +105,7 @@
       "\\.[jt]sx?$": "babel-jest"
     },
     "verbose": true,
-    "testTimeout": 60000,
-    "maxWorkers": 1
+    "testTimeout": 60000
   },
   "jest-junit": {
     "outputDirectory": "reports",
