@@ -1774,48 +1774,11 @@ describe('onPreDev', () => {
     expect(runtime).toHaveProperty('onPreDev')
   })
 
-  it('should run without middleware', async () => {
-    await moveNextDist('.next', true)
-    await runtime.onPreDev(defaultArgs)
-    // Allow time for esbuild to compile
-    await wait()
-    expect(middlewareExists()).toBeFalsy()
-  })
-
-  it('should compile middleware in the root directory', async () => {
+  it('should compile middleware', async () => {
     await moveNextDist('.next', true)
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     expect(middlewareExists()).toBeFalsy()
 
-    await runtime.onPreDev(defaultArgs)
-    await wait()
-
-    expect(middlewareExists()).toBeTruthy()
-  })
-
-  it('should compile middleware in the src directory', async () => {
-    await moveNextDist('.next', true)
-    await ensureDir(path.join(process.cwd(), 'src'))
-    await writeFile(path.join(process.cwd(), 'src', 'middleware.ts'), middlewareSourceTs)
-    await runtime.onPreDev(defaultArgs)
-    await wait()
-
-    expect(middlewareExists()).toBeTruthy()
-  })
-
-  it('should compile JS middleware in the root directory', async () => {
-    await moveNextDist('.next', true)
-    await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
-    await runtime.onPreDev(defaultArgs)
-    await wait()
-
-    expect(middlewareExists()).toBeTruthy()
-  })
-
-  it('should compile JS middleware in the src directory', async () => {
-    await moveNextDist('.next', true)
-    await ensureDir(path.join(process.cwd(), 'src'))
-    await writeFile(path.join(process.cwd(), 'src', 'middleware.js'), middlewareSourceJs)
     await runtime.onPreDev(defaultArgs)
     await wait()
 
