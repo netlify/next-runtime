@@ -1,3 +1,4 @@
+import execa from 'execa'
 import { relative } from 'pathe'
 import { getAllPageDependencies } from '../packages/runtime/src/templates/getPageResolver'
 
@@ -19,6 +20,7 @@ const {
   readJson,
   pathExists,
   writeFile,
+  move,
 } = require('fs-extra')
 const path = require('path')
 const process = require('process')
@@ -1783,6 +1785,8 @@ describe('onPreDev', () => {
   it('should compile middleware in the root directory', async () => {
     await moveNextDist('.next', true)
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    expect(middlewareExists()).toBeFalsy()
+
     await runtime.onPreDev(defaultArgs)
     await wait()
 
@@ -1816,5 +1820,123 @@ describe('onPreDev', () => {
     await wait()
 
     expect(middlewareExists()).toBeTruthy()
+  })
+})
+
+const watcherPath = require.resolve('@netlify/plugin-nextjs/lib/helpers/watcher')
+
+fdescribe('the dev middleware watcher', () => {
+  it('should compile once and exit if run with the --once flag', async () => {
+    await moveNextDist('.next', true)
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+
+    expect(middlewareExists()).toBeFalsy()
+
+    const watcher = execa.node(watcherPath, [process.cwd(), '--once'])
+    const output = await watcher
+    expect(middlewareExists()).toBeTruthy()
+    expect(output.stdout).toContain('Building middleware middleware.ts')
+    expect(output.stdout).toContain('...done')
+  })
+
+  it('should not compile anything if there is no middleware', async () => {
+    await moveNextDist('.next', true)
+    const watcher = execa.node(watcherPath, [process.cwd(), '--once'])
+    const output = await watcher
+    expect(middlewareExists()).toBeFalsy()
+    expect(output.stdout).toBe('Initial scan complete. Ready for changes')
+  })
+
+  it('should compile a middleware file and then exit when killed', async () => {
+    await moveNextDist('.next', true)
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    expect(middlewareExists()).toBeFalsy()
+    const watcher = execa.node(watcherPath, [process.cwd()])
+    await wait()
+    expect(middlewareExists()).toBeTruthy()
+    expect(watcher.kill()).toBeTruthy()
+  })
+
+  it('should compile a file if it is written after the watcher starts', async () => {
+    await moveNextDist('.next', true)
+    const watcher = execa.node(watcherPath, [process.cwd()])
+    await wait()
+    expect(middlewareExists()).toBeFalsy()
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    await wait()
+    expect(middlewareExists()).toBeTruthy()
+    expect(watcher.kill()).toBeTruthy()
+  })
+
+  it('should remove the output if the middleware is removed after the watcher starts', async () => {
+    await moveNextDist('.next', true)
+    const watcher = execa.node(watcherPath, [process.cwd()])
+    await wait()
+    expect(middlewareExists()).toBeFalsy()
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    await wait()
+
+    expect(middlewareExists()).toBeTruthy()
+    await unlink(path.join(process.cwd(), 'middleware.ts'))
+    await wait()
+    expect(middlewareExists()).toBeFalsy()
+    expect(watcher.kill()).toBeTruthy()
+  })
+
+  it('should remove the output if invalid middleware is written after the watcher starts', async () => {
+    await moveNextDist('.next', true)
+    const watcher = execa.node(watcherPath, [process.cwd()])
+    await wait()
+    expect(middlewareExists()).toBeFalsy()
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    await wait()
+    expect(middlewareExists()).toBeTruthy()
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), 'this is not valid middleware')
+    await wait()
+    expect(middlewareExists()).toBeFalsy()
+    expect(watcher.kill()).toBeTruthy()
+  })
+
+  it('should recompile the middleware if it is moved into the src directory after the watcher starts', async () => {
+    await moveNextDist('.next', true)
+    const watcher = execa.node(watcherPath, [process.cwd()])
+    await wait()
+    expect(middlewareExists()).toBeFalsy()
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    await wait()
+    expect(middlewareExists()).toBeTruthy()
+    await ensureDir(path.join(process.cwd(), 'src'))
+    await move(path.join(process.cwd(), 'middleware.ts'), path.join(process.cwd(), 'src', 'middleware.ts'))
+    await wait()
+    expect(middlewareExists()).toBeTruthy()
+    expect(watcher.kill()).toBeTruthy()
+  })
+
+  it('should recompile the middleware if it is moved into the root directory after the watcher starts', async () => {
+    await moveNextDist('.next', true)
+    const watcher = execa.node(watcherPath, [process.cwd()])
+    await wait()
+    await ensureDir(path.join(process.cwd(), 'src'))
+    await writeFile(path.join(process.cwd(), 'src', 'middleware.ts'), middlewareSourceTs)
+    await wait()
+    expect(middlewareExists()).toBeTruthy()
+    await move(path.join(process.cwd(), 'src', 'middleware.ts'), path.join(process.cwd(), 'middleware.ts'))
+    await wait()
+    expect(middlewareExists()).toBeTruthy()
+    expect(watcher.kill()).toBeTruthy()
+  })
+
+  it('should compile the middleware if invalid source is replaced with valid source after the watcher starts', async () => {
+    await moveNextDist('.next', true)
+    expect(middlewareExists()).toBeFalsy()
+
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), 'this is not valid middleware')
+    const watcher = execa.node(watcherPath, [process.cwd()])
+    await wait()
+    expect(middlewareExists()).toBeFalsy()
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    await wait()
+    expect(middlewareExists()).toBeTruthy()
+    expect(watcher.kill()).toBeTruthy()
   })
 })
