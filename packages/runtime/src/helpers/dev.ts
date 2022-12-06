@@ -1,4 +1,4 @@
-import { join } from 'path'
+import { resolve } from 'path'
 
 import type { OnPreBuild } from '@netlify/build'
 import execa from 'execa'
@@ -15,7 +15,11 @@ export const onPreDev: OnPreBuild = async ({ constants, netlifyConfig }) => {
 
   await writeDevEdgeFunction(constants)
   // Don't await this or it will never finish
-  execa.node(join(__dirname, 'watcher.js'), [base], {
-    stdio: 'inherit',
-  })
+  execa.node(
+    resolve(__dirname, '..', '..', 'lib', 'helpers', 'watcher.js'),
+    [base, process.env.NODE_ENV === 'test' ? '--once' : ''],
+    {
+      stdio: 'inherit',
+    },
+  )
 }

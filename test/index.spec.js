@@ -9,7 +9,17 @@ jest.mock('../packages/runtime/src/helpers/utils', () => {
 })
 
 const Chance = require('chance')
-const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson, pathExists } = require('fs-extra')
+const {
+  writeJSON,
+  unlink,
+  existsSync,
+  readFileSync,
+  copy,
+  ensureDir,
+  readJson,
+  pathExists,
+  writeFile,
+} = require('fs-extra')
 const path = require('path')
 const process = require('process')
 const os = require('os')
@@ -35,7 +45,7 @@ const {
   updateRequiredServerFiles,
   generateCustomHeaders,
 } = require('../packages/runtime/src/helpers/config')
-const { dirname } = require('path')
+const { dirname, resolve } = require('path')
 const { getProblematicUserRewrites } = require('../packages/runtime/src/helpers/verification')
 
 const chance = new Chance()
@@ -119,8 +129,12 @@ const rewriteAppDir = async function (dir = '.next') {
 }
 
 // Move .next from sample project to current directory
-export const moveNextDist = async function (dir = '.next') {
-  await stubModules(['next', 'sharp'])
+export const moveNextDist = async function (dir = '.next', copyMods = false) {
+  if (copyMods) {
+    await copyModules(['next', 'sharp'])
+  } else {
+    await stubModules(['next', 'sharp'])
+  }
   await ensureDir(dirname(dir))
   await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
 
@@ -132,6 +146,14 @@ export const moveNextDist = async function (dir = '.next') {
   }
 
   await rewriteAppDir(dir)
+}
+
+const copyModules = async function (modules) {
+  for (const mod of modules) {
+    const source = dirname(require.resolve(`${mod}/package.json`))
+    const dest = path.join(process.cwd(), 'node_modules', mod)
+    await copy(source, dest)
+  }
 }
 
 const stubModules = async function (modules) {
@@ -182,7 +204,9 @@ afterEach(async () => {
   // Cleans up the temporary directory from `getTmpDir()` and do not make it
   // the current directory anymore
   restoreCwd()
-  await cleanup()
+  if (!process.env.TEST_SKIP_CLEANUP) {
+    await cleanup()
+  }
 })
 
 describe('preBuild()', () => {
@@ -1717,5 +1741,80 @@ describe('api route file analysis', () => {
         },
       ]),
     )
+  })
+})
+
+const middlewareSourceTs = /* typescript */ `
+import { NextResponse } from 'next/server'
+export async function middleware(req: NextRequest) {
+  return NextResponse.next()
+}
+`
+
+const middlewareSourceJs = /* javascript */ `
+import { NextResponse } from 'next/server'
+export async function middleware(req) {
+  return NextResponse.next()
+}
+`
+
+const wait = (seconds = 0.5) => new Promise((resolve) => setTimeout(resolve, seconds * 1000))
+
+const middlewareExists = () => existsSync(resolve('.netlify', 'middleware.js'))
+
+describe('onPreDev', () => {
+  let runtime
+  beforeAll(async () => {
+    runtime = await nextRuntimeFactory({}, { events: new Set(['onPreDev']) })
+  })
+
+  it('should generate the runtime with onPreDev', () => {
+    expect(runtime).toHaveProperty('onPreDev')
+  })
+
+  it('should run without middleware', async () => {
+    await moveNextDist('.next', true)
+    await runtime.onPreDev(defaultArgs)
+    // Allow time for esbuild to compile
+    await wait()
+    expect(middlewareExists()).toBeFalsy()
+  })
+
+  it('should compile middleware in the root directory', async () => {
+    await moveNextDist('.next', true)
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    await runtime.onPreDev(defaultArgs)
+    await wait()
+
+    expect(middlewareExists()).toBeTruthy()
+  })
+
+  it('should compile middleware in the src directory', async () => {
+    await moveNextDist('.next', true)
+    await ensureDir(path.join(process.cwd(), 'src'))
+    await writeFile(path.join(process.cwd(), 'src', 'middleware.ts'), middlewareSourceTs)
+    await runtime.onPreDev(defaultArgs)
+    await wait()
+
+    expect(middlewareExists()).toBeTruthy()
+  })
+
+  it('should compile JS middleware in the root directory', async () => {
+    await moveNextDist('.next', true)
+    await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
+    await runtime.onPreDev(defaultArgs)
+    await wait()
+
+    expect(middlewareExists()).toBeTruthy()
+  })
+
+  it('should compile JS middleware in the src directory', async () => {
+    await moveNextDist('.next', true)
+    await ensureDir(path.join(process.cwd(), 'src'))
+    await writeFile(path.join(process.cwd(), 'src', 'middleware.js'), middlewareSourceJs)
+    await runtime.onPreDev(defaultArgs)
+    await wait()
+
+    expect(middlewareExists()).toBeTruthy()
   })
 })
