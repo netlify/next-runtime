@@ -65,7 +65,7 @@ const updateWatchedFiles = async (watcher: FSWatcher, base: string, isFirstRun =
   console.log('...done')
 }
 
-const start = async (base: string) => {
+const start = async (base: string, once = false) => {
   const watcher = watch(['middleware.js', 'middleware.ts', 'src/middleware.js', 'src/middleware.ts'], {
     // Try and ensure renames just emit one event
     atomic: true,
@@ -88,11 +88,15 @@ const start = async (base: string) => {
         console.log(`File ${path} has been removed`)
         updateWatchedFiles(watcher, base)
       })
-      .on('ready', () => {
+      .on('ready', async () => {
         console.log('Initial scan complete. Ready for changes')
         // This only happens on the first scan
-        updateWatchedFiles(watcher, base, true)
+        await updateWatchedFiles(watcher, base, true)
+        if (once) {
+          watcher.close()
+        }
       })
+
     await new Promise((resolve) => {
       watcher.on('close', resolve)
     })
@@ -101,7 +105,7 @@ const start = async (base: string) => {
   }
 }
 
-start(process.argv[2]).catch((error) => {
+start(process.argv[2], process.argv[3] === '--once').catch((error) => {
   console.error(error)
   // eslint-disable-next-line n/no-process-exit
   process.exit(1)
