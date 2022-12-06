@@ -1789,7 +1789,7 @@ describe('onPreDev', () => {
 const watcherPath = require.resolve('@netlify/plugin-nextjs/lib/helpers/watcher')
 
 describe('the dev middleware watcher', () => {
-  it('should compile once and exit if run with the --once flag', async () => {
+  it.skip('should compile once and exit if run with the --once flag', async () => {
     await moveNextDist('.next', true)
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
 
@@ -1802,7 +1802,7 @@ describe('the dev middleware watcher', () => {
     expect(output.stdout).toContain('...done')
   })
 
-  it('should not compile anything if there is no middleware', async () => {
+  it.skip('should not compile anything if there is no middleware', async () => {
     await moveNextDist('.next', true)
     const watcher = execa.node(watcherPath, [process.cwd(), '--once'])
     const output = await watcher
@@ -1810,7 +1810,7 @@ describe('the dev middleware watcher', () => {
     expect(output.stdout).toBe('Initial scan complete. Ready for changes')
   })
 
-  fit('should compile a middleware file and then exit when killed', async () => {
+  it('should compile a middleware file and then exit when killed', async () => {
     await moveNextDist('.next', true)
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     expect(middlewareExists()).toBeFalsy()
@@ -1846,7 +1846,7 @@ describe('the dev middleware watcher', () => {
     expect(watcher.kill()).toBeTruthy()
   })
 
-  it('should remove the output if invalid middleware is written after the watcher starts', async () => {
+  it.skip('should remove the output if invalid middleware is written after the watcher starts', async () => {
     await moveNextDist('.next', true)
     const watcher = execa.node(watcherPath, [process.cwd()])
     await wait()
@@ -1860,7 +1860,7 @@ describe('the dev middleware watcher', () => {
     expect(watcher.kill()).toBeTruthy()
   })
 
-  it('should recompile the middleware if it is moved into the src directory after the watcher starts', async () => {
+  it.skip('should recompile the middleware if it is moved into the src directory after the watcher starts', async () => {
     await moveNextDist('.next', true)
     const watcher = execa.node(watcherPath, [process.cwd()])
     await wait()
@@ -1875,7 +1875,7 @@ describe('the dev middleware watcher', () => {
     expect(watcher.kill()).toBeTruthy()
   })
 
-  it('should recompile the middleware if it is moved into the root directory after the watcher starts', async () => {
+  it.skip('should recompile the middleware if it is moved into the root directory after the watcher starts', async () => {
     await moveNextDist('.next', true)
     const watcher = execa.node(watcherPath, [process.cwd()])
     await wait()
@@ -1889,7 +1889,7 @@ describe('the dev middleware watcher', () => {
     expect(watcher.kill()).toBeTruthy()
   })
 
-  it('should compile the middleware if invalid source is replaced with valid source after the watcher starts', async () => {
+  it.skip('should compile the middleware if invalid source is replaced with valid source after the watcher starts', async () => {
     await moveNextDist('.next', true)
     expect(middlewareExists()).toBeFalsy()
 
@@ -1903,7 +1903,7 @@ describe('the dev middleware watcher', () => {
     expect(watcher.kill()).toBeTruthy()
   })
 
-  it('should not compile middleware if more than one middleware file exists', async () => {
+  it.skip('should not compile middleware if more than one middleware file exists', async () => {
     await moveNextDist('.next', true)
     expect(middlewareExists()).toBeFalsy()
 
@@ -1915,7 +1915,7 @@ describe('the dev middleware watcher', () => {
     expect(watcher.kill()).toBeTruthy()
   })
 
-  it('should not compile middleware if a second middleware file is added after the watcher starts', async () => {
+  it.skip('should not compile middleware if a second middleware file is added after the watcher starts', async () => {
     await moveNextDist('.next', true)
     expect(middlewareExists()).toBeFalsy()
 
@@ -1929,7 +1929,7 @@ describe('the dev middleware watcher', () => {
     expect(watcher.kill()).toBeTruthy()
   })
 
-  it('should compile middleware if a second middleware file is removed after the watcher starts', async () => {
+  it.skip('should compile middleware if a second middleware file is removed after the watcher starts', async () => {
     await moveNextDist('.next', true)
     expect(middlewareExists()).toBeFalsy()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
@@ -1944,7 +1944,7 @@ describe('the dev middleware watcher', () => {
     expect(watcher.kill()).toBeTruthy()
   })
 
-  it('should generate the correct output for each case when middleware is compiled, added, removed and for error states', async () => {
+  it.skip('should generate the correct output for each case when middleware is compiled, added, removed and for error states', async () => {
     await moveNextDist('.next', true)
     expect(middlewareExists()).toBeFalsy()
     let stdioString = ''
