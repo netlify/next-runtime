@@ -1788,6 +1788,13 @@ describe('onPreDev', () => {
 
 const watcherPath = require.resolve('@netlify/plugin-nextjs/lib/helpers/watcher')
 
+//  Kill the process and resolve a promise when the process exits
+const killProcess = (process) =>
+  new Promise((resolve) => {
+    process.on('exit', resolve)
+    process.kill()
+  })
+
 describe('the dev middleware watcher', () => {
   it.skip('should compile once and exit if run with the --once flag', async () => {
     await moveNextDist('.next', true)
@@ -1817,7 +1824,8 @@ describe('the dev middleware watcher', () => {
     const watcher = execa.node(watcherPath, [process.cwd()])
     await wait()
     expect(middlewareExists()).toBeTruthy()
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 
   it('should compile a file if it is written after the watcher starts', async () => {
@@ -1828,7 +1836,8 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     await wait()
     expect(middlewareExists()).toBeTruthy()
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 
   it('should remove the output if the middleware is removed after the watcher starts', async () => {
@@ -1843,7 +1852,8 @@ describe('the dev middleware watcher', () => {
     await unlink(path.join(process.cwd(), 'middleware.ts'))
     await wait()
     expect(middlewareExists()).toBeFalsy()
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 
   it.skip('should remove the output if invalid middleware is written after the watcher starts', async () => {
@@ -1857,7 +1867,8 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.ts'), 'this is not valid middleware')
     await wait()
     expect(middlewareExists()).toBeFalsy()
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 
   it.skip('should recompile the middleware if it is moved into the src directory after the watcher starts', async () => {
@@ -1872,7 +1883,8 @@ describe('the dev middleware watcher', () => {
     await move(path.join(process.cwd(), 'middleware.ts'), path.join(process.cwd(), 'src', 'middleware.ts'))
     await wait()
     expect(middlewareExists()).toBeTruthy()
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 
   it.skip('should recompile the middleware if it is moved into the root directory after the watcher starts', async () => {
@@ -1886,7 +1898,8 @@ describe('the dev middleware watcher', () => {
     await move(path.join(process.cwd(), 'src', 'middleware.ts'), path.join(process.cwd(), 'middleware.ts'))
     await wait()
     expect(middlewareExists()).toBeTruthy()
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 
   it.skip('should compile the middleware if invalid source is replaced with valid source after the watcher starts', async () => {
@@ -1900,7 +1913,8 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     await wait()
     expect(middlewareExists()).toBeTruthy()
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 
   it.skip('should not compile middleware if more than one middleware file exists', async () => {
@@ -1912,7 +1926,8 @@ describe('the dev middleware watcher', () => {
     const watcher = execa.node(watcherPath, [process.cwd()])
     await wait()
     expect(middlewareExists()).toBeFalsy()
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 
   it.skip('should not compile middleware if a second middleware file is added after the watcher starts', async () => {
@@ -1926,7 +1941,8 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
     await wait()
     expect(middlewareExists()).toBeFalsy()
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 
   it.skip('should compile middleware if a second middleware file is removed after the watcher starts', async () => {
@@ -1941,7 +1957,8 @@ describe('the dev middleware watcher', () => {
     await unlink(path.join(process.cwd(), 'middleware.js'))
     await wait()
     expect(middlewareExists()).toBeTruthy()
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 
   it.skip('should generate the correct output for each case when middleware is compiled, added, removed and for error states', async () => {
@@ -1975,6 +1992,7 @@ describe('the dev middleware watcher', () => {
     expect(stdioString).toContain('Multiple middleware files found')
     expect(middlewareExists()).toBeFalsy()
 
-    expect(watcher.kill()).toBeTruthy()
+    await killProcess(watcher)
+    expect(watcher.killed).toBeTruthy()
   })
 })
