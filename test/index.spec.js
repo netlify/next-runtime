@@ -1764,7 +1764,7 @@ const wait = (seconds = 0.5) => new Promise((resolve) => setTimeout(resolve, sec
 
 const middlewareExists = () => existsSync(resolve('.netlify', 'middleware.js'))
 
-describe('onPreDev', () => {
+describe.skip('onPreDev', () => {
   let runtime
   beforeAll(async () => {
     runtime = await nextRuntimeFactory({}, { events: new Set(['onPreDev']) })
