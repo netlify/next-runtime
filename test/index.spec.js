@@ -1764,7 +1764,7 @@ const wait = (seconds = 0.5) => new Promise((resolve) => setTimeout(resolve, sec
 
 const middlewareExists = () => existsSync(resolve('.netlify', 'middleware.js'))
 
-describe.skip('onPreDev', () => {
+describe('onPreDev', () => {
   let runtime
   beforeAll(async () => {
     runtime = await nextRuntimeFactory({}, { events: new Set(['onPreDev']) })
@@ -1786,15 +1786,21 @@ describe.skip('onPreDev', () => {
   })
 })
 
-describe('the dev middleware watcher', () => {
+fdescribe('the dev middleware watcher', () => {
   const watchers = []
 
   afterEach(async () => {
-    await Promise.all(watchers.map((watcher) => watcher.close()))
+    await Promise.all(
+      watchers.map((watcher) => {
+        console.log('closing watcher')
+        return watcher.close()
+      }),
+    )
     watchers.length = 0
   })
 
   it('should compile a middleware file and then exit when killed', async () => {
+    console.log('starting should compile a middleware file and then exit when killed')
     await moveNextDist('.next', true)
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     expect(middlewareExists()).toBeFalsy()
@@ -1802,9 +1808,11 @@ describe('the dev middleware watcher', () => {
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeTruthy()
+    console.log('done should compile a middleware file and then exit when killed')
   })
 
   it('should compile a file if it is written after the watcher starts', async () => {
+    console.log('starting should compile a file if it is written after the watcher starts')
     await moveNextDist('.next', true)
     const { watcher, isReady, nextBuild } = startWatching(process.cwd())
     watchers.push(watcher)
@@ -1814,9 +1822,11 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     await isBuilt
     expect(middlewareExists()).toBeTruthy()
+    console.log('done should compile a file if it is written after the watcher starts')
   })
 
   it('should remove the output if the middleware is removed after the watcher starts', async () => {
+    console.log('starting should remove the output if the middleware is removed after the watcher starts')
     await moveNextDist('.next', true)
     const { watcher, isReady, nextBuild } = startWatching(process.cwd())
     watchers.push(watcher)
@@ -1830,9 +1840,11 @@ describe('the dev middleware watcher', () => {
     await unlink(path.join(process.cwd(), 'middleware.ts'))
     await isBuilt
     expect(middlewareExists()).toBeFalsy()
+    console.log('done should remove the output if the middleware is removed after the watcher starts')
   })
 
   it('should remove the output if invalid middleware is written after the watcher starts', async () => {
+    console.log('starting should remove the output if invalid middleware is written after the watcher starts')
     await moveNextDist('.next', true)
     const { watcher, isReady, nextBuild } = startWatching(process.cwd())
     watchers.push(watcher)
@@ -1846,9 +1858,13 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.ts'), 'this is not valid middleware')
     await isBuilt
     expect(middlewareExists()).toBeFalsy()
+    console.log('done should remove the output if invalid middleware is written after the watcher starts')
   })
 
   it('should recompile the middleware if it is moved into the src directory after the watcher starts', async () => {
+    console.log(
+      'starting should recompile the middleware if it is moved into the src directory after the watcher starts',
+    )
     await moveNextDist('.next', true)
     const { watcher, isReady, nextBuild } = startWatching(process.cwd())
     watchers.push(watcher)
@@ -1862,9 +1878,13 @@ describe('the dev middleware watcher', () => {
     await move(path.join(process.cwd(), 'middleware.ts'), path.join(process.cwd(), 'src', 'middleware.ts'))
     await isBuilt
     expect(middlewareExists()).toBeTruthy()
+    console.log('done should recompile the middleware if it is moved into the src directory after the watcher starts')
   })
 
   it('should recompile the middleware if it is moved into the root directory after the watcher starts', async () => {
+    console.log(
+      'starting should recompile the middleware if it is moved into the root directory after the watcher starts',
+    )
     await moveNextDist('.next', true)
     const { watcher, isReady, nextBuild } = startWatching(process.cwd())
     watchers.push(watcher)
@@ -1879,9 +1899,13 @@ describe('the dev middleware watcher', () => {
     await move(path.join(process.cwd(), 'src', 'middleware.ts'), path.join(process.cwd(), 'middleware.ts'))
     await isBuilt
     expect(middlewareExists()).toBeTruthy()
+    console.log('done should recompile the middleware if it is moved into the root directory after the watcher starts')
   })
 
   it('should compile the middleware if invalid source is replaced with valid source after the watcher starts', async () => {
+    console.log(
+      'starting should compile the middleware if invalid source is replaced with valid source after the watcher starts',
+    )
     await moveNextDist('.next', true)
     const { watcher, isReady, nextBuild } = startWatching(process.cwd())
     watchers.push(watcher)
@@ -1895,9 +1919,13 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     await isBuilt
     expect(middlewareExists()).toBeTruthy()
+    console.log(
+      'done should compile the middleware if invalid source is replaced with valid source after the watcher starts',
+    )
   })
 
   it('should not compile middleware if more than one middleware file exists', async () => {
+    console.log('starting should not compile middleware if more than one middleware file exists')
     await moveNextDist('.next', true)
     const { watcher, isReady, nextBuild } = startWatching(process.cwd())
     watchers.push(watcher)
@@ -1908,9 +1936,11 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
     await isBuilt
     expect(middlewareExists()).toBeFalsy()
+    console.log('done should not compile middleware if more than one middleware file exists')
   })
 
   it('should not compile middleware if a second middleware file is added after the watcher starts', async () => {
+    console.log('starting should not compile middleware if a second middleware file is added after the watcher starts')
     await moveNextDist('.next', true)
     const { watcher, isReady, nextBuild } = startWatching(process.cwd())
     watchers.push(watcher)
@@ -1924,9 +1954,11 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
     await isBuilt
     expect(middlewareExists()).toBeFalsy()
+    console.log('done should not compile middleware if a second middleware file is added after the watcher starts')
   })
 
   it('should compile middleware if a second middleware file is removed after the watcher starts', async () => {
+    console.log('starting should compile middleware if a second middleware file is removed after the watcher starts')
     await moveNextDist('.next', true)
     const { watcher, isReady, nextBuild } = startWatching(process.cwd())
     watchers.push(watcher)
@@ -1943,9 +1975,13 @@ describe('the dev middleware watcher', () => {
     await unlink(path.join(process.cwd(), 'middleware.js'))
     await isBuilt
     expect(middlewareExists()).toBeTruthy()
+    console.log('done should compile middleware if a second middleware file is removed after the watcher starts')
   })
 
   it('should generate the correct output for each case when middleware is compiled, added, removed and for error states', async () => {
+    console.log(
+      'starting should generate the correct output for each case when middleware is compiled, added, removed and for error states',
+    )
     await moveNextDist('.next', true)
     const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
     const consoleErrorSpy = jest
