@@ -31,7 +31,7 @@ const { downloadFile } = require('../packages/runtime/src/templates/handlerUtils
 const { getExtendedApiRouteConfigs } = require('../packages/runtime/src/helpers/functions')
 const nextRuntimeFactory = require('../packages/runtime/src')
 const nextRuntime = nextRuntimeFactory({})
-
+const { startWatching } = require('../packages/runtime/src/helpers/compiler')
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../packages/runtime/src/constants')
 const { join } = require('pathe')
 const {
@@ -1786,213 +1786,199 @@ describe('onPreDev', () => {
   })
 })
 
-const watcherPath = require.resolve('@netlify/plugin-nextjs/lib/helpers/watcher')
-
-//  Kill the process and resolve a promise when the process exits
-const killProcess = (process) =>
-  new Promise((resolve) => {
-    process.on('exit', resolve)
-    process.kill()
-  })
-
 describe('the dev middleware watcher', () => {
-  it('should compile once and exit if run with the --once flag', async () => {
-    await moveNextDist('.next', true)
-    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+  const watchers = []
 
-    expect(middlewareExists()).toBeFalsy()
-
-    const watcher = execa.node(watcherPath, [process.cwd(), '--once'])
-    const output = await watcher
-    expect(middlewareExists()).toBeTruthy()
-    expect(output.stdout).toContain('Building middleware middleware.ts')
-    expect(output.stdout).toContain('...done')
-  })
-
-  it('should not compile anything if there is no middleware', async () => {
-    await moveNextDist('.next', true)
-    const watcher = execa.node(watcherPath, [process.cwd(), '--once'])
-    const output = await watcher
-    expect(middlewareExists()).toBeFalsy()
-    expect(output.stdout).toBe('Initial scan complete. Ready for changes')
+  afterEach(async () => {
+    await Promise.all(watchers.map((watcher) => watcher.close()))
+    watchers.length = 0
   })
 
   it('should compile a middleware file and then exit when killed', async () => {
     await moveNextDist('.next', true)
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     expect(middlewareExists()).toBeFalsy()
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    await wait()
+    const { watcher, isReady } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
     expect(middlewareExists()).toBeTruthy()
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
   })
 
   it('should compile a file if it is written after the watcher starts', async () => {
     await moveNextDist('.next', true)
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    await wait()
+    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
     expect(middlewareExists()).toBeFalsy()
+    const isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
   })
 
   it('should remove the output if the middleware is removed after the watcher starts', async () => {
     await moveNextDist('.next', true)
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    await wait()
+    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
     expect(middlewareExists()).toBeFalsy()
+    let isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
-    await wait()
-
+    await isBuilt
     expect(middlewareExists()).toBeTruthy()
+    isBuilt = nextBuild()
     await unlink(path.join(process.cwd(), 'middleware.ts'))
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeFalsy()
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
   })
 
   it('should remove the output if invalid middleware is written after the watcher starts', async () => {
     await moveNextDist('.next', true)
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    await wait()
+    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
     expect(middlewareExists()).toBeFalsy()
+    let isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeTruthy()
+    isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), 'this is not valid middleware')
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeFalsy()
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
   })
 
   it('should recompile the middleware if it is moved into the src directory after the watcher starts', async () => {
     await moveNextDist('.next', true)
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    await wait()
+    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
     expect(middlewareExists()).toBeFalsy()
+    let isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    await ensureDir(path.join(process.cwd(), 'src'))
+    isBuilt = nextBuild()
     await move(path.join(process.cwd(), 'middleware.ts'), path.join(process.cwd(), 'src', 'middleware.ts'))
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
   })
 
   it('should recompile the middleware if it is moved into the root directory after the watcher starts', async () => {
     await moveNextDist('.next', true)
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    await wait()
+    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
+    expect(middlewareExists()).toBeFalsy()
+    let isBuilt = nextBuild()
     await ensureDir(path.join(process.cwd(), 'src'))
     await writeFile(path.join(process.cwd(), 'src', 'middleware.ts'), middlewareSourceTs)
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeTruthy()
+    isBuilt = nextBuild()
     await move(path.join(process.cwd(), 'src', 'middleware.ts'), path.join(process.cwd(), 'middleware.ts'))
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
   })
 
   it('should compile the middleware if invalid source is replaced with valid source after the watcher starts', async () => {
     await moveNextDist('.next', true)
+    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
     expect(middlewareExists()).toBeFalsy()
-
+    let isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), 'this is not valid middleware')
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeFalsy()
+    isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
   })
 
   it('should not compile middleware if more than one middleware file exists', async () => {
     await moveNextDist('.next', true)
+    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
     expect(middlewareExists()).toBeFalsy()
-
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    let isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeFalsy()
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
   })
 
   it('should not compile middleware if a second middleware file is added after the watcher starts', async () => {
     await moveNextDist('.next', true)
+    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
     expect(middlewareExists()).toBeFalsy()
-
+    let isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeTruthy()
+    isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeFalsy()
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
   })
 
   it('should compile middleware if a second middleware file is removed after the watcher starts', async () => {
     await moveNextDist('.next', true)
+    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
     expect(middlewareExists()).toBeFalsy()
+    let isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
-    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    await isBuilt
+    isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeFalsy()
+    isBuilt = nextBuild()
     await unlink(path.join(process.cwd(), 'middleware.js'))
-    await wait()
+    await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
   })
 
   it('should generate the correct output for each case when middleware is compiled, added, removed and for error states', async () => {
     await moveNextDist('.next', true)
+    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+    const consoleErrorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation((args) => console.warn(args?.errors?.[0]?.text))
+    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    watchers.push(watcher)
+    await isReady
     expect(middlewareExists()).toBeFalsy()
-    let stdioString = ''
-
-    const watcher = execa.node(watcherPath, [process.cwd()])
-    watcher.stdout.on('data', (data) => {
-      stdioString += data
-    })
-    watcher.stderr.on('data', (data) => {
-      stdioString += data
-    })
-    await wait()
-    expect(stdioString).toContain('Initial scan complete')
-    stdioString = ''
+    expect(consoleLogSpy).toHaveBeenCalledWith('Initial scan complete. Ready for changes')
+    consoleLogSpy.mockClear()
+    let isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
-    await wait()
-    expect(stdioString).toContain('Rebuilding middleware middleware.ts')
-    stdioString = ''
+    await isBuilt
+    expect(consoleLogSpy).toHaveBeenCalledWith('Rebuilding middleware middleware.ts...')
+    consoleLogSpy.mockClear()
+    consoleErrorSpy.mockClear()
+    isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), 'this is not valid middleware')
-    await wait()
-    expect(stdioString).toContain('Error: Build failed with 1 error')
-    stdioString = ''
-    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
-    await wait()
-    expect(middlewareExists()).toBeTruthy()
-    await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
-    await wait()
-    expect(stdioString).toContain('Multiple middleware files found')
-    expect(middlewareExists()).toBeFalsy()
+    await isBuilt
+    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Error: Build failed with 1 error'))
 
-    await killProcess(watcher)
-    expect(watcher.killed).toBeTruthy()
+    isBuilt = nextBuild()
+    await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
+    await isBuilt
+    isBuilt = nextBuild()
+    expect(middlewareExists()).toBeTruthy()
+    consoleLogSpy.mockClear()
+
+    await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
+    await isBuilt
+    expect(consoleLogSpy).toHaveBeenCalledWith('Multiple middleware files found:')
+    consoleLogSpy.mockClear()
+    expect(middlewareExists()).toBeFalsy()
   })
 })
