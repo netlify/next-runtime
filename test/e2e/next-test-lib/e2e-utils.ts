@@ -4,6 +4,9 @@ import { NextConfig } from 'next'
 import { InstallCommand, NextInstance, PackageJson } from './next-modes/base'
 import { NextDeployInstance } from './next-modes/next-deploy'
 
+// increase timeout to 5 minutes, because it includes the time to deploy the site
+jest.setTimeout(5 * 60 * 1000)
+
 const testsFolder = path.join(__dirname, '..')
 
 let testFile
