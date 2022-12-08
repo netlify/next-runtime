@@ -17,7 +17,13 @@ const { URLSearchParams, URL } = require('url')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
 
-const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+const {
+  augmentFsModule,
+  getMaxAge,
+  getMultiValueHeaders,
+  getPrefetchResponse,
+  getNextServer,
+} = require('./handlerUtils')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
@@ -90,6 +96,10 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     let requestMode = mode
+    const prefetchResponse = getPrefetchResponse(event, mode)
+    if (prefetchResponse) {
+      return prefetchResponse
+    }
     // Ensure that paths are encoded - but don't double-encode them
     event.path = new URL(event.rawUrl).pathname
     // Next expects to be able to parse the query from the URL
@@ -164,7 +174,7 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, getNextServer } = require('./handlerUtils')
 
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")

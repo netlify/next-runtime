@@ -4,6 +4,7 @@ import path from 'path'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 
+import { HandlerEvent, HandlerResponse } from '@netlify/functions'
 import { http, https } from 'follow-redirects'
 import type NextNodeServer from 'next/dist/server/next-server'
 
@@ -105,8 +106,8 @@ export const augmentFsModule = ({
   const statsOrig = promises.stat
   // ...then money-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
-    // In production use the public URL (e.g. https://example.com). Otherwise use the deploy URL, e.g. https://deploy-preview-123--example.netlify.app
-    const baseUrl = process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
+    // In production or dev use the public URL (e.g. https://example.com). Otherwise use the deploy URL, e.g. https://deploy-preview-123--example.netlify.app
+    const baseUrl = ['production', 'dev'].includes(process.env.CONTEXT) ? process.env.URL : process.env.DEPLOY_PRIME_URL
 
     // We only care about page files
     if (file.startsWith(pageRoot)) {
@@ -187,4 +188,20 @@ export const getNextServer = (): NextServerType => {
     }
   }
   return NextServer
+}
+/**
+ * Prefetch requests are used to check for middleware redirects, and shouldn't trigger SSR.
+ */
+export const getPrefetchResponse = (event: HandlerEvent, mode: string): HandlerResponse | false => {
+  if (event.headers['x-middleware-prefetch'] && mode === 'ssr') {
+    return {
+      statusCode: 200,
+      body: '{}',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-middleware-skip': '1',
+      },
+    }
+  }
+  return false
 }
