@@ -4,9 +4,6 @@ import { NextConfig } from 'next'
 import { InstallCommand, NextInstance, PackageJson } from './next-modes/base'
 import { NextDeployInstance } from './next-modes/next-deploy'
 
-// increase timeout to account for yarn install time
-jest.setTimeout(240 * 1000)
-
 const testsFolder = path.join(__dirname, '..')
 
 let testFile
