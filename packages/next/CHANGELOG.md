@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/netlify/next-runtime/compare/next-v1.4.1...next-v1.4.2) (2022-12-05)
+
+
+### Bug Fixes
+
+* fix Invalid URL error when using uppercase i18n url ([#1812](https://github.com/netlify/next-runtime/issues/1812)) ([63e060d](https://github.com/netlify/next-runtime/commit/63e060df7d3851c5dafae60d4790c2f34d47ed80))
+
 ## [1.4.1](https://github.com/netlify/next-runtime/compare/next-v1.4.0...next-v1.4.1) (2022-11-21)
 
 
