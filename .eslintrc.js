@@ -29,6 +29,7 @@ module.exports = {
     'unicorn/filename-case': 0,
     'unicorn/no-array-push-push': 0,
     'unicorn/numeric-separators-style': 0,
+    'max-lines': 0,
   },
   parserOptions: {
     sourceType: 'module',

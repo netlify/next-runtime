@@ -107,8 +107,10 @@ export const augmentFsModule = ({
   // ...then money-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
     // In production or dev use the public URL (e.g. https://example.com). Otherwise use the deploy URL, e.g. https://deploy-preview-123--example.netlify.app
-    const baseUrl = ['production', 'dev'].includes(process.env.CONTEXT) ? process.env.URL : process.env.DEPLOY_PRIME_URL
-
+    const baseUrl = ['production', 'dev'].includes(process.env.CONTEXT)
+      ? process.env.URL
+      : process.env.DEPLOY_PRIME_URL || process.env.URL
+    console.log(process.env)
     // We only care about page files
     if (file.startsWith(pageRoot)) {
       // We only want the part after `.next/server/`
