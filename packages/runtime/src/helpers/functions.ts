@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
@@ -233,4 +232,3 @@ export const warnOnApiRoutes = async ({
     )
   }
 }
-/* eslint-enable max-lines */

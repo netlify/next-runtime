@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
@@ -396,5 +395,3 @@ export const writeEdgeFunctions = async ({
   }
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
-
-/* eslint-enable max-lines */

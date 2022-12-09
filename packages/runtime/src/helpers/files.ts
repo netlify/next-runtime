@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { cpus } from 'os'
 
 import type { NetlifyConfig } from '@netlify/build'
@@ -451,4 +450,3 @@ export const movePublicFiles = async ({
     await copy(publicDir, `${publish}/`)
   }
 }
-/* eslint-enable max-lines */

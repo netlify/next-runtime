@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { existsSync, promises } from 'fs'
 import path, { relative, join } from 'path'
 
@@ -213,4 +212,3 @@ export const warnForRootRedirects = ({ appDir }: { appDir: string }) => {
     )
   }
 }
-/* eslint-enable max-lines */
