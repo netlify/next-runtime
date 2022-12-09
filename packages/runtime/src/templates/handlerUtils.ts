@@ -84,10 +84,12 @@ export const augmentFsModule = ({
   promises,
   staticManifest,
   pageRoot,
+  getBase,
 }: {
   promises: typeof fs.promises
   staticManifest: Array<[string, string]>
   pageRoot: string
+  getBase: () => string
 }) => {
   // Only do this if we have some static files moved to the CDN
   if (staticManifest.length === 0) {
@@ -106,11 +108,8 @@ export const augmentFsModule = ({
   const statsOrig = promises.stat
   // ...then money-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
-    // In production or dev use the public URL (e.g. https://example.com). Otherwise use the deploy URL, e.g. https://deploy-preview-123--example.netlify.app
-    const baseUrl = ['production', 'dev'].includes(process.env.CONTEXT)
-      ? process.env.URL
-      : process.env.DEPLOY_PRIME_URL || process.env.URL
-    console.log(process.env)
+    const baseUrl = getBase()
+
     // We only care about page files
     if (file.startsWith(pageRoot)) {
       // We only want the part after `.next/server/`
