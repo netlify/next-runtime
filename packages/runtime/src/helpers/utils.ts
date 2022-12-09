@@ -72,9 +72,18 @@ export const netlifyRoutesForNextRouteWithData = ({ route, dataRoute }: { route:
 export const routeToDataRoute = (route: string, buildId: string, locale?: string) =>
   `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}.json`
 
-const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n): Array<string> => {
+const netlifyRoutesForNextRoute = (
+  route: string,
+  buildId: string,
+  i18n?: I18n,
+): Array<{ redirect: string; locale: string | false }> => {
   if (!i18n?.locales?.length) {
-    return netlifyRoutesForNextRouteWithData({ route, dataRoute: routeToDataRoute(route, buildId) })
+    return netlifyRoutesForNextRouteWithData({ route, dataRoute: routeToDataRoute(route, buildId) }).map(
+      (redirect) => ({
+        redirect,
+        locale: false,
+      }),
+    )
   }
   const { locales, defaultLocale } = i18n
   const routes = []
@@ -87,7 +96,10 @@ const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n):
       ...netlifyRoutesForNextRouteWithData({
         route: locale === defaultLocale ? route : `/${locale}${route}`,
         dataRoute,
-      }),
+      }).map((redirect) => ({
+        redirect,
+        locale,
+      })),
     )
   })
   return routes
@@ -115,10 +127,30 @@ export const redirectsForNextRoute = ({
   status?: number
   force?: boolean
 }): NetlifyConfig['redirects'] =>
-  netlifyRoutesForNextRoute(route, buildId, i18n).map((redirect) => ({
+  netlifyRoutesForNextRoute(route, buildId, i18n).map(({ redirect }) => ({
     from: `${basePath}${redirect}`,
     to,
     status,
+    force,
+  }))
+
+export const redirectsForNext404Route = ({
+  route,
+  buildId,
+  basePath,
+  i18n,
+  force = false,
+}: {
+  route: string
+  buildId: string
+  basePath: string
+  i18n: I18n
+  force?: boolean
+}): NetlifyConfig['redirects'] =>
+  netlifyRoutesForNextRoute(route, buildId, i18n).map(({ redirect, locale }) => ({
+    from: `${basePath}${redirect}`,
+    to: locale ? `${basePath}/server/pages/${locale}/404.html` : `${basePath}/server/pages/404.html`,
+    status: 404,
     force,
   }))
 
