@@ -201,6 +201,8 @@ export const getPrefetchResponse = (event: HandlerEvent, mode: string): HandlerR
       headers: {
         'Content-Type': 'application/json',
         'x-middleware-skip': '1',
+        // https://github.com/vercel/next.js/pull/42936/files#r1027563953
+        vary: 'x-middleware-prefetch',
       },
     }
   }
