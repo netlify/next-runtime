@@ -2,6 +2,7 @@ name: Next.js e2e test suite
 
 on:
   pull_request:
+    types: [opened, synchronize]
   push:
     branches: [main]
 
@@ -41,17 +42,6 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
           NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
           # RUN_SKIPPED_TESTS: true
-      # - uses: phoenix-actions/test-reporting@v10
-      #   if: ${{ always() }}
-      #   name: Report Test Results
-      #   # Generates annotations for the test failures
-      #   id: test-report
-      #   with:
-      #     name: E2E Test chunk ${{ matrix.chunk }}
-      #     path: 'reports/**/*.xml' # Path to test results (inside artifact .zip)
-      #     output-to: 'checks'
-      #     max-annotations: 49 # Maximum number of annotations to be created
-      #     reporter: jest-junit # Format of test results
 
       - uses: actions/upload-artifact@v3
         # upload test results
@@ -61,6 +51,7 @@ jobs:
           name: test-results
           path: reports/jest-*.xml
   report:
+    name: Report Next.js e2e test results
     runs-on: ubuntu-latest
     if: ${{ always() }}
     needs:

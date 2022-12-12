@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
 import { readJSON } from 'fs-extra'
@@ -330,4 +329,3 @@ export const generateRedirects = async ({
     )
   }
 }
-/* eslint-enable max-lines */

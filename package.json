@@ -4,7 +4,7 @@
   "description": "Run Next.js seamlessly on Netlify",
   "scripts": {
     "build:demo": "cd demos/default && npm run build",
-    "cy:open": "cypress open --config-file cypress/config/all.json",
+    "cy:open": "cypress open --config-file cypress/config/canary.json",
     "dev:demo": "next dev demos/default",
     "format": "run-s format:check-fix:*",
     "format:ci": "run-s format:check:*",
@@ -21,6 +21,7 @@
     "test:next": "jest -c test/e2e/jest.config.js",
     "test:next:disabled": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.disabled.js",
     "test:next:all": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.all.js",
+    "test:next:appdir": "NEXT_TEST_VERSION=canary jest -c test/e2e/jest.config.appdir.js",
     "test:jest": "jest",
     "playwright:install": "playwright install --with-deps chromium",
     "test:jest:update": "jest --updateSnapshot",
@@ -70,6 +71,7 @@
     "execa": "^5.1.1",
     "husky": "^7.0.4",
     "jest": "^27.0.0",
+    "jest-extended": "^3.2.0",
     "jest-fetch-mock": "^3.0.3",
     "jest-junit": "^14.0.1",
     "netlify-plugin-cypress": "^2.2.0",
@@ -85,7 +87,7 @@
     "typescript": "^4.3.4"
   },
   "dependencies": {
-    "next": "^13.0.3"
+    "next": "^13.0.6"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -118,7 +120,6 @@
   },
   "workspaces": [
     "packages/*",
-    "demos/canary",
     "demos/default",
     "demos/next-auth",
     "demos/static-root",

@@ -19,7 +19,7 @@ describe('Edge Compiler can import asset assets', () => {
     next = await createNext({
       files: new FileRef(path.join(__dirname, './app')),
     })
-  })
+  }, 600000)
   afterAll(() => next.destroy())
   it('allows to fetch a remote URL', async () => {
     const response = await fetchViaHTTP(next.url, '/api/edge', {

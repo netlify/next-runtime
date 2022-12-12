@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import type { NetlifyConfig } from '@netlify/build'
 import type { Header } from '@netlify/build/types/config/netlify_config'
 import globby from 'globby'
@@ -291,5 +290,3 @@ export const getRemotePatterns = (experimental: ExperimentalConfigWithLegacy, im
   }
   return []
 }
-
-/* eslint-enable max-lines */

@@ -13,6 +13,12 @@ export interface FetchEventResult {
   waitUntil: Promise<any>
 }
 
+export interface I18NConfig {
+  defaultLocale: string
+  localeDetection?: false
+  locales: string[]
+}
+
 export interface RequestData {
   geo?: {
     city?: string
@@ -27,7 +33,7 @@ export interface RequestData {
   method: string
   nextConfig?: {
     basePath?: string
-    i18n?: Record<string, unknown>
+    i18n?: I18NConfig | null
     trailingSlash?: boolean
   }
   page?: {
