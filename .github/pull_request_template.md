@@ -1,4 +1,4 @@
-<!--Please tag yourself as the Assignee and netlify/frameworks as the Reviewer -->
+<!-- Before opening a pull request, ensure you've read our contributing guildines, https://github.com/netlify/next-runtime/blob/main/CONTRIBUTING.md. -->
 
 ### Summary
 

@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
 import { readJSON } from 'fs-extra'
@@ -11,6 +10,7 @@ import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../const
 
 import { usesEdgeRouter } from './edge'
 import { getMiddleware } from './files'
+import { ApiRouteConfig } from './functions'
 import { RoutesManifest } from './types'
 import {
   getApiRewrites,
@@ -19,6 +19,7 @@ import {
   isApiRoute,
   redirectsForNextRoute,
   redirectsForNextRouteWithData,
+  redirectsForNext404Route,
   routeToDataRoute,
 } from './utils'
 
@@ -187,6 +188,7 @@ const generateDynamicRewrites = ({
   basePath,
   buildId,
   i18n,
+  is404Isr,
 }: {
   dynamicRoutes: RoutesManifest['dynamicRoutes']
   prerenderedDynamicRoutes: PrerenderManifest['dynamicRoutes']
@@ -194,6 +196,7 @@ const generateDynamicRewrites = ({
   i18n: NextConfig['i18n']
   buildId: string
   middleware: Array<string>
+  is404Isr: boolean
 }): {
   dynamicRoutesThatMatchMiddleware: Array<string>
   dynamicRewrites: NetlifyConfig['redirects']
@@ -207,9 +210,11 @@ const generateDynamicRewrites = ({
     if (route.page in prerenderedDynamicRoutes) {
       if (matchesMiddleware(middleware, route.page)) {
         dynamicRoutesThatMatchMiddleware.push(route.page)
+      } else if (prerenderedDynamicRoutes[route.page].fallback === false && !is404Isr) {
+        dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
       } else {
         dynamicRewrites.push(
-          ...redirectsForNextRoute({ buildId, route: route.page, basePath, to: ODB_FUNCTION_PATH, status: 200, i18n }),
+          ...redirectsForNextRoute({ route: route.page, buildId, basePath, to: ODB_FUNCTION_PATH, i18n }),
         )
       }
     } else {
@@ -229,10 +234,12 @@ export const generateRedirects = async ({
   netlifyConfig,
   nextConfig: { i18n, basePath, trailingSlash, appDir },
   buildId,
+  apiRoutes,
 }: {
   netlifyConfig: NetlifyConfig
   nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash' | 'appDir'>
   buildId: string
+  apiRoutes: Array<ApiRouteConfig>
 }) => {
   const { dynamicRoutes: prerenderedDynamicRoutes, routes: prerenderedStaticRoutes }: PrerenderManifest =
     await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
@@ -250,7 +257,7 @@ export const generateRedirects = async ({
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
     // API routes always need to be served from the regular function
-    ...getApiRewrites(basePath),
+    ...getApiRewrites(basePath, apiRoutes),
     // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
     ...(await getPreviewRewrites({ basePath, appDir })),
   )
@@ -260,6 +267,10 @@ export const generateRedirects = async ({
   netlifyConfig.redirects.push(...generateMiddlewareRewrites({ basePath, i18n, middleware, buildId }))
 
   const staticRouteEntries = Object.entries(prerenderedStaticRoutes)
+
+  const is404Isr = staticRouteEntries.some(
+    ([route, { initialRevalidateSeconds }]) => is404Route(route, i18n) && initialRevalidateSeconds !== false,
+  )
 
   const routesThatMatchMiddleware: Array<string> = []
 
@@ -293,6 +304,7 @@ export const generateRedirects = async ({
     basePath,
     buildId,
     i18n,
+    is404Isr,
   })
   netlifyConfig.redirects.push(...dynamicRewrites)
   routesThatMatchMiddleware.push(...dynamicRoutesThatMatchMiddleware)
@@ -318,4 +330,3 @@ export const generateRedirects = async ({
     )
   }
 }
-/* eslint-enable max-lines */

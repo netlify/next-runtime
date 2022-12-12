@@ -9,10 +9,14 @@ publish = "apps/web/.next"
 command = "npm run dev"
 
 [[plugins]]
-package = "./packages/local-plugin"
+package = "@netlify/plugin-nextjs"
 
+# This is a fake plugin, that makes it run npm install
 [[plugins]]
 package = "@netlify/plugin-local-install-core"
+
+[[plugins]]
+package = "../plugin-wrapper"
 
 [[edge_functions]]
 path = "/edge"

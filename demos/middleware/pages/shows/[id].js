@@ -11,13 +11,11 @@ const Show = ({ errorCode, show, env }) => {
   return (
     <div>
       <p>
-        This page uses getInitialProps() to fetch the show with the ID provided
-        in the URL: /shows/:id
+        This page uses getInitialProps() to fetch the show with the ID provided in the URL: /shows/:id
         <br />
         Refresh the page to see server-side rendering in action.
         <br />
-        You can also try changing the ID to any other number between 1-10000.
-        Env: {env}
+        You can also try changing the ID to any other number between 1-10000. Env: {env}
       </p>
       <hr />
 
@@ -26,9 +24,7 @@ const Show = ({ errorCode, show, env }) => {
 
       <hr />
 
-      <Link href="/">
-        <a>Go back home</a>
-      </Link>
+      <Link href="/">Go back home</Link>
     </div>
   )
 }

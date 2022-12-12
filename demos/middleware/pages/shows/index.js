@@ -7,9 +7,7 @@ const Show = () => {
       <p>Add a number between 1 and 10000 to the URL</p>
       <hr />
 
-      <Link href="/">
-        <a>Go back home</a>
-      </Link>
+      <Link href="/">Go back home</Link>
     </div>
   )
 }

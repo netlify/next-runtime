@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+/* eslint-disable max-lines-per-function */
 import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
@@ -10,7 +10,8 @@ import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middlew
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
 
-import { getRequiredServerFiles } from './config'
+import { getRequiredServerFiles, NextConfig } from './config'
+import { makeLocaleOptional, stripLookahead } from './matchers'
 import { RoutesManifest } from './types'
 
 // This is the format as of next@12.2
@@ -22,6 +23,10 @@ interface EdgeFunctionDefinitionV1 {
   regexp: string
 }
 
+interface AssetRef {
+  name: string
+  filePath: string
+}
 export interface MiddlewareMatcher {
   regexp: string
   locale?: false
@@ -35,6 +40,8 @@ interface EdgeFunctionDefinitionV2 {
   name: string
   page: string
   matchers: MiddlewareMatcher[]
+  wasm?: AssetRef[]
+  assets?: AssetRef[]
 }
 
 type EdgeFunctionDefinition = EdgeFunctionDefinitionV1 | EdgeFunctionDefinitionV2
@@ -48,11 +55,13 @@ export interface FunctionManifest {
         function: string
         name?: string
         path: string
+        cache?: 'manual'
       }
     | {
         function: string
         name?: string
         pattern: string
+        cache?: 'manual'
       }
   >
   import_map?: string
@@ -79,14 +88,51 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
  * Initialization added to the top of the edge function bundle
  */
 const preamble = /* js */ `
-  // Deno defines "window", but naughty libraries think this means it's a browser
-  delete globalThis.window
-  globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-  // Next uses "self" as a function-scoped global-like object
-  const self = {}
-  let _ENTRIES = {}
+import {
+  decode as _base64Decode,
+} from "https://deno.land/std@0.159.0/encoding/base64.ts";
+// Deno defines "window", but naughty libraries think this means it's a browser
+delete globalThis.window
+globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
+globalThis.EdgeRuntime = "netlify-edge"
+let _ENTRIES = {}
+
+// Next.js uses this extension to the Headers API implemented by Cloudflare workerd
+if(!('getAll' in Headers.prototype)) {
+  Headers.prototype.getAll = function getAll(name) {
+    name = name.toLowerCase();
+    if (name !== "set-cookie") {
+      throw new Error("Headers.getAll is only supported for Set-Cookie");
+    }
+    return [...this.entries()]
+      .filter(([key]) => key === name)
+      .map(([, value]) => value);
+  };
+}
+//  Next uses blob: urls to refer to local assets, so we need to intercept these
+const _fetch = globalThis.fetch
+const fetch = async (url, init) => {
+  try {
+    if (typeof url === 'object' && url.href?.startsWith('blob:')) {
+      const key = url.href.slice(5)
+      if (key in _ASSETS) {
+        return new Response(_base64Decode(_ASSETS[key]))
+      }
+    }
+    return await _fetch(url, init)
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
+// Next edge runtime uses "self" as a function-scoped global-like object, but some of the older polyfills expect it to equal globalThis
+// See https://nextjs.org/docs/basic-features/supported-browsers-features#polyfills
+const self = { ...globalThis, fetch }
+
 `
 
+// Slightly different spacing in different versions!
 const IMPORT_UNSUPPORTED = [
   `Object.defineProperty(globalThis,"__import_unsupported"`,
   `    Object.defineProperty(globalThis, "__import_unsupported"`,
@@ -103,10 +149,28 @@ const getMiddlewareBundle = async ({
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
   const chunks: Array<string> = [preamble]
+
+  if ('wasm' in edgeFunctionDefinition) {
+    for (const { name, filePath } of edgeFunctionDefinition.wasm) {
+      const wasm = await fs.readFile(join(publish, filePath))
+      chunks.push(`const ${name} = _base64Decode(${JSON.stringify(wasm.toString('base64'))}).buffer`)
+    }
+  }
+
+  if ('assets' in edgeFunctionDefinition) {
+    chunks.push(`const _ASSETS = {}`)
+    for (const { name, filePath } of edgeFunctionDefinition.assets) {
+      const wasm = await fs.readFile(join(publish, filePath))
+      chunks.push(`_ASSETS[${JSON.stringify(name)}] = ${JSON.stringify(wasm.toString('base64'))}`)
+    }
+  }
+
   for (const file of edgeFunctionDefinition.files) {
     const filePath = join(publish, file)
 
     let data = await fs.readFile(filePath, 'utf8')
+    // Next defines an immutable global variable, which is fine unless you have more than one in the bundle
+    // This adds a check to see if the global is already defined
     data = IMPORT_UNSUPPORTED.reduce(
       (acc, val) => acc.replace(val, `('__import_unsupported' in globalThis)||${val}`),
       data,
@@ -140,6 +204,8 @@ const writeEdgeFunction = async ({
   edgeRouter,
   pageRegexMap,
   appPathRoutesManifest = {},
+  nextConfig,
+  cache,
 }: {
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
@@ -147,9 +213,12 @@ const writeEdgeFunction = async ({
   edgeRouter: boolean
   pageRegexMap?: Map<string, string>
   appPathRoutesManifest?: Record<string, string>
+  nextConfig: NextConfig
+  cache?: 'manual'
 }): Promise<
   Array<{
     function: string
+    name: string
     pattern: string
   }>
 > => {
@@ -175,6 +244,13 @@ const writeEdgeFunction = async ({
   // The v1 middleware manifest has a single regexp, but the v2 has an array of matchers
   if ('regexp' in edgeFunctionDefinition) {
     matchers.push({ regexp: edgeFunctionDefinition.regexp })
+  } else if (nextConfig.i18n) {
+    matchers.push(
+      ...edgeFunctionDefinition.matchers.map((matcher) => ({
+        ...matcher,
+        regexp: makeLocaleOptional(matcher.regexp),
+      })),
+    )
   } else {
     matchers.push(...edgeFunctionDefinition.matchers)
   }
@@ -192,8 +268,9 @@ const writeEdgeFunction = async ({
 
   // We add a defintion for each matching path
   return matchers.map((matcher) => {
-    const pattern = edgeRouter ? '^.*$' : matcher.regexp
-    return { function: name, pattern }
+    // Edge router does its own routing, so gets a catch-all
+    const pattern = edgeRouter ? '^.*$' : stripLookahead(matcher.regexp)
+    return { function: name, pattern, name: edgeFunctionDefinition.name, cache }
   })
 }
 export const cleanupEdgeFunctions = ({
@@ -207,6 +284,7 @@ export const writeDevEdgeFunction = async ({
     functions: [
       {
         function: 'next-dev',
+        name: 'netlify dev handler',
         path: '/*',
       },
     ],
@@ -263,6 +341,7 @@ export const writeEdgeFunctions = async ({
   const { publish } = netlifyConfig.build
   const nextConfigFile = await getRequiredServerFiles(publish)
   const nextConfig = nextConfigFile.config
+  const usesAppDir = nextConfig.experimental?.appDir
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
@@ -283,6 +362,7 @@ export const writeEdgeFunctions = async ({
     )
     manifest.functions.push({
       function: 'ipx',
+      name: 'next/image handler',
       path: '/_next/image*',
     })
   }
@@ -303,6 +383,7 @@ export const writeEdgeFunctions = async ({
         edgeFunctionRoot,
         netlifyConfig,
         edgeRouter: usesEdgeRouter,
+        nextConfig,
       })
       manifest.functions.push(...functionDefinitions)
     }
@@ -344,6 +425,9 @@ export const writeEdgeFunctions = async ({
           edgeRouter: usesEdgeRouter,
           pageRegexMap,
           appPathRoutesManifest,
+          nextConfig,
+          // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
+          cache: usesAppDir ? 'manual' : undefined,
         })
         manifest.functions.push(...functionDefinitions)
       }
@@ -358,5 +442,4 @@ export const writeEdgeFunctions = async ({
   }
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
-
-/* eslint-enable max-lines */
+/* eslint-enable max-lines-per-function */

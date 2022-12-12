@@ -1,11 +1,27 @@
-import Link from 'next/link'
-import styles from '../styles/shared.module.css'
+import Head from 'next/head'
+import Image from 'next/image'
 
-export default function Page(props) {
+export default function Home() {
   return (
-    <>
-      <p className={styles.content}>hello from pages/index</p>
-      <Link href="/dashboard">Dashboard</Link>
-    </>
+    <div>
+      <Head>
+        <title>Canary Next App</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <main>
+        <h1>Canary Next App</h1>
+        <div>
+          <p>Here's where we test out Next's canary features to ensure they work with our Next Runtime .</p>
+        </div>
+      </main>
+
+      <Image
+        src="https://raw.githubusercontent.com/netlify/next-runtime/main/demos/default/public/next-on-netlify.png"
+        alt="Picture of the author"
+        width={540}
+        height={191}
+      />
+    </div>
   )
 }

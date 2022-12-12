@@ -1,11 +1,11 @@
 import fs, { createWriteStream, existsSync } from 'fs'
-import http from 'http'
-import https from 'https'
 import { tmpdir } from 'os'
 import path from 'path'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 
+import { HandlerEvent, HandlerResponse } from '@netlify/functions'
+import { http, https } from 'follow-redirects'
 import type NextNodeServer from 'next/dist/server/next-server'
 
 export type NextServerType = typeof NextNodeServer
@@ -22,7 +22,7 @@ export const downloadFile = async (url: string, destination: string): Promise<vo
   const httpx = url.startsWith('https') ? https : http
 
   await new Promise((resolve, reject) => {
-    const req = httpx.get(url, { timeout: 10000 }, (response) => {
+    const req = httpx.get(url, { timeout: 10000, maxRedirects: 1 }, (response) => {
       if (response.statusCode < 200 || response.statusCode > 299) {
         reject(new Error(`Failed to download ${url}: ${response.statusCode} ${response.statusMessage || ''}`))
         return
@@ -108,24 +108,25 @@ export const augmentFsModule = ({
   const statsOrig = promises.stat
   // ...then money-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
-    const base = getBase()
+    const baseUrl = getBase()
+
     // We only care about page files
     if (file.startsWith(pageRoot)) {
-      // We only want the part after `pages/`
+      // We only want the part after `.next/server/`
       const filePath = file.slice(pageRoot.length + 1)
 
       // Is it in the CDN and not local?
       if (staticFiles.has(filePath) && !existsSync(file)) {
         // This name is safe to use, because it's one that was already created by Next
         const cacheFile = path.join(cacheDir, filePath)
-        const url = `${base}/${staticFiles.get(filePath)}`
+        const url = `${baseUrl}/${staticFiles.get(filePath)}`
 
         // If it's already downloading we can wait for it to finish
         if (downloadPromises.has(url)) {
           await downloadPromises.get(url)
         }
         // Have we already cached it? We download every time if running locally to avoid staleness
-        if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && base) {
+        if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && baseUrl) {
           await promises.mkdir(path.dirname(cacheFile), { recursive: true })
 
           try {
@@ -148,7 +149,7 @@ export const augmentFsModule = ({
   promises.stat = ((file, options) => {
     // We only care about page files
     if (file.startsWith(pageRoot)) {
-      // We only want the part after `pages/`
+      // We only want the part after `.next/server`
       const cacheFile = path.join(cacheDir, file.slice(pageRoot.length + 1))
       if (existsSync(cacheFile)) {
         return statsOrig(cacheFile, options)
@@ -188,4 +189,22 @@ export const getNextServer = (): NextServerType => {
     }
   }
   return NextServer
+}
+/**
+ * Prefetch requests are used to check for middleware redirects, and shouldn't trigger SSR.
+ */
+export const getPrefetchResponse = (event: HandlerEvent, mode: string): HandlerResponse | false => {
+  if (event.headers['x-middleware-prefetch'] && mode === 'ssr') {
+    return {
+      statusCode: 200,
+      body: '{}',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-middleware-skip': '1',
+        // https://github.com/vercel/next.js/pull/42936/files#r1027563953
+        vary: 'x-middleware-prefetch',
+      },
+    }
+  }
+  return false
 }

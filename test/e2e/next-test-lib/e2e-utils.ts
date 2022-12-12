@@ -2,12 +2,10 @@ import path from 'path'
 import assert from 'assert'
 import { NextConfig } from 'next'
 import { InstallCommand, NextInstance, PackageJson } from './next-modes/base'
-import { NextDevInstance } from './next-modes/next-dev'
-import { NextStartInstance } from './next-modes/next-start'
 import { NextDeployInstance } from './next-modes/next-deploy'
 
-// increase timeout to account for yarn install time
-jest.setTimeout(240 * 1000)
+// increase timeout to 5 minutes, because it includes the time to deploy the site
+jest.setTimeout(5 * 60 * 1000)
 
 const testsFolder = path.join(__dirname, '..')
 
@@ -27,35 +25,28 @@ const checkParent = (mod) => {
 checkParent(module)
 
 process.env.TEST_FILE_PATH = testFile
-
-let testMode = process.env.NEXT_TEST_MODE
+// We only test "deploy" on Netlify
+process.env.NEXT_TEST_MODE = 'deploy'
+let testMode = 'deploy'
 
 if (!testFileRegex.test(testFile)) {
-  throw new Error(
-    `e2e-utils imported from non-test file ${testFile} (must end with .test.(js,ts,tsx)`
-  )
+  throw new Error(`e2e-utils imported from non-test file ${testFile} (must end with .test.(js,ts,tsx)`)
 }
 
 const testFolderModes = ['e2e', 'development', 'production']
 
-const testModeFromFile = testFolderModes.find((mode) =>
-  testFile.startsWith(path.join(testsFolder, mode))
-)
+const testModeFromFile = testFolderModes.find((mode) => testFile.startsWith(path.join(testsFolder, mode)))
 
 if (testModeFromFile === 'e2e') {
   const validE2EModes = ['dev', 'start', 'deploy']
 
   if (!process.env.NEXT_TEST_JOB && !testMode) {
-    require('console').warn(
-      'Warn: no NEXT_TEST_MODE set, using default of start'
-    )
+    require('console').warn('Warn: no NEXT_TEST_MODE set, using default of start')
     testMode = 'start'
   }
   assert(
     validE2EModes.includes(testMode),
-    `NEXT_TEST_MODE must be one of ${validE2EModes.join(
-      ', '
-    )} for e2e tests but received ${testMode}`
+    `NEXT_TEST_MODE must be one of ${validE2EModes.join(', ')} for e2e tests but received ${testMode}`,
   )
 } else if (testModeFromFile === 'development') {
   testMode = 'dev'
@@ -72,13 +63,9 @@ if (testMode === 'dev') {
 }
 
 if (!testMode) {
-  throw new Error(
-    `No 'NEXT_TEST_MODE' set in environment, this is required for e2e-utils`
-  )
+  throw new Error(`No 'NEXT_TEST_MODE' set in environment, this is required for e2e-utils`)
 }
-require('console').warn(
-  `Using test mode: ${testMode} in test folder ${testModeFromFile}`
-)
+require('console').warn(`Using test mode: ${testMode} in test folder ${testModeFromFile}`)
 
 /**
  * FileRef is wrapper around a file path that is meant be copied
@@ -99,7 +86,7 @@ if (typeof afterAll === 'function') {
     if (nextInstance) {
       await nextInstance.destroy()
       throw new Error(
-        `next instance not destroyed before exiting, make sure to call .destroy() after the tests after finished`
+        `next instance not destroyed before exiting, make sure to call .destroy() after the tests after finished`,
       )
     }
   })
@@ -133,16 +120,7 @@ export async function createNext(opts: {
       throw new Error(`createNext called without destroying previous instance`)
     }
 
-    if (testMode === 'dev') {
-      // next dev
-      nextInstance = new NextDevInstance(opts)
-    } else if (testMode === 'deploy') {
-      // Vercel
-      nextInstance = new NextDeployInstance(opts)
-    } else {
-      // next build + next start
-      nextInstance = new NextStartInstance(opts)
-    }
+    nextInstance = new NextDeployInstance(opts)
 
     nextInstance.on('destroy', () => {
       nextInstance = undefined
@@ -150,9 +128,6 @@ export async function createNext(opts: {
 
     await nextInstance.setup()
 
-    if (!opts.skipStart) {
-      await nextInstance.start()
-    }
     return nextInstance!
   } catch (err) {
     require('console').error('Failed to create next instance', err)

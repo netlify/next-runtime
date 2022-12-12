@@ -2,14 +2,11 @@
 import spawn from 'cross-spawn'
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
 import { writeFile } from 'fs-extra'
-import getPort from 'get-port'
-import server from 'next/dist/server/next'
-import { fetch } from 'undici'
+import { fetch as undiciFetch } from 'undici'
+import nodeFetch from 'node-fetch'
 import path from 'path'
 import qs from 'querystring'
 import { TextDecoderStream } from 'stream/web'
-
-export const nextServer = server
 
 export function initNextServerScript(scriptPath, successRegexp, env, failRegexp, opts) {
   return new Promise((resolve, reject) => {
@@ -118,23 +115,20 @@ async function processChunkedResponse(response) {
  * @returns {Promise<string>}
  */
 export function renderViaHTTP(appPort, pathname, query, opts) {
-  return fetchViaHTTP(appPort, pathname, query, opts).then(processChunkedResponse)
+  return fetchViaHTTP(appPort, pathname, query, opts, true).then(processChunkedResponse)
 }
 
 /**
  * @param {string | number} appPort
  * @param {string} pathname
- * @param {Record<string, any> | string | undefined} [query]
- * @param {import("undici").RequestInit} [opts]
- * @returns {Promise<import("undici").Response>}
+ * @param {Record<string, any> | string | undefined} query
+ * @param {RequestInit} opts
+ * @returns {Promise<Response>}
  */
-export function fetchViaHTTP(appPort, pathname, query, opts) {
+export async function fetchViaHTTP(appPort, pathname, query = undefined, opts = undefined, useUndici = false) {
   const url = `${pathname}${typeof query === 'string' ? query : query ? `?${qs.stringify(query)}` : ''}`
+  const fetch = useUndici ? undiciFetch : nodeFetch
   return fetch(getFullUrl(appPort, url), opts)
-}
-
-export function findPort() {
-  return getPort()
 }
 
 export function runNextCommand(argv, options = {}) {
@@ -384,12 +378,12 @@ export function waitFor(millis) {
 }
 
 // check for content in 1 second intervals timing out after
-// 30 seconds
+// 10 seconds
 export async function check(contentFn, regex, hardError = true) {
   let content
   let lastErr
 
-  for (let tries = 0; tries < 30; tries++) {
+  for (let tries = 0; tries < 10; tries++) {
     try {
       content = await contentFn()
       if (typeof regex === 'string') {
@@ -406,11 +400,11 @@ export async function check(contentFn, regex, hardError = true) {
       lastErr = err
     }
   }
-  console.error('TIMED OUT CHECK: ', { regex, content, lastErr })
 
   if (hardError) {
     throw new Error('TIMED OUT: ' + regex + '\n\n' + content)
   }
+  console.error('TIMED OUT CHECK: ', { regex, content, lastErr })
   return false
 }
 

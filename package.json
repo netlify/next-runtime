@@ -18,8 +18,11 @@
     "postinstall": "run-s build install-husky",
     "install-husky": "if-env CI=1 || husky install node_modules/@netlify/eslint-config-node/.husky",
     "test": "run-s build:demo test:jest",
+    "test:next": "jest -c test/e2e/jest.config.js",
+    "test:next:disabled": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.disabled.js",
+    "test:next:all": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.all.js",
+    "test:next:appdir": "NEXT_TEST_VERSION=canary jest -c test/e2e/jest.config.appdir.js",
     "test:jest": "jest",
-    "test:e2e": "vitest",
     "playwright:install": "playwright install --with-deps chromium",
     "test:jest:update": "jest --updateSnapshot",
     "test:update": "run-s build build:demo test:jest:update"
@@ -48,41 +51,43 @@
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.16.0",
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^27.20.3",
-    "@netlify/eslint-config-node": "^7.0.0",
+    "@netlify/build": "^28.4.5",
+    "@netlify/eslint-config-node": "^7.0.1",
     "@testing-library/cypress": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^9.0.0",
     "@types/node": "^17.0.10",
-    "@types/react": "^17.0.38",
+    "@types/react": "^18.0.25",
     "babel-jest": "^27.2.5",
     "chance": "^1.1.8",
     "cheerio": "^1.0.0-rc.12",
     "cpy": "^8.1.2",
     "cypress": "^9.0.0",
+    "escape-string-regexp": "^2.0.0",
     "eslint-config-next": "^12.0.0",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-unicorn": "^43.0.2",
+    "execa": "^5.1.1",
     "husky": "^7.0.4",
     "jest": "^27.0.0",
+    "jest-extended": "^3.2.0",
     "jest-fetch-mock": "^3.0.3",
+    "jest-junit": "^14.0.1",
     "netlify-plugin-cypress": "^2.2.0",
     "npm-run-all": "^4.1.5",
     "playwright-chromium": "^1.26.1",
     "prettier": "^2.1.2",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "rimraf": "^3.0.2",
     "sass": "^1.49.0",
     "sharp": "^0.30.4",
     "tmp-promise": "^3.0.2",
-    "typescript": "^4.3.4",
-    "vitest": "^0.23.4",
-    "vitest-github-actions-reporter": "^0.8.3"
+    "typescript": "^4.3.4"
   },
   "dependencies": {
-    "next": "^12.3.0"
+    "next": "^13.0.6"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -92,8 +97,8 @@
       "./jestSetup.js"
     ],
     "testMatch": [
-      "**/test/**/*.js",
-      "**/test/**/*.ts",
+      "**/test/**/*.spec.js",
+      "**/test/**/*.spec.ts",
       "!**/test/e2e/**",
       "!**/test/fixtures/**",
       "!**/test/sample/**"
@@ -103,6 +108,15 @@
     },
     "verbose": true,
     "testTimeout": 60000
+  },
+  "jest-junit": {
+    "outputDirectory": "reports",
+    "outputName": "jest-junit.xml",
+    "uniqueOutputName": "true",
+    "ancestorSeparator": " > ",
+    "suiteNameTemplate": "{filepath}",
+    "classNameTemplate": "{classname}",
+    "titleTemplate": "{title}"
   },
   "workspaces": [
     "packages/*",

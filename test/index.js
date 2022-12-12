@@ -1,3 +1,6 @@
+import { relative } from 'pathe'
+import { getAllPageDependencies } from '../packages/runtime/src/templates/getPageResolver'
+
 jest.mock('../packages/runtime/src/helpers/utils', () => {
   return {
     ...jest.requireActual('../packages/runtime/src/helpers/utils'),
@@ -6,14 +9,14 @@ jest.mock('../packages/runtime/src/helpers/utils', () => {
 })
 
 const Chance = require('chance')
-const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson } = require('fs-extra')
+const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson, pathExists } = require('fs-extra')
 const path = require('path')
 const process = require('process')
 const os = require('os')
 const cpy = require('cpy')
 const { dir: getTmpDir } = require('tmp-promise')
 const { downloadFile } = require('../packages/runtime/src/templates/handlerUtils')
-
+const { getExtendedApiRouteConfigs } = require('../packages/runtime/src/helpers/functions')
 const nextRuntimeFactory = require('../packages/runtime/src')
 const nextRuntime = nextRuntimeFactory({})
 
@@ -116,10 +119,18 @@ const rewriteAppDir = async function (dir = '.next') {
 }
 
 // Move .next from sample project to current directory
-const moveNextDist = async function (dir = '.next') {
+export const moveNextDist = async function (dir = '.next') {
   await stubModules(['next', 'sharp'])
   await ensureDir(dirname(dir))
   await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
+
+  for (const file of ['pages', 'app', 'src', 'components', 'public', 'components', 'hello.txt', 'package.json']) {
+    const source = path.join(SAMPLE_PROJECT_DIR, file)
+    if (existsSync(source)) {
+      await copy(source, path.join(process.cwd(), file))
+    }
+  }
+
   await rewriteAppDir(dir)
 }
 
@@ -161,6 +172,7 @@ beforeEach(async () => {
   netlifyConfig.headers = []
   netlifyConfig.functions[HANDLER_FUNCTION_NAME] && (netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files = [])
   netlifyConfig.functions[ODB_FUNCTION_NAME] && (netlifyConfig.functions[ODB_FUNCTION_NAME].included_files = [])
+  netlifyConfig.functions['_api_*'] && (netlifyConfig.functions['_api_*'].included_files = [])
   await useFixture('serverless_next_config')
 })
 
@@ -231,11 +243,59 @@ describe('onBuild()', () => {
 
   afterEach(() => {
     delete process.env.DEPLOY_PRIME_URL
+    delete process.env.URL
+    delete process.env.CONTEXT
   })
 
   test('does not set NEXTAUTH_URL if value is already set', async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = chance.url()
+
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    initialConfig.config.env.NEXTAUTH_URL = mockUserDefinedSiteUrl
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
+  })
+
+  test("sets the NEXTAUTH_URL to the DEPLOY_PRIME_URL when CONTEXT env variable is not 'production'", async () => {
+    const mockUserDefinedSiteUrl = chance.url()
+    process.env.DEPLOY_PRIME_URL = mockUserDefinedSiteUrl
+    process.env.URL = chance.url()
+
+    // See https://docs.netlify.com/configure-builds/environment-variables/#build-metadata for all possible values
+    process.env.CONTEXT = 'deploy-preview'
+
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    initialConfig.config.env.NEXTAUTH_URL = mockUserDefinedSiteUrl
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const config = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
+  })
+
+  test("sets the NEXTAUTH_URL to the user defined site URL when CONTEXT env variable is 'production'", async () => {
+    const mockUserDefinedSiteUrl = chance.url()
+    process.env.DEPLOY_PRIME_URL = chance.url()
+    process.env.URL = mockUserDefinedSiteUrl
+
+    // See https://docs.netlify.com/configure-builds/environment-variables/#build-metadata for all possible values
+    process.env.CONTEXT = 'production'
 
     await moveNextDist()
 
@@ -468,6 +528,8 @@ describe('onBuild()', () => {
       '.next/BUILD_ID',
       '.next/static/chunks/webpack-middleware*.js',
       '!.next/server/**/*.js.nft.json',
+      '!.next/server/**/*.map',
+      '!**/node_modules/@next/swc*/**/*',
       '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
       `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
@@ -482,6 +544,54 @@ describe('onBuild()', () => {
     }
     expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toEqual('nft')
     expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toEqual('nft')
+  })
+
+  const excludesSharp = (includedFiles) => includedFiles.some((file) => file.startsWith('!') && file.includes('sharp'))
+
+  it("doesn't exclude sharp if manually included", async () => {
+    await moveNextDist()
+
+    const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, '_api_*']
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    // Should exclude by default
+    for (const func of functions) {
+      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeTruthy()
+    }
+
+    // ...but if the user has added it, we shouldn't exclude it
+    for (const func of functions) {
+      netlifyConfig.functions[func].included_files = ['node_modules/sharp/**/*']
+    }
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    for (const func of functions) {
+      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+    }
+
+    // ...even if it's in a subdirectory
+    for (const func of functions) {
+      netlifyConfig.functions[func].included_files = ['subdirectory/node_modules/sharp/**/*']
+    }
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    for (const func of functions) {
+      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+    }
+  })
+
+  it('generates a file referencing all API route sources', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+
+    for (const route of ['_api_hello-background-background', '_api_hello-scheduled-handler']) {
+      const expected = path.resolve(constants.INTERNAL_FUNCTIONS_SRC, route, 'pages.js')
+      expect(existsSync(expected)).toBeTruthy()
+      expect(readFileSync(expected, 'utf8')).toMatchSnapshot(`for ${route}`)
+    }
   })
 
   test('generates a file referencing all page sources', async () => {
@@ -565,7 +675,7 @@ describe('onBuild()', () => {
     const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
     const imageConfigJson = await readJson(imageConfigPath)
 
-    expect(imageConfigJson.domains.length).toBe(2)
+    expect(imageConfigJson.domains.length).toBe(1)
     expect(imageConfigJson.remotePatterns.length).toBe(1)
     expect(imageConfigJson.responseHeaders).toStrictEqual({
       'X-Foo': mockHeaderValue,
@@ -590,16 +700,16 @@ describe('onBuild()', () => {
     process.env.DISABLE_IPX = '1'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
-    const nextImageRedirect = netlifyConfig.redirects.find(redirect => redirect.from.includes('/_next/image'))
-    
+    const nextImageRedirect = netlifyConfig.redirects.find((redirect) => redirect.from.includes('/_next/image'))
+
     expect(nextImageRedirect).toBeDefined()
-    expect(nextImageRedirect.to).toEqual("/404.html")
+    expect(nextImageRedirect.to).toEqual('/404.html')
     expect(nextImageRedirect.status).toEqual(404)
     expect(nextImageRedirect.force).toEqual(true)
-    
+
     delete process.env.DISABLE_IPX
   })
-  
+
   test('generates an ipx edge function by default', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -617,6 +727,14 @@ describe('onBuild()', () => {
   test('does not generate an ipx edge function if Netlify Edge is disabled', async () => {
     process.env.NEXT_DISABLE_NETLIFY_EDGE = '1'
     await moveNextDist()
+
+    // We need to pretend there's no edge API routes, because otherwise it'll fail
+    // when we try to disable edge runtime.
+    const manifest = path.join('.next', 'server', 'middleware-manifest.json')
+    const manifestContent = await readJson(manifest)
+    manifestContent.functions = {}
+    await writeJSON(manifest, manifestContent)
+
     await nextRuntime.onBuild(defaultArgs)
 
     expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
@@ -1139,6 +1257,23 @@ describe('function helpers', () => {
   })
 
   describe('config', () => {
+    describe('dependency tracing', () => {
+      it('extracts a list of all dependencies', async () => {
+        await moveNextDist()
+        await nextRuntime.onBuild(defaultArgs)
+        const dependencies = await getAllPageDependencies(constants.PUBLISH_DIR)
+        expect(dependencies.map((dep) => relative(process.cwd(), dep))).toMatchSnapshot()
+      })
+
+      it('extracts dependencies that exist', async () => {
+        await moveNextDist()
+        await nextRuntime.onBuild(defaultArgs)
+        const dependencies = await getAllPageDependencies(constants.PUBLISH_DIR)
+        const filesExist = await Promise.all(dependencies.map((dep) => pathExists(dep)))
+        expect(filesExist.every((exists) => exists)).toBeTruthy()
+      })
+    })
+
     describe('generateCustomHeaders', () => {
       // The routesManifest is the contents of the routes-manifest.json file which will already contain the generated
       // header paths which take locales and base path into account which is why you'll see them in the paths already
@@ -1560,5 +1695,27 @@ describe('function helpers', () => {
         ])
       })
     })
+  })
+})
+
+describe('api route file analysis', () => {
+  it('extracts correct route configs from source files', async () => {
+    await moveNextDist()
+    const configs = await getExtendedApiRouteConfigs('.next', process.cwd())
+    // Using a Set means the order doesn't matter
+    expect(new Set(configs)).toEqual(
+      new Set([
+        {
+          compiled: 'pages/api/hello-background.js',
+          config: { type: 'experimental-background' },
+          route: '/api/hello-background',
+        },
+        {
+          compiled: 'pages/api/hello-scheduled.js',
+          config: { schedule: '@hourly', type: 'experimental-scheduled' },
+          route: '/api/hello-scheduled',
+        },
+      ]),
+    )
   })
 })

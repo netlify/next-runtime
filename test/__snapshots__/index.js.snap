@@ -1,272 +1,285 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`onBuild() generates a file referencing all page sources 1`] = `
-"// This file is purely to allow nft to know about these pages.
+exports[`function helpers config dependency tracing extracts a list of all dependencies 1`] = `
+Array [
+  ".next/package.json",
+  ".next/server/chunks/1987.js",
+  ".next/server/chunks/274.js",
+  ".next/server/chunks/4271.js",
+  ".next/server/chunks/5237.js",
+  ".next/server/chunks/9097.js",
+  ".next/server/chunks/header.js",
+  ".next/server/pages/_app.js",
+  ".next/server/pages/_document.js",
+  ".next/server/pages/_error.js",
+  ".next/server/pages/api/enterPreview.js",
+  ".next/server/pages/api/exitPreview.js",
+  ".next/server/pages/api/hello-background.js",
+  ".next/server/pages/api/hello-scheduled.js",
+  ".next/server/pages/api/hello.js",
+  ".next/server/pages/api/og.js",
+  ".next/server/pages/api/shows/[...params].js",
+  ".next/server/pages/api/shows/[id].js",
+  ".next/server/pages/deep/import.js",
+  ".next/server/pages/getServerSideProps/[id].js",
+  ".next/server/pages/getServerSideProps/all/[[...slug]].js",
+  ".next/server/pages/getServerSideProps/file.js",
+  ".next/server/pages/getServerSideProps/static.js",
+  ".next/server/pages/getStaticProps/[id].js",
+  ".next/server/pages/getStaticProps/env.js",
+  ".next/server/pages/getStaticProps/static.js",
+  ".next/server/pages/getStaticProps/with-revalidate-404.js",
+  ".next/server/pages/getStaticProps/with-revalidate.js",
+  ".next/server/pages/getStaticProps/withFallback/[...slug].js",
+  ".next/server/pages/getStaticProps/withFallback/[id].js",
+  ".next/server/pages/getStaticProps/withFallbackBlocking/[id].js",
+  ".next/server/pages/getStaticProps/withRevalidate/[id].js",
+  ".next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js",
+  ".next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js",
+  ".next/server/pages/index.js",
+  ".next/server/pages/previewTest.js",
+  ".next/server/pages/shows/[...params].js",
+  ".next/server/pages/shows/[id].js",
+  ".next/server/webpack-api-runtime.js",
+  ".next/server/webpack-runtime.js",
+  "components/Header.js",
+  "hello.txt",
+  "package.json",
+]
+`;
+
+exports[`onBuild() generates a file referencing all API route sources: for _api_hello-background-background 1`] = `
+"// This file is purely to allow nft to know about these pages. 
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
-        require.resolve('../../../.next/server/chunks/162.js')
         require.resolve('../../../.next/server/chunks/274.js')
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/webpack-api-runtime.js')
+        require.resolve('../../../.next/server/webpack-runtime.js')
+    } catch {}
+}"
+`;
+
+exports[`onBuild() generates a file referencing all API route sources: for _api_hello-scheduled-handler 1`] = `
+"// This file is purely to allow nft to know about these pages. 
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/chunks/274.js')
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../.next/server/webpack-api-runtime.js')
+        require.resolve('../../../.next/server/webpack-runtime.js')
+        require.resolve('../../../package.json')
+    } catch {}
+}"
+`;
+
+exports[`onBuild() generates a file referencing all page sources 1`] = `
+"// This file is purely to allow nft to know about these pages. 
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/chunks/1987.js')
+        require.resolve('../../../.next/server/chunks/274.js')
+        require.resolve('../../../.next/server/chunks/4271.js')
         require.resolve('../../../.next/server/chunks/5237.js')
-        require.resolve('../../../.next/server/chunks/6577.js')
-        require.resolve('../../../.next/server/chunks/747.js')
-        require.resolve('../../../.next/server/chunks/8753.js')
         require.resolve('../../../.next/server/chunks/9097.js')
         require.resolve('../../../.next/server/chunks/header.js')
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../.next/server/pages/api/hello.js')
+        require.resolve('../../../.next/server/pages/api/og.js')
+        require.resolve('../../../.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../.next/server/pages/deep/import.js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/file.js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/env.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate-404.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
+        require.resolve('../../../.next/server/pages/index.js')
+        require.resolve('../../../.next/server/pages/previewTest.js')
+        require.resolve('../../../.next/server/pages/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/shows/[id].js')
         require.resolve('../../../.next/server/webpack-api-runtime.js')
         require.resolve('../../../.next/server/webpack-runtime.js')
         require.resolve('../../../components/Header.js')
-        require.resolve('../../../node_modules/@reach/dialog/dist/reach-dialog.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/dialog/dist/reach-dialog.cjs.js')
-        require.resolve('../../../node_modules/@reach/dialog/dist/reach-dialog.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/dialog/package.json')
-        require.resolve('../../../node_modules/@reach/portal/dist/reach-portal.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/portal/dist/reach-portal.cjs.js')
-        require.resolve('../../../node_modules/@reach/portal/dist/reach-portal.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/portal/package.json')
-        require.resolve('../../../node_modules/@reach/utils/can-use-dom/dist/reach-utils-can-use-dom.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/can-use-dom/dist/reach-utils-can-use-dom.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/can-use-dom/package.json')
-        require.resolve('../../../node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-event-handlers/package.json')
-        require.resolve('../../../node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-refs/package.json')
-        require.resolve('../../../node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/dev-utils/package.json')
-        require.resolve('../../../node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/noop/package.json')
-        require.resolve('../../../node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/owner-document/package.json')
-        require.resolve('../../../node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/type-check/package.json')
-        require.resolve('../../../node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/use-force-update/package.json')
-        require.resolve('../../../node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/use-isomorphic-layout-effect/package.json')
-        require.resolve('../../../node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.js')
-        require.resolve('../../../node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/visually-hidden/package.json')
+        require.resolve('../../../hello.txt')
         require.resolve('../../../package.json')
     } catch {}
 }"
 `;
 
 exports[`onBuild() generates a file referencing all page sources 2`] = `
-"// This file is purely to allow nft to know about these pages.
+"// This file is purely to allow nft to know about these pages. 
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
-        require.resolve('../../../.next/server/chunks/162.js')
+        require.resolve('../../../.next/server/chunks/1987.js')
         require.resolve('../../../.next/server/chunks/274.js')
+        require.resolve('../../../.next/server/chunks/4271.js')
         require.resolve('../../../.next/server/chunks/5237.js')
-        require.resolve('../../../.next/server/chunks/6577.js')
-        require.resolve('../../../.next/server/chunks/747.js')
-        require.resolve('../../../.next/server/chunks/8753.js')
         require.resolve('../../../.next/server/chunks/9097.js')
         require.resolve('../../../.next/server/chunks/header.js')
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../.next/server/pages/api/hello.js')
+        require.resolve('../../../.next/server/pages/api/og.js')
+        require.resolve('../../../.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../.next/server/pages/deep/import.js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/file.js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/env.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate-404.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
+        require.resolve('../../../.next/server/pages/index.js')
+        require.resolve('../../../.next/server/pages/previewTest.js')
+        require.resolve('../../../.next/server/pages/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/shows/[id].js')
         require.resolve('../../../.next/server/webpack-api-runtime.js')
         require.resolve('../../../.next/server/webpack-runtime.js')
         require.resolve('../../../components/Header.js')
-        require.resolve('../../../node_modules/@reach/dialog/dist/reach-dialog.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/dialog/dist/reach-dialog.cjs.js')
-        require.resolve('../../../node_modules/@reach/dialog/dist/reach-dialog.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/dialog/package.json')
-        require.resolve('../../../node_modules/@reach/portal/dist/reach-portal.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/portal/dist/reach-portal.cjs.js')
-        require.resolve('../../../node_modules/@reach/portal/dist/reach-portal.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/portal/package.json')
-        require.resolve('../../../node_modules/@reach/utils/can-use-dom/dist/reach-utils-can-use-dom.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/can-use-dom/dist/reach-utils-can-use-dom.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/can-use-dom/package.json')
-        require.resolve('../../../node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-event-handlers/package.json')
-        require.resolve('../../../node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/compose-refs/package.json')
-        require.resolve('../../../node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/dev-utils/package.json')
-        require.resolve('../../../node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/noop/package.json')
-        require.resolve('../../../node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/owner-document/package.json')
-        require.resolve('../../../node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/type-check/package.json')
-        require.resolve('../../../node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/use-force-update/package.json')
-        require.resolve('../../../node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.js')
-        require.resolve('../../../node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/utils/use-isomorphic-layout-effect/package.json')
-        require.resolve('../../../node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.dev.js')
-        require.resolve('../../../node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.js')
-        require.resolve('../../../node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.prod.js')
-        require.resolve('../../../node_modules/@reach/visually-hidden/package.json')
+        require.resolve('../../../hello.txt')
         require.resolve('../../../package.json')
     } catch {}
 }"
 `;
 
 exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 1`] = `
-"// This file is purely to allow nft to know about these pages.
+"// This file is purely to allow nft to know about these pages. 
 exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
-        require.resolve('../../../web/.next/server/chunks/162.js')
+        require.resolve('../../../web/.next/server/chunks/1987.js')
         require.resolve('../../../web/.next/server/chunks/274.js')
+        require.resolve('../../../web/.next/server/chunks/4271.js')
         require.resolve('../../../web/.next/server/chunks/5237.js')
-        require.resolve('../../../web/.next/server/chunks/6577.js')
-        require.resolve('../../../web/.next/server/chunks/747.js')
-        require.resolve('../../../web/.next/server/chunks/8753.js')
         require.resolve('../../../web/.next/server/chunks/9097.js')
         require.resolve('../../../web/.next/server/chunks/header.js')
+        require.resolve('../../../web/.next/server/pages/_app.js')
+        require.resolve('../../../web/.next/server/pages/_document.js')
+        require.resolve('../../../web/.next/server/pages/_error.js')
+        require.resolve('../../../web/.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-background.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../web/.next/server/pages/api/hello.js')
+        require.resolve('../../../web/.next/server/pages/api/og.js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../web/.next/server/pages/deep/import.js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/file.js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/env.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate-404.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
+        require.resolve('../../../web/.next/server/pages/index.js')
+        require.resolve('../../../web/.next/server/pages/previewTest.js')
+        require.resolve('../../../web/.next/server/pages/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/shows/[id].js')
         require.resolve('../../../web/.next/server/webpack-api-runtime.js')
         require.resolve('../../../web/.next/server/webpack-runtime.js')
         require.resolve('../../../web/components/Header.js')
-        require.resolve('../../../web/node_modules/@reach/dialog/dist/reach-dialog.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/dialog/dist/reach-dialog.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/dialog/dist/reach-dialog.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/dialog/package.json')
-        require.resolve('../../../web/node_modules/@reach/portal/dist/reach-portal.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/portal/dist/reach-portal.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/portal/dist/reach-portal.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/portal/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/can-use-dom/dist/reach-utils-can-use-dom.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/can-use-dom/dist/reach-utils-can-use-dom.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/can-use-dom/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-event-handlers/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-refs/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/dev-utils/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/noop/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/owner-document/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/type-check/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-force-update/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-isomorphic-layout-effect/package.json')
-        require.resolve('../../../web/node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/visually-hidden/package.json')
+        require.resolve('../../../web/hello.txt')
         require.resolve('../../../web/package.json')
     } catch {}
 }"
 `;
 
 exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 2`] = `
-"// This file is purely to allow nft to know about these pages.
+"// This file is purely to allow nft to know about these pages. 
 exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
-        require.resolve('../../../web/.next/server/chunks/162.js')
+        require.resolve('../../../web/.next/server/chunks/1987.js')
         require.resolve('../../../web/.next/server/chunks/274.js')
+        require.resolve('../../../web/.next/server/chunks/4271.js')
         require.resolve('../../../web/.next/server/chunks/5237.js')
-        require.resolve('../../../web/.next/server/chunks/6577.js')
-        require.resolve('../../../web/.next/server/chunks/747.js')
-        require.resolve('../../../web/.next/server/chunks/8753.js')
         require.resolve('../../../web/.next/server/chunks/9097.js')
         require.resolve('../../../web/.next/server/chunks/header.js')
+        require.resolve('../../../web/.next/server/pages/_app.js')
+        require.resolve('../../../web/.next/server/pages/_document.js')
+        require.resolve('../../../web/.next/server/pages/_error.js')
+        require.resolve('../../../web/.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-background.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../web/.next/server/pages/api/hello.js')
+        require.resolve('../../../web/.next/server/pages/api/og.js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../web/.next/server/pages/deep/import.js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/file.js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/env.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate-404.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
+        require.resolve('../../../web/.next/server/pages/index.js')
+        require.resolve('../../../web/.next/server/pages/previewTest.js')
+        require.resolve('../../../web/.next/server/pages/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/shows/[id].js')
         require.resolve('../../../web/.next/server/webpack-api-runtime.js')
         require.resolve('../../../web/.next/server/webpack-runtime.js')
         require.resolve('../../../web/components/Header.js')
-        require.resolve('../../../web/node_modules/@reach/dialog/dist/reach-dialog.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/dialog/dist/reach-dialog.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/dialog/dist/reach-dialog.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/dialog/package.json')
-        require.resolve('../../../web/node_modules/@reach/portal/dist/reach-portal.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/portal/dist/reach-portal.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/portal/dist/reach-portal.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/portal/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/can-use-dom/dist/reach-utils-can-use-dom.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/can-use-dom/dist/reach-utils-can-use-dom.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/can-use-dom/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-event-handlers/dist/reach-utils-compose-event-handlers.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-event-handlers/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-refs/dist/reach-utils-compose-refs.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/compose-refs/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/dev-utils/dist/reach-utils-dev-utils.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/dev-utils/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/noop/dist/reach-utils-noop.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/noop/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/owner-document/dist/reach-utils-owner-document.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/owner-document/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/type-check/dist/reach-utils-type-check.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/type-check/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-force-update/dist/reach-utils-use-force-update.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-force-update/package.json')
-        require.resolve('../../../web/node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-isomorphic-layout-effect/dist/reach-utils-use-isomorphic-layout-effect.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/utils/use-isomorphic-layout-effect/package.json')
-        require.resolve('../../../web/node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.dev.js')
-        require.resolve('../../../web/node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.js')
-        require.resolve('../../../web/node_modules/@reach/visually-hidden/dist/reach-visually-hidden.cjs.prod.js')
-        require.resolve('../../../web/node_modules/@reach/visually-hidden/package.json')
+        require.resolve('../../../web/hello.txt')
         require.resolve('../../../web/package.json')
     } catch {}
 }"
@@ -275,235 +288,355 @@ exports.resolvePages = () => {
 exports[`onBuild() generates static files manifest 1`] = `
 Array [
   Array [
+    "pages/en/broken-image.html",
     "en/broken-image.html",
-    "en/broken-image.html",
   ],
   Array [
+    "pages/en/css.html",
     "en/css.html",
-    "en/css.html",
   ],
   Array [
+    "pages/en/env.html",
     "en/env.html",
-    "en/env.html",
   ],
   Array [
+    "pages/en/font.html",
     "en/font.html",
-    "en/font.html",
   ],
   Array [
-    "en/getStaticProps/1.html",
+    "pages/en/getStaticProps/1.html",
     "en/getStaticProps/1.html",
   ],
   Array [
-    "en/getStaticProps/1.json",
+    "pages/en/getStaticProps/1.json",
     "_next/data/build-id/en/getStaticProps/1.json",
   ],
   Array [
-    "en/getStaticProps/2.html",
+    "pages/en/getStaticProps/2.html",
     "en/getStaticProps/2.html",
   ],
   Array [
-    "en/getStaticProps/2.json",
+    "pages/en/getStaticProps/2.json",
     "_next/data/build-id/en/getStaticProps/2.json",
   ],
   Array [
-    "en/getStaticProps/env.html",
+    "pages/en/getStaticProps/env.html",
     "en/getStaticProps/env.html",
   ],
   Array [
-    "en/getStaticProps/env.json",
+    "pages/en/getStaticProps/env.json",
     "_next/data/build-id/en/getStaticProps/env.json",
   ],
   Array [
-    "en/getStaticProps/static.html",
+    "pages/en/getStaticProps/static.html",
     "en/getStaticProps/static.html",
   ],
   Array [
-    "en/getStaticProps/static.json",
+    "pages/en/getStaticProps/static.json",
     "_next/data/build-id/en/getStaticProps/static.json",
   ],
   Array [
-    "en/getStaticProps/withFallback/1.html",
+    "pages/en/getStaticProps/with-revalidate-404.html",
+    "en/getStaticProps/with-revalidate-404.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/with-revalidate-404.json",
+    "_next/data/build-id/en/getStaticProps/with-revalidate-404.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/with-revalidate.html",
+    "en/getStaticProps/with-revalidate.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/with-revalidate.json",
+    "_next/data/build-id/en/getStaticProps/with-revalidate.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallback/1.html",
     "en/getStaticProps/withFallback/1.html",
   ],
   Array [
-    "en/getStaticProps/withFallback/1.json",
+    "pages/en/getStaticProps/withFallback/1.json",
     "_next/data/build-id/en/getStaticProps/withFallback/1.json",
   ],
   Array [
-    "en/getStaticProps/withFallback/2.html",
+    "pages/en/getStaticProps/withFallback/2.html",
     "en/getStaticProps/withFallback/2.html",
   ],
   Array [
-    "en/getStaticProps/withFallback/2.json",
+    "pages/en/getStaticProps/withFallback/2.json",
     "_next/data/build-id/en/getStaticProps/withFallback/2.json",
   ],
   Array [
-    "en/getStaticProps/withFallback/my/path/1.html",
+    "pages/en/getStaticProps/withFallback/my/path/1.html",
     "en/getStaticProps/withFallback/my/path/1.html",
   ],
   Array [
-    "en/getStaticProps/withFallback/my/path/1.json",
+    "pages/en/getStaticProps/withFallback/my/path/1.json",
     "_next/data/build-id/en/getStaticProps/withFallback/my/path/1.json",
   ],
   Array [
-    "en/getStaticProps/withFallback/my/path/2.html",
+    "pages/en/getStaticProps/withFallback/my/path/2.html",
     "en/getStaticProps/withFallback/my/path/2.html",
   ],
   Array [
-    "en/getStaticProps/withFallback/my/path/2.json",
+    "pages/en/getStaticProps/withFallback/my/path/2.json",
     "_next/data/build-id/en/getStaticProps/withFallback/my/path/2.json",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/1.html",
+    "pages/en/getStaticProps/withFallbackBlocking/1.html",
     "en/getStaticProps/withFallbackBlocking/1.html",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/1.json",
+    "pages/en/getStaticProps/withFallbackBlocking/1.json",
     "_next/data/build-id/en/getStaticProps/withFallbackBlocking/1.json",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/2.html",
+    "pages/en/getStaticProps/withFallbackBlocking/2.html",
     "en/getStaticProps/withFallbackBlocking/2.html",
   ],
   Array [
-    "en/getStaticProps/withFallbackBlocking/2.json",
+    "pages/en/getStaticProps/withFallbackBlocking/2.json",
     "_next/data/build-id/en/getStaticProps/withFallbackBlocking/2.json",
   ],
   Array [
+    "pages/en/getStaticProps/withRevalidate/1.html",
+    "en/getStaticProps/withRevalidate/1.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/1.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/1.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/2.html",
+    "en/getStaticProps/withRevalidate/2.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/2.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/2.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallback/1.html",
+    "en/getStaticProps/withRevalidate/withFallback/1.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallback/1.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/1.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallback/2.html",
+    "en/getStaticProps/withRevalidate/withFallback/2.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallback/2.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/2.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/1.html",
+    "en/getStaticProps/withRevalidate/withFallbackBlocking/1.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/1.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/1.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/2.html",
+    "en/getStaticProps/withRevalidate/withFallbackBlocking/2.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/2.json",
+    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/2.json",
+  ],
+  Array [
+    "pages/en/image.html",
     "en/image.html",
-    "en/image.html",
   ],
   Array [
+    "pages/en/layouts.html",
     "en/layouts.html",
-    "en/layouts.html",
   ],
   Array [
-    "en/previewTest.html",
+    "pages/en/old/image.html",
+    "en/old/image.html",
+  ],
+  Array [
+    "pages/en/previewTest.html",
     "en/previewTest.html",
   ],
   Array [
-    "en/previewTest.json",
+    "pages/en/previewTest.json",
     "_next/data/build-id/en/previewTest.json",
   ],
   Array [
+    "pages/en/redirectme.html",
+    "en/redirectme.html",
+  ],
+  Array [
+    "pages/en/script.html",
     "en/script.html",
-    "en/script.html",
   ],
   Array [
+    "pages/en/static.html",
     "en/static.html",
-    "en/static.html",
   ],
   Array [
+    "pages/es/broken-image.html",
     "es/broken-image.html",
-    "es/broken-image.html",
   ],
   Array [
+    "pages/es/css.html",
     "es/css.html",
-    "es/css.html",
   ],
   Array [
+    "pages/es/env.html",
     "es/env.html",
-    "es/env.html",
   ],
   Array [
+    "pages/es/font.html",
     "es/font.html",
-    "es/font.html",
   ],
   Array [
-    "es/getStaticProps/env.html",
+    "pages/es/getStaticProps/env.html",
     "es/getStaticProps/env.html",
   ],
   Array [
-    "es/getStaticProps/env.json",
+    "pages/es/getStaticProps/env.json",
     "_next/data/build-id/es/getStaticProps/env.json",
   ],
   Array [
-    "es/getStaticProps/static.html",
+    "pages/es/getStaticProps/static.html",
     "es/getStaticProps/static.html",
   ],
   Array [
-    "es/getStaticProps/static.json",
+    "pages/es/getStaticProps/static.json",
     "_next/data/build-id/es/getStaticProps/static.json",
   ],
   Array [
+    "pages/es/getStaticProps/with-revalidate-404.html",
+    "es/getStaticProps/with-revalidate-404.html",
+  ],
+  Array [
+    "pages/es/getStaticProps/with-revalidate-404.json",
+    "_next/data/build-id/es/getStaticProps/with-revalidate-404.json",
+  ],
+  Array [
+    "pages/es/getStaticProps/with-revalidate.html",
+    "es/getStaticProps/with-revalidate.html",
+  ],
+  Array [
+    "pages/es/getStaticProps/with-revalidate.json",
+    "_next/data/build-id/es/getStaticProps/with-revalidate.json",
+  ],
+  Array [
+    "pages/es/image.html",
     "es/image.html",
-    "es/image.html",
   ],
   Array [
+    "pages/es/layouts.html",
     "es/layouts.html",
-    "es/layouts.html",
   ],
   Array [
-    "es/previewTest.html",
+    "pages/es/old/image.html",
+    "es/old/image.html",
+  ],
+  Array [
+    "pages/es/previewTest.html",
     "es/previewTest.html",
   ],
   Array [
-    "es/previewTest.json",
+    "pages/es/previewTest.json",
     "_next/data/build-id/es/previewTest.json",
   ],
   Array [
+    "pages/es/redirectme.html",
+    "es/redirectme.html",
+  ],
+  Array [
+    "pages/es/script.html",
     "es/script.html",
-    "es/script.html",
   ],
   Array [
+    "pages/es/static.html",
     "es/static.html",
-    "es/static.html",
   ],
   Array [
+    "pages/fr/broken-image.html",
     "fr/broken-image.html",
-    "fr/broken-image.html",
   ],
   Array [
+    "pages/fr/css.html",
     "fr/css.html",
-    "fr/css.html",
   ],
   Array [
+    "pages/fr/env.html",
     "fr/env.html",
-    "fr/env.html",
   ],
   Array [
+    "pages/fr/font.html",
     "fr/font.html",
-    "fr/font.html",
   ],
   Array [
-    "fr/getStaticProps/env.html",
+    "pages/fr/getStaticProps/env.html",
     "fr/getStaticProps/env.html",
   ],
   Array [
-    "fr/getStaticProps/env.json",
+    "pages/fr/getStaticProps/env.json",
     "_next/data/build-id/fr/getStaticProps/env.json",
   ],
   Array [
-    "fr/getStaticProps/static.html",
+    "pages/fr/getStaticProps/static.html",
     "fr/getStaticProps/static.html",
   ],
   Array [
-    "fr/getStaticProps/static.json",
+    "pages/fr/getStaticProps/static.json",
     "_next/data/build-id/fr/getStaticProps/static.json",
   ],
   Array [
+    "pages/fr/getStaticProps/with-revalidate-404.html",
+    "fr/getStaticProps/with-revalidate-404.html",
+  ],
+  Array [
+    "pages/fr/getStaticProps/with-revalidate-404.json",
+    "_next/data/build-id/fr/getStaticProps/with-revalidate-404.json",
+  ],
+  Array [
+    "pages/fr/getStaticProps/with-revalidate.html",
+    "fr/getStaticProps/with-revalidate.html",
+  ],
+  Array [
+    "pages/fr/getStaticProps/with-revalidate.json",
+    "_next/data/build-id/fr/getStaticProps/with-revalidate.json",
+  ],
+  Array [
+    "pages/fr/image.html",
     "fr/image.html",
-    "fr/image.html",
   ],
   Array [
+    "pages/fr/layouts.html",
     "fr/layouts.html",
-    "fr/layouts.html",
   ],
   Array [
-    "fr/previewTest.html",
+    "pages/fr/old/image.html",
+    "fr/old/image.html",
+  ],
+  Array [
+    "pages/fr/previewTest.html",
     "fr/previewTest.html",
   ],
   Array [
-    "fr/previewTest.json",
+    "pages/fr/previewTest.json",
     "_next/data/build-id/fr/previewTest.json",
   ],
   Array [
-    "fr/script.html",
+    "pages/fr/redirectme.html",
+    "fr/redirectme.html",
+  ],
+  Array [
+    "pages/fr/script.html",
     "fr/script.html",
   ],
   Array [
-    "fr/static.html",
+    "pages/fr/static.html",
     "fr/static.html",
   ],
 ]
@@ -606,6 +739,12 @@ Array [
   Object {
     "force": false,
     "from": "/_next/data/build-id/en/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/file.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
@@ -839,6 +978,12 @@ Array [
   },
   Object {
     "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/file.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
     "from": "/_next/data/build-id/es/getServerSideProps/static.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -1031,6 +1176,12 @@ Array [
   },
   Object {
     "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/file.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
     "from": "/_next/data/build-id/fr/getServerSideProps/static.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -1211,14 +1362,19 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/api",
+    "from": "/api/*",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/api/*",
+    "from": "/api/hello-background",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/functions/_api_hello-background-background",
+  },
+  Object {
+    "from": "/api/hello-scheduled",
+    "status": 404,
+    "to": "/404.html",
   },
   Object {
     "force": false,
@@ -1319,6 +1475,12 @@ Array [
   Object {
     "force": false,
     "from": "/es/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/file",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
@@ -1522,6 +1684,12 @@ Array [
   },
   Object {
     "force": false,
+    "from": "/fr/getServerSideProps/file",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
     "from": "/fr/getServerSideProps/static",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -1672,6 +1840,12 @@ Array [
   },
   Object {
     "force": false,
+    "from": "/getServerSideProps/file",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
     "from": "/getServerSideProps/static",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -1791,6 +1965,17 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "__prerender_bypass",
+        "__next_preview_data",
+      ],
+    },
+    "from": "/next-on-netlify.png",
+    "status": 200,
+    "to": "/next-on-netlify.png",
+  },
+  Object {
     "force": false,
     "from": "/old/image",
     "status": 200,
@@ -1855,6 +2040,17 @@ Array [
     "from": "/shows/:params/*",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "__prerender_bypass",
+        "__next_preview_data",
+      ],
+    },
+    "from": "/shows1.json",
+    "status": 200,
+    "to": "/shows1.json",
   },
   Object {
     "force": false,

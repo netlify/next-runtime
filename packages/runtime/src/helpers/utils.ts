@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import type { NetlifyConfig } from '@netlify/build'
 import type { Header } from '@netlify/build/types/config/netlify_config'
 import globby from 'globby'
@@ -8,7 +7,23 @@ import { join } from 'pathe'
 
 import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX, HANDLER_FUNCTION_PATH } from '../constants'
 
+import { ApiRouteType } from './analysis'
+import type { ApiRouteConfig } from './functions'
 import { I18n } from './types'
+
+const RESERVED_FILENAME = /[^\w_-]/g
+
+/**
+ * Given a Next route, generates a valid Netlify function name.
+ * If "background" is true then the function name will have `-background`
+ * appended to it, meaning that it is executed as a background function.
+ */
+export const getFunctionNameForPage = (page: string, background = false) =>
+  `${page
+    .replace(CATCH_ALL_REGEX, '_$1-SPLAT')
+    .replace(OPTIONAL_CATCH_ALL_REGEX, '-SPLAT')
+    .replace(DYNAMIC_PARAMETER_REGEX, '_$1-PARAM')
+    .replace(RESERVED_FILENAME, '_')}-${background ? 'background' : 'handler'}`
 
 type ExperimentalConfigWithLegacy = ExperimentalConfig & {
   images?: Pick<ImageConfigComplete, 'remotePatterns'>
@@ -56,9 +71,18 @@ export const netlifyRoutesForNextRouteWithData = ({ route, dataRoute }: { route:
 export const routeToDataRoute = (route: string, buildId: string, locale?: string) =>
   `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}.json`
 
-const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n): Array<string> => {
+const netlifyRoutesForNextRoute = (
+  route: string,
+  buildId: string,
+  i18n?: I18n,
+): Array<{ redirect: string; locale: string | false }> => {
   if (!i18n?.locales?.length) {
-    return netlifyRoutesForNextRouteWithData({ route, dataRoute: routeToDataRoute(route, buildId) })
+    return netlifyRoutesForNextRouteWithData({ route, dataRoute: routeToDataRoute(route, buildId) }).map(
+      (redirect) => ({
+        redirect,
+        locale: false,
+      }),
+    )
   }
   const { locales, defaultLocale } = i18n
   const routes = []
@@ -71,7 +95,10 @@ const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n):
       ...netlifyRoutesForNextRouteWithData({
         route: locale === defaultLocale ? route : `/${locale}${route}`,
         dataRoute,
-      }),
+      }).map((redirect) => ({
+        redirect,
+        locale,
+      })),
     )
   })
   return routes
@@ -99,10 +126,30 @@ export const redirectsForNextRoute = ({
   status?: number
   force?: boolean
 }): NetlifyConfig['redirects'] =>
-  netlifyRoutesForNextRoute(route, buildId, i18n).map((redirect) => ({
+  netlifyRoutesForNextRoute(route, buildId, i18n).map(({ redirect }) => ({
     from: `${basePath}${redirect}`,
     to,
     status,
+    force,
+  }))
+
+export const redirectsForNext404Route = ({
+  route,
+  buildId,
+  basePath,
+  i18n,
+  force = false,
+}: {
+  route: string
+  buildId: string
+  basePath: string
+  i18n: I18n
+  force?: boolean
+}): NetlifyConfig['redirects'] =>
+  netlifyRoutesForNextRoute(route, buildId, i18n).map(({ redirect, locale }) => ({
+    from: `${basePath}${redirect}`,
+    to: locale ? `${basePath}/server/pages/${locale}/404.html` : `${basePath}/server/pages/404.html`,
+    status: 404,
     force,
   }))
 
@@ -128,18 +175,33 @@ export const redirectsForNextRouteWithData = ({
     force,
   }))
 
-export const getApiRewrites = (basePath) => [
-  {
-    from: `${basePath}/api`,
-    to: HANDLER_FUNCTION_PATH,
-    status: 200,
-  },
-  {
-    from: `${basePath}/api/*`,
-    to: HANDLER_FUNCTION_PATH,
-    status: 200,
-  },
-]
+export const getApiRewrites = (basePath: string, apiRoutes: Array<ApiRouteConfig>) => {
+  const apiRewrites = apiRoutes.map((apiRoute) => {
+    const [from] = toNetlifyRoute(`${basePath}${apiRoute.route}`)
+
+    // Scheduled functions can't be invoked directly, so we 404 them.
+    if (apiRoute.config.type === ApiRouteType.SCHEDULED) {
+      return { from, to: '/404.html', status: 404 }
+    }
+    return {
+      from,
+      to: `/.netlify/functions/${getFunctionNameForPage(
+        apiRoute.route,
+        apiRoute.config.type === ApiRouteType.BACKGROUND,
+      )}`,
+      status: 200,
+    }
+  })
+
+  return [
+    ...apiRewrites,
+    {
+      from: `${basePath}/api/*`,
+      to: HANDLER_FUNCTION_PATH,
+      status: 200,
+    },
+  ]
+}
 
 export const getPreviewRewrites = async ({ basePath, appDir }) => {
   const publicFiles = await globby('**/*', { cwd: join(appDir, 'public') })
@@ -228,5 +290,3 @@ export const getRemotePatterns = (experimental: ExperimentalConfigWithLegacy, im
   }
   return []
 }
-
-/* eslint-enable max-lines */

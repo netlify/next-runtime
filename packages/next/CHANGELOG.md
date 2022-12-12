@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.4.2](https://github.com/netlify/next-runtime/compare/next-v1.4.1...next-v1.4.2) (2022-12-05)
+
+
+### Bug Fixes
+
+* fix Invalid URL error when using uppercase i18n url ([#1812](https://github.com/netlify/next-runtime/issues/1812)) ([63e060d](https://github.com/netlify/next-runtime/commit/63e060df7d3851c5dafae60d4790c2f34d47ed80))
+
+## [1.4.1](https://github.com/netlify/next-runtime/compare/next-v1.4.0...next-v1.4.1) (2022-11-21)
+
+
+### Bug Fixes
+
+* add longitude, latitude, and timezone to RequestData.geo ([#1777](https://github.com/netlify/next-runtime/issues/1777)) ([3f35549](https://github.com/netlify/next-runtime/commit/3f355497f02726a54aa0b5f391c3e9684d45228f))
+
+## [1.4.0](https://github.com/netlify/next-runtime/compare/next-v1.3.1...next-v1.4.0) (2022-10-25)
+
+
+### Features
+
+* support Next 13 ([#1714](https://github.com/netlify/next-runtime/issues/1714)) ([efcb47a](https://github.com/netlify/next-runtime/commit/efcb47a84697edd313f3d8643ebcc48f3bde11e3))
+
 ## [1.3.1](https://github.com/netlify/next-runtime/compare/next-v1.3.0...next-v1.3.1) (2022-09-28)
 
 

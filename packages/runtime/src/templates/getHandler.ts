@@ -1,6 +1,6 @@
 import { HandlerContext, HandlerEvent } from '@netlify/functions'
-// Aliasing like this means the editor may be able to syntax-highlight the string
 import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
+// Aliasing like this means the editor may be able to syntax-highlight the string
 import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
@@ -17,7 +17,13 @@ const { URLSearchParams, URL } = require('url')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
 
-const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+const {
+  augmentFsModule,
+  getMaxAge,
+  getMultiValueHeaders,
+  getPrefetchResponse,
+  getNextServer,
+} = require('./handlerUtils')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
@@ -62,8 +68,8 @@ const makeHandler = (
   for (const [key, value] of Object.entries(conf.env)) {
     process.env[key] = String(value)
   }
-  // Set during the request as it needs the host header. Hoisted so we can define the function once
-  let base: string
+  // Set during the request as it needs to get it from the request URL. Defaults to the URL env var
+  let base = process.env.URL
 
   augmentFsModule({ promises, staticManifest, pageRoot, getBase: () => base })
 
@@ -76,9 +82,7 @@ const makeHandler = (
     }
     const url = new URL(event.rawUrl)
     const port = Number.parseInt(url.port) || 80
-    const { host } = event.headers
-    const protocol = event.headers['x-forwarded-proto'] || 'http'
-    base = `${protocol}://${host}`
+    base = url.origin
 
     const NextServer: NextServerType = getNextServer()
     const nextServer = new NextServer({
@@ -105,18 +109,16 @@ const makeHandler = (
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     let requestMode = mode
-    // This is used for "afterFiles" rewrites
-    const canonicalPath = event.headers['x-canonical-path']
-    if (canonicalPath) {
-      event.path = canonicalPath
-    } else {
-      // Ensure that paths are encoded - but don't double-encode them
-      event.path = new URL(event.rawUrl).pathname
-      // Next expects to be able to parse the query from the URL
-      const query = new URLSearchParams(event.queryStringParameters).toString()
-      event.path = query ? `${event.path}?${query}` : event.path
+    const prefetchResponse = getPrefetchResponse(event, mode)
+    if (prefetchResponse) {
+      return prefetchResponse
     }
-    console.log({ event })
+    // Ensure that paths are encoded - but don't double-encode them
+    event.path = new URL(event.rawUrl).pathname
+    // Next expects to be able to parse the query from the URL
+    const query = new URLSearchParams(event.queryStringParameters).toString()
+    event.path = query ? `${event.path}?${query}` : event.path
+
     const graphToken = event.netlifyGraphToken
     if (graphToken && requestMode !== 'ssr') {
       // Prefix with underscore to help us determine the origin of the token
@@ -130,6 +132,14 @@ const makeHandler = (
     // Convert all headers to multiValueHeaders
 
     const multiValueHeaders = getMultiValueHeaders(headers)
+
+    if (event.headers['x-next-debug-logging']) {
+      const response = {
+        headers: multiValueHeaders,
+        statusCode: result.statusCode,
+      }
+      console.log('Origin response:', JSON.stringify(response, null, 2))
+    }
 
     if (multiValueHeaders['set-cookie']?.[0]?.includes('__prerender_bypass')) {
       delete multiValueHeaders.etag
@@ -147,8 +157,9 @@ const makeHandler = (
           // ODBs currently have a minimum TTL of 60 seconds
           result.ttl = Math.max(ttl, 60)
         }
-        // Only cache 404s ephemerally
-        if (ttl === ONE_YEAR_IN_SECONDS && result.statusCode === 404) {
+        const ephemeralCodes = [301, 302, 307, 308, 404]
+        if (ttl === ONE_YEAR_IN_SECONDS && ephemeralCodes.includes(result.statusCode)) {
+          // Only cache for 60s if default TTL provided
           result.ttl = 60
         }
         if (result.ttl > 0) {
@@ -183,16 +194,16 @@ export const getHandler = ({
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, getNextServer } = require('./handlerUtils')
 
-  const { builder } = require("@netlify/functions");
+  ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")
   let staticManifest
   try {
     staticManifest = require("${publishDir}/static-manifest.json")
   } catch {}
   const path = require("path");
-  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", config.target === "server" ? "server" : "serverless", "pages"));
+  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
       ? `builder((${handlerSource})(config, "${appDir}", pageRoot, staticManifest, 'odb', ${minimal}));`

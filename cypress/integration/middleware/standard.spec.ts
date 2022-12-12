@@ -19,6 +19,12 @@ describe('Standard middleware', () => {
       expect(response.headers).to.have.property('x-modified-edge', 'true')
     })
   })
+
+  it('adds cookies', () => {
+    cy.request('/cookies').then(() => {
+      cy.getCookie('netlifyCookie').should('have.property', 'value', 'true')
+    })
+  })
 })
 
 describe('Middleware matchers', () => {
@@ -37,9 +43,28 @@ describe('Middleware matchers', () => {
   })
 
   it('matches when headers are sent', () => {
-    cy.request('/_next/data/build-id/static.json').then((response) => {
+    cy.request('/_next/data/build-id/en/static.json').then((response) => {
       expect(response.headers).to.have.property('x-is-deno', 'true')
       expect(response.headers).to.have.property('x-modified-edge', 'true')
+    })
+  })
+
+  it('correctly handles negative lookaheads', () => {
+    cy.request('/shows/11').then((response) => {
+      expect(response.headers).to.have.property('x-is-deno', 'true')
+      expect(response.headers).to.have.property('x-modified-edge', 'true')
+    })
+    cy.request('/shows/99').then((response) => {
+      expect(response.headers).not.to.have.property('x-is-deno', 'true')
+      expect(response.headers).not.to.have.property('x-modified-edge', 'true')
+    })
+  })
+})
+
+describe('Middleware with edge API', () => {
+  it('serves API routes from the edge runtime', () => {
+    cy.request('/api/edge').then((response) => {
+      expect(response.body).to.include('Hello world')
     })
   })
 })
