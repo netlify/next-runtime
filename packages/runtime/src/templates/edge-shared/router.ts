@@ -129,7 +129,6 @@ export function applyRewriteRule({ request, rule }: { request: Request; rule: Re
   if (!params) {
     return false
   }
-  console.log('rewrite matches', rule)
   const destination = generateDestinationUrl({
     query: new URL(request.url).searchParams,
     destination: rule.destination,
@@ -153,7 +152,6 @@ export function applyRedirectRule({ request, rule }: { request: Request; rule: R
   if (!params) {
     return false
   }
-  console.log('matches redirect', rule)
   const destination = generateDestinationUrl({
     query: new URL(request.url).searchParams,
     destination: rule.destination,
