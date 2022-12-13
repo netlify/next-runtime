@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
@@ -11,7 +10,7 @@ import { join, relative, resolve } from 'pathe'
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
-import { getPageResolver, getSinglePageResolver } from '../templates/getPageResolver'
+import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, ApiRouteType, extractConfigFromFile } from './analysis'
 import { getSourceFileForPage } from './files'
@@ -30,11 +29,14 @@ export const generateFunctions = async (
 ): Promise<void> => {
   const publish = resolve(PUBLISH_DIR)
   const functionsDir = resolve(INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC)
-  console.log({ functionsDir })
   const functionDir = join(functionsDir, HANDLER_FUNCTION_NAME)
   const publishDir = relative(functionDir, publish)
 
   for (const { route, config, compiled } of apiRoutes) {
+    // Don't write a lambda if the runtime is edge
+    if (config.runtime === 'experimental-edge') {
+      continue
+    }
     const apiHandlerSource = await getApiHandler({
       page: route,
       config,
@@ -52,7 +54,7 @@ export const generateFunctions = async (
 
     const resolveSourceFile = (file: string) => join(publish, 'server', file)
 
-    const resolverSource = await getSinglePageResolver({
+    const resolverSource = await getResolverForSourceFiles({
       functionsDir,
       // These extra pages are always included by Next.js
       sourceFiles: [compiled, 'pages/_app.js', 'pages/_document.js', 'pages/_error.js'].map(resolveSourceFile),
@@ -80,18 +82,13 @@ export const generateFunctions = async (
  * This is just so that the nft bundler knows about them. We'll eventually do this better.
  */
 export const generatePagesResolver = async ({
-  constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, PUBLISH_DIR },
-  target,
-}: {
-  constants: NetlifyPluginConstants
-  target: string
-}): Promise<void> => {
+  INTERNAL_FUNCTIONS_SRC,
+  FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC,
+  PUBLISH_DIR,
+}: NetlifyPluginConstants): Promise<void> => {
   const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
 
-  const jsSource = await getPageResolver({
-    publish: PUBLISH_DIR,
-    target,
-  })
+  const jsSource = await getResolverForPages(PUBLISH_DIR)
 
   await writeFile(join(functionsPath, ODB_FUNCTION_NAME, 'pages.js'), jsSource)
   await writeFile(join(functionsPath, HANDLER_FUNCTION_NAME, 'pages.js'), jsSource)
@@ -174,11 +171,14 @@ export const setupImageFunction = async ({
 export const getApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
   const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
   const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
+  // two possible places
+  // Ref: https://nextjs.org/docs/advanced-features/src-directory
   const pagesDir = join(baseDir, 'pages')
+  const srcPagesDir = join(baseDir, 'src', 'pages')
 
   return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
-      const filePath = getSourceFileForPage(apiRoute, pagesDir)
+      const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir])
       return { route: apiRoute, config: await extractConfigFromFile(filePath), compiled: pages[apiRoute] }
     }),
   )
@@ -232,4 +232,3 @@ export const warnOnApiRoutes = async ({
     )
   }
 }
-/* eslint-enable max-lines */

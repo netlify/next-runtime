@@ -29,6 +29,7 @@ module.exports = {
     'unicorn/filename-case': 0,
     'unicorn/no-array-push-push': 0,
     'unicorn/numeric-separators-style': 0,
+    'max-lines': 0,
   },
   parserOptions: {
     sourceType: 'module',
@@ -46,6 +47,7 @@ module.exports = {
         // TODO: re-enable after dropping support for Node 12
         'n/no-unsupported-features/es-syntax': 'off',
         '@typescript-eslint/no-extra-semi': 'off',
+        'n/no-missing-import': 'off',
       },
     },
     {

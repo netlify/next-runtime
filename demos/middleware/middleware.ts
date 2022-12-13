@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { MiddlewareRequest, NextRequest } from '@netlify/next'
 
-import { MiddlewareRequest } from '@netlify/next'
+// Next.js replaces this with a stub polyfill. This import is just to test that stub.
+import pointlessFetch from 'isomorphic-unfetch'
 
 export async function middleware(req: NextRequest) {
   let response
@@ -29,6 +30,17 @@ export async function middleware(req: NextRequest) {
     return request.next()
   }
 
+  if (pathname.startsWith('/api/geo')) {
+    req.headers.set('x-geo-country', req.geo.country)
+    req.headers.set('x-geo-region', req.geo.region)
+    req.headers.set('x-geo-city', req.geo.city)
+    req.headers.set('x-geo-longitude', req.geo.longitude)
+    req.headers.set('x-geo-latitude', req.geo.latitude)
+    req.headers.set('x-geo-timezone', req.geo.timezone)
+
+    return request.next()
+  }
+
   if (pathname.startsWith('/headers')) {
     // Add a header to the rewritten request
     req.headers.set('x-hello', 'world')
@@ -49,6 +61,12 @@ export async function middleware(req: NextRequest) {
   }
 
   if (pathname.startsWith('/shows')) {
+    if (pathname.startsWith('/shows/222')) {
+      response = NextResponse.next()
+      const res = await pointlessFetch('http://www.example.com/')
+      response.headers.set('x-example-server', res.headers.get('server'))
+    }
+
     if (pathname.startsWith('/shows/rewrite-absolute')) {
       response = NextResponse.rewrite(new URL('/shows/100', req.url))
       response.headers.set('x-modified-in-rewrite', 'true')

@@ -1,3 +1,6 @@
+import { relative } from 'pathe'
+import { getAllPageDependencies } from '../packages/runtime/src/templates/getPageResolver'
+
 jest.mock('../packages/runtime/src/helpers/utils', () => {
   return {
     ...jest.requireActual('../packages/runtime/src/helpers/utils'),
@@ -6,7 +9,7 @@ jest.mock('../packages/runtime/src/helpers/utils', () => {
 })
 
 const Chance = require('chance')
-const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson } = require('fs-extra')
+const { writeJSON, unlink, existsSync, readFileSync, copy, ensureDir, readJson, pathExists } = require('fs-extra')
 const path = require('path')
 const process = require('process')
 const os = require('os')
@@ -120,7 +123,14 @@ export const moveNextDist = async function (dir = '.next') {
   await stubModules(['next', 'sharp'])
   await ensureDir(dirname(dir))
   await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
-  await copy(path.join(SAMPLE_PROJECT_DIR, 'pages'), path.join(process.cwd(), 'pages'))
+
+  for (const file of ['pages', 'app', 'src', 'components', 'public', 'components', 'hello.txt', 'package.json']) {
+    const source = path.join(SAMPLE_PROJECT_DIR, file)
+    if (existsSync(source)) {
+      await copy(source, path.join(process.cwd(), file))
+    }
+  }
+
   await rewriteAppDir(dir)
 }
 
@@ -573,7 +583,7 @@ describe('onBuild()', () => {
     }
   })
 
-  it('generates a file referencing all page sources', async () => {
+  it('generates a file referencing all API route sources', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
 
@@ -584,7 +594,7 @@ describe('onBuild()', () => {
     }
   })
 
-  test('generates a file referencing all API route sources', async () => {
+  test('generates a file referencing all page sources', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
@@ -1245,6 +1255,23 @@ describe('function helpers', () => {
   })
 
   describe('config', () => {
+    describe('dependency tracing', () => {
+      it('extracts a list of all dependencies', async () => {
+        await moveNextDist()
+        await nextRuntime.onBuild(defaultArgs)
+        const dependencies = await getAllPageDependencies(constants.PUBLISH_DIR)
+        expect(dependencies.map((dep) => relative(process.cwd(), dep))).toMatchSnapshot()
+      })
+
+      it('extracts dependencies that exist', async () => {
+        await moveNextDist()
+        await nextRuntime.onBuild(defaultArgs)
+        const dependencies = await getAllPageDependencies(constants.PUBLISH_DIR)
+        const filesExist = await Promise.all(dependencies.map((dep) => pathExists(dep)))
+        expect(filesExist.every((exists) => exists)).toBeTruthy()
+      })
+    })
+
     describe('generateCustomHeaders', () => {
       // The routesManifest is the contents of the routes-manifest.json file which will already contain the generated
       // header paths which take locales and base path into account which is why you'll see them in the paths already

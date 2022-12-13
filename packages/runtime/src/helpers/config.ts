@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import type { NetlifyConfig } from '@netlify/build'
 import destr from 'destr'
 import { readJSON, writeJSON } from 'fs-extra'
@@ -239,4 +238,3 @@ export const generateCustomHeaders = (nextConfig: NextConfig, netlifyHeaders: Ne
     }
   }
 }
-/* eslint-enable max-lines */

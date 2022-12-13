@@ -49,7 +49,7 @@ describe('Dynamic Routing', () => {
     cy.request({ url: '/getStaticProps/3/', headers: { 'x-nf-debug-logging': '1' }, failOnStatusCode: false }).then(
       (res) => {
         expect(res.status).to.eq(404)
-        expect(res.headers).to.have.property('x-nf-render-mode', 'odb')
+        expect(res.headers).to.not.have.property('x-nf-render-mode')
         expect(res.body).to.contain('Custom 404')
       },
     )
@@ -102,7 +102,7 @@ describe('Dynamic Routing', () => {
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(404)
-      expect(res.headers).to.have.property('x-nf-render-mode', 'odb')
+      expect(res.headers).to.not.have.property('x-nf-render-mode')
       expect(res.body).to.contain('Custom 404')
     })
   })
