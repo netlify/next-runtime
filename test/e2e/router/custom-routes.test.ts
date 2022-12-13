@@ -1,18 +1,12 @@
-import { describe, it, expect, beforeAll } from 'vitest'
-import { check, fetchViaHTTP, getBrowserBodyText, renderViaHTTP, waitFor } from '../next-test-lib/next-test-utils'
+import { check, fetchViaHTTP, getBrowserBodyText, renderViaHTTP, waitFor } from 'next-test-utils'
 import { load } from 'cheerio'
-import webdriver from '../next-test-lib/next-webdriver'
+import webdriver from 'next-webdriver'
 const nextUrl = process.env.SITE_URL || 'http://localhost:8888'
-
 import url from 'url'
 
 let buildId = 'build-id'
 
 describe('Custom routes', () => {
-  beforeAll(() => {
-    process.env.HEADLESS = 'true'
-  })
-
   it('should not rewrite for _next/data route when a match is found', async () => {
     const initial = await fetchViaHTTP(nextUrl, '/overridden/first')
     expect(initial.status).toBe(200)

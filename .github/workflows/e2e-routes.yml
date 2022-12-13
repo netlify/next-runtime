@@ -10,8 +10,7 @@ on:
       - 'demos/custom-routes/**/*'
       - 'packages/**/*.{ts,js}'
 jobs:
-  vitest:
-    name: Vitest
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -56,6 +55,6 @@ jobs:
 
       - name: Run e2e tests
         if: ${{ steps.deploy.outputs.origin-url }}
-        run: npm run test:e2e -- test/e2e/router
+        run: npx jest -c test/e2e/jest.config.router.js
         env:
           SITE_URL: ${{ steps.deploy.outputs.origin-url }}

@@ -141,7 +141,9 @@ export class NextInstance {
         [build]
         command = "yarn build"
         publish = ".next"
-        
+        [build.environment]
+          NETLIFY_NEXT_EDGE_ROUTER = "true"   
+          
         [[plugins]]
         package = "@netlify/plugin-nextjs"
         `
