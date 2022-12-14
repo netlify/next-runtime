@@ -29,11 +29,14 @@ const handler = async (request: Request, context: Context) => {
   const resultUrl = new URL(result.url)
   const requestUrl = new URL(request.url)
 
+  if (resultUrl.hostname === 'n') {
+    resultUrl.hostname = requestUrl.hostname
+  }
   // External rewrite
-  if (resultUrl.hostname !== 'n' && resultUrl.hostname !== requestUrl.hostname) {
+  if (resultUrl.hostname !== requestUrl.hostname) {
     return fetch(result, request)
   }
-  console.log('rewrite', result.url.slice(resultUrl.origin.length))
-  return context.rewrite(result.url.slice(resultUrl.origin.length))
+
+  return context.rewrite(resultUrl)
 }
 export default handler
