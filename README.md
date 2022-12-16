@@ -156,6 +156,29 @@ The simplest way to do this is to create a `.npmrc` file in the root of your pro
 public-hoist-pattern[]=*
 ```
 
+## Running the tests
+
+To run the tests, ensure that the dependencies are installed as follows:
+
+```shell
+npm install
+```
+
+Then run the tests:
+
+```shell
+npm test
+```
+
+In order to run the end-to-end (E2E) tests, you'll need to set an environment variable `NETLIFY_AUTH_TOKEN` to a valid Netlify personal access token. This can be obtained from the [Netlify UI](https://docs.netlify.com/cli/get-started/#obtain-a-token-in-the-netlify-ui).
+
+Then run the E2E tests:
+
+```shell
+NETLIFY_AUTH_TOKEN=your-token-here npm test:next
+```
+
+
 ## Feedback
 
 If you think you have found a bug in Next.js on Netlify,
