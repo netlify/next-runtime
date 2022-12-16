@@ -16,6 +16,9 @@ globalThis.NETLIFY_NEXT_EDGE_ROUTER = true
  */
 
 const handler = async (request: Request, context: Context) => {
+  // We add this ourselves. Don't allow users to forge it.
+  request.headers.delete('x-matched-path')
+
   const manifest: RoutesManifest = routesManifest as unknown as RoutesManifest
 
   // Get changed response headers
@@ -24,7 +27,6 @@ const handler = async (request: Request, context: Context) => {
   const redirect = applyRedirectRules(request, manifest.redirects)
   let response: Response
   if (redirect) {
-    console.log({ redirect })
     response = redirect
   } else if (extraHeaders.length === 0) {
     // No redirect and no new headers, so we can skip to the next function

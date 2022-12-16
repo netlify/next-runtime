@@ -151,6 +151,7 @@ export const buildResponse = async ({
 
     // The edge router handles rewrites itself, so we don't need to redirect or rewrite here
     if (useEdgeRouter()) {
+      request.headers.set('x-middleware-rewrite', relativeUrl)
       return addMiddlewareHeaders(context.next(), res)
     }
     if (rewriteUrl.hostname !== baseUrl.hostname) {

@@ -13,7 +13,7 @@ import type { RoutesManifest } from '../edge-shared/next-utils.ts'
 const handler = async (request: Request, context: Context) => {
   const rewrite = request.headers.get('x-middleware-rewrite')
   const result = runPostMiddleware(
-    rewrite ? new Request(rewrite, request) : request,
+    rewrite ? new Request(new URL(rewrite, request.url), request) : request,
     routesManifest as unknown as RoutesManifest,
     new Set(staticRoutes),
   )
