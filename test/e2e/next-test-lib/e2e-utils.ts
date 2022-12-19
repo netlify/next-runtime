@@ -2,11 +2,10 @@ import path from 'path'
 import assert from 'assert'
 import { NextConfig } from 'next'
 import { InstallCommand, NextInstance, PackageJson } from './next-modes/base'
-
 import { NextDeployInstance } from './next-modes/next-deploy'
 
-// increase timeout to account for yarn install time
-jest.setTimeout(240 * 1000)
+// increase timeout to 5 minutes, because it includes the time to deploy the site
+jest.setTimeout(5 * 60 * 1000)
 
 const testsFolder = path.join(__dirname, '..')
 

@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
@@ -12,6 +11,8 @@ import { outdent } from 'outdent'
 
 import { getRequiredServerFiles, NextConfig } from './config'
 import { makeLocaleOptional, stripLookahead, transformCaptureGroups } from './matchers'
+import { RoutesManifest } from './types'
+
 
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
@@ -52,23 +53,29 @@ export interface FunctionManifest {
         function: string
         name?: string
         path: string
+        cache?: 'manual'
       }
     | {
         function: string
         name?: string
         pattern: string
+        cache?: 'manual'
       }
   >
   import_map?: string
 }
 
-export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> => {
-  const middlewarePath = resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json')
-  if (!existsSync(middlewarePath)) {
-    return null
+const maybeLoadJson = <T>(path: string): Promise<T> | null => {
+  if (existsSync(path)) {
+    return readJson(path)
   }
-  return readJson(middlewarePath)
 }
+
+export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> =>
+  maybeLoadJson(resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json'))
+
+export const loadAppPathRoutesManifest = (netlifyConfig: NetlifyConfig): Promise<Record<string, string> | null> =>
+  maybeLoadJson(resolve(netlifyConfig.build.publish, 'app-path-routes-manifest.json'))
 
 /**
  * Convert the Next middleware name into a valid Edge Function name
@@ -85,6 +92,7 @@ import {
 // Deno defines "window", but naughty libraries think this means it's a browser
 delete globalThis.window
 globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
+globalThis.EdgeRuntime = "netlify-edge"
 let _ENTRIES = {}
 
 // Next.js uses this extension to the Headers API implemented by Cloudflare workerd
@@ -189,12 +197,18 @@ const writeEdgeFunction = async ({
   edgeFunctionDefinition,
   edgeFunctionRoot,
   netlifyConfig,
+  pageRegexMap,
+  appPathRoutesManifest = {},
   nextConfig,
+  cache,
 }: {
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
   netlifyConfig: NetlifyConfig
+  pageRegexMap?: Map<string, string>
+  appPathRoutesManifest?: Record<string, string>
   nextConfig: NextConfig
+  cache?: 'manual'
 }): Promise<
   Array<{
     function: string
@@ -235,12 +249,21 @@ const writeEdgeFunction = async ({
     matchers.push(...edgeFunctionDefinition.matchers)
   }
 
+  // If the EF matches a page, it's an app dir page so needs a matcher too
+  // The object will be empty if appDir isn't enabled in the Next config
+  if (pageRegexMap && edgeFunctionDefinition.page in appPathRoutesManifest) {
+    const regexp = pageRegexMap.get(appPathRoutesManifest[edgeFunctionDefinition.page])
+    if (regexp) {
+      matchers.push({ regexp })
+    }
+  }
+
   await writeJson(join(edgeFunctionDir, 'matchers.json'), matchers)
 
   // We add a defintion for each matching path
   return matchers.map((matcher) => {
     const pattern = transformCaptureGroups(stripLookahead(matcher.regexp))
-    return { function: name, pattern, name: edgeFunctionDefinition.name }
+    return { function: name, pattern, name: edgeFunctionDefinition.name, cache }
   })
 }
 export const cleanupEdgeFunctions = ({
@@ -273,7 +296,13 @@ export const writeDevEdgeFunction = async ({
 /**
  * Writes Edge Functions for the Next middleware
  */
-export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
+export const writeEdgeFunctions = async ({
+  netlifyConfig,
+  routesManifest,
+}: {
+  netlifyConfig: NetlifyConfig
+  routesManifest: RoutesManifest
+}) => {
   const manifest: FunctionManifest = {
     functions: [],
     version: 1,
@@ -285,6 +314,7 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   const { publish } = netlifyConfig.build
   const nextConfigFile = await getRequiredServerFiles(publish)
   const nextConfig = nextConfigFile.config
+  const usesAppDir = nextConfig.experimental?.appDir
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
 
@@ -332,13 +362,27 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
     // Older versions of the manifest format don't have the functions field
     // No, the version field was not incremented
     if (typeof middlewareManifest.functions === 'object') {
+      // When using the app dir, we also need to check if the EF matches a page
+      const appPathRoutesManifest = await loadAppPathRoutesManifest(netlifyConfig)
+
+      const pageRegexMap = new Map(
+        [...(routesManifest.dynamicRoutes || []), ...(routesManifest.staticRoutes || [])].map((route) => [
+          route.page,
+          route.regex,
+        ]),
+      )
+
       for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
         usesEdge = true
         const functionDefinitions = await writeEdgeFunction({
           edgeFunctionDefinition,
           edgeFunctionRoot,
           netlifyConfig,
+          pageRegexMap,
+          appPathRoutesManifest,
           nextConfig,
+          // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
+          cache: usesAppDir ? 'manual' : undefined,
         })
         manifest.functions.push(...functionDefinitions)
       }
@@ -352,5 +396,3 @@ export const writeEdgeFunctions = async (netlifyConfig: NetlifyConfig) => {
   }
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
-
-/* eslint-enable max-lines */

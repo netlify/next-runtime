@@ -13,7 +13,7 @@
   "dependencies": {
     "@netlify/esbuild": "0.14.39",
     "@netlify/functions": "^1.3.0",
-    "@netlify/ipx": "^1.3.1",
+    "@netlify/ipx": "^1.3.2",
     "@vercel/node-bridge": "^2.1.0",
     "chalk": "^4.1.2",
     "destr": "^1.1.1",
@@ -36,12 +36,12 @@
   },
   "devDependencies": {
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^28.4.5",
+    "@netlify/build": "^29.1.3",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.1",
     "@types/merge-stream": "^1.1.2",
     "@types/node": "^17.0.25",
-    "next": "^13.0.3",
+    "next": "^13.0.6",
     "npm-run-all": "^4.1.5",
     "typescript": "^4.6.3"
   },

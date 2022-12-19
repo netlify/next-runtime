@@ -96,26 +96,20 @@ export class NextInstance {
 
     const pkgScripts = (this.packageJson['scripts'] as {}) || {}
     await fs.ensureDir(this.testDir)
-    await fs.writeFile(
-      path.join(this.testDir, 'package.json'),
-      JSON.stringify(
-        {
-          ...this.packageJson,
-          license: 'MIT',
-          dependencies: {
-            ...finalDependencies,
-            '@netlify/plugin-nextjs': `file:${plugin}`,
-            next: process.env.NEXT_TEST_VERSION || require('next/package.json').version,
-          },
-          scripts: {
-            build: 'next build',
-            ...pkgScripts,
-          },
-        },
-        null,
-        2,
-      ),
-    )
+
+    const finalPackageJson = {
+      ...this.packageJson,
+      license: 'MIT',
+      dependencies: {
+        ...finalDependencies,
+        '@netlify/plugin-nextjs': `file:${plugin}`,
+        next: process.env.NEXT_TEST_VERSION || require('next/package.json').version,
+      },
+      scripts: {
+        build: 'next build',
+        ...pkgScripts,
+      },
+    }
 
     if (this.files instanceof FileRef) {
       // if a FileRef is passed directly to `files` we copy the
@@ -139,6 +133,8 @@ export class NextInstance {
         }
       }
     }
+
+    await fs.writeFile(path.join(this.testDir, 'package.json'), JSON.stringify(finalPackageJson, null, 2))
 
     if (!fs.existsSync(path.join(this.testDir, 'netlify.toml'))) {
       const toml = /* toml */ `

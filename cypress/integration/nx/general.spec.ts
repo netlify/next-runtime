@@ -10,10 +10,10 @@ describe('Default site', () => {
     cy.url().should('eq', `${Cypress.config().baseUrl}/`)
   })
 
-  it('serves generated public files', async () => {
-    cy.request('service-worker.js').then((res) => {
+  it('serves generated public files', () => {
+    cy.request('favicon.ico').then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers['content-type']).to.match(/javascript/)
+      expect(res.headers['content-type']).to.match(/image/)
     })
   })
 

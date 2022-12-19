@@ -1,7 +1,7 @@
 name: Run e2e (middleware demo)
 on:
   pull_request:
-    types: [opened, labeled, unlabeled, synchronize]
+    types: [opened, synchronize]
   push:
     branches:
       - main

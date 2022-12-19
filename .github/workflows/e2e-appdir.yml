@@ -1,0 +1,71 @@
+name: Next.js appdir test suite
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches: [main]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      test-files: ${{ steps['set-test-files'].outputs['test-files'] }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install
+      - id: set-test-files
+        name: Get test files
+        # Extracts the list of all test files as JSON and trims to be relative to the test dir to be easier to read
+        run:
+          echo "test-files=$(npx jest -c test/e2e/jest.config.appdir.js --listTests --json | jq -cM 'map(.[env.PWD |
+          length + 10:])')" >> $GITHUB_OUTPUT
+          # echo "test-files=$(npx jest -c test/e2e/jest.config.all.js --listTests --json | jq -cM 'map(.[env.PWD | length
+          # + 10:])')" >> $GITHUB_OUTPUT
+
+  test:
+    runs-on: ubuntu-latest
+    name: test (${{ matrix.test-file }})
+    needs:
+      - setup
+    strategy:
+      fail-fast: false
+      matrix:
+        # Creates a job for each chunk ID. This will be assigned one or more test files to run
+        test-file: ${{ fromJson(needs.setup.outputs['test-files']) }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install
+      - name: Run tests
+        run: npx jest --reporters=jest-junit --reporters=default -c test/e2e/jest.config.all.js ${{ matrix.test-file }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
+          NEXT_TEST_VERSION: canary
+      - uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        name: Upload test results
+        with:
+          name: test-results
+          path: reports/jest-*.xml
+  report:
+    name: Report appDir e2e test results
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - test
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: reports
+      - name: Combine reports
+        # The test reporter can handle multiple files, but these have random filenames so the output is better when combined
+        run: npx junit-report-merger test-results.xml reports/**/*.xml
+      - uses: phoenix-actions/test-reporting@v10
+        with:
+          name: Jest Tests
+          output-to: 'step-summary'
+          path: 'test-results.xml'
+          max-annotations: 49
+          reporter: jest-junit
