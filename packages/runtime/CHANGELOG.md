@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.29.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.3...plugin-nextjs-v4.29.4) (2022-12-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.3.2 ([#1833](https://github.com/netlify/next-runtime/issues/1833)) ([fb4d816](https://github.com/netlify/next-runtime/commit/fb4d816665433e7a8e2172b98d2bb37b766efc89))
+* support appDir ([#1638](https://github.com/netlify/next-runtime/issues/1638)) ([a5b8047](https://github.com/netlify/next-runtime/commit/a5b80475a89f5ab2266059ad2e96c8786ff41421))
+* use static 404 for non-prerendered dynamic routes without fallback ([#1795](https://github.com/netlify/next-runtime/issues/1795)) ([2aa02db](https://github.com/netlify/next-runtime/commit/2aa02dbe8140b2107c312e757e9dc1609c3b4e70))
+
 ## [4.29.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.2...plugin-nextjs-v4.29.3) (2022-12-05)
 
 
