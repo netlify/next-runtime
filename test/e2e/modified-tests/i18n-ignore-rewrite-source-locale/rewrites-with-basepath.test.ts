@@ -47,8 +47,7 @@ describe('i18n-ignore-rewrite-source-locale with basepath', () => {
     })
   })
   afterAll(() => next.destroy())
-  // NTL Fail
-  test.skip.each(locales)('get public file by skipping locale in rewrite, locale: %s', async (locale) => {
+  test.each(locales)('get public file by skipping locale in rewrite, locale: %s', async (locale) => {
     const res = await renderViaHTTP(next.url, `/basepath${locale}/rewrite-files/file.txt`)
     expect(res).toContain('hello from file.txt')
   })
