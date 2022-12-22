@@ -13,7 +13,7 @@ import slash from 'slash'
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
 
 import { NextConfig } from './config'
-import { isAppDirRoute, loadAppPathRoutesManifest } from './edge'
+import { isStaticAppDirRoute, loadAppPathRoutesManifest } from './edge'
 import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
 
@@ -108,12 +108,15 @@ export const moveStaticPages = async ({
 
   Object.entries(prerenderManifest.routes).forEach(([route, ssgRoute]) => {
     const { initialRevalidateSeconds } = ssgRoute
-    if (initialRevalidateSeconds) {
+    const trimmedPath = route === '/' ? 'index' : route.slice(1)
+
+    if (isStaticAppDirRoute(ssgRoute, appPathRoutes)) {
+      isrFiles.add(`${trimmedPath}.html`)
+    } else if (initialRevalidateSeconds) {
       // Find all files used by ISR routes
-      const trimmedPath = route === '/' ? 'index' : route.slice(1)
       isrFiles.add(`${trimmedPath}.html`)
       isrFiles.add(`${trimmedPath}.json`)
-      if (initialRevalidateSeconds < MINIMUM_REVALIDATE_SECONDS && !isAppDirRoute(ssgRoute, appPathRoutes)) {
+      if (initialRevalidateSeconds < MINIMUM_REVALIDATE_SECONDS) {
         shortRevalidateRoutes.push({ Route: route, Revalidate: initialRevalidateSeconds })
       }
     }

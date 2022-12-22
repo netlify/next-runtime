@@ -8,7 +8,7 @@ import { join } from 'pathe'
 
 import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
 
-import { isAppDirRoute, loadAppPathRoutesManifest } from './edge'
+import { isDynamicAppDirRoute, isStaticAppDirRoute, loadAppPathRoutesManifest } from './edge'
 import { getMiddleware } from './files'
 import { ApiRouteConfig } from './functions'
 import { RoutesManifest } from './types'
@@ -189,6 +189,7 @@ const generateDynamicRewrites = ({
   buildId,
   i18n,
   is404Isr,
+  appPathRoutes,
 }: {
   dynamicRoutes: RoutesManifest['dynamicRoutes']
   prerenderedDynamicRoutes: PrerenderManifest['dynamicRoutes']
@@ -197,12 +198,14 @@ const generateDynamicRewrites = ({
   buildId: string
   middleware: Array<string>
   is404Isr: boolean
+  appPathRoutes?: Record<string, string>
 }): {
   dynamicRoutesThatMatchMiddleware: Array<string>
   dynamicRewrites: NetlifyConfig['redirects']
 } => {
   const dynamicRewrites: NetlifyConfig['redirects'] = []
   const dynamicRoutesThatMatchMiddleware: Array<string> = []
+
   dynamicRoutes.forEach((route) => {
     if (isApiRoute(route.page) || is404Route(route.page, i18n)) {
       return
@@ -210,6 +213,17 @@ const generateDynamicRewrites = ({
     if (route.page in prerenderedDynamicRoutes) {
       if (matchesMiddleware(middleware, route.page)) {
         dynamicRoutesThatMatchMiddleware.push(route.page)
+      } else if (isDynamicAppDirRoute(route, appPathRoutes)) {
+        dynamicRewrites.push(
+          ...redirectsForNextRoute({
+            route: route.page,
+            buildId,
+            basePath,
+            to: HANDLER_FUNCTION_PATH,
+            i18n,
+            withData: false,
+          }),
+        )
       } else if (prerenderedDynamicRoutes[route.page].fallback === false && !is404Isr) {
         dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
       } else {
@@ -270,7 +284,7 @@ export const generateRedirects = async ({
 
   // appDir routes don't use ISR
   const staticRouteEntries = Object.entries(prerenderedStaticRoutes).filter(
-    ([, route]) => !isAppDirRoute(route, appPathRoutes),
+    ([, route]) => !isStaticAppDirRoute(route, appPathRoutes),
   )
 
   const is404Isr = staticRouteEntries.some(
@@ -310,6 +324,7 @@ export const generateRedirects = async ({
     buildId,
     i18n,
     is404Isr,
+    appPathRoutes,
   })
   netlifyConfig.redirects.push(...dynamicRewrites)
   routesThatMatchMiddleware.push(...dynamicRoutesThatMatchMiddleware)

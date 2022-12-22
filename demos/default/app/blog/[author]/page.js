@@ -1,9 +1,7 @@
 import Link from 'next/link'
 
-export const dynamicParams = false
-
 export default async function Page({ params }) {
-  await fetch('https://example.vercel.sh', {
+  await fetch('http://example.com', {
     next: { revalidate: 10 },
   })
   return (

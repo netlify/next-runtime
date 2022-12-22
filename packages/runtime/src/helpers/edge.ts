@@ -12,7 +12,7 @@ import { outdent } from 'outdent'
 
 import { getRequiredServerFiles, NextConfig } from './config'
 import { makeLocaleOptional, stripLookahead } from './matchers'
-import { RoutesManifest } from './types'
+import { DynamicRoute, RoutesManifest } from './types'
 
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
@@ -71,8 +71,11 @@ const maybeLoadJson = <T>(path: string): Promise<T> | null => {
   }
 }
 
-export const isAppDirRoute = ({ srcRoute }: SsgRoute, manifest: Record<string, string> | null): boolean =>
+export const isStaticAppDirRoute = ({ srcRoute }: SsgRoute, manifest: Record<string, string> | null): boolean =>
   Boolean(manifest) && Object.values(manifest).includes(srcRoute)
+
+export const isDynamicAppDirRoute = ({ page }: DynamicRoute, manifest: Record<string, string> | null): boolean =>
+  Boolean(manifest) && Object.values(manifest).includes(page)
 
 export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> =>
   maybeLoadJson(resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json'))
