@@ -6,6 +6,17 @@ import { buildResponse } from '../edge-shared/utils.ts'
 globalThis.NFRequestContextMap ||= new Map()
 globalThis.__dirname = fromFileUrl(new URL('./', import.meta.url)).slice(0, -1)
 
+// Next.js uses this extension to the Headers API implemented by Cloudflare workerd
+if (!('getAll' in Headers.prototype)) {
+  Headers.prototype.getAll = function getAll(name) {
+    name = name.toLowerCase()
+    if (name !== 'set-cookie') {
+      throw new Error('Headers.getAll is only supported for Set-Cookie')
+    }
+    return [...this.entries()].filter(([key]) => key === name).map(([, value]) => value)
+  }
+}
+
 // Check if a file exists, given a relative path
 const exists = async (relativePath) => {
   const path = fromFileUrl(new URL(relativePath, import.meta.url))
@@ -43,11 +54,14 @@ const handler = async (req, context) => {
     return
   }
 
-  //  This is the format expected by Next.js
+  //  This is the format expected by Next.js along with the timezone which we support.
   const geo = {
     country: context.geo.country?.code,
     region: context.geo.subdivision?.code,
     city: context.geo.city,
+    latitude: context.geo.latitude?.toString(),
+    longitude: context.geo.longitude?.toString(),
+    timezone: context.geo.timezone,
   }
 
   // A default request id is fine locally

@@ -44,7 +44,7 @@ by targeting the `/_next/image/*` route:
 
 ## Disabling included image loader
 
-If you wish to disable the use of the image loader which is bundled into the runtime by default, set the `DISABLE_IPX` environment variable to `true`. 
+If you wish to disable the use of the image loader which is bundled into the runtime by default, set the `DISABLE_IPX` environment variable to `true`.
 
 This should only be done if the site is not using `next/image` or is using a different loader (such as Cloudinary or Imgix).
 
@@ -60,7 +60,7 @@ For more details on Next.js Middleware with Netlify, see the [middleware docs](h
 
 ### Limitations
 
-Due to how the site configuration is handled when it's run using Netlify Edge Functions, data such as `locale` and `defaultLocale` will be missing on the `req.nextUrl` object when running `netlify dev`. 
+Due to how the site configuration is handled when it's run using Netlify Edge Functions, data such as `locale` and `defaultLocale` will be missing on the `req.nextUrl` object when running `netlify dev`.
 
 However, this data is available on `req.nextUrl` in a production environment.
 
@@ -107,7 +107,15 @@ Edge runtime or middleware is enabled it will also generate edge functions for m
 
 ## Manually installing the Next.js Runtime
 
-The Next.js Runtime installs automatically for new Next.js sites on Netlify. You can also install it manually like this:
+The Next.js Runtime installs automatically for new Next.js sites on Netlify. You can also install it manually in the
+following ways:
+
+### From the UI (Recommended):
+
+You can go to the [UI](https://app.netlify.com/plugins/@netlify/plugin-nextjs/install) and choose the site to install the Next.js Runtime on. This method
+is recommended because you will benefit from auto-upgrades to important fixes and feature updates.
+
+### From `npm`:
 
 ```shell
 npm install -D @netlify/plugin-nextjs
@@ -117,8 +125,10 @@ npm install -D @netlify/plugin-nextjs
 
 ```toml
 [[plugins]]
-package = "@netlify/plugin-nextjs"
+  package = "@netlify/plugin-nextjs"
 ```
+
+This method is recommended if you wish to pin the Next.js Runtime to a specific version.
 
 ## Manually upgrading from an older version of the Next.js Runtime
 
@@ -137,6 +147,14 @@ If you currently use redirects or rewrites on your site, see
 [the Rewrites and Redirects guide](https://github.com/netlify/next-runtime/blob/main/docs/redirects-rewrites.md) for
 information on changes to how they are handled in this version. In particular, note that `_redirects` and `_headers`
 files must be placed in `public`, not in the root of the site.
+
+## Using with pnpm
+If your site uses pnpm to manage dependencies, currently you must [enable public hoisting](https://pnpm.io/npmrc#public-hoist-pattern).
+The simplest way to do this is to create a `.npmrc` file in the root of your project with the content:
+
+```ini
+public-hoist-pattern[]=*
+```
 
 ## Feedback
 

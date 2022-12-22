@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { join, relative } from 'path'
 
 import type { NetlifyPlugin } from '@netlify/build'
@@ -23,7 +22,7 @@ import {
   generateFunctions,
   setupImageFunction,
   generatePagesResolver,
-  getApiRouteConfigs,
+  getExtendedApiRouteConfigs,
   warnOnApiRoutes,
 } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
@@ -80,12 +79,11 @@ const plugin: NetlifyPlugin = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental } = await getNextConfig(
-      {
+    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental, routesManifest } =
+      await getNextConfig({
         publish,
         failBuild,
-      },
-    )
+      })
     await cleanupEdgeFunctions(constants)
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
@@ -136,7 +134,11 @@ const plugin: NetlifyPlugin = {
 
         await updateRequiredServerFiles(publish, config)
       } else {
-        const nextAuthUrl = `${process.env.DEPLOY_PRIME_URL}${basePath}`
+        // Using the deploy prime url in production leads to issues because the unique deploy ID is part of the generated URL
+        // and will not match the expected URL in the callback URL of an OAuth application.
+        const nextAuthUrl = `${
+          process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
+        }${basePath}`
 
         console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
         config.config.env.NEXTAUTH_URL = nextAuthUrl
@@ -148,12 +150,12 @@ const plugin: NetlifyPlugin = {
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
     await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
-    const apiRoutes = await getApiRouteConfigs(publish, appDir)
+    const apiRoutes = await getExtendedApiRouteConfigs(publish, appDir)
 
     await generateFunctions(constants, appDir, apiRoutes)
-    await generatePagesResolver({ target, constants })
+    await generatePagesResolver(constants)
 
-    await movePublicFiles({ appDir, outdir, publish })
+    await movePublicFiles({ appDir, outdir, publish, basePath })
 
     await patchNextFiles(appDir)
 
@@ -182,7 +184,7 @@ const plugin: NetlifyPlugin = {
       apiRoutes,
     })
 
-    await writeEdgeFunctions(netlifyConfig)
+    await writeEdgeFunctions({ netlifyConfig, routesManifest })
   },
 
   async onPostBuild({
@@ -217,13 +219,18 @@ const plugin: NetlifyPlugin = {
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
     const nextConfig = await getNextConfig({ publish, failBuild })
 
-    const { basePath, appDir } = nextConfig
+    const { basePath, appDir, experimental } = nextConfig
 
     generateCustomHeaders(nextConfig, headers)
 
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
     await warnOnApiRoutes({ FUNCTIONS_DIST })
+    if (experimental?.appDir) {
+      console.log(
+        '🧪 Thank you for testing "appDir" support on Netlify. For known issues and to give feedback, visit https://ntl.fyi/next-13-feedback',
+      )
+    }
   },
 }
 // The types haven't been updated yet
@@ -250,5 +257,3 @@ const nextRuntime = (
 }
 
 module.exports = nextRuntime
-
-/* eslint-enable max-lines */

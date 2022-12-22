@@ -4,9 +4,7 @@ const Show = () => (
   <div>
     <p>This page is ISR, but will return a 404 if the current time ends in 0-4.</p>
 
-    <Link href="/">
-      <a>Go back home</a>
-    </Link>
+    <Link href="/">Go back home</Link>
   </div>
 )
 

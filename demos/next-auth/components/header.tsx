@@ -15,16 +15,10 @@ export default function Header() {
         <style>{`.nojs-show { opacity: 1; top: 0; }`}</style>
       </noscript>
       <div className={styles.signedInStatus}>
-        <p
-          className={`nojs-show ${
-            !session && loading ? styles.loading : styles.loaded
-          }`}
-        >
+        <p className={`nojs-show ${!session && loading ? styles.loading : styles.loaded}`}>
           {!session && (
             <>
-              <span className={styles.notSignedInText}>
-                You are not signed in
-              </span>
+              <span className={styles.notSignedInText}>You are not signed in</span>
               <a
                 href={`/api/auth/signin`}
                 className={styles.buttonPrimary}
@@ -40,10 +34,7 @@ export default function Header() {
           {session?.user && (
             <>
               {session.user.image && (
-                <span
-                  style={{ backgroundImage: `url('${session.user.image}')` }}
-                  className={styles.avatar}
-                />
+                <span style={{ backgroundImage: `url('${session.user.image}')` }} className={styles.avatar} />
               )}
               <span className={styles.signedInText}>
                 <small>Signed in as</small>
@@ -67,39 +58,25 @@ export default function Header() {
       <nav>
         <ul className={styles.navItems}>
           <li className={styles.navItem}>
-            <Link href="/">
-              <a>Home</a>
-            </Link>
+            <Link href="/">Home</Link>
           </li>
           <li className={styles.navItem}>
-            <Link href="/client">
-              <a>Client</a>
-            </Link>
+            <Link href="/client">Client</Link>
           </li>
           <li className={styles.navItem}>
-            <Link href="/server">
-              <a>Server</a>
-            </Link>
+            <Link href="/server">Server</Link>
           </li>
           <li className={styles.navItem}>
-            <Link href="/protected">
-              <a>Protected</a>
-            </Link>
+            <Link href="/protected">Protected</Link>
           </li>
           <li className={styles.navItem}>
-            <Link href="/api-example">
-              <a>API</a>
-            </Link>
+            <Link href="/api-example">API</Link>
           </li>
           <li className={styles.navItem}>
-            <Link href="/admin">
-              <a>Admin</a>
-            </Link>
+            <Link href="/admin">Admin</Link>
           </li>
           <li className={styles.navItem}>
-            <Link href="/me">
-              <a>Me</a>
-            </Link>
+            <Link href="/me">Me</Link>
           </li>
         </ul>
       </nav>

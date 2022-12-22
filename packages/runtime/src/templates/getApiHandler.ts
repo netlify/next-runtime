@@ -66,8 +66,6 @@ const makeHandler = (conf: NextConfig, app, pageRoot, page) => {
 
     const NextServer: NextServerType = getNextServer()
     const nextServer = new NextServer({
-      // We know we're just an API route, so can enable minimal mode
-      minimalMode: true,
       conf,
       dir,
       customServer: false,
@@ -139,7 +137,7 @@ export const getApiHandler = ({
   const { config }  = require("${publishDir}/required-server-files.json")
   let staticManifest
   const path = require("path");
-  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "serverless", "pages"));
+  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   const handler = (${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)})
   exports.handler = ${
     config.type === ApiRouteType.SCHEDULED ? `schedule(${JSON.stringify(config.schedule)}, handler);` : 'handler'

@@ -150,3 +150,6 @@ packages/*/lib
 
 # Cypress
 cypress/screenshots
+
+# Test cases have node module fixtures
+!test/**/node_modules

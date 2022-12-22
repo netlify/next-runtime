@@ -83,7 +83,10 @@ export const buildResponse = async ({
       const transformed = response.dataTransforms.reduce((prev, transform) => {
         return transform(prev)
       }, props)
-      return new Response(JSON.stringify(transformed), response)
+      const body = JSON.stringify(transformed)
+      const headers = new Headers(response.headers)
+      headers.set('content-length', String(body.length))
+      return new Response(body, { ...response, headers })
     }
     // This var will hold the contents of the script tag
     let buffer = ''

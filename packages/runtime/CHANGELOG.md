@@ -1,5 +1,104 @@
 # Changelog
 
+## [4.29.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.3...plugin-nextjs-v4.29.4) (2022-12-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.3.2 ([#1833](https://github.com/netlify/next-runtime/issues/1833)) ([fb4d816](https://github.com/netlify/next-runtime/commit/fb4d816665433e7a8e2172b98d2bb37b766efc89))
+* support appDir ([#1638](https://github.com/netlify/next-runtime/issues/1638)) ([a5b8047](https://github.com/netlify/next-runtime/commit/a5b80475a89f5ab2266059ad2e96c8786ff41421))
+* use static 404 for non-prerendered dynamic routes without fallback ([#1795](https://github.com/netlify/next-runtime/issues/1795)) ([2aa02db](https://github.com/netlify/next-runtime/commit/2aa02dbe8140b2107c312e757e9dc1609c3b4e70))
+
+## [4.29.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.2...plugin-nextjs-v4.29.3) (2022-12-05)
+
+
+### Bug Fixes
+
+* assign globals to `self` ([#1823](https://github.com/netlify/next-runtime/issues/1823)) ([993766b](https://github.com/netlify/next-runtime/commit/993766b0f9d9638c2b6ef838d76a666d38b45db7))
+* better headers.getAll polyfill ([#1801](https://github.com/netlify/next-runtime/issues/1801)) ([84579c1](https://github.com/netlify/next-runtime/commit/84579c159bf111b37ef56a5db92ebff5daea5821))
+* get source file for page in api routes ([#1778](https://github.com/netlify/next-runtime/issues/1778)) ([2a3ad3c](https://github.com/netlify/next-runtime/commit/2a3ad3c9a1d3e36eeaba86280f05b0ba5d8ea8a9))
+
+## [4.29.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.1...plugin-nextjs-v4.29.2) (2022-11-21)
+
+
+### Bug Fixes
+
+* add longitude, latitude, and timezone to RequestData.geo ([#1777](https://github.com/netlify/next-runtime/issues/1777)) ([3f35549](https://github.com/netlify/next-runtime/commit/3f355497f02726a54aa0b5f391c3e9684d45228f))
+* resolve all pages using nft ([#1780](https://github.com/netlify/next-runtime/issues/1780)) ([267ff0b](https://github.com/netlify/next-runtime/commit/267ff0b5ecf5d9fe5154955542887d9c0c573b85))
+
+## [4.29.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.0...plugin-nextjs-v4.29.1) (2022-11-14)
+
+
+### Bug Fixes
+
+* exclude sourcemaps from bundle ([#1772](https://github.com/netlify/next-runtime/issues/1772)) ([4cad33e](https://github.com/netlify/next-runtime/commit/4cad33e7adef50f2d45d46a162c480f3297bc4f3))
+* polyfill headers.getAll ([#1766](https://github.com/netlify/next-runtime/issues/1766)) ([b400efb](https://github.com/netlify/next-runtime/commit/b400efb895a5a9444e2d483c8e7a3dcd8bcdc5b0))
+* revert publish from subdirectory ([#1771](https://github.com/netlify/next-runtime/issues/1771)) ([0554d6a](https://github.com/netlify/next-runtime/commit/0554d6a84b26a4c8465a2d42eb25ff8bb0b0a0c3))
+
+## [4.29.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.7...plugin-nextjs-v4.29.0) (2022-11-11)
+
+
+### Features
+
+* add next debug logging ([#1761](https://github.com/netlify/next-runtime/issues/1761)) ([9607031](https://github.com/netlify/next-runtime/commit/960703136af8bcedc26345c31ca25da08366984e))
+
+## [4.28.7](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.6...plugin-nextjs-v4.28.7) (2022-11-11)
+
+
+### Bug Fixes
+
+* publish from subdirectory ([#1756](https://github.com/netlify/next-runtime/issues/1756)) ([1faf191](https://github.com/netlify/next-runtime/commit/1faf1911f2b2fbf87bb0c75c26eba951a0ddfa3a))
+
+## [4.28.6](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.5...plugin-nextjs-v4.28.6) (2022-11-07)
+
+
+### Bug Fixes
+
+* exclude swc by default, and don't exclude sharp if included ([#1745](https://github.com/netlify/next-runtime/issues/1745)) ([383c186](https://github.com/netlify/next-runtime/commit/383c186a988d972f84b1d04b1626f0670f71b065))
+
+## [4.28.5](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.4...plugin-nextjs-v4.28.5) (2022-11-07)
+
+
+### Bug Fixes
+
+* resolve _app deps in API routes ([#1738](https://github.com/netlify/next-runtime/issues/1738)) ([df6fcda](https://github.com/netlify/next-runtime/commit/df6fcda60eab1b60c9cfb3710106e4bdec2ff1eb))
+
+## [4.28.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.3...plugin-nextjs-v4.28.4) (2022-11-02)
+
+
+### Bug Fixes
+
+* only split extended routes to decrease build times ([#1731](https://github.com/netlify/next-runtime/issues/1731)) ([1e6fb8c](https://github.com/netlify/next-runtime/commit/1e6fb8cf2a1b00d57ae0a2df945514988ebb7dd3))
+
+## [4.28.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.2...plugin-nextjs-v4.28.3) (2022-10-27)
+
+
+### Bug Fixes
+
+* disable minimal mode for API routes ([#1727](https://github.com/netlify/next-runtime/issues/1727)) ([da8f440](https://github.com/netlify/next-runtime/commit/da8f4405a1f7fd3da6789743f93400d678109022))
+
+## [4.28.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.1...plugin-nextjs-v4.28.2) (2022-10-26)
+
+
+### Bug Fixes
+
+* follow redirects when downloading a file from the CDN ([#1719](https://github.com/netlify/next-runtime/issues/1719)) ([1d27a99](https://github.com/netlify/next-runtime/commit/1d27a993361e2b979861eee2f33229ddf83bf98c))
+
+## [4.28.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.28.0...plugin-nextjs-v4.28.1) (2022-10-25)
+
+
+### Bug Fixes
+
+* use process.env.URL when deploying to production ([#1680](https://github.com/netlify/next-runtime/issues/1680)) ([4b08911](https://github.com/netlify/next-runtime/commit/4b08911bb0578d8c5963b7eecdaa0dac54cc7bad))
+
+## [4.28.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.3...plugin-nextjs-v4.28.0) (2022-10-25)
+
+
+### Features
+
+* add support for WebAssembly in edge runtime ([#1676](https://github.com/netlify/next-runtime/issues/1676)) ([530088c](https://github.com/netlify/next-runtime/commit/530088cd0e912d6fb3682a1a7a90a1d8d4202951))
+* support Next 13 ([#1714](https://github.com/netlify/next-runtime/issues/1714)) ([efcb47a](https://github.com/netlify/next-runtime/commit/efcb47a84697edd313f3d8643ebcc48f3bde11e3))
+
 ## [4.27.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.27.2...plugin-nextjs-v4.27.3) (2022-10-19)
 
 

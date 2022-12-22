@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { cpus } from 'os'
 
 import type { NetlifyConfig } from '@netlify/build'
@@ -8,7 +7,7 @@ import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
 import pLimit from 'p-limit'
-import { join, resolve } from 'pathe'
+import { join, resolve, dirname } from 'pathe'
 import slash from 'slash'
 
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
@@ -86,7 +85,6 @@ export const moveStaticPages = async ({
 }): Promise<void> => {
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
-  const root = join(outputDir, 'pages')
   const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
   const dataDir = join('_next', 'data', buildId)
   await ensureDir(join(netlifyConfig.build.publish, dataDir))
@@ -117,15 +115,18 @@ export const moveStaticPages = async ({
     }
   })
 
-  const files: Array<string> = []
+  let fileCount = 0
   const filesManifest: Record<string, string> = {}
-  const moveFile = async (file) => {
+  const moveFile = async (file: string) => {
+    // Strip the initial 'app' or 'pages' directory from the output path
+    const pathname = file.split('/').slice(1).join('/')
+    // .rsc data files go next to the html file
     const isData = file.endsWith('.json')
-    const source = join(root, file)
-    const targetFile = isData ? join(dataDir, file) : file
+    const source = join(outputDir, file)
+    const targetFile = isData ? join(dataDir, pathname) : pathname
     const targetPath = basePath ? join(basePath, targetFile) : targetFile
 
-    files.push(file)
+    fileCount += 1
     filesManifest[file] = targetPath
 
     const dest = join(netlifyConfig.build.publish, targetPath)
@@ -137,8 +138,8 @@ export const moveStaticPages = async ({
     }
   }
   // Move all static files, except error documents and nft manifests
-  const pages = await globby(['**/*.{html,json}', '!**/(500|404|*.js.nft).{html,json}'], {
-    cwd: root,
+  const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/(500|404|*.js.nft).{html,json}'], {
+    cwd: outputDir,
     dot: true,
   })
 
@@ -150,35 +151,38 @@ export const moveStaticPages = async ({
   // Limit concurrent file moves to number of cpus or 2 if there is only 1
   const limit = pLimit(Math.max(2, cpus().length))
   const promises = pages.map((rawPath) => {
+    // Convert to POSIX path
     const filePath = slash(rawPath)
+    // Remove the initial 'app' or 'pages' directory from the output path
+    const pagePath = filePath.split('/').slice(1).join('/')
     // Don't move ISR files, as they're used for the first request
-    if (isrFiles.has(filePath)) {
+    if (isrFiles.has(pagePath)) {
       return
     }
-    if (isDynamicRoute(filePath)) {
+    if (isDynamicRoute(pagePath)) {
       return
     }
-    if (matchesRedirect(filePath, redirects)) {
-      matchedRedirects.add(filePath)
+    if (matchesRedirect(pagePath, redirects)) {
+      matchedRedirects.add(pagePath)
       return
     }
-    if (matchesRewrite(filePath, rewrites)) {
-      matchedRewrites.add(filePath)
+    if (matchesRewrite(pagePath, rewrites)) {
+      matchedRewrites.add(pagePath)
       return
     }
     // Middleware matches against the unlocalised path
-    const unlocalizedPath = stripLocale(rawPath, i18n?.locales)
+    const unlocalizedPath = stripLocale(pagePath, i18n?.locales)
     const middlewarePath = matchMiddleware(middleware, unlocalizedPath)
     // If a file matches middleware it can't be offloaded to the CDN, and needs to stay at the origin to be served by next/server
     if (middlewarePath) {
       matchingMiddleware.add(middlewarePath)
-      matchedPages.add(rawPath)
+      matchedPages.add(filePath)
       return
     }
     return limit(moveFile, filePath)
   })
   await Promise.all(promises)
-  console.log(`Moved ${files.length} files`)
+  console.log(`Moved ${fileCount} files`)
 
   if (matchedPages.size !== 0) {
     console.log(
@@ -337,11 +341,13 @@ const getServerFile = (root: string, includeBase = true) => {
 /**
  * Find the source file for a given page route
  */
-export const getSourceFileForPage = (page: string, root: string) => {
-  for (const extension of SOURCE_FILE_EXTENSIONS) {
-    const file = join(root, `${page}.${extension}`)
-    if (existsSync(file)) {
-      return file
+export const getSourceFileForPage = (page: string, roots: string[]) => {
+  for (const root of roots) {
+    for (const extension of SOURCE_FILE_EXTENSIONS) {
+      const file = join(root, `${page}.${extension}`)
+      if (existsSync(file)) {
+        return file
+      }
     }
   }
   console.log('Could not find source file for page', page)
@@ -356,7 +362,7 @@ export const getDependenciesOfFile = async (file: string) => {
     return []
   }
   const dependencies = await readJson(nft, 'utf8')
-  return dependencies.files.map((dep) => resolve(file, dep))
+  return dependencies.files.map((dep) => resolve(dirname(file), dep))
 }
 
 const baseServerReplacements: Array<[string, string]> = [
@@ -428,10 +434,12 @@ export const movePublicFiles = async ({
   appDir,
   outdir,
   publish,
+  basePath,
 }: {
   appDir: string
   outdir?: string
   publish: string
+  basePath: string
 }): Promise<void> => {
   // `outdir` is a config property added when using Next.js with Nx. It's typically
   // a relative path outside of the appDir, e.g. '../../dist/apps/<app-name>', and
@@ -441,7 +449,6 @@ export const movePublicFiles = async ({
   // directory from the original app directory.
   const publicDir = outdir ? join(appDir, outdir, 'public') : join(appDir, 'public')
   if (existsSync(publicDir)) {
-    await copy(publicDir, `${publish}/`)
+    await copy(publicDir, `${publish}${basePath}/`)
   }
 }
-/* eslint-enable max-lines */
