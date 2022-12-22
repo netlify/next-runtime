@@ -63,6 +63,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/hello-background.js')
         require.resolve('../../../.next/server/webpack-api-runtime.js')
         require.resolve('../../../.next/server/webpack-runtime.js')
+        require.resolve('../../../package.json')
     } catch {}
 }"
 `;
