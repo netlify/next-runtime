@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/netlify/next-runtime/compare/next-v1.4.2...next-v1.4.3) (2022-12-19)
+
+
+### Bug Fixes
+
+* support appDir ([#1638](https://github.com/netlify/next-runtime/issues/1638)) ([a5b8047](https://github.com/netlify/next-runtime/commit/a5b80475a89f5ab2266059ad2e96c8786ff41421))
+
 ## [1.4.2](https://github.com/netlify/next-runtime/compare/next-v1.4.1...next-v1.4.2) (2022-12-05)
 
 
