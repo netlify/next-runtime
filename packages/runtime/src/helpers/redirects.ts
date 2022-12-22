@@ -8,6 +8,7 @@ import { join } from 'pathe'
 
 import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
 
+import { isAppDirRoute, loadAppPathRoutesManifest } from './edge'
 import { getMiddleware } from './files'
 import { ApiRouteConfig } from './functions'
 import { RoutesManifest } from './types'
@@ -265,7 +266,12 @@ export const generateRedirects = async ({
 
   netlifyConfig.redirects.push(...generateMiddlewareRewrites({ basePath, i18n, middleware, buildId }))
 
-  const staticRouteEntries = Object.entries(prerenderedStaticRoutes)
+  const appPathRoutes = await loadAppPathRoutesManifest(netlifyConfig)
+
+  // appDir routes don't use ISR
+  const staticRouteEntries = Object.entries(prerenderedStaticRoutes).filter(
+    ([, route]) => !isAppDirRoute(route, appPathRoutes),
+  )
 
   const is404Isr = staticRouteEntries.some(
     ([route, { initialRevalidateSeconds }]) => is404Route(route, i18n) && initialRevalidateSeconds !== false,

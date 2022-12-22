@@ -5,6 +5,7 @@ import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { greenBright } from 'chalk'
 import destr from 'destr'
 import { copy, copyFile, emptyDir, ensureDir, readJson, writeJSON, writeJson } from 'fs-extra'
+import type { SsgRoute } from 'next/dist/build'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
@@ -69,6 +70,9 @@ const maybeLoadJson = <T>(path: string): Promise<T> | null => {
     return readJson(path)
   }
 }
+
+export const isAppDirRoute = ({ srcRoute }: SsgRoute, manifest: Record<string, string> | null): boolean =>
+  Boolean(manifest) && Object.values(manifest).includes(srcRoute)
 
 export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> =>
   maybeLoadJson(resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json'))
