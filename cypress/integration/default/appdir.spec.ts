@@ -13,7 +13,7 @@ describe('appDir', () => {
       },
     }).then((response) => {
       expect(response.headers).to.have.property('x-nf-render-mode', 'ssr')
-      expect(response.headers).to.have.property('context-type', 'application/octet-stream')
+      expect(response.headers).to.have.property('content-type', 'application/octet-stream')
     })
   })
 })
