@@ -15,12 +15,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        node-version: [14, '*']
-        exclude:
-          - os: macOS-latest
-            node-version: 14
-          - os: windows-latest
-            node-version: 14
       fail-fast: false
 
     steps:
@@ -32,15 +26,8 @@ jobs:
           check-latest: true
       - name: NPM Install
         run: npm install
-      - name: Switching to Node.js ${{ matrix.node-version }} to run tests
-        uses: actions/setup-node@v2
-        if: "${{ matrix.node-version != 'lts/*' }}"
-        with:
-          node-version: ${{ matrix.node-version }}
-          check-latest: true
       - name: Linting
         run: npm run format:ci
-        if: "${{ matrix.node-version == 'lts/*' }}"
       - name: Run tests against next@latest
         run: npm test
   canary:
@@ -50,12 +37,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        node-version: [14, '*']
-        exclude:
-          - os: macOS-latest
-            node-version: 14
-          - os: windows-latest
-            node-version: 14
       fail-fast: false
 
     if: github.ref_name == 'main'
@@ -70,11 +51,5 @@ jobs:
         run: npm install
       - name: Install Next.js Canary
         run: npm install -D next@canary --legacy-peer-deps
-      - name: Switching to Node.js ${{ matrix.node-version }} to run tests
-        uses: actions/setup-node@v2
-        if: "${{ matrix.node-version != 'lts/*' }}"
-        with:
-          node-version: ${{ matrix.node-version }}
-          check-latest: true
       - name: Run tests against next@canary
         run: npm test
