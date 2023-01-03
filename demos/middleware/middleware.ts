@@ -8,6 +8,17 @@ export async function middleware(req: NextRequest) {
   let response
   const { pathname } = req.nextUrl
 
+  if (pathname.startsWith('/api/hello')) {
+    // Next 13 request header mutation functionality
+    const headers = new Headers(req.headers)
+    headers.set('x-from-middleware', 'hello-from-middleware')
+    return NextResponse.next({
+      request: {
+        headers
+      }
+    })
+  }
+  
   const request = new MiddlewareRequest(req)
   if (pathname.startsWith('/static')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
