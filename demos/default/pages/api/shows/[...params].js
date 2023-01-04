@@ -10,7 +10,7 @@ export default async (req, res) => {
   const id = params[0]
 
   // Get the data
-  const fetchRes = await fetch(`https://tvproxy.netlify.app/shows/${id}`)
+  const fetchRes = await fetch(`https://tvproxy.netlify.app/shows/${Number(id)}`)
   const data = await fetchRes.json()
 
   // If show was found, return it
