@@ -59,6 +59,34 @@ function isMiddlewareResponse(response: Response | MiddlewareResponse): response
   return 'dataTransforms' in response
 }
 
+// Next 13 supports request header mutations and has the side effect of prepending header values with 'x-middleware-request'
+// as part of invoking NextResponse.next() in the middleware. We need to remove that before sending the response the user
+// as the code that removes it in Next isn't run based on how we handle the middleware
+//
+// Related Next.js code:
+// * https://github.com/vercel/next.js/blob/68d06fe015b28d8f81da52ca107a5f4bd72ab37c/packages/next/server/next-server.ts#L1918-L1928
+// * https://github.com/vercel/next.js/blob/43c9d8940dc42337dd2f7d66aa90e6abf952278e/packages/next/server/web/spec-extension/response.ts#L10-L27
+export function updateModifiedHeaders(response: Response) {
+  const overriddenHeaders = response.headers.get('x-middleware-override-headers') || ''
+
+  if (!overriddenHeaders) {
+    return response
+  }
+
+  const headersToUpdate = overriddenHeaders.split(',')
+
+  for (const header of headersToUpdate) {
+    const oldHeaderKey = 'x-middleware-request-' + header
+    const headerValue = response.headers.get(oldHeaderKey) || ''
+
+    response.headers.set(header, headerValue)
+    response.headers.delete(oldHeaderKey)
+  }
+  response.headers.delete('x-middleware-override-headers')
+
+  return response
+}
+
 export const buildResponse = async ({
   result,
   request,
@@ -68,6 +96,8 @@ export const buildResponse = async ({
   request: Request
   context: Context
 }) => {
+  result.response = updateModifiedHeaders(result.response)
+
   // They've returned the MiddlewareRequest directly, so we'll call `next()` for them.
   if (isMiddlewareRequest(result.response)) {
     result.response = await result.response.next()

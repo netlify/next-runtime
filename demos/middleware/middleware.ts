@@ -11,6 +11,7 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith('/api/hello')) {
     // Next 13 request header mutation functionality
     const headers = new Headers(req.headers)
+    debugger;
     headers.set('x-from-middleware', 'hello-from-middleware')
     return NextResponse.next({
       request: {
