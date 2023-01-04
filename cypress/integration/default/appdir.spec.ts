@@ -7,8 +7,9 @@ describe('appDir', () => {
   })
 
   it('returns RSC data for RSC requests', () => {
-    cy.request('/blog/erica/first-post/', {
-      Headers: {
+    cy.request({
+      url: '/blog/erica/first-post/',
+      headers: {
         RSC: '1',
       },
     }).then((response) => {
