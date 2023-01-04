@@ -12,7 +12,7 @@ export async function middleware(req: NextRequest) {
     // Next 13 request header mutation functionality
     const headers = new Headers(req.headers)
     debugger;
-    headers.set('x-from-middleware', 'hello-from-middleware')
+    headers.set('x-hello', 'world')
     return NextResponse.next({
       request: {
         headers
@@ -34,12 +34,6 @@ export async function middleware(req: NextRequest) {
     res.headers.set('x-modified-edge', 'true')
     res.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
     return res
-  }
-
-  if (pathname.startsWith('/api/hello')) {
-    // Add a header to the request
-    req.headers.set('x-hello', 'world')
-    return request.next()
   }
 
   if (pathname.startsWith('/api/geo')) {
