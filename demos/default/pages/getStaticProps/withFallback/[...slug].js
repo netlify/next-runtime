@@ -42,7 +42,7 @@ export async function getStaticProps({ params }) {
   const { slug } = params
   const id = slug[slug.length - 1]
 
-  const res = await fetch(`https://tvproxy.netlify.app/shows/${id}`)
+  const res = await fetch(`https://tvproxy.netlify.app/shows/${Number(id)}`)
   const data = await res.json()
   const time = new Date().toLocaleTimeString()
 
