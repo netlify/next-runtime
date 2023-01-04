@@ -47,7 +47,7 @@ CatchAll.getInitialProps = async ({ res: req, query }) => {
   const id = params[0]
 
   // Get the data
-  const res = await fetch(`https://api.tvmaze.com/shows/${id}`)
+  const res = await fetch(`https://tvproxy.netlify.app/shows/${id}`)
   const data = await res.json()
 
   // Set error code if show item could not be found
