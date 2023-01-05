@@ -67,13 +67,13 @@ function isMiddlewareResponse(response: Response | MiddlewareResponse): response
 // * https://github.com/vercel/next.js/blob/68d06fe015b28d8f81da52ca107a5f4bd72ab37c/packages/next/server/next-server.ts#L1918-L1928
 // * https://github.com/vercel/next.js/blob/43c9d8940dc42337dd2f7d66aa90e6abf952278e/packages/next/server/web/spec-extension/response.ts#L10-L27
 export function updateModifiedHeaders(response: Response) {
-  const overriddenHeaders = response.headers.get('x-middleware-override-headers') || ''
+  const overriddenHeaders = response.headers.get('x-middleware-override-headers')
 
   if (!overriddenHeaders) {
     return response
   }
 
-  const headersToUpdate = overriddenHeaders.split(',')
+  const headersToUpdate = overriddenHeaders.split(',').map(header => header.trim())
 
   for (const header of headersToUpdate) {
     const oldHeaderKey = 'x-middleware-request-' + header

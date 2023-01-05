@@ -17,7 +17,8 @@
     "build": "npm run build -w packages/next -w packages/runtime",
     "postinstall": "run-s build install-husky",
     "install-husky": "if-env CI=1 || husky install node_modules/@netlify/eslint-config-node/.husky",
-    "test": "run-s build:demo test:jest",
+    "test": "run-s build:demo test:jest test:deno",
+    "test:deno": "deno test packages/runtime/src/templates/edge-shared/",
     "test:next": "jest -c test/e2e/jest.config.js",
     "test:next:disabled": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.disabled.js",
     "test:next:all": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.all.js",
@@ -101,11 +102,9 @@
       "**/test/**/*.spec.ts",
       "!**/test/e2e/**",
       "!**/test/fixtures/**",
-      "!**/test/sample/**"
+      "!**/test/sample/**",
+      "!**/test/templates/edge-shared/**"
     ],
-    "moduleNameMapper": {
-      "https://deno.land/x/html_rewriter@v0.1.0-pre.17": "<rootDir>/test/mockedDenoModules/html_rewriter"
-    },
     "transform": {
       "\\.[jt]sx?$": "babel-jest"
     },

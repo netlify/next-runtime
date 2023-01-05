@@ -1,4 +1,11 @@
-import {updateModifiedHeaders, FetchEventResult} from '../../../packages/runtime/src/templates/edge-shared/utils'
+import { assertEquals } from 'https://deno.land/std@0.167.0/testing/asserts.ts'
+import {
+  beforeEach,
+  describe,
+  it,
+} from "https://deno.land/std@0.167.0/testing/bdd.ts";
+import {updateModifiedHeaders, FetchEventResult} from './utils.ts'
+
 
 describe('updateModifiedHeaders', () => {
   it('does not modify the headers if \'x-middleware-override-headers\' is not found', () => {
@@ -7,14 +14,14 @@ describe('updateModifiedHeaders', () => {
     // been modified with 'x-middleware-request' added to it, this is more to confirm the test case
     mockHeaders.set('x-middleware-request-foo', 'bar')
 
-    let mockResult: FetchEventResult = {
+    const mockResult: FetchEventResult = {
       response: new Response('', {headers: mockHeaders}),
       waitUntil: Promise.resolve()
     }
 
     mockResult.response = updateModifiedHeaders(mockResult.response)
 
-    expect(mockResult.response.headers.get('x-middleware-request-foo')).toEqual('bar')
+    assertEquals(mockResult.response.headers.get('x-middleware-request-foo'), 'bar')
   })
 
   describe('when the \'x-middleware-override-headers\' headers is present', () => {
@@ -38,19 +45,19 @@ describe('updateModifiedHeaders', () => {
     })
 
     it('does not modify headers that are missing \'x-middleware-request\' in the name', () => {
-      expect(mockResult.response.headers.get('foo')).toEqual('bar')
+      assertEquals(mockResult.response.headers.get('foo'), 'bar')
     })
     
     it('removes \'x-middleware-request-\' from headers', () => {
-      expect(mockResult.response.headers.get('x-middleware-request-hello')).toBe(null)
-      expect(mockResult.response.headers.get('x-middleware-request-test')).toBe(null)
+      assertEquals(mockResult.response.headers.get('x-middleware-request-hello'), null)
+      assertEquals(mockResult.response.headers.get('x-middleware-request-test'), null)
 
-      expect(mockResult.response.headers.get('hello')).toEqual('world')
-      expect(mockResult.response.headers.get('test')).toEqual('123')
+      assertEquals(mockResult.response.headers.get('hello'), 'world')
+      assertEquals(mockResult.response.headers.get('test'), '123')
     })
     
     it('removes \'x-middleware-override-headers\' after cleaning headers', () => {
-      expect(mockResult.response.headers.get('x-middleware-override-headers')).toBe(null)
+      assertEquals(mockResult.response.headers.get('x-middleware-override-headers'), null)
     })
   })
 })
