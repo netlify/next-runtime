@@ -3,10 +3,11 @@
 exports[`function helpers config dependency tracing extracts a list of all dependencies 1`] = `
 Array [
   ".next/package.json",
-  ".next/server/chunks/1987.js",
   ".next/server/chunks/274.js",
   ".next/server/chunks/4271.js",
   ".next/server/chunks/5237.js",
+  ".next/server/chunks/7016.js",
+  ".next/server/chunks/7590.js",
   ".next/server/chunks/9097.js",
   ".next/server/chunks/header.js",
   ".next/server/pages/_app.js",
@@ -54,6 +55,8 @@ exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
         require.resolve('../../../.next/server/chunks/274.js')
+        require.resolve('../../../.next/server/chunks/7016.js')
+        require.resolve('../../../.next/server/chunks/7590.js')
         require.resolve('../../../.next/server/pages/_app.js')
         require.resolve('../../../.next/server/pages/_document.js')
         require.resolve('../../../.next/server/pages/_error.js')
@@ -70,6 +73,8 @@ exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
         require.resolve('../../../.next/server/chunks/274.js')
+        require.resolve('../../../.next/server/chunks/7016.js')
+        require.resolve('../../../.next/server/chunks/7590.js')
         require.resolve('../../../.next/server/pages/_app.js')
         require.resolve('../../../.next/server/pages/_document.js')
         require.resolve('../../../.next/server/pages/_error.js')
@@ -86,10 +91,11 @@ exports[`onBuild() generates a file referencing all page sources 1`] = `
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
-        require.resolve('../../../.next/server/chunks/1987.js')
         require.resolve('../../../.next/server/chunks/274.js')
         require.resolve('../../../.next/server/chunks/4271.js')
         require.resolve('../../../.next/server/chunks/5237.js')
+        require.resolve('../../../.next/server/chunks/7016.js')
+        require.resolve('../../../.next/server/chunks/7590.js')
         require.resolve('../../../.next/server/chunks/9097.js')
         require.resolve('../../../.next/server/chunks/header.js')
         require.resolve('../../../.next/server/pages/_app.js')
@@ -137,10 +143,11 @@ exports[`onBuild() generates a file referencing all page sources 2`] = `
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
-        require.resolve('../../../.next/server/chunks/1987.js')
         require.resolve('../../../.next/server/chunks/274.js')
         require.resolve('../../../.next/server/chunks/4271.js')
         require.resolve('../../../.next/server/chunks/5237.js')
+        require.resolve('../../../.next/server/chunks/7016.js')
+        require.resolve('../../../.next/server/chunks/7590.js')
         require.resolve('../../../.next/server/chunks/9097.js')
         require.resolve('../../../.next/server/chunks/header.js')
         require.resolve('../../../.next/server/pages/_app.js')
@@ -188,10 +195,11 @@ exports[`onBuild() generates a file referencing all when publish dir is a subdir
 exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
-        require.resolve('../../../web/.next/server/chunks/1987.js')
         require.resolve('../../../web/.next/server/chunks/274.js')
         require.resolve('../../../web/.next/server/chunks/4271.js')
         require.resolve('../../../web/.next/server/chunks/5237.js')
+        require.resolve('../../../web/.next/server/chunks/7016.js')
+        require.resolve('../../../web/.next/server/chunks/7590.js')
         require.resolve('../../../web/.next/server/chunks/9097.js')
         require.resolve('../../../web/.next/server/chunks/header.js')
         require.resolve('../../../web/.next/server/pages/_app.js')
@@ -239,10 +247,11 @@ exports[`onBuild() generates a file referencing all when publish dir is a subdir
 exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
-        require.resolve('../../../web/.next/server/chunks/1987.js')
         require.resolve('../../../web/.next/server/chunks/274.js')
         require.resolve('../../../web/.next/server/chunks/4271.js')
         require.resolve('../../../web/.next/server/chunks/5237.js')
+        require.resolve('../../../web/.next/server/chunks/7016.js')
+        require.resolve('../../../web/.next/server/chunks/7590.js')
         require.resolve('../../../web/.next/server/chunks/9097.js')
         require.resolve('../../../web/.next/server/chunks/header.js')
         require.resolve('../../../web/.next/server/pages/_app.js')
@@ -336,22 +345,6 @@ Array [
     "_next/data/build-id/en/getStaticProps/static.json",
   ],
   Array [
-    "pages/en/getStaticProps/with-revalidate-404.html",
-    "en/getStaticProps/with-revalidate-404.html",
-  ],
-  Array [
-    "pages/en/getStaticProps/with-revalidate-404.json",
-    "_next/data/build-id/en/getStaticProps/with-revalidate-404.json",
-  ],
-  Array [
-    "pages/en/getStaticProps/with-revalidate.html",
-    "en/getStaticProps/with-revalidate.html",
-  ],
-  Array [
-    "pages/en/getStaticProps/with-revalidate.json",
-    "_next/data/build-id/en/getStaticProps/with-revalidate.json",
-  ],
-  Array [
     "pages/en/getStaticProps/withFallback/1.html",
     "en/getStaticProps/withFallback/1.html",
   ],
@@ -400,54 +393,6 @@ Array [
     "_next/data/build-id/en/getStaticProps/withFallbackBlocking/2.json",
   ],
   Array [
-    "pages/en/getStaticProps/withRevalidate/1.html",
-    "en/getStaticProps/withRevalidate/1.html",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/1.json",
-    "_next/data/build-id/en/getStaticProps/withRevalidate/1.json",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/2.html",
-    "en/getStaticProps/withRevalidate/2.html",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/2.json",
-    "_next/data/build-id/en/getStaticProps/withRevalidate/2.json",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/withFallback/1.html",
-    "en/getStaticProps/withRevalidate/withFallback/1.html",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/withFallback/1.json",
-    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/1.json",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/withFallback/2.html",
-    "en/getStaticProps/withRevalidate/withFallback/2.html",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/withFallback/2.json",
-    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/2.json",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/1.html",
-    "en/getStaticProps/withRevalidate/withFallbackBlocking/1.html",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/1.json",
-    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/1.json",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/2.html",
-    "en/getStaticProps/withRevalidate/withFallbackBlocking/2.html",
-  ],
-  Array [
-    "pages/en/getStaticProps/withRevalidate/withFallbackBlocking/2.json",
-    "_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/2.json",
-  ],
-  Array [
     "pages/en/image.html",
     "en/image.html",
   ],
@@ -456,20 +401,12 @@ Array [
     "en/layouts.html",
   ],
   Array [
-    "pages/en/old/image.html",
-    "en/old/image.html",
-  ],
-  Array [
     "pages/en/previewTest.html",
     "en/previewTest.html",
   ],
   Array [
     "pages/en/previewTest.json",
     "_next/data/build-id/en/previewTest.json",
-  ],
-  Array [
-    "pages/en/redirectme.html",
-    "en/redirectme.html",
   ],
   Array [
     "pages/en/script.html",
@@ -512,22 +449,6 @@ Array [
     "_next/data/build-id/es/getStaticProps/static.json",
   ],
   Array [
-    "pages/es/getStaticProps/with-revalidate-404.html",
-    "es/getStaticProps/with-revalidate-404.html",
-  ],
-  Array [
-    "pages/es/getStaticProps/with-revalidate-404.json",
-    "_next/data/build-id/es/getStaticProps/with-revalidate-404.json",
-  ],
-  Array [
-    "pages/es/getStaticProps/with-revalidate.html",
-    "es/getStaticProps/with-revalidate.html",
-  ],
-  Array [
-    "pages/es/getStaticProps/with-revalidate.json",
-    "_next/data/build-id/es/getStaticProps/with-revalidate.json",
-  ],
-  Array [
     "pages/es/image.html",
     "es/image.html",
   ],
@@ -536,20 +457,12 @@ Array [
     "es/layouts.html",
   ],
   Array [
-    "pages/es/old/image.html",
-    "es/old/image.html",
-  ],
-  Array [
     "pages/es/previewTest.html",
     "es/previewTest.html",
   ],
   Array [
     "pages/es/previewTest.json",
     "_next/data/build-id/es/previewTest.json",
-  ],
-  Array [
-    "pages/es/redirectme.html",
-    "es/redirectme.html",
   ],
   Array [
     "pages/es/script.html",
@@ -592,22 +505,6 @@ Array [
     "_next/data/build-id/fr/getStaticProps/static.json",
   ],
   Array [
-    "pages/fr/getStaticProps/with-revalidate-404.html",
-    "fr/getStaticProps/with-revalidate-404.html",
-  ],
-  Array [
-    "pages/fr/getStaticProps/with-revalidate-404.json",
-    "_next/data/build-id/fr/getStaticProps/with-revalidate-404.json",
-  ],
-  Array [
-    "pages/fr/getStaticProps/with-revalidate.html",
-    "fr/getStaticProps/with-revalidate.html",
-  ],
-  Array [
-    "pages/fr/getStaticProps/with-revalidate.json",
-    "_next/data/build-id/fr/getStaticProps/with-revalidate.json",
-  ],
-  Array [
     "pages/fr/image.html",
     "fr/image.html",
   ],
@@ -616,20 +513,12 @@ Array [
     "fr/layouts.html",
   ],
   Array [
-    "pages/fr/old/image.html",
-    "fr/old/image.html",
-  ],
-  Array [
     "pages/fr/previewTest.html",
     "fr/previewTest.html",
   ],
   Array [
     "pages/fr/previewTest.json",
     "_next/data/build-id/fr/previewTest.json",
-  ],
-  Array [
-    "pages/fr/redirectme.html",
-    "fr/redirectme.html",
   ],
   Array [
     "pages/fr/script.html",
@@ -757,8 +646,8 @@ Array [
   Object {
     "force": false,
     "from": "/_next/data/build-id/en/getStaticProps/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/en/404.html",
   },
   Object {
     "force": false,
@@ -805,8 +694,8 @@ Array [
   Object {
     "force": false,
     "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/en/404.html",
   },
   Object {
     "force": true,
@@ -991,8 +880,8 @@ Array [
   Object {
     "force": false,
     "from": "/_next/data/build-id/es/getStaticProps/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/es/404.html",
   },
   Object {
     "force": false,
@@ -1039,8 +928,8 @@ Array [
   Object {
     "force": false,
     "from": "/_next/data/build-id/es/getStaticProps/withRevalidate/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/es/404.html",
   },
   Object {
     "force": false,
@@ -1189,8 +1078,8 @@ Array [
   Object {
     "force": false,
     "from": "/_next/data/build-id/fr/getStaticProps/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/fr/404.html",
   },
   Object {
     "force": false,
@@ -1237,8 +1126,8 @@ Array [
   Object {
     "force": false,
     "from": "/_next/data/build-id/fr/getStaticProps/withRevalidate/:id.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/fr/404.html",
   },
   Object {
     "force": false,
@@ -1493,8 +1382,8 @@ Array [
   Object {
     "force": false,
     "from": "/es/getStaticProps/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/es/404.html",
   },
   Object {
     "force": false,
@@ -1541,8 +1430,8 @@ Array [
   Object {
     "force": false,
     "from": "/es/getStaticProps/withRevalidate/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/es/404.html",
   },
   Object {
     "force": false,
@@ -1697,8 +1586,8 @@ Array [
   Object {
     "force": false,
     "from": "/fr/getStaticProps/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/fr/404.html",
   },
   Object {
     "force": false,
@@ -1745,8 +1634,8 @@ Array [
   Object {
     "force": false,
     "from": "/fr/getStaticProps/withRevalidate/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/fr/404.html",
   },
   Object {
     "force": false,
@@ -1853,8 +1742,8 @@ Array [
   Object {
     "force": false,
     "from": "/getStaticProps/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/en/404.html",
   },
   Object {
     "force": false,
@@ -1901,8 +1790,8 @@ Array [
   Object {
     "force": false,
     "from": "/getStaticProps/withRevalidate/:id",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
+    "status": 404,
+    "to": "/server/pages/en/404.html",
   },
   Object {
     "force": true,

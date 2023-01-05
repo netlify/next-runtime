@@ -740,6 +740,23 @@ describe('onBuild()', () => {
     expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
     delete process.env.NEXT_DISABLE_NETLIFY_EDGE
   })
+
+  test('moves static files to a subdirectory if basePath is set', async () => {
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    initialConfig.config.basePath = '/docs'
+
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const publicFile = path.join(netlifyConfig.build.publish, 'docs', 'shows1.json')
+    expect(existsSync(publicFile)).toBe(true)
+    expect(await readJson(publicFile)).toMatchObject(expect.any(Array))
+  })
 })
 
 describe('onPostBuild', () => {
