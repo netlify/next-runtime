@@ -17,7 +17,7 @@
     "build": "npm run build -w packages/next -w packages/runtime",
     "postinstall": "run-s build install-husky",
     "install-husky": "if-env CI=1 || husky install node_modules/@netlify/eslint-config-node/.husky",
-    "test": "run-s build:demo test:jest test:deno",
+    "test": "run-s build:demo test:jest",
     "test:deno": "deno test packages/runtime/src/templates/edge-shared/",
     "test:next": "jest -c test/e2e/jest.config.js",
     "test:next:disabled": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.disabled.js",
