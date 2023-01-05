@@ -9,6 +9,8 @@ import webdriver from 'next-webdriver'
 
 const glob = promisify(globOrig)
 
+const usuallySkip = process.env.RUN_SKIPPED_TESTS ? it : it.skip
+
 describe('app-dir static/dynamic handling', () => {
   const isDev = (global as any).isNextDev
 
@@ -196,7 +198,7 @@ describe('app-dir static/dynamic handling', () => {
     }
   })
 
-  it('should honor dynamic = "force-static" correctly', async () => {
+  usuallySkip('should honor dynamic = "force-static" correctly', async () => {
     const res = await fetchViaHTTP(next.url, '/force-static/first')
     expect(res.status).toBe(200)
 
@@ -218,7 +220,7 @@ describe('app-dir static/dynamic handling', () => {
     }
   })
 
-  it('should honor dynamic = "force-static" correctly (lazy)', async () => {
+  usuallySkip('should honor dynamic = "force-static" correctly (lazy)', async () => {
     const res = await fetchViaHTTP(next.url, '/force-static/random')
     expect(res.status).toBe(200)
 

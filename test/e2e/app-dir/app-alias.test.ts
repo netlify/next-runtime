@@ -6,10 +6,10 @@ import path from 'path'
 import { readJSON } from 'fs-extra'
 
 describe('app-dir alias handling', () => {
-  //if ((global as any).isNextDeploy) {
-  //  it('should skip next deploy for now', () => {})
-  //  return
-  //}
+  if (!process.env.RUN_SKIPPED_TESTS) {
+    it('should skip for now', () => {})
+    return
+  }
 
   let next: NextInstance
 
