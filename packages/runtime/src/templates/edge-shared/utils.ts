@@ -96,7 +96,6 @@ export const buildResponse = async ({
   request: Request
   context: Context
 }) => {
-  debugger
   result.response = updateModifiedHeaders(result.response)
 
   // They've returned the MiddlewareRequest directly, so we'll call `next()` for them.
