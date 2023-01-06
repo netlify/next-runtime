@@ -198,7 +198,7 @@ describe('app-dir static/dynamic handling', () => {
     }
   })
 
-  usuallySkip('should honor dynamic = "force-static" correctly', async () => {
+  it('should honor dynamic = "force-static" correctly', async () => {
     const res = await fetchViaHTTP(next.url, '/force-static/first')
     expect(res.status).toBe(200)
 
