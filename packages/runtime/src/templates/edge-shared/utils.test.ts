@@ -9,19 +9,23 @@ describe('updateModifiedHeaders', () => {
     // been modified with 'x-middleware-request' added to it, this is more to confirm the test case
     mockHeaders.set('x-middleware-request-foo', 'bar')
 
-    const mockResult: FetchEventResult = {
-      response: new Response('', { headers: mockHeaders }),
-      waitUntil: Promise.resolve(),
+    const mockResponse = {
+      headers: mockHeaders
     }
 
-    mockResult.response = updateModifiedHeaders(mockResult.response)
+    const mockRequest = {
+      headers: new Headers()
+    }
 
-    assertEquals(mockResult.response.headers.get('x-middleware-request-foo'), 'bar')
+    updateModifiedHeaders(mockRequest.headers, mockResponse.headers)
+
+    assertEquals(mockRequest.headers.get('x-middleware-request-foo'), null)
   })
 
   describe("when the 'x-middleware-override-headers' headers is present", () => {
     let mockHeaders
-    let mockResult: FetchEventResult
+    let mockRequest: { headers: Headers }
+    let mockResponse: { headers: Headers }
 
     beforeEach(() => {
       mockHeaders = new Headers()
@@ -30,28 +34,31 @@ describe('updateModifiedHeaders', () => {
       mockHeaders.set('x-middleware-request-test', '123')
       mockHeaders.set('x-middleware-override-headers', 'hello,test')
 
-      mockResult = {
-        response: new Response('', { headers: mockHeaders }),
-        waitUntil: Promise.resolve(),
+      mockRequest = {
+        headers: new Headers()
       }
 
-      mockResult.response = updateModifiedHeaders(mockResult.response)
+      mockResponse = {
+        headers: mockHeaders
+      }
+
+      updateModifiedHeaders(mockRequest.headers, mockResponse.headers)
     })
 
-    it("does not modify headers that are missing 'x-middleware-request' in the name", () => {
-      assertEquals(mockResult.response.headers.get('foo'), 'bar')
+    it("does not modify or add headers that are missing 'x-middleware-request' in the name", () => {
+      assertEquals(mockRequest.headers.get('foo'), null)
     })
 
     it("removes 'x-middleware-request-' from headers", () => {
-      assertEquals(mockResult.response.headers.get('x-middleware-request-hello'), null)
-      assertEquals(mockResult.response.headers.get('x-middleware-request-test'), null)
+      assertEquals(mockRequest.headers.get('x-middleware-request-hello'), null)
+      assertEquals(mockRequest.headers.get('x-middleware-request-test'), null)
 
-      assertEquals(mockResult.response.headers.get('hello'), 'world')
-      assertEquals(mockResult.response.headers.get('test'), '123')
+      assertEquals(mockRequest.headers.get('hello'), 'world')
+      assertEquals(mockRequest.headers.get('test'), '123')
     })
 
     it("removes 'x-middleware-override-headers' after cleaning headers", () => {
-      assertEquals(mockResult.response.headers.get('x-middleware-override-headers'), null)
+      assertEquals(mockRequest.headers.get('x-middleware-override-headers'), null)
     })
   })
 })

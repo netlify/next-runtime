@@ -66,25 +66,23 @@ function isMiddlewareResponse(response: Response | MiddlewareResponse): response
 // Related Next.js code:
 // * https://github.com/vercel/next.js/blob/68d06fe015b28d8f81da52ca107a5f4bd72ab37c/packages/next/server/next-server.ts#L1918-L1928
 // * https://github.com/vercel/next.js/blob/43c9d8940dc42337dd2f7d66aa90e6abf952278e/packages/next/server/web/spec-extension/response.ts#L10-L27
-export function updateModifiedHeaders(response: Response) {
-  const overriddenHeaders = response.headers.get('x-middleware-override-headers')
+export function updateModifiedHeaders(requestHeaders: Headers, responseHeaders: Headers) {
+  const overriddenHeaders = responseHeaders.get('x-middleware-override-headers')
 
   if (!overriddenHeaders) {
-    return response
+    return
   }
 
   const headersToUpdate = overriddenHeaders.split(',').map((header) => header.trim())
 
   for (const header of headersToUpdate) {
     const oldHeaderKey = 'x-middleware-request-' + header
-    const headerValue = response.headers.get(oldHeaderKey) || ''
+    const headerValue = responseHeaders.get(oldHeaderKey) || ''
 
-    response.headers.set(header, headerValue)
-    response.headers.delete(oldHeaderKey)
+    requestHeaders.set(header, headerValue)
+    responseHeaders.delete(oldHeaderKey)
   }
-  response.headers.delete('x-middleware-override-headers')
-
-  return response
+  responseHeaders.delete('x-middleware-override-headers')
 }
 
 export const buildResponse = async ({
@@ -96,7 +94,8 @@ export const buildResponse = async ({
   request: Request
   context: Context
 }) => {
-  result.response = updateModifiedHeaders(result.response)
+  debugger
+  updateModifiedHeaders(request.headers, result.response.headers)
 
   // They've returned the MiddlewareRequest directly, so we'll call `next()` for them.
   if (isMiddlewareRequest(result.response)) {
