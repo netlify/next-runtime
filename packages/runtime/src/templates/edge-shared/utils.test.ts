@@ -10,11 +10,11 @@ describe('updateModifiedHeaders', () => {
     mockHeaders.set('x-middleware-request-foo', 'bar')
 
     const mockResponse = {
-      headers: mockHeaders
+      headers: mockHeaders,
     }
 
     const mockRequest = {
-      headers: new Headers()
+      headers: new Headers(),
     }
 
     updateModifiedHeaders(mockRequest.headers, mockResponse.headers)
@@ -35,11 +35,11 @@ describe('updateModifiedHeaders', () => {
       mockHeaders.set('x-middleware-override-headers', 'hello,test')
 
       mockRequest = {
-        headers: new Headers()
+        headers: new Headers(),
       }
 
       mockResponse = {
-        headers: mockHeaders
+        headers: mockHeaders,
       }
 
       updateModifiedHeaders(mockRequest.headers, mockResponse.headers)
