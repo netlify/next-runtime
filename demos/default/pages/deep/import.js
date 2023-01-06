@@ -25,7 +25,7 @@ const Show = ({ show }) => (
 )
 
 export const getServerSideProps = async ({ params }) => {
-  const res = await fetch('https://api.tvmaze.com/shows/42')
+  const res = await fetch('https://tvproxy.netlify.app/shows/42')
   const data = await res.json()
 
   return {

@@ -42,7 +42,7 @@ export async function getStaticProps({ params }) {
   // The ID to render
   const { id } = params
 
-  const res = await fetch(`https://api.tvmaze.com/shows/${id}`)
+  const res = await fetch(`https://tvproxy.netlify.app/shows/${Number(id)}`)
   const data = await res.json()
   const time = new Date().toLocaleTimeString()
 
