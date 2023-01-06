@@ -13,7 +13,7 @@ import slash from 'slash'
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
 
 import { NextConfig } from './config'
-import { isStaticAppDirRoute, loadAppPathRoutesManifest } from './edge'
+import { loadPrerenderManifest } from './edge'
 import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
 
@@ -93,14 +93,10 @@ export const moveStaticPages = async ({
   const middlewarePaths = await getMiddleware(netlifyConfig.build.publish)
   const middleware = middlewarePaths.map((path) => path.slice(1))
 
-  const prerenderManifest: PrerenderManifest = await readJson(
-    join(netlifyConfig.build.publish, 'prerender-manifest.json'),
-  )
+  const prerenderManifest: PrerenderManifest = await loadPrerenderManifest(netlifyConfig)
   const { redirects, rewrites }: RoutesManifest = await readJson(
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
-
-  const appPathRoutes = await loadAppPathRoutesManifest(netlifyConfig)
 
   const isrFiles = new Set<string>()
 
@@ -110,12 +106,11 @@ export const moveStaticPages = async ({
     const { initialRevalidateSeconds } = ssgRoute
     const trimmedPath = route === '/' ? 'index' : route.slice(1)
 
-    if (isStaticAppDirRoute(ssgRoute, appPathRoutes)) {
-      isrFiles.add(`${trimmedPath}.html`)
-    } else if (initialRevalidateSeconds) {
+    if (initialRevalidateSeconds) {
       // Find all files used by ISR routes
       isrFiles.add(`${trimmedPath}.html`)
       isrFiles.add(`${trimmedPath}.json`)
+      isrFiles.add(`${trimmedPath}.rsc`)
       if (initialRevalidateSeconds < MINIMUM_REVALIDATE_SECONDS) {
         shortRevalidateRoutes.push({ Route: route, Revalidate: initialRevalidateSeconds })
       }
@@ -145,7 +140,7 @@ export const moveStaticPages = async ({
     }
   }
   // Move all static files, except error documents and nft manifests
-  const pages = await globby(['{app,pages}/**/*.{html,json}', '!**/(500|404|*.js.nft).{html,json}'], {
+  const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/(500|404|*.js.nft).{html,json}'], {
     cwd: outputDir,
     dot: true,
   })

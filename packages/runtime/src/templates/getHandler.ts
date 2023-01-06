@@ -23,6 +23,7 @@ const {
   getMultiValueHeaders,
   getPrefetchResponse,
   getNextServer,
+  normalizePath,
 } = require('./handlerUtils')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
@@ -103,8 +104,9 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     if (prefetchResponse) {
       return prefetchResponse
     }
-    // Ensure that paths are encoded - but don't double-encode them
-    event.path = new URL(event.rawUrl).pathname
+
+    event.path = normalizePath(event)
+
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
@@ -177,7 +179,7 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, getNextServer } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, getNextServer, normalizePath } = require('./handlerUtils')
 
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")

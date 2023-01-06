@@ -4,8 +4,8 @@ import { resolve, join } from 'path'
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { greenBright } from 'chalk'
 import destr from 'destr'
-import { copy, copyFile, emptyDir, ensureDir, readJson, writeJSON, writeJson } from 'fs-extra'
-import type { SsgRoute } from 'next/dist/build'
+import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
+import type { PrerenderManifest, SsgRoute } from 'next/dist/build'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
@@ -82,6 +82,9 @@ export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<Mi
 
 export const loadAppPathRoutesManifest = (netlifyConfig: NetlifyConfig): Promise<Record<string, string> | null> =>
   maybeLoadJson(resolve(netlifyConfig.build.publish, 'app-path-routes-manifest.json'))
+
+export const loadPrerenderManifest = (netlifyConfig: NetlifyConfig): Promise<PrerenderManifest> =>
+  readJSON(resolve(netlifyConfig.build.publish, 'prerender-manifest.json'))
 
 /**
  * Convert the Next middleware name into a valid Edge Function name
@@ -300,6 +303,41 @@ export const writeDevEdgeFunction = async ({
 }
 
 /**
+ * Writes an edge function that routes RSC data requests to the `.rsc` route
+ */
+
+export const writeRscDataEdgeFunction = async ({
+  prerenderManifest,
+  appPathRoutesManifest,
+}: {
+  prerenderManifest?: PrerenderManifest
+  appPathRoutesManifest?: Record<string, string>
+}): Promise<FunctionManifest['functions']> => {
+  if (!prerenderManifest || !appPathRoutesManifest) {
+    return []
+  }
+  const staticAppdirRoutes: Array<string> = []
+  for (const [path, route] of Object.entries(prerenderManifest.routes)) {
+    if (isStaticAppDirRoute(route, appPathRoutesManifest)) {
+      staticAppdirRoutes.push(path, route.dataRoute)
+    }
+  }
+  if (staticAppdirRoutes.length === 0) {
+    return []
+  }
+
+  const edgeFunctionDir = resolve('.netlify', 'edge-functions', 'rsc-data')
+  await ensureDir(edgeFunctionDir)
+  await copyEdgeSourceFile({ edgeFunctionDir, file: 'rsc-data.ts' })
+
+  return staticAppdirRoutes.map((path) => ({
+    function: 'rsc-data',
+    name: 'RSC data routing',
+    path,
+  }))
+}
+
+/**
  * Writes Edge Functions for the Next middleware
  */
 export const writeEdgeFunctions = async ({
@@ -321,8 +359,10 @@ export const writeEdgeFunctions = async ({
   const nextConfigFile = await getRequiredServerFiles(publish)
   const nextConfig = nextConfigFile.config
   const usesAppDir = nextConfig.experimental?.appDir
+
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
+  await copy(join(publish, 'prerender-manifest.json'), join(edgeFunctionRoot, 'edge-shared', 'prerender-manifest.json'))
 
   if (
     !destr(process.env.NEXT_DISABLE_EDGE_IMAGES) &&
@@ -346,6 +386,13 @@ export const writeEdgeFunctions = async ({
     })
   }
   if (!destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
+    const rscFunctions = await writeRscDataEdgeFunction({
+      prerenderManifest: await loadPrerenderManifest(netlifyConfig),
+      appPathRoutesManifest: await loadAppPathRoutesManifest(netlifyConfig),
+    })
+
+    manifest.functions.push(...rscFunctions)
+
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
     if (!middlewareManifest) {
       console.error("Couldn't find the middleware manifest")
