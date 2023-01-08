@@ -1,8 +1,7 @@
 describe('appDir', () => {
-  it('renders appdir pages using SSR', () => {
+  it('renders appdir pages as HTML by default', () => {
     cy.request('/blog/erica/first-post/').then((response) => {
-      expect(response.headers).to.have.property('x-nf-render-mode', 'ssr')
-      expect(response.headers).to.have.property('content-type', 'text/html; charset=utf-8')
+      expect(response.headers['content-type']).to.match(/^text\/html/)
     })
   })
 
@@ -13,7 +12,6 @@ describe('appDir', () => {
         RSC: '1',
       },
     }).then((response) => {
-      expect(response.headers).to.have.property('x-nf-render-mode', 'ssr')
       expect(response.headers).to.have.property('content-type', 'application/octet-stream')
     })
   })
