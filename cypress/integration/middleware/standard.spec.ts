@@ -1,4 +1,16 @@
 describe('Standard middleware', () => {
+  it('adds request headers', () => {
+    cy.request('/api/hello').then((response) => {
+      expect(response.body).to.have.nested.property('headers.x-hello', 'world')
+    })
+  })
+
+  it('adds request headers to a rewrite', () => {
+    cy.request('/headers').then((response) => {
+      expect(response.body).to.have.nested.property('headers.x-hello', 'world')
+    })
+  })
+
   it('rewrites to internal page', () => {
     // preview mode is off by default
     cy.visit('/shows/rewriteme')

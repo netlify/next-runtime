@@ -434,10 +434,12 @@ export const movePublicFiles = async ({
   appDir,
   outdir,
   publish,
+  basePath,
 }: {
   appDir: string
   outdir?: string
   publish: string
+  basePath: string
 }): Promise<void> => {
   // `outdir` is a config property added when using Next.js with Nx. It's typically
   // a relative path outside of the appDir, e.g. '../../dist/apps/<app-name>', and
@@ -447,6 +449,6 @@ export const movePublicFiles = async ({
   // directory from the original app directory.
   const publicDir = outdir ? join(appDir, outdir, 'public') : join(appDir, 'public')
   if (existsSync(publicDir)) {
-    await copy(publicDir, `${publish}/`)
+    await copy(publicDir, `${publish}${basePath}/`)
   }
 }
