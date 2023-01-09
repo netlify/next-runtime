@@ -32,7 +32,7 @@ type Mutable<T> = {
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
-// eslint-disable-next-line max-params
+// eslint-disable-next-line max-params, max-lines-per-function
 const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
@@ -103,6 +103,9 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     const prefetchResponse = getPrefetchResponse(event, mode)
     if (prefetchResponse) {
       return prefetchResponse
+    }
+    if (event.headers['x-next-debug-logging']) {
+      console.log(event.path, event.headers)
     }
 
     event.path = normalizePath(event)
