@@ -65,6 +65,7 @@ export interface FunctionManifest {
         cache?: 'manual'
       }
   >
+  layers?: Array<{ name: `https://${string}`; flag: string }>
   import_map?: string
 }
 
@@ -345,6 +346,7 @@ export const writeEdgeFunctions = async ({
 }) => {
   const manifest: FunctionManifest = {
     functions: [],
+    layers: [],
     version: 1,
   }
 
@@ -473,7 +475,12 @@ export const writeEdgeFunctions = async ({
     manifest.functions.push({
       function: 'ipx',
       name: 'next/image handler',
-      path: '/_next/image*',
+      path: nextConfig.images.path || '/_next/image',
+    })
+
+    manifest.layers.push({
+      name: 'https://ipx-edge-function-layer.netlify.app/mod.ts',
+      flag: 'ipx-edge-function-layer-url',
     })
   } else {
     console.log(
