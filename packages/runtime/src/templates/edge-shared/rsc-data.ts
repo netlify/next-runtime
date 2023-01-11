@@ -6,10 +6,7 @@ interface PrerenderedRoute {
   dataRoute: string | null
 }
 
-export const getRscDataRouter = (
-  prerenderedRoutes: Record<string, PrerenderedRoute>,
-  trailingSlash: boolean,
-): EdgeFunction => {
+export const getRscDataRouter = (prerenderedRoutes: Record<string, PrerenderedRoute>): EdgeFunction => {
   const routeEntries: Array<[string, PrerenderedRoute]> = Object.entries(prerenderedRoutes)
   const routes = new Map(routeEntries)
 
@@ -32,9 +29,7 @@ export const getRscDataRouter = (
       log('Is rsc request')
       const route = routes.get(pathname)
       if (route?.dataRoute) {
-        log('Rewriting to data route', route.dataRoute)
-        // We need the correct slash here so we don't get a 308
-        request.headers.set('x-rsc-route', trailingSlash ? `${pathname}/` : pathname)
+        request.headers.set('x-rsc-route', url.pathname)
         return context.rewrite(new URL(route.dataRoute, request.url))
       }
     } else if (rscDataRoutes.has(pathname)) {
