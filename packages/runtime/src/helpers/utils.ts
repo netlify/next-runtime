@@ -52,6 +52,13 @@ export const toNetlifyRoute = (nextRoute: string): Array<string> => {
     netlifyRoutes.unshift(netlifyRoute)
   }
 
+  // RSC data routes get an extra route with `/index.rsc` so that the router
+  // can match a different URL with and without a trailing slash
+  if (nextRoute.endsWith('.rsc')) {
+    const rscIndexRoute = nextRoute.replace(/\.rsc$/, '/index.rsc')
+    netlifyRoutes.push(rscIndexRoute)
+  }
+
   return netlifyRoutes.map((route) =>
     route
       // Replace catch-all, e.g., [...slug]

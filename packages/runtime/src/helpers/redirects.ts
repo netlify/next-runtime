@@ -233,9 +233,10 @@ const generateDynamicRewrites = ({
             route: route.page,
             buildId,
             basePath,
-            to: HANDLER_FUNCTION_PATH,
+            to: ODB_FUNCTION_PATH,
             i18n,
-            withData: false,
+            dataRoute: prerenderedDynamicRoutes[route.page].dataRoute,
+            withData: true,
           }),
         )
       } else if (prerenderedDynamicRoutes[route.page].fallback === false && !is404Isr) {
