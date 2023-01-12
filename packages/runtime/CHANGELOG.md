@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.30.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.4...plugin-nextjs-v4.30.0) (2023-01-09)
+
+
+### Features
+
+* add Next 13 request header mutation to middleware ([#1866](https://github.com/netlify/next-runtime/issues/1866)) ([5d60191](https://github.com/netlify/next-runtime/commit/5d60191905e9df8ca6cec7dc586f95917906b750))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.4.0 ([#1869](https://github.com/netlify/next-runtime/issues/1869)) ([3960c31](https://github.com/netlify/next-runtime/commit/3960c31f5dc9067eac347f437274f18265ffb589))
+* **deps:** update dependency @netlify/ipx to ^1.3.3 ([#1868](https://github.com/netlify/next-runtime/issues/1868)) ([d75d0ff](https://github.com/netlify/next-runtime/commit/d75d0ffafdc7b7623328f5176e6d4cf45185e69e))
+* merge Middleware and API route response cookies ([#1870](https://github.com/netlify/next-runtime/issues/1870)) ([878ddd7](https://github.com/netlify/next-runtime/commit/878ddd750d21632d2f4e67d2f6d7724bffcef218))
+* serve static files from basePath ([#1850](https://github.com/netlify/next-runtime/issues/1850)) ([d4ff894](https://github.com/netlify/next-runtime/commit/d4ff894e88bed1138fefacb9ce2fcbe62f62f5b0))
+
 ## [4.29.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.3...plugin-nextjs-v4.29.4) (2022-12-19)
 
 
