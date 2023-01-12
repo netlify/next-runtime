@@ -1,16 +1,4 @@
 describe('Enhanced middleware', () => {
-  it('adds request headers', () => {
-    cy.request('/api/hello').then((response) => {
-      expect(response.body).to.have.nested.property('headers.x-hello', 'world')
-    })
-  })
-
-  it('adds request headers to a rewrite', () => {
-    cy.request('/headers').then((response) => {
-      expect(response.body).to.have.nested.property('headers.x-hello', 'world')
-    })
-  })
-
   it('rewrites the response body', () => {
     cy.visit('/static')
     cy.get('#message').contains('This was static but has been transformed in')

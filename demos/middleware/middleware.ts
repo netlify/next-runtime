@@ -8,6 +8,18 @@ export async function middleware(req: NextRequest) {
   let response
   const { pathname } = req.nextUrl
 
+  if (pathname.startsWith('/api/hello')) {
+    // Next 13 request header mutation functionality
+    const headers = new Headers(req.headers)
+
+    headers.set('x-hello', 'world')
+    return NextResponse.next({
+      request: {
+        headers
+      }
+    })
+  }
+  
   const request = new MiddlewareRequest(req)
   if (pathname.startsWith('/static')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
@@ -22,12 +34,6 @@ export async function middleware(req: NextRequest) {
     res.headers.set('x-modified-edge', 'true')
     res.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
     return res
-  }
-
-  if (pathname.startsWith('/api/hello')) {
-    // Add a header to the request
-    req.headers.set('x-hello', 'world')
-    return request.next()
   }
 
   if (pathname.startsWith('/api/geo')) {

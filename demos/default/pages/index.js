@@ -189,8 +189,8 @@ Index.getInitialProps = async function () {
   const randomPage = Math.floor(Math.random() * 100) + 1
   // FIXME: stub out in dev
   const server = dev
-    ? `https://api.tvmaze.com/shows?page=${randomPage}`
-    : `https://api.tvmaze.com/shows?page=${randomPage}`
+    ? `https://tvproxy.netlify.app/shows/page/${randomPage}`
+    : `https://tvproxy.netlify.app/shows/page/${randomPage}`
 
   // Get the data
   const res = await fetch(server)
