@@ -327,6 +327,46 @@ exports.resolvePages = () => {
 exports[`onBuild() generates static files manifest 1`] = `
 Array [
   Array [
+    "app/blog/erica/first-post.html",
+    "blog/erica/first-post.html",
+  ],
+  Array [
+    "app/blog/erica/first-post.rsc",
+    "blog/erica/first-post.rsc",
+  ],
+  Array [
+    "app/blog/nick/first-post.html",
+    "blog/nick/first-post.html",
+  ],
+  Array [
+    "app/blog/nick/first-post.rsc",
+    "blog/nick/first-post.rsc",
+  ],
+  Array [
+    "app/blog/nick/second-post.html",
+    "blog/nick/second-post.html",
+  ],
+  Array [
+    "app/blog/nick/second-post.rsc",
+    "blog/nick/second-post.rsc",
+  ],
+  Array [
+    "app/blog/rob/second-post.html",
+    "blog/rob/second-post.html",
+  ],
+  Array [
+    "app/blog/rob/second-post.rsc",
+    "blog/rob/second-post.rsc",
+  ],
+  Array [
+    "app/blog/sarah/second-post.html",
+    "blog/sarah/second-post.html",
+  ],
+  Array [
+    "app/blog/sarah/second-post.rsc",
+    "blog/sarah/second-post.rsc",
+  ],
+  Array [
     "pages/en/broken-image.html",
     "en/broken-image.html",
   ],
@@ -1299,13 +1339,109 @@ Array [
     "force": false,
     "from": "/blog/:author",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
     "from": "/blog/:author/:slug",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author/:slug.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author/:slug/index.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author/index.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/erica",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/erica.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/erica/index.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/nick",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/nick.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/nick/index.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/rob",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/rob.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/rob/index.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/sarah",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/sarah.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/sarah/index.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
@@ -1365,13 +1501,37 @@ Array [
     "force": false,
     "from": "/es/blog/:author",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
     "from": "/es/blog/:author/:slug",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author/:slug.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author/:slug/index.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author/index.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
@@ -1581,13 +1741,37 @@ Array [
     "force": false,
     "from": "/fr/blog/:author",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
     "from": "/fr/blog/:author/:slug",
     "status": 200,
-    "to": "/.netlify/functions/___netlify-handler",
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author/:slug.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author/:slug/index.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author/index.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,

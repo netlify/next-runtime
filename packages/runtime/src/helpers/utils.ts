@@ -83,6 +83,10 @@ export const generateNetlifyRoutes = ({
 export const routeToDataRoute = (route: string, buildId: string, locale?: string) =>
   `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}.json`
 
+// Default locale is served from root, not localized
+export const localizeRoute = (route: string, locale: string, defaultLocale: string) =>
+  locale === defaultLocale ? route : `/${locale}${route}`
+
 const netlifyRoutesForNextRoute = ({
   route,
   buildId,
@@ -107,13 +111,14 @@ const netlifyRoutesForNextRoute = ({
   const { locales, defaultLocale } = i18n
   const routes = []
   locales.forEach((locale) => {
-    // Data route is always localized
-    const localizedDataRoute = dataRoute || routeToDataRoute(route, buildId, locale)
+    // Data route is always localized, except for appDir
+    const localizedDataRoute = dataRoute
+      ? localizeRoute(dataRoute, locale, defaultLocale)
+      : routeToDataRoute(route, buildId, locale)
 
     routes.push(
-      // Default locale is served from root, not localized
       ...generateNetlifyRoutes({
-        route: locale === defaultLocale ? route : `/${locale}${route}`,
+        route: localizeRoute(route, locale, defaultLocale),
         dataRoute: localizedDataRoute,
         withData,
       }).map((redirect) => ({

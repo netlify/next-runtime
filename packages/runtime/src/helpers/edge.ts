@@ -74,8 +74,10 @@ const maybeLoadJson = <T>(path: string): Promise<T> | null => {
 export const isStaticAppDirRoute = ({ srcRoute }: SsgRoute, manifest: Record<string, string> | null): boolean =>
   Boolean(manifest) && Object.values(manifest).includes(srcRoute)
 
-export const isDynamicAppDirRoute = ({ page }: DynamicRoute, manifest: Record<string, string> | null): boolean =>
-  Boolean(manifest) && Object.values(manifest).includes(page)
+export const isDynamicAppDirRoute = (
+  { page }: Pick<DynamicRoute, 'page'>,
+  manifest: Record<string, string> | null,
+): boolean => Boolean(manifest) && Object.values(manifest).includes(page)
 
 export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> =>
   maybeLoadJson(resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json'))
