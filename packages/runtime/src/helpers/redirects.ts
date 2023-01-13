@@ -8,7 +8,7 @@ import { join } from 'pathe'
 
 import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
 
-import { isDynamicAppDirRoute, isStaticAppDirRoute, loadAppPathRoutesManifest } from './edge'
+import { isAppDirRoute, loadAppPathRoutesManifest } from './edge'
 import { getMiddleware } from './files'
 import { ApiRouteConfig } from './functions'
 import { RoutesManifest } from './types'
@@ -135,8 +135,7 @@ const generateStaticIsrRewrites = ({
   const staticIsrRoutesThatMatchMiddleware: Array<string> = []
   const staticRoutePaths = new Set<string>()
   const staticIsrRewrites: NetlifyConfig['redirects'] = []
-  staticRouteEntries.forEach(([route, ssgRoute]) => {
-    const { initialRevalidateSeconds, dataRoute } = ssgRoute
+  staticRouteEntries.forEach(([route, { initialRevalidateSeconds, dataRoute, srcRoute }]) => {
     if (isApiRoute(route) || is404Route(route, i18n)) {
       return
     }
@@ -147,7 +146,7 @@ const generateStaticIsrRewrites = ({
       return
     }
     // appDir routes are a different format, so we need to handle them differently
-    const isAppDir = isStaticAppDirRoute(ssgRoute, appPathRoutes)
+    const isAppDir = isAppDirRoute(srcRoute, appPathRoutes)
     // The default locale is served from the root, not the localised path
     if (i18n?.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
       route = route.slice(i18n.defaultLocale.length + 1)
@@ -227,7 +226,7 @@ const generateDynamicRewrites = ({
     if (route.page in prerenderedDynamicRoutes) {
       if (matchesMiddleware(middleware, route.page)) {
         dynamicRoutesThatMatchMiddleware.push(route.page)
-      } else if (isDynamicAppDirRoute(route, appPathRoutes)) {
+      } else if (isAppDirRoute(route.page, appPathRoutes)) {
         dynamicRewrites.push(
           ...redirectsForNextRoute({
             route: route.page,

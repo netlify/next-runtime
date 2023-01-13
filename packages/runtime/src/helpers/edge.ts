@@ -5,14 +5,14 @@ import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { greenBright } from 'chalk'
 import destr from 'destr'
 import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
-import type { PrerenderManifest, SsgRoute } from 'next/dist/build'
+import type { PrerenderManifest } from 'next/dist/build'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
 
 import { getRequiredServerFiles, NextConfig } from './config'
 import { makeLocaleOptional, stripLookahead } from './matchers'
-import { DynamicRoute, RoutesManifest } from './types'
+import { RoutesManifest } from './types'
 
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
@@ -70,14 +70,8 @@ const maybeLoadJson = <T>(path: string): Promise<T> | null => {
     return readJson(path)
   }
 }
-
-export const isStaticAppDirRoute = ({ srcRoute }: SsgRoute, manifest: Record<string, string> | null): boolean =>
-  Boolean(manifest) && Object.values(manifest).includes(srcRoute)
-
-export const isDynamicAppDirRoute = (
-  { page }: Pick<DynamicRoute, 'page'>,
-  manifest: Record<string, string> | null,
-): boolean => Boolean(manifest) && Object.values(manifest).includes(page)
+export const isAppDirRoute = (route: string, appPathRoutesManifest: Record<string, string> | null): boolean =>
+  Boolean(appPathRoutesManifest) && Object.values(appPathRoutesManifest).includes(route)
 
 export const loadMiddlewareManifest = (netlifyConfig: NetlifyConfig): Promise<MiddlewareManifest | null> =>
   maybeLoadJson(resolve(netlifyConfig.build.publish, 'server', 'middleware-manifest.json'))
@@ -320,11 +314,19 @@ export const writeRscDataEdgeFunction = async ({
   }
   const staticAppdirRoutes: Array<string> = []
   for (const [path, route] of Object.entries(prerenderManifest.routes)) {
-    if (isStaticAppDirRoute(route, appPathRoutesManifest)) {
+    if (isAppDirRoute(route.srcRoute, appPathRoutesManifest)) {
       staticAppdirRoutes.push(path, route.dataRoute)
     }
   }
-  if (staticAppdirRoutes.length === 0) {
+  const dynamicAppDirRoutes: Array<string> = []
+
+  for (const [path, route] of Object.entries(prerenderManifest.dynamicRoutes)) {
+    if (isAppDirRoute(path, appPathRoutesManifest)) {
+      dynamicAppDirRoutes.push(route.routeRegex, route.dataRouteRegex)
+    }
+  }
+
+  if (staticAppdirRoutes.length === 0 && dynamicAppDirRoutes.length === 0) {
     return []
   }
 
@@ -332,11 +334,18 @@ export const writeRscDataEdgeFunction = async ({
   await ensureDir(edgeFunctionDir)
   await copyEdgeSourceFile({ edgeFunctionDir, file: 'rsc-data.ts' })
 
-  return staticAppdirRoutes.map((path) => ({
-    function: 'rsc-data',
-    name: 'RSC data routing',
-    path,
-  }))
+  return [
+    ...staticAppdirRoutes.map((path) => ({
+      function: 'rsc-data',
+      name: 'RSC data routing',
+      path,
+    })),
+    ...dynamicAppDirRoutes.map((pattern) => ({
+      function: 'rsc-data',
+      name: 'RSC data routing',
+      pattern,
+    })),
+  ]
 }
 
 /**
