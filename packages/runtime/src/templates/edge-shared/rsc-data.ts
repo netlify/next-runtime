@@ -27,7 +27,7 @@ const noop = () => {}
 // Ensure that routes with and without a trailing slash map to different ODB paths
 const rscifyPath = (route: string) => {
   if (route.endsWith('/')) {
-    return route + 'index.rsc'
+    return route.slice(0, -1) + '.rsc/'
   }
   return route + '.rsc'
 }
