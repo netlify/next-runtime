@@ -67,7 +67,7 @@ describe('appDir', () => {
 
   it('correctly redirects HTML requests for dynamic pages', () => {
     cy.request('/blog/erica/random-post').then((response) => {
-      expect(response.status).to.be('308')
+      expect(response.status).to.equal('308')
       expect(response.headers).to.have.property('location', '/blog/erica/random-post/')
     })
   })
