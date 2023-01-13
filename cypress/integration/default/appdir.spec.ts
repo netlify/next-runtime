@@ -1,18 +1,18 @@
 describe('appDir', () => {
   it('renders ISR appdir pages as HTML by default', () => {
-    cy.request('/blog/erica/').then((response) => {
+    cy.request({ url: '/blog/erica/', followRedirect: false }).then((response) => {
       expect(response.headers['content-type']).to.match(/^text\/html/)
     })
   })
 
   it('renders static appdir pages as HTML by default', () => {
-    cy.request('/blog/erica/first-post/').then((response) => {
+    cy.request({ url: '/blog/erica/first-post/', followRedirect: false }).then((response) => {
       expect(response.headers['content-type']).to.match(/^text\/html/)
     })
   })
 
   it('renders dynamic appdir pages as HTML by default', () => {
-    cy.request('/blog/erica/random-post/').then((response) => {
+    cy.request({ url: '/blog/erica/random-post/', followRedirect: false }).then((response) => {
       expect(response.headers['content-type']).to.match(/^text\/html/)
     })
   })
@@ -23,6 +23,7 @@ describe('appDir', () => {
       headers: {
         RSC: '1',
       },
+      followRedirect: false,
     }).then((response) => {
       expect(response.headers).to.have.property('content-type', 'application/octet-stream')
     })
@@ -34,6 +35,7 @@ describe('appDir', () => {
       headers: {
         RSC: '1',
       },
+      followRedirect: false,
     }).then((response) => {
       expect(response.headers).to.have.property('content-type', 'application/octet-stream')
     })
@@ -45,29 +47,30 @@ describe('appDir', () => {
       headers: {
         RSC: '1',
       },
+      followRedirect: false,
     }).then((response) => {
       expect(response.headers).to.have.property('content-type', 'application/octet-stream')
     })
   })
 
   it('correctly redirects HTML requests for ISR pages', () => {
-    cy.request('/blog/erica').then((response) => {
-      expect(response.status).to.equal('308')
+    cy.request({ url: '/blog/erica', followRedirect: false }).then((response) => {
+      expect(response.status).to.equal(308)
       expect(response.headers).to.have.property('location', '/blog/erica/')
     })
   })
 
   // This needs trailing slash handling to be fixed
   it.skip('correctly redirects HTML requests for static pages', () => {
-    cy.request('/blog/erica/first-post').then((response) => {
-      expect(response.status).to.equal('308')
+    cy.request({ url: '/blog/erica/first-post', followRedirect: false }).then((response) => {
+      expect(response.status).to.equal(308)
       expect(response.headers).to.have.property('location', '/blog/erica/first-post/')
     })
   })
 
   it('correctly redirects HTML requests for dynamic pages', () => {
-    cy.request('/blog/erica/random-post').then((response) => {
-      expect(response.status).to.equal('308')
+    cy.request({ url: '/blog/erica/random-post', followRedirect: false }).then((response) => {
+      expect(response.status).to.equal(308)
       expect(response.headers).to.have.property('location', '/blog/erica/random-post/')
     })
   })
