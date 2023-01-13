@@ -52,7 +52,7 @@ describe('appDir', () => {
 
   it('correctly redirects HTML requests for ISR pages', () => {
     cy.request('/blog/erica').then((response) => {
-      expect(response.status).to.be('308')
+      expect(response.status).to.equal('308')
       expect(response.headers).to.have.property('location', '/blog/erica/')
     })
   })
@@ -60,7 +60,7 @@ describe('appDir', () => {
   // This needs trailing slash handling to be fixed
   it.skip('correctly redirects HTML requests for static pages', () => {
     cy.request('/blog/erica/first-post').then((response) => {
-      expect(response.status).to.be('308')
+      expect(response.status).to.equal('308')
       expect(response.headers).to.have.property('location', '/blog/erica/first-post/')
     })
   })
