@@ -13,6 +13,7 @@ import slash from 'slash'
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
 
 import { NextConfig } from './config'
+import { loadPrerenderManifest } from './edge'
 import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
 
@@ -92,9 +93,7 @@ export const moveStaticPages = async ({
   const middlewarePaths = await getMiddleware(netlifyConfig.build.publish)
   const middleware = middlewarePaths.map((path) => path.slice(1))
 
-  const prerenderManifest: PrerenderManifest = await readJson(
-    join(netlifyConfig.build.publish, 'prerender-manifest.json'),
-  )
+  const prerenderManifest: PrerenderManifest = await loadPrerenderManifest(netlifyConfig)
   const { redirects, rewrites }: RoutesManifest = await readJson(
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
@@ -103,12 +102,15 @@ export const moveStaticPages = async ({
 
   const shortRevalidateRoutes: Array<{ Route: string; Revalidate: number }> = []
 
-  Object.entries(prerenderManifest.routes).forEach(([route, { initialRevalidateSeconds }]) => {
+  Object.entries(prerenderManifest.routes).forEach(([route, ssgRoute]) => {
+    const { initialRevalidateSeconds } = ssgRoute
+    const trimmedPath = route === '/' ? 'index' : route.slice(1)
+
     if (initialRevalidateSeconds) {
       // Find all files used by ISR routes
-      const trimmedPath = route === '/' ? 'index' : route.slice(1)
       isrFiles.add(`${trimmedPath}.html`)
       isrFiles.add(`${trimmedPath}.json`)
+      isrFiles.add(`${trimmedPath}.rsc`)
       if (initialRevalidateSeconds < MINIMUM_REVALIDATE_SECONDS) {
         shortRevalidateRoutes.push({ Route: route, Revalidate: initialRevalidateSeconds })
       }

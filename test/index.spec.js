@@ -59,6 +59,8 @@ const utils = {
   },
 }
 
+const normalizeChunkNames = (source) => source.replaceAll(/\/chunks\/\d+\.js/g, '/chunks/CHUNK_ID.js')
+
 const REDIRECTS = [
   {
     source: '/:file((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+)/',
@@ -590,7 +592,7 @@ describe('onBuild()', () => {
     for (const route of ['_api_hello-background-background', '_api_hello-scheduled-handler']) {
       const expected = path.resolve(constants.INTERNAL_FUNCTIONS_SRC, route, 'pages.js')
       expect(existsSync(expected)).toBeTruthy()
-      expect(readFileSync(expected, 'utf8')).toMatchSnapshot(`for ${route}`)
+      expect(normalizeChunkNames(readFileSync(expected, 'utf8'))).toMatchSnapshot(`for ${route}`)
     }
   })
 
@@ -602,8 +604,8 @@ describe('onBuild()', () => {
     expect(existsSync(handlerPagesFile)).toBeTruthy()
     expect(existsSync(odbHandlerPagesFile)).toBeTruthy()
 
-    expect(readFileSync(handlerPagesFile, 'utf8')).toMatchSnapshot()
-    expect(readFileSync(odbHandlerPagesFile, 'utf8')).toMatchSnapshot()
+    expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
+    expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
   })
 
   test('generates a file referencing all when publish dir is a subdirectory', async () => {
@@ -619,8 +621,8 @@ describe('onBuild()', () => {
     const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
     const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
 
-    expect(readFileSync(handlerPagesFile, 'utf8')).toMatchSnapshot()
-    expect(readFileSync(odbHandlerPagesFile, 'utf8')).toMatchSnapshot()
+    expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
+    expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
   })
 
   test('generates entrypoints with correct references', async () => {
@@ -1279,7 +1281,7 @@ describe('function helpers', () => {
         await moveNextDist()
         await nextRuntime.onBuild(defaultArgs)
         const dependencies = await getAllPageDependencies(constants.PUBLISH_DIR)
-        expect(dependencies.map((dep) => relative(process.cwd(), dep))).toMatchSnapshot()
+        expect(dependencies.map((dep) => normalizeChunkNames(relative(process.cwd(), dep)))).toMatchSnapshot()
       })
 
       it('extracts dependencies that exist', async () => {
