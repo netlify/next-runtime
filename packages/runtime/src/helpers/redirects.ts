@@ -148,8 +148,8 @@ const generateStaticIsrRewrites = ({
     // appDir routes are a different format, so we need to handle them differently
     const isAppDir = isAppDirRoute(srcRoute, appPathRoutes)
     // The default locale is served from the root, not the localised path
-    if (i18n?.defaultLocale && route.startsWith(`/${i18n.defaultLocale}/`)) {
-      route = route.slice(i18n.defaultLocale.length + 1)
+    if (i18n?.defaultLocale && (route.startsWith(`/${i18n.defaultLocale}/`) || route === `/${i18n.defaultLocale}`)) {
+      route = route.slice(i18n.defaultLocale.length + 1) || '/'
       staticRoutePaths.add(route)
       if (matchesMiddleware(middleware, route)) {
         staticIsrRoutesThatMatchMiddleware.push(route)
