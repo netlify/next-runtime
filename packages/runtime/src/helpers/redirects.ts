@@ -143,7 +143,7 @@ const generateStaticIsrRewrites = ({
       return
     }
     // The default locale is served from the root, not the localised path
-    if (i18n?.defaultLocale && route.startsWith(`/${i18n.defaultLocale}`)) {
+    if (i18n?.defaultLocale && (route.startsWith(`/${i18n.defaultLocale}/`) || route === `/${i18n.defaultLocale}`)) {
       route = route.slice(i18n.defaultLocale.length + 1) || '/'
       staticRoutePaths.add(route)
       if (matchesMiddleware(middleware, route)) {
