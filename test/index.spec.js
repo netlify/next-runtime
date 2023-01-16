@@ -590,7 +590,7 @@ describe('onBuild()', () => {
     await nextRuntime.onBuild(defaultArgs)
 
     for (const route of ['_api_hello-background-background', '_api_hello-scheduled-handler']) {
-      const expected = path.resolve(constants.INTERNAL_FUNCTIONS_SRC, route, 'pages.js')
+      const expected = path.resolve(constants.INTERNAL_FUNCTIONS_SRC, route, 'pages.cjs')
       expect(existsSync(expected)).toBeTruthy()
       expect(normalizeChunkNames(readFileSync(expected, 'utf8'))).toMatchSnapshot(`for ${route}`)
     }
@@ -599,8 +599,8 @@ describe('onBuild()', () => {
   test('generates a file referencing all page sources', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
-    const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
-    const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
+    const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.cjs')
+    const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.cjs')
     expect(existsSync(handlerPagesFile)).toBeTruthy()
     expect(existsSync(odbHandlerPagesFile)).toBeTruthy()
 
@@ -618,8 +618,8 @@ describe('onBuild()', () => {
       constants: { ...constants, PUBLISH_DIR: dir },
     }
     await nextRuntime.onBuild(config)
-    const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
-    const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
+    const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.cjs')
+    const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.cjs')
 
     expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
     expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
@@ -632,9 +632,9 @@ describe('onBuild()', () => {
     const handlerFile = path.join(
       constants.INTERNAL_FUNCTIONS_SRC,
       HANDLER_FUNCTION_NAME,
-      `${HANDLER_FUNCTION_NAME}.js`,
+      `${HANDLER_FUNCTION_NAME}.cjs`,
     )
-    const odbHandlerFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, `${ODB_FUNCTION_NAME}.js`)
+    const odbHandlerFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, `${ODB_FUNCTION_NAME}.cjs`)
     expect(existsSync(handlerFile)).toBeTruthy()
     expect(existsSync(odbHandlerFile)).toBeTruthy()
 
