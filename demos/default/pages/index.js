@@ -159,6 +159,12 @@ const Index = ({ shows, nodeEnv }) => {
             <Link href="/rewriteToStatic">Rewrite to static (should show getStaticProps/1)</Link>
           </li>
         </ul>
+        <h4>appDir</h4>
+        <ul>
+          <li>
+            <Link href="/blog/erica">app dir page</Link>
+          </li>
+        </ul>
         <h4>Preview mode</h4>
         <p>Preview mode: </p>
         <ul>

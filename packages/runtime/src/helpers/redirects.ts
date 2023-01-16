@@ -8,6 +8,7 @@ import { join } from 'pathe'
 
 import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
 
+import { isAppDirRoute, loadAppPathRoutesManifest } from './edge'
 import { getMiddleware } from './files'
 import { ApiRouteConfig } from './functions'
 import { RoutesManifest } from './types'
@@ -82,7 +83,7 @@ export const generateStaticRedirects = ({
 }
 
 /**
- * Routes that match middleware need to always use the SSR function
+ * Routes that match origin middleware need to always use the SSR function
  * This generates a rewrite for every middleware in every locale, both with and without a splat
  */
 const generateMiddlewareRewrites = ({ basePath, middleware, i18n, buildId }) => {
@@ -118,12 +119,14 @@ const generateStaticIsrRewrites = ({
   i18n,
   buildId,
   middleware,
+  appPathRoutes,
 }: {
   staticRouteEntries: Array<[string, SsgRoute]>
   basePath: string
   i18n: NextConfig['i18n']
   buildId: string
   middleware: Array<string>
+  appPathRoutes: Record<string, string>
 }): {
   staticRoutePaths: Set<string>
   staticIsrRoutesThatMatchMiddleware: Array<string>
@@ -132,7 +135,7 @@ const generateStaticIsrRewrites = ({
   const staticIsrRoutesThatMatchMiddleware: Array<string> = []
   const staticRoutePaths = new Set<string>()
   const staticIsrRewrites: NetlifyConfig['redirects'] = []
-  staticRouteEntries.forEach(([route, { initialRevalidateSeconds }]) => {
+  staticRouteEntries.forEach(([route, { initialRevalidateSeconds, dataRoute, srcRoute }]) => {
     if (isApiRoute(route) || is404Route(route, i18n)) {
       return
     }
@@ -142,6 +145,8 @@ const generateStaticIsrRewrites = ({
       // These can be ignored, as they're static files handled by the CDN
       return
     }
+    // appDir routes are a different format, so we need to handle them differently
+    const isAppDir = isAppDirRoute(srcRoute, appPathRoutes)
     // The default locale is served from the root, not the localised path
     if (i18n?.defaultLocale && (route.startsWith(`/${i18n.defaultLocale}/`) || route === `/${i18n.defaultLocale}`)) {
       route = route.slice(i18n.defaultLocale.length + 1) || '/'
@@ -149,23 +154,32 @@ const generateStaticIsrRewrites = ({
       if (matchesMiddleware(middleware, route)) {
         staticIsrRoutesThatMatchMiddleware.push(route)
       }
+
       staticIsrRewrites.push(
         ...redirectsForNextRouteWithData({
           route,
-          dataRoute: routeToDataRoute(route, buildId, i18n.defaultLocale),
+          dataRoute: isAppDir ? dataRoute : routeToDataRoute(route, buildId, i18n.defaultLocale),
           basePath,
           to: ODB_FUNCTION_PATH,
           force: true,
         }),
       )
     } else if (matchesMiddleware(middleware, route)) {
-      //  Routes that match middleware can't use the ODB
+      //  Routes that match origin middleware can't use the ODB. Edge middleware will always return false
       staticIsrRoutesThatMatchMiddleware.push(route)
     } else {
       // ISR routes use the ODB handler
       staticIsrRewrites.push(
         // No i18n, because the route is already localized
-        ...redirectsForNextRoute({ route, basePath, to: ODB_FUNCTION_PATH, force: true, buildId, i18n: null }),
+        ...redirectsForNextRoute({
+          route,
+          basePath,
+          to: ODB_FUNCTION_PATH,
+          force: true,
+          buildId,
+          dataRoute: isAppDir ? dataRoute : null,
+          i18n: null,
+        }),
       )
     }
   })
@@ -188,6 +202,7 @@ const generateDynamicRewrites = ({
   buildId,
   i18n,
   is404Isr,
+  appPathRoutes,
 }: {
   dynamicRoutes: RoutesManifest['dynamicRoutes']
   prerenderedDynamicRoutes: PrerenderManifest['dynamicRoutes']
@@ -196,12 +211,14 @@ const generateDynamicRewrites = ({
   buildId: string
   middleware: Array<string>
   is404Isr: boolean
+  appPathRoutes?: Record<string, string>
 }): {
   dynamicRoutesThatMatchMiddleware: Array<string>
   dynamicRewrites: NetlifyConfig['redirects']
 } => {
   const dynamicRewrites: NetlifyConfig['redirects'] = []
   const dynamicRoutesThatMatchMiddleware: Array<string> = []
+
   dynamicRoutes.forEach((route) => {
     if (isApiRoute(route.page) || is404Route(route.page, i18n)) {
       return
@@ -209,6 +226,18 @@ const generateDynamicRewrites = ({
     if (route.page in prerenderedDynamicRoutes) {
       if (matchesMiddleware(middleware, route.page)) {
         dynamicRoutesThatMatchMiddleware.push(route.page)
+      } else if (isAppDirRoute(route.page, appPathRoutes)) {
+        dynamicRewrites.push(
+          ...redirectsForNextRoute({
+            route: route.page,
+            buildId,
+            basePath,
+            to: ODB_FUNCTION_PATH,
+            i18n,
+            dataRoute: prerenderedDynamicRoutes[route.page].dataRoute,
+            withData: true,
+          }),
+        )
       } else if (prerenderedDynamicRoutes[route.page].fallback === false && !is404Isr) {
         dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
       } else {
@@ -265,6 +294,8 @@ export const generateRedirects = async ({
 
   netlifyConfig.redirects.push(...generateMiddlewareRewrites({ basePath, i18n, middleware, buildId }))
 
+  const appPathRoutes = await loadAppPathRoutesManifest(netlifyConfig)
+
   const staticRouteEntries = Object.entries(prerenderedStaticRoutes)
 
   const is404Isr = staticRouteEntries.some(
@@ -279,6 +310,7 @@ export const generateRedirects = async ({
     i18n,
     buildId,
     middleware,
+    appPathRoutes,
   })
 
   routesThatMatchMiddleware.push(...staticIsrRoutesThatMatchMiddleware)
@@ -304,6 +336,7 @@ export const generateRedirects = async ({
     buildId,
     i18n,
     is404Isr,
+    appPathRoutes,
   })
   netlifyConfig.redirects.push(...dynamicRewrites)
   routesThatMatchMiddleware.push(...dynamicRoutesThatMatchMiddleware)
