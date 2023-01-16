@@ -444,12 +444,12 @@ describe('onBuild()', () => {
 
     await nextRuntime.onBuild(defaultArgs)
 
-    expect(existsSync(`.netlify/functions-internal/___netlify-handler/___netlify-handler.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/functions-internal/___netlify-handler/bridge.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/functions-internal/___netlify-handler/handlerUtils.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/___netlify-odb-handler.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/bridge.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-handler/___netlify-handler.cjs`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-handler/bridge.cjs`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-handler/handlerUtils.cjs`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/___netlify-odb-handler.cjs`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/bridge.cjs`)).toBeTruthy()
+    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.cjs`)).toBeTruthy()
   })
 
   test('writes correct redirects to netlifyConfig', async () => {
@@ -687,14 +687,14 @@ describe('onBuild()', () => {
   test('generates an ipx function by default', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
-    expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeTruthy()
+    expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.cjs'))).toBeTruthy()
   })
 
   test('does not generate an ipx function when DISABLE_IPX is set', async () => {
     process.env.DISABLE_IPX = '1'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
-    expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeFalsy()
+    expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.cjs'))).toBeFalsy()
     delete process.env.DISABLE_IPX
   })
 

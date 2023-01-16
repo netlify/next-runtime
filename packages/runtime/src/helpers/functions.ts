@@ -45,11 +45,11 @@ export const generateFunctions = async (
     })
     const functionName = getFunctionNameForPage(route, config.type === ApiRouteType.BACKGROUND)
     await ensureDir(join(functionsDir, functionName))
-    await writeFile(join(functionsDir, functionName, `${functionName}.js`), apiHandlerSource)
-    await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
+    await writeFile(join(functionsDir, functionName, `${functionName}.cjs`), apiHandlerSource)
+    await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.cjs'))
     await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
-      join(functionsDir, functionName, 'handlerUtils.js'),
+      join(functionsDir, functionName, 'handlerUtils.cjs'),
     )
 
     const resolveSourceFile = (file: string) => join(publish, 'server', file)
@@ -65,11 +65,11 @@ export const generateFunctions = async (
   const writeHandler = async (functionName: string, isODB: boolean) => {
     const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
     await ensureDir(join(functionsDir, functionName))
-    await writeFile(join(functionsDir, functionName, `${functionName}.js`), handlerSource)
-    await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
+    await writeFile(join(functionsDir, functionName, `${functionName}.cjs`), handlerSource)
+    await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.cjs'))
     await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
-      join(functionsDir, functionName, 'handlerUtils.js'),
+      join(functionsDir, functionName, 'handlerUtils.cjs'),
     )
   }
 
@@ -90,8 +90,8 @@ export const generatePagesResolver = async ({
 
   const jsSource = await getResolverForPages(PUBLISH_DIR)
 
-  await writeFile(join(functionsPath, ODB_FUNCTION_NAME, 'pages.js'), jsSource)
-  await writeFile(join(functionsPath, HANDLER_FUNCTION_NAME, 'pages.js'), jsSource)
+  await writeFile(join(functionsPath, ODB_FUNCTION_NAME, 'pages.cjs'), jsSource)
+  await writeFile(join(functionsPath, HANDLER_FUNCTION_NAME, 'pages.cjs'), jsSource)
 }
 
 // Move our next/image function into the correct functions directory
@@ -126,7 +126,7 @@ export const setupImageFunction = async ({
     }
   } else {
     const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
-    const functionName = `${IMAGE_FUNCTION_NAME}.js`
+    const functionName = `${IMAGE_FUNCTION_NAME}.cjs`
     const functionDirectory = join(functionsPath, IMAGE_FUNCTION_NAME)
 
     await ensureDir(functionDirectory)

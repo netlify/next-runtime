@@ -128,8 +128,8 @@ export const getApiHandler = ({
   javascript/* javascript */ `
   const { Server } = require("http");
   // We copy the file here rather than requiring from the node module
-  const { Bridge } = require("./bridge");
-  const { getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+  const { Bridge } = require("./bridge.cjs");
+  const { getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils.cjs')
 
   ${config.type === ApiRouteType.SCHEDULED ? `const { schedule } = require("@netlify/functions")` : ''}
 
