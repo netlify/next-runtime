@@ -208,3 +208,17 @@ export const getPrefetchResponse = (event: HandlerEvent, mode: string): HandlerR
   }
   return false
 }
+
+export const normalizePath = (event: HandlerEvent) => {
+  if (event.headers?.rsc) {
+    const originalPath = event.headers['x-rsc-route']
+    if (originalPath) {
+      if (event.headers['x-next-debug-logging']) {
+        console.log('Original path:', originalPath)
+      }
+      return originalPath
+    }
+  }
+  // Ensure that paths are encoded - but don't double-encode them
+  return new URL(event.rawUrl).pathname
+}
