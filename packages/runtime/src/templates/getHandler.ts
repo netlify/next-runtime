@@ -44,7 +44,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   // This is just so nft knows about the page entrypoints. It's not actually used
   try {
     // eslint-disable-next-line n/no-missing-require
-    require.resolve('./pages.js')
+    require.resolve('./pages.cjs')
   } catch {}
 
   const ONE_YEAR_IN_SECONDS = 31536000

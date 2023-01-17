@@ -37,7 +37,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, page) => {
   // This is just so nft knows about the page entrypoints. It's not actually used
   try {
     // eslint-disable-next-line n/no-missing-require
-    require.resolve('./pages.js')
+    require.resolve('./pages.cjs')
   } catch {}
 
   // React assumes you want development mode if NODE_ENV is unset.
