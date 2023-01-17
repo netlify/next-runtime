@@ -59,7 +59,7 @@ export const generateFunctions = async (
       // These extra pages are always included by Next.js
       sourceFiles: [compiled, 'pages/_app.js', 'pages/_document.js', 'pages/_error.js'].map(resolveSourceFile),
     })
-    await writeFile(join(functionsDir, functionName, 'pages.js'), resolverSource)
+    await writeFile(join(functionsDir, functionName, 'pages.cjs'), resolverSource)
   }
 
   const writeHandler = async (functionName: string, isODB: boolean) => {
