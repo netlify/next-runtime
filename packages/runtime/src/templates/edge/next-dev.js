@@ -5,6 +5,7 @@ import { buildResponse } from '../edge-shared/utils.ts'
 
 globalThis.NFRequestContextMap ||= new Map()
 globalThis.__dirname = fromFileUrl(new URL('./', import.meta.url)).slice(0, -1)
+globalThis.process ||= { env: Deno.env.toObject() }
 
 // Next.js uses this extension to the Headers API implemented by Cloudflare workerd
 if (!('getAll' in Headers.prototype)) {
