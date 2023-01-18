@@ -11,7 +11,7 @@ import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
 
 import { getRequiredServerFiles, NextConfig } from './config'
-import { makeLocaleOptional, stripLookahead } from './matchers'
+import { makeLocaleOptional, stripLookahead, transformCaptureGroups } from './matchers'
 import { RoutesManifest } from './types'
 
 // This is the format as of next@12.2
@@ -267,7 +267,7 @@ const writeEdgeFunction = async ({
 
   // We add a defintion for each matching path
   return matchers.map((matcher) => {
-    const pattern = stripLookahead(matcher.regexp)
+    const pattern = transformCaptureGroups(stripLookahead(matcher.regexp))
     return { function: name, pattern, name: edgeFunctionDefinition.name, cache }
   })
 }
