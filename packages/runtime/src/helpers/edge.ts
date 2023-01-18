@@ -202,27 +202,16 @@ const writeEdgeFunction = async ({
   edgeFunctionDefinition,
   edgeFunctionRoot,
   netlifyConfig,
-  pageRegexMap,
-  appPathRoutesManifest = {},
-  nextConfig,
-  cache,
+  functionName,
+  matchers,
 }: {
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
   netlifyConfig: NetlifyConfig
-  pageRegexMap?: Map<string, string>
-  appPathRoutesManifest?: Record<string, string>
-  nextConfig: NextConfig
-  cache?: 'manual'
-}): Promise<
-  Array<{
-    function: string
-    name: string
-    pattern: string
-  }>
-> => {
-  const name = sanitizeName(edgeFunctionDefinition.name)
-  const edgeFunctionDir = join(edgeFunctionRoot, name)
+  functionName: string
+  matchers: Array<MiddlewareMatcher>
+}) => {
+  const edgeFunctionDir = join(edgeFunctionRoot, functionName)
 
   const bundle = await getMiddlewareBundle({
     edgeFunctionDefinition,
@@ -238,39 +227,45 @@ const writeEdgeFunction = async ({
     target: 'index.ts',
   })
 
-  const matchers: EdgeFunctionDefinitionV2['matchers'] = []
+  await writeJson(join(edgeFunctionDir, 'matchers.json'), matchers)
+}
 
+const generateEdgeFunctionMiddlewareMatchers = ({
+  edgeFunctionDefinition,
+  nextConfig,
+}: {
+  edgeFunctionDefinition: EdgeFunctionDefinition
+  edgeFunctionRoot: string
+  nextConfig: NextConfig
+  cache?: 'manual'
+}): Array<MiddlewareMatcher> => {
   // The v1 middleware manifest has a single regexp, but the v2 has an array of matchers
   if ('regexp' in edgeFunctionDefinition) {
-    matchers.push({ regexp: edgeFunctionDefinition.regexp })
-  } else if (nextConfig.i18n) {
-    matchers.push(
-      ...edgeFunctionDefinition.matchers.map((matcher) => ({
-        ...matcher,
-        regexp: makeLocaleOptional(matcher.regexp),
-      })),
-    )
-  } else {
-    matchers.push(...edgeFunctionDefinition.matchers)
+    return [{ regexp: edgeFunctionDefinition.regexp }]
   }
-
-  // If the EF matches a page, it's an app dir page so needs a matcher too
-  // The object will be empty if appDir isn't enabled in the Next config
-  if (pageRegexMap && edgeFunctionDefinition.page in appPathRoutesManifest) {
-    const regexp = pageRegexMap.get(appPathRoutesManifest[edgeFunctionDefinition.page])
-    if (regexp) {
-      matchers.push({ regexp })
-    }
+  if (nextConfig.i18n) {
+    return edgeFunctionDefinition.matchers.map((matcher) => ({
+      ...matcher,
+      regexp: makeLocaleOptional(matcher.regexp),
+    }))
   }
-
-  await writeJson(join(edgeFunctionDir, 'matchers.json'), matchers)
-
-  // We add a defintion for each matching path
-  return matchers.map((matcher) => {
-    const pattern = transformCaptureGroups(stripLookahead(matcher.regexp))
-    return { function: name, pattern, name: edgeFunctionDefinition.name, cache }
-  })
+  return edgeFunctionDefinition.matchers
 }
+
+const middlewareMatcherToEdgeFunctionDefinition = (
+  matcher: MiddlewareMatcher,
+  name: string,
+  cache?: 'manual',
+): {
+  function: string
+  name?: string
+  pattern: string
+  cache?: 'manual'
+} => {
+  const pattern = transformCaptureGroups(stripLookahead(matcher.regexp))
+  return { function: name, pattern, name, cache }
+}
+
 export const cleanupEdgeFunctions = ({
   INTERNAL_EDGE_FUNCTIONS_SRC = '.netlify/edge-functions',
 }: NetlifyPluginConstants) => emptyDir(INTERNAL_EDGE_FUNCTIONS_SRC)
@@ -348,9 +343,27 @@ export const writeRscDataEdgeFunction = async ({
   ]
 }
 
+const getEdgeFunctionPatternForPage = ({
+  edgeFunctionDefinition,
+  pageRegexMap,
+  appPathRoutesManifest,
+}: {
+  edgeFunctionDefinition: EdgeFunctionDefinitionV2
+  pageRegexMap: Map<string, string>
+  appPathRoutesManifest?: Record<string, string>
+}): string => {
+  // We don't just use the matcher from the edge function definition, because it doesn't handle trailing slashes
+
+  // appDir functions have a name that _isn't_ the route name, but rather the route with `/page` appended
+  const regexp = pageRegexMap.get(appPathRoutesManifest?.[edgeFunctionDefinition.page] ?? edgeFunctionDefinition.page)
+  return regexp ?? edgeFunctionDefinition.matchers[0].regexp
+}
+
 /**
  * Writes Edge Functions for the Next middleware
  */
+
+// eslint-disable-next-line max-lines-per-function
 export const writeEdgeFunctions = async ({
   netlifyConfig,
   routesManifest,
@@ -415,16 +428,24 @@ export const writeEdgeFunctions = async ({
     for (const middleware of middlewareManifest.sortedMiddleware) {
       usesEdge = true
       const edgeFunctionDefinition = middlewareManifest.middleware[middleware]
-      const functionDefinitions = await writeEdgeFunction({
+      const functionName = sanitizeName(edgeFunctionDefinition.name)
+      const matchers = generateEdgeFunctionMiddlewareMatchers({
+        edgeFunctionDefinition,
+        edgeFunctionRoot,
+        nextConfig,
+      })
+      await writeEdgeFunction({
         edgeFunctionDefinition,
         edgeFunctionRoot,
         netlifyConfig,
-        nextConfig,
+        functionName,
+        matchers,
       })
-      manifest.functions.push(...functionDefinitions)
+
+      manifest.functions.push(
+        ...matchers.map((matcher) => middlewareMatcherToEdgeFunctionDefinition(matcher, functionName)),
+      )
     }
-    // Older versions of the manifest format don't have the functions field
-    // No, the version field was not incremented
     if (typeof middlewareManifest.functions === 'object') {
       // When using the app dir, we also need to check if the EF matches a page
       const appPathRoutesManifest = await loadAppPathRoutesManifest(netlifyConfig)
@@ -438,17 +459,26 @@ export const writeEdgeFunctions = async ({
 
       for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
         usesEdge = true
-        const functionDefinitions = await writeEdgeFunction({
+        const functionName = sanitizeName(edgeFunctionDefinition.name)
+        await writeEdgeFunction({
           edgeFunctionDefinition,
           edgeFunctionRoot,
           netlifyConfig,
+          functionName,
+          matchers: edgeFunctionDefinition.matchers,
+        })
+        const pattern = getEdgeFunctionPatternForPage({
+          edgeFunctionDefinition,
           pageRegexMap,
           appPathRoutesManifest,
-          nextConfig,
+        })
+        manifest.functions.push({
+          function: functionName,
+          name: edgeFunctionDefinition.name,
+          pattern,
           // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
           cache: usesAppDir ? 'manual' : undefined,
         })
-        manifest.functions.push(...functionDefinitions)
       }
     }
     if (usesEdge) {
