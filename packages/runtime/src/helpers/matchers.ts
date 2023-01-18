@@ -25,7 +25,7 @@ export const stripLookahead = (regex: string) => {
 }
 
 // The Go regexp lib has alternative syntax for named capture groups
-export const transformCaptureGroups = (regex: string) => regex.replace(/\(\?\<\w+\>/, '(')
+export const transformCaptureGroups = (regex: string) => regex.replace(/\(\?<\w+>/, '(')
 
 const LOCALIZED_REGEX_PREFIX = '(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))'
 const OPTIONAL_REGEX_PREFIX = '(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))?'
