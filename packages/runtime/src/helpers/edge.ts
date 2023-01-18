@@ -14,7 +14,6 @@ import { getRequiredServerFiles, NextConfig } from './config'
 import { makeLocaleOptional, stripLookahead, transformCaptureGroups } from './matchers'
 import { RoutesManifest } from './types'
 
-
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
   env: string[]
