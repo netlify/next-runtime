@@ -361,7 +361,8 @@ const getEdgeFunctionPatternForPage = ({
 
   // appDir functions have a name that _isn't_ the route name, but rather the route with `/page` appended
   const regexp = pageRegexMap.get(appPathRoutesManifest?.[edgeFunctionDefinition.page] ?? edgeFunctionDefinition.page)
-  return regexp ?? edgeFunctionDefinition.matchers[0].regexp
+  // If we need to fall back to the matcher, we need to add an optional trailing slash
+  return regexp ?? edgeFunctionDefinition.matchers[0].regexp.replace(/([^/])\$$/, '$1/?$')
 }
 
 /**
