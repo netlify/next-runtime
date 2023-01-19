@@ -1,48 +1,12 @@
 import type { Context } from 'https://edge.netlify.com'
 // Available at build time
 import matchers from './matchers.json' assert { type: 'json' }
-import nextConfig from '../edge-shared/nextConfig.json' assert { type: 'json' }
 import edgeFunction from './bundle.js'
-import { buildResponse } from '../edge-shared/utils.ts'
+import { buildNextRequest, buildResponse } from '../edge-shared/utils.ts'
 import { getMiddlewareRouteMatcher, MiddlewareRouteMatch, searchParamsToUrlQuery } from '../edge-shared/next-utils.ts'
+import nextConfig from '../edge-shared/nextConfig.json' assert { type: 'json' }
 
 const matchesMiddleware: MiddlewareRouteMatch = getMiddlewareRouteMatcher(matchers || [])
-
-export interface FetchEventResult {
-  response: Response
-  waitUntil: Promise<any>
-}
-
-export interface I18NConfig {
-  defaultLocale: string
-  localeDetection?: false
-  locales: string[]
-}
-
-export interface RequestData {
-  geo?: {
-    city?: string
-    country?: string
-    region?: string
-    latitude?: string
-    longitude?: string
-    timezone?: string
-  }
-  headers: Record<string, string>
-  ip?: string
-  method: string
-  nextConfig?: {
-    basePath?: string
-    i18n?: I18NConfig | null
-    trailingSlash?: boolean
-  }
-  page?: {
-    name?: string
-    params?: { [key: string]: string }
-  }
-  url: string
-  body?: ReadableStream<Uint8Array>
-}
 
 export interface RequestContext {
   request: Request
@@ -70,15 +34,6 @@ const handler = async (req: Request, context: Context) => {
     return
   }
 
-  const geo: RequestData['geo'] = {
-    country: context.geo.country?.code,
-    region: context.geo.subdivision?.code,
-    city: context.geo.city,
-    latitude: context.geo.latitude?.toString(),
-    longitude: context.geo.longitude?.toString(),
-    timezone: context.geo.timezone,
-  }
-
   const requestId = req.headers.get('x-nf-request-id')
   if (!requestId) {
     console.error('Missing x-nf-request-id header')
@@ -89,15 +44,7 @@ const handler = async (req: Request, context: Context) => {
     })
   }
 
-  const request: RequestData = {
-    headers: Object.fromEntries(req.headers.entries()),
-    geo,
-    url: req.url,
-    method: req.method,
-    ip: context.ip,
-    body: req.body ?? undefined,
-    nextConfig,
-  }
+  const request = buildNextRequest(req, context, nextConfig)
 
   try {
     const result = await edgeFunction({ request })
