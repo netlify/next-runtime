@@ -1,6 +1,6 @@
 import { assertEquals } from 'https://deno.land/std@0.167.0/testing/asserts.ts'
 import { beforeEach, describe, it } from 'https://deno.land/std@0.167.0/testing/bdd.ts'
-import { updateModifiedHeaders, FetchEventResult } from './utils.ts'
+import { redirectTrailingSlash, updateModifiedHeaders } from './utils.ts'
 
 describe('updateModifiedHeaders', () => {
   it("does not modify the headers if 'x-middleware-override-headers' is not found", () => {
@@ -60,5 +60,55 @@ describe('updateModifiedHeaders', () => {
     it("removes 'x-middleware-override-headers' after cleaning headers", () => {
       assertEquals(mockRequest.headers.get('x-middleware-override-headers'), null)
     })
+  })
+})
+
+describe('trailing slash redirects', () => {
+  it('adds a trailing slash to the pathn if trailingSlash is enabled', () => {
+    const url = new URL('https://example.com/foo')
+    const result = redirectTrailingSlash(url, true)
+    assertEquals(result?.status, 308)
+    assertEquals(result?.headers.get('location'), 'https://example.com/foo/')
+  })
+
+  it("doesn't add a trailing slash if trailingSlash is false", () => {
+    const url = new URL('https://example.com/foo')
+    const result = redirectTrailingSlash(url, false)
+    assertEquals(result, undefined)
+  })
+
+  it("doesn't add a trailing slash if the path is a file", () => {
+    const url = new URL('https://example.com/foo.txt')
+    const result = redirectTrailingSlash(url, true)
+    assertEquals(result, undefined)
+  })
+  it('adds a trailing slash if there is a dot in the path', () => {
+    const url = new URL('https://example.com/foo.bar/baz')
+    const result = redirectTrailingSlash(url, true)
+    assertEquals(result?.status, 308)
+    assertEquals(result?.headers.get('location'), 'https://example.com/foo.bar/baz/')
+  })
+  it("doesn't add a trailing slash if the path is /", () => {
+    const url = new URL('https://example.com/')
+    const result = redirectTrailingSlash(url, true)
+    assertEquals(result, undefined)
+  })
+  it('removes a trailing slash from the path if trailingSlash is false', () => {
+    const url = new URL('https://example.com/foo/')
+    const result = redirectTrailingSlash(url, false)
+    assertEquals(result?.status, 308)
+    assertEquals(result?.headers.get('location'), 'https://example.com/foo')
+  })
+  it("doesn't remove a trailing slash if trailingSlash is true", () => {
+    const url = new URL('https://example.com/foo/')
+    const result = redirectTrailingSlash(url, true)
+    assertEquals(result, undefined)
+  })
+
+  it('removes a trailing slash from the path if the path is a file', () => {
+    const url = new URL('https://example.com/foo.txt/')
+    const result = redirectTrailingSlash(url, false)
+    assertEquals(result?.status, 308)
+    assertEquals(result?.headers.get('location'), 'https://example.com/foo.txt')
   })
 })
