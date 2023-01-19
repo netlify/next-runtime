@@ -50,9 +50,9 @@ so there are some considerations in deciding which one to use with your site.
   only applies to rewrites, not redirects.
 - If you need Next.js-specific features such as regex path or header matching, you must use Next.js rewrites.
 
-### Using `_rewrites` and `_headers` files
+### Using `_redirects` and `_headers` files
 
-If you are using `_rewrites` or `_headers` files rather than a `netlify.toml` file, bear in mind that these files must
+If you are using `_redirects` or `_headers` files rather than a `netlify.toml` file, bear in mind that these files must
 be in the published directory of your site, not the root of the repo. To do this, put them in `public` and they will be
 moved into `.next` at build time. Do not put them directly into `.next`, because it is emptied at build time. Any
-`_rewrites` or `_headers` files in the root of the repo will not be found when deployed.
+`_redirects` or `_headers` files in the root of the repo will not be found when deployed.
