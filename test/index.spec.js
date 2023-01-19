@@ -1606,13 +1606,13 @@ describe('function helpers', () => {
         // Next.js has modified the routesManifest to have the locales in the source.
         const nextConfig = {
           i18n: {
-            locales: ['en', 'fr'],
+            locales: ['en-US', 'fr'],
             defaultLocale: 'en',
           },
           routesManifest: {
             headers: [
               {
-                source: '/:nextInternalLocale(en|fr)/with-locale/:path*',
+                source: '/:nextInternalLocale(en\\-US|fr)/with-locale/:path*',
                 headers: [
                   {
                     key: 'X-Unit-Test',
@@ -1635,7 +1635,7 @@ describe('function helpers', () => {
             },
           },
           {
-            for: '/en/with-locale/*',
+            for: '/en-US/with-locale/*',
             values: {
               'X-Unit-Test': 'true',
             },
