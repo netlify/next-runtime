@@ -203,13 +203,15 @@ const writeEdgeFunction = async ({
   edgeFunctionRoot,
   netlifyConfig,
   functionName,
-  matchers,
+  matchers = [],
+  middleware = false,
 }: {
   edgeFunctionDefinition: EdgeFunctionDefinition
   edgeFunctionRoot: string
   netlifyConfig: NetlifyConfig
   functionName: string
-  matchers: Array<MiddlewareMatcher>
+  matchers?: Array<MiddlewareMatcher>
+  middleware?: boolean
 }) => {
   const edgeFunctionDir = join(edgeFunctionRoot, functionName)
 
@@ -223,11 +225,14 @@ const writeEdgeFunction = async ({
 
   await copyEdgeSourceFile({
     edgeFunctionDir,
-    file: 'runtime.ts',
+    file: middleware ? 'middleware-runtime.ts' : 'function-runtime.ts',
     target: 'index.ts',
   })
 
-  await writeJson(join(edgeFunctionDir, 'matchers.json'), matchers)
+  if (middleware) {
+    // Functions don't have complex matchers, so we can rely on the Netlify matcher
+    await writeJson(join(edgeFunctionDir, 'matchers.json'), matchers)
+  }
 }
 
 const generateEdgeFunctionMiddlewareMatchers = ({
@@ -440,6 +445,7 @@ export const writeEdgeFunctions = async ({
         netlifyConfig,
         functionName,
         matchers,
+        middleware: true,
       })
 
       manifest.functions.push(
@@ -465,7 +471,6 @@ export const writeEdgeFunctions = async ({
           edgeFunctionRoot,
           netlifyConfig,
           functionName,
-          matchers: edgeFunctionDefinition.matchers,
         })
         const pattern = getEdgeFunctionPatternForPage({
           edgeFunctionDefinition,
