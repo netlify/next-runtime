@@ -43,7 +43,7 @@ describe('react 18 streaming SSR with custom next configs', () => {
     expect(html).toContain('color:blue')
   })
   // NTL Skip
-  usuallySkip('should redirect paths without trailing-slash and render when slash is appended', async () => {
+  it('should redirect paths without trailing-slash and render when slash is appended', async () => {
     const page = '/hello'
     const redirectRes = await fetchViaHTTP(next.url, page, {}, { redirect: 'manual' })
     const res = await fetchViaHTTP(next.url, page + '/')
