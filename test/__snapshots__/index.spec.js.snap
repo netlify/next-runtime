@@ -28,6 +28,7 @@ Array [
   ".next/server/pages/api/shows/[...params].js",
   ".next/server/pages/api/shows/[id].js",
   ".next/server/pages/deep/import.js",
+  ".next/server/pages/edge/[id].js",
   ".next/server/pages/getServerSideProps/[id].js",
   ".next/server/pages/getServerSideProps/all/[[...slug]].js",
   ".next/server/pages/getServerSideProps/file.js",
@@ -122,6 +123,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../.next/server/pages/api/shows/[id].js')
         require.resolve('../../../.next/server/pages/deep/import.js')
+        require.resolve('../../../.next/server/pages/edge/[id].js')
         require.resolve('../../../.next/server/pages/getServerSideProps/[id].js')
         require.resolve('../../../.next/server/pages/getServerSideProps/all/[[...slug]].js')
         require.resolve('../../../.next/server/pages/getServerSideProps/file.js')
@@ -180,6 +182,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../.next/server/pages/api/shows/[id].js')
         require.resolve('../../../.next/server/pages/deep/import.js')
+        require.resolve('../../../.next/server/pages/edge/[id].js')
         require.resolve('../../../.next/server/pages/getServerSideProps/[id].js')
         require.resolve('../../../.next/server/pages/getServerSideProps/all/[[...slug]].js')
         require.resolve('../../../.next/server/pages/getServerSideProps/file.js')
@@ -238,6 +241,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
         require.resolve('../../../web/.next/server/pages/deep/import.js')
+        require.resolve('../../../web/.next/server/pages/edge/[id].js')
         require.resolve('../../../web/.next/server/pages/getServerSideProps/[id].js')
         require.resolve('../../../web/.next/server/pages/getServerSideProps/all/[[...slug]].js')
         require.resolve('../../../web/.next/server/pages/getServerSideProps/file.js')
@@ -296,6 +300,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
         require.resolve('../../../web/.next/server/pages/deep/import.js')
+        require.resolve('../../../web/.next/server/pages/edge/[id].js')
         require.resolve('../../../web/.next/server/pages/getServerSideProps/[id].js')
         require.resolve('../../../web/.next/server/pages/getServerSideProps/all/[[...slug]].js')
         require.resolve('../../../web/.next/server/pages/getServerSideProps/file.js')
@@ -673,6 +678,12 @@ Array [
   },
   Object {
     "force": false,
+    "from": "/_next/data/build-id/en/edge/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
     "from": "/_next/data/build-id/en/env.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -913,6 +924,12 @@ Array [
   },
   Object {
     "force": false,
+    "from": "/_next/data/build-id/es/edge/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
     "from": "/_next/data/build-id/es/env.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -1106,6 +1123,12 @@ Array [
   Object {
     "force": false,
     "from": "/_next/data/build-id/fr/deep/import.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/edge/:id.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
@@ -1445,6 +1468,12 @@ Array [
   },
   Object {
     "force": false,
+    "from": "/edge/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
     "from": "/env",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
@@ -1500,6 +1529,12 @@ Array [
   Object {
     "force": false,
     "from": "/es/deep/import",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/edge/:id",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
@@ -1728,6 +1763,12 @@ Array [
   Object {
     "force": false,
     "from": "/fr/deep/import",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/edge/:id",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
