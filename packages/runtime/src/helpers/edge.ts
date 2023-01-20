@@ -153,6 +153,8 @@ const getMiddlewareBundle = async ({
   const { publish } = netlifyConfig.build
   const chunks: Array<string> = [preamble]
 
+  chunks.push(`export const _DEFINITION = ${JSON.stringify(edgeFunctionDefinition)}`)
+
   if ('wasm' in edgeFunctionDefinition) {
     for (const { name, filePath } of edgeFunctionDefinition.wasm) {
       const wasm = await fs.readFile(join(publish, filePath))
