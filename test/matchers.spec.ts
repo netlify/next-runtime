@@ -1,5 +1,5 @@
 import { makeLocaleOptional, stripLookahead } from '../packages/runtime/src/helpers/matchers'
-
+import { getEdgeFunctionPatternForPage } from '../packages/runtime/src/helpers/edge'
 const makeDataPath = (path: string) => `/_next/data/build-id${path === '/' ? '/index' : path}.json`
 
 function checkPath(path: string, regex: string) {
@@ -66,5 +66,111 @@ describe('the middleware path matcher', () => {
     // The strict test will be done in the JS entrypoint
     expect(checkPath('/shows/99', stripped)).toBe(true)
     expect(checkPath('/shows/888', stripped)).toBe(true)
+  })
+})
+
+const pageRegexMap = new Map([
+  ['/api/shows/[id]', '^/api/shows/([^/]+?)(?:/)?$'],
+  ['/api/shows/[...params]', '^/api/shows/(.+?)(?:/)?$'],
+  ['/app-edge/[id]', '^/app\\-edge/([^/]+?)(?:/)?$'],
+  ['/blog/[author]', '^/blog/([^/]+?)(?:/)?$'],
+  ['/blog/[author]/[slug]', '^/blog/([^/]+?)/([^/]+?)(?:/)?$'],
+  ['/getServerSideProps/all/[[...slug]]', '^/getServerSideProps/all(?:/(.+?))?(?:/)?$'],
+  ['/getServerSideProps/[id]', '^/getServerSideProps/([^/]+?)(?:/)?$'],
+])
+
+const appPathRoutesManifest = {
+  '/app-edge/[id]/page': '/app-edge/[id]',
+  '/blog/[author]/[slug]/page': '/blog/[author]/[slug]',
+  '/blog/[author]/page': '/blog/[author]',
+}
+
+describe('the edge function matcher helpers', () => {
+  it('finds the correct regex for an edge API route', () => {
+    const regex = getEdgeFunctionPatternForPage({
+      pageRegexMap,
+      appPathRoutesManifest,
+      edgeFunctionDefinition: {
+        name: 'pages/api/og',
+        page: '/api/og',
+        env: [],
+        files: [],
+        matchers: [
+          {
+            regexp: '^/api/og$',
+          },
+        ],
+        wasm: [],
+        assets: [],
+      },
+    })
+    expect(regex).toBe('^/api/og/?$')
+    expect('/api/og').toMatch(new RegExp(regex))
+    expect('/api/og/').toMatch(new RegExp(regex))
+  })
+
+  it('finds the correct regex for an appDir page with a dynamic route', () => {
+    const regex = getEdgeFunctionPatternForPage({
+      pageRegexMap,
+      appPathRoutesManifest,
+      edgeFunctionDefinition: {
+        env: [],
+        files: [],
+        name: 'app/app-edge/[id]/page',
+        page: '/app-edge/[id]/page',
+        matchers: [
+          {
+            regexp: '^/app\\-edge/(?<id>[^/]+?)$',
+          },
+        ],
+        wasm: [],
+        assets: [],
+      },
+    })
+    expect(regex).toBe('^/app\\-edge/([^/]+?)(?:/)?$')
+    expect('/app-edge/1').toMatch(new RegExp(regex))
+    expect('/app-edge/1/').toMatch(new RegExp(regex))
+  })
+
+  it('finds the correct regex for a pages edge route', () => {
+    const regex = getEdgeFunctionPatternForPage({
+      pageRegexMap,
+      appPathRoutesManifest,
+      edgeFunctionDefinition: {
+        env: [],
+        files: [],
+        name: 'pages/edge/[id]',
+        page: '/edge/[id]',
+        matchers: [
+          {
+            regexp: '^/edge/(?<id>[^/]+?)$',
+          },
+        ],
+        wasm: [],
+        assets: [],
+      },
+    })
+    expect(regex).toBe('^/edge/(?<id>[^/]+?)/?$')
+    expect('/edge/1').toMatch(new RegExp(regex))
+    expect('/edge/1/').toMatch(new RegExp(regex))
+  })
+
+  it('finds the correct regex for a pages edge route with a v1 definition', () => {
+    const regex = getEdgeFunctionPatternForPage({
+      pageRegexMap,
+      appPathRoutesManifest,
+      edgeFunctionDefinition: {
+        env: [],
+        files: [],
+        name: 'pages/edge/[id]',
+        page: '/edge/[id]',
+        regexp: '^/edge/(?<id>[^/]+?)$',
+        wasm: [],
+        assets: [],
+      },
+    })
+    expect(regex).toBe('^/edge/(?<id>[^/]+?)/?$')
+    expect('/edge/1').toMatch(new RegExp(regex))
+    expect('/edge/1/').toMatch(new RegExp(regex))
   })
 })
