@@ -313,3 +313,8 @@ export const getRemotePatterns = (experimental: ExperimentalConfigWithLegacy, im
   }
   return []
 }
+
+// Taken from next/src/shared/lib/escape-regexp.ts
+const reHasRegExp = /[|\\{}()[\]^$+*?.-]/
+const reReplaceRegExp = /[|\\{}()[\]^$+*?.-]/g
+export const escapeStringRegexp = (str: string) => (reHasRegExp.test(str) ? str.replace(reReplaceRegExp, '\\$&') : str)
