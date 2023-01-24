@@ -31,6 +31,7 @@ export interface MiddlewareMatcher {
   regexp: string
   locale?: false
   has?: RouteHas[]
+  missing?: RouteHas[]
 }
 
 // This is the format after next@12.3.0
