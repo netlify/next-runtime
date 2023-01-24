@@ -56,6 +56,37 @@ interface MiddlewareRequest {
   rewrite(destination: string | URL, init?: ResponseInit): Response
 }
 
+export interface I18NConfig {
+  defaultLocale: string
+  localeDetection?: false
+  locales: string[]
+}
+
+export interface RequestData {
+  geo?: {
+    city?: string
+    country?: string
+    region?: string
+    latitude?: string
+    longitude?: string
+    timezone?: string
+  }
+  headers: Record<string, string>
+  ip?: string
+  method: string
+  nextConfig?: {
+    basePath?: string
+    i18n?: I18NConfig | null
+    trailingSlash?: boolean
+  }
+  page?: {
+    name?: string
+    params?: { [key: string]: string }
+  }
+  url: string
+  body?: ReadableStream<Uint8Array>
+}
+
 function isMiddlewareRequest(response: Response | MiddlewareRequest): response is MiddlewareRequest {
   return 'originalRequest' in response
 }
@@ -90,6 +121,34 @@ export function updateModifiedHeaders(requestHeaders: Headers, responseHeaders: 
   responseHeaders.delete('x-middleware-override-headers')
 }
 
+export const buildNextRequest = (
+  request: Request,
+  context: Context,
+  nextConfig?: RequestData['nextConfig'],
+): RequestData => {
+  const { url, method, body, headers } = request
+
+  const { country, subdivision, city, latitude, longitude, timezone } = context.geo
+
+  const geo: RequestData['geo'] = {
+    country: country?.code,
+    region: subdivision?.code,
+    city,
+    latitude: latitude?.toString(),
+    longitude: longitude?.toString(),
+    timezone,
+  }
+
+  return {
+    headers: Object.fromEntries(headers.entries()),
+    geo,
+    url,
+    method,
+    ip: context.ip,
+    body: body ?? undefined,
+    nextConfig,
+  }
+}
 export const buildResponse = async ({
   result,
   request,
@@ -195,4 +254,20 @@ export const buildResponse = async ({
     return addMiddlewareHeaders(context.next(), res)
   }
   return res
+}
+
+export const redirectTrailingSlash = (url: URL, trailingSlash: boolean): Response | undefined => {
+  const { pathname } = url
+  if (pathname === '/') {
+    return
+  }
+  if (!trailingSlash && pathname.endsWith('/')) {
+    url.pathname = pathname.slice(0, -1)
+    return Response.redirect(url, 308)
+  }
+  // Add a slash, unless there's a file extension
+  if (trailingSlash && !pathname.endsWith('/') && !pathname.split('/').pop()?.includes('.')) {
+    url.pathname = `${pathname}/`
+    return Response.redirect(url, 308)
+  }
 }
