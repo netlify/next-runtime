@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.30.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.1...plugin-nextjs-v4.30.2) (2023-01-24)
+
+
+### Bug Fixes
+
+* custom headers for root route when using i18n ([#1893](https://github.com/netlify/next-runtime/issues/1893)) ([9be3382](https://github.com/netlify/next-runtime/commit/9be33822017a5b8404714f96e7942e5498e47212))
+* handle v1 edge function definition ([#1903](https://github.com/netlify/next-runtime/issues/1903)) ([cdcf60e](https://github.com/netlify/next-runtime/commit/cdcf60e4c0a1a52105dc11e2a5be13434a758032))
+
 ## [4.30.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.0...plugin-nextjs-v4.30.1) (2023-01-23)
 
 
