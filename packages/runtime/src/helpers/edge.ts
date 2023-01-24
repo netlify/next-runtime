@@ -348,12 +348,12 @@ export const writeRscDataEdgeFunction = async ({
   ]
 }
 
-const getEdgeFunctionPatternForPage = ({
+export const getEdgeFunctionPatternForPage = ({
   edgeFunctionDefinition,
   pageRegexMap,
   appPathRoutesManifest,
 }: {
-  edgeFunctionDefinition: EdgeFunctionDefinitionV2
+  edgeFunctionDefinition: EdgeFunctionDefinition
   pageRegexMap: Map<string, string>
   appPathRoutesManifest?: Record<string, string>
 }): string => {
@@ -361,8 +361,14 @@ const getEdgeFunctionPatternForPage = ({
 
   // appDir functions have a name that _isn't_ the route name, but rather the route with `/page` appended
   const regexp = pageRegexMap.get(appPathRoutesManifest?.[edgeFunctionDefinition.page] ?? edgeFunctionDefinition.page)
+  if (regexp) {
+    return regexp
+  }
+  if ('regexp' in edgeFunctionDefinition) {
+    return edgeFunctionDefinition.regexp.replace(/([^/])\$$/, '$1/?$')
+  }
   // If we need to fall back to the matcher, we need to add an optional trailing slash
-  return regexp ?? edgeFunctionDefinition.matchers[0].regexp.replace(/([^/])\$$/, '$1/?$')
+  return edgeFunctionDefinition.matchers?.[0].regexp.replace(/([^/])\$$/, '$1/?$')
 }
 
 /**
