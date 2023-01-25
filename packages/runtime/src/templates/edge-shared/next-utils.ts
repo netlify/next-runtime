@@ -141,7 +141,12 @@ export function parseUrl(url: string): ParsedUrl {
 
 // prepare-destination.ts
 // Changed to use WHATWG Fetch Request instead of IncomingMessage
-export function matchHas(req: Pick<Request, 'headers' | 'url'>, query: Params, has: RouteHas[] = [], missing: RouteHas[] = []): false | Params {
+export function matchHas(
+  req: Pick<Request, 'headers' | 'url'>,
+  query: Params,
+  has: RouteHas[] = [],
+  missing: RouteHas[] = [],
+): false | Params {
   const params: Params = {}
   const cookies = getCookies(req.headers)
   const url = new URL(req.url)
