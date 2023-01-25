@@ -9,6 +9,7 @@ import slash from 'slash'
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
 import type { RoutesManifest } from './types'
+import { escapeStringRegexp } from './utils'
 
 const ROUTES_MANIFEST_FILE = 'routes-manifest.json'
 
@@ -214,7 +215,9 @@ export const generateCustomHeaders = (nextConfig: NextConfig, netlifyHeaders: Ne
 
     if (useLocale) {
       const { locales } = i18n
-      const joinedLocales = locales.join('|')
+
+      // escape the locale strings to match the way Next writes the routes-manifest.json file
+      const joinedLocales = locales.map((locale: string) => escapeStringRegexp(locale)).join('|')
 
       /**
        *  converts e.g.

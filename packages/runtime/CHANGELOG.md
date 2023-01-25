@@ -1,5 +1,25 @@
 # Changelog
 
+## [4.30.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.1...plugin-nextjs-v4.30.2) (2023-01-24)
+
+
+### Bug Fixes
+
+* custom headers for root route when using i18n ([#1893](https://github.com/netlify/next-runtime/issues/1893)) ([9be3382](https://github.com/netlify/next-runtime/commit/9be33822017a5b8404714f96e7942e5498e47212))
+* handle v1 edge function definition ([#1903](https://github.com/netlify/next-runtime/issues/1903)) ([cdcf60e](https://github.com/netlify/next-runtime/commit/cdcf60e4c0a1a52105dc11e2a5be13434a758032))
+
+## [4.30.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.0...plugin-nextjs-v4.30.1) (2023-01-23)
+
+
+### Bug Fixes
+
+* added polyfill for process.env ([#1889](https://github.com/netlify/next-runtime/issues/1889)) ([15af7c7](https://github.com/netlify/next-runtime/commit/15af7c71bd25588b0aef1db7c48f271dfb7d367b))
+* correctly handle ISR for appDir pages ([#1855](https://github.com/netlify/next-runtime/issues/1855)) ([f2a7cac](https://github.com/netlify/next-runtime/commit/f2a7cac3a02d469e674559a93b7544aa6f964e12))
+* correctly rewrite default locale ISR homepage to ODB handler ([#1867](https://github.com/netlify/next-runtime/issues/1867)) ([14ad486](https://github.com/netlify/next-runtime/commit/14ad486c0ee90e7c06cf7b5f1c7e7ac8132ea9cc))
+* getMaxAge is not used in APIHandlers ([#1888](https://github.com/netlify/next-runtime/issues/1888)) ([d0343b8](https://github.com/netlify/next-runtime/commit/d0343b83b2f06e6850d7d3771a4d78342e8b3084))
+* match edge runtime pages with optional trailing slash ([#1892](https://github.com/netlify/next-runtime/issues/1892)) ([138b19d](https://github.com/netlify/next-runtime/commit/138b19d3bcafae4343e411034a94380372dee545))
+* transform Regex named capture groups for Golang ([#1809](https://github.com/netlify/next-runtime/issues/1809)) ([15790aa](https://github.com/netlify/next-runtime/commit/15790aa35cee54872b1bc65e9f93e4f4bb3828d5))
+
 ## [4.30.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.4...plugin-nextjs-v4.30.0) (2023-01-09)
 
 
