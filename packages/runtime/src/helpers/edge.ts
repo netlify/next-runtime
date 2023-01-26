@@ -472,6 +472,10 @@ export const writeEdgeFunctions = async ({
         ]),
       )
 
+      const dataRoutesMap = new Map(
+        [...(routesManifest.dataRoutes || [])].map((route) => [route.page, route.dataRouteRegex]),
+      )
+
       for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
         usesEdge = true
         const functionName = sanitizeName(edgeFunctionDefinition.name)
@@ -493,6 +497,15 @@ export const writeEdgeFunctions = async ({
           // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
           cache: usesAppDir ? 'manual' : undefined,
         })
+        const dataRoute = dataRoutesMap.get(edgeFunctionDefinition.page)
+        if (dataRoute) {
+          manifest.functions.push({
+            function: functionName,
+            name: edgeFunctionDefinition.name,
+            pattern: dataRoute,
+            cache: usesAppDir ? 'manual' : undefined,
+          })
+        }
       }
     }
     if (usesEdge) {
