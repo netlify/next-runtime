@@ -220,7 +220,7 @@ describe('app-dir static/dynamic handling', () => {
     }
   })
 
-  usuallySkip('should honor dynamic = "force-static" correctly (lazy)', async () => {
+  it('should honor dynamic = "force-static" correctly (lazy)', async () => {
     const res = await fetchViaHTTP(next.url, '/force-static/random')
     expect(res.status).toBe(200)
 
@@ -241,8 +241,7 @@ describe('app-dir static/dynamic handling', () => {
       expect(firstTime).toBe($2('#now').text())
     }
   })
-  // NTL Skip
-  it.skip('should handle dynamicParams: false correctly', async () => {
+  it('should handle dynamicParams: false correctly', async () => {
     const validParams = ['tim', 'seb', 'styfle']
 
     for (const param of validParams) {
@@ -315,8 +314,7 @@ describe('app-dir static/dynamic handling', () => {
       expect($('#page').text()).toBe('/blog/[author]/[slug]')
     }
   })
-  // NTL Skip
-  it.skip('should navigate to static path correctly', async () => {
+  it('should navigate to static path correctly', async () => {
     const browser = await webdriver(next.url, '/blog/tim')
     await browser.eval('window.beforeNav = 1')
 
