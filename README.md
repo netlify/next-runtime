@@ -56,7 +56,7 @@ Next.js Middleware works out of the box on Netlify. By default, middleware runs 
 support for running Middleware at the origin, set the environment variable `NEXT_DISABLE_NETLIFY_EDGE` to `true`. Be
 aware that this will result in slower performance, as all pages that match middleware must use SSR.
 
-For more details on Next.js Middleware with Netlify, see the [middleware docs](https://github.com/netlify/next-runtime/blob/main/docs/middleware.md).
+For more details on Next.js Middleware with Netlify, see the [middleware docs](https://docs.netlify.com/integrations/frameworks/next-js/middleware/).
 
 ### Limitations
 
@@ -74,7 +74,7 @@ If you are using Nx, then you will need to point `publish` to the folder inside 
 ## Incremental Static Regeneration (ISR)
 
 The Next.js Runtime fully supports ISR on Netlify. For more details see
-[the ISR docs](https://github.com/netlify/next-runtime/blob/main/docs/isr.md).
+[the ISR docs](https://docs.netlify.com/integrations/frameworks/next-js/incremental-static-regeneration/).
 
 Note that Netlify has a minimum TTL of 60 seconds for revalidation.
 
@@ -144,7 +144,7 @@ Runtime will now use the default `server` target. If you previously set the targ
 remove it.
 
 If you currently use redirects or rewrites on your site, see
-[the Rewrites and Redirects guide](https://github.com/netlify/next-runtime/blob/main/docs/redirects-rewrites.md) for
+[the Rewrites and Redirects guide](https://docs.netlify.com/integrations/frameworks/next-js/redirects-and-rewrites/) for
 information on changes to how they are handled in this version. In particular, note that `_redirects` and `_headers`
 files must be placed in `public`, not in the root of the site.
 
