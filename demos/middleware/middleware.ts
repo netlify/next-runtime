@@ -56,6 +56,11 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith('/cookies')) {
     response = NextResponse.next()
     response.cookies.set('netlifyCookie', 'true')
+    return response
+  }
+
+  if(pathname.startsWith('/matcher-cookie')) {
+    response = NextResponse.next()
     response.cookies.set('missingCookie', 'true')
     return response
   }
@@ -126,6 +131,7 @@ export const config = {
     '/headers',
     { source: '/static' },
     { source: '/cookies' },
+    { source: '/matcher-cookie'},
     { source: '/shows/((?!99|88).*)' },
     {
       source: '/conditional',
