@@ -94,11 +94,17 @@ const preamble = /* js */ `
 import {
   decode as _base64Decode,
 } from "https://deno.land/std@0.159.0/encoding/base64.ts";
+
+import { AsyncLocalStorage } from "https://raw.githubusercontent.com/crowlKats/deno_std/asynclocalstorage/node/async_hooks.ts";
+
 // Deno defines "window", but naughty libraries think this means it's a browser
 delete globalThis.window
 globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
 globalThis.EdgeRuntime = "netlify-edge"
 let _ENTRIES = {}
+
+// Next.js expects this as a global
+globalThis.AsyncLocalStorage = AsyncLocalStorage
 
 // Next.js uses this extension to the Headers API implemented by Cloudflare workerd
 if(!('getAll' in Headers.prototype)) {
