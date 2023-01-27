@@ -56,6 +56,7 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith('/cookies')) {
     response = NextResponse.next()
     response.cookies.set('netlifyCookie', 'true')
+    response.cookies.set('missingCookie', 'true')
     return response
   }
 
@@ -63,6 +64,12 @@ export async function middleware(req: NextRequest) {
     response = NextResponse.next()
     response.headers.set('x-modified-edge', 'true')
     response.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
+    return response
+  }
+
+  if (pathname.startsWith('/missing')) {
+    response = NextResponse.next()
+    response.headers.set('x-cookie-missing', 'true')
     return response
   }
 
@@ -128,6 +135,15 @@ export const config = {
           key: 'x-my-header',
           value: 'my-value',
         },
+      ],
+    },
+    {
+      source: '/missing',
+      missing: [
+        {
+          type: 'cookie',
+          key: 'missingCookie',
+        }
       ],
     },
   ],
