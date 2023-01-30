@@ -154,6 +154,8 @@ const getMiddlewareBundle = async ({
   const { publish } = netlifyConfig.build
   const chunks: Array<string> = [preamble]
 
+  chunks.push(`export const _DEFINITION = ${JSON.stringify(edgeFunctionDefinition)}`)
+
   if ('wasm' in edgeFunctionDefinition) {
     for (const { name, filePath } of edgeFunctionDefinition.wasm) {
       const wasm = await fs.readFile(join(publish, filePath))
@@ -460,15 +462,21 @@ export const writeEdgeFunctions = async ({
         ...matchers.map((matcher) => middlewareMatcherToEdgeFunctionDefinition(matcher, functionName)),
       )
     }
+    // Functions (i.e. not middleware, but edge SSR and API routes)
     if (typeof middlewareManifest.functions === 'object') {
       // When using the app dir, we also need to check if the EF matches a page
       const appPathRoutesManifest = await loadAppPathRoutesManifest(netlifyConfig)
 
+      // A map of all route pages to their page regex. This is used for pages dir and appDir.
       const pageRegexMap = new Map(
         [...(routesManifest.dynamicRoutes || []), ...(routesManifest.staticRoutes || [])].map((route) => [
           route.page,
           route.regex,
         ]),
+      )
+      // Create a map of pages-dir routes to their data route regex (appDir uses the same route as the HTML)
+      const dataRoutesMap = new Map(
+        [...(routesManifest.dataRoutes || [])].map((route) => [route.page, route.dataRouteRegex]),
       )
 
       for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
@@ -492,6 +500,16 @@ export const writeEdgeFunctions = async ({
           // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
           cache: usesAppDir ? 'manual' : undefined,
         })
+        // pages-dir page routes also have a data route. If there's a match, add an entry mapping that to the function too
+        const dataRoute = dataRoutesMap.get(edgeFunctionDefinition.page)
+        if (dataRoute) {
+          manifest.functions.push({
+            function: functionName,
+            name: edgeFunctionDefinition.name,
+            pattern: dataRoute,
+            cache: usesAppDir ? 'manual' : undefined,
+          })
+        }
       }
     }
     if (usesEdge) {

@@ -128,7 +128,9 @@ export function renderViaHTTP(appPort, pathname, query, opts) {
 export async function fetchViaHTTP(appPort, pathname, query = undefined, opts = undefined, useUndici = false) {
   const url = `${pathname}${typeof query === 'string' ? query : query ? `?${qs.stringify(query)}` : ''}`
   const fetch = useUndici ? undiciFetch : nodeFetch
-  return fetch(getFullUrl(appPort, url), opts)
+  const fullUrl = getFullUrl(appPort, url)
+  console.log(`Fetching url: ${fullUrl}`)
+  return fetch(fullUrl, opts)
 }
 
 export function runNextCommand(argv, options = {}) {
