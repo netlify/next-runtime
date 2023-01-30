@@ -93,9 +93,9 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 const preamble = /* js */ `
 import {
   decode as _base64Decode,
-} from "https://deno.land/std@0.159.0/encoding/base64.ts";
+} from "https://deno.land/std@0.175.0/encoding/base64.ts";
 
-import { AsyncLocalStorage } from "https://raw.githubusercontent.com/crowlKats/deno_std/asynclocalstorage/node/async_hooks.ts";
+import { AsyncLocalStorage } from "https://deno.land/std@0.175.0/node/async_hooks.ts";
 
 // Deno defines "window", but naughty libraries think this means it's a browser
 delete globalThis.window
