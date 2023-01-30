@@ -42,6 +42,7 @@ export type Rewrite = {
   basePath?: false
   locale?: false
   has?: RouteHas[]
+  missing?: RouteHas[]
   regex: string
 }
 
@@ -51,6 +52,7 @@ export type Header = {
   locale?: false
   headers: Array<{ key: string; value: string }>
   has?: RouteHas[]
+  missing?: RouteHas[]
   regex: string
 }
 export type Redirect = {
@@ -59,6 +61,7 @@ export type Redirect = {
   basePath?: false
   locale?: false
   has?: RouteHas[]
+  missing?: RouteHas[]
   statusCode?: number
   permanent?: boolean
   regex: string
@@ -138,11 +141,16 @@ export function parseUrl(url: string): ParsedUrl {
 
 // prepare-destination.ts
 // Changed to use WHATWG Fetch Request instead of IncomingMessage
-export function matchHas(req: Pick<Request, 'headers' | 'url'>, has: RouteHas[], query: Params): false | Params {
+export function matchHas(
+  req: Pick<Request, 'headers' | 'url'>,
+  query: Params,
+  has: RouteHas[] = [],
+  missing: RouteHas[] = [],
+): false | Params {
   const params: Params = {}
   const cookies = getCookies(req.headers)
   const url = new URL(req.url)
-  const allMatch = has.every((hasItem) => {
+  const hasMatch = (hasItem: RouteHas) => {
     let value: undefined | string | null
     let key = hasItem.key
 
@@ -189,7 +197,9 @@ export function matchHas(req: Pick<Request, 'headers' | 'url'>, has: RouteHas[],
       }
     }
     return false
-  })
+  }
+
+  const allMatch = has.every((item) => hasMatch(item)) && !missing.some((item) => hasMatch(item))
 
   if (allMatch) {
     return params
@@ -371,6 +381,7 @@ export interface MiddlewareMatcher {
   regexp: string
   locale?: false
   has?: RouteHas[]
+  missing?: RouteHas[]
 }
 
 export function getMiddlewareRouteMatcher(matchers: MiddlewareMatcher[]): MiddlewareRouteMatch {
@@ -381,8 +392,8 @@ export function getMiddlewareRouteMatcher(matchers: MiddlewareMatcher[]): Middle
         continue
       }
 
-      if (matcher.has) {
-        const hasParams = matchHas(req, matcher.has, query)
+      if (matcher.has || matcher.missing) {
+        const hasParams = matchHas(req, query, matcher.has, matcher.missing)
         if (!hasParams) {
           continue
         }

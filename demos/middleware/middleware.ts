@@ -59,10 +59,22 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
+  if(pathname.startsWith('/matcher-cookie')) {
+    response = NextResponse.next()
+    response.cookies.set('missingCookie', 'true')
+    return response
+  }
+
   if (pathname.startsWith('/conditional')) {
     response = NextResponse.next()
     response.headers.set('x-modified-edge', 'true')
     response.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
+    return response
+  }
+
+  if (pathname.startsWith('/missing')) {
+    response = NextResponse.next()
+    response.headers.set('x-cookie-missing', 'true')
     return response
   }
 
@@ -119,6 +131,7 @@ export const config = {
     '/headers',
     { source: '/static' },
     { source: '/cookies' },
+    { source: '/matcher-cookie'},
     { source: '/shows/((?!99|88).*)' },
     {
       source: '/conditional',
@@ -128,6 +141,15 @@ export const config = {
           key: 'x-my-header',
           value: 'my-value',
         },
+      ],
+    },
+    {
+      source: '/missing',
+      missing: [
+        {
+          type: 'cookie',
+          key: 'missingCookie',
+        }
       ],
     },
   ],
