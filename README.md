@@ -170,15 +170,29 @@ Then run the tests:
 npm test
 ```
 
-In order to run the end-to-end (E2E) tests, you'll need to set an environment variable `NETLIFY_AUTH_TOKEN` to a valid Netlify personal access token. This can be obtained from the [Netlify UI](https://docs.netlify.com/cli/get-started/#obtain-a-token-in-the-netlify-ui).
+### End-to-end tests
 
-Then run the E2E tests:
+In order to run the end-to-end (E2E) tests, you'll need to be logged in to Netlify. You can do this using the [Netlify CLI](https://github.com/netlify/cli) with the command:
 
 ```shell
-NETLIFY_AUTH_TOKEN=your-token-here npm test:next
+netlify login
 ```
 
+Alternatively, you can set an environment variable `NETLIFY_AUTH_TOKEN` to a valid Netlify personal access token. This can be obtained from the [Netlify UI](https://docs.netlify.com/cli/get-started/#obtain-a-token-in-the-netlify-ui).
 
+Then run the E2E tests if logged in:
+
+```shell
+npm run test:next
+```
+
+Or if using an access token:
+
+```shell
+NETLIFY_AUTH_TOKEN=your-token-here npm run test:next
+```
+
+_Note: The E2E tests will be deployed to a Netlify owned site. To deploy to your own site then set the environment variable `NETLIFY_SITE_ID` to your site ID._
 ## Feedback
 
 If you think you have found a bug in Next.js on Netlify,
