@@ -148,7 +148,7 @@ export const checkZipSize = async (file: string, maxSize: number = LAMBDA_MAX_SI
   console.log(yellowBright`\n\nThese are the largest files in the zip:`)
   console.table(largest)
   console.log(
-    greenBright`\n\nFor more information on fixing this, see ${blueBright`https://ntl.fyi/large-next-functions`}`,
+    greenBright`\n\nFor more information on fixing this, see ${blueBright`https://docs.netlify.com/integrations/frameworks/next-js/troubleshooting/#troubleshooting-large-functions`}`,
   )
 }
 
