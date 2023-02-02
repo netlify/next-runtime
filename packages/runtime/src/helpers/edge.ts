@@ -4,7 +4,7 @@ import { resolve, join } from 'path'
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { greenBright } from 'chalk'
 import destr from 'destr'
-import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
+import { copy, copyFile, emptyDir, ensureDir, readJSON, writeJSON, writeJson } from 'fs-extra'
 import type { PrerenderManifest } from 'next/dist/build'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
@@ -68,7 +68,7 @@ export interface FunctionManifest {
 
 const maybeLoadJson = <T>(path: string): Promise<T> | null => {
   if (existsSync(path)) {
-    return readJson(path)
+    return readJSON(path)
   }
 }
 export const isAppDirRoute = (route: string, appPathRoutesManifest: Record<string, string> | null): boolean =>
@@ -88,60 +88,6 @@ export const loadPrerenderManifest = (netlifyConfig: NetlifyConfig): Promise<Pre
  */
 const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 
-/**
- * Initialization added to the top of the edge function bundle
- */
-const preamble = /* js */ `
-import {
-  decode as _base64Decode,
-} from "https://deno.land/std@0.175.0/encoding/base64.ts";
-
-import { AsyncLocalStorage } from "https://deno.land/std@0.175.0/node/async_hooks.ts";
-
-// Deno defines "window", but naughty libraries think this means it's a browser
-delete globalThis.window
-globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-globalThis.EdgeRuntime = "netlify-edge"
-let _ENTRIES = {}
-
-// Next.js expects this as a global
-globalThis.AsyncLocalStorage = AsyncLocalStorage
-
-// Next.js uses this extension to the Headers API implemented by Cloudflare workerd
-if(!('getAll' in Headers.prototype)) {
-  Headers.prototype.getAll = function getAll(name) {
-    name = name.toLowerCase();
-    if (name !== "set-cookie") {
-      throw new Error("Headers.getAll is only supported for Set-Cookie");
-    }
-    return [...this.entries()]
-      .filter(([key]) => key === name)
-      .map(([, value]) => value);
-  };
-}
-//  Next uses blob: urls to refer to local assets, so we need to intercept these
-const _fetch = globalThis.fetch
-const fetch = async (url, init) => {
-  try {
-    if (typeof url === 'object' && url.href?.startsWith('blob:')) {
-      const key = url.href.slice(5)
-      if (key in _ASSETS) {
-        return new Response(_base64Decode(_ASSETS[key]))
-      }
-    }
-    return await _fetch(url, init)
-  } catch (error) {
-    console.error(error)
-    throw error
-  }
-}
-
-// Next edge runtime uses "self" as a function-scoped global-like object, but some of the older polyfills expect it to equal globalThis
-// See https://nextjs.org/docs/basic-features/supported-browsers-features#polyfills
-const self = { ...globalThis, fetch }
-
-`
-
 // Slightly different spacing in different versions!
 const IMPORT_UNSUPPORTED = [
   `Object.defineProperty(globalThis,"__import_unsupported"`,
@@ -158,7 +104,10 @@ const getMiddlewareBundle = async ({
   netlifyConfig: NetlifyConfig
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
-  const chunks: Array<string> = [preamble]
+
+  const shims = await fs.readFile(getEdgeTemplatePath('shims.ts'), 'utf8')
+
+  const chunks: Array<string> = [shims]
 
   chunks.push(`export const _DEFINITION = ${JSON.stringify(edgeFunctionDefinition)}`)
 
