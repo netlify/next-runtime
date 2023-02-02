@@ -105,7 +105,7 @@ const getMiddlewareBundle = async ({
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
 
-  const shims = await fs.readFile(getEdgeTemplatePath('shims.ts'), 'utf8')
+  const shims = await fs.readFile(getEdgeTemplatePath('shims.js'), 'utf8')
 
   const chunks: Array<string> = [shims]
 

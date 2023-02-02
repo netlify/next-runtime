@@ -1,3 +1,4 @@
+// @ts-check
 // deno-lint-ignore-file no-var prefer-const no-unused-vars no-explicit-any
 import { decode as _base64Decode } from 'https://deno.land/std@0.175.0/encoding/base64.ts'
 import { AsyncLocalStorage as ALSCompat } from 'https://deno.land/std@0.175.0/node/async_hooks.ts'
@@ -7,17 +8,9 @@ import { AsyncLocalStorage as ALSCompat } from 'https://deno.land/std@0.175.0/no
  * This file isn't imported, but is instead inlined along with other chunks into the edge bundle.
  */
 
-declare global {
-  var process: {
-    env: Record<string, string>
-  }
-  var EdgeRuntime: string
-  var AsyncLocalStorage: typeof ALSCompat
-  var _ASSETS: Record<string, string>
-}
-
 // Deno defines "window", but naughty libraries think this means it's a browser
-delete (globalThis as Omit<typeof globalThis, 'window'> & Pick<Partial<typeof globalThis>, 'window'>).window
+// @ts-ignore
+delete globalThis.window
 globalThis.process = {
   env: { ...Deno.env.toObject(), NEXT_RUNTIME: 'edge', NEXT_PRIVATE_MINIMAL_MODE: '1' },
 }
@@ -29,7 +22,8 @@ globalThis.AsyncLocalStorage = ALSCompat
 
 // Next.js uses this extension to the Headers API implemented by Cloudflare workerd
 if (!('getAll' in Headers.prototype)) {
-  ;(Headers as any).prototype.getAll = function getAll(name: string) {
+  // @ts-ignore
+  Headers.prototype.getAll = function getAll(name) {
     name = name.toLowerCase()
     if (name !== 'set-cookie') {
       throw new Error('Headers.getAll is only supported for Set-Cookie')
@@ -39,7 +33,7 @@ if (!('getAll' in Headers.prototype)) {
 }
 //  Next uses blob: urls to refer to local assets, so we need to intercept these
 const _fetch = globalThis.fetch
-const fetch: typeof globalThis.fetch = async (url, init) => {
+const fetch /* type {typeof globalThis.fetch} */ = async (url, init) => {
   try {
     if (url instanceof URL && url.href?.startsWith('blob:')) {
       const key = url.href.slice(5)
