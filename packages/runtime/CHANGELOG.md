@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.30.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.3...plugin-nextjs-v4.30.4) (2023-02-06)
+
+
+### Bug Fixes
+
+* add `AsyncLocalStorage` to `globalThis` ([#1907](https://github.com/netlify/next-runtime/issues/1907)) ([1ec8203](https://github.com/netlify/next-runtime/commit/1ec820322fea66fa4027a353d5ba562074c90509))
+
 ## [4.30.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.2...plugin-nextjs-v4.30.3) (2023-01-30)
 
 
