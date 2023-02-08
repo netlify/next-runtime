@@ -4,7 +4,7 @@
   "description": "Run Next.js seamlessly on Netlify",
   "scripts": {
     "build:demo": "cd demos/default && npm run build",
-    "cy:open": "cypress open --config-file cypress/config/canary.json",
+    "cy:open": "cypress open --config-file cypress/config/all.json",
     "dev:demo": "next dev demos/default",
     "format": "run-s format:check-fix:*",
     "format:ci": "run-s format:check:*",
@@ -52,7 +52,7 @@
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.16.0",
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^29.5.2",
+    "@netlify/build": "^29.5.4",
     "@netlify/eslint-config-node": "^7.0.1",
     "@testing-library/cypress": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
@@ -88,7 +88,7 @@
     "typescript": "^4.3.4"
   },
   "dependencies": {
-    "next": "^13.0.7"
+    "next": "^13.1.6"
   },
   "engines": {
     "node": ">=16.0.0"

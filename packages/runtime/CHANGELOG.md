@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.30.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.3...plugin-nextjs-v4.30.4) (2023-02-06)
+
+
+### Bug Fixes
+
+* add `AsyncLocalStorage` to `globalThis` ([#1907](https://github.com/netlify/next-runtime/issues/1907)) ([1ec8203](https://github.com/netlify/next-runtime/commit/1ec820322fea66fa4027a353d5ba562074c90509))
+
+## [4.30.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.2...plugin-nextjs-v4.30.3) (2023-01-30)
+
+
+### Bug Fixes
+
+* added support for "missing" matcher ([#1905](https://github.com/netlify/next-runtime/issues/1905)) ([f30e178](https://github.com/netlify/next-runtime/commit/f30e17818c3770a3fdc753ffee90f1b2502388ae))
+* correctly match params in edge runtime ([#1896](https://github.com/netlify/next-runtime/issues/1896)) ([75c0535](https://github.com/netlify/next-runtime/commit/75c05352d1dc8761e065522e7266de1f193569a8))
+
 ## [4.30.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.1...plugin-nextjs-v4.30.2) (2023-01-24)
 
 
