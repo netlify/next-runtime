@@ -6,13 +6,12 @@ export interface FetchEventResult {
   waitUntil: Promise<any>
 }
 
-function normalizeDataUrl(redirect, url) {
+type NextDataTransform = <T>(data: T) => T
+
+function normalizeDataUrl(redirect: string, url: string | URL) {
   const normalizedUrl = new URL(redirect, url)
 
-    if (
-    normalizedUrl.pathname.startsWith('/_next/data/') &&
-    normalizedUrl.pathname.endsWith('.json')
-  ) {
+  if (normalizedUrl.pathname.startsWith('/_next/data/') && normalizedUrl.pathname.endsWith('.json')) {
     const paths = normalizedUrl.pathname
       .replace(/^\/_next\/data\//, '')
       .replace(/\.json$/, '')
@@ -22,7 +21,7 @@ function normalizeDataUrl(redirect, url) {
     normalizedUrl.pathname = paths[1] !== 'index' ? `/${paths.slice(1).join('/')}` : '/'
   }
 
-  return normalizedUrl.pathname + normalizedUrl.search;
+  return normalizedUrl.pathname + normalizedUrl.search
 }
 
 /**
