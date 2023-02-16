@@ -37,7 +37,7 @@ describe('Middleware Redirect', () => {
       expect(res.headers.get('location')?.endsWith('/default/about')).toEqual(false)
     })
 
-    usuallySkip(`should redirect to data urls with data requests and internal redirects`, async () => {
+    it(`should redirect to data urls with data requests and internal redirects`, async () => {
       const res = await fetchViaHTTP(
         next.url,
         `/_next/data/${next.buildId}/es/old-home.json`,

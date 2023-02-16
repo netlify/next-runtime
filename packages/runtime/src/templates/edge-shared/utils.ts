@@ -6,7 +6,24 @@ export interface FetchEventResult {
   waitUntil: Promise<any>
 }
 
-type NextDataTransform = <T>(data: T) => T
+function normalizeDataUrl(redirect, url) {
+  const normalizedUrl = new URL(redirect, url)
+
+    if (
+    normalizedUrl.pathname.startsWith('/_next/data/') &&
+    normalizedUrl.pathname.endsWith('.json')
+  ) {
+    const paths = normalizedUrl.pathname
+      .replace(/^\/_next\/data\//, '')
+      .replace(/\.json$/, '')
+      .split('/')
+
+    const buildId = paths[0]
+    normalizedUrl.pathname = paths[1] !== 'index' ? `/${paths.slice(1).join('/')}` : '/'
+  }
+
+  return normalizedUrl.pathname + normalizedUrl.search;
+}
 
 /**
  * This is how Next handles rewritten URLs.
@@ -247,7 +264,7 @@ export const buildResponse = async ({
   // Data requests shouldn;t automatically redirect in the browser (they might be HTML pages): they're handled by the router
   if (redirect && isDataReq) {
     res.headers.delete('location')
-    res.headers.set('x-nextjs-redirect', relativizeURL(redirect, request.url))
+    res.headers.set('x-nextjs-redirect', normalizeDataUrl(redirect, request.url))
   }
 
   if (res.headers.get('x-middleware-next') === '1') {
