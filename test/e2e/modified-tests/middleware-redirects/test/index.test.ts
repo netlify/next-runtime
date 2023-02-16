@@ -44,7 +44,7 @@ describe('Middleware Redirect', () => {
         { override: 'internal' },
         { redirect: 'manual', headers: { 'x-nextjs-data': '1' } },
       )
-
+      console.log('x-nextjs-redirect', res.headers.get('x-nextjs-redirect'))
       expect(res.headers.get('x-nextjs-redirect')?.endsWith(`/es/new-home?override=internal`)).toEqual(true)
       expect(res.headers.get('location')).toEqual(null)
     })
