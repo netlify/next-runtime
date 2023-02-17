@@ -8,20 +8,18 @@ export interface FetchEventResult {
 
 type NextDataTransform = <T>(data: T) => T
 
-function normalizeDataUrl(redirect: string, url: string | URL) {
-  const normalizedUrl = new URL(redirect, url)
-
-  if (normalizedUrl.pathname.startsWith('/_next/data/') && normalizedUrl.pathname.endsWith('.json')) {
-    const paths = normalizedUrl.pathname
+function normalizeDataUrl(redirect: string) {
+  if (redirect.startsWith('/_next/data/') && redirect.includes('.json')) {
+    const paths = redirect
       .replace(/^\/_next\/data\//, '')
-      .replace(/\.json$/, '')
+      .replace(/\.json/, '')
       .split('/')
 
     const buildId = paths[0]
-    normalizedUrl.pathname = paths[1] !== 'index' ? `/${paths.slice(1).join('/')}` : '/'
+    redirect = paths[1] !== 'index' ? `/${paths.slice(1).join('/')}` : '/'
   }
 
-  return normalizedUrl.pathname + normalizedUrl.search
+  return redirect
 }
 
 /**
@@ -263,7 +261,13 @@ export const buildResponse = async ({
   // Data requests shouldn;t automatically redirect in the browser (they might be HTML pages): they're handled by the router
   if (redirect && isDataReq) {
     res.headers.delete('location')
-    res.headers.set('x-nextjs-redirect', normalizeDataUrl(redirect, request.url))
+    res.headers.set('x-nextjs-redirect', relativizeURL(redirect, request.url))
+  }
+
+  const nextRedirect = res.headers.get('x-nextjs-redirect')
+
+  if ( nextRedirect ){
+    res.headers.set('x-nextjs-redirect', normalizeDataUrl(nextRedirect))
   }
 
   if (res.headers.get('x-middleware-next') === '1') {
