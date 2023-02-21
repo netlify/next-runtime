@@ -29,7 +29,7 @@ export interface ApiBackgroundConfig {
 
 export type ApiConfig = ApiStandardConfig | ApiScheduledConfig | ApiBackgroundConfig
 
-const isEdgeRuntime = (config: ApiConfig) => config.runtime === "edge" || config.runtime === "experimental-edge"
+const isEdgeRuntime = (config: ApiConfig) => config.runtime === 'edge' || config.runtime === 'experimental-edge'
 
 export const validateConfigValue = (config: ApiConfig, apiFilePath: string): config is ApiConfig => {
   if (config.type === ApiRouteType.SCHEDULED) {
