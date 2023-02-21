@@ -11,7 +11,7 @@ export const enum ApiRouteType {
 
 export interface ApiStandardConfig {
   type?: never
-  runtime?: 'nodejs' | 'experimental-edge'
+  runtime?: 'nodejs' | 'experimental-edge' | 'edge'
   schedule?: never
 }
 
@@ -29,6 +29,8 @@ export interface ApiBackgroundConfig {
 
 export type ApiConfig = ApiStandardConfig | ApiScheduledConfig | ApiBackgroundConfig
 
+const isEdgeRuntime = (config: ApiConfig) => config.runtime === "edge" || config.runtime === "experimental-edge"
+
 export const validateConfigValue = (config: ApiConfig, apiFilePath: string): config is ApiConfig => {
   if (config.type === ApiRouteType.SCHEDULED) {
     if (!config.schedule) {
@@ -39,7 +41,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if ((config as ApiConfig).runtime === 'experimental-edge') {
+    if (isEdgeRuntime(config)) {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),
@@ -60,7 +62,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if (config.type && (config as ApiConfig).runtime === 'experimental-edge') {
+    if (isEdgeRuntime(config)) {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),
