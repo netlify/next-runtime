@@ -62,7 +62,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if (isEdgeRuntime(config)) {
+    if (config.type && isEdgeRuntime(config)) {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),
