@@ -266,11 +266,11 @@ export const buildResponse = async ({
     res.headers.set('x-nextjs-redirect', relativizeURL(redirect, request.url))
   }
 
-  // const nextRedirect = res.headers.get('x-nextjs-redirect')
+  const nextRedirect = res.headers.get('x-nextjs-redirect')
 
-  // if (nextRedirect) {
-  //   res.headers.set('x-nextjs-redirect', normalizeDataUrl(nextRedirect))
-  // }
+  if (nextRedirect && isDataReq) {
+    res.headers.set('x-nextjs-redirect', normalizeDataUrl(nextRedirect))
+  }
 
   if (res.headers.get('x-middleware-next') === '1') {
     return addMiddlewareHeaders(context.next(), res)
