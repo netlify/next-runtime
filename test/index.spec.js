@@ -684,10 +684,25 @@ describe('onBuild()', () => {
     })
   })
 
-  test('generates an ipx function by default', async () => {
+  // Skipped while edge images are off by default
+  test.skip('generates an edge ipx function by default', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeTruthy()
+  })
+
+  // Enabled while edge images are off by default
+  test('does not generate an ipx edge function by default', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
+  })
+
+  test('generates an ipx edge function if force is set', async () => {
+    process.env.NEXT_FORCE_EDGE_IMAGES = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
   })
 
   test('does not generate an ipx function when DISABLE_IPX is set', async () => {
