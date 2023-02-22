@@ -451,28 +451,28 @@ export const writeEdgeFunctions = async ({
     }
   }
 
-
-  if (destr(process.env.NEXT_FORCE_EDGE_IMAGES) && 
-      !destr(process.env.NEXT_DISABLE_EDGE_IMAGES) &&
-      !destr(process.env.DISABLE_IPX)
-    ) {
-      usesEdge = true
-      console.log(
-        'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
-      )
-      const edgeFunctionDir = join(edgeFunctionRoot, 'ipx')
-      await ensureDir(edgeFunctionDir)
-      await copyEdgeSourceFile({ edgeFunctionDir, file: 'ipx.ts', target: 'index.ts' })
-      await copyFile(
-        join('.netlify', 'functions-internal', '_ipx', 'imageconfig.json'),
-        join(edgeFunctionDir, 'imageconfig.json'),
-      )
-      manifest.functions.push({
-        function: 'ipx',
-        name: 'next/image handler',
-        path: '/_next/image*',
-      })
-    }
+  if (
+    destr(process.env.NEXT_FORCE_EDGE_IMAGES) &&
+    !destr(process.env.NEXT_DISABLE_EDGE_IMAGES) &&
+    !destr(process.env.DISABLE_IPX)
+  ) {
+    usesEdge = true
+    console.log(
+      'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
+    )
+    const edgeFunctionDir = join(edgeFunctionRoot, 'ipx')
+    await ensureDir(edgeFunctionDir)
+    await copyEdgeSourceFile({ edgeFunctionDir, file: 'ipx.ts', target: 'index.ts' })
+    await copyFile(
+      join('.netlify', 'functions-internal', '_ipx', 'imageconfig.json'),
+      join(edgeFunctionDir, 'imageconfig.json'),
+    )
+    manifest.functions.push({
+      function: 'ipx',
+      name: 'next/image handler',
+      path: '/_next/image*',
+    })
+  }
 
   if (usesEdge) {
     console.log(outdent`
@@ -480,7 +480,6 @@ export const writeEdgeFunctions = async ({
       This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
     `)
   }
-
 
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
