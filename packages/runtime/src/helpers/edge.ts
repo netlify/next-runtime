@@ -452,8 +452,7 @@ export const writeEdgeFunctions = async ({
   }
 
 
-  if (destr(process.env.NEXT_FORCE_EDGE_IMAGES)) {
-    if (
+  if (destr(process.env.NEXT_FORCE_EDGE_IMAGES) && 
       !destr(process.env.NEXT_DISABLE_EDGE_IMAGES) &&
       !destr(process.env.DISABLE_IPX)
     ) {
@@ -474,7 +473,6 @@ export const writeEdgeFunctions = async ({
         path: '/_next/image*',
       })
     }
-  }
 
   if (usesEdge) {
     console.log(outdent`
