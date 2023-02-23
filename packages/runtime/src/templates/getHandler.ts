@@ -5,10 +5,7 @@ import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
 
-import type { NextServerType } from './handlerUtils'
-
 /* eslint-disable @typescript-eslint/no-var-requires */
-
 const { promises } = require('fs')
 const { Server } = require('http')
 const path = require('path')
@@ -22,9 +19,9 @@ const {
   getMaxAge,
   getMultiValueHeaders,
   getPrefetchResponse,
-  getNextServer,
   normalizePath,
 } = require('./handlerUtils')
+const { NetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
@@ -76,8 +73,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     const port = Number.parseInt(url.port) || 80
     base = url.origin
 
-    const NextServer: NextServerType = getNextServer()
-    const nextServer = new NextServer({
+    const nextServer = new NetlifyNextServer({
       conf,
       dir,
       customServer: false,
@@ -180,6 +176,7 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, getNextServer, normalizePath } = require('./handlerUtils')
+  const { NetlifyNextServer } = require('./server')
 
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")
