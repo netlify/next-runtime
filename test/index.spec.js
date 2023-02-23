@@ -684,8 +684,7 @@ describe('onBuild()', () => {
     })
   })
 
-  // Skipped while edge images are off by default
-  test.skip('generates an edge ipx function by default', async () => {
+  test('generates an ipx function by default', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeTruthy()
