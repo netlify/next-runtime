@@ -360,9 +360,7 @@ export const writeEdgeFunctions = async ({
 
   // early return if edge is disabled
   if (destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
-    console.log(
-      'Environment variable NEXT_DISABLE_NETLIFY_EDGE has been set, skipping Netlify Edge Function creation.',
-    )
+    console.log('Environment variable NEXT_DISABLE_NETLIFY_EDGE has been set, skipping Netlify Edge Function creation.')
     return
   }
 
