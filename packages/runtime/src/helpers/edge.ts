@@ -472,6 +472,10 @@ export const writeEdgeFunctions = async ({
       name: 'next/image handler',
       path: '/_next/image*',
     })
+  } else {
+    console.log(
+      'You are not using Netlify Edge Functions for image format detection. Set env var "NEXT_FORCE_EDGE_IMAGES=true" to enable.',
+    )
   }
 
   if (usesEdge) {
