@@ -48,6 +48,10 @@ export const generateFunctions = async (
     await writeFile(join(functionsDir, functionName, `${functionName}.js`), apiHandlerSource)
     await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
     await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'server.js'),
+      join(functionsDir, functionName, 'server.js'),
+    )
+    await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
@@ -67,6 +71,10 @@ export const generateFunctions = async (
     await ensureDir(join(functionsDir, functionName))
     await writeFile(join(functionsDir, functionName, `${functionName}.js`), handlerSource)
     await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'server.js'),
+      join(functionsDir, functionName, 'server.js'),
+    )
     await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
