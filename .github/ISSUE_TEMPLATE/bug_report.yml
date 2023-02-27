@@ -54,8 +54,8 @@ body:
     attributes:
       label: Is your issue related to the `app` directory (beta)?
       options:
-        - Yes, my issue is related to the `app` directory.
-        - No, my issue is related to the the stable version of Next.js.
+        - Yes, my issue is related to the `app` directory
+        - No, my issue is related to the the stable version of Next.js
 
   - type: checkboxes
     id: more-info
