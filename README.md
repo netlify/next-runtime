@@ -26,7 +26,7 @@ take too long to generate, and the function times-out. You can configure
 ### Enabling Edge Images
 
 It is possible to run image content negotiation on the edge. This allows images to be processed on the first request,
-and then in future loads, it will be served from cache on the edge.
+and then, in future loads, served from cache on the edge.
 
 In order to deliver the correct format to a visitor's browser, this uses a Netlify Edge Function. In some cases your
 site may not support Edge Functions, in which case it will instead fall back to delivering the original file format.
