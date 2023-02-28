@@ -1,4 +1,4 @@
-<!-- Before opening a pull request, ensure you've read our contributing guildines, https://github.com/netlify/next-runtime/blob/main/CONTRIBUTING.md. -->
+<!-- Before opening a pull request, ensure you've read our contributing guidelines, https://github.com/netlify/next-runtime/blob/main/CONTRIBUTING.md. -->
 
 ### Summary
 
