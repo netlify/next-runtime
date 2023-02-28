@@ -16,7 +16,7 @@ commands separately will not work, because the Next.js Runtime will not generate
 If you use [`next/image`](https://nextjs.org/docs/basic-features/image-optimization), your images will be automatically
 optimized at runtime, ensuring that they are served at the best size and format. The image will be processed on the
 first request which means it may take longer to load, but the generated image is then cached and served as a static file
-to future visitors. By default, Next.js will deliver WebP images if the browser supports it. WebP is a new image format
+to future visitors. By default, Next.js will deliver WebP images if the browser supports it. WebP is a modern image format
 with wide browser support that will usually generate smaller files than PNG or JPG. Additionally, you can enable AVIF
 format, which is often even smaller in filesize than WebP. The drawback is that with particularly large images AVIF may
 take too long to generate, meaning the function times-out. You can configure
