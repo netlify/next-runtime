@@ -19,7 +19,7 @@ first request which means it may take longer to load, but the generated image is
 to future visitors. By default, Next.js will deliver WebP images if the browser supports it. WebP is a modern image format
 with wide browser support that will usually generate smaller files than PNG or JPG. Additionally, you can enable AVIF
 format, which is often even smaller in filesize than WebP. The drawback is that with particularly large images, AVIF images may
-take too long to generate, meaning the function times-out. You can configure
+take too long to generate, and the function times-out. You can configure
 [the supported image formats](https://nextjs.org/docs/api-reference/next/image#acceptable-formats) in your
 `next.config.js` file.
 
