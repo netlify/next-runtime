@@ -65,7 +65,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   // We memoize this because it can be shared between requests, but don't instantiate it until
   // the first request because we need the host and port.
   let bridge: NodeBridge
-  const getBridge = (event: HandlerEvent): NodeBridge => {
+  const getBridge = (event: HandlerEvent, context: HandlerContext): NodeBridge => {
     if (bridge) {
       return bridge
     }
@@ -79,6 +79,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
       customServer: false,
       hostname: url.hostname,
       port,
+      netlifyRevalidateToken: context.clientContext?.custom?.odb_refresh_hooks,
     })
     const requestHandler = nextServer.getRequestHandler()
     const server = new Server(async (req, res) => {
@@ -115,7 +116,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
       process.env._NETLIFY_GRAPH_TOKEN = graphToken
     }
 
-    const { headers, ...result } = await getBridge(event).launcher(event, context)
+    const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
 
