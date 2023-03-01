@@ -22,18 +22,13 @@ class NetlifyNextServer extends NextServer {
     const handler = super.getRequestHandler()
     return async (req, res, parsedUrl) => {
       if (req.headers['x-prerender-revalidate']) {
-        if (this.netlifyRevalidateToken) {
-          try {
-            await this.netlifyRevalidate(req.url)
-            console.log('Revalidated', req.url)
-          } catch (error) {
-            // TODO: status 500 error refreshing ODB cache
-            console.log('Error revalidating', req.url, error)
-          }
-        } else {
-          // TODO: status 400 refresh hooks not enabled for site in proxy
-          console.log('Missing revalidate token', req.url)
-        }
+        // if (this.netlifyRevalidateToken) {
+        throw new Error(`Test throw`)
+        // await this.netlifyRevalidate(req.url)
+        // console.log('Revalidated', req.url)
+        // } else {
+        // throw new Error(`Missing revalidate token`)
+        // }
       }
       return handler(req, res, parsedUrl)
     }
