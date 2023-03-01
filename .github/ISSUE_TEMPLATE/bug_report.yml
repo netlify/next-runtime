@@ -50,6 +50,13 @@ body:
       required: true
 
   - type: checkboxes
+    id: more-nextjs-info
+    attributes:
+      label: Is your issue related to the `app` directory (beta)?
+      options:
+        - label: Yes, I am using the `app` directory
+
+  - type: checkboxes
     id: more-info
     attributes:
       label: More information about your build
