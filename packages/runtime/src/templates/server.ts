@@ -26,9 +26,9 @@ class NetlifyNextServer extends NextServer {
           try {
             await this.netlifyRevalidate(req.url)
             console.log('Revalidated', req.url)
-          } catch {
+          } catch (error) {
             // TODO: status 500 error refreshing ODB cache
-            console.log('Error revalidating', req.url)
+            console.log('Error revalidating', req.url, error)
           }
         } else {
           // TODO: status 400 refresh hooks not enabled for site in proxy
