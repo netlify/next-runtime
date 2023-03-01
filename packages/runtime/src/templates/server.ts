@@ -40,12 +40,11 @@ class NetlifyNextServer extends NextServer {
   }
 
   private netlifyRevalidate(url: string) {
-    const path = new URL(url).pathname
     const domain = this.hostname
     const siteId = process.env.SITE_ID
 
     return new Promise((resolve, reject) => {
-      const body = JSON.stringify({ paths: [path], domain })
+      const body = JSON.stringify({ paths: [url], domain })
 
       const req = https
         .request(
