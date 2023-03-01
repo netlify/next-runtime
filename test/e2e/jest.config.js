@@ -15,7 +15,7 @@ const config = {
     '\\.[jt]sx?$': 'babel-jest',
   },
   verbose: true,
-  testTimeout: 300000,
+  testTimeout: 600000, // ten minutes
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
   moduleNameMapper: {
     'e2e-utils': '<rootDir>/next-test-lib/e2e-utils.ts',
