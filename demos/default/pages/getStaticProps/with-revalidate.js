@@ -24,7 +24,7 @@ export async function getStaticProps(context) {
       show: data,
     },
     // ODB handler will use the minimum TTL=60s
-    revalidate: 1,
+    revalidate: 300,
   }
 }
 
