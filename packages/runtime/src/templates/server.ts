@@ -20,7 +20,7 @@ class NetlifyNextServer extends NextServer {
 
   public getRequestHandler(): NodeRequestHandler {
     const handler = super.getRequestHandler()
-    return async (req, res, parsedUrl) => {
+    return (req, res, parsedUrl) => {
       if (req.headers['x-prerender-revalidate']) {
         // if (this.netlifyRevalidateToken) {
         throw new Error(`Test throw`)
