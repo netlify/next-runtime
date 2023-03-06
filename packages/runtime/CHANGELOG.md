@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.31.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.4...plugin-nextjs-v4.31.0) (2023-03-06)
+
+
+### Features
+
+* make edge image opt-in instead of opt-out ([#1935](https://github.com/netlify/next-runtime/issues/1935)) ([7a63d2f](https://github.com/netlify/next-runtime/commit/7a63d2f0cbd168916db271a9dad9d3e86024965f))
+
 ## [4.30.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.3...plugin-nextjs-v4.30.4) (2023-02-06)
 
 
