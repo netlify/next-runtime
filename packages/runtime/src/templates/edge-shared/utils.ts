@@ -34,8 +34,7 @@ export const addMiddlewareHeaders = async (
   middlewareResponse.headers.forEach((value, key) => {
     if (key === 'set-cookie') {
       response.headers.append(key, value)
-    }
-    else {
+    } else {
       response.headers.set(key, value)
     }
   })
