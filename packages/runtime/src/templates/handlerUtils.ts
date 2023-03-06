@@ -1,4 +1,5 @@
 import fs, { createWriteStream, existsSync } from 'fs'
+import { ServerResponse } from 'http'
 import { tmpdir } from 'os'
 import path from 'path'
 import { pipeline } from 'stream'
@@ -222,3 +223,46 @@ export const normalizePath = (event: HandlerEvent) => {
   // Ensure that paths are encoded - but don't double-encode them
   return new URL(event.rawUrl).pathname
 }
+
+export const netlifyApiFetch = <T>({
+  endpoint,
+  payload,
+  token,
+  method = 'GET',
+}: {
+  endpoint: string
+  payload: unknown
+  token: string
+  method: 'GET' | 'POST'
+}): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const body = JSON.stringify(payload)
+
+    const req = https.request(
+      {
+        hostname: 'api.netlify.com',
+        port: 443,
+        path: `/api/v1/${endpoint}`,
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': body.length,
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      (res: ServerResponse) => {
+        let data = ''
+        res.on('data', (chunk) => {
+          data += chunk
+        })
+        res.on('end', () => {
+          resolve(JSON.parse(data))
+        })
+      },
+    )
+
+    req.on('error', reject)
+
+    req.write(body)
+    req.end()
+  })
