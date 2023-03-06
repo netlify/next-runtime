@@ -1,5 +1,7 @@
 import { NodeRequestHandler, Options } from 'next/dist/server/next-server'
 
+// import { netlifyRoutesForNextRoute } from '../helpers/utils'
+
 import { netlifyApiFetch, getNextServer, NextServerType } from './handlerUtils'
 
 const NextServer: NextServerType = getNextServer()
@@ -28,15 +30,20 @@ class NetlifyNextServer extends NextServer {
   }
 
   private async netlifyRevalidate(url: string) {
-    const siteId = process.env.SITE_ID
-    const trailingSlash = this.nextConfig.trailingSlash ? '/' : ''
-
     try {
       // call netlify API to revalidate the path, including its data routes
       const result = await netlifyApiFetch<{ code: number; message: string }>({
-        endpoint: `sites/${siteId}/refresh_on_demand_builders`,
+        endpoint: `sites/${process.env.SITE_ID}/refresh_on_demand_builders`,
         payload: {
-          paths: [url, `/_next/data/${this.buildId}${url}.json`, `${url}.rsc${trailingSlash}`],
+          paths: [
+            url,
+            // ...netlifyRoutesForNextRoute({
+            //   route: url,
+            //   buildId: this.buildId,
+            //   i18n: this.nextConfig.i18n,
+            // }),
+            // url.endsWith('/') ? `${url.slice(0, -1)}.rsc/` : `${url}.rsc`,
+          ],
           domain: this.hostname,
         },
         token: this.netlifyRevalidateToken,
