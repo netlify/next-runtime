@@ -21,7 +21,7 @@ const {
   getPrefetchResponse,
   normalizePath,
 } = require('./handlerUtils')
-const NetlifyNextServer = require('./server')
+const { NetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
@@ -177,7 +177,7 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, getNextServer, normalizePath } = require('./handlerUtils')
-  const NetlifyNextServer = require('./server')
+  const { NetlifyNextServer } = require('./server')
 
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")

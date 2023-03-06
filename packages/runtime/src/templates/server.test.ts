@@ -1,7 +1,7 @@
 import { mockRequest } from 'next/dist/server/lib/mock-request'
 
 import { netlifyApiFetch, getNextServer, NextServerType } from './handlerUtils'
-import NetlifyNextServer from './server'
+import { NetlifyNextServer } from './server'
 
 const NextServer: NextServerType = getNextServer()
 

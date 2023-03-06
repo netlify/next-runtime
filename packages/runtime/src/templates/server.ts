@@ -8,7 +8,7 @@ interface NetlifyNextServerOptions extends Options {
   netlifyRevalidateToken?: string
 }
 
-export default class NetlifyNextServer extends NextServer {
+class NetlifyNextServer extends NextServer {
   private netlifyRevalidateToken?: string
 
   public constructor(options: NetlifyNextServerOptions) {
@@ -50,3 +50,5 @@ export default class NetlifyNextServer extends NextServer {
     }
   }
 }
+
+export { NetlifyNextServer }
