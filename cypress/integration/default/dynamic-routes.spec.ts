@@ -21,6 +21,12 @@ describe('Static Routing', () => {
       expect(res.body).to.contain('Dancing with the Stars')
     })
   })
+  it('revalidates page via refresh hooks on a static route', () => {
+    cy.request({ url: '/api/revalidate/' }).then((res) => {
+      expect(res.status).to.eq(200)
+      expect(res.body).to.equal({ revalidated: true })
+    })
+  })
 })
 
 describe('Dynamic Routing', () => {
