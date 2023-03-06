@@ -19,6 +19,7 @@ export default class NetlifyNextServer extends NextServer {
   public getRequestHandler(): NodeRequestHandler {
     const handler = super.getRequestHandler()
     return async (req, res, parsedUrl) => {
+      // on-demand revalidation request
       if (req.headers['x-prerender-revalidate']) {
         await this.netlifyRevalidate(req.url)
       }
@@ -27,10 +28,17 @@ export default class NetlifyNextServer extends NextServer {
   }
 
   private async netlifyRevalidate(url: string) {
+    const siteId = process.env.SITE_ID
+    const trailingSlash = this.nextConfig.trailingSlash ? '/' : ''
+
     try {
+      // call netlify API to revalidate the path, including its data routes
       const result = await netlifyApiFetch<{ code: number; message: string }>({
-        endpoint: `sites/${process.env.SITE_ID}/refresh_on_demand_builders`,
-        payload: { paths: [url], domain: this.hostname },
+        endpoint: `sites/${siteId}/refresh_on_demand_builders`,
+        payload: {
+          paths: [url, `/_next/data/${this.buildId}${url}.json`, `${url}.rsc${trailingSlash}`],
+          domain: this.hostname,
+        },
         token: this.netlifyRevalidateToken,
         method: 'POST',
       })
