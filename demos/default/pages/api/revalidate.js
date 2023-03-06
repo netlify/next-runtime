@@ -5,6 +5,6 @@ export default async function handler(req, res) {
     console.log('Revalidated:', path)
     return res.json({ code: 200, message: 'success' })
   } catch (err) {
-    return res.status(500).send({ code: 200, message: err.message })
+    return res.status(500).send({ code: 500, message: err.message })
   }
 }

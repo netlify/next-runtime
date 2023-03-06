@@ -32,7 +32,7 @@ class NetlifyNextServer extends NextServer {
   private async netlifyRevalidate(url: string) {
     try {
       // call netlify API to revalidate the path, including its data routes
-      const result = await netlifyApiFetch<{ code: number; message: string }>({
+      const result = await netlifyApiFetch<{ ok: boolean; code: number; message: string }>({
         endpoint: `sites/${process.env.SITE_ID}/refresh_on_demand_builders`,
         payload: {
           paths: [
@@ -49,11 +49,12 @@ class NetlifyNextServer extends NextServer {
         token: this.netlifyRevalidateToken,
         method: 'POST',
       })
-      if (result.code !== 200) {
-        throw result
+      if (result.ok !== true) {
+        throw new Error(result.message)
       }
     } catch (error) {
-      throw new Error(`Unsuccessful revalidate - ${error.message}`)
+      console.log('Error revalidating', error.message)
+      throw error
     }
   }
 }
