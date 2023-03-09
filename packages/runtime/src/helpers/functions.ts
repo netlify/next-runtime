@@ -28,6 +28,30 @@ export interface ApiRouteConfig {
   compiled: string
 }
 
+const writeGeneratorField = async (functionName: string, functionTitle: string, functionsDir: string) => {
+  const pluginPackagePath = join('.netlify/plugins/package.json')
+  const depsPackagePath = join('./package.json')
+  let packagePlugin
+  if (existsSync(pluginPackagePath)) {
+    packagePlugin = await readJSON(pluginPackagePath)
+  } else if (existsSync(depsPackagePath)) {
+    packagePlugin = await readJSON(depsPackagePath)
+  }
+
+  const generator = {
+    config: {
+      name: functionTitle,
+      generator:
+        packagePlugin && (Object.keys(packagePlugin.dependencies) as unknown as string) === '@netlify/plugin-nextjs'
+          ? `${NEXT_PLUGIN_NAME}@${Object.values(packagePlugin.dependencies)}`
+          : 'Plugin Not Found',
+    },
+    version: 1,
+  }
+
+  await writeFile(join(functionsDir, functionName, `${functionName}.json`), JSON.stringify(generator))
+}
+
 export const generateFunctions = async (
   { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
   appDir: string,
@@ -68,30 +92,6 @@ export const generateFunctions = async (
     await writeFile(join(functionsDir, functionName, 'pages.js'), resolverSource)
   }
 
-  const writeGeneratorField = async (functionName: string, functionTitle: string) => {
-    const pluginPackagePath = join('.netlify/plugins/package.json')
-    const depsPackagePath = join('./package.json')
-    let packagePlugin
-    if (existsSync(pluginPackagePath)) {
-      packagePlugin = await readJSON(pluginPackagePath)
-    } else if (existsSync(depsPackagePath)) {
-      packagePlugin = await readJSON(depsPackagePath)
-    }
-
-    const generator = {
-      config: {
-        name: functionTitle,
-        generator:
-          packagePlugin && (Object.keys(packagePlugin.dependencies) as unknown as string) === '@netlify/plugin-nextjs'
-            ? `${NEXT_PLUGIN_NAME}@${Object.values(packagePlugin.dependencies)}`
-            : 'Plugin Not Found',
-      },
-      version: 1,
-    }
-
-    await writeFile(join(functionsDir, functionName, `${functionName}.json`), JSON.stringify(generator))
-  }
-
   const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
     const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
     await ensureDir(join(functionsDir, functionName))
@@ -101,11 +101,11 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
-    writeGeneratorField(functionName, functionTitle)
+    writeGeneratorField(functionName, functionTitle, functionDir)
   }
 
-  await writeHandler(HANDLER_FUNCTION_NAME, 'Handler Function', false)
-  await writeHandler(ODB_FUNCTION_NAME, 'ODB Function', true)
+  await writeHandler(HANDLER_FUNCTION_NAME, 'Next.js SSR handler', false)
+  await writeHandler(ODB_FUNCTION_NAME, 'Next.js ISR handler', true)
 }
 
 /**
@@ -169,7 +169,8 @@ export const setupImageFunction = async ({
     })
 
     await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
-
+    writeGeneratorField(functionName.replace('.js', ''), 'next/image handler', functionsPath)
+    
     // If we have edge functions then the request will have already been rewritten
     // so this won't match. This is matched if edge is disabled or unavailable.
     netlifyConfig.redirects.push({
