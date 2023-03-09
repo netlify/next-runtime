@@ -30,12 +30,12 @@ export interface ApiRouteConfig {
 
 const writeGeneratorField = async (functionName: string, functionTitle: string, functionsDir: string) => {
   const pluginPackagePath = '.netlify/plugins/package.json' || './package.json'
-  let nextPlugin;
+  let nextPlugin
 
   if (existsSync(pluginPackagePath)) {
     const packagePlugin = await readJSON(pluginPackagePath)
     nextPlugin = packagePlugin?.dependencies['@netlify/plugin-nextjs']
-  } 
+  }
 
   const generator = {
     config: {
