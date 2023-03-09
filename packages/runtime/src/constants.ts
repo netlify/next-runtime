@@ -1,6 +1,7 @@
 export const HANDLER_FUNCTION_NAME = '___netlify-handler'
 export const ODB_FUNCTION_NAME = '___netlify-odb-handler'
 export const IMAGE_FUNCTION_NAME = '_ipx'
+export const NEXT_PLUGIN_NAME = '@netlify/next-runtime'
 
 // These are paths in .next that shouldn't be publicly accessible
 export const HIDDEN_PATHS = [
