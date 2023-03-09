@@ -86,9 +86,10 @@ export const generateFunctions = async (
             ? `${NEXT_PLUGIN_NAME}@${Object.values(packagePlugin.dependencies)}`
             : 'Plugin Not Found',
       },
+      version: 1,
     }
 
-    await writeFile(join(functionsDir, functionName, `${functionName}-metadata.json`), JSON.stringify(generator))
+    await writeFile(join(functionsDir, functionName, `${functionName}.json`), JSON.stringify(generator))
   }
 
   const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
