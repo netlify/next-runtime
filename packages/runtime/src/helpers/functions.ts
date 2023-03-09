@@ -7,7 +7,13 @@ import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/im
 import { outdent } from 'outdent'
 import { join, relative, resolve } from 'pathe'
 
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC, NEXT_PLUGIN_NAME } from '../constants'
+import {
+  HANDLER_FUNCTION_NAME,
+  ODB_FUNCTION_NAME,
+  IMAGE_FUNCTION_NAME,
+  DEFAULT_FUNCTIONS_SRC,
+  NEXT_PLUGIN_NAME,
+} from '../constants'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
@@ -63,25 +69,26 @@ export const generateFunctions = async (
   }
 
   const writeGeneratorField = async (functionName: string, functionTitle: string) => {
-    const pluginPackagePath = join('.netlify/plugins/package.json');
-    const depsPackagePath = join('./package.json');
-    let packagePlugin;
+    const pluginPackagePath = join('.netlify/plugins/package.json')
+    const depsPackagePath = join('./package.json')
+    let packagePlugin
     if (existsSync(pluginPackagePath)) {
-        packagePlugin = await readJSON(pluginPackagePath)
-    }else if (existsSync(depsPackagePath)) {
-        packagePlugin = await readJSON(depsPackagePath)
+      packagePlugin = await readJSON(pluginPackagePath)
+    } else if (existsSync(depsPackagePath)) {
+      packagePlugin = await readJSON(depsPackagePath)
     }
 
     const generator = {
-        config:{
-          name: functionTitle,
-          generator: packagePlugin && Object.keys(packagePlugin.dependencies) as unknown as string === '@netlify/plugin-nextjs' ? 
-          `${NEXT_PLUGIN_NAME}@${Object.values(packagePlugin.dependencies)}` : 
-          "Plugin Not Found",
-        }
-    } 
+      config: {
+        name: functionTitle,
+        generator:
+          packagePlugin && (Object.keys(packagePlugin.dependencies) as unknown as string) === '@netlify/plugin-nextjs'
+            ? `${NEXT_PLUGIN_NAME}@${Object.values(packagePlugin.dependencies)}`
+            : 'Plugin Not Found',
+      },
+    }
 
-    await writeFile(join(functionsDir, functionName,`${functionName}-metadata.json`), JSON.stringify(generator));
+    await writeFile(join(functionsDir, functionName, `${functionName}-metadata.json`), JSON.stringify(generator))
   }
 
   const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
@@ -96,8 +103,8 @@ export const generateFunctions = async (
     writeGeneratorField(functionName, functionTitle)
   }
 
-  await writeHandler(HANDLER_FUNCTION_NAME, 'Handler Function' ,false)
-  await writeHandler(ODB_FUNCTION_NAME, 'ODB Function' ,true)
+  await writeHandler(HANDLER_FUNCTION_NAME, 'Handler Function', false)
+  await writeHandler(ODB_FUNCTION_NAME, 'ODB Function', true)
 }
 
 /**
