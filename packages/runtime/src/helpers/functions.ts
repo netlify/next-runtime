@@ -170,7 +170,7 @@ export const setupImageFunction = async ({
 
     await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
     writeGeneratorField(functionName.replace('.js', ''), 'next/image handler', functionsPath)
-    
+
     // If we have edge functions then the request will have already been rewritten
     // so this won't match. This is matched if edge is disabled or unavailable.
     netlifyConfig.redirects.push({
