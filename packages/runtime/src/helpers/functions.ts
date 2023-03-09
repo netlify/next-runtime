@@ -101,7 +101,7 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
-    writeGeneratorField(functionName, functionTitle, functionDir)
+    writeGeneratorField(functionName, functionTitle, functionsDir)
   }
 
   await writeHandler(HANDLER_FUNCTION_NAME, 'Next.js SSR handler', false)
