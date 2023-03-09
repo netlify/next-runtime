@@ -29,24 +29,20 @@ export interface ApiRouteConfig {
 }
 
 const writeGeneratorField = async (functionName: string, functionTitle: string, functionsDir: string) => {
-  const pluginPackagePath = join('.netlify/plugins/package.json')
-  const depsPackagePath = join('./package.json')
-  let packagePlugin
+  const pluginPackagePath = '.netlify/plugins/package.json' || './package.json'
+  let nextPlugin;
+
   if (existsSync(pluginPackagePath)) {
-    packagePlugin = await readJSON(pluginPackagePath)
-  } else if (existsSync(depsPackagePath)) {
-    packagePlugin = await readJSON(depsPackagePath)
-  }
+    const packagePlugin = await readJSON(pluginPackagePath)
+    nextPlugin = packagePlugin?.dependencies['@netlify/plugin-nextjs']
+  } 
 
   const generator = {
     config: {
       name: functionTitle,
-      generator:
-        packagePlugin && (Object.keys(packagePlugin.dependencies) as unknown as string) === '@netlify/plugin-nextjs'
-          ? `${NEXT_PLUGIN_NAME}@${Object.values(packagePlugin.dependencies)}`
-          : 'Plugin Not Found',
+      generator: nextPlugin ? `${NEXT_PLUGIN_NAME}@${nextPlugin}` : 'Plugin Not Found',
     },
-    version: 1,
+    version: nextPlugin || 'Version Not Found',
   }
 
   await writeFile(join(functionsDir, functionName, `${functionName}.json`), JSON.stringify(generator))
