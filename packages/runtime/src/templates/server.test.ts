@@ -1,4 +1,3 @@
-/* eslint-disable max-nested-callbacks */
 import { mockRequest } from 'next/dist/server/lib/mock-request'
 
 import { getNextServer, NextServerType, netlifyApiFetch } from './handlerUtils'
@@ -57,4 +56,3 @@ describe('the netlify next server', () => {
     await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('Unable to connect')
   })
 })
-/* eslint-enable max-nested-callbacks */
