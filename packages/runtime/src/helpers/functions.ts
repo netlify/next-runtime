@@ -34,7 +34,7 @@ const writeGeneratorField = async (functionName: string, functionTitle: string, 
 
   if (existsSync(pluginPackagePath)) {
     const packagePlugin = await readJSON(pluginPackagePath)
-    nextPlugin = packagePlugin?.dependencies['@netlify/plugin-nextjs']
+    nextPlugin = packagePlugin.dependencies['@netlify/plugin-nextjs']
   }
 
   const generator = {
