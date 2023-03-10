@@ -107,7 +107,7 @@ export const generateFunctions = async (
   }
 
   await writeHandler(HANDLER_FUNCTION_NAME, HANDLER_FUNCTION_TITLE, false)
-  await writeHandler(ODB_FUNCTION_NAME, ODB_FUNCTION_TITLE, 'Next.js ISR handler', true)
+  await writeHandler(ODB_FUNCTION_NAME, ODB_FUNCTION_TITLE, true)
 }
 
 /**
