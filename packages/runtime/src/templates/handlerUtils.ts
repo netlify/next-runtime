@@ -224,6 +224,9 @@ export const normalizePath = (event: HandlerEvent) => {
   return new URL(event.rawUrl).pathname
 }
 
+/**
+ * Simple Netlify API client
+ */
 export const netlifyApiFetch = <T>({
   endpoint,
   payload,
@@ -266,3 +269,44 @@ export const netlifyApiFetch = <T>({
     req.write(body)
     req.end()
   })
+
+/**
+ * Get all paths related to a route including data, i18n and rsc routes
+ */
+export const getPathsForRoute = (
+  route: string,
+  buildId: string,
+  i18n?: {
+    defaultLocale: string
+    locales: string[]
+  },
+): string[] => {
+  const routes = []
+  // static files
+  routes.push(...localizeRoute(route, i18n))
+  // data routes
+  routes.push(
+    ...localizeRoute(route.endsWith('/') ? route.slice(0, -1) || '/index' : route, i18n, true).map(
+      (localizeRoute) => `/_next/data/${buildId}${localizeRoute}.json`,
+    ),
+  )
+  // rsc routes
+  routes.push(route.endsWith('/') ? `${route.slice(0, -1) || '/index'}.rsc/` : `${route}.rsc`)
+  return routes
+}
+
+/**
+ * Localize a route based on i18n config
+ * (don't localize if i18n is not configured or if the route is the default locale and not a data route)
+ */
+export const localizeRoute = (
+  route: string,
+  i18n?: {
+    defaultLocale: string
+    locales: string[]
+  },
+  data = false,
+): string[] =>
+  i18n
+    ? i18n.locales.map((locale) => (locale === i18n.defaultLocale && data === false ? route : `/${locale}${route}`))
+    : [route]

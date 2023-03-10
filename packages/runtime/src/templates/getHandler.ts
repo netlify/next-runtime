@@ -29,7 +29,7 @@ type Mutable<T> = {
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
-// eslint-disable-next-line max-params
+// eslint-disable-next-line max-params, max-lines-per-function
 const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
@@ -66,6 +66,10 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   // the first request because we need the host and port.
   let bridge: NodeBridge
   const getBridge = (event: HandlerEvent, context: HandlerContext): NodeBridge => {
+    const {
+      clientContext: { custom: customContext },
+    } = context
+
     if (bridge) {
       return bridge
     }
@@ -73,14 +77,18 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     const port = Number.parseInt(url.port) || 80
     base = url.origin
 
-    const nextServer = new NetlifyNextServer({
-      conf,
-      dir,
-      customServer: false,
-      hostname: url.hostname,
-      port,
-      netlifyRevalidateToken: context.clientContext?.custom?.odb_refresh_hooks,
-    })
+    const nextServer = new NetlifyNextServer(
+      {
+        conf,
+        dir,
+        customServer: false,
+        hostname: url.hostname,
+        port,
+      },
+      {
+        revalidateToken: customContext.odb_refresh_hooks,
+      },
+    )
     const requestHandler = nextServer.getRequestHandler()
     const server = new Server(async (req, res) => {
       try {
