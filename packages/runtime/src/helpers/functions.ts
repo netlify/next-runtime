@@ -13,6 +13,9 @@ import {
   IMAGE_FUNCTION_NAME,
   DEFAULT_FUNCTIONS_SRC,
   NEXT_PLUGIN_NAME,
+  HANDLER_FUNCTION_TITLE,
+  ODB_FUNCTION_TITLE,
+  IMAGE_FUNCTION_TITLE,
 } from '../constants'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
@@ -28,24 +31,27 @@ export interface ApiRouteConfig {
   compiled: string
 }
 
-const writeGeneratorField = async (functionName: string, functionTitle: string, functionsDir: string) => {
-  const pluginPackagePath = '.netlify/plugins/package.json' || './package.json'
-  let nextPlugin
+const checkForPackage = async (packageDir: string) => {
+  const packagePlugin = existsSync(packageDir) ? await readJSON(packageDir) : null
+  const nextPlugin = packagePlugin ? packagePlugin.dependencies['@netlify/plugin-nextjs'] : null
+  return nextPlugin
+}
 
-  if (existsSync(pluginPackagePath)) {
-    const packagePlugin = await readJSON(pluginPackagePath)
-    nextPlugin = packagePlugin.dependencies['@netlify/plugin-nextjs']
-  }
+const writeFunctionConfiguration = async (functionName: string, functionTitle: string, functionsDir: string) => {
+  const pluginPackagePath = '.netlify/plugins/package.json'
+  const depsPackagePath = './package.json'
 
-  const generator = {
+  const nextPluginVersion = (await checkForPackage(pluginPackagePath)) || (await checkForPackage(depsPackagePath))
+
+  const metadata = {
     config: {
       name: functionTitle,
-      generator: nextPlugin ? `${NEXT_PLUGIN_NAME}@${nextPlugin}` : 'Plugin Not Found',
+      generator: nextPluginVersion ? `${NEXT_PLUGIN_NAME}@${nextPluginVersion}` : 'Plugin Not Found',
     },
-    version: nextPlugin || 'Version Not Found',
+    version: 1,
   }
 
-  await writeFile(join(functionsDir, functionName, `${functionName}.json`), JSON.stringify(generator))
+  await writeFile(join(functionsDir, functionName, `${functionName}.json`), JSON.stringify(metadata))
 }
 
 export const generateFunctions = async (
@@ -97,11 +103,11 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
-    writeGeneratorField(functionName, functionTitle, functionsDir)
+    writeFunctionConfiguration(functionName, functionTitle, functionsDir)
   }
 
-  await writeHandler(HANDLER_FUNCTION_NAME, 'Next.js SSR handler', false)
-  await writeHandler(ODB_FUNCTION_NAME, 'Next.js ISR handler', true)
+  await writeHandler(HANDLER_FUNCTION_NAME, HANDLER_FUNCTION_TITLE, false)
+  await writeHandler(ODB_FUNCTION_NAME, ODB_FUNCTION_TITLE, 'Next.js ISR handler', true)
 }
 
 /**
@@ -165,7 +171,7 @@ export const setupImageFunction = async ({
     })
 
     await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
-    writeGeneratorField(functionName.replace('.js', ''), 'next/image handler', functionsPath)
+    writeFunctionConfiguration(functionName.replace('.js', ''), IMAGE_FUNCTION_TITLE, functionsPath)
 
     // If we have edge functions then the request will have already been rewritten
     // so this won't match. This is matched if edge is disabled or unavailable.
