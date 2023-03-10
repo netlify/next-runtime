@@ -1,9 +1,8 @@
+/* eslint-disable max-nested-callbacks */
 import { mockRequest } from 'next/dist/server/lib/mock-request'
 
-import { netlifyApiFetch, getNextServer, NextServerType } from './handlerUtils'
+import { getNextServer, NextServerType, netlifyApiFetch } from './handlerUtils'
 import { NetlifyNextServer } from './server'
-
-const NextServer: NextServerType = getNextServer()
 
 jest.mock('./handlerUtils', () => {
   const originalModule = jest.requireActual('./handlerUtils')
@@ -11,53 +10,51 @@ jest.mock('./handlerUtils', () => {
   return {
     __esModule: true,
     ...originalModule,
-    netlifyApiFetch: jest.fn(({ payload }) => {
-      switch (payload.paths[0]) {
-        case '/getStaticProps/with-revalidate/':
-          return Promise.resolve({ code: 200, message: 'Revalidated' })
-        case '/not-a-path/':
-          return Promise.resolve({ code: 404, message: '404' })
-        default:
-          return Promise.reject(new Error('Error'))
-      }
-    }),
+    netlifyApiFetch: jest.fn().mockResolvedValue({ ok: true }),
   }
 })
+const mockedApiFetch = netlifyApiFetch as jest.MockedFunction<typeof netlifyApiFetch>
 
-jest.spyOn(NextServer.prototype, 'getRequestHandler').mockImplementation(() => () => Promise.resolve())
-
-Object.setPrototypeOf(NetlifyNextServer, jest.fn())
-
-const nextServer = new NetlifyNextServer({ conf: {}, dev: false })
-const requestHandler = nextServer.getRequestHandler()
+beforeAll(() => {
+  const NextServer: NextServerType = getNextServer()
+  jest.spyOn(NextServer.prototype, 'getRequestHandler').mockImplementation(() => () => Promise.resolve())
+  Object.setPrototypeOf(NetlifyNextServer, jest.fn())
+})
 
 describe('the netlify next server', () => {
-  it('intercepts a request containing an x-prerender-revalidate header', async () => {
+  it('revalidates a request containing an `x-prerender-revalidate` header', async () => {
+    const netlifyNextServer = new NetlifyNextServer({ conf: {} }, {})
+    const requestHandler = netlifyNextServer.getRequestHandler()
+
     const { req: mockReq, res: mockRes } = mockRequest(
       '/getStaticProps/with-revalidate/',
       { 'x-prerender-revalidate': 'test' },
       'GET',
     )
-    await requestHandler(mockReq, mockRes)
-    expect(netlifyApiFetch).toHaveBeenCalled()
+    const response = await requestHandler(mockReq, mockRes)
+
+    expect(mockedApiFetch).toHaveBeenCalled()
+    expect(response).toBe(undefined)
   })
 
-  it('silently revalidates and returns the original handler response', async () => {
-    const { req: mockReq, res: mockRes } = mockRequest(
-      '/getStaticProps/with-revalidate/',
-      { 'x-prerender-revalidate': 'test' },
-      'GET',
-    )
-    await expect(requestHandler(mockReq, mockRes)).resolves.toBe(undefined)
-  })
+  it('throws an error when invalid paths are revalidated', async () => {
+    const netlifyNextServer = new NetlifyNextServer({ conf: {} }, {})
+    const requestHandler = netlifyNextServer.getRequestHandler()
 
-  it('throws an error when the revalidate API returns a 404 response', async () => {
     const { req: mockReq, res: mockRes } = mockRequest('/not-a-path/', { 'x-prerender-revalidate': 'test' }, 'GET')
-    await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('Unsuccessful revalidate - 404')
+
+    mockedApiFetch.mockResolvedValueOnce({ code: 404, message: 'Invalid paths' })
+    await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('Invalid paths')
   })
 
   it('throws an error when the revalidate API is unreachable', async () => {
+    const netlifyNextServer = new NetlifyNextServer({ conf: {} }, {})
+    const requestHandler = netlifyNextServer.getRequestHandler()
+
     const { req: mockReq, res: mockRes } = mockRequest('', { 'x-prerender-revalidate': 'test' }, 'GET')
-    await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('Unsuccessful revalidate - Error')
+
+    mockedApiFetch.mockRejectedValueOnce(new Error('Unable to connect'))
+    await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('Unable to connect')
   })
 })
+/* eslint-enable max-nested-callbacks */

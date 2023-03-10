@@ -24,7 +24,7 @@ describe('Static Routing', () => {
   it('revalidates page via refresh hooks on a static route', () => {
     cy.request({ url: '/api/revalidate/' }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body).to.equal({ revalidated: true })
+      expect(res.body).to.equal({ code: 200, message: 'success' })
     })
   })
 })
