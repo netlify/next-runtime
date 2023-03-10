@@ -11,7 +11,7 @@ export const enum ApiRouteType {
 
 export interface ApiStandardConfig {
   type?: never
-  runtime?: 'nodejs' | 'experimental-edge'
+  runtime?: 'nodejs' | 'experimental-edge' | 'edge'
   schedule?: never
 }
 
@@ -39,7 +39,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if ((config as ApiConfig).runtime === 'experimental-edge') {
+    if ((config as ApiConfig).runtime === 'experimental-edge' || (config as ApiConfig).runtime === 'edge') {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),
@@ -60,7 +60,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if (config.type && (config as ApiConfig).runtime === 'experimental-edge') {
+    if (config.type && ((config as ApiConfig).runtime === 'experimental-edge' || (config as ApiConfig).runtime === 'edge')) {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),

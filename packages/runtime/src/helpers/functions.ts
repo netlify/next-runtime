@@ -43,7 +43,7 @@ export const generateFunctions = async (
 
   for (const { route, config, compiled } of apiRoutes) {
     // Don't write a lambda if the runtime is edge
-    if (config.runtime === 'experimental-edge') {
+    if (config.runtime === 'experimental-edge' || config.runtime === 'edge') {
       continue
     }
     const apiHandlerSource = await getApiHandler({
