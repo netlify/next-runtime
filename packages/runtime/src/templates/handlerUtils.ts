@@ -291,7 +291,7 @@ export const getPathsForRoute = (
     ),
   )
   // rsc routes
-  routes.push(`${route.endsWith('/') ? route.slice(0, -1) || '/index' : route}.rsc`)
+  routes.push(route.endsWith('/') ? `${route.slice(0, -1) || '/index'}.rsc/` : `${route}.rsc`)
   return routes
 }
 
