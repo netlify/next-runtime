@@ -47,12 +47,11 @@ export const addMiddlewareHeaders = async (
   // We need to await the response to get the origin headers, then we can add the ones from middleware.
   const res = await originResponse
   const response = new Response(res.body, res)
-  const originCookies = response.headers.get('set-cookie')
   middlewareResponse.headers.forEach((value, key) => {
-    response.headers.set(key, value)
-    // Append origin cookies after middleware cookies
-    if (key === 'set-cookie' && originCookies) {
-      response.headers.append(key, originCookies)
+    if (key === 'set-cookie') {
+      response.headers.append(key, value)
+    } else {
+      response.headers.set(key, value)
     }
   })
   return response

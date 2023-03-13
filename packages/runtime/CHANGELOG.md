@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.32.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.31.0...plugin-nextjs-v4.32.0) (2023-03-13)
+
+
+### Features
+
+* add multiple set-cookie headers in middleware ([#1970](https://github.com/netlify/next-runtime/issues/1970)) ([32b31c6](https://github.com/netlify/next-runtime/commit/32b31c601dd07033ab89e2b53f963cc17d422c28))
+
+
+### Bug Fixes
+
+* remove fs access which isn't available in edge functions ([#1980](https://github.com/netlify/next-runtime/issues/1980)) ([6546641](https://github.com/netlify/next-runtime/commit/6546641a2f393a0a64b548be7a440b663add0cbb))
+
 ## [4.31.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.4...plugin-nextjs-v4.31.0) (2023-03-06)
 
 
