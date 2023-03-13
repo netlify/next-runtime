@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.32.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.0...plugin-nextjs-v4.32.1) (2023-03-13)
+
+
+### Bug Fixes
+
+* use the same id for importing and checking error ([#1984](https://github.com/netlify/next-runtime/issues/1984)) ([62e2efe](https://github.com/netlify/next-runtime/commit/62e2efe02a01c55a486070fceb7538ed466629c1))
+
 ## [4.32.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.31.0...plugin-nextjs-v4.32.0) (2023-03-13)
 
 
