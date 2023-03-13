@@ -35,7 +35,7 @@ const handler = async (req, context) => {
   try {
     // We need to cache-bust the import because otherwise it will claim it
     // doesn't exist if the user creates it after the server starts
-    const nextMiddleware = await import(`../../middleware.js#${idx++}`)
+    const nextMiddleware = await import(`../../middleware.js#${++idx}`)
     middleware = nextMiddleware.middleware
   } catch (importError) {
     // Error message is `Module not found "file://<path>/middleware.js#123456".` in Deno
