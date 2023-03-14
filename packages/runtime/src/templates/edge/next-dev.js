@@ -38,7 +38,6 @@ const handler = async (req, context) => {
     const nextMiddleware = await import(`../../middleware.js#${idx++}`)
     middleware = nextMiddleware.middleware
   } catch (importError) {
-    // Error message is `Module not found "file://<path>/middleware.js#123456".` in Deno
     if (importError.code === 'ERR_MODULE_NOT_FOUND' && importError.message.includes(`middleware.js`)) {
       //  No middleware, so we silently return
       return
