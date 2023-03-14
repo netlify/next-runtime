@@ -1,52 +1,41 @@
-import { getPathsForRoute, localizeRoute } from './handlerUtils'
+import { removeTrailingSlash, ensureLocalePrefix } from './handlerUtils'
 
-describe('getPathsForRoute', () => {
-  it('transforms / (root level) data routes to /index', () => {
-    expect(getPathsForRoute('/', 'buildId')).toContainEqual(expect.stringMatching(/index.json/))
+describe('removeTrailingSlash', () => {
+  it('removes a trailing slash from a string', () => {
+    expect(removeTrailingSlash('/foo/')).toEqual('/foo')
   })
-  it('removes the trailing slash from data routes', () => {
-    expect(getPathsForRoute('/foo/', 'buildId')).toContainEqual(expect.stringMatching(/foo.json$/))
+  it('ignores a string without a trailing slash', () => {
+    expect(removeTrailingSlash('/foo')).toEqual('/foo')
   })
-  it('respects the trailing slash for rsc routes', () => {
-    expect(getPathsForRoute('/foo', 'buildId')).toContainEqual(expect.stringMatching(/foo.rsc$/))
-    expect(getPathsForRoute('/foo/', 'buildId')).toContainEqual(expect.stringMatching(/foo.rsc\/$/))
+  it('does not remove a slash on its own', () => {
+    expect(removeTrailingSlash('/')).toEqual('/')
   })
 })
 
-describe('localizeRoute', () => {
-  it('returns a non-localized path for the default locale', () => {
+describe('ensureLocalePrefix', () => {
+  it('adds default locale prefix if missing', () => {
     expect(
-      localizeRoute('/foo', {
+      ensureLocalePrefix('/foo', {
         defaultLocale: 'en',
         locales: ['en', 'fr', 'de'],
       }),
-    ).toContain('/foo')
+    ).toEqual('/en/foo')
   })
-  it('returns a localized path for each non-default locale', () => {
+  it('skips prefixing if locale is present', () => {
     expect(
-      localizeRoute('/foo', {
+      ensureLocalePrefix('/fr/foo', {
         defaultLocale: 'en',
         locales: ['en', 'fr', 'de'],
       }),
-    ).toEqual(expect.arrayContaining(['/fr/foo', '/de/foo']))
-  })
-  it('returns every locale for data routes', () => {
+    ).toEqual('/fr/foo')
     expect(
-      localizeRoute(
-        '/foo',
-        {
-          defaultLocale: 'en',
-          locales: ['en', 'fr', 'de'],
-        },
-        true,
-      ),
-    ).toEqual([
-      expect.stringMatching(/\/en\/foo/),
-      expect.stringMatching(/\/fr\/foo/),
-      expect.stringMatching(/\/de\/foo/),
-    ])
+      ensureLocalePrefix('/en/foo', {
+        defaultLocale: 'en',
+        locales: ['en', 'fr', 'de'],
+      }),
+    ).toEqual('/en/foo')
   })
   it('skips localization if i18n not configured', () => {
-    expect(localizeRoute('/foo')).toEqual(['/foo'])
+    expect(ensureLocalePrefix('/foo')).toEqual('/foo')
   })
 })

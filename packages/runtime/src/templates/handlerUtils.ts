@@ -271,42 +271,56 @@ export const netlifyApiFetch = <T>({
   })
 
 /**
- * Get all paths related to a route including data, i18n and rsc routes
+ * Remove trailing slash from a route (but not the root route)
  */
-export const getPathsForRoute = (
+export const removeTrailingSlash = (route: string): string => (route.endsWith('/') ? route.slice(0, -1) || '/' : route)
+
+/**
+ * Normalize a data route to include the build ID and index suffix
+ *
+ * @param route The route to normalize
+ * @param buildId The Next.js build ID
+ * @param i18n The i18n config from next.config.js
+ * @returns The normalized route
+ * @example
+ * normalizeDataRoute('/_next/data/en.json', 'dev', { defaultLocale: 'en', locales: ['en', 'fr'] }) // '/_next/data/dev/en/index.json'
+ */
+export const normalizeDataRoute = (
   route: string,
   buildId: string,
   i18n?: {
     defaultLocale: string
     locales: string[]
   },
-): string[] => {
-  const routes = []
-  // static files
-  routes.push(...localizeRoute(route, i18n))
-  // data routes
-  routes.push(
-    ...localizeRoute(route.endsWith('/') ? route.slice(0, -1) || '/index' : route, i18n, true).map(
-      (localizeRoute) => `/_next/data/${buildId}${localizeRoute}.json`,
-    ),
-  )
-  // rsc routes
-  routes.push(route.endsWith('/') ? `${route.slice(0, -1) || '/index'}.rsc/` : `${route}.rsc`)
-  return routes
+): string => {
+  if (route.endsWith('.rsc')) return route
+  const withBuildId = route.replace(/^\/_next\/data\//, `/_next/data/${buildId}/`)
+  return i18n && i18n.locales.some((locale) => withBuildId.endsWith(`${buildId}/${locale}.json`))
+    ? withBuildId.replace(/\.json$/, '/index.json')
+    : withBuildId
 }
 
 /**
- * Localize a route based on i18n config
- * (don't localize if i18n is not configured or if the route is the default locale and not a data route)
+ * Ensure that a route has a locale prefix
+ *
+ * @param route The route to ensure has a locale prefix
+ * @param i18n The i18n config from next.config.js
+ * @returns The route with a locale prefix
+ * @example
+ * ensureLocalePrefix('/', { defaultLocale: 'en', locales: ['en', 'fr'] }) // '/en'
+ * ensureLocalePrefix('/foo', { defaultLocale: 'en', locales: ['en', 'fr'] }) // '/en/foo'
+ * ensureLocalePrefix('/en/foo', { defaultLocale: 'en', locales: ['en', 'fr'] }) // '/en/foo'
  */
-export const localizeRoute = (
+export const ensureLocalePrefix = (
   route: string,
   i18n?: {
     defaultLocale: string
     locales: string[]
   },
-  data = false,
-): string[] =>
+): string =>
   i18n
-    ? i18n.locales.map((locale) => (locale === i18n.defaultLocale && data === false ? route : `/${locale}${route}`))
-    : [route]
+    ? // eslint-disable-next-line unicorn/no-nested-ternary
+      i18n.locales.some((locale) => route === `/${locale}` || route.startsWith(`/${locale}/`))
+      ? route
+      : `/${i18n.defaultLocale}${route === '/' ? '' : route}`
+    : route
