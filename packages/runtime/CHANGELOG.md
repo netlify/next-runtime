@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.32.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.1...plugin-nextjs-v4.32.2) (2023-03-14)
+
+
+### Bug Fixes
+
+* make error message matching more generic ([#1988](https://github.com/netlify/next-runtime/issues/1988)) ([cfc8e96](https://github.com/netlify/next-runtime/commit/cfc8e966c90490e5760e192c1aef243f5f2c3aa6))
+
+## [4.32.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.0...plugin-nextjs-v4.32.1) (2023-03-13)
+
+
+### Bug Fixes
+
+* use the same id for importing and checking error ([#1984](https://github.com/netlify/next-runtime/issues/1984)) ([62e2efe](https://github.com/netlify/next-runtime/commit/62e2efe02a01c55a486070fceb7538ed466629c1))
+
 ## [4.32.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.31.0...plugin-nextjs-v4.32.0) (2023-03-13)
 
 
