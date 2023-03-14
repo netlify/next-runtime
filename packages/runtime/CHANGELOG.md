@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.32.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.1...plugin-nextjs-v4.32.2) (2023-03-14)
+
+
+### Bug Fixes
+
+* make error message matching more generic ([#1988](https://github.com/netlify/next-runtime/issues/1988)) ([cfc8e96](https://github.com/netlify/next-runtime/commit/cfc8e966c90490e5760e192c1aef243f5f2c3aa6))
+
 ## [4.32.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.0...plugin-nextjs-v4.32.1) (2023-03-13)
 
 
