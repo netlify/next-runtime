@@ -3,9 +3,9 @@ export default async function handler(req, res) {
   const select = Number(query.select) || 0
 
   const paths = [
-    'getStaticProps/with-revalidate', // missing leading/trailing slash
-    '/getStaticProps/with-revalidate', // missing trailing slash
     '/getStaticProps/with-revalidate/', // valid path
+    '/getStaticProps/with-revalidate', // missing trailing slash
+    'getStaticProps/with-revalidate', // missing leading/trailing slash
     '/en/getStaticProps/with-revalidate/', // valid path (with locale)
     '/fr/getStaticProps/with-revalidate/', // valid path (with locale)
     '/', // valid path (index)
