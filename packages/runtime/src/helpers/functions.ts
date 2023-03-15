@@ -36,7 +36,7 @@ const checkForPackage = async (packageDir: string, nodeModule: boolean) => {
   const packagePlugin = existsSync(packageDir) ? await readJSON(packageDir) : null
   const nextPlugin =
     packagePlugin?.dependencies[NEXT_PLUGIN] && !nodeModule ? packagePlugin.dependencies[NEXT_PLUGIN] : null
-  const checkModule = packagePlugin && nodeModule ? packagePlugin.version : null
+  const checkModule = packagePlugin?.version && nodeModule ? packagePlugin.version : null
 
   return checkModule || nextPlugin
 }
@@ -50,7 +50,7 @@ const writeFunctionConfiguration = async (functionName: string, functionTitle: s
   const metadata = {
     config: {
       name: functionTitle,
-      generator: nextPluginVersion ? `${NEXT_PLUGIN_NAME}@${nextPluginVersion}` : 'Plugin Not Found',
+      generator: nextPluginVersion ? `${NEXT_PLUGIN_NAME}@${nextPluginVersion}` : 'Next Runtime Version Not Found',
     },
     version: 1,
   }
