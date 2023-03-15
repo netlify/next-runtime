@@ -60,6 +60,12 @@ export const getRscDataRouter = ({ routes: staticRoutes, dynamicRoutes }: Preren
     const debug = request.headers.has('x-next-debug-logging')
     const log = debug ? (...args: unknown[]) => console.log(...args) : noop
     const url = new URL(request.url)
+
+    // Set the 'vary' header to 'RSC' to ensure that we cache correctly for the different
+    // possible mime types: application/octet-stream and text/html
+    // See https://github.com/netlify/pod-ecosystem-frameworks/issues/352#issuecomment-1450364417
+    request.headers.set('vary', 'RSC')
+
     // If this is a static RSC request, rewrite to the data route
     if (request.headers.get('rsc') === '1') {
       log('Is rsc request')
