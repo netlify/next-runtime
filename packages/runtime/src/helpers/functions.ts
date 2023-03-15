@@ -12,6 +12,7 @@ import {
   ODB_FUNCTION_NAME,
   IMAGE_FUNCTION_NAME,
   DEFAULT_FUNCTIONS_SRC,
+  NEXT_PLUGIN,
   NEXT_PLUGIN_NAME,
   HANDLER_FUNCTION_TITLE,
   ODB_FUNCTION_TITLE,
@@ -31,17 +32,20 @@ export interface ApiRouteConfig {
   compiled: string
 }
 
-const checkForPackage = async (packageDir: string) => {
+const checkForPackage = async (packageDir: string, nodeModule: boolean) => {
   const packagePlugin = existsSync(packageDir) ? await readJSON(packageDir) : null
-  const nextPlugin = packagePlugin ? packagePlugin.dependencies['@netlify/plugin-nextjs'] : null
-  return nextPlugin
+  const nextPlugin =
+    packagePlugin?.dependencies[NEXT_PLUGIN] && !nodeModule ? packagePlugin.dependencies[NEXT_PLUGIN] : null
+  const checkModule = packagePlugin && nodeModule ? packagePlugin.version : null
+
+  return checkModule || nextPlugin
 }
 
 const writeFunctionConfiguration = async (functionName: string, functionTitle: string, functionsDir: string) => {
   const pluginPackagePath = '.netlify/plugins/package.json'
-  const depsPackagePath = './package.json'
-
-  const nextPluginVersion = (await checkForPackage(pluginPackagePath)) || (await checkForPackage(depsPackagePath))
+  const nodeModulesPath = join('node_modules', NEXT_PLUGIN, 'package.json')
+  const nextPluginVersion =
+    (await checkForPackage(nodeModulesPath, true)) || (await checkForPackage(pluginPackagePath, false))
 
   const metadata = {
     config: {

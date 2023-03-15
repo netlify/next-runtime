@@ -2,6 +2,7 @@ export const HANDLER_FUNCTION_NAME = '___netlify-handler'
 export const ODB_FUNCTION_NAME = '___netlify-odb-handler'
 export const IMAGE_FUNCTION_NAME = '_ipx'
 export const NEXT_PLUGIN_NAME = '@netlify/next-runtime'
+export const NEXT_PLUGIN = '@netlify/plugin-nextjs'
 export const HANDLER_FUNCTION_TITLE = 'Next.js SSR handler'
 export const ODB_FUNCTION_TITLE = 'Next.js ISR handler'
 export const IMAGE_FUNCTION_TITLE = "'next/image handler'"
