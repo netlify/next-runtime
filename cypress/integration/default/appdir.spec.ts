@@ -29,6 +29,15 @@ describe('appDir', () => {
     })
   })
 
+  it('returns HTML for non-RSC requests to ISR pages', () => {
+    cy.request({
+      url: '/blog/erica/',
+      followRedirect: false,
+    }).then((response) => {
+      expect(response.headers).to.have.property('content-type', 'text/html; charset=utf-8')
+    })
+  })
+
   it('returns RSC data for RSC requests to static pages', () => {
     cy.request({
       url: '/blog/erica/first-post/',
