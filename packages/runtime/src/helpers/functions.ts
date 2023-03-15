@@ -35,8 +35,8 @@ export interface ApiRouteConfig {
 const checkForPackage = async (packageDir: string, nodeModule: boolean) => {
   const packagePlugin = existsSync(packageDir) ? await readJSON(packageDir) : null
   const nextPlugin =
-    packagePlugin?.dependencies[NEXT_PLUGIN] && !nodeModule ? packagePlugin.dependencies[NEXT_PLUGIN] : null
-  const checkModule = packagePlugin?.version && nodeModule ? packagePlugin.version : null
+    !nodeModule && packagePlugin.dependencies[NEXT_PLUGIN] ? packagePlugin.dependencies[NEXT_PLUGIN] : null
+  const checkModule = nodeModule && packagePlugin?.version ? packagePlugin.version : null
 
   return checkModule || nextPlugin
 }
