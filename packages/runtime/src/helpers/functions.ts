@@ -2,7 +2,6 @@ import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
-import { resolveModuleRoot } from './config'
 import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON } from 'fs-extra'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
@@ -13,8 +12,6 @@ import {
   ODB_FUNCTION_NAME,
   IMAGE_FUNCTION_NAME,
   DEFAULT_FUNCTIONS_SRC,
-  NEXT_PLUGIN,
-  NEXT_PLUGIN_NAME,
   HANDLER_FUNCTION_TITLE,
   ODB_FUNCTION_TITLE,
   IMAGE_FUNCTION_TITLE,
@@ -25,43 +22,13 @@ import { getResolverForPages, getResolverForSourceFiles } from '../templates/get
 
 import { ApiConfig, ApiRouteType, extractConfigFromFile } from './analysis'
 import { getSourceFileForPage } from './files'
+import { writeFunctionConfiguration } from './utilities/functions'
 import { getFunctionNameForPage } from './utils'
 
 export interface ApiRouteConfig {
   route: string
   config: ApiConfig
   compiled: string
-}
-
-const checkForPackage = async (packageDir: string, nodeModule: boolean) => {
-  const packagePlugin = existsSync(packageDir) ? await readJSON(packageDir) : null
-  let nextPlugin
-  if (!nodeModule && packagePlugin){
-    nextPlugin = packagePlugin.dependencies[NEXT_PLUGIN] ? packagePlugin.dependencies[NEXT_PLUGIN] : null
-  }else if (nodeModule && packagePlugin){
-    nextPlugin = packagePlugin.version ? packagePlugin.version : null
-  }
-
-  return nextPlugin
-}
-
-const writeFunctionConfiguration = async (functionName: string, functionTitle: string, functionsDir: string) => {
-  const pluginPackagePath = '.netlify/plugins/package.json'
-  const ProjDir = resolveModuleRoot(NEXT_PLUGIN)
-  const nodeModulesPath = `${ProjDir}/package.json`
-  
-  const nextPluginVersion =
-    (await checkForPackage(nodeModulesPath, true)) || (await checkForPackage(pluginPackagePath, false))
-
-  const metadata = {
-    config: {
-      name: functionTitle,
-      generator: nextPluginVersion ? `${NEXT_PLUGIN_NAME}@${nextPluginVersion}` : 'Next Runtime Version Not Found',
-    },
-    version: 1,
-  }
-
-  await writeFile(join(functionsDir, functionName, `${functionName}.json`), JSON.stringify(metadata))
 }
 
 export const generateFunctions = async (
