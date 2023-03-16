@@ -62,8 +62,7 @@ export const getRscDataRouter = ({ routes: staticRoutes, dynamicRoutes }: Preren
     const url = new URL(request.url)
 
     // Set the 'vary' header to 'RSC' to ensure that we cache correctly for the different
-    // possible mime types: application/octet-stream and text/html
-    // See https://github.com/netlify/pod-ecosystem-frameworks/issues/352#issuecomment-1450364417
+    // possible content-types: application/octet-stream and text/html
     request.headers.set('vary', 'RSC')
 
     // If this is a static RSC request, rewrite to the data route
