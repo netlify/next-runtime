@@ -2,6 +2,7 @@ import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
+import { resolveModuleRoot } from './config'
 import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON } from 'fs-extra'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
@@ -34,16 +35,21 @@ export interface ApiRouteConfig {
 
 const checkForPackage = async (packageDir: string, nodeModule: boolean) => {
   const packagePlugin = existsSync(packageDir) ? await readJSON(packageDir) : null
-  const nextPlugin =
-    !nodeModule && packagePlugin.dependencies[NEXT_PLUGIN] ? packagePlugin.dependencies[NEXT_PLUGIN] : null
-  const checkModule = nodeModule && packagePlugin?.version ? packagePlugin.version : null
+  let nextPlugin
+  if (!nodeModule && packagePlugin){
+    nextPlugin = packagePlugin.dependencies[NEXT_PLUGIN] ? packagePlugin.dependencies[NEXT_PLUGIN] : null
+  }else if (nodeModule && packagePlugin){
+    nextPlugin = packagePlugin.version ? packagePlugin.version : null
+  }
 
-  return checkModule || nextPlugin
+  return nextPlugin
 }
 
 const writeFunctionConfiguration = async (functionName: string, functionTitle: string, functionsDir: string) => {
   const pluginPackagePath = '.netlify/plugins/package.json'
-  const nodeModulesPath = join('node_modules', NEXT_PLUGIN, 'package.json')
+  const ProjDir = resolveModuleRoot(NEXT_PLUGIN)
+  const nodeModulesPath = `${ProjDir}/package.json`
+  
   const nextPluginVersion =
     (await checkForPackage(nodeModulesPath, true)) || (await checkForPackage(pluginPackagePath, false))
 
