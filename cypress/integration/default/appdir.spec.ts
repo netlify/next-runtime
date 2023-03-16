@@ -29,7 +29,7 @@ describe('appDir', () => {
     })
   })
 
-  it('returns HTML for non-RSC requests to ISR pages', () => {
+  it('returns HTML for non-RSC data requests to ISR pages', () => {
     cy.request({
       url: '/blog/erica/',
       followRedirect: false,
