@@ -35,7 +35,7 @@ export const writeFunctionConfiguration = async (functionName: string, functionT
   const metadata = {
     config: {
       name: functionTitle,
-      generator: nextPluginVersion ? `${NEXT_PLUGIN_NAME}@${nextPluginVersion}` : 'Next Runtime Version Not Found',
+      generator: `${NEXT_PLUGIN_NAME}@${nextPluginVersion || 'version-not-found'}`,
     },
     version: 1,
   }
