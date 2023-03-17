@@ -8,6 +8,22 @@ export interface FetchEventResult {
 
 type NextDataTransform = <T>(data: T) => T
 
+function normalizeDataUrl(redirect: string) {
+  // If the redirect is a data URL, we need to normalize it.
+  // next.js code reference: https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/router/utils/get-next-pathname-info.ts#L46
+  if (redirect.startsWith('/_next/data/') && redirect.includes('.json')) {
+    const paths = redirect
+      .replace(/^\/_next\/data\//, '')
+      .replace(/\.json/, '')
+      .split('/')
+
+    const buildId = paths[0]
+    redirect = paths[1] !== 'index' ? `/${paths.slice(1).join('/')}` : '/'
+  }
+
+  return redirect
+}
+
 /**
  * This is how Next handles rewritten URLs.
  */
@@ -32,7 +48,11 @@ export const addMiddlewareHeaders = async (
   const res = await originResponse
   const response = new Response(res.body, res)
   middlewareResponse.headers.forEach((value, key) => {
-    response.headers.set(key, value)
+    if (key === 'set-cookie') {
+      response.headers.append(key, value)
+    } else {
+      response.headers.set(key, value)
+    }
   })
   return response
 }
@@ -51,6 +71,37 @@ interface MiddlewareRequest {
   rewrite(destination: string | URL, init?: ResponseInit): Response
 }
 
+export interface I18NConfig {
+  defaultLocale: string
+  localeDetection?: false
+  locales: string[]
+}
+
+export interface RequestData {
+  geo?: {
+    city?: string
+    country?: string
+    region?: string
+    latitude?: string
+    longitude?: string
+    timezone?: string
+  }
+  headers: Record<string, string>
+  ip?: string
+  method: string
+  nextConfig?: {
+    basePath?: string
+    i18n?: I18NConfig | null
+    trailingSlash?: boolean
+  }
+  page?: {
+    name?: string
+    params?: { [key: string]: string }
+  }
+  url: string
+  body?: ReadableStream<Uint8Array>
+}
+
 function isMiddlewareRequest(response: Response | MiddlewareRequest): response is MiddlewareRequest {
   return 'originalRequest' in response
 }
@@ -59,6 +110,60 @@ function isMiddlewareResponse(response: Response | MiddlewareResponse): response
   return 'dataTransforms' in response
 }
 
+// Next 13 supports request header mutations and has the side effect of prepending header values with 'x-middleware-request'
+// as part of invoking NextResponse.next() in the middleware. We need to remove that before sending the response the user
+// as the code that removes it in Next isn't run based on how we handle the middleware
+//
+// Related Next.js code:
+// * https://github.com/vercel/next.js/blob/68d06fe015b28d8f81da52ca107a5f4bd72ab37c/packages/next/server/next-server.ts#L1918-L1928
+// * https://github.com/vercel/next.js/blob/43c9d8940dc42337dd2f7d66aa90e6abf952278e/packages/next/server/web/spec-extension/response.ts#L10-L27
+export function updateModifiedHeaders(requestHeaders: Headers, responseHeaders: Headers) {
+  const overriddenHeaders = responseHeaders.get('x-middleware-override-headers')
+
+  if (!overriddenHeaders) {
+    return
+  }
+
+  const headersToUpdate = overriddenHeaders.split(',').map((header) => header.trim())
+
+  for (const header of headersToUpdate) {
+    const oldHeaderKey = 'x-middleware-request-' + header
+    const headerValue = responseHeaders.get(oldHeaderKey) || ''
+
+    requestHeaders.set(header, headerValue)
+    responseHeaders.delete(oldHeaderKey)
+  }
+  responseHeaders.delete('x-middleware-override-headers')
+}
+
+export const buildNextRequest = (
+  request: Request,
+  context: Context,
+  nextConfig?: RequestData['nextConfig'],
+): RequestData => {
+  const { url, method, body, headers } = request
+
+  const { country, subdivision, city, latitude, longitude, timezone } = context.geo
+
+  const geo: RequestData['geo'] = {
+    country: country?.code,
+    region: subdivision?.code,
+    city,
+    latitude: latitude?.toString(),
+    longitude: longitude?.toString(),
+    timezone,
+  }
+
+  return {
+    headers: Object.fromEntries(headers.entries()),
+    geo,
+    url,
+    method,
+    ip: context.ip,
+    body: body ?? undefined,
+    nextConfig,
+  }
+}
 export const buildResponse = async ({
   result,
   request,
@@ -68,6 +173,8 @@ export const buildResponse = async ({
   request: Request
   context: Context
 }) => {
+  updateModifiedHeaders(request.headers, result.response.headers)
+
   // They've returned the MiddlewareRequest directly, so we'll call `next()` for them.
   if (isMiddlewareRequest(result.response)) {
     result.response = await result.response.next()
@@ -158,8 +265,30 @@ export const buildResponse = async ({
     res.headers.set('x-nextjs-redirect', relativizeURL(redirect, request.url))
   }
 
+  const nextRedirect = res.headers.get('x-nextjs-redirect')
+
+  if (nextRedirect && isDataReq) {
+    res.headers.set('x-nextjs-redirect', normalizeDataUrl(nextRedirect))
+  }
+
   if (res.headers.get('x-middleware-next') === '1') {
     return addMiddlewareHeaders(context.next(), res)
   }
   return res
+}
+
+export const redirectTrailingSlash = (url: URL, trailingSlash: boolean): Response | undefined => {
+  const { pathname } = url
+  if (pathname === '/') {
+    return
+  }
+  if (!trailingSlash && pathname.endsWith('/')) {
+    url.pathname = pathname.slice(0, -1)
+    return Response.redirect(url, 308)
+  }
+  // Add a slash, unless there's a file extension
+  if (trailingSlash && !pathname.endsWith('/') && !pathname.split('/').pop()?.includes('.')) {
+    url.pathname = `${pathname}/`
+    return Response.redirect(url, 308)
+  }
 }

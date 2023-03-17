@@ -4,6 +4,7 @@ import { fetchViaHTTP, normalizeRegEx, renderViaHTTP } from 'next-test-utils'
 import cheerio from 'cheerio'
 import { join } from 'path'
 import escapeStringRegexp from 'escape-string-regexp'
+const usuallySkip = process.env.RUN_SKIPPED_TESTS ? it : it.skip
 
 describe('edge-render-getserversideprops', () => {
   let next: NextInstance
@@ -36,7 +37,7 @@ describe('edge-render-getserversideprops', () => {
     expect(props.url).toBe('/123?hello=world')
   })
 
-  it('should have correct query/params on rewrite', async () => {
+  usuallySkip('should have correct query/params on rewrite', async () => {
     const html = await renderViaHTTP(next.url, '/rewrite-me', {
       hello: 'world',
     })
@@ -48,7 +49,7 @@ describe('edge-render-getserversideprops', () => {
     expect(props.url).toBe('/rewrite-me?hello=world')
   })
 
-  it('should have correct query/params on dynamic rewrite', async () => {
+  usuallySkip('should have correct query/params on dynamic rewrite', async () => {
     const html = await renderViaHTTP(next.url, '/rewrite-me-dynamic', {
       hello: 'world',
     })
@@ -61,16 +62,11 @@ describe('edge-render-getserversideprops', () => {
   })
 
   it('should respond to _next/data for index correctly', async () => {
-    const res = await fetchViaHTTP(
-      next.url,
-      `/_next/data/${next.buildId}/index.json`,
-      undefined,
-      {
-        headers: {
-          'x-nextjs-data': '1',
-        },
-      }
-    )
+    const res = await fetchViaHTTP(next.url, `/_next/data/${next.buildId}/index.json`, undefined, {
+      headers: {
+        'x-nextjs-data': '1',
+      },
+    })
     expect(res.status).toBe(200)
     const { pageProps: props } = await res.json()
     expect(props.query).toEqual({})
@@ -86,7 +82,7 @@ describe('edge-render-getserversideprops', () => {
         headers: {
           'x-nextjs-data': '1',
         },
-      }
+      },
     )
     expect(res.status).toBe(200)
     const { pageProps: props } = await res.json()
@@ -96,9 +92,7 @@ describe('edge-render-getserversideprops', () => {
 
   if ((global as any).isNextStart) {
     it('should have data routes in routes-manifest', async () => {
-      const manifest = JSON.parse(
-        await next.readFile('.next/routes-manifest.json')
-      )
+      const manifest = JSON.parse(await next.readFile('.next/routes-manifest.json'))
 
       for (const route of manifest.dataRoutes) {
         route.dataRouteRegex = normalizeRegEx(route.dataRouteRegex)
@@ -106,18 +100,12 @@ describe('edge-render-getserversideprops', () => {
 
       expect(manifest.dataRoutes).toEqual([
         {
-          dataRouteRegex: normalizeRegEx(
-            `^/_next/data/${escapeStringRegexp(next.buildId)}/index.json$`
-          ),
+          dataRouteRegex: normalizeRegEx(`^/_next/data/${escapeStringRegexp(next.buildId)}/index.json$`),
           page: '/',
         },
         {
-          dataRouteRegex: normalizeRegEx(
-            `^/_next/data/${escapeStringRegexp(next.buildId)}/([^/]+?)\\.json$`
-          ),
-          namedDataRouteRegex: `^/_next/data/${escapeStringRegexp(
-            next.buildId
-          )}/(?<id>[^/]+?)\\.json$`,
+          dataRouteRegex: normalizeRegEx(`^/_next/data/${escapeStringRegexp(next.buildId)}/([^/]+?)\\.json$`),
+          namedDataRouteRegex: `^/_next/data/${escapeStringRegexp(next.buildId)}/(?<id>[^/]+?)\\.json$`,
           page: '/[id]',
           routeKeys: {
             id: 'id',

@@ -8,6 +8,18 @@ export async function middleware(req: NextRequest) {
   let response
   const { pathname } = req.nextUrl
 
+  if (pathname.startsWith('/api/hello')) {
+    // Next 13 request header mutation functionality
+    const headers = new Headers(req.headers)
+
+    headers.set('x-hello', 'world')
+    return NextResponse.next({
+      request: {
+        headers
+      }
+    })
+  }
+  
   const request = new MiddlewareRequest(req)
   if (pathname.startsWith('/static')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
@@ -22,12 +34,6 @@ export async function middleware(req: NextRequest) {
     res.headers.set('x-modified-edge', 'true')
     res.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
     return res
-  }
-
-  if (pathname.startsWith('/api/hello')) {
-    // Add a header to the request
-    req.headers.set('x-hello', 'world')
-    return request.next()
   }
 
   if (pathname.startsWith('/api/geo')) {
@@ -53,10 +59,22 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
+  if(pathname.startsWith('/matcher-cookie')) {
+    response = NextResponse.next()
+    response.cookies.set('missingCookie', 'true')
+    return response
+  }
+
   if (pathname.startsWith('/conditional')) {
     response = NextResponse.next()
     response.headers.set('x-modified-edge', 'true')
     response.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
+    return response
+  }
+
+  if (pathname.startsWith('/missing')) {
+    response = NextResponse.next()
+    response.headers.set('x-cookie-missing', 'true')
     return response
   }
 
@@ -113,6 +131,7 @@ export const config = {
     '/headers',
     { source: '/static' },
     { source: '/cookies' },
+    { source: '/matcher-cookie'},
     { source: '/shows/((?!99|88).*)' },
     {
       source: '/conditional',
@@ -122,6 +141,15 @@ export const config = {
           key: 'x-my-header',
           value: 'my-value',
         },
+      ],
+    },
+    {
+      source: '/missing',
+      missing: [
+        {
+          type: 'cookie',
+          key: 'missingCookie',
+        }
       ],
     },
   ],

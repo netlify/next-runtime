@@ -129,7 +129,7 @@ export const getApiHandler = ({
   const { Server } = require("http");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+  const { getMultiValueHeaders, getNextServer } = require('./handlerUtils')
 
   ${config.type === ApiRouteType.SCHEDULED ? `const { schedule } = require("@netlify/functions")` : ''}
 
@@ -137,7 +137,7 @@ export const getApiHandler = ({
   const { config }  = require("${publishDir}/required-server-files.json")
   let staticManifest
   const path = require("path");
-  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "serverless", "pages"));
+  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   const handler = (${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)})
   exports.handler = ${
     config.type === ApiRouteType.SCHEDULED ? `schedule(${JSON.stringify(config.schedule)}, handler);` : 'handler'

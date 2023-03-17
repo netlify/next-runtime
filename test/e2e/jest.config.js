@@ -4,6 +4,7 @@
 const config = {
   maxWorkers: 1,
   rootDir: __dirname,
+  setupFilesAfterEnv: ['<rootDir>/jest-setup-after-env.ts'],
   testMatch: [
     '**/test/e2e/tests/**/*.test.js',
     '**/test/e2e/tests/**/*.test.ts',
@@ -14,7 +15,7 @@ const config = {
     '\\.[jt]sx?$': 'babel-jest',
   },
   verbose: true,
-  testTimeout: 300000,
+  testTimeout: 600000, // ten minutes
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
   moduleNameMapper: {
     'e2e-utils': '<rootDir>/next-test-lib/e2e-utils.ts',

@@ -71,6 +71,8 @@ const utils = {
   },
 }
 
+const normalizeChunkNames = (source) => source.replaceAll(/\/chunks\/\d+\.js/g, '/chunks/CHUNK_ID.js')
+
 const REDIRECTS = [
   {
     source: '/:file((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+)/',
@@ -616,7 +618,7 @@ describe('onBuild()', () => {
     for (const route of ['_api_hello-background-background', '_api_hello-scheduled-handler']) {
       const expected = path.resolve(constants.INTERNAL_FUNCTIONS_SRC, route, 'pages.js')
       expect(existsSync(expected)).toBeTruthy()
-      expect(readFileSync(expected, 'utf8')).toMatchSnapshot(`for ${route}`)
+      expect(normalizeChunkNames(readFileSync(expected, 'utf8'))).toMatchSnapshot(`for ${route}`)
     }
   })
 
@@ -628,8 +630,8 @@ describe('onBuild()', () => {
     expect(existsSync(handlerPagesFile)).toBeTruthy()
     expect(existsSync(odbHandlerPagesFile)).toBeTruthy()
 
-    expect(readFileSync(handlerPagesFile, 'utf8')).toMatchSnapshot()
-    expect(readFileSync(odbHandlerPagesFile, 'utf8')).toMatchSnapshot()
+    expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
+    expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
   })
 
   test('generates a file referencing all when publish dir is a subdirectory', async () => {
@@ -645,8 +647,8 @@ describe('onBuild()', () => {
     const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
     const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
 
-    expect(readFileSync(handlerPagesFile, 'utf8')).toMatchSnapshot()
-    expect(readFileSync(odbHandlerPagesFile, 'utf8')).toMatchSnapshot()
+    expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
+    expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
   })
 
   test('generates entrypoints with correct references', async () => {
@@ -714,6 +716,20 @@ describe('onBuild()', () => {
     expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeTruthy()
   })
 
+  // Enabled while edge images are off by default
+  test('does not generate an ipx edge function by default', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
+  })
+
+  test('generates an ipx edge function if force is set', async () => {
+    process.env.NEXT_FORCE_EDGE_IMAGES = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
+  })
+
   test('does not generate an ipx function when DISABLE_IPX is set', async () => {
     process.env.DISABLE_IPX = '1'
     await moveNextDist()
@@ -765,6 +781,23 @@ describe('onBuild()', () => {
 
     expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
     delete process.env.NEXT_DISABLE_NETLIFY_EDGE
+  })
+
+  test('moves static files to a subdirectory if basePath is set', async () => {
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+
+    initialConfig.config.basePath = '/docs'
+
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(onBuildHasRun(netlifyConfig)).toBe(true)
+    const publicFile = path.join(netlifyConfig.build.publish, 'docs', 'shows1.json')
+    expect(existsSync(publicFile)).toBe(true)
+    expect(await readJson(publicFile)).toMatchObject(expect.any(Array))
   })
 })
 
@@ -1288,7 +1321,7 @@ describe('function helpers', () => {
         await moveNextDist()
         await nextRuntime.onBuild(defaultArgs)
         const dependencies = await getAllPageDependencies(constants.PUBLISH_DIR)
-        expect(dependencies.map((dep) => relative(process.cwd(), dep))).toMatchSnapshot()
+        expect(dependencies.map((dep) => normalizeChunkNames(relative(process.cwd(), dep)))).toMatchSnapshot()
       })
 
       it('extracts dependencies that exist', async () => {
@@ -1613,13 +1646,13 @@ describe('function helpers', () => {
         // Next.js has modified the routesManifest to have the locales in the source.
         const nextConfig = {
           i18n: {
-            locales: ['en', 'fr'],
+            locales: ['en-US', 'fr'],
             defaultLocale: 'en',
           },
           routesManifest: {
             headers: [
               {
-                source: '/:nextInternalLocale(en|fr)/with-locale/:path*',
+                source: '/:nextInternalLocale(en\\-US|fr)/with-locale/:path*',
                 headers: [
                   {
                     key: 'X-Unit-Test',
@@ -1642,7 +1675,7 @@ describe('function helpers', () => {
             },
           },
           {
-            for: '/en/with-locale/*',
+            for: '/en-US/with-locale/*',
             values: {
               'X-Unit-Test': 'true',
             },

@@ -17,13 +17,14 @@ const Index = ({ shows, nodeEnv }) => {
       <div>
         <Header />
 
-        <p>This is a demo of a NextJS application with Server-Side Rendering (SSR).</p>
+        <p>This is a demo of a NextJS application with Incremental Static Regeneration (ISR).</p>
 
-        <h2>Server-Side Rendering</h2>
+        <h2>Incremental Static Regeneration</h2>
 
         <p>
-          This page is server-side rendered. It fetches a random list of five TV shows from the TVmaze REST API. Refresh
-          this page to see it change.
+          This page is rendered by an On-Demand Builder (ODB) function. It fetches a random list of five TV shows from
+          the TVmaze REST API. After 60 seconds, the ODB cache is invalidated and the page will be re-rendered on the
+          next request.
         </p>
         <code>NODE_ENV: {nodeEnv}</code>
 
@@ -158,6 +159,12 @@ const Index = ({ shows, nodeEnv }) => {
             <Link href="/rewriteToStatic">Rewrite to static (should show getStaticProps/1)</Link>
           </li>
         </ul>
+        <h4>appDir</h4>
+        <ul>
+          <li>
+            <Link href="/blog/erica">app dir page</Link>
+          </li>
+        </ul>
         <h4>Preview mode</h4>
         <p>Preview mode: </p>
         <ul>
@@ -176,21 +183,27 @@ const Index = ({ shows, nodeEnv }) => {
   )
 }
 
-Index.getInitialProps = async function () {
+export async function getStaticProps(context) {
   const dev = process.env.CONTEXT !== 'production'
 
   // Set a random page between 1 and 100
   const randomPage = Math.floor(Math.random() * 100) + 1
   // FIXME: stub out in dev
   const server = dev
-    ? `https://api.tvmaze.com/shows?page=${randomPage}`
-    : `https://api.tvmaze.com/shows?page=${randomPage}`
+    ? `https://tvproxy.netlify.app/shows/page/${randomPage}`
+    : `https://tvproxy.netlify.app/shows/page/${randomPage}`
 
   // Get the data
   const res = await fetch(server)
   const data = await res.json()
 
-  return { shows: data.slice(0, 5), nodeEnv: process.env.NODE_ENV || null }
+  return {
+    props: {
+      shows: data.slice(0, 5),
+      nodeEnv: process.env.NODE_ENV || null,
+    },
+    revalidate: 60,
+  }
 }
 
 export default Index

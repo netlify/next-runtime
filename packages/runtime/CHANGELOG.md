@@ -1,5 +1,97 @@
 # Changelog
 
+## [4.32.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.1...plugin-nextjs-v4.32.2) (2023-03-14)
+
+
+### Bug Fixes
+
+* make error message matching more generic ([#1988](https://github.com/netlify/next-runtime/issues/1988)) ([cfc8e96](https://github.com/netlify/next-runtime/commit/cfc8e966c90490e5760e192c1aef243f5f2c3aa6))
+
+## [4.32.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.0...plugin-nextjs-v4.32.1) (2023-03-13)
+
+
+### Bug Fixes
+
+* use the same id for importing and checking error ([#1984](https://github.com/netlify/next-runtime/issues/1984)) ([62e2efe](https://github.com/netlify/next-runtime/commit/62e2efe02a01c55a486070fceb7538ed466629c1))
+
+## [4.32.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.31.0...plugin-nextjs-v4.32.0) (2023-03-13)
+
+
+### Features
+
+* add multiple set-cookie headers in middleware ([#1970](https://github.com/netlify/next-runtime/issues/1970)) ([32b31c6](https://github.com/netlify/next-runtime/commit/32b31c601dd07033ab89e2b53f963cc17d422c28))
+
+
+### Bug Fixes
+
+* remove fs access which isn't available in edge functions ([#1980](https://github.com/netlify/next-runtime/issues/1980)) ([6546641](https://github.com/netlify/next-runtime/commit/6546641a2f393a0a64b548be7a440b663add0cbb))
+
+## [4.31.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.4...plugin-nextjs-v4.31.0) (2023-03-06)
+
+
+### Features
+
+* make edge image opt-in instead of opt-out ([#1935](https://github.com/netlify/next-runtime/issues/1935)) ([7a63d2f](https://github.com/netlify/next-runtime/commit/7a63d2f0cbd168916db271a9dad9d3e86024965f))
+
+## [4.30.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.3...plugin-nextjs-v4.30.4) (2023-02-06)
+
+
+### Bug Fixes
+
+* add `AsyncLocalStorage` to `globalThis` ([#1907](https://github.com/netlify/next-runtime/issues/1907)) ([1ec8203](https://github.com/netlify/next-runtime/commit/1ec820322fea66fa4027a353d5ba562074c90509))
+
+## [4.30.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.2...plugin-nextjs-v4.30.3) (2023-01-30)
+
+
+### Bug Fixes
+
+* added support for "missing" matcher ([#1905](https://github.com/netlify/next-runtime/issues/1905)) ([f30e178](https://github.com/netlify/next-runtime/commit/f30e17818c3770a3fdc753ffee90f1b2502388ae))
+* correctly match params in edge runtime ([#1896](https://github.com/netlify/next-runtime/issues/1896)) ([75c0535](https://github.com/netlify/next-runtime/commit/75c05352d1dc8761e065522e7266de1f193569a8))
+
+## [4.30.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.1...plugin-nextjs-v4.30.2) (2023-01-24)
+
+
+### Bug Fixes
+
+* custom headers for root route when using i18n ([#1893](https://github.com/netlify/next-runtime/issues/1893)) ([9be3382](https://github.com/netlify/next-runtime/commit/9be33822017a5b8404714f96e7942e5498e47212))
+* handle v1 edge function definition ([#1903](https://github.com/netlify/next-runtime/issues/1903)) ([cdcf60e](https://github.com/netlify/next-runtime/commit/cdcf60e4c0a1a52105dc11e2a5be13434a758032))
+
+## [4.30.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.0...plugin-nextjs-v4.30.1) (2023-01-23)
+
+
+### Bug Fixes
+
+* added polyfill for process.env ([#1889](https://github.com/netlify/next-runtime/issues/1889)) ([15af7c7](https://github.com/netlify/next-runtime/commit/15af7c71bd25588b0aef1db7c48f271dfb7d367b))
+* correctly handle ISR for appDir pages ([#1855](https://github.com/netlify/next-runtime/issues/1855)) ([f2a7cac](https://github.com/netlify/next-runtime/commit/f2a7cac3a02d469e674559a93b7544aa6f964e12))
+* correctly rewrite default locale ISR homepage to ODB handler ([#1867](https://github.com/netlify/next-runtime/issues/1867)) ([14ad486](https://github.com/netlify/next-runtime/commit/14ad486c0ee90e7c06cf7b5f1c7e7ac8132ea9cc))
+* getMaxAge is not used in APIHandlers ([#1888](https://github.com/netlify/next-runtime/issues/1888)) ([d0343b8](https://github.com/netlify/next-runtime/commit/d0343b83b2f06e6850d7d3771a4d78342e8b3084))
+* match edge runtime pages with optional trailing slash ([#1892](https://github.com/netlify/next-runtime/issues/1892)) ([138b19d](https://github.com/netlify/next-runtime/commit/138b19d3bcafae4343e411034a94380372dee545))
+* transform Regex named capture groups for Golang ([#1809](https://github.com/netlify/next-runtime/issues/1809)) ([15790aa](https://github.com/netlify/next-runtime/commit/15790aa35cee54872b1bc65e9f93e4f4bb3828d5))
+
+## [4.30.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.4...plugin-nextjs-v4.30.0) (2023-01-09)
+
+
+### Features
+
+* add Next 13 request header mutation to middleware ([#1866](https://github.com/netlify/next-runtime/issues/1866)) ([5d60191](https://github.com/netlify/next-runtime/commit/5d60191905e9df8ca6cec7dc586f95917906b750))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.4.0 ([#1869](https://github.com/netlify/next-runtime/issues/1869)) ([3960c31](https://github.com/netlify/next-runtime/commit/3960c31f5dc9067eac347f437274f18265ffb589))
+* **deps:** update dependency @netlify/ipx to ^1.3.3 ([#1868](https://github.com/netlify/next-runtime/issues/1868)) ([d75d0ff](https://github.com/netlify/next-runtime/commit/d75d0ffafdc7b7623328f5176e6d4cf45185e69e))
+* merge Middleware and API route response cookies ([#1870](https://github.com/netlify/next-runtime/issues/1870)) ([878ddd7](https://github.com/netlify/next-runtime/commit/878ddd750d21632d2f4e67d2f6d7724bffcef218))
+* serve static files from basePath ([#1850](https://github.com/netlify/next-runtime/issues/1850)) ([d4ff894](https://github.com/netlify/next-runtime/commit/d4ff894e88bed1138fefacb9ce2fcbe62f62f5b0))
+
+## [4.29.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.3...plugin-nextjs-v4.29.4) (2022-12-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.3.2 ([#1833](https://github.com/netlify/next-runtime/issues/1833)) ([fb4d816](https://github.com/netlify/next-runtime/commit/fb4d816665433e7a8e2172b98d2bb37b766efc89))
+* support appDir ([#1638](https://github.com/netlify/next-runtime/issues/1638)) ([a5b8047](https://github.com/netlify/next-runtime/commit/a5b80475a89f5ab2266059ad2e96c8786ff41421))
+* use static 404 for non-prerendered dynamic routes without fallback ([#1795](https://github.com/netlify/next-runtime/issues/1795)) ([2aa02db](https://github.com/netlify/next-runtime/commit/2aa02dbe8140b2107c312e757e9dc1609c3b4e70))
+
 ## [4.29.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.29.2...plugin-nextjs-v4.29.3) (2022-12-05)
 
 

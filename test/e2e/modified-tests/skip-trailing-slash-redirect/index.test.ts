@@ -47,21 +47,19 @@ describe('skip-trailing-slash-redirect', () => {
     expect(res.headers.get('x-from-middleware')).toBe('true')
     expect(await res.text()).toBe('hello from middleware')
   })
-  // NTL Skip
-  usuallySkip('should merge cookies from middleware and API routes correctly', async () => {
+  it('should merge cookies from middleware and API routes correctly', async () => {
     const res = await fetchViaHTTP(next.url, '/api/test-cookie', undefined, {
       redirect: 'manual',
     })
     expect(res.status).toBe(200)
-    expect(res.headers.get('set-cookie')).toEqual('from-middleware=1; Path=/, hello=From API')
+    expect(res.headers.get('set-cookie')).toEqual('hello=From API, from-middleware=1; Path=/')
   })
-  // NTL Skip
-  usuallySkip('should merge cookies from middleware and edge API routes correctly', async () => {
+  it('should merge cookies from middleware and edge API routes correctly', async () => {
     const res = await fetchViaHTTP(next.url, '/api/test-cookie-edge', undefined, {
       redirect: 'manual',
     })
     expect(res.status).toBe(200)
-    expect(res.headers.get('set-cookie')).toEqual('from-middleware=1; Path=/, hello=From%20API; Path=/')
+    expect(res.headers.get('set-cookie')).toEqual('hello=From%20API; Path=/, from-middleware=1; Path=/')
   })
 
   if ((global as any).isNextStart) {

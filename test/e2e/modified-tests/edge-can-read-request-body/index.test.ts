@@ -27,8 +27,8 @@ describe('Edge can read request body', () => {
     const html = await renderViaHTTP(next.url, '/api/nothing')
     expect(html).toContain('ok')
   })
-  // NTL Fail
-  ;(process.env.RUN_SKIPPED_TESTS ? describe : describe.skip)('middleware', () => {
+
+  describe('middleware', () => {
     it('reads a JSON body', async () => {
       const response = await fetchViaHTTP(next.url, '/api/nothing?middleware-handler=json', null, {
         method: 'POST',

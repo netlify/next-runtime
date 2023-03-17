@@ -17,7 +17,14 @@ const { URLSearchParams, URL } = require('url')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
 
-const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+const {
+  augmentFsModule,
+  getMaxAge,
+  getMultiValueHeaders,
+  getPrefetchResponse,
+  getNextServer,
+  normalizePath,
+} = require('./handlerUtils')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
@@ -53,8 +60,8 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   for (const [key, value] of Object.entries(conf.env)) {
     process.env[key] = String(value)
   }
-  // Set during the request as it needs the host header. Hoisted so we can define the function once
-  let base: string
+  // Set during the request as it needs to get it from the request URL. Defaults to the URL env var
+  let base = process.env.URL
 
   augmentFsModule({ promises, staticManifest, pageRoot, getBase: () => base })
 
@@ -67,9 +74,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     }
     const url = new URL(event.rawUrl)
     const port = Number.parseInt(url.port) || 80
-    const { host } = event.headers
-    const protocol = event.headers['x-forwarded-proto'] || 'http'
-    base = `${protocol}://${host}`
+    base = url.origin
 
     const NextServer: NextServerType = getNextServer()
     const nextServer = new NextServer({
@@ -95,8 +100,13 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     let requestMode = mode
-    // Ensure that paths are encoded - but don't double-encode them
-    event.path = new URL(event.rawUrl).pathname
+    const prefetchResponse = getPrefetchResponse(event, mode)
+    if (prefetchResponse) {
+      return prefetchResponse
+    }
+
+    event.path = normalizePath(event)
+
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
@@ -120,7 +130,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
         headers: multiValueHeaders,
         statusCode: result.statusCode,
       }
-      console.log('Origin response:', JSON.stringify(response, null, 2))
+      console.log('Next server response:', JSON.stringify(response, null, 2))
     }
 
     if (multiValueHeaders['set-cookie']?.[0]?.includes('__prerender_bypass')) {
@@ -169,7 +179,7 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, getNextServer, normalizePath } = require('./handlerUtils')
 
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")
@@ -178,7 +188,7 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
     staticManifest = require("${publishDir}/static-manifest.json")
   } catch {}
   const path = require("path");
-  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", config.target === "server" ? "server" : "serverless", "pages"));
+  const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
       ? `builder((${makeHandler.toString()})(config, "${appDir}", pageRoot, staticManifest, 'odb'));`

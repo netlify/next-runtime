@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import type { NetlifyConfig } from '@netlify/build'
 import type { Header } from '@netlify/build/types/config/netlify_config'
 import globby from 'globby'
@@ -64,30 +63,61 @@ export const toNetlifyRoute = (nextRoute: string): Array<string> => {
   )
 }
 
-export const netlifyRoutesForNextRouteWithData = ({ route, dataRoute }: { route: string; dataRoute: string }) => [
-  ...toNetlifyRoute(dataRoute),
-  ...toNetlifyRoute(route),
-]
+export const generateNetlifyRoutes = ({
+  route,
+  dataRoute,
+  withData = true,
+}: {
+  route: string
+  dataRoute: string
+  withData: boolean
+}) => [...(withData ? toNetlifyRoute(dataRoute) : []), ...toNetlifyRoute(route)]
 
 export const routeToDataRoute = (route: string, buildId: string, locale?: string) =>
   `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}.json`
 
-const netlifyRoutesForNextRoute = (route: string, buildId: string, i18n?: I18n): Array<string> => {
+// Default locale is served from root, not localized
+export const localizeRoute = (route: string, locale: string, defaultLocale: string) =>
+  locale === defaultLocale ? route : `/${locale}${route}`
+
+const netlifyRoutesForNextRoute = ({
+  route,
+  buildId,
+  i18n,
+  withData = true,
+  dataRoute,
+}: {
+  route: string
+  buildId: string
+  i18n?: I18n
+  withData?: boolean
+  dataRoute?: string
+}): Array<{ redirect: string; locale: string | false; dataRoute?: string }> => {
   if (!i18n?.locales?.length) {
-    return netlifyRoutesForNextRouteWithData({ route, dataRoute: routeToDataRoute(route, buildId) })
+    return generateNetlifyRoutes({ route, dataRoute: dataRoute || routeToDataRoute(route, buildId), withData }).map(
+      (redirect) => ({
+        redirect,
+        locale: false,
+      }),
+    )
   }
   const { locales, defaultLocale } = i18n
   const routes = []
   locales.forEach((locale) => {
-    // Data route is always localized
-    const dataRoute = routeToDataRoute(route, buildId, locale)
+    // Data route is always localized, except for appDir
+    const localizedDataRoute = dataRoute
+      ? localizeRoute(dataRoute, locale, defaultLocale)
+      : routeToDataRoute(route, buildId, locale)
 
     routes.push(
-      // Default locale is served from root, not localized
-      ...netlifyRoutesForNextRouteWithData({
-        route: locale === defaultLocale ? route : `/${locale}${route}`,
-        dataRoute,
-      }),
+      ...generateNetlifyRoutes({
+        route: localizeRoute(route, locale, defaultLocale),
+        dataRoute: localizedDataRoute,
+        withData,
+      }).map((redirect) => ({
+        redirect,
+        locale,
+      })),
     )
   })
   return routes
@@ -106,6 +136,8 @@ export const redirectsForNextRoute = ({
   i18n,
   status = 200,
   force = false,
+  withData = true,
+  dataRoute,
 }: {
   route: string
   buildId: string
@@ -114,11 +146,33 @@ export const redirectsForNextRoute = ({
   i18n: I18n
   status?: number
   force?: boolean
+  withData?: boolean
+  dataRoute?: string
 }): NetlifyConfig['redirects'] =>
-  netlifyRoutesForNextRoute(route, buildId, i18n).map((redirect) => ({
+  netlifyRoutesForNextRoute({ route, buildId, i18n, withData, dataRoute }).map(({ redirect }) => ({
     from: `${basePath}${redirect}`,
     to,
     status,
+    force,
+  }))
+
+export const redirectsForNext404Route = ({
+  route,
+  buildId,
+  basePath,
+  i18n,
+  force = false,
+}: {
+  route: string
+  buildId: string
+  basePath: string
+  i18n: I18n
+  force?: boolean
+}): NetlifyConfig['redirects'] =>
+  netlifyRoutesForNextRoute({ route, buildId, i18n }).map(({ redirect, locale }) => ({
+    from: `${basePath}${redirect}`,
+    to: locale ? `${basePath}/server/pages/${locale}/404.html` : `${basePath}/server/pages/404.html`,
+    status: 404,
     force,
   }))
 
@@ -137,7 +191,7 @@ export const redirectsForNextRouteWithData = ({
   status?: number
   force?: boolean
 }): NetlifyConfig['redirects'] =>
-  netlifyRoutesForNextRouteWithData({ route, dataRoute }).map((redirect) => ({
+  generateNetlifyRoutes({ route, dataRoute, withData: true }).map((redirect) => ({
     from: `${basePath}${redirect}`,
     to,
     status,
@@ -260,4 +314,7 @@ export const getRemotePatterns = (experimental: ExperimentalConfigWithLegacy, im
   return []
 }
 
-/* eslint-enable max-lines */
+// Taken from next/src/shared/lib/escape-regexp.ts
+const reHasRegExp = /[|\\{}()[\]^$+*?.-]/
+const reReplaceRegExp = /[|\\{}()[\]^$+*?.-]/g
+export const escapeStringRegexp = (str: string) => (reHasRegExp.test(str) ? str.replace(reReplaceRegExp, '\\$&') : str)
