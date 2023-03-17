@@ -4,6 +4,17 @@ import { join } from 'path'
 import { build } from '@netlify/esbuild'
 import { FSWatcher, watch } from 'chokidar'
 
+// For more information on Next.js middleware, see https://nextjs.org/docs/advanced-features/middleware
+
+// These are the locations that a middleware file can exist in a Next.js application
+// If other possible locations are added by Next.js, they should be added here.
+const MIDDLEWARE_FILE_LOCATIONS: Readonly<string[]> = [
+  'middleware.js',
+  'middleware.ts',
+  'src/middleware.js',
+  'src/middleware.ts',
+]
+
 const toFileList = (watched: Record<string, Array<string>>) =>
   Object.entries(watched).flatMap(([dir, files]) => files.map((file) => join(dir, file)))
 
@@ -66,8 +77,14 @@ const updateWatchedFiles = async (watcher: FSWatcher, base: string, isFirstRun =
   watcher.emit('build')
 }
 
-export const startWatching = (base: string) => {
-  const watcher = watch(['middleware.js', 'middleware.ts', 'src/middleware.js', 'src/middleware.ts'], {
+/**
+ * Watch for changes to the middleware file location. When a change is detected, recompile the middleware file.
+ *
+ * @param base The base directory to watch
+ * @returns a file watcher and a promise that resolves when the initial scan is complete.
+ */
+export const watchForMiddlewareChanges = (base: string) => {
+  const watcher = watch(MIDDLEWARE_FILE_LOCATIONS, {
     // Try and ensure renames just emit one event
     atomic: true,
     // Don't emit for every watched file, just once after the scan is done
@@ -93,7 +110,7 @@ export const startWatching = (base: string) => {
     watcher,
     isReady: new Promise<void>((resolve) => {
       watcher.on('ready', async () => {
-        console.log('Initial scan complete. Ready for changes')
+        console.log('Initial scan for middleware file complete. Ready for changes')
         // This only happens on the first scan
         await updateWatchedFiles(watcher, base, true)
         console.log('Ready')

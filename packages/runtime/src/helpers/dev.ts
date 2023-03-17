@@ -16,7 +16,7 @@ export const onPreDev: OnPreBuild = async ({ constants, netlifyConfig }) => {
   await writeDevEdgeFunction(constants)
   // Don't await this or it will never finish
   execa.node(
-    resolve(__dirname, '..', '..', 'lib', 'helpers', 'watcher.js'),
+    resolve(__dirname, '..', '..', 'lib', 'helpers', 'middlewareWatcher.js'),
     [base, process.env.NODE_ENV === 'test' ? '--once' : ''],
     {
       stdio: 'inherit',

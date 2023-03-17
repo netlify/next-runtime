@@ -31,7 +31,7 @@ const { downloadFile } = require('../packages/runtime/src/templates/handlerUtils
 const { getExtendedApiRouteConfigs } = require('../packages/runtime/src/helpers/functions')
 const nextRuntimeFactory = require('../packages/runtime/src')
 const nextRuntime = nextRuntimeFactory({})
-const { startWatching } = require('../packages/runtime/src/helpers/compiler')
+const { watchForMiddlewareChanges } = require('../packages/runtime/src/helpers/compiler')
 const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../packages/runtime/src/constants')
 const { join } = require('pathe')
 const {
@@ -1837,7 +1837,7 @@ fdescribe('the dev middleware watcher', () => {
     await moveNextDist('.next', true)
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     expect(middlewareExists()).toBeFalsy()
-    const { watcher, isReady } = startWatching(process.cwd())
+    const { watcher, isReady } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeTruthy()
@@ -1847,7 +1847,7 @@ fdescribe('the dev middleware watcher', () => {
   it('should compile a file if it is written after the watcher starts', async () => {
     console.log('starting should compile a file if it is written after the watcher starts')
     await moveNextDist('.next', true)
-    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
@@ -1861,7 +1861,7 @@ fdescribe('the dev middleware watcher', () => {
   it('should remove the output if the middleware is removed after the watcher starts', async () => {
     console.log('starting should remove the output if the middleware is removed after the watcher starts')
     await moveNextDist('.next', true)
-    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
@@ -1879,7 +1879,7 @@ fdescribe('the dev middleware watcher', () => {
   it('should remove the output if invalid middleware is written after the watcher starts', async () => {
     console.log('starting should remove the output if invalid middleware is written after the watcher starts')
     await moveNextDist('.next', true)
-    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
@@ -1899,7 +1899,7 @@ fdescribe('the dev middleware watcher', () => {
       'starting should recompile the middleware if it is moved into the src directory after the watcher starts',
     )
     await moveNextDist('.next', true)
-    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
@@ -1919,7 +1919,7 @@ fdescribe('the dev middleware watcher', () => {
       'starting should recompile the middleware if it is moved into the root directory after the watcher starts',
     )
     await moveNextDist('.next', true)
-    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
@@ -1940,7 +1940,7 @@ fdescribe('the dev middleware watcher', () => {
       'starting should compile the middleware if invalid source is replaced with valid source after the watcher starts',
     )
     await moveNextDist('.next', true)
-    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
@@ -1960,7 +1960,7 @@ fdescribe('the dev middleware watcher', () => {
   it('should not compile middleware if more than one middleware file exists', async () => {
     console.log('starting should not compile middleware if more than one middleware file exists')
     await moveNextDist('.next', true)
-    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
@@ -1975,7 +1975,7 @@ fdescribe('the dev middleware watcher', () => {
   it('should not compile middleware if a second middleware file is added after the watcher starts', async () => {
     console.log('starting should not compile middleware if a second middleware file is added after the watcher starts')
     await moveNextDist('.next', true)
-    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
@@ -1993,7 +1993,7 @@ fdescribe('the dev middleware watcher', () => {
   it('should compile middleware if a second middleware file is removed after the watcher starts', async () => {
     console.log('starting should compile middleware if a second middleware file is removed after the watcher starts')
     await moveNextDist('.next', true)
-    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
@@ -2020,7 +2020,7 @@ fdescribe('the dev middleware watcher', () => {
     const consoleErrorSpy = jest
       .spyOn(console, 'error')
       .mockImplementation((args) => console.warn(args?.errors?.[0]?.text))
-    const { watcher, isReady, nextBuild } = startWatching(process.cwd())
+    const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
