@@ -1,8 +1,9 @@
 import { existsSync, readJSON, writeFile } from 'fs-extra'
 import { join } from 'pathe'
 
-import { NEXT_PLUGIN, NEXT_PLUGIN_NAME } from '../../constants'
-import { resolveModuleRoot } from '../config'
+import { NEXT_PLUGIN, NEXT_PLUGIN_NAME } from '../constants'
+
+import { resolveModuleRoot } from './config'
 
 const checkForPackage = async (packageDir: string, nodeModule: boolean) => {
   const packagePlugin = existsSync(packageDir) ? await readJSON(packageDir) : null
