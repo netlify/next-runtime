@@ -3,11 +3,11 @@ import { join, relative } from 'path'
 import type { NetlifyPlugin } from '@netlify/build'
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
-import { existsSync, readFileSync } from 'fs-extra'
+import { readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
-import { restoreCache, saveCache } from './helpers/cache'
+import { ODB_FUNCTION_NAME } from './constants'
+import { saveCache } from './helpers/cache'
 import {
   getNextConfig,
   getRequiredServerFiles,
@@ -28,42 +28,17 @@ import {
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
 import {
-  verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
-  checkForRootPublish,
   checkZipSize,
   checkForOldFunctions,
   warnForProblematicUserRewrites,
   warnForRootRedirects,
 } from './helpers/verification'
 
+import {preBuildHandler} from './build/preBuildHandler'
+
 const plugin: NetlifyPlugin = {
-  async onPreBuild({
-    constants,
-    netlifyConfig,
-    utils: {
-      build: { failBuild },
-      cache,
-    },
-  }) {
-    const { publish } = netlifyConfig.build
-    if (shouldSkip()) {
-      await restoreCache({ cache, publish })
-      console.log('Not running Next Runtime')
-      if (existsSync(join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME))) {
-        console.log(`Please ensure you remove any generated functions from ${constants.INTERNAL_FUNCTIONS_SRC}`)
-      }
-      return
-    }
-    checkForRootPublish({ publish, failBuild })
-    verifyNetlifyBuildVersion({ failBuild, ...constants })
-
-    await restoreCache({ cache, publish })
-
-    netlifyConfig.build.environment ||= {}
-    // eslint-disable-next-line unicorn/consistent-destructuring
-    netlifyConfig.build.environment.NEXT_PRIVATE_TARGET = 'server'
-  },
+  onPreBuild: preBuildHandler,
 
   async onBuild({
     constants,
