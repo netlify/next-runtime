@@ -1819,7 +1819,7 @@ describe('onPreDev', () => {
   })
 })
 
-fdescribe('the dev middleware watcher', () => {
+describe('the dev middleware watcher', () => {
   const watchers = []
 
   afterEach(async () => {
