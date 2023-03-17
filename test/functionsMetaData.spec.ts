@@ -91,7 +91,7 @@ describe('writeFunctionConfiguration', () => {
     const expected = {
       config: {
         name: functionTitle,
-        generator: 'Next Runtime Version Not Found',
+        generator: '@netlify/next-runtime@version-not-found',
       },
       version: 1,
     }
