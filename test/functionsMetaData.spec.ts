@@ -24,7 +24,7 @@ describe('writeFunctionConfiguration', () => {
         name: '@netlify/plugin-nextjs',
         version: nextRuntimeVersion,
       }),
-      '.netlify/functions/some-folder/someFunctionName/someFunctionName.json': '',
+      '.netlify/functions/some-folder/someFunctionName': {},
     })
 
     const functionName = 'someFunctionName'
@@ -57,7 +57,7 @@ describe('writeFunctionConfiguration', () => {
           '@netlify/plugin-nextjs': nextRuntimeVersion,
         },
       }),
-      '.netlify/functions/some-folder/someFunctionName/someFunctionName.json': '',
+      '.netlify/functions/some-folder/someFunctionName': {},
     })
 
     const functionName = 'someFunctionName'
@@ -81,7 +81,7 @@ describe('writeFunctionConfiguration', () => {
 
   it('should write the configuration for a function with runtime version not found', async () => {
     mock({
-      '.netlify/functions/some-folder/someFunctionName/someFunctionName.json': '',
+      '.netlify/functions/some-folder/someFunctionName': {},
     })
 
     const functionName = 'someFunctionName'
