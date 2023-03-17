@@ -8,6 +8,22 @@ export interface FetchEventResult {
 
 type NextDataTransform = <T>(data: T) => T
 
+function normalizeDataUrl(redirect: string) {
+  // If the redirect is a data URL, we need to normalize it.
+  // next.js code reference: https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/router/utils/get-next-pathname-info.ts#L46
+  if (redirect.startsWith('/_next/data/') && redirect.includes('.json')) {
+    const paths = redirect
+      .replace(/^\/_next\/data\//, '')
+      .replace(/\.json/, '')
+      .split('/')
+
+    const buildId = paths[0]
+    redirect = paths[1] !== 'index' ? `/${paths.slice(1).join('/')}` : '/'
+  }
+
+  return redirect
+}
+
 /**
  * This is how Next handles rewritten URLs.
  */
@@ -247,6 +263,12 @@ export const buildResponse = async ({
   if (redirect && isDataReq) {
     res.headers.delete('location')
     res.headers.set('x-nextjs-redirect', relativizeURL(redirect, request.url))
+  }
+
+  const nextRedirect = res.headers.get('x-nextjs-redirect')
+
+  if (nextRedirect && isDataReq) {
+    res.headers.set('x-nextjs-redirect', normalizeDataUrl(nextRedirect))
   }
 
   if (res.headers.get('x-middleware-next') === '1') {
