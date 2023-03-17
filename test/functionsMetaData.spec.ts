@@ -2,7 +2,7 @@ import { readJSON } from 'fs-extra'
 import mock from 'mock-fs'
 import { join } from 'pathe'
 import { NEXT_PLUGIN_NAME } from '../packages/runtime/src/constants'
-import { writeFunctionConfiguration } from '../packages/runtime/src/helpers/functionsMetadata'
+import { writeFunctionConfiguration } from '../packages/runtime/src/helpers/functionsMetaData'
 
 describe('writeFunctionConfiguration', () => {
   afterEach(() => {
@@ -91,7 +91,7 @@ describe('writeFunctionConfiguration', () => {
     const expected = {
       config: {
         name: functionTitle,
-        generator: '@netlify/next-runtime@version-not-found',
+        generator: 'Next Runtime Version Not Found',
       },
       version: 1,
     }

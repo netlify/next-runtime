@@ -22,7 +22,7 @@ import { getResolverForPages, getResolverForSourceFiles } from '../templates/get
 
 import { ApiConfig, ApiRouteType, extractConfigFromFile } from './analysis'
 import { getSourceFileForPage } from './files'
-import { writeFunctionConfiguration } from './functionsMetadata'
+import { writeFunctionConfiguration } from './functionsMetaData'
 import { getFunctionNameForPage } from './utils'
 
 export interface ApiRouteConfig {
