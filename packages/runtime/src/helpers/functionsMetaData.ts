@@ -26,8 +26,7 @@ const checkForPackage = async (packageDir: string, nodeModule: boolean) => {
  */
 export const writeFunctionConfiguration = async (functionName: string, functionTitle: string, functionsDir: string) => {
   const pluginPackagePath = '.netlify/plugins/package.json'
-  const ProjDir = resolveModuleRoot(NEXT_PLUGIN)
-  const nodeModulesPath = `${ProjDir}/package.json`
+  const nodeModulesPath = join(resolveModuleRoot(NEXT_PLUGIN), 'package.json')
 
   const nextPluginVersion =
     (await checkForPackage(nodeModulesPath, true)) || (await checkForPackage(pluginPackagePath, false))
