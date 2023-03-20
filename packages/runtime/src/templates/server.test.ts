@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import { mockRequest } from 'next/dist/server/lib/mock-request'
 import { Options } from 'next/dist/server/next-server'
 
@@ -183,4 +182,3 @@ describe('the netlify next server', () => {
     await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('Unable to connect')
   })
 })
-/* eslint-enable max-lines-per-function */
