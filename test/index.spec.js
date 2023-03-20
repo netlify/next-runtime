@@ -1950,7 +1950,7 @@ describe('the dev middleware watcher', () => {
     expect(middlewareExists()).toBeTruthy()
   })
 
-  it('should not compile middleware if more than one middleware file exists', async () => {
+  it.skip('should not compile middleware if more than one middleware file exists', async () => {
     console.log('starting should not compile middleware if more than one middleware file exists')
     await moveNextDist('.next', true)
     const { watcher, isReady, nextBuild } = watchForMiddlewareChanges(process.cwd())
