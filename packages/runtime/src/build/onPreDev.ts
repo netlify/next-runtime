@@ -3,8 +3,8 @@ import { resolve } from 'path'
 import type { OnPreBuild } from '@netlify/build'
 import execa from 'execa'
 
-import { writeDevEdgeFunction } from './edge'
-import { patchNextFiles } from './files'
+import { writeDevEdgeFunction } from '../helpers/edge'
+import { patchNextFiles } from '../helpers/files'
 
 // The types haven't been updated yet
 export const onPreDev: OnPreBuild = async ({ constants, netlifyConfig }) => {
