@@ -40,7 +40,7 @@ describe('writeFunctionConfiguration', () => {
     }
 
     const filePathToSaveTo = join(functionsDir, functionName, `${functionName}.json`)
-    await writeFunctionConfiguration(functionName, functionTitle, functionsDir)
+    await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
     const actual = await readJSON(filePathToSaveTo)
 
     expect(actual).toEqual(expected)
@@ -73,7 +73,7 @@ describe('writeFunctionConfiguration', () => {
     }
 
     const filePathToSaveTo = join(functionsDir, functionName, `${functionName}.json`)
-    await writeFunctionConfiguration(functionName, functionTitle, functionsDir)
+    await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
     const actual = await readJSON(filePathToSaveTo)
 
     expect(actual).toEqual(expected)
@@ -97,7 +97,7 @@ describe('writeFunctionConfiguration', () => {
     }
 
     const filePathToSaveTo = join(functionsDir, functionName, `${functionName}.json`)
-    await writeFunctionConfiguration(functionName, functionTitle, functionsDir)
+    await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
     const actual = await readJSON(filePathToSaveTo)
 
     expect(actual).toEqual(expected)

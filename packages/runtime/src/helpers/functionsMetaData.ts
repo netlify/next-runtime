@@ -17,14 +17,25 @@ const checkForPackage = async (packageDir: string, nodeModule: boolean) => {
   return nextPlugin
 }
 
+// The information needed to create a function configuration file
+export interface FunctionInfo {
+  // The name of the function, e.g. `___netlify-handler`
+  functionName: string
+
+  // The name of the function that will be displayed in logs, e.g. `Next.js SSR handler`
+  functionTitle: string
+
+  // The directory where the function is located, e.g. `.netlify/functions`
+  functionsDir: string
+}
+
 /**
- * Creates a function configuration file for the given function
+ * Creates a function configuration file for the given function.
  *
- * @param functionName The name of the function, e.g. `___netlify-handler`
- * @param functionTitle The name of the function that will be displayed in logs, e.g. `Next.js SSR handler`
- * @param functionsDir The directory where the function is located, e.g. `.netlify/functions`
+ * @param functionInfo The information needed to create a function configuration file
  */
-export const writeFunctionConfiguration = async (functionName: string, functionTitle: string, functionsDir: string) => {
+export const writeFunctionConfiguration = async (functionInfo: FunctionInfo) => {
+  const { functionName, functionTitle, functionsDir } = functionInfo
   const pluginPackagePath = '.netlify/plugins/package.json'
   const nodeModulesPath = join(resolveModuleRoot(NEXT_PLUGIN), 'package.json')
 

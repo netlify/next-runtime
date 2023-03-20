@@ -80,7 +80,7 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
-    writeFunctionConfiguration(functionName, functionTitle, functionsDir)
+    writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
   }
 
   await writeHandler(HANDLER_FUNCTION_NAME, HANDLER_FUNCTION_TITLE, false)
@@ -148,7 +148,11 @@ export const setupImageFunction = async ({
     })
 
     await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
-    writeFunctionConfiguration(functionName.replace('.js', ''), IMAGE_FUNCTION_TITLE, functionsPath)
+    writeFunctionConfiguration({
+      functionName: functionName.replace('.js', ''),
+      functionTitle: IMAGE_FUNCTION_TITLE,
+      functionsDir: functionsPath,
+    })
 
     // If we have edge functions then the request will have already been rewritten
     // so this won't match. This is matched if edge is disabled or unavailable.
