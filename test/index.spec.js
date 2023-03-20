@@ -1843,7 +1843,6 @@ describe('the dev middleware watcher', () => {
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeTruthy()
-    console.log('done should compile a middleware file and then exit when killed')
   })
 
   it.skip('should compile a file if it is written after the watcher starts', async () => {
@@ -1857,7 +1856,6 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    console.log('done should compile a file if it is written after the watcher starts')
   })
 
   it.skip('should remove the output if the middleware is removed after the watcher starts', async () => {
@@ -1875,7 +1873,6 @@ describe('the dev middleware watcher', () => {
     await unlink(path.join(process.cwd(), 'middleware.ts'))
     await isBuilt
     expect(middlewareExists()).toBeFalsy()
-    console.log('done should remove the output if the middleware is removed after the watcher starts')
   })
 
   it.skip('should remove the output if invalid middleware is written after the watcher starts', async () => {
@@ -1893,7 +1890,6 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.ts'), 'this is not valid middleware')
     await isBuilt
     expect(middlewareExists()).toBeFalsy()
-    console.log('done should remove the output if invalid middleware is written after the watcher starts')
   })
 
   it.skip('should recompile the middleware if it is moved into the src directory after the watcher starts', async () => {
@@ -1913,7 +1909,6 @@ describe('the dev middleware watcher', () => {
     await move(path.join(process.cwd(), 'middleware.ts'), path.join(process.cwd(), 'src', 'middleware.ts'))
     await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    console.log('done should recompile the middleware if it is moved into the src directory after the watcher starts')
   })
 
   it.skip('should recompile the middleware if it is moved into the root directory after the watcher starts', async () => {
@@ -1934,7 +1929,6 @@ describe('the dev middleware watcher', () => {
     await move(path.join(process.cwd(), 'src', 'middleware.ts'), path.join(process.cwd(), 'middleware.ts'))
     await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    console.log('done should recompile the middleware if it is moved into the root directory after the watcher starts')
   })
 
   it.skip('should compile the middleware if invalid source is replaced with valid source after the watcher starts', async () => {
@@ -1954,9 +1948,6 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
     await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    console.log(
-      'done should compile the middleware if invalid source is replaced with valid source after the watcher starts',
-    )
   })
 
   it('should not compile middleware if more than one middleware file exists', async () => {
@@ -1971,7 +1962,6 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
     await isBuilt
     expect(middlewareExists()).toBeFalsy()
-    console.log('done should not compile middleware if more than one middleware file exists')
   })
 
   it.skip('should not compile middleware if a second middleware file is added after the watcher starts', async () => {
@@ -1989,7 +1979,6 @@ describe('the dev middleware watcher', () => {
     await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
     await isBuilt
     expect(middlewareExists()).toBeFalsy()
-    console.log('done should not compile middleware if a second middleware file is added after the watcher starts')
   })
 
   it.skip('should compile middleware if a second middleware file is removed after the watcher starts', async () => {
@@ -2010,7 +1999,6 @@ describe('the dev middleware watcher', () => {
     await unlink(path.join(process.cwd(), 'middleware.js'))
     await isBuilt
     expect(middlewareExists()).toBeTruthy()
-    console.log('done should compile middleware if a second middleware file is removed after the watcher starts')
   })
 
   it.skip('should generate the correct output for each case when middleware is compiled, added, removed and for error states', async () => {
