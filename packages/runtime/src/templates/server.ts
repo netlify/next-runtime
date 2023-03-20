@@ -1,40 +1,48 @@
+import { PrerenderManifest } from 'next/dist/build'
 import { NodeRequestHandler, Options } from 'next/dist/server/next-server'
 
 import {
   netlifyApiFetch,
   getNextServer,
   NextServerType,
-  removeTrailingSlash,
-  ensureLocalePrefix,
-  normalizeDataRoute,
+  normalizeRoute,
+  localizeRoute,
+  localizeDataRoute,
+  unlocalizeRoute,
 } from './handlerUtils'
 
 const NextServer: NextServerType = getNextServer()
 
-interface NetlifyOptions {
+interface NetlifyConfig {
   revalidateToken?: string
 }
 
 class NetlifyNextServer extends NextServer {
-  private netlifyOptions: NetlifyOptions
+  private netlifyConfig: NetlifyConfig
+  private netlifyPrerenderManifest: PrerenderManifest
 
-  public constructor(options: Options, netlifyOptions: NetlifyOptions) {
+  public constructor(options: Options, netlifyConfig: NetlifyConfig) {
     super(options)
-    this.netlifyOptions = netlifyOptions
+    this.netlifyConfig = netlifyConfig
+    // copy the prerender manifest so it doesn't get mutated by Next.js
+    const manifest = this.getPrerenderManifest()
+    this.netlifyPrerenderManifest = {
+      ...manifest,
+      routes: { ...manifest.routes },
+      dynamicRoutes: { ...manifest.dynamicRoutes },
+    }
   }
 
   public getRequestHandler(): NodeRequestHandler {
     const handler = super.getRequestHandler()
     return async (req, res, parsedUrl) => {
       // preserve the URL before Next.js mutates it for i18n
-      const originalUrl = req.url
-
+      const { url, headers } = req
       // handle the original res.revalidate() request
       await handler(req, res, parsedUrl)
-
       // handle on-demand revalidation by purging the ODB cache
-      if (res.statusCode === 200 && req.headers['x-prerender-revalidate']) {
-        await this.netlifyRevalidate(originalUrl)
+      if (res.statusCode === 200 && headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {
+        await this.netlifyRevalidate(url)
       }
     }
   }
@@ -48,7 +56,7 @@ class NetlifyNextServer extends NextServer {
           paths: this.getNetlifyPathsForRoute(route),
           domain: this.hostname,
         },
-        token: this.netlifyOptions.revalidateToken,
+        token: this.netlifyConfig.revalidateToken,
         method: 'POST',
       })
       if (!result.ok) {
@@ -61,39 +69,43 @@ class NetlifyNextServer extends NextServer {
   }
 
   private getNetlifyPathsForRoute(route: string): string[] {
-    const { routes, dynamicRoutes } = this.getPrerenderManifest()
+    const { i18n } = this.nextConfig
+    const { routes, dynamicRoutes } = this.netlifyPrerenderManifest
 
-    // matches static appDir and non-i18n routes
-    const normalizedRoute = removeTrailingSlash(route)
+    // matches static non-i18n routes
+    const normalizedRoute = normalizeRoute(route)
     if (normalizedRoute in routes) {
-      const dataRoute = normalizeDataRoute(routes[normalizedRoute].dataRoute, this.buildId)
+      const { dataRoute } = routes[normalizedRoute]
       return [route, dataRoute]
     }
 
-    // matches static pageDir i18n routes
-    const localizedRoute = ensureLocalePrefix(normalizedRoute, this.nextConfig?.i18n)
-    if (localizedRoute in routes) {
-      const dataRoute = normalizeDataRoute(routes[localizedRoute].dataRoute, this.buildId, this.nextConfig?.i18n)
-      return [route, dataRoute]
-    }
-
-    // matches dynamic routes
-    for (const dynamicRoute in dynamicRoutes) {
-      const matches = normalizedRoute.match(dynamicRoutes[dynamicRoute].routeRegex)
-      if (matches && matches.length !== 0) {
-        // remove the first match, which is the full route
-        matches.shift()
-        // replace the dynamic segments with the actual values
-        const dataRoute = normalizeDataRoute(
-          dynamicRoutes[dynamicRoute].dataRoute.replace(/\[(.*?)]/g, () => matches.shift()),
-          this.buildId,
-        )
+    // matches static i18n routes
+    if (i18n) {
+      const localizedRoute = localizeRoute(normalizedRoute, i18n)
+      if (localizedRoute in routes) {
+        const dataRoute = localizeDataRoute(routes[localizedRoute].dataRoute, localizedRoute)
         return [route, dataRoute]
       }
     }
 
-    throw new Error(`could not find a route to revalidate`)
+    // matches dynamic routes
+    for (const dynamicRoute in dynamicRoutes) {
+      const unlocalizedRoute = i18n ? unlocalizeRoute(normalizedRoute, i18n) : normalizedRoute
+      const matches = unlocalizedRoute.match(dynamicRoutes[dynamicRoute].routeRegex)
+      if (matches && matches.length !== 0) {
+        // remove the first match, which is the full route
+        matches.shift()
+        // replace the dynamic segments with the actual values
+        const interpolatedDataRoute = dynamicRoutes[dynamicRoute].dataRoute.replace(/\[(.*?)]/g, () => matches.shift())
+        const dataRoute = i18n
+          ? localizeDataRoute(interpolatedDataRoute, localizeRoute(normalizedRoute, i18n))
+          : interpolatedDataRoute
+        return [route, dataRoute]
+      }
+    }
+
+    throw new Error(`not an ISR route`)
   }
 }
 
-export { NetlifyNextServer }
+export { NetlifyNextServer, NetlifyConfig }

@@ -224,9 +224,7 @@ export const normalizePath = (event: HandlerEvent) => {
   return new URL(event.rawUrl).pathname
 }
 
-/**
- * Simple Netlify API client
- */
+// Simple Netlify API client
 export const netlifyApiFetch = <T>({
   endpoint,
   payload,
@@ -270,57 +268,26 @@ export const netlifyApiFetch = <T>({
     req.end()
   })
 
-/**
- * Remove trailing slash from a route (but not the root route)
- */
-export const removeTrailingSlash = (route: string): string => (route.endsWith('/') ? route.slice(0, -1) || '/' : route)
+// Remove trailing slash from a route (except for the root route)
+export const normalizeRoute = (route: string): string => (route.endsWith('/') ? route.slice(0, -1) || '/' : route)
 
-/**
- * Normalize a data route to include the build ID and index suffix
- *
- * @param route The route to normalize
- * @param buildId The Next.js build ID
- * @param i18n The i18n config from next.config.js
- * @returns The normalized route
- * @example
- * normalizeDataRoute('/_next/data/en.json', 'dev', { defaultLocale: 'en', locales: ['en', 'fr'] }) // '/_next/data/dev/en/index.json'
- */
-export const normalizeDataRoute = (
-  route: string,
-  buildId: string,
-  i18n?: {
-    defaultLocale: string
-    locales: string[]
-  },
-): string => {
-  if (route.endsWith('.rsc')) return route
-  const withBuildId = route.replace(/^\/_next\/data\//, `/_next/data/${buildId}/`)
-  return i18n && i18n.locales.some((locale) => withBuildId.endsWith(`${buildId}/${locale}.json`))
-    ? withBuildId.replace(/\.json$/, '/index.json')
-    : withBuildId
+// Check if a route has a locale prefix (including the root route)
+const isLocalized = (route: string, i18n: { defaultLocale: string; locales: string[] }): boolean =>
+  i18n.locales.some((locale) => route === `/${locale}` || route.startsWith(`/${locale}/`))
+
+// Remove the locale prefix from a route (if any)
+export const unlocalizeRoute = (route: string, i18n: { defaultLocale: string; locales: string[] }): string =>
+  isLocalized(route, i18n) ? `/${route.split('/').slice(2).join('/')}` : route
+
+// Add the default locale prefix to a route (if necessary)
+export const localizeRoute = (route: string, i18n: { defaultLocale: string; locales: string[] }): string =>
+  isLocalized(route, i18n) ? route : normalizeRoute(`/${i18n.defaultLocale}${route}`)
+
+// Normalize a data route to include the locale prefix and remove the index suffix
+export const localizeDataRoute = (dataRoute: string, localizedRoute: string): string => {
+  if (dataRoute.endsWith('.rsc')) return dataRoute
+  const locale = localizedRoute.split('/').find(Boolean)
+  return dataRoute
+    .replace(new RegExp(`/_next/data/(.+?)/(${locale}/)?`), `/_next/data/$1/${locale}/`)
+    .replace(/\/index\.json$/, '.json')
 }
-
-/**
- * Ensure that a route has a locale prefix
- *
- * @param route The route to ensure has a locale prefix
- * @param i18n The i18n config from next.config.js
- * @returns The route with a locale prefix
- * @example
- * ensureLocalePrefix('/', { defaultLocale: 'en', locales: ['en', 'fr'] }) // '/en'
- * ensureLocalePrefix('/foo', { defaultLocale: 'en', locales: ['en', 'fr'] }) // '/en/foo'
- * ensureLocalePrefix('/en/foo', { defaultLocale: 'en', locales: ['en', 'fr'] }) // '/en/foo'
- */
-export const ensureLocalePrefix = (
-  route: string,
-  i18n?: {
-    defaultLocale: string
-    locales: string[]
-  },
-): string =>
-  i18n
-    ? // eslint-disable-next-line unicorn/no-nested-ternary
-      i18n.locales.some((locale) => route === `/${locale}` || route.startsWith(`/${locale}/`))
-      ? route
-      : `/${i18n.defaultLocale}${route === '/' ? '' : route}`
-    : route
