@@ -17,7 +17,7 @@ import {
   warnForRootRedirects,
 } from '../helpers/verification'
 
-export const postBuildHandler = async ({
+export const onPostBuild = async ({
   netlifyConfig: {
     build: { publish },
     redirects,

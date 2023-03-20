@@ -1,13 +1,13 @@
 import type { NetlifyPlugin } from '@netlify/build'
 import { onPreDev } from './helpers/dev'
-import { preBuildHandler } from './build/preBuildHandler'
-import { buildHandler } from './build/buildHandler'
-import { postBuildHandler } from './build/postBuildHandler'
+import { onPreBuild } from './build/onPreBuild'
+import { onBuild } from './build/onBuild'
+import { onPostBuild } from './build/onPostBuild'
 
 const plugin: NetlifyPlugin = {
-  onPreBuild: preBuildHandler,
-  onBuild: buildHandler,
-  onPostBuild: postBuildHandler,
+  onPreBuild,
+  onBuild,
+  onPostBuild,
 }
 // The types haven't been updated yet
 const nextRuntime = (

@@ -25,7 +25,7 @@ import {
   checkNextSiteHasBuilt,
 } from '../helpers/verification'
 
-export const buildHandler = async ({
+export const onBuild = async ({
   constants,
   netlifyConfig,
   utils: {

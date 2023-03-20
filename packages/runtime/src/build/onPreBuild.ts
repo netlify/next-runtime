@@ -8,7 +8,7 @@ import {
 } from '../helpers/verification'
 import { shouldSkip } from '../helpers/utils'
 
-export const preBuildHandler = async ({
+export const onPreBuild = async ({
   constants,
   netlifyConfig,
   utils: {
