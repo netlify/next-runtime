@@ -2024,7 +2024,7 @@ describe('the dev middleware watcher', () => {
     watchers.push(watcher)
     await isReady
     expect(middlewareExists()).toBeFalsy()
-    expect(consoleLogSpy).toHaveBeenCalledWith('Initial scan complete. Ready for changes')
+    expect(consoleLogSpy).toHaveBeenCalledWith('Initial scan for middleware file complete. Ready for changes.')
     consoleLogSpy.mockClear()
     let isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)

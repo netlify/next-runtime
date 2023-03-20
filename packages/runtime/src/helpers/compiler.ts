@@ -110,7 +110,7 @@ export const watchForMiddlewareChanges = (base: string) => {
     watcher,
     isReady: new Promise<void>((resolve) => {
       watcher.on('ready', async () => {
-        console.log('Initial scan for middleware file complete. Ready for changes')
+        console.log('Initial scan for middleware file complete. Ready for changes.')
         // This only happens on the first scan
         await updateWatchedFiles(watcher, base, true)
         console.log('Ready')
