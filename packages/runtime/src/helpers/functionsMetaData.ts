@@ -38,12 +38,15 @@ export const writeFunctionConfiguration = async (functionInfo: FunctionInfo) => 
   const nodeModulesPath = join(resolveModuleRoot(NEXT_PLUGIN), 'package.json')
 
   const nextPluginVersion =
-    (await getNextRuntimeVersion(nodeModulesPath, true)) || (await getNextRuntimeVersion(pluginPackagePath, false))
+    (await getNextRuntimeVersion(nodeModulesPath, true)) ||
+    (await getNextRuntimeVersion(pluginPackagePath, false)) ||
+    // The runtime version should always be available, but if it's not, return 'unknown'
+    'unknown'
 
   const metadata = {
     config: {
       name: functionTitle,
-      generator: `${NEXT_PLUGIN_NAME}@${nextPluginVersion || 'unknown'}`,
+      generator: `${NEXT_PLUGIN_NAME}@${nextPluginVersion}`,
     },
     version: 1,
   }
