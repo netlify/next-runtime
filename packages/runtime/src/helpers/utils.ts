@@ -74,7 +74,7 @@ export const generateNetlifyRoutes = ({
 }) => [...(withData ? toNetlifyRoute(dataRoute) : []), ...toNetlifyRoute(route)]
 
 export const routeToDataRoute = (route: string, buildId: string, locale?: string) =>
-  `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}.json`
+  `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? (locale ? '' : '/index') : route}.json`
 
 // Default locale is served from root, not localized
 export const localizeRoute = (route: string, locale: string, defaultLocale: string) =>
