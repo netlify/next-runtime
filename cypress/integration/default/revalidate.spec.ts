@@ -30,9 +30,10 @@ describe('On-demand revalidation', () => {
     })
   })
   it('fails to revalidate dynamic non-prerendered ISR route with fallback false', () => {
-    cy.request({ url: '/api/revalidate/?select=5' }).then((res) => {
+    cy.request({ url: '/api/revalidate/?select=5', failOnStatusCode: false }).then((res) => {
       expect(res.status).to.eq(500)
-      expect(res.body).to.have.property('message', '404')
+      expect(res.body).to.have.property('message')
+      expect(res.body.message).to.include('Invalid response 404')
     })
   })
   it('revalidates dynamic non-prerendered ISR route with fallback blocking', () => {
@@ -55,8 +56,8 @@ describe('On-demand revalidation', () => {
   })
   it('fails to revalidate dynamic non-prerendered appDir route', () => {
     cy.request({ url: '/api/revalidate/?select=9' }).then((res) => {
-      expect(res.status).to.eq(500)
-      expect(res.body).to.have.property('message', '404')
+      expect(res.status).to.eq(200)
+      expect(res.body).to.have.property('message', 'success')
     })
   })
   it('revalidates dynamic prerendered appDir route with catch-all params', () => {

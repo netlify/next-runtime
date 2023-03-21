@@ -26,6 +26,7 @@ Array [
   ".next/server/pages/api/hello-scheduled.js",
   ".next/server/pages/api/hello.js",
   ".next/server/pages/api/og.js",
+  ".next/server/pages/api/revalidate.js",
   ".next/server/pages/api/shows/[...params].js",
   ".next/server/pages/api/shows/[id].js",
   ".next/server/pages/deep/import.js",
@@ -123,6 +124,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../.next/server/pages/api/hello.js')
         require.resolve('../../../.next/server/pages/api/og.js')
+        require.resolve('../../../.next/server/pages/api/revalidate.js')
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../.next/server/pages/api/shows/[id].js')
         require.resolve('../../../.next/server/pages/deep/import.js')
@@ -183,6 +185,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../.next/server/pages/api/hello.js')
         require.resolve('../../../.next/server/pages/api/og.js')
+        require.resolve('../../../.next/server/pages/api/revalidate.js')
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../.next/server/pages/api/shows/[id].js')
         require.resolve('../../../.next/server/pages/deep/import.js')
@@ -243,6 +246,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../web/.next/server/pages/api/hello.js')
         require.resolve('../../../web/.next/server/pages/api/og.js')
+        require.resolve('../../../web/.next/server/pages/api/revalidate.js')
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
         require.resolve('../../../web/.next/server/pages/deep/import.js')
@@ -303,6 +307,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../web/.next/server/pages/api/hello.js')
         require.resolve('../../../web/.next/server/pages/api/og.js')
+        require.resolve('../../../web/.next/server/pages/api/revalidate.js')
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
         require.resolve('../../../web/.next/server/pages/deep/import.js')
