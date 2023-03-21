@@ -72,35 +72,28 @@ class NetlifyNextServer extends NextServer {
     const { i18n } = this.nextConfig
     const { routes, dynamicRoutes } = this.netlifyPrerenderManifest
 
-    // matches static non-i18n routes
-    const normalizedRoute = normalizeRoute(route)
+    // matches static routes
+    const normalizedRoute = normalizeRoute(i18n ? localizeRoute(route, i18n) : route)
     if (normalizedRoute in routes) {
       const { dataRoute } = routes[normalizedRoute]
-      return [route, dataRoute]
-    }
-
-    // matches static i18n routes
-    if (i18n) {
-      const localizedRoute = localizeRoute(normalizedRoute, i18n)
-      if (localizedRoute in routes) {
-        const dataRoute = localizeDataRoute(routes[localizedRoute].dataRoute, localizedRoute)
-        return [route, dataRoute]
-      }
+      const normalizedDataRoute = i18n ? localizeDataRoute(dataRoute, normalizedRoute) : dataRoute
+      return [route, normalizedDataRoute]
     }
 
     // matches dynamic routes
+    const unlocalizedRoute = i18n ? unlocalizeRoute(normalizedRoute, i18n) : normalizedRoute
     for (const dynamicRoute in dynamicRoutes) {
-      const unlocalizedRoute = i18n ? unlocalizeRoute(normalizedRoute, i18n) : normalizedRoute
-      const matches = unlocalizedRoute.match(dynamicRoutes[dynamicRoute].routeRegex)
+      const { dataRoute, routeRegex } = dynamicRoutes[dynamicRoute]
+      const matches = unlocalizedRoute.match(routeRegex)
       if (matches && matches.length !== 0) {
         // remove the first match, which is the full route
         matches.shift()
         // replace the dynamic segments with the actual values
-        const interpolatedDataRoute = dynamicRoutes[dynamicRoute].dataRoute.replace(/\[(.*?)]/g, () => matches.shift())
-        const dataRoute = i18n
-          ? localizeDataRoute(interpolatedDataRoute, localizeRoute(normalizedRoute, i18n))
+        const interpolatedDataRoute = dataRoute.replace(/\[(.*?)]/g, () => matches.shift())
+        const normalizedDataRoute = i18n
+          ? localizeDataRoute(interpolatedDataRoute, normalizedRoute)
           : interpolatedDataRoute
-        return [route, dataRoute]
+        return [route, normalizedDataRoute]
       }
     }
 
