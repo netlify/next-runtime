@@ -5,16 +5,14 @@ import { NEXT_PLUGIN, NEXT_PLUGIN_NAME } from '../constants'
 
 import { resolveModuleRoot } from './config'
 
-const checkForPackage = async (packageDir: string, nodeModule: boolean) => {
-  const packagePlugin = existsSync(packageDir) ? await readJSON(packageDir) : null
-  let nextPlugin
-  if (!nodeModule && packagePlugin) {
-    nextPlugin = packagePlugin.dependencies[NEXT_PLUGIN] ? packagePlugin.dependencies[NEXT_PLUGIN] : null
-  } else if (nodeModule && packagePlugin) {
-    nextPlugin = packagePlugin.version ? packagePlugin.version : null
+const getNextRuntimeVersion = async (packageJsonPath: string, useNodeModulesPath: boolean) => {
+  if (!existsSync(packageJsonPath)) {
+    return
   }
 
-  return nextPlugin
+  const packagePlugin = await readJSON(packageJsonPath)
+
+  return useNodeModulesPath ? packagePlugin.version : packagePlugin.dependencies[NEXT_PLUGIN]
 }
 
 // The information needed to create a function configuration file
@@ -40,7 +38,7 @@ export const writeFunctionConfiguration = async (functionInfo: FunctionInfo) => 
   const nodeModulesPath = join(resolveModuleRoot(NEXT_PLUGIN), 'package.json')
 
   const nextPluginVersion =
-    (await checkForPackage(nodeModulesPath, true)) || (await checkForPackage(pluginPackagePath, false))
+    (await getNextRuntimeVersion(nodeModulesPath, true)) || (await getNextRuntimeVersion(pluginPackagePath, false))
 
   const metadata = {
     config: {
