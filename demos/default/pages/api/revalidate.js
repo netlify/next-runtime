@@ -11,9 +11,9 @@ export default async function handler(req, res) {
     '/getStaticProps/withRevalidate/3/', // invalid path (fallback false with dynamic route)
     '/getStaticProps/withRevalidate/withFallbackBlocking/3/', // valid path (fallback blocking with dynamic route)
     '/fr/getStaticProps/withRevalidate/withFallbackBlocking/3/', // valid path (fallback blocking with dynamic route and locale)
-    '/blog/nick/', // valid path (with appDir dynamic route)
-    '/blog/greg/', // invalid path (with appDir dynamic route)
-    '/blog/rob/hello/', // valid path (with appDir dynamic route)
+    '/blog/nick/', // valid path (with prerendered appDir dynamic route)
+    '/blog/greg/', // invalid path (with non-prerendered appDir dynamic route)
+    '/blog/rob/hello/', // valid path (with appDir dynamic route catch-all)
   ]
 
   try {
