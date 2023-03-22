@@ -54,8 +54,16 @@ export const generateFunctions = async (
     })
     const functionName = getFunctionNameForPage(route, config.type === ApiRouteType.BACKGROUND)
     await ensureDir(join(functionsDir, functionName))
+
+    // write main API handler file
     await writeFile(join(functionsDir, functionName, `${functionName}.js`), apiHandlerSource)
+
+    // copy handler dependencies (VercelNodeBridge, NetlifyNextServer, etc.)
     await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'server.js'),
+      join(functionsDir, functionName, 'server.js'),
+    )
     await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
@@ -74,8 +82,16 @@ export const generateFunctions = async (
   const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
     const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
     await ensureDir(join(functionsDir, functionName))
+
+    // write main handler file (standard or ODB)
     await writeFile(join(functionsDir, functionName, `${functionName}.js`), handlerSource)
+
+    // copy handler dependencies (VercelNodeBridge, NetlifyNextServer, etc.)
     await copyFile(bridgeFile, join(functionsDir, functionName, 'bridge.js'))
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'server.js'),
+      join(functionsDir, functionName, 'server.js'),
+    )
     await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
