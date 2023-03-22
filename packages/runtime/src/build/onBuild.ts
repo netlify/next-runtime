@@ -21,9 +21,7 @@ import {
 } from '../helpers/functions'
 import { generateRedirects, generateStaticRedirects } from '../helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from '../helpers/utils'
-import {
-  checkNextSiteHasBuilt,
-} from '../helpers/verification'
+import { checkNextSiteHasBuilt } from '../helpers/verification'
 
 export const onBuild = async ({
   constants,

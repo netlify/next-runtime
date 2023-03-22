@@ -5,10 +5,7 @@ import { existsSync } from 'fs-extra'
 import { HANDLER_FUNCTION_NAME } from '../constants'
 import { restoreCache } from '../helpers/cache'
 import { shouldSkip } from '../helpers/utils'
-import {
-  verifyNetlifyBuildVersion,
-  checkForRootPublish,
-} from '../helpers/verification'
+import { verifyNetlifyBuildVersion, checkForRootPublish } from '../helpers/verification'
 
 export const onPreBuild = async ({
   constants,

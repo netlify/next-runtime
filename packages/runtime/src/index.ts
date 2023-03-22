@@ -19,7 +19,7 @@ const nextRuntime = (
   if (!meta?.events?.has('onPreDev')) {
     return {
       ...plugin,
-      onEnd
+      onEnd,
     }
   }
   return {
