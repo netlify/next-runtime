@@ -25,7 +25,7 @@ export async function getStaticProps(context) {
       time: new Date().toISOString(),
     },
     // ODB handler will use the minimum TTL=60s
-    revalidate: 300,
+    revalidate: 1,
   }
 }
 
