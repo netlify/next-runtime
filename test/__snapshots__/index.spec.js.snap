@@ -659,6 +659,12 @@ Array [
     "to": "/.netlify/builders/_ipx",
   },
   Object {
+    "force": true,
+    "from": "/_next/data/build-id/en.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
     "force": false,
     "from": "/_next/data/build-id/en/500.json",
     "status": 200,
@@ -843,12 +849,6 @@ Array [
     "from": "/_next/data/build-id/en/image.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/_next/data/build-id/en/index.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,
