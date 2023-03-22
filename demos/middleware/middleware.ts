@@ -24,7 +24,7 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith('/static')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
     const res = await request.next()
-    const message = `This was static & lame but has been transformed in ${req.geo?.city}`
+    const message = `This was static & old but has been transformed in ${req.geo?.city}`
 
     // Transform the response HTML and props
     res.replaceText('p[id=message]', message)
