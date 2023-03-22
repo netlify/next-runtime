@@ -149,7 +149,7 @@ export const setupImageFunction = async ({
 
     await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
     writeFunctionConfiguration({
-      functionName: functionName.replace('.js', ''),
+      functionName: IMAGE_FUNCTION_NAME,
       functionTitle: IMAGE_FUNCTION_TITLE,
       functionsDir: functionsPath,
     })
