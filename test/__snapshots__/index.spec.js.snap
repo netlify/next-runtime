@@ -58,7 +58,7 @@ Array [
 `;
 
 exports[`onBuild() generates a file referencing all API route sources: for _api_hello-background-background 1`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
@@ -77,7 +77,7 @@ exports.resolvePages = () => {
 `;
 
 exports[`onBuild() generates a file referencing all API route sources: for _api_hello-scheduled-handler 1`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
@@ -96,7 +96,7 @@ exports.resolvePages = () => {
 `;
 
 exports[`onBuild() generates a file referencing all page sources 1`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
@@ -156,7 +156,7 @@ exports.resolvePages = () => {
 `;
 
 exports[`onBuild() generates a file referencing all page sources 2`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
@@ -216,7 +216,7 @@ exports.resolvePages = () => {
 `;
 
 exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 1`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
@@ -276,7 +276,7 @@ exports.resolvePages = () => {
 `;
 
 exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 2`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
