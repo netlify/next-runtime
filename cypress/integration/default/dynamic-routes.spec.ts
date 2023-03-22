@@ -17,7 +17,7 @@ describe('Static Routing', () => {
   it('renders correct page via ODB on a static route', () => {
     cy.request({ url: '/getStaticProps/with-revalidate/', headers: { 'x-nf-debug-logging': '1' } }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=300')
+      expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
       expect(res.body).to.contain('Dancing with the Stars')
     })
   })
