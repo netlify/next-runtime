@@ -2,6 +2,7 @@ export default async function handler(req, res) {
   const query = req.query
   const select = Number(query.select) || 0
 
+  // these paths are used for e2e testing res.revalidate()
   const paths = [
     '/getStaticProps/with-revalidate/', // valid path
     '/fr/getStaticProps/with-revalidate/', // valid path (with locale)
