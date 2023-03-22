@@ -7,13 +7,22 @@ import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/im
 import { outdent } from 'outdent'
 import { join, relative, resolve } from 'pathe'
 
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME, DEFAULT_FUNCTIONS_SRC } from '../constants'
+import {
+  HANDLER_FUNCTION_NAME,
+  ODB_FUNCTION_NAME,
+  IMAGE_FUNCTION_NAME,
+  DEFAULT_FUNCTIONS_SRC,
+  HANDLER_FUNCTION_TITLE,
+  ODB_FUNCTION_TITLE,
+  IMAGE_FUNCTION_TITLE,
+} from '../constants'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, ApiRouteType, extractConfigFromFile } from './analysis'
 import { getSourceFileForPage } from './files'
+import { writeFunctionConfiguration } from './functionsMetaData'
 import { getFunctionNameForPage } from './utils'
 
 export interface ApiRouteConfig {
@@ -70,7 +79,7 @@ export const generateFunctions = async (
     await writeFile(join(functionsDir, functionName, 'pages.js'), resolverSource)
   }
 
-  const writeHandler = async (functionName: string, isODB: boolean) => {
+  const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
     const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
     await ensureDir(join(functionsDir, functionName))
 
@@ -87,10 +96,11 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
+    writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
   }
 
-  await writeHandler(HANDLER_FUNCTION_NAME, false)
-  await writeHandler(ODB_FUNCTION_NAME, true)
+  await writeHandler(HANDLER_FUNCTION_NAME, HANDLER_FUNCTION_TITLE, false)
+  await writeHandler(ODB_FUNCTION_NAME, ODB_FUNCTION_TITLE, true)
 }
 
 /**
@@ -154,6 +164,11 @@ export const setupImageFunction = async ({
     })
 
     await copyFile(join(__dirname, '..', '..', 'lib', 'templates', 'ipx.js'), join(functionDirectory, functionName))
+    writeFunctionConfiguration({
+      functionName: IMAGE_FUNCTION_NAME,
+      functionTitle: IMAGE_FUNCTION_TITLE,
+      functionsDir: functionsPath,
+    })
 
     // If we have edge functions then the request will have already been rewritten
     // so this won't match. This is matched if edge is disabled or unavailable.
