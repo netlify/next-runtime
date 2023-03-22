@@ -52,7 +52,7 @@
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.16.0",
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^29.7.0",
+    "@netlify/build": "^29.7.1",
     "@netlify/eslint-config-node": "^7.0.1",
     "@testing-library/cypress": "^8.0.1",
     "@types/fs-extra": "^9.0.13",
@@ -75,6 +75,7 @@
     "jest-extended": "^3.2.0",
     "jest-fetch-mock": "^3.0.3",
     "jest-junit": "^14.0.1",
+    "mock-fs": "^5.2.0",
     "netlify-plugin-cypress": "^2.2.1",
     "npm-run-all": "^4.1.5",
     "playwright-chromium": "^1.26.1",
@@ -109,7 +110,8 @@
       "\\.[jt]sx?$": "babel-jest"
     },
     "verbose": true,
-    "testTimeout": 60000
+    "testTimeout": 60000,
+    "maxWorkers": 1
   },
   "jest-junit": {
     "outputDirectory": "reports",

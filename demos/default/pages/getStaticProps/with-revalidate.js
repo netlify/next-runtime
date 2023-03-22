@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
-const Show = ({ show }) => (
+const Show = ({ show, time }) => (
   <div>
-    <p>This page uses getStaticProps() to pre-fetch a TV show.</p>
+    <p>This page uses getStaticProps() to pre-fetch a TV show at {time}</p>
 
     <hr />
 
@@ -22,6 +22,7 @@ export async function getStaticProps(context) {
   return {
     props: {
       show: data,
+      time: new Date().toISOString(),
     },
     // ODB handler will use the minimum TTL=60s
     revalidate: 1,

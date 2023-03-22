@@ -10,6 +10,8 @@ import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middlew
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
 
+import { IMAGE_FUNCTION_NAME } from '../constants'
+
 import { getRequiredServerFiles, NextConfig } from './config'
 import { makeLocaleOptional, stripLookahead, transformCaptureGroups } from './matchers'
 import { RoutesManifest } from './types'
@@ -465,7 +467,7 @@ export const writeEdgeFunctions = async ({
     await ensureDir(edgeFunctionDir)
     await copyEdgeSourceFile({ edgeFunctionDir, file: 'ipx.ts', target: 'index.ts' })
     await copyFile(
-      join('.netlify', 'functions-internal', '_ipx', 'imageconfig.json'),
+      join('.netlify', 'functions-internal', IMAGE_FUNCTION_NAME, 'imageconfig.json'),
       join(edgeFunctionDir, 'imageconfig.json'),
     )
     manifest.functions.push({
