@@ -1,9 +1,10 @@
 import type { NetlifyPlugin } from '@netlify/build'
-import { onPreDev } from './build/onPreDev'
-import { onPreBuild } from './build/onPreBuild'
+
 import { onBuild } from './build/onBuild'
-import { onPostBuild } from './build/onPostBuild'
 import { onEnd } from './build/onEnd'
+import { onPostBuild } from './build/onPostBuild'
+import { onPreBuild } from './build/onPreBuild'
+import { onPreDev } from './build/onPreDev'
 
 const plugin: NetlifyPlugin = {
   onPreBuild,

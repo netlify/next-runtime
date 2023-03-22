@@ -1,4 +1,5 @@
 import { join, relative } from 'path'
+
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
 import { readFileSync } from 'fs-extra'
@@ -10,7 +11,6 @@ import {
   updateRequiredServerFiles,
   configureHandlerFunctions,
 } from '../helpers/config'
-
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from '../helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from '../helpers/files'
 import {
