@@ -35,7 +35,8 @@ export interface FunctionInfo {
 export const writeFunctionConfiguration = async (functionInfo: FunctionInfo) => {
   const { functionName, functionTitle, functionsDir } = functionInfo
   const pluginPackagePath = '.netlify/plugins/package.json'
-  const nodeModulesPath = join(resolveModuleRoot(NEXT_PLUGIN), 'package.json')
+  const moduleRoot = resolveModuleRoot(NEXT_PLUGIN)
+  const nodeModulesPath = moduleRoot ? join(moduleRoot, 'package.json') : null
 
   const nextPluginVersion =
     (await getNextRuntimeVersion(nodeModulesPath, true)) ||
