@@ -1,4 +1,9 @@
-import { normalizeRoute, unlocalizeRoute, localizeRoute, localizeDataRoute } from './handlerUtils'
+import {
+  normalizeRoute,
+  unlocalizeRoute,
+  localizeRoute,
+  localizeDataRoute,
+} from '../packages/runtime/src/templates/handlerUtils'
 
 describe('normalizeRoute', () => {
   it('removes a trailing slash from a route', () => {

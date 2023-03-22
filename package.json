@@ -100,7 +100,6 @@
     "testMatch": [
       "**/test/**/*.spec.js",
       "**/test/**/*.spec.ts",
-      "**/*.test.ts",
       "!**/test/e2e/**",
       "!**/test/fixtures/**",
       "!**/test/sample/**",
