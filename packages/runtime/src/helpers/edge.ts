@@ -65,7 +65,7 @@ export interface FunctionManifest {
         cache?: 'manual'
       }
   >
-  layers?: Array<{ name: `https://${string}`; flag: string }>
+  layers?: Array<{ name: `https://${string}/mod.ts`; flag: string }>
   import_map?: string
 }
 
