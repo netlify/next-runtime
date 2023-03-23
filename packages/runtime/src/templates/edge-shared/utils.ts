@@ -212,7 +212,9 @@ export const buildResponse = async ({
               // Apply all of the transforms to the props
               const props = response.dataTransforms.reduce((prev, transform) => transform(prev), data.props)
               // Replace the data with the transformed props
-              textChunk.replace(JSON.stringify({ ...data, props }))
+              // With `html: true` the input is treated as raw HTML
+              // @see https://developers.cloudflare.com/workers/runtime-apis/html-rewriter/#global-types
+              textChunk.replace(JSON.stringify({ ...data, props }), { html: true })
             } catch (err) {
               console.log('Could not parse', err)
             }
