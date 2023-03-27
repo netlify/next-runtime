@@ -27,6 +27,8 @@ describe('getRscDataRouter', () => {
 
     let rscDataRouter
 
+    // Normally type checking would pick this up, but because this file is copied when generating
+    // edge functions for the build, I added a test
     expect(() => {
       rscDataRouter = getRscDataRouter(manifest)
     }).not.toThrow()
