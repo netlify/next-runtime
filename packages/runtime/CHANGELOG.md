@@ -1,5 +1,22 @@
 # Changelog
 
+## [4.33.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.2...plugin-nextjs-v4.33.0) (2023-03-27)
+
+
+### Features
+
+* add generator meta data for framework generated Netlify Functions ([#1999](https://github.com/netlify/next-runtime/issues/1999)) ([e5ddcd2](https://github.com/netlify/next-runtime/commit/e5ddcd24f0662af2e36ba237a61a1d05b8f58df4))
+* refresh hooks api implementation ([#1950](https://github.com/netlify/next-runtime/issues/1950)) ([fb93b54](https://github.com/netlify/next-runtime/commit/fb93b5469c570616134d53c10fbed1f7ef78e334))
+
+
+### Bug Fixes
+
+* data route rewrite for i18n root route ([#2002](https://github.com/netlify/next-runtime/issues/2002)) ([4f6cdd9](https://github.com/netlify/next-runtime/commit/4f6cdd93eee5b15bee723e20cc702efa3497121f))
+* do not escape HTML ([#2007](https://github.com/netlify/next-runtime/issues/2007)) ([d4cd121](https://github.com/netlify/next-runtime/commit/d4cd121a113bb540f49229d51ee31ca28d04eb13))
+* updated redirect data urls ([#1928](https://github.com/netlify/next-runtime/issues/1928)) ([1edaacb](https://github.com/netlify/next-runtime/commit/1edaacb11297bcc1b8865320579c7ecbd703186f))
+* use `IMAGE_FUNCTION_NAME` constant ([#2001](https://github.com/netlify/next-runtime/issues/2001)) ([24eaaab](https://github.com/netlify/next-runtime/commit/24eaaab048a78c0ba4d7f283c11d11d02b819b01))
+* use separate watcher script for middleware in dev ([#1831](https://github.com/netlify/next-runtime/issues/1831)) ([92e209f](https://github.com/netlify/next-runtime/commit/92e209f177312d4c4e6b64f8feb6c80670e46d8d))
+
 ## [4.32.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.1...plugin-nextjs-v4.32.2) (2023-03-14)
 
 
