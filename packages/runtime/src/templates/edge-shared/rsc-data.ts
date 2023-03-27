@@ -35,7 +35,7 @@ const rscifyPath = (route: string) => {
 export const getRscDataRouter = ({ routes: staticRoutes, dynamicRoutes }: PrerenderManifest): EdgeFunction => {
   const staticRouteSet = new Set(
     Object.entries(staticRoutes)
-      .filter(([, { dataRoute }]) => dataRoute.endsWith('.rsc'))
+      .filter(([, { dataRoute }]) => dataRoute?.endsWith('.rsc'))
       .map(([route]) => route),
   )
 
