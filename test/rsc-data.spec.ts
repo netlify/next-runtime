@@ -8,28 +8,6 @@ const basePrerenderManifest: PrerenderManifest = {
 }
 
 describe('getRscDataRouter', () => {
-  it('should create a RSC data router', () => {
-    const manifest: PrerenderManifest = {
-      ...basePrerenderManifest,
-      routes: {
-        '/': {
-          initialRevalidateSeconds: 1,
-          srcRoute: null,
-          dataRoute: '/index.json.rsc',
-        },
-        '/about': {
-          initialRevalidateSeconds: 1,
-          srcRoute: null,
-          dataRoute: '/about.json.rsc',
-        },
-      },
-    }
-
-    expect(() => {
-      getRscDataRouter(manifest)
-    }).toBeDefined()
-  })
-
   it('should create a RSC data router when data routes are not present for routes', () => {
     const manifest: PrerenderManifest = {
       ...basePrerenderManifest,
@@ -47,8 +25,12 @@ describe('getRscDataRouter', () => {
       },
     }
 
+    let rscDataRouter
+
     expect(() => {
-      getRscDataRouter(manifest)
+      rscDataRouter = getRscDataRouter(manifest)
     }).not.toThrow()
+
+    expect(typeof rscDataRouter).toBe('function')
   })
 })
