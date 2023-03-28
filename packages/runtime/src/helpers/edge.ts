@@ -13,9 +13,9 @@ import { outdent } from 'outdent'
 import { IMAGE_FUNCTION_NAME } from '../constants'
 
 import { getRequiredServerFiles, NextConfig } from './config'
+import { writeEdgeFunctionConfiguration } from './functionsMetaData'
 import { makeLocaleOptional, stripLookahead, transformCaptureGroups } from './matchers'
 import { RoutesManifest } from './types'
-
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
   env: string[]
@@ -57,12 +57,14 @@ export interface FunctionManifest {
         name?: string
         path: string
         cache?: 'manual'
+        generator?: string
       }
     | {
         function: string
         name?: string
         pattern: string
         cache?: 'manual'
+        generator?: string
       }
   >
   import_map?: string
@@ -220,15 +222,17 @@ const generateEdgeFunctionMiddlewareMatchers = ({
 const middlewareMatcherToEdgeFunctionDefinition = (
   matcher: MiddlewareMatcher,
   name: string,
+  generator: string,
   cache?: 'manual',
 ): {
   function: string
   name?: string
   pattern: string
   cache?: 'manual'
+  generator?: string
 } => {
   const pattern = transformCaptureGroups(stripLookahead(matcher.regexp))
-  return { function: name, pattern, name, cache }
+  return { function: name, pattern, name, cache, generator }
 }
 
 export const cleanupEdgeFunctions = ({
@@ -262,7 +266,7 @@ export const writeDevEdgeFunction = async ({
  * Writes an edge function that routes RSC data requests to the `.rsc` route
  */
 
-export const writeRscDataEdgeFunction = async ({
+export const  writeRscDataEdgeFunction = async ({
   prerenderManifest,
   appPathRoutesManifest,
 }: {
@@ -343,6 +347,9 @@ export const writeEdgeFunctions = async ({
   netlifyConfig: NetlifyConfig
   routesManifest: RoutesManifest
 }) => {
+
+  const nextjsPluginVersion = await writeEdgeFunctionConfiguration()
+
   const manifest: FunctionManifest = {
     functions: [],
     version: 1,
@@ -400,7 +407,7 @@ export const writeEdgeFunctions = async ({
     })
 
     manifest.functions.push(
-      ...matchers.map((matcher) => middlewareMatcherToEdgeFunctionDefinition(matcher, functionName)),
+      ...matchers.map((matcher) => middlewareMatcherToEdgeFunctionDefinition(matcher, functionName, nextjsPluginVersion)),
     )
   }
   // Functions (i.e. not middleware, but edge SSR and API routes)
@@ -440,6 +447,7 @@ export const writeEdgeFunctions = async ({
         pattern,
         // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
         cache: usesAppDir ? 'manual' : undefined,
+        generator: `${nextjsPluginVersion}`,
       })
       // pages-dir page routes also have a data route. If there's a match, add an entry mapping that to the function too
       const dataRoute = dataRoutesMap.get(edgeFunctionDefinition.page)
@@ -449,6 +457,7 @@ export const writeEdgeFunctions = async ({
           name: edgeFunctionDefinition.name,
           pattern: dataRoute,
           cache: usesAppDir ? 'manual' : undefined,
+          generator: `${nextjsPluginVersion}`
         })
       }
     }
@@ -474,6 +483,7 @@ export const writeEdgeFunctions = async ({
       function: 'ipx',
       name: 'next/image handler',
       path: '/_next/image*',
+      generator: `${nextjsPluginVersion}`
     })
   } else {
     console.log(
@@ -487,6 +497,6 @@ export const writeEdgeFunctions = async ({
       This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
     `)
   }
-
+  console.log('MANIFEST', manifest, nextjsPluginVersion)
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
