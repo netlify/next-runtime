@@ -71,7 +71,7 @@ export const updateRequiredServerFiles = async (publish: string, modifiedConfig:
   await writeJSON(configFile, modifiedConfig)
 }
 
-const resolveModuleRoot = (moduleName) => {
+export const resolveModuleRoot = (moduleName) => {
   try {
     return dirname(relative(process.cwd(), require.resolve(`${moduleName}/package.json`, { paths: [process.cwd()] })))
   } catch {

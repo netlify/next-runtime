@@ -26,6 +26,7 @@ Array [
   ".next/server/pages/api/hello-scheduled.js",
   ".next/server/pages/api/hello.js",
   ".next/server/pages/api/og.js",
+  ".next/server/pages/api/revalidate.js",
   ".next/server/pages/api/shows/[...params].js",
   ".next/server/pages/api/shows/[id].js",
   ".next/server/pages/deep/import.js",
@@ -58,7 +59,7 @@ Array [
 `;
 
 exports[`onBuild() generates a file referencing all API route sources: for _api_hello-background-background 1`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
@@ -77,7 +78,7 @@ exports.resolvePages = () => {
 `;
 
 exports[`onBuild() generates a file referencing all API route sources: for _api_hello-scheduled-handler 1`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
@@ -96,7 +97,7 @@ exports.resolvePages = () => {
 `;
 
 exports[`onBuild() generates a file referencing all page sources 1`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
@@ -123,6 +124,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../.next/server/pages/api/hello.js')
         require.resolve('../../../.next/server/pages/api/og.js')
+        require.resolve('../../../.next/server/pages/api/revalidate.js')
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../.next/server/pages/api/shows/[id].js')
         require.resolve('../../../.next/server/pages/deep/import.js')
@@ -156,7 +158,7 @@ exports.resolvePages = () => {
 `;
 
 exports[`onBuild() generates a file referencing all page sources 2`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../.next/package.json')
@@ -183,6 +185,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../.next/server/pages/api/hello.js')
         require.resolve('../../../.next/server/pages/api/og.js')
+        require.resolve('../../../.next/server/pages/api/revalidate.js')
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../.next/server/pages/api/shows/[id].js')
         require.resolve('../../../.next/server/pages/deep/import.js')
@@ -216,7 +219,7 @@ exports.resolvePages = () => {
 `;
 
 exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 1`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
@@ -243,6 +246,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../web/.next/server/pages/api/hello.js')
         require.resolve('../../../web/.next/server/pages/api/og.js')
+        require.resolve('../../../web/.next/server/pages/api/revalidate.js')
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
         require.resolve('../../../web/.next/server/pages/deep/import.js')
@@ -276,7 +280,7 @@ exports.resolvePages = () => {
 `;
 
 exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 2`] = `
-"// This file is purely to allow nft to know about these pages. 
+"// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
         require.resolve('../../../web/.next/package.json')
@@ -303,6 +307,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
         require.resolve('../../../web/.next/server/pages/api/hello.js')
         require.resolve('../../../web/.next/server/pages/api/og.js')
+        require.resolve('../../../web/.next/server/pages/api/revalidate.js')
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
         require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
         require.resolve('../../../web/.next/server/pages/deep/import.js')
@@ -659,6 +664,12 @@ Array [
     "to": "/.netlify/builders/_ipx",
   },
   Object {
+    "force": true,
+    "from": "/_next/data/build-id/en.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
     "force": false,
     "from": "/_next/data/build-id/en/500.json",
     "status": 200,
@@ -843,12 +854,6 @@ Array [
     "from": "/_next/data/build-id/en/image.json",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/_next/data/build-id/en/index.json",
-    "status": 200,
-    "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
     "force": false,

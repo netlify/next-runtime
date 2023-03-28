@@ -1,7 +1,7 @@
 describe('Enhanced middleware', () => {
   it('rewrites the response body', () => {
     cy.visit('/static')
-    cy.get('#message').contains('This was static but has been transformed in')
+    cy.get('#message').contains('This was static (& escaping test &amp;) but has been transformed in')
     cy.contains("This is an ad that isn't shown by default")
   })
 
@@ -10,7 +10,7 @@ describe('Enhanced middleware', () => {
       expect(response.body).to.have.nested.property('pageProps.showAd', true)
       expect(response.body)
         .to.have.nested.property('pageProps.message')
-        .that.includes('This was static but has been transformed in')
+        .that.includes('This was static (& escaping test &amp;) but has been transformed in')
     })
   })
 
@@ -27,13 +27,13 @@ describe('Enhanced middleware', () => {
 
   it('handles uppercase i18n redirects properly ', () => {
     cy.visit('/de-DE/static')
-    cy.get('#message').contains('This was static but has been transformed in')
+    cy.get('#message').contains('This was static (& escaping test &amp;) but has been transformed in')
     cy.contains("This is an ad that isn't shown by default")
   })
 
   it('handles lowercase i18n redirects properly ', () => {
     cy.visit('/de-de/static')
-    cy.get('#message').contains('This was static but has been transformed in')
+    cy.get('#message').contains('This was static (& escaping test &amp;) but has been transformed in')
     cy.contains("This is an ad that isn't shown by default")
   })
 })
