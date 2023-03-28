@@ -40,6 +40,8 @@ jobs:
           node-version: '16'
           cache: 'npm'
       - run: npm install
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
       - name: Run tests
         run: npx jest --reporters=jest-junit --reporters=default -c test/e2e/jest.config.all.js ${{ matrix.test-file }}
         env:
