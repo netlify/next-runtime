@@ -19,6 +19,12 @@ const getNextRuntimeVersion = async (packageJsonPath: string, useNodeModulesPath
 const nodeModulesPath = resolveModuleRoot(NEXT_PLUGIN) ? join(resolveModuleRoot(NEXT_PLUGIN), 'package.json') : null
 const pluginPackagePath = '.netlify/plugins/package.json'
 
+const nextPluginVersion = async () =>
+  (await getNextRuntimeVersion(nodeModulesPath, true)) ||
+  (await getNextRuntimeVersion(pluginPackagePath, false)) ||
+  // The runtime version should always be available, but if it's not, return 'unknown'
+  'unknown'
+
 // The information needed to create a function configuration file
 export interface FunctionInfo {
   // The name of the function, e.g. `___netlify-handler`
@@ -38,30 +44,19 @@ export interface FunctionInfo {
  */
 export const writeFunctionConfiguration = async (functionInfo: FunctionInfo) => {
   const { functionName, functionTitle, functionsDir } = functionInfo
-
-  const nextPluginVersion =
-    (await getNextRuntimeVersion(nodeModulesPath, true)) ||
-    (await getNextRuntimeVersion(pluginPackagePath, false)) ||
-    // The runtime version should always be available, but if it's not, return 'unknown'
-    'unknown'
+  const pluginVersion = await nextPluginVersion()
 
   const metadata = {
     config: {
       name: functionTitle,
-      generator: `${NEXT_PLUGIN_NAME}@${nextPluginVersion}`,
+      generator: `${NEXT_PLUGIN_NAME}@${pluginVersion}`,
     },
     version: 1,
   }
-
   await writeFile(join(functionsDir, functionName, `${functionName}.json`), JSON.stringify(metadata))
 }
 
 export const writeEdgeFunctionConfiguration = async () => {
-  const nextPluginVersion =
-    (await getNextRuntimeVersion(nodeModulesPath, true)) ||
-    (await getNextRuntimeVersion(pluginPackagePath, false)) ||
-    // The runtime version should always be available, but if it's not, return 'unknown'
-    'unknown'
-
-  return `${NEXT_PLUGIN_NAME}@${nextPluginVersion}`
+  const pluginVersion = await nextPluginVersion()
+  return `${NEXT_PLUGIN_NAME}@${pluginVersion}`
 }
