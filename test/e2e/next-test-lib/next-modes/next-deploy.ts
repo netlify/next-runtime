@@ -39,15 +39,14 @@ export class NextDeployInstance extends NextInstance {
       cwd: this.testDir,
       stdio: 'inherit',
     })
-    // ensure Netlify CLI is installed
+    // Netlify CLI should be installed, but just making sure
     try {
       const res = await execa('ntl', ['--version'])
       console.log(`Using Netlify CLI version:`, res.stdout)
     } catch (_) {
-      console.log(`Installing Netlify CLI`)
-      await execa('npm', ['i', '-g', 'netlify-cli@latest'], {
-        stdio: 'inherit',
-      })
+      throw new Error(`You need to have netlify-cli installed.
+      
+      You can do this by running: "npm install -g netlify-cli@latest" or "yarn global add netlify-cli@latest"`)
     }
 
     console.log(`Deploys site for test: ${testName}`)
