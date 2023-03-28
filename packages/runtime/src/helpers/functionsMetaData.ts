@@ -19,7 +19,6 @@ const getNextRuntimeVersion = async (packageJsonPath: string, useNodeModulesPath
 const nodeModulesPath = resolveModuleRoot(NEXT_PLUGIN) ? join(resolveModuleRoot(NEXT_PLUGIN), 'package.json') : null
 const pluginPackagePath = '.netlify/plugins/package.json'
 
-
 // The information needed to create a function configuration file
 export interface FunctionInfo {
   // The name of the function, e.g. `___netlify-handler`

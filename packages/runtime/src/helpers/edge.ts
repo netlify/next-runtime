@@ -266,7 +266,7 @@ export const writeDevEdgeFunction = async ({
  * Writes an edge function that routes RSC data requests to the `.rsc` route
  */
 
-export const  writeRscDataEdgeFunction = async ({
+export const writeRscDataEdgeFunction = async ({
   prerenderManifest,
   appPathRoutesManifest,
 }: {
@@ -347,7 +347,6 @@ export const writeEdgeFunctions = async ({
   netlifyConfig: NetlifyConfig
   routesManifest: RoutesManifest
 }) => {
-
   const nextjsPluginVersion = await writeEdgeFunctionConfiguration()
 
   const manifest: FunctionManifest = {
@@ -407,7 +406,9 @@ export const writeEdgeFunctions = async ({
     })
 
     manifest.functions.push(
-      ...matchers.map((matcher) => middlewareMatcherToEdgeFunctionDefinition(matcher, functionName, nextjsPluginVersion)),
+      ...matchers.map((matcher) =>
+        middlewareMatcherToEdgeFunctionDefinition(matcher, functionName, nextjsPluginVersion),
+      ),
     )
   }
   // Functions (i.e. not middleware, but edge SSR and API routes)
@@ -457,7 +458,7 @@ export const writeEdgeFunctions = async ({
           name: edgeFunctionDefinition.name,
           pattern: dataRoute,
           cache: usesAppDir ? 'manual' : undefined,
-          generator: `${nextjsPluginVersion}`
+          generator: `${nextjsPluginVersion}`,
         })
       }
     }
@@ -483,7 +484,7 @@ export const writeEdgeFunctions = async ({
       function: 'ipx',
       name: 'next/image handler',
       path: '/_next/image*',
-      generator: `${nextjsPluginVersion}`
+      generator: `${nextjsPluginVersion}`,
     })
   } else {
     console.log(
