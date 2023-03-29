@@ -183,6 +183,7 @@ export const redirectsForNextRouteWithData = ({
   to,
   status = 200,
   force = false,
+  i18n,
 }: {
   route: string
   dataRoute: string
@@ -190,13 +191,35 @@ export const redirectsForNextRouteWithData = ({
   to: string
   status?: number
   force?: boolean
-}): NetlifyConfig['redirects'] =>
-  generateNetlifyRoutes({ route, dataRoute, withData: true }).map((redirect) => ({
-    from: `${basePath}${redirect}`,
-    to,
-    status,
-    force,
-  }))
+  i18n?: I18n
+}): NetlifyConfig['redirects'] => {
+  const paths = generateNetlifyRoutes({ route, dataRoute, withData: true })
+
+  const routes = []
+  if (i18n?.locales?.length) {
+    i18n.locales.flatMap((locale) =>
+      paths.map((redirect) => ({
+        from: `${basePath}${redirect}`,
+        to,
+        status,
+        force,
+        conditions: { Language: locale },
+      })),
+    )
+  }
+
+  // rules without language condition
+  routes.push(
+    ...paths.map((redirect) => ({
+      from: `${basePath}${redirect}`,
+      to,
+      status,
+      force,
+    })),
+  )
+
+  return routes
+}
 
 export const getApiRewrites = (basePath: string, apiRoutes: Array<ApiRouteConfig>) => {
   const apiRewrites = apiRoutes.map((apiRoute) => {

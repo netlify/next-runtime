@@ -162,6 +162,8 @@ const generateStaticIsrRewrites = ({
           basePath,
           to: ODB_FUNCTION_PATH,
           force: true,
+          // produce locale-specific routes
+          i18n,
         }),
       )
     } else if (matchesMiddleware(middleware, route)) {
