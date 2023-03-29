@@ -197,14 +197,16 @@ export const redirectsForNextRouteWithData = ({
 
   const routes = []
   if (i18n?.locales?.length) {
-    i18n.locales.flatMap((locale) =>
-      paths.map((redirect) => ({
-        from: `${basePath}${redirect}`,
-        to,
-        status,
-        force,
-        conditions: { Language: locale },
-      })),
+    routes.push(
+      ...i18n.locales.flatMap((locale) =>
+        paths.map((redirect) => ({
+          from: `${basePath}${redirect}`,
+          to,
+          status,
+          force,
+          conditions: { Language: locale },
+        })),
+      ),
     )
   }
 
