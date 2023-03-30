@@ -77,8 +77,8 @@ export const routeToDataRoute = (route: string, buildId: string, locale?: string
   `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? (locale ? '' : '/index') : route}.json`
 
 // Default locale is served from root, not localized
-export const localizeRoute = (route: string, locale: string, defaultLocale: string) =>
-  locale === defaultLocale ? route : `/${locale}${route}`
+export const localizeRoute = (route: string, locale: string, isDefault: boolean) =>
+  isDefault ? route : `/${locale}${route}`
 
 const netlifyRoutesForNextRoute = ({
   route,
@@ -92,7 +92,7 @@ const netlifyRoutesForNextRoute = ({
   i18n?: I18n
   withData?: boolean
   dataRoute?: string
-}): Array<{ redirect: string; locale: string | false; dataRoute?: string }> => {
+}): Array<{ redirect: string; locale: string | false; isDefaultLocale?: boolean; dataRoute?: string }> => {
   if (!i18n?.locales?.length) {
     return generateNetlifyRoutes({ route, dataRoute: dataRoute || routeToDataRoute(route, buildId), withData }).map(
       (redirect) => ({
@@ -104,19 +104,22 @@ const netlifyRoutesForNextRoute = ({
   const { locales, defaultLocale } = i18n
   const routes = []
   locales.forEach((locale) => {
+    const isDefault = locale === defaultLocale
+
     // Data route is always localized, except for appDir
     const localizedDataRoute = dataRoute
-      ? localizeRoute(dataRoute, locale, defaultLocale)
+      ? localizeRoute(dataRoute, locale, isDefault)
       : routeToDataRoute(route, buildId, locale)
 
     routes.push(
       ...generateNetlifyRoutes({
-        route: localizeRoute(route, locale, defaultLocale),
+        route: localizeRoute(route, locale, isDefault),
         dataRoute: localizedDataRoute,
         withData,
       }).map((redirect) => ({
         redirect,
         locale,
+        isDefaultLocale: isDefault,
       })),
     )
   })
@@ -138,6 +141,7 @@ export const redirectsForNextRoute = ({
   force = false,
   withData = true,
   dataRoute,
+  localizeDefaultRoutes,
 }: {
   route: string
   buildId: string
@@ -148,13 +152,28 @@ export const redirectsForNextRoute = ({
   force?: boolean
   withData?: boolean
   dataRoute?: string
+  localizeDefaultRoutes?: boolean
 }): NetlifyConfig['redirects'] =>
-  netlifyRoutesForNextRoute({ route, buildId, i18n, withData, dataRoute }).map(({ redirect }) => ({
-    from: `${basePath}${redirect}`,
-    to,
-    status,
-    force,
-  }))
+  netlifyRoutesForNextRoute({ route, buildId, i18n, withData, dataRoute }).flatMap(({ redirect, isDefaultLocale }) => {
+    const baseRedirect = {
+      from: `${basePath}${redirect}`,
+      to,
+      status,
+      force,
+    }
+    const redirects = []
+    if (localizeDefaultRoutes && i18n.locales?.length && isDefaultLocale) {
+      redirects.push(
+        ...i18n.locales.map((locale) => ({
+          ...baseRedirect,
+          conditions: {
+            Language: locale,
+          },
+        })),
+      )
+    }
+    return [...redirects, baseRedirect]
+  })
 
 export const redirectsForNext404Route = ({
   route,

@@ -238,13 +238,21 @@ const generateDynamicRewrites = ({
             i18n,
             dataRoute: prerenderedDynamicRoutes[route.page].dataRoute,
             withData: true,
+            localizeDefaultRoutes: true,
           }),
         )
       } else if (prerenderedDynamicRoutes[route.page].fallback === false && !is404Isr) {
         dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
       } else {
         dynamicRewrites.push(
-          ...redirectsForNextRoute({ route: route.page, buildId, basePath, to: ODB_FUNCTION_PATH, i18n }),
+          ...redirectsForNextRoute({
+            route: route.page,
+            buildId,
+            basePath,
+            to: ODB_FUNCTION_PATH,
+            i18n,
+            localizeDefaultRoutes: true,
+          }),
         )
       }
     } else {
