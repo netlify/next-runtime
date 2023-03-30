@@ -15,16 +15,19 @@ const getNextRuntimeVersion = async (packageJsonPath: string, useNodeModulesPath
   return useNodeModulesPath ? packagePlugin.version : packagePlugin.dependencies[NEXT_PLUGIN]
 }
 
-// Getting the path to the nextjs-plugin package.json file
-const nodeModulesPath = resolveModuleRoot(NEXT_PLUGIN) ? join(resolveModuleRoot(NEXT_PLUGIN), 'package.json') : null
 const pluginPackagePath = '.netlify/plugins/package.json'
 
-const nextPluginVersion = async () =>
-  (await getNextRuntimeVersion(nodeModulesPath, true)) ||
-  (await getNextRuntimeVersion(pluginPackagePath, false)) ||
-  // The runtime version should always be available, but if it's not, return 'unknown'
-  'unknown'
+const nextPluginVersion = async () => {
+  const moduleRoot = resolveModuleRoot(NEXT_PLUGIN)
+  const nodeModulesPath = moduleRoot ? join(moduleRoot, 'package.json') : null
 
+  return (
+    (await getNextRuntimeVersion(nodeModulesPath, true)) ||
+    (await getNextRuntimeVersion(pluginPackagePath, false)) ||
+    // The runtime version should always be available, but if it's not, return 'unknown'
+    'unknown'
+  )
+}
 // The information needed to create a function configuration file
 export interface FunctionInfo {
   // The name of the function, e.g. `___netlify-handler`
@@ -53,6 +56,7 @@ export const writeFunctionConfiguration = async (functionInfo: FunctionInfo) => 
     },
     version: 1,
   }
+
   await writeFile(join(functionsDir, functionName, `${functionName}.json`), JSON.stringify(metadata))
 }
 
