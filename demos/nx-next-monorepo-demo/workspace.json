@@ -1,8 +1,0 @@
-{
-  "$schema": "./node_modules/nx/schemas/workspace-schema.json",
-  "version": 2,
-  "projects": {
-    "demo-monorepo": "apps/demo-monorepo",
-    "demo-monorepo-e2e": "apps/demo-monorepo-e2e"
-  }
-}
