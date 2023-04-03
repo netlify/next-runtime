@@ -4,6 +4,7 @@ import { join } from 'pathe'
 import { NEXT_PLUGIN_NAME } from '../packages/runtime/src/constants'
 import { writeFunctionConfiguration } from '../packages/runtime/src/helpers/functionsMetaData'
 import { writeEdgeFunctionConfiguration } from '../packages/runtime/src/helpers/functionsMetaData'
+import { FunctionManifest } from '../packages/runtime/src/helpers/edge'
 
 describe('writeFunctionConfiguration', () => {
   afterEach(() => {
@@ -135,15 +136,19 @@ describe('writeEdgeFunctionConfiguration', () => {
 
     const functionName = 'someFunction'
     const name = 'someFunctionName'
+    const cache = 'manual'
+    const pattern = '\\/pattern\\'
 
     const pluginVersion = await writeEdgeFunctionConfiguration()
 
-    const manifest = {
+    const manifest: FunctionManifest = {
       functions: [
         {
           function: functionName,
           name,
           generator: pluginVersion,
+          cache,
+          pattern,
         },
       ],
       version: 1,
@@ -155,6 +160,8 @@ describe('writeEdgeFunctionConfiguration', () => {
           function: functionName,
           name,
           generator: `${NEXT_PLUGIN_NAME}@${nextRuntimeVersion}`,
+          cache,
+          pattern,
         },
       ],
       version: 1,
@@ -183,22 +190,26 @@ describe('writeEdgeFunctionConfiguration', () => {
         "version":1
       }),
     })
-
-    const manifest = {
-      functions:[],
-      version:1
-      }
   
       const functionName = 'someFunction'
       const name = 'someFunctionName'
+      const cache = 'manual'
+      const pattern = '\\/pattern\\'
   
       const pluginVersion = await writeEdgeFunctionConfiguration()
-  
-      manifest.functions.push({
-        function: functionName,
-        name,
-        generator: pluginVersion
-      })
+
+      const manifest: FunctionManifest = {
+        functions: [
+          {
+            function: functionName,
+            name,
+            generator: pluginVersion,
+            cache,
+            pattern,
+          },
+        ],
+        version: 1,
+      }
   
       const expected = {
         functions: [
@@ -206,6 +217,8 @@ describe('writeEdgeFunctionConfiguration', () => {
             function: functionName,
             name,
             generator: `${NEXT_PLUGIN_NAME}@${nextRuntimeVersion}`,
+            cache,
+            pattern,
           }
       ],
         version: 1,
@@ -225,22 +238,26 @@ describe('writeEdgeFunctionConfiguration', () => {
         "version":1
       }),
     })
-
-    const manifest = {
-      functions:[],
-      version:1
-      }
   
       const functionName = 'someFunction'
       const name = 'someFunctionName'
+      const cache = 'manual'
+      const pattern = '\\/pattern\\'
   
       const pluginVersion = await writeEdgeFunctionConfiguration()
   
-      manifest.functions.push({
-        function: functionName,
-        name,
-        generator: pluginVersion
-      })
+      const manifest: FunctionManifest = {
+        functions: [
+          {
+            function: functionName,
+            name,
+            generator: pluginVersion,
+            cache,
+            pattern,
+          },
+        ],
+        version: 1,
+      }
   
       const expected = {
         functions: [
@@ -248,6 +265,8 @@ describe('writeEdgeFunctionConfiguration', () => {
             function: functionName,
             name,
             generator: '@netlify/next-runtime@unknown',
+            cache,
+            pattern,
           }
       ],
         version: 1,
