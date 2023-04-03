@@ -23,7 +23,7 @@ const nextPluginVersion = async () => {
 
   return (
     (await getNextRuntimeVersion(nodeModulesPath, true)) ||
-    (await getNextRuntimeVersion(pluginPackagePath, false)) ||
+    (await getNextRuntimeVersion(PLUGIN_PACKAGE_PATH, false)) ||
     // The runtime version should always be available, but if it's not, return 'unknown'
     'unknown'
   )
