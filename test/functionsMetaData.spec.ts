@@ -19,7 +19,7 @@ describe('writeFunctionConfiguration', () => {
         name: 'test',
         version: '1.0.0',
         dependencies: {
-          // '@netlify/plugin-nextjs': '29.3.4',
+          '@netlify/plugin-nextjs': '29.3.4',
         },
       }),
       'node_modules/@netlify/plugin-nextjs/package.json': JSON.stringify({
