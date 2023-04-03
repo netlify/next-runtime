@@ -134,29 +134,24 @@ describe('writeEdgeFunctionConfiguration', () => {
     })
 
     const manifest = {
-    functions:[],
-    version:1
+      functions: [
+        {
+          functions: functionName,
+          name,
+          generator: pluginVersion,
+        },
+      ],
+      version: 1,
     }
-
-    const functionName = 'someFunction'
-    const name = 'someFunctionName'
-
-    const pluginVersion = await writeEdgeFunctionConfiguration()
-
-    manifest.functions.push({
-      functions: functionName,
-      name: name,
-      generator: pluginVersion
-    })
 
     const expected = {
       functions: [
         {
           functions: functionName,
-          name: name,
+          name,
           generator: `${NEXT_PLUGIN_NAME}@${nextRuntimeVersion}`,
-        }
-    ],
+        },
+      ],
       version: 1,
     }
 
