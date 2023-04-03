@@ -133,10 +133,15 @@ describe('writeEdgeFunctionConfiguration', () => {
       }),
     })
 
+    const functionName = 'someFunction'
+    const name = 'someFunctionName'
+
+    const pluginVersion = await writeEdgeFunctionConfiguration()
+
     const manifest = {
       functions: [
         {
-          functions: functionName,
+          function: functionName,
           name,
           generator: pluginVersion,
         },
@@ -147,7 +152,7 @@ describe('writeEdgeFunctionConfiguration', () => {
     const expected = {
       functions: [
         {
-          functions: functionName,
+          function: functionName,
           name,
           generator: `${NEXT_PLUGIN_NAME}@${nextRuntimeVersion}`,
         },
@@ -190,16 +195,16 @@ describe('writeEdgeFunctionConfiguration', () => {
       const pluginVersion = await writeEdgeFunctionConfiguration()
   
       manifest.functions.push({
-        functions: functionName,
-        name: name,
+        function: functionName,
+        name,
         generator: pluginVersion
       })
   
       const expected = {
         functions: [
           {
-            functions: functionName,
-            name: name,
+            function: functionName,
+            name,
             generator: `${NEXT_PLUGIN_NAME}@${nextRuntimeVersion}`,
           }
       ],
@@ -232,16 +237,16 @@ describe('writeEdgeFunctionConfiguration', () => {
       const pluginVersion = await writeEdgeFunctionConfiguration()
   
       manifest.functions.push({
-        functions: functionName,
-        name: name,
+        function: functionName,
+        name,
         generator: pluginVersion
       })
   
       const expected = {
         functions: [
           {
-            functions: functionName,
-            name: name,
+            function: functionName,
+            name,
             generator: '@netlify/next-runtime@unknown',
           }
       ],
