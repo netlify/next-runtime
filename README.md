@@ -174,4 +174,4 @@ public-hoist-pattern[]=*
 
 If you think you have found a bug in Next.js on Netlify,
 [please open an issue](https://github.com/netlify/next-runtime/issues). If you have comments or feature requests,
-[see the discussion board](https://github.com/netlify/next-runtime/discussions)
+[see the discussion board](https://github.com/netlify/next-runtime/discussions) 
