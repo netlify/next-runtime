@@ -15,7 +15,7 @@ const getNextRuntimeVersion = async (packageJsonPath: string, useNodeModulesPath
   return useNodeModulesPath ? packagePlugin.version : packagePlugin.dependencies[NEXT_PLUGIN]
 }
 
-const pluginPackagePath = '.netlify/plugins/package.json'
+const PLUGIN_PACKAGE_PATH = '.netlify/plugins/package.json'
 
 const nextPluginVersion = async () => {
   const moduleRoot = resolveModuleRoot(NEXT_PLUGIN)
