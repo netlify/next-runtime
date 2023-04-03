@@ -498,6 +498,5 @@ export const writeEdgeFunctions = async ({
       This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
     `)
   }
-  console.log('MANIFEST', manifest, nextjsPluginVersion)
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }
