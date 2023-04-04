@@ -53,6 +53,13 @@ export async function middleware(req: NextRequest) {
     return request.rewrite('/api/hello')
   }
 
+  if (pathname.startsWith('/cookies/middleware')) {
+    const response = await new MiddlewareRequest(req).next()
+    response.cookies.set('middlewareCookie', 'true')
+    response.headers.set('x-foo', 'bar')
+    return response
+  }
+
   if (pathname.startsWith('/cookies')) {
     response = NextResponse.next()
     response.cookies.set('netlifyCookie', 'true')
@@ -129,8 +136,8 @@ export const config = {
   matcher: [
     '/api/:all*',
     '/headers',
+    '/cookies/:path*',
     { source: '/static' },
-    { source: '/cookies' },
     { source: '/matcher-cookie'},
     { source: '/shows/((?!99|88).*)' },
     {
