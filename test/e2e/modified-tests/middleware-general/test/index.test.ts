@@ -471,7 +471,7 @@ describe('Middleware Runtime', () => {
     // https://github.com/netlify/pillar-support/issues/350
     it('supports setting cookies', async () => {
       const response = await fetchViaHTTP(next.url, `/cookie-repro`)
-      expect(response.headers).toEqual(undefined)
+      expect(response.headers['set-cookie']).toContain('foo')
     })
 
     if (!(global as any).isNextDeploy) {
