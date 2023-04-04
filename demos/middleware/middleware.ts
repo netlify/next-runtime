@@ -55,7 +55,6 @@ export async function middleware(req: NextRequest) {
 
   if (pathname.startsWith('/cookies/middleware')) {
     const response = await new MiddlewareRequest(req).next()
-    console.log(response.cookies)
     response.cookies.set('middlewareCookie', 'true')
     return response
   }
