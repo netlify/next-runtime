@@ -1,6 +1,5 @@
 /* global globalThis */
 import { NextRequest, NextResponse, URLPattern } from 'next/server'
-import { MiddlewareRequest } from '@netlify/next'
 import magicValue from 'shared-package'
 
 export const config = { regions: 'auto' }
