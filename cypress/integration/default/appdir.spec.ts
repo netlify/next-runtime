@@ -29,6 +29,27 @@ describe('appDir', () => {
     })
   })
 
+  it('returns a vary header for RSC data requests to ISR pages', () => {
+    cy.request({
+      url: '/blog/erica/',
+      followRedirect: false,
+      headers: {
+        RSC: '1',
+      },
+    }).then((response) => {
+      expect(response.headers).to.have.property('vary').contains('RSC')
+    })
+  })
+
+  it('returns a vary header for non-RSC data requests to ISR pages', () => {
+    cy.request({
+      url: '/blog/erica/',
+      followRedirect: false,
+    }).then((response) => {
+      expect(response.headers).to.have.property('vary').contains('RSC')
+    })
+  })
+
   it('returns RSC data for RSC requests to static pages', () => {
     cy.request({
       url: '/blog/erica/first-post/',
