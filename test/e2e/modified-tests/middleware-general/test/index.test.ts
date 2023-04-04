@@ -45,7 +45,7 @@ describe('Middleware Runtime', () => {
           },
         },
         dependencies: {
-          '@netlify/next': '1.4.4',
+          '@netlify/next': 'file:' + join(__dirname, '../../../../../packages/next'),
         },
         startCommand: (global as any).isNextDev ? 'yarn dev' : 'yarn start',
         buildCommand: 'yarn build',
