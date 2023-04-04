@@ -1,5 +1,6 @@
 /* global globalThis */
 import { NextRequest, NextResponse, URLPattern } from 'next/server'
+import { MiddlewareRequest } from '@netlify/next'
 import magicValue from 'shared-package'
 
 export const config = { regions: 'auto' }
@@ -69,6 +70,13 @@ export async function middleware(request) {
   if (url.pathname === '/sha') {
     url.pathname = '/shallow'
     return NextResponse.rewrite(url)
+  }
+
+  if (url.pathname === '/cookie-repro') {
+    const request = new MiddlewareRequest(nextRequest)
+    const response = await request.next()
+    response.cookies.set('foo', 'bar')
+    return response
   }
 
   if (url.pathname.startsWith('/fetch-user-agent-default')) {

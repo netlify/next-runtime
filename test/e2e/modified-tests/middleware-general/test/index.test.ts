@@ -465,6 +465,12 @@ describe('Middleware Runtime', () => {
       expect(readMiddlewareError(response)).toContain(urlsError)
     })
 
+    // https://github.com/netlify/pillar-support/issues/350
+    it('supports setting cookies', async () => {
+      const response = await fetchViaHTTP(next.url, `/cookie-repro`)
+      expect(response.headers).toEqual(undefined)
+    })
+
     if (!(global as any).isNextDeploy) {
       // these errors differ on Vercel
       it('should throw when using Request with a relative URL', async () => {
