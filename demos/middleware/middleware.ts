@@ -136,8 +136,8 @@ export const config = {
   matcher: [
     '/api/:all*',
     '/headers',
+    '/cookies/:path*',
     { source: '/static' },
-    { source: '/cookies' },
     { source: '/matcher-cookie'},
     { source: '/shows/((?!99|88).*)' },
     {
