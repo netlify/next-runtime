@@ -1,14 +1,18 @@
 import type { EdgeFunction } from 'https://edge.netlify.com'
 
+// These are copied from next/dist/build. This file gets copied as part of the next
+// runtime build and can't reference the next package directly.
+//
+// Latest types at https://github.com/vercel/next.js/blob/4a2df3c3752aeddc50fd5ab053440eccf71ae50b/packages/next/src/build/index.ts#L140
 export declare type SsgRoute = {
   initialRevalidateSeconds: number | false
   srcRoute: string | null
-  dataRoute: string
+  dataRoute: string | null
 }
 export declare type DynamicSsgRoute = {
   routeRegex: string
   fallback: string | null | false
-  dataRoute: string
+  dataRoute: string | null
   dataRouteRegex: string
 }
 export declare type PrerenderManifest = {
@@ -35,7 +39,7 @@ const rscifyPath = (route: string) => {
 export const getRscDataRouter = ({ routes: staticRoutes, dynamicRoutes }: PrerenderManifest): EdgeFunction => {
   const staticRouteSet = new Set(
     Object.entries(staticRoutes)
-      .filter(([, { dataRoute }]) => dataRoute.endsWith('.rsc'))
+      .filter(([, { dataRoute }]) => dataRoute?.endsWith('.rsc'))
       .map(([route]) => route),
   )
 
