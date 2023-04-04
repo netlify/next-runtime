@@ -39,9 +39,10 @@ describe('Standard middleware', () => {
   })
 
   // https://github.com/netlify/pillar-support/issues/350
-  it('MiddlewareResponse adds cookies', () => { 
-    cy.request('/cookies/middleware').then(() => {
+  it('MiddlewareResponse adds cookies', () => {
+    cy.request('/cookies/middleware').then((response) => {
       cy.getCookie('middlewareCookie').should('have.property', 'value', 'true')
+      expect(response.headers).to.have.property('x-foo', 'bar')
     })
   })
 })
