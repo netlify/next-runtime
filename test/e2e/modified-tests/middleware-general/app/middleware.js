@@ -73,10 +73,10 @@ export async function middleware(request) {
   }
 
   if (url.pathname === '/cookie-repro') {
-    const request = new MiddlewareRequest(request)
-    const response = await request.next()
-    response.cookies.set('foo', 'bar')
-    return response
+    const mwRequest = new MiddlewareRequest(request)
+    const mwResponse = await mwRequest.next()
+    mwResponse.cookies.set('foo', 'bar')
+    return mwResponse
   }
 
   if (url.pathname.startsWith('/fetch-user-agent-default')) {
