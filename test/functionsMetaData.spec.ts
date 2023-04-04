@@ -106,8 +106,6 @@ describe('writeFunctionConfiguration', () => {
   })
 })
 
-// EDGE FUNCTIONS
-
 describe('writeEdgeFunctionConfiguration', () => {
   afterEach(() => {
     mock.restore()
