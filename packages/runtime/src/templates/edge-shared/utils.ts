@@ -57,10 +57,15 @@ export const addMiddlewareHeaders = async (
   return response
 }
 
+interface ResponseCookies {
+  readonly _headers: Headers
+}
+
 interface MiddlewareResponse extends Response {
   originResponse: Response
   dataTransforms: NextDataTransform[]
   elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
+  get cookies(): ResponseCookies
 }
 
 interface MiddlewareRequest {
@@ -186,8 +191,8 @@ export const buildResponse = async ({
     }
 
     // NextResponse doesn't set cookies onto the originResponse, so we need to copy them over
-    if (response.headers.has('set-cookie')) {
-      response.originResponse.headers.set('set-cookie', response.headers.get('set-cookie')!)
+    if (response.cookies._headers.has('set-cookie')) {
+      response.originResponse.headers.set('set-cookie', response.cookies._headers.get('set-cookie')!)
     }
 
     // If it's JSON we don't need to use the rewriter, we can just parse it

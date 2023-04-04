@@ -37,6 +37,12 @@ describe('Standard middleware', () => {
       cy.getCookie('netlifyCookie').should('have.property', 'value', 'true')
     })
   })
+
+  it('MiddlewareResponse adds cookies', () => {
+    cy.request('/cookies/middleware').then(() => {
+      cy.getCookie('middlewareCookie').should('have.property', 'value', 'true')
+    })
+  })
 })
 
 describe('Middleware matchers', () => {

@@ -53,6 +53,13 @@ export async function middleware(req: NextRequest) {
     return request.rewrite('/api/hello')
   }
 
+  if (pathname.startsWith('/cookies/middleware')) {
+    const response = await new MiddlewareRequest(req).next()
+    console.log(response.cookies)
+    response.cookies.set('middlewareCookie', 'true')
+    return response
+  }
+
   if (pathname.startsWith('/cookies')) {
     response = NextResponse.next()
     response.cookies.set('netlifyCookie', 'true')
