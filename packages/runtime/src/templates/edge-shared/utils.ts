@@ -184,6 +184,12 @@ export const buildResponse = async ({
     if (request.method === 'HEAD' || request.method === 'OPTIONS') {
       return response.originResponse
     }
+
+    // NextResponse doesn't set cookies onto the originResponse, so we need to copy them over
+    if (response.headers.has("set-cookie")) {
+      response.originResponse.set("set-cookie", response.headers.get("set-cookie"))
+    }
+
     // If it's JSON we don't need to use the rewriter, we can just parse it
     if (response.originResponse.headers.get('content-type')?.includes('application/json')) {
       const props = await response.originResponse.json()
