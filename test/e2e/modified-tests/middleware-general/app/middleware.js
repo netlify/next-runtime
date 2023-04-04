@@ -73,7 +73,7 @@ export async function middleware(request) {
   }
 
   if (url.pathname === '/cookie-repro') {
-    const request = new MiddlewareRequest(nextRequest)
+    const request = new MiddlewareRequest(request)
     const response = await request.next()
     response.cookies.set('foo', 'bar')
     return response
