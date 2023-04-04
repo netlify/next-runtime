@@ -72,13 +72,6 @@ export async function middleware(request) {
     return NextResponse.rewrite(url)
   }
 
-  if (url.pathname === '/cookie-repro') {
-    const mwRequest = new MiddlewareRequest(request)
-    const mwResponse = await mwRequest.next()
-    mwResponse.cookies.set('foo', 'bar')
-    return mwResponse
-  }
-
   if (url.pathname.startsWith('/fetch-user-agent-default')) {
     try {
       const apiRoute = new URL(url)

@@ -44,9 +44,6 @@ describe('Middleware Runtime', () => {
             start: 'next start',
           },
         },
-        dependencies: {
-          '@netlify/next': 'file:' + join(__dirname, '../../../../../packages/next'),
-        },
         startCommand: (global as any).isNextDev ? 'yarn dev' : 'yarn start',
         buildCommand: 'yarn build',
         env: {
@@ -466,12 +463,6 @@ describe('Middleware Runtime', () => {
     it('should throw when using NextRequest with a relative URL', async () => {
       const response = await fetchViaHTTP(next.url, `/url/relative-next-request`)
       expect(readMiddlewareError(response)).toContain(urlsError)
-    })
-
-    // https://github.com/netlify/pillar-support/issues/350
-    it('supports setting cookies', async () => {
-      const response = await fetchViaHTTP(next.url, `/cookie-repro`)
-      expect(response.headers.get('set-cookie')).toContain('foo')
     })
 
     if (!(global as any).isNextDeploy) {
