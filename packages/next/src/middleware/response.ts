@@ -11,7 +11,15 @@ export class MiddlewareResponse extends NextResponse {
   private readonly dataTransforms: NextDataTransform[]
   private readonly elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
   constructor(public originResponse: Response) {
-    super()
+    // we need to propagate the set-cookie header, so response.cookies.get works correctly
+    const initHeaders = new Headers()
+    if (originResponse.headers.has('set-cookie')) {
+      initHeaders.set('set-cookie', originResponse.headers.get('set-cookie'))
+    }
+
+    super(undefined, {
+      headers: initHeaders,
+    })
 
     // These are private in Node when compiling, but we access them in Deno at runtime
     Object.defineProperty(this, 'dataTransforms', {
