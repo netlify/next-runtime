@@ -28,6 +28,9 @@ const nextPluginVersion = async () => {
     'unknown'
   )
 }
+
+export const getPluginVersion = async () => `${NEXT_PLUGIN_NAME}@${await nextPluginVersion()}`
+
 // The information needed to create a function configuration file
 export interface FunctionInfo {
   // The name of the function, e.g. `___netlify-handler`
@@ -47,20 +50,14 @@ export interface FunctionInfo {
  */
 export const writeFunctionConfiguration = async (functionInfo: FunctionInfo) => {
   const { functionName, functionTitle, functionsDir } = functionInfo
-  const pluginVersion = await nextPluginVersion()
 
   const metadata = {
     config: {
       name: functionTitle,
-      generator: `${NEXT_PLUGIN_NAME}@${pluginVersion}`,
+      generator: await getPluginVersion(),
     },
     version: 1,
   }
 
   await writeFile(join(functionsDir, functionName, `${functionName}.json`), JSON.stringify(metadata))
-}
-
-export const writeEdgeFunctionConfiguration = async () => {
-  const pluginVersion = await nextPluginVersion()
-  return `${NEXT_PLUGIN_NAME}@${pluginVersion}`
 }

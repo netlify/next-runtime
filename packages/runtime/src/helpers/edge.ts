@@ -13,7 +13,7 @@ import { outdent } from 'outdent'
 import { IMAGE_FUNCTION_NAME } from '../constants'
 
 import { getRequiredServerFiles, NextConfig } from './config'
-import { writeEdgeFunctionConfiguration } from './functionsMetaData'
+import { getPluginVersion } from './functionsMetaData'
 import { makeLocaleOptional, stripLookahead, transformCaptureGroups } from './matchers'
 import { RoutesManifest } from './types'
 // This is the format as of next@12.2
@@ -347,7 +347,7 @@ export const writeEdgeFunctions = async ({
   netlifyConfig: NetlifyConfig
   routesManifest: RoutesManifest
 }) => {
-  const nextjsPluginVersion = await writeEdgeFunctionConfiguration()
+  const nextjsPluginVersion = await getPluginVersion()
 
   const manifest: FunctionManifest = {
     functions: [],
