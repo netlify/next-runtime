@@ -21,7 +21,6 @@ const {
   getPrefetchResponse,
   normalizePath,
 } = require('./handlerUtils')
-const { NetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
@@ -33,6 +32,9 @@ type Mutable<T> = {
 const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { NetlifyNextServer } = require('./server')
+
   const dir = path.resolve(__dirname, app)
   if (pageRoot.startsWith(dir)) {
     process.chdir(dir)
@@ -185,7 +187,6 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, getNextServer, normalizePath } = require('./handlerUtils')
-  const { NetlifyNextServer } = require('./server')
 
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")
