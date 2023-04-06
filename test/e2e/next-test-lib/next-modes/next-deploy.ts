@@ -4,7 +4,7 @@ import fs from 'fs-extra'
 import { platform } from 'os'
 import { NextInstance } from './base'
 
-type DeployRes = {
+type DeployResponse = {
   name: string
   site_id: string
   site_name: string
@@ -80,7 +80,7 @@ export class NextDeployInstance extends NextInstance {
       throw new Error(`Failed to deploy project ${deployRes.stdout} ${deployRes.stderr} (${deployRes.exitCode})`)
     }
     try {
-      const data: DeployRes = JSON.parse(deployRes.stdout)
+      const data: DeployResponse = JSON.parse(deployRes.stdout)
       this._url = data.deploy_url
       this._deployId = data.deploy_id
       console.log(`Deployed to ${this._url}`, data)
@@ -104,7 +104,7 @@ export class NextDeployInstance extends NextInstance {
 
   public async destroy(): Promise<void> {
     if (this.isDestroyed) {
-      throw new Error(`next instance already destroyed`)
+      throw new Error(`Next.js deploy instance already destroyed`)
     }
 
     // During setup() the test site is deployed to Netlify
@@ -113,10 +113,10 @@ export class NextDeployInstance extends NextInstance {
     if (!process.env.NEXT_TEST_SKIP_CLEANUP) {
       console.log(`Deleting project with deploy_id ${this._deployId}`)
 
-      const deleteRes = await execa('ntl', ['api', 'deleteDeploy', '--data', `{ "deploy_id": "${this._deployId}" }`])
+      const deleteResponse = await execa('ntl', ['api', 'deleteDeploy', '--data', `{ "deploy_id": "${this._deployId}" }`])
   
-      if (deleteRes.exitCode !== 0) {
-        throw new Error(`Failed to delete project ${deleteRes.stdout} ${deleteRes.stderr} (${deleteRes.exitCode})`)
+      if (deleteResponse.exitCode !== 0) {
+        throw new Error(`Failed to delete project ${deleteResponse.stdout} ${deleteResponse.stderr} (${deleteResponse.exitCode})`)
       }
 
       console.log(`Successfully deleted project with deploy_id ${this._deployId}`)
