@@ -35,7 +35,13 @@ jobs:
         test-file: ${{ fromJson(needs.setup.outputs['test-files']) }}
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: 'npm'
       - run: npm install
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
       - name: Run tests
         run: npx jest --reporters=jest-junit --reporters=default -c test/e2e/jest.config.all.js ${{ matrix.test-file }}
         env:

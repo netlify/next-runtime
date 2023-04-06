@@ -230,7 +230,7 @@ export class NextInstance {
 
   public async destroy(): Promise<void> {
     if (this.isDestroyed) {
-      throw new Error(`next instance already destroyed`)
+      throw new Error(`Next.js base instance already destroyed`)
     }
     this.isDestroyed = true
     this.emit('destroy', [])
