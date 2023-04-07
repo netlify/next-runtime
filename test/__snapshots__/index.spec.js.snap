@@ -507,7 +507,13 @@ Object {
       "function": "ipx",
       "generator": "@netlify/next-runtime@1.0.0",
       "name": "next/image handler",
-      "path": "/_next/image*",
+      "path": "/_next/image/",
+    },
+  ],
+  "layers": Array [
+    Object {
+      "flag": "ipx-edge-function-layer-url",
+      "name": "https://ipx-edge-function-layer.netlify.app/mod.ts",
     },
   ],
   "version": 1,
@@ -681,7 +687,13 @@ Object {
       "function": "ipx",
       "generator": "@netlify/next-runtime@1.0.0",
       "name": "next/image handler",
-      "path": "/_next/image*",
+      "path": "/_next/image/",
+    },
+  ],
+  "layers": Array [
+    Object {
+      "flag": "ipx-edge-function-layer-url",
+      "name": "https://ipx-edge-function-layer.netlify.app/mod.ts",
     },
   ],
   "version": 1,
