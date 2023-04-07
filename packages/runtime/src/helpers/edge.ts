@@ -273,6 +273,7 @@ export const writeRscDataEdgeFunction = async ({
   prerenderManifest?: PrerenderManifest
   appPathRoutesManifest?: Record<string, string>
 }): Promise<FunctionManifest['functions']> => {
+  const nextjsPluginVersion = await getPluginVersion()
   if (!prerenderManifest || !appPathRoutesManifest) {
     return []
   }
@@ -303,11 +304,13 @@ export const writeRscDataEdgeFunction = async ({
       function: 'rsc-data',
       name: 'RSC data routing',
       path,
+      generator: `${nextjsPluginVersion}`,
     })),
     ...dynamicAppDirRoutes.map((pattern) => ({
       function: 'rsc-data',
       name: 'RSC data routing',
       pattern,
+      generator: `${nextjsPluginVersion}`,
     })),
   ]
 }

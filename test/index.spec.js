@@ -9,6 +9,14 @@ jest.mock('../packages/runtime/src/helpers/utils', () => {
   }
 })
 
+jest.mock('../packages/runtime/src/helpers/functionsMetaData', () => {
+  const { NEXT_PLUGIN_NAME } = require('../packages/runtime/src/constants')
+  return {
+    ...jest.requireActual('../packages/runtime/src/helpers/functionsMetaData'),
+    getPluginVersion: async () => `${NEXT_PLUGIN_NAME}@1.0.0`,
+  }
+})
+
 const Chance = require('chance')
 const {
   writeJSON,
@@ -728,6 +736,31 @@ describe('onBuild()', () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
+  })
+
+  test('generates edge-functions manifest', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'manifest.json'))).toBeTruthy()
+  })
+
+  test('generates generator field within the edge-functions manifest', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    const manifestPath = path.join('.netlify', 'edge-functions', 'manifest.json')
+    const manifest = await readJson(manifestPath)
+    console.log(manifest.functions)
+    expect(manifest).toMatchSnapshot()
+  })
+
+
+  test('generates generator field within the edge-functions manifest includes IPX', async () => {
+    process.env.NEXT_FORCE_EDGE_IMAGES = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    const manifestPath = path.join('.netlify', 'edge-functions', 'manifest.json')
+    const manifest = await readJson(manifestPath)
+    expect(manifest).toMatchSnapshot()
   })
 
   test('does not generate an ipx function when DISABLE_IPX is set', async () => {

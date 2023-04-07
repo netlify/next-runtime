@@ -340,6 +340,354 @@ exports.resolvePages = () => {
 }"
 `;
 
+exports[`onBuild() generates generator field within the edge-functions manifest 1`] = `
+Object {
+  "functions": Array [
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick/first-post",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick/first-post.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick/second-post",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick/second-post.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/sarah/second-post",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/sarah/second-post.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/rob/second-post",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/rob/second-post.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/erica/first-post",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/erica/first-post.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/sarah",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/sarah.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/rob",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/rob.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/erica",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/erica.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "pattern": "^/blog/([^/]+?)/([^/]+?)(?:/)?$",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "pattern": "^/blog/([^/]+?)/([^/]+?)\\\\.rsc$",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "pattern": "^/blog/([^/]+?)(?:/)?$",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "pattern": "^/blog/([^/]+?)\\\\.rsc$",
+    },
+    Object {
+      "cache": "manual",
+      "function": "next_app_app_edge_page",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "app/app-edge/page",
+      "pattern": "^/app\\\\-edge(?:/)?$",
+    },
+    Object {
+      "cache": "manual",
+      "function": "next_pages_edge__id_",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "pages/edge/[id]",
+      "pattern": "^/edge/([^/]+?)(?:/)?$",
+    },
+    Object {
+      "cache": "manual",
+      "function": "next_pages_edge__id_",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "pages/edge/[id]",
+      "pattern": "^/_next/data/build\\\\-id/edge/([^/]+?)\\\\.json$",
+    },
+    Object {
+      "cache": "manual",
+      "function": "next_pages_api_og",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "pages/api/og",
+      "pattern": "^/api/og/?$",
+    },
+    Object {
+      "function": "ipx",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "next/image handler",
+      "path": "/_next/image*",
+    },
+  ],
+  "version": 1,
+}
+`;
+
+exports[`onBuild() generates generator field within the edge-functions manifest includes IPX 1`] = `
+Object {
+  "functions": Array [
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick/first-post",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick/first-post.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick/second-post",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick/second-post.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/sarah/second-post",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/sarah/second-post.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/rob/second-post",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/rob/second-post.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/erica/first-post",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/erica/first-post.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/nick.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/sarah",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/sarah.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/rob",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/rob.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/erica",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "path": "/blog/erica.rsc",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "pattern": "^/blog/([^/]+?)/([^/]+?)(?:/)?$",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "pattern": "^/blog/([^/]+?)/([^/]+?)\\\\.rsc$",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "pattern": "^/blog/([^/]+?)(?:/)?$",
+    },
+    Object {
+      "function": "rsc-data",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "RSC data routing",
+      "pattern": "^/blog/([^/]+?)\\\\.rsc$",
+    },
+    Object {
+      "cache": "manual",
+      "function": "next_app_app_edge_page",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "app/app-edge/page",
+      "pattern": "^/app\\\\-edge(?:/)?$",
+    },
+    Object {
+      "cache": "manual",
+      "function": "next_pages_edge__id_",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "pages/edge/[id]",
+      "pattern": "^/edge/([^/]+?)(?:/)?$",
+    },
+    Object {
+      "cache": "manual",
+      "function": "next_pages_edge__id_",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "pages/edge/[id]",
+      "pattern": "^/_next/data/build\\\\-id/edge/([^/]+?)\\\\.json$",
+    },
+    Object {
+      "cache": "manual",
+      "function": "next_pages_api_og",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "pages/api/og",
+      "pattern": "^/api/og/?$",
+    },
+    Object {
+      "function": "ipx",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "next/image handler",
+      "path": "/_next/image*",
+    },
+  ],
+  "version": 1,
+}
+`;
+
 exports[`onBuild() generates static files manifest 1`] = `
 Array [
   Array [
