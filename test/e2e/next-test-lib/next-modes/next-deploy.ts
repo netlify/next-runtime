@@ -4,9 +4,20 @@ import fs from 'fs-extra'
 import { platform } from 'os'
 import { NextInstance } from './base'
 
+type DeployResponse = {
+  name: string
+  site_id: string
+  site_name: string
+  deploy_id: string
+  deploy_url: string
+  logs: string
+}
+
 export class NextDeployInstance extends NextInstance {
   private _cliOutput: string
   private _buildId: string
+  private _deployId: string
+  private _netlifySiteId: string
 
   public get buildId() {
     return this._buildId
@@ -28,22 +39,23 @@ export class NextDeployInstance extends NextInstance {
       cwd: this.testDir,
       stdio: 'inherit',
     })
-    // ensure Netlify CLI is installed
+    // Netlify CLI should be installed, but just making sure
     try {
       const res = await execa('ntl', ['--version'])
       console.log(`Using Netlify CLI version:`, res.stdout)
     } catch (_) {
-      console.log(`Installing Netlify CLI`)
-      await execa('npm', ['i', '-g', 'netlify-cli@latest'], {
-        stdio: 'inherit',
-      })
+      throw new Error(`You need to have netlify-cli installed.
+      
+      You can do this by running: "npm install -g netlify-cli@latest" or "yarn global add netlify-cli@latest"`)
     }
 
-    const NETLIFY_SITE_ID = process.env.NETLIFY_SITE_ID || '1d5a5c76-d445-4ae5-b694-b0d3f2e2c395'
     console.log(`Deploys site for test: ${testName}`)
+
+    this._netlifySiteId = process.env.NETLIFY_SITE_ID || '1d5a5c76-d445-4ae5-b694-b0d3f2e2c395'
+
     try {
-      const statRes = await execa('ntl', ['status', '--json'], {
-        env: { NETLIFY_SITE_ID, NODE_ENV: 'production' },
+      await execa('ntl', ['status', '--json'], {
+        env: { NETLIFY_SITE_ID: this._netlifySiteId, NODE_ENV: 'production' },
       })
     } catch (err) {
       if (err.message.includes("You don't appear to be in a folder that is linked to a site")) {
@@ -58,7 +70,7 @@ export class NextDeployInstance extends NextInstance {
       cwd: this.testDir,
       reject: false,
       env: {
-        NETLIFY_SITE_ID,
+        NETLIFY_SITE_ID: this._netlifySiteId,
         NODE_ENV: 'production',
         DISABLE_IPX: platform() === 'linux' ? undefined : '1',
       },
@@ -68,8 +80,9 @@ export class NextDeployInstance extends NextInstance {
       throw new Error(`Failed to deploy project ${deployRes.stdout} ${deployRes.stderr} (${deployRes.exitCode})`)
     }
     try {
-      const data = JSON.parse(deployRes.stdout)
+      const data: DeployResponse = JSON.parse(deployRes.stdout)
       this._url = data.deploy_url
+      this._deployId = data.deploy_id
       console.log(`Deployed to ${this._url}`, data)
       this._parsedUrl = new URL(this._url)
     } catch (err) {
@@ -87,6 +100,37 @@ export class NextDeployInstance extends NextInstance {
 
   public async start() {
     // no-op as the deployment is created during setup()
+  }
+
+  public async destroy(): Promise<void> {
+    if (this.isDestroyed) {
+      throw new Error(`Next.js deploy instance already destroyed`)
+    }
+
+    // During setup() the test site is deployed to Netlify
+    // Once testing is complete, we should delete the deploy again
+
+    if (!process.env.NEXT_TEST_SKIP_CLEANUP) {
+      console.log(`Deleting project with deploy_id ${this._deployId}`)
+
+      const deleteResponse = await execa('ntl', ['api', 'deleteDeploy', '--data', `{ "deploy_id": "${this._deployId}" }`])
+  
+      if (deleteResponse.exitCode !== 0) {
+        throw new Error(`Failed to delete project ${deleteResponse.stdout} ${deleteResponse.stderr} (${deleteResponse.exitCode})`)
+      }
+
+      console.log(`Successfully deleted project with deploy_id ${this._deployId}`)
+    }
+
+    // Code below is copied from the base NextInstance class
+
+    this.isDestroyed = true
+    this.emit('destroy', [])
+
+    if (!process.env.NEXT_TEST_SKIP_CLEANUP) {
+      await fs.remove(this.testDir)
+    }
+    require('console').log(`destroyed next instance`)
   }
 
   public async patchFile(filename: string, content: string): Promise<void> {
