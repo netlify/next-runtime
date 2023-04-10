@@ -744,6 +744,25 @@ describe('onBuild()', () => {
     expect(existsSync(path.join('.netlify', 'edge-functions', 'manifest.json'))).toBeTruthy()
   })
 
+  test('generates generator field within the edge-functions manifest', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    const manifestPath = path.join('.netlify', 'edge-functions', 'manifest.json')
+    const manifest = await readJson(manifestPath)
+    console.log(manifest.functions)
+    expect(manifest).toMatchSnapshot()
+  })
+
+
+  test('generates generator field within the edge-functions manifest includes IPX', async () => {
+    process.env.NEXT_FORCE_EDGE_IMAGES = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    const manifestPath = path.join('.netlify', 'edge-functions', 'manifest.json')
+    const manifest = await readJson(manifestPath)
+    expect(manifest).toMatchSnapshot()
+  })
+
   test('does not generate an ipx function when DISABLE_IPX is set', async () => {
     process.env.DISABLE_IPX = '1'
     await moveNextDist()
