@@ -484,13 +484,6 @@ Object {
     },
     Object {
       "cache": "manual",
-      "function": "next_pages_api_og",
-      "generator": "@netlify/next-runtime@1.0.0",
-      "name": "pages/api/og",
-      "pattern": "^/api/og/?$",
-    },
-    Object {
-      "cache": "manual",
       "function": "next_pages_edge__id_",
       "generator": "@netlify/next-runtime@1.0.0",
       "name": "pages/edge/[id]",
@@ -502,6 +495,13 @@ Object {
       "generator": "@netlify/next-runtime@1.0.0",
       "name": "pages/edge/[id]",
       "pattern": "^/_next/data/build\\\\-id/edge/([^/]+?)\\\\.json$",
+    },
+    Object {
+      "cache": "manual",
+      "function": "next_pages_api_og",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "pages/api/og",
+      "pattern": "^/api/og/?$",
     },
     Object {
       "function": "ipx",
@@ -664,13 +664,6 @@ Object {
     },
     Object {
       "cache": "manual",
-      "function": "next_pages_api_og",
-      "generator": "@netlify/next-runtime@1.0.0",
-      "name": "pages/api/og",
-      "pattern": "^/api/og/?$",
-    },
-    Object {
-      "cache": "manual",
       "function": "next_pages_edge__id_",
       "generator": "@netlify/next-runtime@1.0.0",
       "name": "pages/edge/[id]",
@@ -682,6 +675,13 @@ Object {
       "generator": "@netlify/next-runtime@1.0.0",
       "name": "pages/edge/[id]",
       "pattern": "^/_next/data/build\\\\-id/edge/([^/]+?)\\\\.json$",
+    },
+    Object {
+      "cache": "manual",
+      "function": "next_pages_api_og",
+      "generator": "@netlify/next-runtime@1.0.0",
+      "name": "pages/api/og",
+      "pattern": "^/api/og/?$",
     },
     Object {
       "function": "ipx",
