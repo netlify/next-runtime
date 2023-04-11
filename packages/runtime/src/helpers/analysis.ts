@@ -29,6 +29,8 @@ export interface ApiBackgroundConfig {
 
 export type ApiConfig = ApiStandardConfig | ApiScheduledConfig | ApiBackgroundConfig
 
+export const isEdgeConfig = (config: string) => ['experimental-edge', 'edge'].includes(config)
+
 export const validateConfigValue = (config: ApiConfig, apiFilePath: string): config is ApiConfig => {
   if (config.type === ApiRouteType.SCHEDULED) {
     if (!config.schedule) {
@@ -39,7 +41,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if (['experimental-edge', 'edge'].includes((config as ApiConfig).runtime)) {
+    if (isEdgeConfig((config as ApiConfig).runtime)) {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),
@@ -60,7 +62,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if (config.type && ['experimental-edge', 'edge'].includes((config as ApiConfig).runtime)) {
+    if (config.type && isEdgeConfig((config as ApiConfig).runtime)) {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),
