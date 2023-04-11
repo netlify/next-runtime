@@ -39,7 +39,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if ((config as ApiConfig).runtime === 'experimental-edge' || (config as ApiConfig).runtime === 'edge') {
+    if (['experimental-edge', 'edge'].includes((config as ApiConfig).runtime)) {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),
@@ -60,7 +60,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if (config.type && ((config as ApiConfig).runtime === 'experimental-edge' || (config as ApiConfig).runtime === 'edge')) {
+    if (config.type && ['experimental-edge', 'edge'].includes((config as ApiConfig).runtime)) {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),
