@@ -20,7 +20,7 @@ import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
-import { ApiConfig, ApiRouteType, extractConfigFromFile } from './analysis'
+import { ApiConfig, ApiRouteType, extractConfigFromFile, isEdgeConfig } from './analysis'
 import { getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
 import { getFunctionNameForPage } from './utils'
@@ -43,7 +43,7 @@ export const generateFunctions = async (
 
   for (const { route, config, compiled } of apiRoutes) {
     // Don't write a lambda if the runtime is edge
-    if (config.runtime === 'experimental-edge') {
+    if (isEdgeConfig(config.runtime)) {
       continue
     }
     const apiHandlerSource = await getApiHandler({
