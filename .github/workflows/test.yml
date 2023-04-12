@@ -12,28 +12,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Unit tests
-    runs-on: ${{ matrix.os }}
+  # build:
+  #   name: Unit tests
+  #   runs-on: ${{ matrix.os }}
 
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
-      fail-fast: false
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest, macOS-latest, windows-latest]
+  #     fail-fast: false
 
-    steps:
-      - uses: actions/checkout@v2
-      - name: Installing with LTS Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          check-latest: true
-      - name: NPM Install
-        run: npm install
-      - name: Linting
-        run: npm run format:ci
-      - name: Run tests against next@latest
-        run: npm test
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Installing with LTS Node.js
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 16
+  #         check-latest: true
+  #     - name: NPM Install
+  #       run: npm install
+  #     - name: Linting
+  #       run: npm run format:ci
+  #     - name: Run tests against next@latest
+  #       run: npm test
   canary:
     name: Unit tests (Canary)
     runs-on: ${{ matrix.os }}
@@ -43,7 +43,7 @@ jobs:
         os: [ubuntu-latest, macOS-latest, windows-latest]
       fail-fast: false
 
-    if: github.ref_name == 'main'
+    # if: github.ref_name == 'main'
     steps:
       - uses: actions/checkout@v2
       - name: Installing with LTS Node.js
