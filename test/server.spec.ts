@@ -1,8 +1,9 @@
-import { MockedRequest, MockedResponse } from 'next/dist/server/lib/mock-request'
+import { createRequestResponseMocks } from 'next/dist/server/lib/mock-request'
 import { Options } from 'next/dist/server/next-server'
 
 import { getNextServer, NextServerType, netlifyApiFetch } from '../packages/runtime/src/templates/handlerUtils'
 import { NetlifyNextServer, NetlifyConfig } from '../packages/runtime/src/templates/server'
+import { ServerResponse } from 'http'
 
 jest.mock('../packages/runtime/src/templates/handlerUtils', () => {
   const originalModule = jest.requireActual('../packages/runtime/src/templates/handlerUtils')
@@ -71,8 +72,9 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = mockRequest('/getStaticProps/with-revalidate/', {}, 'GET')
-    await requestHandler(mockReq, mockRes)
+    const { req: mockRequest, res: mockResponse } = createRequestResponseMocks({url: '/getStaticProps/with-revalidate/', method: 'GET'})
+    // @ts-ignore: mockResponse not typed right on next's end, not ours
+    await requestHandler(mockRequest, mockResponse)
 
     expect(mockedApiFetch).not.toHaveBeenCalled()
   })
@@ -81,12 +83,13 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = mockRequest(
-      '/non-i18n/with-revalidate/',
-      { 'x-prerender-revalidate': 'test' },
-      'GET',
-    )
-    await requestHandler(mockReq, mockRes)
+    const { req: mockRequest, res: mockResponse } = createRequestResponseMocks({
+      url: '/non-i18n/with-revalidate/',
+      headers: { 'x-prerender-revalidate': 'test' },
+      method: 'GET',
+    })
+    // @ts-ignore: mockResponse not typed right on next's end, not ours
+    await requestHandler(mockRequest, mockResponse)
 
     expect(mockedApiFetch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -101,12 +104,13 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: { ...mocki18nConfig } }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = mockRequest(
-      '/i18n/with-revalidate/',
-      { 'x-prerender-revalidate': 'test' },
-      'GET',
-    )
-    await requestHandler(mockReq, mockRes)
+    const { req: mockRequest, res: mockResponse } = createRequestResponseMocks({
+      url: '/i18n/with-revalidate/',
+      headers: { 'x-prerender-revalidate': 'test' },
+      method: 'GET',
+  })
+  // @ts-ignore: mockResponse not typed right on next's end, not ours
+    await requestHandler(mockRequest, mockResponse)
 
     expect(mockedApiFetch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -121,8 +125,9 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = mockRequest('/blog/rob/hello', { 'x-prerender-revalidate': 'test' }, 'GET')
-    await requestHandler(mockReq, mockRes)
+    const { req: mockRequest, res: mockResponse } = createRequestResponseMocks({url:'/blog/rob/hello', headers: { 'x-prerender-revalidate': 'test' }, method: 'GET'})
+    // @ts-ignore: mockResponse not typed right on next's end, not ours
+    await requestHandler(mockRequest, mockResponse)
 
     expect(mockedApiFetch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -137,8 +142,9 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: { ...mocki18nConfig } }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = mockRequest('/fr/posts/hello', { 'x-prerender-revalidate': 'test' }, 'GET')
-    await requestHandler(mockReq, mockRes)
+    const { req: mockRequest, res: mockResponse } = createRequestResponseMocks({url: '/fr/posts/hello', headers: { 'x-prerender-revalidate': 'test' }, method: 'GET'})
+    // @ts-ignore: mockResponse not typed right on next's end, not ours
+    await requestHandler(mockRequest, mockResponse)
 
     expect(mockedApiFetch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -153,32 +159,34 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = mockRequest(
-      '/not-a-valid-path/',
-      { 'x-prerender-revalidate': 'test' },
-      'GET',
-    )
-
-    await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('not an ISR route')
+    const { req: mockRequest, res: mockResponse } = createRequestResponseMocks({
+      url: '/not-a-valid-path/',
+      headers: { 'x-prerender-revalidate': 'test' },
+      method: 'GET',
+    })
+    // @ts-ignore: mockResponse not typed right on next's end, not ours
+    await expect(requestHandler(mockRequest, mockResponse)).rejects.toThrow('not an ISR route')
   })
 
   it('throws an error when paths are not found by the API', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = mockRequest('/posts/hello/', { 'x-prerender-revalidate': 'test' }, 'GET')
+    const { req: mockRequest, res: mockResponse } = createRequestResponseMocks({url: '/posts/hello/', headers: { 'x-prerender-revalidate': 'test' }, method: 'GET'})
 
     mockedApiFetch.mockResolvedValueOnce({ code: 500, message: 'Failed to revalidate' })
-    await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('Failed to revalidate')
+    // @ts-ignore: mockResponse not typed right on next's end, not ours
+    await expect(requestHandler(mockRequest, mockResponse)).rejects.toThrow('Failed to revalidate')
   })
 
   it('throws an error when the revalidate API is unreachable', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = mockRequest('/posts/hello', { 'x-prerender-revalidate': 'test' }, 'GET')
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({url: '/posts/hello', headers: { 'x-prerender-revalidate': 'test' }, method: 'GET'})
 
     mockedApiFetch.mockRejectedValueOnce(new Error('Unable to connect'))
+    // @ts-ignore: mockResponse not typed right on next's end, not ours
     await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('Unable to connect')
   })
 })
