@@ -8,7 +8,7 @@ const basePrerenderManifest: PrerenderManifest = {
 }
 
 describe('getRscDataRouter', () => {
-  it('should create a RSC data router when data routes are not present for routes', () => {
+  it('should filter static routes when creating the RSC data router', () => {
     const manifest: PrerenderManifest = {
       ...basePrerenderManifest,
       routes: {
