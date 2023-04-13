@@ -1,4 +1,4 @@
-import { mockRequest } from 'next/dist/server/lib/mock-request'
+import { MockedRequest, MockedResponse } from 'next/dist/server/lib/mock-request'
 import { Options } from 'next/dist/server/next-server'
 
 import { getNextServer, NextServerType, netlifyApiFetch } from '../packages/runtime/src/templates/handlerUtils'
