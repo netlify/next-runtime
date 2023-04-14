@@ -305,13 +305,13 @@ export const writeRscDataEdgeFunction = async ({
       function: 'rsc-data',
       name: 'RSC data routing',
       path,
-      generator: `${nextjsPluginVersion}`,
+      generator: nextjsPluginVersion,
     })),
     ...dynamicAppDirRoutes.map((pattern) => ({
       function: 'rsc-data',
       name: 'RSC data routing',
       pattern,
-      generator: `${nextjsPluginVersion}`,
+      generator: nextjsPluginVersion,
     })),
   ]
 }
@@ -453,7 +453,7 @@ export const writeEdgeFunctions = async ({
         pattern,
         // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
         cache: usesAppDir ? 'manual' : undefined,
-        generator: `${nextjsPluginVersion}`,
+        generator: nextjsPluginVersion,
       })
       // pages-dir page routes also have a data route. If there's a match, add an entry mapping that to the function too
       const dataRoute = dataRoutesMap.get(edgeFunctionDefinition.page)
@@ -463,7 +463,7 @@ export const writeEdgeFunctions = async ({
           name: edgeFunctionDefinition.name,
           pattern: dataRoute,
           cache: usesAppDir ? 'manual' : undefined,
-          generator: `${nextjsPluginVersion}`,
+          generator: nextjsPluginVersion,
         })
       }
     }
@@ -489,7 +489,7 @@ export const writeEdgeFunctions = async ({
       function: 'ipx',
       name: 'next/image handler',
       path: nextConfig.images.path || '/_next/image',
-      generator: `${nextjsPluginVersion}`,
+      generator: nextjsPluginVersion,
     })
 
     manifest.layers.push({
