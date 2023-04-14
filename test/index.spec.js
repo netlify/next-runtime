@@ -747,9 +747,9 @@ describe('onBuild()', () => {
   test('generates generator field within the edge-functions manifest', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
-    const manifestPath = path.join('.netlify', 'edge-functions', 'manifest.json')
-    const manifest = await readJson(manifestPath)
-    console.log(manifest.functions)
+    const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
+    const manifest = manifestPath.functions.sort()
+    
     expect(manifest).toMatchSnapshot()
   })
 
@@ -758,8 +758,9 @@ describe('onBuild()', () => {
     process.env.NEXT_FORCE_EDGE_IMAGES = '1'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
-    const manifestPath = path.join('.netlify', 'edge-functions', 'manifest.json')
-    const manifest = await readJson(manifestPath)
+    const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
+    const manifest = manifestPath.functions.sort()
+    
     expect(manifest).toMatchSnapshot()
   })
 
