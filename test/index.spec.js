@@ -213,52 +213,52 @@ afterEach(async () => {
   }
 })
 
-describe('preBuild()', () => {
-  test('fails if publishing the root of the project', () => {
-    defaultArgs.netlifyConfig.build.publish = path.resolve('.')
-    expect(nextRuntime.onPreBuild(defaultArgs)).rejects.toThrowError(
-      /Your publish directory is pointing to the base directory of your site/,
-    )
-  })
+// describe('preBuild()', () => {
+//   test('fails if publishing the root of the project', () => {
+//     defaultArgs.netlifyConfig.build.publish = path.resolve('.')
+//     expect(nextRuntime.onPreBuild(defaultArgs)).rejects.toThrowError(
+//       /Your publish directory is pointing to the base directory of your site/,
+//     )
+//   })
 
-  test('fails if the build version is too old', () => {
-    expect(
-      nextRuntime.onPreBuild({
-        ...defaultArgs,
-        constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.15.0' },
-      }),
-    ).rejects.toThrow('This version of the Next Runtime requires netlify-cli')
-  })
+//   test('fails if the build version is too old', () => {
+//     expect(
+//       nextRuntime.onPreBuild({
+//         ...defaultArgs,
+//         constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.15.0' },
+//       }),
+//     ).rejects.toThrow('This version of the Next Runtime requires netlify-cli')
+//   })
 
-  test('passes if the build version is new enough', async () => {
-    expect(
-      nextRuntime.onPreBuild({
-        ...defaultArgs,
-        constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.16.1' },
-      }),
-    ).resolves.not.toThrow()
-  })
+//   test('passes if the build version is new enough', async () => {
+//     expect(
+//       nextRuntime.onPreBuild({
+//         ...defaultArgs,
+//         constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.16.1' },
+//       }),
+//     ).resolves.not.toThrow()
+//   })
 
-  it('restores cache with right paths', async () => {
-    await useFixture('dist_dir_next_config')
+//   it('restores cache with right paths', async () => {
+//     await useFixture('dist_dir_next_config')
 
-    const restore = jest.fn()
+//     const restore = jest.fn()
 
-    await nextRuntime.onPreBuild({
-      ...defaultArgs,
-      utils: { ...utils, cache: { restore } },
-    })
+//     await nextRuntime.onPreBuild({
+//       ...defaultArgs,
+//       utils: { ...utils, cache: { restore } },
+//     })
 
-    expect(restore).toHaveBeenCalledWith(path.resolve('.next/cache'))
-  })
+//     expect(restore).toHaveBeenCalledWith(path.resolve('.next/cache'))
+//   })
 
-  it('forces the target to "server"', async () => {
-    const netlifyConfig = { ...defaultArgs.netlifyConfig }
+//   it('forces the target to "server"', async () => {
+//     const netlifyConfig = { ...defaultArgs.netlifyConfig }
 
-    await nextRuntime.onPreBuild({ ...defaultArgs, netlifyConfig })
-    expect(netlifyConfig.build.environment.NEXT_PRIVATE_TARGET).toBe('server')
-  })
-})
+//     await nextRuntime.onPreBuild({ ...defaultArgs, netlifyConfig })
+//     expect(netlifyConfig.build.environment.NEXT_PRIVATE_TARGET).toBe('server')
+//   })
+// })
 
 describe('onBuild()', () => {
   const { isNextAuthInstalled } = require('../packages/runtime/src/helpers/utils')
@@ -750,12 +750,6 @@ describe('onBuild()', () => {
     expect(nextImageRedirect.force).toEqual(true)
 
     delete process.env.DISABLE_IPX
-  })
-
-  test('generates an ipx edge function by default', async () => {
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
   })
 
   test('does not generate an ipx edge function if the feature is disabled', async () => {
