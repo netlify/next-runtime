@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.34.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.33.0...plugin-nextjs-v4.34.0) (2023-04-10)
+
+
+### Features
+
+* use edge function layer for ipx ([#1880](https://github.com/netlify/next-runtime/issues/1880)) ([56c7828](https://github.com/netlify/next-runtime/commit/56c78282662d9f0c47e85e4a0b478f2a354e9c16))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.4.0 ([#2031](https://github.com/netlify/next-runtime/issues/2031)) ([03f60bb](https://github.com/netlify/next-runtime/commit/03f60bbfd67ba71b2db4fcfba0f2f82fc10bfdfc))
+* routes with null data routes can be filtered now ([#2018](https://github.com/netlify/next-runtime/issues/2018)) ([7c1673b](https://github.com/netlify/next-runtime/commit/7c1673b6b09a3b0461e92c6c54afb517d95954c3))
+* support setting cookies from MiddlewareResponse ([#2027](https://github.com/netlify/next-runtime/issues/2027)) ([a630ab4](https://github.com/netlify/next-runtime/commit/a630ab41e8a4d0f04e8de4b19a8886705a6b0fe8))
+
 ## [4.33.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.2...plugin-nextjs-v4.33.0) (2023-03-27)
 
 
