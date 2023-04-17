@@ -213,52 +213,52 @@ afterEach(async () => {
   }
 })
 
-// describe('preBuild()', () => {
-//   test('fails if publishing the root of the project', () => {
-//     defaultArgs.netlifyConfig.build.publish = path.resolve('.')
-//     expect(nextRuntime.onPreBuild(defaultArgs)).rejects.toThrowError(
-//       /Your publish directory is pointing to the base directory of your site/,
-//     )
-//   })
+describe('preBuild()', () => {
+  test('fails if publishing the root of the project', () => {
+    defaultArgs.netlifyConfig.build.publish = path.resolve('.')
+    expect(nextRuntime.onPreBuild(defaultArgs)).rejects.toThrowError(
+      /Your publish directory is pointing to the base directory of your site/,
+    )
+  })
 
-//   test('fails if the build version is too old', () => {
-//     expect(
-//       nextRuntime.onPreBuild({
-//         ...defaultArgs,
-//         constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.15.0' },
-//       }),
-//     ).rejects.toThrow('This version of the Next Runtime requires netlify-cli')
-//   })
+  test('fails if the build version is too old', () => {
+    expect(
+      nextRuntime.onPreBuild({
+        ...defaultArgs,
+        constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.15.0' },
+      }),
+    ).rejects.toThrow('This version of the Next Runtime requires netlify-cli')
+  })
 
-//   test('passes if the build version is new enough', async () => {
-//     expect(
-//       nextRuntime.onPreBuild({
-//         ...defaultArgs,
-//         constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.16.1' },
-//       }),
-//     ).resolves.not.toThrow()
-//   })
+  test('passes if the build version is new enough', async () => {
+    expect(
+      nextRuntime.onPreBuild({
+        ...defaultArgs,
+        constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.16.1' },
+      }),
+    ).resolves.not.toThrow()
+  })
 
-//   it('restores cache with right paths', async () => {
-//     await useFixture('dist_dir_next_config')
+  it('restores cache with right paths', async () => {
+    await useFixture('dist_dir_next_config')
 
-//     const restore = jest.fn()
+    const restore = jest.fn()
 
-//     await nextRuntime.onPreBuild({
-//       ...defaultArgs,
-//       utils: { ...utils, cache: { restore } },
-//     })
+    await nextRuntime.onPreBuild({
+      ...defaultArgs,
+      utils: { ...utils, cache: { restore } },
+    })
 
-//     expect(restore).toHaveBeenCalledWith(path.resolve('.next/cache'))
-//   })
+    expect(restore).toHaveBeenCalledWith(path.resolve('.next/cache'))
+  })
 
-//   it('forces the target to "server"', async () => {
-//     const netlifyConfig = { ...defaultArgs.netlifyConfig }
+  it('forces the target to "server"', async () => {
+    const netlifyConfig = { ...defaultArgs.netlifyConfig }
 
-//     await nextRuntime.onPreBuild({ ...defaultArgs, netlifyConfig })
-//     expect(netlifyConfig.build.environment.NEXT_PRIVATE_TARGET).toBe('server')
-//   })
-// })
+    await nextRuntime.onPreBuild({ ...defaultArgs, netlifyConfig })
+    expect(netlifyConfig.build.environment.NEXT_PRIVATE_TARGET).toBe('server')
+  })
+})
 
 describe('onBuild()', () => {
   const { isNextAuthInstalled } = require('../packages/runtime/src/helpers/utils')
@@ -1256,7 +1256,7 @@ describe('utility functions', () => {
     })
   })
 
-  test('patches Next server files', async () => {
+  test.only('patches Next server files', async () => {
     const root = path.resolve(dirname(__dirname))
     await copy(join(root, 'package.json'), path.join(process.cwd(), 'package.json'))
     await ensureDir(path.join(process.cwd(), 'node_modules'))
@@ -1265,6 +1265,7 @@ describe('utility functions', () => {
     await patchNextFiles(process.cwd())
     const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
     const patchedData = await readFileSync(serverFile, 'utf8')
+    console.log(patchedData)
     expect(patchedData.includes('_REVALIDATE_SSG')).toBeTruthy()
     expect(patchedData.includes('private: isPreviewMode && cachedData')).toBeTruthy()
 
