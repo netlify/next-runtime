@@ -263,7 +263,7 @@ export const writeDevEdgeFunction = async ({
  * Writes an edge function that routes RSC data requests to the `.rsc` route
  */
 
-export const writeRscDataEdgeFunction = async ({
+export const generateRscDataEdgeManifest = async ({
   prerenderManifest,
   appPathRoutesManifest,
 }: {
@@ -368,7 +368,7 @@ export const writeEdgeFunctions = async ({
     return
   }
 
-  const rscFunctions = await writeRscDataEdgeFunction({
+  const rscFunctions = await generateRscDataEdgeManifest({
     prerenderManifest: await loadPrerenderManifest(netlifyConfig),
     appPathRoutesManifest: await loadAppPathRoutesManifest(netlifyConfig),
   })

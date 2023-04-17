@@ -1,4 +1,4 @@
-import { writeRscDataEdgeFunction } from '../packages/runtime/src/helpers/edge'
+import { generateRscDataEdgeManifest } from '../packages/runtime/src/helpers/edge'
 import type { PrerenderManifest } from 'next/dist/build'
 
 const basePrerenderManifest: PrerenderManifest = {
@@ -13,7 +13,7 @@ const basePrerenderManifest: PrerenderManifest = {
   },
 }
 
-describe('writeRscDataEdgeFunction', () => {
+describe('generateRscDataEdgeManifest', () => {
   it('should return manifest entries for static appDir routes', async () => {
     const prerenderManifest: PrerenderManifest = {
       ...basePrerenderManifest,
@@ -28,7 +28,7 @@ describe('writeRscDataEdgeFunction', () => {
     const appPathRoutesManifest = {
       '/page': '/',
     }
-    const edgeManifest = await writeRscDataEdgeFunction({ prerenderManifest, appPathRoutesManifest })
+    const edgeManifest = await generateRscDataEdgeManifest({ prerenderManifest, appPathRoutesManifest })
 
     expect(edgeManifest).toEqual([
       {
@@ -58,7 +58,7 @@ describe('writeRscDataEdgeFunction', () => {
     const appPathRoutesManifest = {
       '/api/hello/route': '/api/hello',
     }
-    const edgeManifest = await writeRscDataEdgeFunction({ prerenderManifest, appPathRoutesManifest })
+    const edgeManifest = await generateRscDataEdgeManifest({ prerenderManifest, appPathRoutesManifest })
 
     expect(edgeManifest).toEqual([])
   })
@@ -79,7 +79,7 @@ describe('writeRscDataEdgeFunction', () => {
     const appPathRoutesManifest = {
       '/blog/[author]/page': '/blog/[author]',
     }
-    const edgeManifest = await writeRscDataEdgeFunction({ prerenderManifest, appPathRoutesManifest })
+    const edgeManifest = await generateRscDataEdgeManifest({ prerenderManifest, appPathRoutesManifest })
 
     expect(edgeManifest).toEqual([
       {
@@ -95,7 +95,7 @@ describe('writeRscDataEdgeFunction', () => {
     ])
   })
 
-  it('should not return manifest entries for dynamic appDir routes without dataRoutes', async () => {
+  it('should not return manifest entries for dynamic appDir routes without dataRoute', async () => {
     const prerenderManifest: PrerenderManifest = {
       ...basePrerenderManifest,
       dynamicRoutes: {
@@ -111,7 +111,7 @@ describe('writeRscDataEdgeFunction', () => {
     const appPathRoutesManifest = {
       '/api/[endpoint]/route': '/api/[endpoint]',
     }
-    const edgeManifest = await writeRscDataEdgeFunction({ prerenderManifest, appPathRoutesManifest })
+    const edgeManifest = await generateRscDataEdgeManifest({ prerenderManifest, appPathRoutesManifest })
 
     expect(edgeManifest).toEqual([])
   })
