@@ -2,6 +2,7 @@
 // deno-lint-ignore-file no-var prefer-const no-unused-vars no-explicit-any
 import { decode as _base64Decode } from 'https://deno.land/std@0.175.0/encoding/base64.ts'
 import { AsyncLocalStorage as ALSCompat } from 'https://deno.land/std@0.175.0/node/async_hooks.ts'
+import { Buffer } from 'https://deno.land/std@0.175.0/io/buffer.ts'
 
 /**
  * These are the shims, polyfills and other kludges to make Next.js work in standards-compliant runtime.
@@ -48,6 +49,11 @@ const fetch /* type {typeof globalThis.fetch} */ = async (url, init) => {
   }
 }
 
+const require = (name) => {
+  if (name === 'node:buffer') return Buffer
+  throw new ReferenceError('require is not defined')
+}
+
 // Next edge runtime uses "self" as a function-scoped global-like object, but some of the older polyfills expect it to equal globalThis
 // See https://nextjs.org/docs/basic-features/supported-browsers-features#polyfills
-const self = { ...globalThis, fetch }
+const self = { ...globalThis, fetch, require }
