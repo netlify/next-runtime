@@ -50,11 +50,12 @@ export interface FunctionInfo {
  */
 export const writeFunctionConfiguration = async (functionInfo: FunctionInfo) => {
   const { functionName, functionTitle, functionsDir } = functionInfo
+  const generator = await getPluginVersion()
 
   const metadata = {
     config: {
       name: functionTitle,
-      generator: await getPluginVersion(),
+      generator,
     },
     version: 1,
   }
