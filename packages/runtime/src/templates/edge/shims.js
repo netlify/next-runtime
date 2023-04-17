@@ -49,6 +49,7 @@ const fetch /* type {typeof globalThis.fetch} */ = async (url, init) => {
   }
 }
 
+// Turbopack aliases "Buffer" to a module import, so we need to provide a shim for that
 if (typeof require === 'undefined') {
   globalThis.require = (name) => {
     if (name === 'buffer' || name === 'node:buffer') {
