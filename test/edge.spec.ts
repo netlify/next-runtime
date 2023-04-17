@@ -95,7 +95,7 @@ describe('generateRscDataEdgeManifest', () => {
     ])
   })
 
-  it('should not return manifest entries for dynamic appDir routes without dataRoute', async () => {
+  it('should not return manifest entries for dynamic appDir routes without dataRouteRegex', async () => {
     const prerenderManifest: PrerenderManifest = {
       ...basePrerenderManifest,
       dynamicRoutes: {
