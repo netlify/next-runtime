@@ -269,7 +269,7 @@ export const writeDevEdgeFunction = async ({
  * Writes an edge function that routes RSC data requests to the `.rsc` route
  */
 
-export const writeRscDataEdgeFunction = async ({
+export const generateRscDataEdgeManifest = async ({
   prerenderManifest,
   appPathRoutesManifest,
 }: {
@@ -282,14 +282,14 @@ export const writeRscDataEdgeFunction = async ({
   }
   const staticAppdirRoutes: Array<string> = []
   for (const [path, route] of Object.entries(prerenderManifest.routes)) {
-    if (isAppDirRoute(route.srcRoute, appPathRoutesManifest)) {
+    if (isAppDirRoute(route.srcRoute, appPathRoutesManifest) && route.dataRoute) {
       staticAppdirRoutes.push(path, route.dataRoute)
     }
   }
   const dynamicAppDirRoutes: Array<string> = []
 
   for (const [path, route] of Object.entries(prerenderManifest.dynamicRoutes)) {
-    if (isAppDirRoute(path, appPathRoutesManifest)) {
+    if (isAppDirRoute(path, appPathRoutesManifest) && route.dataRouteRegex) {
       dynamicAppDirRoutes.push(route.routeRegex, route.dataRouteRegex)
     }
   }
@@ -379,7 +379,7 @@ export const writeEdgeFunctions = async ({
     return
   }
 
-  const rscFunctions = await writeRscDataEdgeFunction({
+  const rscFunctions = await generateRscDataEdgeManifest({
     prerenderManifest: await loadPrerenderManifest(netlifyConfig),
     appPathRoutesManifest: await loadAppPathRoutesManifest(netlifyConfig),
   })
