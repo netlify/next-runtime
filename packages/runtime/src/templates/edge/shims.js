@@ -2,6 +2,7 @@
 // deno-lint-ignore-file no-var prefer-const no-unused-vars no-explicit-any
 import { decode as _base64Decode } from 'https://deno.land/std@0.175.0/encoding/base64.ts'
 import { AsyncLocalStorage as ALSCompat } from 'https://deno.land/std@0.175.0/node/async_hooks.ts'
+import { Buffer as BufferCompat } from 'https://deno.land/std@0.175.0/io/buffer.ts'
 
 /**
  * These are the shims, polyfills and other kludges to make Next.js work in standards-compliant runtime.
@@ -45,6 +46,15 @@ const fetch /* type {typeof globalThis.fetch} */ = async (url, init) => {
   } catch (error) {
     console.error(error)
     throw error
+  }
+}
+
+if (typeof require === 'undefined') {
+  globalThis.require = (name) => {
+    if (name === 'buffer' || name === 'node:buffer') {
+      return { Buffer: BufferCompat }
+    }
+    throw new ReferenceError('require is not defined')
   }
 }
 
