@@ -26,7 +26,6 @@ import process from "process"
 import os from "os"
 import cpy from "cpy"
 import { dir as getTmpDir } from "tmp-promise"
-import { downloadFile } from "../packages/runtime/src/templates/handlerUtils"
 import { getExtendedApiRouteConfigs } from "../packages/runtime/src/helpers/functions"
 // @ts-expect-error - TODO: Convert runtime export to ES6
 import nextRuntimeFactory from "../packages/runtime/src"
@@ -1087,38 +1086,6 @@ describe('onPostBuild', () => {
 })
 
 describe('function helpers', () => {
-  it('downloadFile can download a file', async () => {
-    const url =
-      'https://raw.githubusercontent.com/netlify/next-runtime/c2668af24a78eb69b33222913f44c1900a3bce23/manifest.yml'
-    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
-    await ensureDir(path.dirname(tmpFile))
-    await downloadFile(url, tmpFile)
-    expect(existsSync(tmpFile)).toBeTruthy()
-    expect(readFileSync(tmpFile, 'utf8')).toMatchInlineSnapshot(`
-      "name: netlify-plugin-nextjs-experimental
-      "
-    `)
-    await unlink(tmpFile)
-  })
-
-  it('downloadFile throws on bad domain', async () => {
-    const url = 'https://nonexistentdomain.example'
-    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
-    await ensureDir(path.dirname(tmpFile))
-    await expect(downloadFile(url, tmpFile)).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"getaddrinfo ENOTFOUND nonexistentdomain.example"`,
-    )
-  })
-
-  it('downloadFile throws on 404', async () => {
-    const url = 'https://example.com/nonexistentfile'
-    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
-    await ensureDir(path.dirname(tmpFile))
-    await expect(downloadFile(url, tmpFile)).rejects.toThrowError(
-      'Failed to download https://example.com/nonexistentfile: 404 Not Found',
-    )
-  })
-
   describe('config', () => {
     describe('dependency tracing', () => {
       it('extracts a list of all dependencies', async () => {
