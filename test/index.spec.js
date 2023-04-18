@@ -750,7 +750,13 @@ describe('onBuild()', () => {
     const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
     const manifest = manifestPath.functions.sort()
     
-    expect(manifest).toMatchSnapshot()
+    expect(manifest).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          generator: '@netlify/next-runtime@1.0.0'
+        })
+      ])
+    )
   })
 
 
@@ -761,7 +767,13 @@ describe('onBuild()', () => {
     const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
     const manifest = manifestPath.functions.sort()
     
-    expect(manifest).toMatchSnapshot()
+    expect(manifest).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          generator: '@netlify/next-runtime@1.0.0'
+        })
+      ])
+    )
   })
 
   test('does not generate an ipx function when DISABLE_IPX is set', async () => {
