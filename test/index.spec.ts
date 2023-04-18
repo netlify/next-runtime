@@ -14,7 +14,6 @@ import {
   unlink,
   existsSync,
   readFileSync,
-  copy,
   ensureDir,
   readJson,
   pathExists,
@@ -24,9 +23,7 @@ import {
 import path from "path"
 import process from "process"
 import os from "os"
-import cpy from "cpy"
 import { dir as getTmpDir } from "tmp-promise"
-import { getExtendedApiRouteConfigs } from "../packages/runtime/src/helpers/functions"
 // @ts-expect-error - TODO: Convert runtime export to ES6
 import nextRuntimeFactory from "../packages/runtime/src"
 const nextRuntime = nextRuntimeFactory({})
@@ -38,13 +35,12 @@ import {
   updateRequiredServerFiles,
   generateCustomHeaders,
 } from "../packages/runtime/src/helpers/config"
-import { dirname, resolve } from "path"
+import { resolve } from "path"
 import { getProblematicUserRewrites } from "../packages/runtime/src/helpers/verification"
 import type { NetlifyPluginOptions } from '@netlify/build'
+import { changeCwd, useFixture, moveNextDist } from "./test-utils"
 
 const chance = new Chance()
-const FIXTURES_DIR = `${__dirname}/fixtures`
-const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
 const constants = {
   INTERNAL_FUNCTIONS_SRC: '.netlify/functions-internal',
   PUBLISH_DIR: '.next',
@@ -65,67 +61,8 @@ const utils = {
 
 const normalizeChunkNames = (source) => source.replaceAll(/\/chunks\/\d+\.js/g, '/chunks/CHUNK_ID.js')
 
-// Temporary switch cwd
-const changeCwd = function (cwd) {
-  const originalCwd = process.cwd()
-  process.chdir(cwd)
-  return () => {
-    process.chdir(originalCwd)
-  }
-}
-
 const onBuildHasRun = (netlifyConfig) =>
   Boolean(netlifyConfig.functions[HANDLER_FUNCTION_NAME]?.included_files?.some((file) => file.includes('BUILD_ID')))
-
-const rewriteAppDir = async function (dir = '.next') {
-  const manifest = path.join(dir, 'required-server-files.json')
-  const manifestContent = await readJson(manifest)
-  manifestContent.appDir = process.cwd()
-
-  await writeJSON(manifest, manifestContent)
-}
-
-// Move .next from sample project to current directory
-export const moveNextDist = async function (dir = '.next', copyMods = false) {
-  if (copyMods) {
-    await copyModules(['next', 'sharp'])
-  } else {
-    await stubModules(['next', 'sharp'])
-  }
-  await ensureDir(dirname(dir))
-  await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
-
-  for (const file of ['pages', 'app', 'src', 'components', 'public', 'components', 'hello.txt', 'package.json']) {
-    const source = path.join(SAMPLE_PROJECT_DIR, file)
-    if (existsSync(source)) {
-      await copy(source, path.join(process.cwd(), file))
-    }
-  }
-
-  await rewriteAppDir(dir)
-}
-
-const copyModules = async function (modules) {
-  for (const mod of modules) {
-    const source = dirname(require.resolve(`${mod}/package.json`))
-    const dest = path.join(process.cwd(), 'node_modules', mod)
-    await copy(source, dest)
-  }
-}
-
-const stubModules = async function (modules) {
-  for (const mod of modules) {
-    const dir = path.join(process.cwd(), 'node_modules', mod)
-    await ensureDir(dir)
-    await writeJSON(path.join(dir, 'package.json'), { name: mod })
-  }
-}
-
-// Copy fixture files to the current directory
-const useFixture = async function (fixtureName) {
-  const fixtureDir = `${FIXTURES_DIR}/${fixtureName}`
-  await cpy('**', process.cwd(), { cwd: fixtureDir, parents: true, overwrite: true, dot: true })
-}
 
 const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] } as NetlifyPluginOptions["netlifyConfig"]
 const defaultArgs = {
@@ -1525,28 +1462,6 @@ describe('function helpers', () => {
         ])
       })
     })
-  })
-})
-
-describe('api route file analysis', () => {
-  it('extracts correct route configs from source files', async () => {
-    await moveNextDist()
-    const configs = await getExtendedApiRouteConfigs('.next', process.cwd())
-    // Using a Set means the order doesn't matter
-    expect(new Set(configs)).toEqual(
-      new Set([
-        {
-          compiled: 'pages/api/hello-background.js',
-          config: { type: 'experimental-background' },
-          route: '/api/hello-background',
-        },
-        {
-          compiled: 'pages/api/hello-scheduled.js',
-          config: { schedule: '@hourly', type: 'experimental-scheduled' },
-          route: '/api/hello-scheduled',
-        },
-      ]),
-    )
   })
 })
 
