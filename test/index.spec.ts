@@ -1,4 +1,3 @@
-import execa from 'execa'
 import { relative } from 'pathe'
 import { getAllPageDependencies } from '../packages/runtime/src/templates/getPageResolver'
 
@@ -9,8 +8,8 @@ jest.mock('../packages/runtime/src/helpers/utils', () => {
   }
 })
 
-const Chance = require('chance')
-const {
+import Chance from "chance"
+import {
   writeJSON,
   unlink,
   existsSync,
@@ -21,34 +20,36 @@ const {
   pathExists,
   writeFile,
   move,
-} = require('fs-extra')
-const path = require('path')
-const process = require('process')
-const os = require('os')
-const cpy = require('cpy')
-const { dir: getTmpDir } = require('tmp-promise')
-const { downloadFile } = require('../packages/runtime/src/templates/handlerUtils')
-const { getExtendedApiRouteConfigs } = require('../packages/runtime/src/helpers/functions')
-const nextRuntimeFactory = require('../packages/runtime/src')
+} from "fs-extra"
+import path from "path"
+import process from "process"
+import os from "os"
+import cpy from "cpy"
+import { dir as getTmpDir } from "tmp-promise"
+import { downloadFile } from "../packages/runtime/src/templates/handlerUtils"
+import { getExtendedApiRouteConfigs } from "../packages/runtime/src/helpers/functions"
+// @ts-expect-error - TODO: Convert runtime export to ES6
+import nextRuntimeFactory from "../packages/runtime/src"
 const nextRuntime = nextRuntimeFactory({})
-const { watchForMiddlewareChanges } = require('../packages/runtime/src/helpers/compiler')
-const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../packages/runtime/src/constants')
-const { join } = require('pathe')
-const {
+import { watchForMiddlewareChanges } from "../packages/runtime/src/helpers/compiler"
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } from "../packages/runtime/src/constants"
+import { join } from "pathe"
+import {
   matchMiddleware,
   stripLocale,
   matchesRedirect,
   matchesRewrite,
   patchNextFiles,
   unpatchNextFiles,
-} = require('../packages/runtime/src/helpers/files')
-const {
+} from "../packages/runtime/src/helpers/files"
+import {
   getRequiredServerFiles,
   updateRequiredServerFiles,
   generateCustomHeaders,
-} = require('../packages/runtime/src/helpers/config')
-const { dirname, resolve } = require('path')
-const { getProblematicUserRewrites } = require('../packages/runtime/src/helpers/verification')
+} from "../packages/runtime/src/helpers/config"
+import { dirname, resolve } from "path"
+import { getProblematicUserRewrites } from "../packages/runtime/src/helpers/verification"
+import type { NetlifyPluginOptions } from '@netlify/build'
 
 const chance = new Chance()
 const FIXTURES_DIR = `${__dirname}/fixtures`
@@ -57,7 +58,7 @@ const constants = {
   INTERNAL_FUNCTIONS_SRC: '.netlify/functions-internal',
   PUBLISH_DIR: '.next',
   FUNCTIONS_DIST: '.netlify/functions',
-}
+} as unknown as NetlifyPluginOptions["constants"]
 const utils = {
   build: {
     failBuild(message) {
@@ -69,7 +70,7 @@ const utils = {
     save: jest.fn(),
     restore: jest.fn(),
   },
-}
+} as unknown as NetlifyPluginOptions["utils"]
 
 const normalizeChunkNames = (source) => source.replaceAll(/\/chunks\/\d+\.js/g, '/chunks/CHUNK_ID.js')
 
@@ -174,12 +175,12 @@ const useFixture = async function (fixtureName) {
   await cpy('**', process.cwd(), { cwd: fixtureDir, parents: true, overwrite: true, dot: true })
 }
 
-const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] }
+const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] } as NetlifyPluginOptions["netlifyConfig"]
 const defaultArgs = {
   netlifyConfig,
   utils,
   constants,
-}
+} as NetlifyPluginOptions
 
 let restoreCwd
 let cleanup
