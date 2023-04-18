@@ -1,4 +1,4 @@
-import { generateRscDataEdgeManifest } from '../packages/runtime/src/helpers/edge'
+import { generateRscDataEdgeManifest } from '../../packages/runtime/src/helpers/edge'
 import type { PrerenderManifest } from 'next/dist/build'
 
 const basePrerenderManifest: PrerenderManifest = {

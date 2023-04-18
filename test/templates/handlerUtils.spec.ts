@@ -3,7 +3,7 @@ import {
   unlocalizeRoute,
   localizeRoute,
   localizeDataRoute,
-} from '../packages/runtime/src/templates/handlerUtils'
+} from '../../packages/runtime/src/templates/handlerUtils'
 
 describe('normalizeRoute', () => {
   it('removes a trailing slash from a route', () => {
