@@ -748,7 +748,7 @@ describe('onBuild()', () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
-    const manifest = manifestPath.functions.sort()
+    const manifest = manifestPath.functions
     
     expect(manifest).toEqual(
       expect.arrayContaining([
@@ -765,7 +765,7 @@ describe('onBuild()', () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
-    const manifest = manifestPath.functions.sort()
+    const manifest = manifestPath.functions
     
     expect(manifest).toEqual(
       expect.arrayContaining([
