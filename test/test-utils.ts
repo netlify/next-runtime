@@ -8,6 +8,7 @@ import {
   readJson,
   copy,
 } from "fs-extra"
+import { dir as getTmpDir } from "tmp-promise"
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
@@ -69,4 +70,25 @@ export const stubModules = async function (modules) {
 export const useFixture = async function (fixtureName) {
   const fixtureDir = `${FIXTURES_DIR}/${fixtureName}`
   await cpy('**', process.cwd(), { cwd: fixtureDir, parents: true, overwrite: true, dot: true })
+}
+
+// Change current cwd() to a temporary directory
+export const describeCwdTmpDir = (name: string, fn: () => void): void => {
+  describe(name, () => {
+    let restoreCwd
+    let cleanup
+
+    beforeEach(async () => {
+      const tmpDir = await getTmpDir({ unsafeCleanup: true })
+      restoreCwd = changeCwd(tmpDir.path)
+      cleanup = tmpDir.cleanup
+    })
+
+    afterEach(async () => {
+      restoreCwd()
+      await cleanup()
+    })
+
+    fn()
+  })
 }

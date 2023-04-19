@@ -17,6 +17,7 @@ import { dirname } from "path"
 import { resolve } from 'pathe'
 import { join } from "pathe"
 import { Rewrites } from "../../packages/runtime/src/helpers/types"
+import { describeCwdTmpDir, moveNextDist } from "../test-utils"
 
 const REDIRECTS: Rewrites = [
   {
@@ -187,21 +188,22 @@ describe('files utility functions', () => {
       expect(matchesRewrite(path, REWRITES)).toBeTruthy()
     })
   })
+})
 
-  test.only('patches Next server files', async () => {
-    const root = path.resolve(dirname(__dirname))
-    console.log({ root })
-    // await copy(join(root, 'package.json'), path.join(process.cwd(), 'package.json'))
-    // await ensureDir(path.join(process.cwd(), 'node_modules'))
-    // await copy(path.join(root, 'node_modules', 'next'), path.join(process.cwd(), 'node_modules', 'next'))
+describeCwdTmpDir('file patching', () => {
+  it('patches Next server files', async () => {
+    const root = path.resolve(dirname(resolve(__dirname, '..')))
+    await copy(join(root, 'package.json'), path.join(process.cwd(), 'package.json'))
+    await ensureDir(path.join(process.cwd(), 'node_modules'))
+    await copy(path.join(root, 'node_modules', 'next'), path.join(process.cwd(), 'node_modules', 'next'))
 
-    // await patchNextFiles(process.cwd())
+    await patchNextFiles(process.cwd())
     const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
     const patchedData = await readFileSync(serverFile, 'utf8')
     expect(patchedData.includes('_REVALIDATE_SSG')).toBeTruthy()
     expect(patchedData.includes('private: isPreviewMode && cachedData')).toBeTruthy()
 
-    // await unpatchNextFiles(process.cwd())
+    await unpatchNextFiles(process.cwd())
 
     const unPatchedData = await readFileSync(serverFile, 'utf8')
     expect(unPatchedData.includes('_REVALIDATE_SSG')).toBeFalsy()
@@ -213,7 +215,7 @@ describe('dependency tracing', () => {
   it('generates dependency list from a source file', async () => {
     const dependencies = await getDependenciesOfFile(resolve(__dirname, '../fixtures/analysis/background.js'))
     expect(dependencies).toEqual(
-      ['test/webpack-api-runtime.js', 'package.json'].map((dep) => resolve(dirname(__dirname), dep)),
+      ['test/webpack-api-runtime.js', 'package.json'].map((dep) => resolve(dirname(resolve(__dirname, '..')), dep)),
     )
   })
 })
