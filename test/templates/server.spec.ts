@@ -4,8 +4,8 @@ import { Options } from 'next/dist/server/next-server'
 import { getNextServer, NextServerType, netlifyApiFetch } from '../../packages/runtime/src/templates/handlerUtils'
 import { NetlifyNextServer, NetlifyConfig } from '../../packages/runtime/src/templates/server'
 
-jest.mock('../packages/runtime/src/templates/handlerUtils', () => {
-  const originalModule = jest.requireActual('../packages/runtime/src/templates/handlerUtils')
+jest.mock('../../packages/runtime/src/templates/handlerUtils', () => {
+  const originalModule = jest.requireActual('../../packages/runtime/src/templates/handlerUtils')
 
   return {
     __esModule: true,
