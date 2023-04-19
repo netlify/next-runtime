@@ -1,10 +1,12 @@
 name: Next.js e2e test suite
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-  push:
-    branches: [main]
+  # pull_request:
+  #   types: [opened, synchronize]
+  # push:
+  #   branches: [main]
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   setup:
