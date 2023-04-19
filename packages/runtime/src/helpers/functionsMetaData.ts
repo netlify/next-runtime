@@ -15,6 +15,22 @@ const getNextRuntimeVersion = async (packageJsonPath: string, useNodeModulesPath
   return useNodeModulesPath ? packagePlugin.version : packagePlugin.dependencies[NEXT_PLUGIN]
 }
 
+const PLUGIN_PACKAGE_PATH = '.netlify/plugins/package.json'
+
+const nextPluginVersion = async () => {
+  const moduleRoot = resolveModuleRoot(NEXT_PLUGIN)
+  const nodeModulesPath = moduleRoot ? join(moduleRoot, 'package.json') : null
+
+  return (
+    (await getNextRuntimeVersion(nodeModulesPath, true)) ||
+    (await getNextRuntimeVersion(PLUGIN_PACKAGE_PATH, false)) ||
+    // The runtime version should always be available, but if it's not, return 'unknown'
+    'unknown'
+  )
+}
+
+export const getPluginVersion = async () => `${NEXT_PLUGIN_NAME}@${await nextPluginVersion()}`
+
 // The information needed to create a function configuration file
 export interface FunctionInfo {
   // The name of the function, e.g. `___netlify-handler`
@@ -34,20 +50,12 @@ export interface FunctionInfo {
  */
 export const writeFunctionConfiguration = async (functionInfo: FunctionInfo) => {
   const { functionName, functionTitle, functionsDir } = functionInfo
-  const pluginPackagePath = '.netlify/plugins/package.json'
-  const moduleRoot = resolveModuleRoot(NEXT_PLUGIN)
-  const nodeModulesPath = moduleRoot ? join(moduleRoot, 'package.json') : null
-
-  const nextPluginVersion =
-    (await getNextRuntimeVersion(nodeModulesPath, true)) ||
-    (await getNextRuntimeVersion(pluginPackagePath, false)) ||
-    // The runtime version should always be available, but if it's not, return 'unknown'
-    'unknown'
+  const generator = await getPluginVersion()
 
   const metadata = {
     config: {
       name: functionTitle,
-      generator: `${NEXT_PLUGIN_NAME}@${nextPluginVersion}`,
+      generator,
     },
     version: 1,
   }
