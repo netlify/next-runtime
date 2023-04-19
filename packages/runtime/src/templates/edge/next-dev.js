@@ -18,19 +18,6 @@ if (!('getAll' in Headers.prototype)) {
   }
 }
 
-// Check if a file exists, given a relative path
-const exists = async (relativePath) => {
-  const path = fromFileUrl(new URL(relativePath, import.meta.url))
-  try {
-    await Deno.stat(path)
-    return true
-  } catch (error) {
-    if (error instanceof Deno.errors.NotFound) {
-      return false
-    }
-    throw error
-  }
-}
 let idx = 0
 
 const handler = async (req, context) => {
@@ -45,14 +32,18 @@ const handler = async (req, context) => {
   // We don't want to just try importing and use that to test,
   // because that would also throw if there's an error in the middleware,
   // which we would want to surface not ignore.
-  if (await exists('../../middleware.js')) {
+  try {
     // We need to cache-bust the import because otherwise it will claim it
     // doesn't exist if the user creates it after the server starts
-    const nextMiddleware = await import(`../../middleware.js#${idx++}`)
+    const nextMiddleware = await import(`../../middleware.js#${++idx}`)
     middleware = nextMiddleware.middleware
-  } else {
-    //  No middleware, so we silently return
-    return
+  } catch (importError) {
+    if (importError.code === 'ERR_MODULE_NOT_FOUND' && importError.message.includes(`middleware.js`)) {
+      //  No middleware, so we silently return
+      return
+    }
+
+    throw importError
   }
 
   //  This is the format expected by Next.js along with the timezone which we support.

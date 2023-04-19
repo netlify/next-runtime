@@ -1,5 +1,83 @@
 # Changelog
 
+## [4.35.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.34.0...plugin-nextjs-v4.35.0) (2023-04-17)
+
+
+### Features
+
+* support edge runtime key ([#2036](https://github.com/netlify/next-runtime/issues/2036)) ([b7b9392](https://github.com/netlify/next-runtime/commit/b7b939210661560c623cf0951597362a27d771b9))
+
+
+### Bug Fixes
+
+* ensure appDir routes with null dataRoutes are not added to edge manifest for rsc-data ([#2044](https://github.com/netlify/next-runtime/issues/2044)) ([2f31acb](https://github.com/netlify/next-runtime/commit/2f31acbb262a2caa8ed3e90bbec27d131be0e1d0))
+* now data routes for dynamic routes filter even when null when creating the RSC data router ([#2041](https://github.com/netlify/next-runtime/issues/2041)) ([5fa1435](https://github.com/netlify/next-runtime/commit/5fa14355428151f0c9748d72d96f3aea90f02bbd))
+* typo in comment ([#2049](https://github.com/netlify/next-runtime/issues/2049)) ([447b7d4](https://github.com/netlify/next-runtime/commit/447b7d48b5bf1876efbc09b6d3b340c926f3915d))
+
+## [4.34.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.33.0...plugin-nextjs-v4.34.0) (2023-04-10)
+
+
+### Features
+
+* use edge function layer for ipx ([#1880](https://github.com/netlify/next-runtime/issues/1880)) ([56c7828](https://github.com/netlify/next-runtime/commit/56c78282662d9f0c47e85e4a0b478f2a354e9c16))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.4.0 ([#2031](https://github.com/netlify/next-runtime/issues/2031)) ([03f60bb](https://github.com/netlify/next-runtime/commit/03f60bbfd67ba71b2db4fcfba0f2f82fc10bfdfc))
+* routes with null data routes can be filtered now ([#2018](https://github.com/netlify/next-runtime/issues/2018)) ([7c1673b](https://github.com/netlify/next-runtime/commit/7c1673b6b09a3b0461e92c6c54afb517d95954c3))
+* support setting cookies from MiddlewareResponse ([#2027](https://github.com/netlify/next-runtime/issues/2027)) ([a630ab4](https://github.com/netlify/next-runtime/commit/a630ab41e8a4d0f04e8de4b19a8886705a6b0fe8))
+
+## [4.33.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.2...plugin-nextjs-v4.33.0) (2023-03-27)
+
+
+### Features
+
+* add generator meta data for framework generated Netlify Functions ([#1999](https://github.com/netlify/next-runtime/issues/1999)) ([e5ddcd2](https://github.com/netlify/next-runtime/commit/e5ddcd24f0662af2e36ba237a61a1d05b8f58df4))
+* refresh hooks api implementation ([#1950](https://github.com/netlify/next-runtime/issues/1950)) ([fb93b54](https://github.com/netlify/next-runtime/commit/fb93b5469c570616134d53c10fbed1f7ef78e334))
+
+
+### Bug Fixes
+
+* data route rewrite for i18n root route ([#2002](https://github.com/netlify/next-runtime/issues/2002)) ([4f6cdd9](https://github.com/netlify/next-runtime/commit/4f6cdd93eee5b15bee723e20cc702efa3497121f))
+* do not escape HTML ([#2007](https://github.com/netlify/next-runtime/issues/2007)) ([d4cd121](https://github.com/netlify/next-runtime/commit/d4cd121a113bb540f49229d51ee31ca28d04eb13))
+* updated redirect data urls ([#1928](https://github.com/netlify/next-runtime/issues/1928)) ([1edaacb](https://github.com/netlify/next-runtime/commit/1edaacb11297bcc1b8865320579c7ecbd703186f))
+* use `IMAGE_FUNCTION_NAME` constant ([#2001](https://github.com/netlify/next-runtime/issues/2001)) ([24eaaab](https://github.com/netlify/next-runtime/commit/24eaaab048a78c0ba4d7f283c11d11d02b819b01))
+* use separate watcher script for middleware in dev ([#1831](https://github.com/netlify/next-runtime/issues/1831)) ([92e209f](https://github.com/netlify/next-runtime/commit/92e209f177312d4c4e6b64f8feb6c80670e46d8d))
+
+## [4.32.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.1...plugin-nextjs-v4.32.2) (2023-03-14)
+
+
+### Bug Fixes
+
+* make error message matching more generic ([#1988](https://github.com/netlify/next-runtime/issues/1988)) ([cfc8e96](https://github.com/netlify/next-runtime/commit/cfc8e966c90490e5760e192c1aef243f5f2c3aa6))
+
+## [4.32.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.0...plugin-nextjs-v4.32.1) (2023-03-13)
+
+
+### Bug Fixes
+
+* use the same id for importing and checking error ([#1984](https://github.com/netlify/next-runtime/issues/1984)) ([62e2efe](https://github.com/netlify/next-runtime/commit/62e2efe02a01c55a486070fceb7538ed466629c1))
+
+## [4.32.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.31.0...plugin-nextjs-v4.32.0) (2023-03-13)
+
+
+### Features
+
+* add multiple set-cookie headers in middleware ([#1970](https://github.com/netlify/next-runtime/issues/1970)) ([32b31c6](https://github.com/netlify/next-runtime/commit/32b31c601dd07033ab89e2b53f963cc17d422c28))
+
+
+### Bug Fixes
+
+* remove fs access which isn't available in edge functions ([#1980](https://github.com/netlify/next-runtime/issues/1980)) ([6546641](https://github.com/netlify/next-runtime/commit/6546641a2f393a0a64b548be7a440b663add0cbb))
+
+## [4.31.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.4...plugin-nextjs-v4.31.0) (2023-03-06)
+
+
+### Features
+
+* make edge image opt-in instead of opt-out ([#1935](https://github.com/netlify/next-runtime/issues/1935)) ([7a63d2f](https://github.com/netlify/next-runtime/commit/7a63d2f0cbd168916db271a9dad9d3e86024965f))
+
 ## [4.30.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.30.3...plugin-nextjs-v4.30.4) (2023-02-06)
 
 

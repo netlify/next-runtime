@@ -15,17 +15,23 @@ commands separately will not work, because the Next.js Runtime will not generate
 
 If you use [`next/image`](https://nextjs.org/docs/basic-features/image-optimization), your images will be automatically
 optimized at runtime, ensuring that they are served at the best size and format. The image will be processed on the
-first request which means it may take longer to load, but the generated image is then cached at the edge and served as a
-static file to future visitors. By default, Next.js will deliver WebP images if the browser supports it. WebP is a new
-image format with wide browser support that will usually generate smaller files than png or jpg. You can additionally
-enable the AVIF format, which is often even smaller in filesize than WebP. The drawback is that with particularly large
-images AVIF may take too long to generate, meaning the function times-out. You can configure
+first request which means it may take longer to load, but the generated image is then cached and served as a static file
+to future visitors. By default, Next.js will deliver WebP images if the browser supports it. WebP is a modern image format
+with wide browser support that will usually generate smaller files than PNG or JPG. Additionally, you can enable AVIF
+format, which is often even smaller in filesize than WebP. The drawback is that with particularly large images, AVIF images may
+take too long to generate, and the function times-out. You can configure
 [the supported image formats](https://nextjs.org/docs/api-reference/next/image#acceptable-formats) in your
 `next.config.js` file.
 
+### Enabling Edge Images
+
+It is possible to run image content negotiation on the edge. This allows images to be processed on the first request,
+and then, in future loads, served from cache on the edge.
+
 In order to deliver the correct format to a visitor's browser, this uses a Netlify Edge Function. In some cases your
-site may not support Edge Functions, in which case it will instead fall back to delivering the original file format. You
-may also manually disable the Edge Function by setting the environment variable `NEXT_DISABLE_EDGE_IMAGES` to `true`.
+site may not support Edge Functions, in which case it will instead fall back to delivering the original file format.
+
+To turn on Edge image handling for Next/Image, set the environment variable `NEXT_FORCE_EDGE_IMAGES` to `true`
 
 ## Returning custom response headers on images handled by `ipx`
 
@@ -44,11 +50,14 @@ by targeting the `/_next/image/*` route:
 
 ## Disabling included image loader
 
-If you wish to disable the use of the image loader which is bundled into the runtime by default, set the `DISABLE_IPX` environment variable to `true`.
+If you wish to disable the use of the image loader which is bundled into the runtime by default, set the `DISABLE_IPX`
+environment variable to `true`.
 
-This should only be done if the site is not using `next/image` or is using a different loader (such as Cloudinary or Imgix).
+This should only be done if the site is not using `next/image` or is using a different loader (such as Cloudinary or
+Imgix).
 
-See the [Next.js documentation](https://nextjs.org/docs/api-reference/next/image#built-in-loaders) for image loader options.
+See the [Next.js documentation](https://nextjs.org/docs/api-reference/next/image#built-in-loaders) for image loader
+options.
 
 ## Next.js Middleware on Netlify
 
@@ -56,11 +65,13 @@ Next.js Middleware works out of the box on Netlify. By default, middleware runs 
 support for running Middleware at the origin, set the environment variable `NEXT_DISABLE_NETLIFY_EDGE` to `true`. Be
 aware that this will result in slower performance, as all pages that match middleware must use SSR.
 
-For more details on Next.js Middleware with Netlify, see the [middleware docs](https://docs.netlify.com/integrations/frameworks/next-js/middleware/).
+For more details on Next.js Middleware with Netlify, see the
+[middleware docs](https://docs.netlify.com/integrations/frameworks/next-js/middleware/).
 
 ### Limitations
 
-Due to how the site configuration is handled when it's run using Netlify Edge Functions, data such as `locale` and `defaultLocale` will be missing on the `req.nextUrl` object when running `netlify dev`.
+Due to how the site configuration is handled when it's run using Netlify Edge Functions, data such as `locale` and
+`defaultLocale` will be missing on the `req.nextUrl` object when running `netlify dev`.
 
 However, this data is available on `req.nextUrl` in a production environment.
 
@@ -112,8 +123,9 @@ following ways:
 
 ### From the UI (Recommended):
 
-You can go to the [UI](https://app.netlify.com/plugins/@netlify/plugin-nextjs/install) and choose the site to install the Next.js Runtime on. This method
-is recommended because you will benefit from auto-upgrades to important fixes and feature updates.
+You can go to the [UI](https://app.netlify.com/plugins/@netlify/plugin-nextjs/install) and choose the site to install
+the Next.js Runtime on. This method is recommended because you will benefit from auto-upgrades to important fixes and
+feature updates.
 
 ### From `npm`:
 
@@ -139,9 +151,9 @@ If you previously set these values, they're no longer needed and should be remov
 - `external_node_modules` in `netlify.toml`
 - The environment variable `NEXT_USE_NETLIFY_EDGE` can be removed as this is now the default
 
-The `serverless` and `experimental-serverless-trace` targets are deprecated in Next.js 12, and all builds with this Next.js
-Runtime will now use the default `server` target. If you previously set the target in your `next.config.js`, you should
-remove it.
+The `serverless` and `experimental-serverless-trace` targets are deprecated in Next.js 12, and all builds with this
+Next.js Runtime will now use the default `server` target. If you previously set the target in your `next.config.js`, you
+should remove it.
 
 If you currently use redirects or rewrites on your site, see
 [the Rewrites and Redirects guide](https://docs.netlify.com/integrations/frameworks/next-js/redirects-and-rewrites/) for
@@ -149,8 +161,10 @@ information on changes to how they are handled in this version. In particular, n
 files must be placed in `public`, not in the root of the site.
 
 ## Using with pnpm
-If your site uses pnpm to manage dependencies, currently you must [enable public hoisting](https://pnpm.io/npmrc#public-hoist-pattern).
-The simplest way to do this is to create a `.npmrc` file in the root of your project with the content:
+
+If your site uses pnpm to manage dependencies, currently you must
+[enable public hoisting](https://pnpm.io/npmrc#public-hoist-pattern). The simplest way to do this is to create a
+`.npmrc` file in the root of your project with the content:
 
 ```ini
 public-hoist-pattern[]=*

@@ -37,14 +37,13 @@ describe('Middleware Redirect', () => {
       expect(res.headers.get('location')?.endsWith('/default/about')).toEqual(false)
     })
 
-    usuallySkip(`should redirect to data urls with data requests and internal redirects`, async () => {
+    it(`should redirect to data urls with data requests and internal redirects`, async () => {
       const res = await fetchViaHTTP(
         next.url,
         `/_next/data/${next.buildId}/es/old-home.json`,
         { override: 'internal' },
         { redirect: 'manual', headers: { 'x-nextjs-data': '1' } },
       )
-
       expect(res.headers.get('x-nextjs-redirect')?.endsWith(`/es/new-home?override=internal`)).toEqual(true)
       expect(res.headers.get('location')).toEqual(null)
     })

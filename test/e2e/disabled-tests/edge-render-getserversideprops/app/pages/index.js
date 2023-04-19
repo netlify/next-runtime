@@ -1,11 +1,11 @@
 export const config = {
-  runtime: 'experimental-edge',
+  runtime: 'edge',
 }
 
 export default function Page(props) {
   return (
     <>
-      <p id="page">/[id]</p>
+      <p id="page">/index</p>
       <p id="props">{JSON.stringify(props)}</p>
     </>
   )
@@ -16,8 +16,8 @@ export function getServerSideProps({ req, params, query }) {
     props: {
       url: req.url,
       query,
-      params,
       now: Date.now(),
+      params: params || null,
     },
   }
 }

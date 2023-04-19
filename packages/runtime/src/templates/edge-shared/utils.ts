@@ -8,6 +8,22 @@ export interface FetchEventResult {
 
 type NextDataTransform = <T>(data: T) => T
 
+function normalizeDataUrl(redirect: string) {
+  // If the redirect is a data URL, we need to normalize it.
+  // next.js code reference: https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/router/utils/get-next-pathname-info.ts#L46
+  if (redirect.startsWith('/_next/data/') && redirect.includes('.json')) {
+    const paths = redirect
+      .replace(/^\/_next\/data\//, '')
+      .replace(/\.json/, '')
+      .split('/')
+
+    const buildId = paths[0]
+    redirect = paths[1] !== 'index' ? `/${paths.slice(1).join('/')}` : '/'
+  }
+
+  return redirect
+}
+
 /**
  * This is how Next handles rewritten URLs.
  */
@@ -31,21 +47,25 @@ export const addMiddlewareHeaders = async (
   // We need to await the response to get the origin headers, then we can add the ones from middleware.
   const res = await originResponse
   const response = new Response(res.body, res)
-  const originCookies = response.headers.get('set-cookie')
   middlewareResponse.headers.forEach((value, key) => {
-    response.headers.set(key, value)
-    // Append origin cookies after middleware cookies
-    if (key === 'set-cookie' && originCookies) {
-      response.headers.append(key, originCookies)
+    if (key === 'set-cookie') {
+      response.headers.append(key, value)
+    } else {
+      response.headers.set(key, value)
     }
   })
   return response
+}
+
+interface ResponseCookies {
+  readonly _headers: Headers
 }
 
 interface MiddlewareResponse extends Response {
   originResponse: Response
   dataTransforms: NextDataTransform[]
   elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
+  get cookies(): ResponseCookies
 }
 
 interface MiddlewareRequest {
@@ -169,6 +189,12 @@ export const buildResponse = async ({
     if (request.method === 'HEAD' || request.method === 'OPTIONS') {
       return response.originResponse
     }
+
+    // NextResponse doesn't set cookies onto the originResponse, so we need to copy them over
+    if (response.cookies._headers.has('set-cookie')) {
+      response.originResponse.headers.set('set-cookie', response.cookies._headers.get('set-cookie')!)
+    }
+
     // If it's JSON we don't need to use the rewriter, we can just parse it
     if (response.originResponse.headers.get('content-type')?.includes('application/json')) {
       const props = await response.originResponse.json()
@@ -197,7 +223,9 @@ export const buildResponse = async ({
               // Apply all of the transforms to the props
               const props = response.dataTransforms.reduce((prev, transform) => transform(prev), data.props)
               // Replace the data with the transformed props
-              textChunk.replace(JSON.stringify({ ...data, props }))
+              // With `html: true` the input is treated as raw HTML
+              // @see https://developers.cloudflare.com/workers/runtime-apis/html-rewriter/#global-types
+              textChunk.replace(JSON.stringify({ ...data, props }), { html: true })
             } catch (err) {
               console.log('Could not parse', err)
             }
@@ -248,6 +276,12 @@ export const buildResponse = async ({
   if (redirect && isDataReq) {
     res.headers.delete('location')
     res.headers.set('x-nextjs-redirect', relativizeURL(redirect, request.url))
+  }
+
+  const nextRedirect = res.headers.get('x-nextjs-redirect')
+
+  if (nextRedirect && isDataReq) {
+    res.headers.set('x-nextjs-redirect', normalizeDataUrl(nextRedirect))
   }
 
   if (res.headers.get('x-middleware-next') === '1') {
