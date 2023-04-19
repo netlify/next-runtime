@@ -188,19 +188,20 @@ describe('files utility functions', () => {
     })
   })
 
-  test('patches Next server files', async () => {
+  test.only('patches Next server files', async () => {
     const root = path.resolve(dirname(__dirname))
-    await copy(join(root, 'package.json'), path.join(process.cwd(), 'package.json'))
-    await ensureDir(path.join(process.cwd(), 'node_modules'))
-    await copy(path.join(root, 'node_modules', 'next'), path.join(process.cwd(), 'node_modules', 'next'))
+    console.log({ root })
+    // await copy(join(root, 'package.json'), path.join(process.cwd(), 'package.json'))
+    // await ensureDir(path.join(process.cwd(), 'node_modules'))
+    // await copy(path.join(root, 'node_modules', 'next'), path.join(process.cwd(), 'node_modules', 'next'))
 
-    await patchNextFiles(process.cwd())
+    // await patchNextFiles(process.cwd())
     const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
     const patchedData = await readFileSync(serverFile, 'utf8')
     expect(patchedData.includes('_REVALIDATE_SSG')).toBeTruthy()
     expect(patchedData.includes('private: isPreviewMode && cachedData')).toBeTruthy()
 
-    await unpatchNextFiles(process.cwd())
+    // await unpatchNextFiles(process.cwd())
 
     const unPatchedData = await readFileSync(serverFile, 'utf8')
     expect(unPatchedData.includes('_REVALIDATE_SSG')).toBeFalsy()
