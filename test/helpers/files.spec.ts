@@ -5,6 +5,7 @@ import {
   matchesRewrite,
   patchNextFiles,
   unpatchNextFiles,
+  getDependenciesOfFile,
 } from "../../packages/runtime/src/helpers/files"
 import {
   readFileSync,
@@ -13,6 +14,7 @@ import {
 } from "fs-extra"
 import path from "path"
 import { dirname } from "path"
+import { resolve } from 'pathe'
 import { join } from "pathe"
 import { Rewrites } from "../../packages/runtime/src/helpers/types"
 
@@ -203,5 +205,14 @@ describe('files utility functions', () => {
     const unPatchedData = await readFileSync(serverFile, 'utf8')
     expect(unPatchedData.includes('_REVALIDATE_SSG')).toBeFalsy()
     expect(unPatchedData.includes('private: isPreviewMode && cachedData')).toBeFalsy()
+  })
+})
+
+describe('dependency tracing', () => {
+  it('generates dependency list from a source file', async () => {
+    const dependencies = await getDependenciesOfFile(resolve(__dirname, '../fixtures/analysis/background.js'))
+    expect(dependencies).toEqual(
+      ['test/webpack-api-runtime.js', 'package.json'].map((dep) => resolve(dirname(__dirname), dep)),
+    )
   })
 })
