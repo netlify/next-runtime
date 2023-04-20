@@ -373,6 +373,11 @@ const baseServerReplacements: Array<[string, string]> = [
     `checkIsManualRevalidate(req, this.renderOpts.previewProps)`,
     `checkIsManualRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
   ],
+  // In https://github.com/vercel/next.js/pull/47803 checkIsManualRevalidate was renamed to checkIsOnDemandRevalidate
+  [
+    `checkIsOnDemandRevalidate(req, this.renderOpts.previewProps)`,
+    `checkIsOnDemandRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
+  ],
   // ensure ISR 404 pages send the correct SWR cache headers
   [`private: isPreviewMode || is404Page && cachedData`, `private: isPreviewMode && cachedData`],
 ]
