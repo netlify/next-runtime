@@ -5,7 +5,7 @@ import destr from 'destr'
 import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON } from 'fs-extra'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
-import { join, relative, resolve } from 'pathe'
+import { join, relative, resolve, dirname } from 'pathe'
 
 import {
   HANDLER_FUNCTION_NAME,
@@ -212,14 +212,43 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
   const pagesDir = join(baseDir, 'pages')
   const srcPagesDir = join(baseDir, 'src', 'pages')
 
+  const requiredServerFilesPath = join(publish, 'required-server-files.json')
+  const { files: requiredFiles = [] } = await readJSON(requiredServerFilesPath)
+
+  const commonDependencies = [
+    requiredServerFilesPath,
+    ...requiredFiles,
+
+    // used by our own bridge.js
+    join(dirname(require.resolve('follow-redirects', { paths: [publish] })), '**', '*'),
+    join(dirname(require.resolve('next/package.json', { paths: [publish] })), 'dist', '**', '*'),
+
+    // these are dependencies of the bundled nextjs server. it's brittle to list all of them here,
+    // and there are many missing - so maybe we should use NFT instead, to trace it.
+    // eslint-disable-next-line n/no-extraneous-require
+    join(dirname(require.resolve('styled-jsx', { paths: [publish] })), '**', '*'),
+  ]
+
   return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
       const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir])
-      const compiled = pages[apiRoute]
-      const includedFiles = await getDependenciesOfFile(join(baseDir, '.next', 'server', compiled))
       const config = await extractConfigFromFile(filePath)
+
+      const functionName = getFunctionNameForPage(apiRoute, config.type === ApiRouteType.BACKGROUND)
+
+      const compiled = pages[apiRoute]
+      const compiledPath = join(publish, 'server', compiled)
+
+      const routeDependencies = await getDependenciesOfFile(compiledPath)
+      const includedFiles = [
+        compiledPath,
+        join('.netlify', 'functions-internal', functionName, '**', '*'),
+        ...commonDependencies,
+        ...routeDependencies,
+      ]
+
       return {
-        functionName: getFunctionNameForPage(apiRoute, config.type === ApiRouteType.BACKGROUND),
+        functionName,
         route: apiRoute,
         config,
         compiled,
