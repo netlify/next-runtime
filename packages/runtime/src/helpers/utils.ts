@@ -208,10 +208,7 @@ export const getApiRewrites = (basePath: string, apiRoutes: Array<ApiRouteConfig
     }
     return {
       from,
-      to: `/.netlify/functions/${getFunctionNameForPage(
-        apiRoute.route,
-        apiRoute.config.type === ApiRouteType.BACKGROUND,
-      )}`,
+      to: `/.netlify/functions/${apiRoute.functionName}`,
       status: 200,
     }
   })

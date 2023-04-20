@@ -25,7 +25,10 @@ import { getSourceFileForPage, getDependenciesOfFile } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
 import { getFunctionNameForPage } from './utils'
 
+// TODO, for reviewer: I added my properties here because that was the easiest way,
+// but is it the right spot for it?
 export interface ApiRouteConfig {
+  functionName: string
   route: string
   config: ApiConfig
   compiled: string
@@ -214,9 +217,11 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
       const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir])
       const compiled = pages[apiRoute]
       const includedFiles = await getDependenciesOfFile(join(baseDir, '.next', 'server', compiled))
+      const config = await extractConfigFromFile(filePath)
       return {
+        functionName: getFunctionNameForPage(apiRoute, config.type === ApiRouteType.BACKGROUND),
         route: apiRoute,
-        config: await extractConfigFromFile(filePath),
+        config,
         compiled,
         includedFiles,
       }

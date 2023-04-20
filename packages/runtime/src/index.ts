@@ -67,6 +67,7 @@ const plugin: NetlifyPlugin = {
     netlifyConfig.build.environment.NEXT_PRIVATE_TARGET = 'server'
   },
 
+  // eslint-disable-next-line max-lines-per-function
   async onBuild({
     constants,
     netlifyConfig,
@@ -151,11 +152,16 @@ const plugin: NetlifyPlugin = {
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
-    await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
-
     const apiRoutes = SPLIT_API_ROUTES
       ? await getApiRouteConfigs(publish, appDir)
       : await getExtendedApiRouteConfigs(publish, appDir)
+
+    await configureHandlerFunctions({
+      netlifyConfig,
+      ignore,
+      publish: relative(process.cwd(), publish),
+      apiRoutes,
+    })
 
     await generateFunctions(constants, appDir, apiRoutes)
     await generatePagesResolver(constants)
