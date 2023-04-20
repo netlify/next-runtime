@@ -117,7 +117,7 @@ export const configureHandlerFunctions = async ({
     (moduleName) => !hasManuallyAddedModule({ netlifyConfig, moduleName }),
   )
 
-  ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, '_api_*'].forEach((functionName) => {
+  const configureFunction = (functionName: string) => {
     netlifyConfig.functions[functionName] ||= { included_files: [], external_node_modules: [] }
     netlifyConfig.functions[functionName].node_bundler = 'nft'
     netlifyConfig.functions[functionName].included_files ||= []
@@ -156,7 +156,11 @@ export const configureHandlerFunctions = async ({
         netlifyConfig.functions[functionName].included_files.push(`!${moduleRoot}/**/*`)
       }
     })
-  })
+  }
+
+  configureFunction(HANDLER_FUNCTION_NAME)
+  configureFunction(ODB_FUNCTION_NAME)
+  configureFunction('_api_*')
 }
 
 interface BuildHeaderParams {
