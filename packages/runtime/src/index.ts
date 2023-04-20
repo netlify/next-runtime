@@ -18,6 +18,7 @@ import {
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
+import { SPLIT_API_ROUTES } from './helpers/flags'
 import {
   generateFunctions,
   setupImageFunction,
@@ -152,8 +153,7 @@ const plugin: NetlifyPlugin = {
 
     await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
 
-    const useNoneBundler = Boolean(process.env.NEXT_SPLIT_API_ROUTES)
-    const apiRoutes = useNoneBundler
+    const apiRoutes = SPLIT_API_ROUTES
       ? await getApiRouteConfigs(publish, appDir)
       : await getExtendedApiRouteConfigs(publish, appDir)
 
