@@ -15,7 +15,6 @@ Array [
   ".next/server/chunks/CHUNK_ID.js",
   ".next/server/chunks/CHUNK_ID.js",
   ".next/server/chunks/CHUNK_ID.js",
-  ".next/server/chunks/CHUNK_ID.js",
   ".next/server/chunks/header.js",
   ".next/server/pages/_app.js",
   ".next/server/pages/_document.js",
@@ -55,6 +54,134 @@ Array [
   "components/Header.js",
   "hello.txt",
   "package.json",
+  "../../node_modules/next/dist/client/add-base-path.js",
+  "../../node_modules/next/dist/client/add-locale.js",
+  "../../node_modules/next/dist/client/detect-domain-locale.js",
+  "../../node_modules/next/dist/client/has-base-path.js",
+  "../../node_modules/next/dist/client/head-manager.js",
+  "../../node_modules/next/dist/client/normalize-trailing-slash.js",
+  "../../node_modules/next/dist/client/remove-base-path.js",
+  "../../node_modules/next/dist/client/remove-locale.js",
+  "../../node_modules/next/dist/client/request-idle-callback.js",
+  "../../node_modules/next/dist/client/route-loader.js",
+  "../../node_modules/next/dist/client/router.js",
+  "../../node_modules/next/dist/client/script.js",
+  "../../node_modules/next/dist/client/trusted-types.js",
+  "../../node_modules/next/dist/client/with-router.js",
+  "../../node_modules/next/dist/compiled/path-to-regexp/index.js",
+  "../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js",
+  "../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js",
+  "../../node_modules/next/dist/compiled/react-dom/package.json",
+  "../../node_modules/next/dist/compiled/react-dom/server-rendering-stub.js",
+  "../../node_modules/next/dist/compiled/react-is/cjs/react-is.development.js",
+  "../../node_modules/next/dist/compiled/react-is/cjs/react-is.production.min.js",
+  "../../node_modules/next/dist/compiled/react-is/index.js",
+  "../../node_modules/next/dist/compiled/react-is/package.json",
+  "../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js",
+  "../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.min.js",
+  "../../node_modules/next/dist/compiled/react-server-dom-webpack/client.browser.js",
+  "../../node_modules/next/dist/compiled/react-server-dom-webpack/client.js",
+  "../../node_modules/next/dist/compiled/react-server-dom-webpack/package.json",
+  "../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js",
+  "../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js",
+  "../../node_modules/next/dist/compiled/react/cjs/react.development.js",
+  "../../node_modules/next/dist/compiled/react/cjs/react.production.min.js",
+  "../../node_modules/next/dist/compiled/react/index.js",
+  "../../node_modules/next/dist/compiled/react/jsx-runtime.js",
+  "../../node_modules/next/dist/compiled/react/package.json",
+  "../../node_modules/next/dist/lib/is-api-route.js",
+  "../../node_modules/next/dist/lib/is-error.js",
+  "../../node_modules/next/dist/pages/_error.js",
+  "../../node_modules/next/dist/server/app-render/get-segment-param.js",
+  "../../node_modules/next/dist/server/future/helpers/interception-routes.js",
+  "../../node_modules/next/dist/server/get-page-files.js",
+  "../../node_modules/next/dist/server/htmlescape.js",
+  "../../node_modules/next/dist/server/utils.js",
+  "../../node_modules/next/dist/shared/lib/amp-context.js",
+  "../../node_modules/next/dist/shared/lib/amp-mode.js",
+  "../../node_modules/next/dist/shared/lib/app-router-context.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/index.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/utils.js",
+  "../../node_modules/next/dist/shared/lib/constants.js",
+  "../../node_modules/next/dist/shared/lib/escape-regexp.js",
+  "../../node_modules/next/dist/shared/lib/fnv1a.js",
+  "../../node_modules/next/dist/shared/lib/head-manager-context.js",
+  "../../node_modules/next/dist/shared/lib/head.js",
+  "../../node_modules/next/dist/shared/lib/hooks-client-context.js",
+  "../../node_modules/next/dist/shared/lib/html-context.js",
+  "../../node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js",
+  "../../node_modules/next/dist/shared/lib/i18n/normalize-locale-path.js",
+  "../../node_modules/next/dist/shared/lib/is-plain-object.js",
+  "../../node_modules/next/dist/shared/lib/loadable-context.js",
+  "../../node_modules/next/dist/shared/lib/loadable.js",
+  "../../node_modules/next/dist/shared/lib/mitt.js",
+  "../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js",
+  "../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js",
+  "../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js",
+  "../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js",
+  "../../node_modules/next/dist/shared/lib/router-context.js",
+  "../../node_modules/next/dist/shared/lib/router/router.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/add-locale.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/add-path-prefix.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/add-path-suffix.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/app-paths.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/compare-states.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/format-next-pathname-info.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/format-url.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/get-asset-path-from-route.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/handle-smooth-scroll.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/index.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/interpolate-as.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/is-bot.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/is-local-url.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/omit.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/parse-path.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/parse-relative-url.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/parse-url.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/path-has-prefix.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/path-match.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/prepare-destination.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/querystring.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/remove-path-prefix.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/remove-trailing-slash.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/resolve-href.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/resolve-rewrites.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/route-matcher.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/route-regex.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js",
+  "../../node_modules/next/dist/shared/lib/server-inserted-html.js",
+  "../../node_modules/next/dist/shared/lib/side-effect.js",
+  "../../node_modules/next/dist/shared/lib/utils.js",
+  "../../node_modules/next/dist/shared/lib/utils/warn-once.js",
+  "../../node_modules/next/error.js",
+  "../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js",
+  "../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js",
+  "../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js",
+  "../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js",
+  "../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js",
+  "../../node_modules/next/node_modules/@swc/helpers/package.json",
+  "../../node_modules/next/package.json",
+  "../../node_modules/next/router.js",
+  "../../node_modules/react-dom/cjs/react-dom.development.js",
+  "../../node_modules/react-dom/cjs/react-dom.production.min.js",
+  "../../node_modules/react-dom/index.js",
+  "../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.development.js",
+  "../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js",
+  "../../node_modules/react-dom/node_modules/scheduler/index.js",
+  "../../node_modules/react-dom/node_modules/scheduler/package.json",
+  "../../node_modules/react-dom/package.json",
+  "../../node_modules/react/cjs/react.development.js",
+  "../../node_modules/react/cjs/react.production.min.js",
+  "../../node_modules/react/index.js",
+  "../../node_modules/react/package.json",
+  "../../package.json",
 ]
 `;
 
@@ -65,7 +192,6 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/package.json')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
-        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/pages/_app.js')
         require.resolve('../../../.next/server/pages/_document.js')
         require.resolve('../../../.next/server/pages/_error.js')
@@ -73,6 +199,42 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/webpack-api-runtime.js')
         require.resolve('../../../.next/server/webpack-runtime.js')
         require.resolve('../../../package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../../node_modules/next/package.json')
+        require.resolve('../../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/react/index.js')
+        require.resolve('../../../../../node_modules/react/package.json')
+        require.resolve('../../../../../package.json')
     } catch {}
 }"
 `;
@@ -84,7 +246,6 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/package.json')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
-        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/pages/_app.js')
         require.resolve('../../../.next/server/pages/_document.js')
         require.resolve('../../../.next/server/pages/_error.js')
@@ -92,6 +253,42 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/webpack-api-runtime.js')
         require.resolve('../../../.next/server/webpack-runtime.js')
         require.resolve('../../../package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../../node_modules/next/package.json')
+        require.resolve('../../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/react/index.js')
+        require.resolve('../../../../../node_modules/react/package.json')
+        require.resolve('../../../../../package.json')
     } catch {}
 }"
 `;
@@ -113,7 +310,6 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
-        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/header.js')
         require.resolve('../../../.next/server/pages/_app.js')
         require.resolve('../../../.next/server/pages/_document.js')
@@ -153,6 +349,134 @@ exports.resolvePages = () => {
         require.resolve('../../../components/Header.js')
         require.resolve('../../../hello.txt')
         require.resolve('../../../package.json')
+        require.resolve('../../../../../node_modules/next/dist/client/add-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/add-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/detect-domain-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/has-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/head-manager.js')
+        require.resolve('../../../../../node_modules/next/dist/client/normalize-trailing-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/client/remove-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/remove-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/request-idle-callback.js')
+        require.resolve('../../../../../node_modules/next/dist/client/route-loader.js')
+        require.resolve('../../../../../node_modules/next/dist/client/router.js')
+        require.resolve('../../../../../node_modules/next/dist/client/script.js')
+        require.resolve('../../../../../node_modules/next/dist/client/trusted-types.js')
+        require.resolve('../../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/server-rendering-stub.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.browser.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../../node_modules/next/dist/lib/is-api-route.js')
+        require.resolve('../../../../../node_modules/next/dist/lib/is-error.js')
+        require.resolve('../../../../../node_modules/next/dist/pages/_error.js')
+        require.resolve('../../../../../node_modules/next/dist/server/app-render/get-segment-param.js')
+        require.resolve('../../../../../node_modules/next/dist/server/future/helpers/interception-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/app-router-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/fnv1a.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/i18n/normalize-locale-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/router.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-path-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-path-suffix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/app-paths.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/compare-states.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/format-next-pathname-info.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/format-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/get-asset-path-from-route.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/handle-smooth-scroll.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/interpolate-as.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-bot.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-local-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/omit.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-relative-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/path-has-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/path-match.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/prepare-destination.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/querystring.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/remove-path-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/remove-trailing-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/resolve-href.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/resolve-rewrites.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/route-matcher.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/route-regex.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/server-inserted-html.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../../node_modules/next/error.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../../node_modules/next/package.json')
+        require.resolve('../../../../../node_modules/next/router.js')
+        require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.development.js')
+        require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.production.min.js')
+        require.resolve('../../../../../node_modules/react-dom/index.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.development.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/index.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/package.json')
+        require.resolve('../../../../../node_modules/react-dom/package.json')
+        require.resolve('../../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/react/index.js')
+        require.resolve('../../../../../node_modules/react/package.json')
+        require.resolve('../../../../../package.json')
     } catch {}
 }"
 `;
@@ -174,7 +498,6 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
-        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/header.js')
         require.resolve('../../../.next/server/pages/_app.js')
         require.resolve('../../../.next/server/pages/_document.js')
@@ -214,6 +537,134 @@ exports.resolvePages = () => {
         require.resolve('../../../components/Header.js')
         require.resolve('../../../hello.txt')
         require.resolve('../../../package.json')
+        require.resolve('../../../../../node_modules/next/dist/client/add-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/add-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/detect-domain-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/has-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/head-manager.js')
+        require.resolve('../../../../../node_modules/next/dist/client/normalize-trailing-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/client/remove-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/remove-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/request-idle-callback.js')
+        require.resolve('../../../../../node_modules/next/dist/client/route-loader.js')
+        require.resolve('../../../../../node_modules/next/dist/client/router.js')
+        require.resolve('../../../../../node_modules/next/dist/client/script.js')
+        require.resolve('../../../../../node_modules/next/dist/client/trusted-types.js')
+        require.resolve('../../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/server-rendering-stub.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.browser.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../../node_modules/next/dist/lib/is-api-route.js')
+        require.resolve('../../../../../node_modules/next/dist/lib/is-error.js')
+        require.resolve('../../../../../node_modules/next/dist/pages/_error.js')
+        require.resolve('../../../../../node_modules/next/dist/server/app-render/get-segment-param.js')
+        require.resolve('../../../../../node_modules/next/dist/server/future/helpers/interception-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/app-router-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/fnv1a.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/i18n/normalize-locale-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/router.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-path-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-path-suffix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/app-paths.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/compare-states.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/format-next-pathname-info.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/format-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/get-asset-path-from-route.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/handle-smooth-scroll.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/interpolate-as.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-bot.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-local-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/omit.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-relative-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/path-has-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/path-match.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/prepare-destination.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/querystring.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/remove-path-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/remove-trailing-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/resolve-href.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/resolve-rewrites.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/route-matcher.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/route-regex.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/server-inserted-html.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../../node_modules/next/error.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../../node_modules/next/package.json')
+        require.resolve('../../../../../node_modules/next/router.js')
+        require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.development.js')
+        require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.production.min.js')
+        require.resolve('../../../../../node_modules/react-dom/index.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.development.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/index.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/package.json')
+        require.resolve('../../../../../node_modules/react-dom/package.json')
+        require.resolve('../../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/react/index.js')
+        require.resolve('../../../../../node_modules/react/package.json')
+        require.resolve('../../../../../package.json')
     } catch {}
 }"
 `;
@@ -222,11 +673,138 @@ exports[`onBuild() generates a file referencing all when publish dir is a subdir
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
+        require.resolve('../../../../node_modules/next/dist/client/add-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/add-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/detect-domain-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/has-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/head-manager.js')
+        require.resolve('../../../../node_modules/next/dist/client/normalize-trailing-slash.js')
+        require.resolve('../../../../node_modules/next/dist/client/remove-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/remove-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/request-idle-callback.js')
+        require.resolve('../../../../node_modules/next/dist/client/route-loader.js')
+        require.resolve('../../../../node_modules/next/dist/client/router.js')
+        require.resolve('../../../../node_modules/next/dist/client/script.js')
+        require.resolve('../../../../node_modules/next/dist/client/trusted-types.js')
+        require.resolve('../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/server-rendering-stub.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.browser.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../node_modules/next/dist/lib/is-api-route.js')
+        require.resolve('../../../../node_modules/next/dist/lib/is-error.js')
+        require.resolve('../../../../node_modules/next/dist/pages/_error.js')
+        require.resolve('../../../../node_modules/next/dist/server/app-render/get-segment-param.js')
+        require.resolve('../../../../node_modules/next/dist/server/future/helpers/interception-routes.js')
+        require.resolve('../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/app-router-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/fnv1a.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/head.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/i18n/normalize-locale-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/loadable-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/loadable.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/router.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-locale.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-path-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-path-suffix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/app-paths.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/compare-states.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/format-next-pathname-info.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/format-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/get-asset-path-from-route.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/handle-smooth-scroll.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/interpolate-as.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-bot.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-local-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/omit.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-relative-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/path-has-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/path-match.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/prepare-destination.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/querystring.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/remove-path-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/remove-trailing-slash.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/resolve-href.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/resolve-rewrites.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/route-matcher.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/route-regex.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/server-inserted-html.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../node_modules/next/error.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../node_modules/next/package.json')
+        require.resolve('../../../../node_modules/next/router.js')
+        require.resolve('../../../../node_modules/react-dom/cjs/react-dom.development.js')
+        require.resolve('../../../../node_modules/react-dom/cjs/react-dom.production.min.js')
+        require.resolve('../../../../node_modules/react-dom/index.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.development.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/index.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/package.json')
+        require.resolve('../../../../node_modules/react-dom/package.json')
+        require.resolve('../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../node_modules/react/index.js')
+        require.resolve('../../../../node_modules/react/package.json')
+        require.resolve('../../../../package.json')
         require.resolve('../../../web/.next/package.json')
         require.resolve('../../../web/.next/server/app/app-edge/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/[slug]/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/page.js')
-        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
@@ -283,11 +861,138 @@ exports[`onBuild() generates a file referencing all when publish dir is a subdir
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
+        require.resolve('../../../../node_modules/next/dist/client/add-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/add-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/detect-domain-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/has-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/head-manager.js')
+        require.resolve('../../../../node_modules/next/dist/client/normalize-trailing-slash.js')
+        require.resolve('../../../../node_modules/next/dist/client/remove-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/remove-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/request-idle-callback.js')
+        require.resolve('../../../../node_modules/next/dist/client/route-loader.js')
+        require.resolve('../../../../node_modules/next/dist/client/router.js')
+        require.resolve('../../../../node_modules/next/dist/client/script.js')
+        require.resolve('../../../../node_modules/next/dist/client/trusted-types.js')
+        require.resolve('../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/server-rendering-stub.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.browser.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../node_modules/next/dist/lib/is-api-route.js')
+        require.resolve('../../../../node_modules/next/dist/lib/is-error.js')
+        require.resolve('../../../../node_modules/next/dist/pages/_error.js')
+        require.resolve('../../../../node_modules/next/dist/server/app-render/get-segment-param.js')
+        require.resolve('../../../../node_modules/next/dist/server/future/helpers/interception-routes.js')
+        require.resolve('../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/app-router-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/fnv1a.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/head.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/i18n/normalize-locale-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/loadable-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/loadable.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/router.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-locale.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-path-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-path-suffix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/app-paths.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/compare-states.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/format-next-pathname-info.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/format-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/get-asset-path-from-route.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/handle-smooth-scroll.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/interpolate-as.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-bot.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-local-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/omit.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-relative-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/path-has-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/path-match.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/prepare-destination.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/querystring.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/remove-path-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/remove-trailing-slash.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/resolve-href.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/resolve-rewrites.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/route-matcher.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/route-regex.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/server-inserted-html.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../node_modules/next/error.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../node_modules/next/package.json')
+        require.resolve('../../../../node_modules/next/router.js')
+        require.resolve('../../../../node_modules/react-dom/cjs/react-dom.development.js')
+        require.resolve('../../../../node_modules/react-dom/cjs/react-dom.production.min.js')
+        require.resolve('../../../../node_modules/react-dom/index.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.development.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/index.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/package.json')
+        require.resolve('../../../../node_modules/react-dom/package.json')
+        require.resolve('../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../node_modules/react/index.js')
+        require.resolve('../../../../node_modules/react/package.json')
+        require.resolve('../../../../package.json')
         require.resolve('../../../web/.next/package.json')
         require.resolve('../../../web/.next/server/app/app-edge/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/[slug]/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/page.js')
-        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
