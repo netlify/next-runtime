@@ -1,10 +1,10 @@
-import { generateRscDataEdgeManifest } from '../packages/runtime/src/helpers/edge'
+import { generateRscDataEdgeManifest } from '../../packages/runtime/src/helpers/edge'
 import type { PrerenderManifest } from 'next/dist/build'
 
-jest.mock('../packages/runtime/src/helpers/functionsMetaData', () => {
-  const { NEXT_PLUGIN_NAME } = require('../packages/runtime/src/constants')
+jest.mock('../../packages/runtime/src/helpers/functionsMetaData', () => {
+  const { NEXT_PLUGIN_NAME } = require('../../packages/runtime/src/constants')
   return {
-    ...jest.requireActual('../packages/runtime/src/helpers/functionsMetaData'),
+    ...jest.requireActual('../../packages/runtime/src/helpers/functionsMetaData'),
     getPluginVersion: async () => `${NEXT_PLUGIN_NAME}@1.0.0`,
   }
 })

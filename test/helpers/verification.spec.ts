@@ -1,6 +1,10 @@
 import Chance from 'chance'
-import { checkNextSiteHasBuilt, checkZipSize } from '../../packages/runtime/src/helpers/verification'
+import { checkNextSiteHasBuilt, checkZipSize, getProblematicUserRewrites } from '../../packages/runtime/src/helpers/verification'
 import { outdent } from 'outdent'
+import type { NetlifyPluginOptions } from '@netlify/build'
+import { moveNextDist } from "../test-utils"
+
+const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] } as NetlifyPluginOptions["netlifyConfig"]
 
 import type { NetlifyPluginUtils } from '@netlify/build'
 type FailBuild = NetlifyPluginUtils['build']['failBuild']
@@ -98,5 +102,34 @@ describe('checkZipSize', () => {
     process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'true'
     await checkZipSize(chance.string())
     expect(consoleSpy).toHaveBeenCalledWith('Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.')
+  })
+})
+
+describe("getProblematicUserRewrites", () => {
+  it('finds problematic user rewrites', async () => {
+    await moveNextDist()
+    const rewrites = getProblematicUserRewrites({
+      redirects: [
+        { from: '/previous', to: '/rewrites-are-a-problem', status: 200 },
+        { from: '/api', to: '/.netlify/functions/are-ok', status: 200 },
+        { from: '/remote', to: 'http://example.com/proxying/is/ok', status: 200 },
+        { from: '/old', to: '/redirects-are-fine' },
+        { from: '/*', to: '/404-is-a-problem', status: 404 },
+        ...netlifyConfig.redirects,
+      ],
+      basePath: '',
+    })
+    expect(rewrites).toEqual([
+      {
+        from: '/previous',
+        status: 200,
+        to: '/rewrites-are-a-problem',
+      },
+      {
+        from: '/*',
+        status: 404,
+        to: '/404-is-a-problem',
+      },
+    ])
   })
 })
