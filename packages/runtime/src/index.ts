@@ -24,6 +24,7 @@ import {
   generatePagesResolver,
   getExtendedApiRouteConfigs,
   warnOnApiRoutes,
+  getApiRouteConfigs,
 } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
@@ -150,7 +151,11 @@ const plugin: NetlifyPlugin = {
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
     await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
-    const apiRoutes = await getExtendedApiRouteConfigs(publish, appDir)
+
+    const useNoneBundler = Boolean(process.env.NEXT_SPLIT_API_ROUTES)
+    const apiRoutes = useNoneBundler
+      ? await getApiRouteConfigs(publish, appDir)
+      : await getExtendedApiRouteConfigs(publish, appDir)
 
     await generateFunctions(constants, appDir, apiRoutes)
     await generatePagesResolver(constants)
