@@ -21,7 +21,7 @@ import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, ApiRouteType, extractConfigFromFile, isEdgeConfig } from './analysis'
-import { getSourceFileForPage } from './files'
+import { getSourceFileForPage, getDependenciesOfFile } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
 import { getFunctionNameForPage } from './utils'
 
@@ -29,6 +29,7 @@ export interface ApiRouteConfig {
   route: string
   config: ApiConfig
   compiled: string
+  includedFiles: string[]
 }
 
 export const generateFunctions = async (
@@ -71,6 +72,7 @@ export const generateFunctions = async (
 
     const resolveSourceFile = (file: string) => join(publish, 'server', file)
 
+    // TODO: this should be unneeded once we use the `none` bundler
     const resolverSource = await getResolverForSourceFiles({
       functionsDir,
       // These extra pages are always included by Next.js
@@ -210,7 +212,14 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
   return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
       const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir])
-      return { route: apiRoute, config: await extractConfigFromFile(filePath), compiled: pages[apiRoute] }
+      const compiled = pages[apiRoute]
+      const includedFiles = await getDependenciesOfFile(join(baseDir, '.next', 'server', compiled))
+      return {
+        route: apiRoute,
+        config: await extractConfigFromFile(filePath),
+        compiled,
+        includedFiles,
+      }
     }),
   )
 }

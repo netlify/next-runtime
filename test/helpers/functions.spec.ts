@@ -6,7 +6,7 @@ describeCwdTmpDir('api route file analysis', () => {
     await moveNextDist()
     const configs = await getApiRouteConfigs('.next', process.cwd())
     // Using a Set means the order doesn't matter
-    expect(new Set(configs)).toEqual(
+    expect(new Set(configs.map(({ includedFiles, ...rest }) => rest))).toEqual(
       new Set([
         {
           compiled: 'pages/api/og.js',
@@ -63,7 +63,7 @@ describeCwdTmpDir('api route file analysis', () => {
     await moveNextDist()
     const configs = await getExtendedApiRouteConfigs('.next', process.cwd())
     // Using a Set means the order doesn't matter
-    expect(new Set(configs)).toEqual(
+    expect(new Set(configs.map(({ includedFiles, ...rest }) => rest))).toEqual(
       new Set([
         {
           compiled: 'pages/api/hello-background.js',
