@@ -7,6 +7,7 @@ import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON } from 
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
 import { join, relative, resolve, dirname } from 'pathe'
+import glob from 'tiny-glob'
 
 import {
   HANDLER_FUNCTION_NAME,
@@ -202,6 +203,26 @@ export const setupImageFunction = async ({
   }
 }
 
+const traceRequiredServerFiles = async (publish: string): Promise<string[]> => {
+  const requiredServerFilesPath = join(publish, 'required-server-files.json')
+  const { files } = (await readJSON(requiredServerFilesPath)) as { files: string[] }
+  files.push(requiredServerFilesPath)
+  return files
+}
+
+const traceNextServer = async (publish: string, baseDir: string): Promise<string[]> => {
+  const nextServerDeps = await getDependenciesOfFile(join(publish, 'next-server.js'))
+
+  // this takes quite a long while, but it's only done once per build.
+  // theoretically, it's only needed once per version of Next.js 🤷
+  const { fileList } = await nodeFileTrace(nextServerDeps, { base: '/' })
+
+  // for some reason, NFT detects /bin/sh. let's not upload that to lambda.
+  fileList.delete('/bin/sh')
+
+  return [...fileList].map((f) => `/${f}`).map((file) => relative(baseDir, file))
+}
+
 /**
  * Look for API routes, and extract the config from the source file.
  */
@@ -213,29 +234,15 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
   const pagesDir = join(baseDir, 'pages')
   const srcPagesDir = join(baseDir, 'src', 'pages')
 
-  const requiredServerFilesPath = join(publish, 'required-server-files.json')
-  const { files: requiredFiles = [] } = await readJSON(requiredServerFilesPath)
-
-  const nextServerDeps = await getDependenciesOfFile(join(publish, 'next-server.js'))
-  // this takes quite a long while, but it's only done once per build.
-  // theoretically, it's only needed once per version of Next.js 🤷
-  const { fileList } = await nodeFileTrace(nextServerDeps, { base: '/' })
-
-  const nextFiles = [...fileList]
-    // the files are relative to /, so we can prepend a / to make them absolute
-    .map((f) => '/' + f)
-    // for some reason, NFT detects /bin/sh. let's not upload that to lambda.
-    .filter((f) => !f.startsWith('/bin/'))
-    .map((file) => relative(baseDir, file))
-
-  const commonDependencies = [
-    requiredServerFilesPath,
-    ...requiredFiles,
-    ...nextFiles,
+  const [requiredServerFiles, nextServerFiles, followRedirectsFiles] = await Promise.all([
+    traceRequiredServerFiles(publish),
+    traceNextServer(publish, baseDir),
 
     // used by our own bridge.js
-    join(dirname(require.resolve('follow-redirects', { paths: [publish] })), '**', '*'),
-  ]
+    glob(join(dirname(require.resolve('follow-redirects', { paths: [publish] })), '**', '*')),
+  ])
+
+  const commonDependencies = [...requiredServerFiles, ...nextServerFiles, ...followRedirectsFiles]
 
   return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
@@ -249,9 +256,10 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
 
       const routeDependencies = await getDependenciesOfFile(compiledPath)
       const includedFiles = [
+        ...commonDependencies,
+
         compiledPath,
         join('.netlify', 'functions-internal', functionName, '**', '*'),
-        ...commonDependencies,
         ...routeDependencies,
       ]
 
