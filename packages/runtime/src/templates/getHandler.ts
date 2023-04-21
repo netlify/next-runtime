@@ -7,9 +7,7 @@ import type { NextConfig } from '../helpers/config'
 import { getServerFile } from '../helpers/files'
 
 import { NextServerType } from './handlerUtils'
-import type { getNetlifyNextServer as getNetlifyNextServerType } from './server'
-
-type NetlifyNextServerType = ReturnType<typeof getNetlifyNextServerType>
+import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { promises } = require('fs')

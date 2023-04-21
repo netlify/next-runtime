@@ -102,4 +102,6 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
   return NetlifyNextServer
 }
 
+export type NetlifyNextServerType = ReturnType<typeof getNetlifyNextServer>
+
 export { getNetlifyNextServer, NetlifyConfig }
