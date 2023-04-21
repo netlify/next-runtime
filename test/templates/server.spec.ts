@@ -66,7 +66,6 @@ beforeAll(() => {
     this.nextConfig = nextOptions.conf
     this.netlifyConfig = netlifyConfig
   }
-
   Object.setPrototypeOf(NetlifyNextServer, MockNetlifyNextServerConstructor)
 })
 

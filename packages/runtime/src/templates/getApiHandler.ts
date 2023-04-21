@@ -124,7 +124,9 @@ export const getApiHandler = ({
   publishDir?: string
   appDir?: string
   nextServerModuleRelativeLocation: string | undefined
-}): string => javascript/* javascript */ `
+}): string =>
+  // This is a string, but if you have the right editor plugin it should format as js
+  javascript/* javascript */ `
   if (!${JSON.stringify(nextServerModuleRelativeLocation)}) {
     throw new Error('Could not find Next.js server')
   }

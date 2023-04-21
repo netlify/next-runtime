@@ -5,7 +5,7 @@ import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
 
-import { NextServerType } from './handlerUtils'
+import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -195,7 +195,9 @@ export const getHandler = ({
   publishDir = '../../../.next',
   appDir = '../../..',
   nextServerModuleRelativeLocation,
-}): string => javascript/* javascript */ `
+}): string =>
+  // This is a string, but if you have the right editor plugin it should format as js
+  javascript/* javascript */ `
   if (!${JSON.stringify(nextServerModuleRelativeLocation)}) {
     throw new Error('Could not find Next.js server')
   }
