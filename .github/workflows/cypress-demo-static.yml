@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - 'demos/static-root/**/*.{js,jsx,ts,tsx}'
-      - 'cypress/integration/static/**/*.{ts,js}'
+      - 'cypress/e2e/static/**/*.{ts,js}'
       - 'src/**/*.{ts,js}'
 jobs:
   cypress:
@@ -62,9 +62,9 @@ jobs:
           headless: true
           record: true
           parallel: true
-          config-file: cypress/config/static-root.json
+          config-file: cypress/config/static-root.config.ts
           group: 'Next Runtime - Demo Static'
-          spec: cypress/integration/static-root/*
+          spec: cypress/e2e/static-root/*
         env:
           DEBUG: '@cypress/github-action'
           CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}

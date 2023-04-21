@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - 'demos/middleware/**/*.{js,jsx,ts,tsx}'
-      - 'cypress/integration/middleware/**/*.{ts,js}'
+      - 'cypress/e2e/middleware/**/*.{ts,js}'
       - 'src/**/*.{ts,js}'
 jobs:
   cypress:
@@ -62,9 +62,9 @@ jobs:
           headless: true
           record: true
           parallel: true
-          config-file: cypress/config/middleware.json
+          config-file: cypress/config/middleware.config.ts
           group: 'Next Runtime - Middleware'
-          spec: cypress/integration/middleware/*
+          spec: cypress/e2e/middleware/*
         env:
           DEBUG: '@cypress/github-action'
           CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}

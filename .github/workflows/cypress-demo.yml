@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - 'demos/default/**/*.{js,jsx,ts,tsx}'
-      - 'cypress/integration/default/**/*.{ts,js}'
+      - 'cypress/e2e/default/**/*.{ts,js}'
       - 'src/**/*.{ts,js}'
 jobs:
   cypress:
@@ -62,9 +62,9 @@ jobs:
           headless: true
           record: true
           parallel: true
-          config-file: cypress/config/ci.json
+          config-file: cypress/config/ci.config.ts
           group: 'Next Runtime - Demo'
-          spec: cypress/integration/default/*
+          spec: cypress/e2e/default/*
         env:
           DEBUG: '@cypress/github-action'
           CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}

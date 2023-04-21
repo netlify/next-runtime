@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - 'demos/nx-next-monorepo-demo/**/*.{js,jsx,ts,tsx}'
-      - 'cypress/integration/nx/**/*.{ts,js}'
+      - 'cypress/e2e/nx/**/*.{ts,js}'
       - 'src/**/*.{ts,js}'
 jobs:
   cypress:
@@ -62,9 +62,9 @@ jobs:
           headless: true
           record: true
           parallel: true
-          config-file: cypress/config/nx-demo.json
+          config-file: cypress/config/nx-demo.config.ts
           group: 'Next Runtime - Demo NX'
-          spec: cypress/integration/nx/*
+          spec: cypress/e2e/nx/*
         env:
           DEBUG: '@cypress/github-action'
           CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}
