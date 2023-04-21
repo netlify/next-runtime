@@ -1,4 +1,5 @@
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
+import { nodeFileTrace } from '@vercel/nft'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
@@ -215,18 +216,25 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
   const requiredServerFilesPath = join(publish, 'required-server-files.json')
   const { files: requiredFiles = [] } = await readJSON(requiredServerFilesPath)
 
+  const nextServerDeps = await getDependenciesOfFile(join(publish, 'next-server.js'))
+  // this takes quite a long while, but it's only done once per build.
+  // theoretically, it's only needed once per version of Next.js 🤷
+  const { fileList } = await nodeFileTrace(nextServerDeps, { base: '/' })
+
+  const nextFiles = [...fileList]
+    // the files are relative to /, so we can prepend a / to make them absolute
+    .map((f) => '/' + f)
+    // for some reason, NFT detects /bin/sh. let's not upload that to lambda.
+    .filter((f) => !f.startsWith('/bin/'))
+    .map((file) => relative(baseDir, file))
+
   const commonDependencies = [
     requiredServerFilesPath,
     ...requiredFiles,
+    ...nextFiles,
 
     // used by our own bridge.js
     join(dirname(require.resolve('follow-redirects', { paths: [publish] })), '**', '*'),
-    join(dirname(require.resolve('next/package.json', { paths: [publish] })), 'dist', '**', '*'),
-
-    // these are dependencies of the bundled nextjs server. it's brittle to list all of them here,
-    // and there are many missing - so maybe we should use NFT instead, to trace it.
-    // eslint-disable-next-line n/no-extraneous-require
-    join(dirname(require.resolve('styled-jsx', { paths: [publish] })), '**', '*'),
   ]
 
   return await Promise.all(
