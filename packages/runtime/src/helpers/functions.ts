@@ -80,7 +80,12 @@ export const generateFunctions = async (
   }
 
   const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
-    const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
+    const handlerSource = await getHandler({
+      isODB,
+      publishDir,
+      appDir: relative(functionDir, appDir),
+      appDirAbsolute: appDir,
+    })
     await ensureDir(join(functionsDir, functionName))
 
     // write main handler file (standard or ODB)
