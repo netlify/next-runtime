@@ -5,7 +5,6 @@ import { outdent as javascript } from 'outdent'
 
 import { ApiConfig, ApiRouteType } from '../helpers/analysis'
 import type { NextConfig } from '../helpers/config'
-import { getNextServerModulePath } from '../helpers/files'
 
 import type { NextServerType } from './handlerUtils'
 
@@ -118,19 +117,15 @@ export const getApiHandler = ({
   config,
   publishDir = '../../../.next',
   appDir = '../../..',
-  appDirAbsolute = process.cwd(),
+  nextServerModuleRelativeLocation,
 }: {
   page: string
   config: ApiConfig
   publishDir?: string
   appDir?: string
-  appDirAbsolute: string
-}): string => {
-  const nextServerModuleLocation = getNextServerModulePath(appDirAbsolute)
-
-  // This is a string, but if you have the right editor plugin it should format as js
-  return javascript/* javascript */ `
-  if (!${JSON.stringify(nextServerModuleLocation)}) {
+  nextServerModuleRelativeLocation: string | undefined
+}): string => javascript/* javascript */ `
+  if (!${JSON.stringify(nextServerModuleRelativeLocation)}) {
     throw new Error('Could not find Next.js server')
   }
 
@@ -138,7 +133,7 @@ export const getApiHandler = ({
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { getMultiValueHeaders } = require('./handlerUtils')
-  const NextServer = require(${JSON.stringify(nextServerModuleLocation)}).default
+  const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
 
   ${config.type === ApiRouteType.SCHEDULED ? `const { schedule } = require("@netlify/functions")` : ''}
 
@@ -152,4 +147,3 @@ export const getApiHandler = ({
     config.type === ApiRouteType.SCHEDULED ? `schedule(${JSON.stringify(config.schedule)}, handler);` : 'handler'
   }
 `
-}

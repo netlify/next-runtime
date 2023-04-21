@@ -21,7 +21,7 @@ import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, ApiRouteType, extractConfigFromFile, isEdgeConfig } from './analysis'
-import { getSourceFileForPage } from './files'
+import { getNextServerModulePath, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
 import { getFunctionNameForPage } from './utils'
 
@@ -41,6 +41,11 @@ export const generateFunctions = async (
   const functionDir = join(functionsDir, HANDLER_FUNCTION_NAME)
   const publishDir = relative(functionDir, publish)
 
+  const nextServerModuleAbsoluteLocation = getNextServerModulePath(appDir)
+  const nextServerModuleRelativeLocation = nextServerModuleAbsoluteLocation
+    ? relative(functionDir, nextServerModuleAbsoluteLocation)
+    : undefined
+
   for (const { route, config, compiled } of apiRoutes) {
     // Don't write a lambda if the runtime is edge
     if (isEdgeConfig(config.runtime)) {
@@ -51,7 +56,7 @@ export const generateFunctions = async (
       config,
       publishDir,
       appDir: relative(functionDir, appDir),
-      appDirAbsolute: appDir,
+      nextServerModuleRelativeLocation,
     })
     const functionName = getFunctionNameForPage(route, config.type === ApiRouteType.BACKGROUND)
     await ensureDir(join(functionsDir, functionName))
@@ -85,7 +90,7 @@ export const generateFunctions = async (
       isODB,
       publishDir,
       appDir: relative(functionDir, appDir),
-      appDirAbsolute: appDir,
+      nextServerModuleRelativeLocation,
     })
     await ensureDir(join(functionsDir, functionName))
 

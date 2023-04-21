@@ -4,7 +4,6 @@ import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
-import { getNextServerModulePath } from '../helpers/files'
 
 import { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
@@ -195,13 +194,9 @@ export const getHandler = ({
   isODB = false,
   publishDir = '../../../.next',
   appDir = '../../..',
-  appDirAbsolute = process.cwd(),
-}): string => {
-  const nextServerModuleLocation = getNextServerModulePath(appDirAbsolute)
-
-  // This is a string, but if you have the right editor plugin it should format as js
-  return javascript/* javascript */ `
-  if (!${JSON.stringify(nextServerModuleLocation)}) {
+  nextServerModuleRelativeLocation,
+}): string => javascript/* javascript */ `
+  if (!${JSON.stringify(nextServerModuleRelativeLocation)}) {
     throw new Error('Could not find Next.js server')
   }
 
@@ -211,7 +206,7 @@ export const getHandler = ({
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
   const { getNetlifyNextServer } = require('./server')
-  const NextServer = require(${JSON.stringify(nextServerModuleLocation)}).default
+  const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
 
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")
@@ -227,4 +222,3 @@ export const getHandler = ({
       : `(${makeHandler.toString()})(config, "${appDir}", pageRoot, NextServer, staticManifest, 'ssr');`
   }
 `
-}
