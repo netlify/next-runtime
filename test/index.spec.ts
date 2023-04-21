@@ -16,42 +16,29 @@ jest.mock('../packages/runtime/src/helpers/functionsMetaData', () => {
   }
 })
 
-import Chance from "chance"
-import {
-  writeJSON,
-  unlink,
-  existsSync,
-  readFileSync,
-  ensureDir,
-  readJson,
-  pathExists,
-  writeFile,
-  move,
-} from "fs-extra"
-import path from "path"
-import process from "process"
-import os from "os"
-import { dir as getTmpDir } from "tmp-promise"
+import Chance from 'chance'
+import { writeJSON, unlink, existsSync, readFileSync, ensureDir, readJson, pathExists, writeFile, move } from 'fs-extra'
+import path from 'path'
+import process from 'process'
+import os from 'os'
+import { dir as getTmpDir } from 'tmp-promise'
 // @ts-expect-error - TODO: Convert runtime export to ES6
-import nextRuntimeFactory from "../packages/runtime/src"
+import nextRuntimeFactory from '../packages/runtime/src'
 const nextRuntime = nextRuntimeFactory({})
-import { watchForMiddlewareChanges } from "../packages/runtime/src/helpers/compiler"
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } from "../packages/runtime/src/constants"
-import { join } from "pathe"
-import {
-  getRequiredServerFiles,
-  updateRequiredServerFiles,
-} from "../packages/runtime/src/helpers/config"
-import { resolve } from "path"
+import { watchForMiddlewareChanges } from '../packages/runtime/src/helpers/compiler'
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } from '../packages/runtime/src/constants'
+import { join } from 'pathe'
+import { getRequiredServerFiles, updateRequiredServerFiles } from '../packages/runtime/src/helpers/config'
+import { resolve } from 'path'
 import type { NetlifyPluginOptions } from '@netlify/build'
-import { changeCwd, useFixture, moveNextDist } from "./test-utils"
+import { changeCwd, useFixture, moveNextDist } from './test-utils'
 
 const chance = new Chance()
 const constants = {
   INTERNAL_FUNCTIONS_SRC: '.netlify/functions-internal',
   PUBLISH_DIR: '.next',
   FUNCTIONS_DIST: '.netlify/functions',
-} as unknown as NetlifyPluginOptions["constants"]
+} as unknown as NetlifyPluginOptions['constants']
 const utils = {
   build: {
     failBuild(message) {
@@ -63,14 +50,19 @@ const utils = {
     save: jest.fn(),
     restore: jest.fn(),
   },
-} as unknown as NetlifyPluginOptions["utils"]
+} as unknown as NetlifyPluginOptions['utils']
 
 const normalizeChunkNames = (source) => source.replaceAll(/\/chunks\/\d+\.js/g, '/chunks/CHUNK_ID.js')
 
 const onBuildHasRun = (netlifyConfig) =>
   Boolean(netlifyConfig.functions[HANDLER_FUNCTION_NAME]?.included_files?.some((file) => file.includes('BUILD_ID')))
 
-const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] } as NetlifyPluginOptions["netlifyConfig"]
+const netlifyConfig = {
+  build: { command: 'npm run build' },
+  functions: {},
+  redirects: [],
+  headers: [],
+} as NetlifyPluginOptions['netlifyConfig']
 const defaultArgs = {
   netlifyConfig,
   utils,
@@ -560,8 +552,12 @@ describe('onBuild()', () => {
     expect(existsSync(handlerFile)).toBeTruthy()
     expect(existsSync(odbHandlerFile)).toBeTruthy()
 
-    expect(readFileSync(handlerFile, 'utf8')).toMatch(`(config, "../../..", pageRoot, staticManifest, 'ssr')`)
-    expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`(config, "../../..", pageRoot, staticManifest, 'odb')`)
+    expect(readFileSync(handlerFile, 'utf8')).toMatch(
+      `(config, "../../..", pageRoot, NextServer, staticManifest, 'ssr')`,
+    )
+    expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(
+      `(config, "../../..", pageRoot, NextServer, staticManifest, 'odb')`,
+    )
     expect(readFileSync(handlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
     expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
   })
@@ -637,16 +633,15 @@ describe('onBuild()', () => {
     await nextRuntime.onBuild(defaultArgs)
     const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
     const manifest = manifestPath.functions
-    
+
     expect(manifest).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          generator: '@netlify/next-runtime@1.0.0'
-        })
-      ])
+          generator: '@netlify/next-runtime@1.0.0',
+        }),
+      ]),
     )
   })
-
 
   test('generates generator field within the edge-functions manifest includes IPX', async () => {
     process.env.NEXT_FORCE_EDGE_IMAGES = '1'
@@ -654,13 +649,13 @@ describe('onBuild()', () => {
     await nextRuntime.onBuild(defaultArgs)
     const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
     const manifest = manifestPath.functions
-    
+
     expect(manifest).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          generator: '@netlify/next-runtime@1.0.0'
-        })
-      ])
+          generator: '@netlify/next-runtime@1.0.0',
+        }),
+      ]),
     )
   })
 
