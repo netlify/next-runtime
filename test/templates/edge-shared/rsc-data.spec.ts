@@ -1,4 +1,4 @@
-import { getRscDataRouter, PrerenderManifest } from '../packages/runtime/src/templates/edge-shared/rsc-data'
+import { getRscDataRouter, PrerenderManifest } from '../../../packages/runtime/src/templates/edge-shared/rsc-data'
 
 const basePrerenderManifest: PrerenderManifest = {
   version: 3,
