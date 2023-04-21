@@ -330,7 +330,7 @@ const patchFile = async ({
  * The file we need has moved around a bit over the past few versions,
  * so we iterate through the options until we find it
  */
-export const getServerFile = (root: string, includeBase = true) => {
+const getServerFile = (root: string, includeBase = true) => {
   const candidates = ['next/dist/server/next-server', 'next/dist/next-server/server/next-server']
 
   if (includeBase) {
@@ -338,6 +338,54 @@ export const getServerFile = (root: string, includeBase = true) => {
   }
 
   return findModuleFromBase({ candidates, paths: [root] })
+}
+
+/**
+ * Try to find next-server module in few locations (to support different next versions) and in few context (try to resolve from app location and from this module)
+ */
+export const getNextServerModulePath = (root: string): string | null => {
+  // first let's try to use app location directory to find next-server
+  try {
+    const nextServerModuleLocation = getServerFile(root, false)
+    if (nextServerModuleLocation) {
+      return nextServerModuleLocation
+    }
+  } catch (error) {
+    if (!error.message.includes('Cannot find module')) {
+      // A different error, so rethrow it
+      throw error
+    }
+  }
+
+  // if we didn't find it, let's try to resolve "next" package from this module
+  try {
+    // next >= 11.0.1. Yay breaking changes in patch releases!
+    const nextServerModuleLocation = require.resolve('next/dist/server/next-server')
+    if (nextServerModuleLocation) {
+      return nextServerModuleLocation
+    }
+  } catch (error) {
+    if (!error.message.includes("Cannot find module 'next/dist/server/next-server'")) {
+      // A different error, so rethrow it
+      throw error
+    }
+    // Probably an old version of next, so fall through and find it elsewhere.
+  }
+
+  try {
+    // next < 11.0.1
+    // eslint-disable-next-line n/no-missing-require
+    const nextServerModuleLocation = require.resolve('next/dist/next-server/server/next-server')
+    if (nextServerModuleLocation) {
+      return nextServerModuleLocation
+    }
+  } catch (error) {
+    if (!error.message.includes("Cannot find module 'next/dist/next-server/server/next-server'")) {
+      throw error
+    }
+  }
+
+  return null
 }
 
 /**

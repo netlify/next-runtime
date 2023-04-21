@@ -5,7 +5,7 @@ import { outdent as javascript } from 'outdent'
 
 import { ApiConfig, ApiRouteType } from '../helpers/analysis'
 import type { NextConfig } from '../helpers/config'
-import { getServerFile } from '../helpers/files'
+import { getNextServerModulePath } from '../helpers/files'
 
 import type { NextServerType } from './handlerUtils'
 
@@ -126,7 +126,7 @@ export const getApiHandler = ({
   appDir?: string
   appDirAbsolute: string
 }): string => {
-  const nextServerModuleLocation = getServerFile(appDirAbsolute, false)
+  const nextServerModuleLocation = getNextServerModulePath(appDirAbsolute)
 
   // This is a string, but if you have the right editor plugin it should format as js
   return javascript/* javascript */ `
