@@ -1046,7 +1046,7 @@ describe('function helpers', () => {
         await moveNextDist()
         await nextRuntime.onBuild(defaultArgs)
         const dependencies = await getAllPageDependencies(constants.PUBLISH_DIR)
-        expect(dependencies.sort().map((dep) => normalizeChunkNames(relative(process.cwd(), dep)))).toMatchSnapshot()
+        expect(dependencies.map((dep) => normalizeChunkNames(relative(process.cwd(), dep))).sort()).toMatchSnapshot()
       })
 
       // TODO: `dependencies` references files inside the <root>/node_modules directory which isn't accessible in moveNextDist
@@ -1055,8 +1055,8 @@ describe('function helpers', () => {
         await moveNextDist()
         await nextRuntime.onBuild(defaultArgs)
         const dependencies = await getAllPageDependencies(constants.PUBLISH_DIR)
-        const filesExist = await Promise.all(dependencies.sort().map((dep) => pathExists(dep)))
-        expect(filesExist.every((exists) => exists)).toBeTruthy()
+        const filesExist = await Promise.all(dependencies.map((dep) => pathExists(dep)))
+        expect(filesExist.sort().every((exists) => exists)).toBeTruthy()
       })
     })
   })
