@@ -218,7 +218,7 @@ const traceNextServer = async (publish: string, baseDir: string): Promise<string
   const { fileList } = await nodeFileTrace(nextServerDeps, { base: '/' })
 
   // for some reason, NFT detects /bin/sh. let's not upload that to lambda.
-  fileList.delete('/bin/sh')
+  fileList.delete('bin/sh')
 
   return [...fileList].map((f) => `/${f}`).map((file) => relative(baseDir, file))
 }
