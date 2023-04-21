@@ -31,6 +31,7 @@ const buildMiddlewareFile = async (entryPoints: Array<string>, base: string) => 
       format: 'esm',
       target: 'esnext',
       absWorkingDir: base,
+      external: ['next/dist/compiled/@vercel/og']
     })
   } catch (error) {
     console.error(error.toString())
