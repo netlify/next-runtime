@@ -51,6 +51,7 @@ export const generateFunctions = async (
       config,
       publishDir,
       appDir: relative(functionDir, appDir),
+      appDirAbsolute: appDir,
     })
     const functionName = getFunctionNameForPage(route, config.type === ApiRouteType.BACKGROUND)
     await ensureDir(join(functionsDir, functionName))

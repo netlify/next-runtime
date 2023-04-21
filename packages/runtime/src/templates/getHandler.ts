@@ -201,7 +201,7 @@ export const getHandler = ({
 }): string => {
   const nextServerModuleLocation = getServerFile(appDirAbsolute, false)
   if (!nextServerModuleLocation) {
-    throw new Error('Could not find next-server.js')
+    throw new Error('Could not find Next.js server')
   }
 
   // This is a string, but if you have the right editor plugin it should format as js
@@ -210,7 +210,7 @@ export const getHandler = ({
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, getNextServer, normalizePath } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
   const { getNetlifyNextServer } = require('./server')
   const NextServer = require(${JSON.stringify(nextServerModuleLocation)}).default
 
