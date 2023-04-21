@@ -1,8 +1,9 @@
 import { mockRequest } from 'next/dist/server/lib/mock-request'
 import { Options } from 'next/dist/server/next-server'
 
-import { getNextServer, NextServerType, netlifyApiFetch } from '../../packages/runtime/src/templates/handlerUtils'
-import { NetlifyNextServer, NetlifyConfig } from '../../packages/runtime/src/templates/server'
+import { NextServerType, netlifyApiFetch } from '../../packages/runtime/src/templates/handlerUtils'
+import { getServerFile } from '../../packages/runtime/src/helpers/files'
+import { getNetlifyNextServer, NetlifyNextServerType, NetlifyConfig } from '../../packages/runtime/src/templates/server'
 
 jest.mock('../../packages/runtime/src/templates/handlerUtils', () => {
   const originalModule = jest.requireActual('../../packages/runtime/src/templates/handlerUtils')
@@ -53,9 +54,11 @@ jest.mock(
   { virtual: true },
 )
 
+let NetlifyNextServer: NetlifyNextServerType
 beforeAll(() => {
-  const NextServer: NextServerType = getNextServer()
+  const NextServer: NextServerType = require(getServerFile(__dirname, false)).default
   jest.spyOn(NextServer.prototype, 'getRequestHandler').mockImplementation(() => () => Promise.resolve())
+  NetlifyNextServer = getNetlifyNextServer(NextServer)
 
   const MockNetlifyNextServerConstructor = function (nextOptions: Options, netlifyConfig: NetlifyConfig) {
     this.distDir = '.'
@@ -63,6 +66,7 @@ beforeAll(() => {
     this.nextConfig = nextOptions.conf
     this.netlifyConfig = netlifyConfig
   }
+
   Object.setPrototypeOf(NetlifyNextServer, MockNetlifyNextServerConstructor)
 })
 
