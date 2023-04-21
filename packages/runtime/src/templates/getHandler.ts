@@ -198,12 +198,13 @@ export const getHandler = ({
   appDirAbsolute = process.cwd(),
 }): string => {
   const nextServerModuleLocation = getServerFile(appDirAbsolute, false)
-  if (!nextServerModuleLocation) {
-    throw new Error('Could not find Next.js server')
-  }
 
   // This is a string, but if you have the right editor plugin it should format as js
   return javascript/* javascript */ `
+  if (!${JSON.stringify(nextServerModuleLocation)}) {
+    throw new Error('Could not find Next.js server')
+  }
+
   const { Server } = require("http");
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
