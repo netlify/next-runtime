@@ -46,10 +46,16 @@ describe('the middleware path matcher', () => {
       '^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/shows(?:\\/((?!99|88).*))(.json)?[\\/#\\?]?$',
       '^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/shows(?:\\/((?!99|88).*))(.json)?[\\/#\\?]?$',
     ]
-    for (const regex of regexes) {
-      const stripped = stripLookahead(regex)
-      expect(regex).toMatch(/\(\?!/)
-      expect(stripped).not.toMatch(/\(\?!/)
+
+    const expected = [
+      '^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/shows(?:\\/(.*))(.json)?[\\/#\\?]?$',
+      '^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/shows(?:\\/(.*))(.json)?[\\/#\\?]?$',
+    ]
+
+    for (let i = 0; i < regexes.length; i++) {
+      const actual = stripLookahead(regexes[i])
+
+      expect(actual).toEqual(expected[i])
     }
   })
   it('converts regexes with lookaheads to stripped ones that still match at least the same paths', () => {
