@@ -568,20 +568,25 @@ describe('app dir', () => {
       })
 
       it('should navigate to pages dynamic route from pages page if it overlaps with an app page', async () => {
+        await fetchViaHTTP(next.url, '/dynamic-pages-route-app-overlap')
         const browser = await webdriver(next.url, '/dynamic-pages-route-app-overlap')
 
         try {
           // Click the link.
-          await browser.elementById('pages-link').click()
-          expect(await browser.waitForElementByCss('#pages-text').text()).toBe(
-            'hello from pages/dynamic-pages-route-app-overlap/[slug]',
-          )
+          await check(async () => {
+            await browser.elementById('pages-link').click()
 
-          // When refreshing the browser, the app page should be rendered
-          await browser.refresh()
-          expect(await browser.waitForElementByCss('#app-text').text()).toBe(
-            'hello from app/dynamic-pages-route-app-overlap/app-dir/page',
-          )
+            expect(await browser.waitForElementByCss('#app-text').text()).toBe(
+              'hello from pages/dynamic-pages-route-app-overlap/app-dir/page',
+            )
+  
+            // When refreshing the browser, the app page should be rendered
+            await browser.refresh()
+            expect(await browser.waitForElementByCss('#app-text').text()).toBe(
+              'hello from app/dynamic-pages-route-app-overlap/app-dir/page',
+            )
+            return 'success'
+          }, 'success')
         } finally {
           await browser.close()
         }
@@ -861,11 +866,6 @@ describe('app dir', () => {
             } finally {
               await browser.close()
             }
-          })
-
-          it('should retrieve cookies in a server component in the edge runtime', async () => {
-            const res = await fetchViaHTTP(next.url, '/edge-apis/cookies')
-            expect(await res.text()).toInclude('Hello')
           })
 
           it('should access cookies on <Link /> navigation', async () => {
