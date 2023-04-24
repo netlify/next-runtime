@@ -568,7 +568,7 @@ describe('app dir', () => {
       })
 
       it('should navigate to pages dynamic route from pages page if it overlaps with an app page', async () => {
-        await fetchViaHTTP(next.url, '/dynamic-pages-route-app-overlap')
+        await fetchViaHTTP(next.url, '/dynamic-pages-route-app-overlap/app-dir')
         const browser = await webdriver(next.url, '/dynamic-pages-route-app-overlap')
 
         try {
