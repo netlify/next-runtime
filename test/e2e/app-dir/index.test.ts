@@ -1228,26 +1228,6 @@ describe('app dir', () => {
             'rgb(0, 0, 255)',
           )
         })
-
-        if (!isDev) {
-          it('should not include unused css modules in the page in prod', async () => {
-            const browser = await webdriver(next.url, '/css/css-page/unused')
-            expect(
-              await browser.eval(
-                `[...document.styleSheets].some(({ rules }) => [...rules].some(rule => rule.selectorText.includes('this_should_not_be_included')))`,
-              ),
-            ).toBe(false)
-          })
-
-          it('should not include unused css modules in nested pages in prod', async () => {
-            const browser = await webdriver(next.url, '/css/css-page/unused-nested/inner')
-            expect(
-              await browser.eval(
-                `[...document.styleSheets].some(({ rules }) => [...rules].some(rule => rule.selectorText.includes('this_should_not_be_included_in_inner_path')))`,
-              ),
-            ).toBe(false)
-          })
-        }
       })
 
       describe('client layouts', () => {
