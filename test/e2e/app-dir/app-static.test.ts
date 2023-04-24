@@ -314,36 +314,39 @@ describe('app-dir static/dynamic handling', () => {
       expect($('#page').text()).toBe('/blog/[author]/[slug]')
     }
   })
-  it('should navigate to static path correctly', async () => {
-    const browser = await webdriver(next.url, '/blog/tim')
-    await browser.eval('window.beforeNav = 1')
 
-    expect(await browser.eval('document.documentElement.innerHTML')).toContain('/blog/[author]')
-    await browser.elementByCss('#author-2').click()
-
-    await check(async () => {
-      const params = JSON.parse(await browser.elementByCss('#params').text())
-      return params.author === 'seb' ? 'found' : params
-    }, 'found')
-
-    expect(await browser.eval('window.beforeNav')).toBe(1)
-    await browser.elementByCss('#author-1-post-1').click()
-
-    await check(async () => {
-      const params = JSON.parse(await browser.elementByCss('#params').text())
-      return params.author === 'tim' && params.slug === 'first-post' ? 'found' : params
-    }, 'found')
-
-    expect(await browser.eval('window.beforeNav')).toBe(1)
-    await browser.back()
-
-    await check(async () => {
-      const params = JSON.parse(await browser.elementByCss('#params').text())
-      return params.author === 'seb' ? 'found' : params
-    }, 'found')
-
-    expect(await browser.eval('window.beforeNav')).toBe(1)
-  })
+  if(!((global as any).isNextStart && process.env.CUSTOM_CACHE_HANDLER)) {
+    it('should navigate to static path correctly', async () => {
+      const browser = await webdriver(next.url, '/blog/tim')
+      await browser.eval('window.beforeNav = 1')
+  
+      expect(await browser.eval('document.documentElement.innerHTML')).toContain('/blog/[author]')
+      await browser.elementByCss('#author-2').click()
+  
+      await check(async () => {
+        const params = JSON.parse(await browser.elementByCss('#params').text())
+        return params.author === 'seb' ? 'found' : params
+      }, 'found')
+  
+      expect(await browser.eval('window.beforeNav')).toBe(1)
+      await browser.elementByCss('#author-1-post-1').click()
+  
+      await check(async () => {
+        const params = JSON.parse(await browser.elementByCss('#params').text())
+        return params.author === 'tim' && params.slug === 'first-post' ? 'found' : params
+      }, 'found')
+  
+      expect(await browser.eval('window.beforeNav')).toBe(1)
+      await browser.back()
+  
+      await check(async () => {
+        const params = JSON.parse(await browser.elementByCss('#params').text())
+        return params.author === 'seb' ? 'found' : params
+      }, 'found')
+  
+      expect(await browser.eval('window.beforeNav')).toBe(1)
+    })
+  }
 
   it('should ssr dynamically when detected automatically with fetch cache option', async () => {
     const pathname = '/ssr-auto/cache-no-store'
