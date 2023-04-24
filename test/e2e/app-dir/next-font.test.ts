@@ -159,7 +159,7 @@ describe('app dir next-font', () => {
   })
 
   if (!isDev) {
-    describe.only('preload', () => {
+    describe('preload', () => {
       it('should preload correctly with server components', async () => {
         const html = await renderViaHTTP(next.url, '/')
         const $ = cheerio.load(html)
