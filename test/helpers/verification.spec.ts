@@ -89,9 +89,11 @@ describe('checkNextSiteHasBuilt', () => {
 
 describe('checkZipSize', () => {
   let consoleSpy
+  const { existsSync, promises } = require('fs')
 
   beforeEach(() => {
     consoleSpy = jest.spyOn(global.console, 'warn')
+    process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'false'
   })
 
   afterEach(() => {
@@ -102,6 +104,28 @@ describe('checkZipSize', () => {
     process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'true'
     await checkZipSize(chance.string())
     expect(consoleSpy).toHaveBeenCalledWith('Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.')
+  })
+
+  it('does not emit a warning if the file size is below the warning size', async () => {
+    existsSync.mockReturnValue(true)
+    jest.spyOn(promises, 'stat').mockResolvedValue({ size: (1024 * 1024 * 20) })
+
+    await checkZipSize('some-file.zip')
+
+    expect(consoleSpy).not.toHaveBeenCalled()
+  })
+
+  it('emits a warning if the file size is above the warning size', async () => {
+    existsSync.mockReturnValue(true)
+    jest.spyOn(promises, 'stat').mockResolvedValue({ size: (1024 * 1024 * 200) })
+
+    await checkZipSize('some-file.zip')
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'The function zip some-file.zip size is 200 MB, which is larger than the recommended maximum size of 250 MB.'
+      )
+    )
   })
 })
 
