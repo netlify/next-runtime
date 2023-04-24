@@ -134,6 +134,7 @@ export const moveStaticPages = async ({
     const dest = join(netlifyConfig.build.publish, targetPath)
 
     try {
+      console.log(`Moving ${source} to ${dest}`)
       await move(source, dest)
     } catch (error) {
       console.warn('Error moving file', source, error)
