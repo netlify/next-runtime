@@ -3,7 +3,7 @@ import { nodeFileTrace } from '@vercel/nft'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
-import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON } from 'fs-extra'
+import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat } from 'fs-extra'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
 import { join, relative, resolve, dirname } from 'pathe'
@@ -25,6 +25,7 @@ import { getResolverForPages, getResolverForSourceFiles } from '../templates/get
 import { ApiConfig, ApiRouteType, extractConfigFromFile, isEdgeConfig } from './analysis'
 import { getSourceFileForPage, getDependenciesOfFile } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
+import { pack } from './pack'
 import { getFunctionNameForPage } from './utils'
 
 // TODO, for reviewer: I added my properties here because that was the easiest way,
@@ -223,6 +224,85 @@ const traceNextServer = async (publish: string, baseDir: string): Promise<string
   return [...fileList].map((f) => `/${f}`).map((file) => relative(baseDir, file))
 }
 
+export const getAPIPRouteCommonDependencies = async (publish: string, baseDir: string) => {
+  const [requiredServerFiles, nextServerFiles, followRedirectsFiles] = await Promise.all([
+    traceRequiredServerFiles(publish),
+    traceNextServer(publish, baseDir),
+
+    // used by our own bridge.js
+    glob(join(dirname(require.resolve('follow-redirects', { paths: [publish] })), '**', '*')),
+  ])
+
+  return [...requiredServerFiles, ...nextServerFiles, ...followRedirectsFiles]
+}
+
+const sum = (arr: number[]) => arr.reduce((v, current) => v + current, 0)
+
+// TODO: cache results
+const getBundleWeight = async (files: string[]) => {
+  const sizes = await Promise.all(
+    files.map(async (file) => {
+      const fStat = await stat(file)
+      if (fStat.isFile()) {
+        return fStat.size
+      }
+      return 0
+    }),
+  )
+
+  return sum(sizes)
+}
+
+interface APILambda {
+  functionName: string
+  routes: ApiRouteConfig[]
+  included_files: string[]
+  type?: ApiRouteType
+}
+
+const MB = 1024 * 1024
+
+export const getAPILambdas = async (publish: string, baseDir: string): Promise<APILambda[]> => {
+  const commonDependencies = await getAPIPRouteCommonDependencies(publish, baseDir)
+  const threshold = 50 * MB - (await getBundleWeight(commonDependencies))
+
+  const apiRoutes = await getApiRouteConfigs(publish, baseDir)
+
+  const packFunctions = async (routes: ApiRouteConfig[], isBackground: boolean): Promise<APILambda[]> => {
+    const weighedRoutes = await Promise.all(
+      routes.map(async (route) => ({ value: route, weight: await getBundleWeight(route.includedFiles) })),
+    )
+
+    const bins = pack(weighedRoutes, threshold)
+
+    return bins.map((bin, index) => ({
+      functionName: bin.length === 1 ? bin[0].functionName : `api-${index}`,
+      routes: bin,
+      included_files: [...commonDependencies, ...routes.flatMap((route) => route.includedFiles)],
+      type: isBackground ? ApiRouteType.BACKGROUND : undefined,
+    }))
+  }
+
+  const standardFunctions = apiRoutes.filter(
+    (route) => route.config.type !== ApiRouteType.BACKGROUND && route.config.type !== ApiRouteType.SCHEDULED,
+  )
+  const scheduledFunctions = apiRoutes.filter((route) => route.config.type === ApiRouteType.SCHEDULED)
+  const backgroundFunctions = apiRoutes.filter((route) => route.config.type === ApiRouteType.BACKGROUND)
+
+  const scheduledLambdas: APILambda[] = scheduledFunctions.map((func) => ({
+    functionName: func.functionName,
+    routes: [func],
+    included_files: [...commonDependencies, ...func.includedFiles],
+    type: func.config.type,
+  }))
+
+  const [standardLambdas, backgroundLambdas] = await Promise.all([
+    packFunctions(standardFunctions, false),
+    packFunctions(backgroundFunctions, true),
+  ])
+  return [...standardLambdas, ...backgroundLambdas, ...scheduledLambdas]
+}
+
 /**
  * Look for API routes, and extract the config from the source file.
  */
@@ -233,16 +313,6 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
   // Ref: https://nextjs.org/docs/advanced-features/src-directory
   const pagesDir = join(baseDir, 'pages')
   const srcPagesDir = join(baseDir, 'src', 'pages')
-
-  const [requiredServerFiles, nextServerFiles, followRedirectsFiles] = await Promise.all([
-    traceRequiredServerFiles(publish),
-    traceNextServer(publish, baseDir),
-
-    // used by our own bridge.js
-    glob(join(dirname(require.resolve('follow-redirects', { paths: [publish] })), '**', '*')),
-  ])
-
-  const commonDependencies = [...requiredServerFiles, ...nextServerFiles, ...followRedirectsFiles]
 
   return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
@@ -256,8 +326,6 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
 
       const routeDependencies = await getDependenciesOfFile(compiledPath)
       const includedFiles = [
-        ...commonDependencies,
-
         compiledPath,
         join('.netlify', 'functions-internal', functionName, '**', '*'),
         ...routeDependencies,
