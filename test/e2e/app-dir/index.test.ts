@@ -64,7 +64,7 @@ describe('app dir', () => {
       })
     }
 
-    it('should use application/octet-stream for flight', async () => {
+    it('should use text/x-component for flight', async () => {
       const res = await fetchViaHTTP(
         next.url,
         '/dashboard/deployments/123',
@@ -75,10 +75,10 @@ describe('app dir', () => {
           },
         },
       )
-      expect(res.headers.get('Content-Type')).toBe('application/octet-stream')
+      expect(res.headers.get('Content-Type')).toBe('text/x-component')
     })
 
-    it('should use application/octet-stream for flight with edge runtime', async () => {
+    it('should use text/x-component for flight with edge runtime', async () => {
       const res = await fetchViaHTTP(
         next.url,
         '/dashboard',
@@ -89,7 +89,7 @@ describe('app dir', () => {
           },
         },
       )
-      expect(res.headers.get('Content-Type')).toBe('application/octet-stream')
+      expect(res.headers.get('Content-Type')).toBe('text/x-component')
     })
 
     it('should pass props from getServerSideProps in root layout', async () => {
@@ -2093,12 +2093,12 @@ describe('app dir', () => {
 
       it('should insert preload tags for beforeInteractive and afterInteractive scripts', async () => {
         const html = await renderViaHTTP(next.url, '/script')
-        expect(html).toContain('<link href="/test1.js" rel="preload" as="script"/>')
-        expect(html).toContain('<link href="/test2.js" rel="preload" as="script"/>')
-        expect(html).toContain('<link href="/test3.js" rel="preload" as="script"/>')
+        expect(html).toContain('<link rel="preload" as="script" href="/test1.js"/>')
+        expect(html).toContain('<link rel="preload" as="script" href="/test2.js"/>')
+        expect(html).toContain('<link rel="preload" as="script" href="/test3.js"/>')
 
         // test4.js has lazyOnload which doesn't need to be preloaded
-        expect(html).not.toContain('<script src="/test4.js" rel="preload" as="script"/>')
+        expect(html).not.toContain('<script rel="preload" as="script" href="/test4.js"/>')
       })
     })
 
