@@ -230,10 +230,20 @@ const traceNextServer = async (publish: string, baseDir: string): Promise<string
   // theoretically, it's only needed once per version of Next.js 🤷
   const { fileList } = await nodeFileTrace(nextServerDeps, { base: '/' })
 
-  // for some reason, NFT detects /bin/sh. let's not upload that to lambda.
-  fileList.delete('bin/sh')
+  const filtered = [...fileList].filter((f) => {
+    // for some reason, NFT detects /bin/sh. let's not upload that to lambda.
+    if (f === 'bin/sh') return false
 
-  return [...fileList].map((f) => `/${f}`).map((file) => relative(baseDir, file))
+    // NFT detects a bunch of large development files that we don't need.
+    if (f.endsWith('.development.js')) return false
+
+    // not needed for API Routes!
+    if (f === 'node_modules/sass/sass.dart.js') return false
+
+    return true
+  })
+
+  return filtered.map((f) => `/${f}`).map((file) => relative(baseDir, file))
 }
 
 export const getAPIPRouteCommonDependencies = async (publish: string, baseDir: string) => {
