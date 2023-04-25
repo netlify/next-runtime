@@ -25,7 +25,9 @@ import {
   generatePagesResolver,
   getExtendedApiRouteConfigs,
   warnOnApiRoutes,
-  getApiRouteConfigs,
+  APILambda,
+  packSingleFunction,
+  getAPILambdas,
 } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
@@ -152,18 +154,20 @@ const plugin: NetlifyPlugin = {
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
-    const apiRoutes = SPLIT_API_ROUTES
-      ? await getApiRouteConfigs(publish, appDir)
-      : await getExtendedApiRouteConfigs(publish, appDir)
+    const apiLambdas: APILambda[] = SPLIT_API_ROUTES
+      ? await getAPILambdas(publish, appDir)
+      : await getExtendedApiRouteConfigs(publish, appDir).then((extendedRoutes) =>
+          extendedRoutes.map(packSingleFunction),
+        )
 
     await configureHandlerFunctions({
       netlifyConfig,
       ignore,
       publish: relative(process.cwd(), publish),
-      apiRoutes,
+      apiLambdas,
     })
 
-    await generateFunctions(constants, appDir, apiRoutes)
+    await generateFunctions(constants, appDir, apiLambdas)
     await generatePagesResolver(constants)
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
@@ -192,7 +196,7 @@ const plugin: NetlifyPlugin = {
       netlifyConfig,
       nextConfig: { basePath, i18n, trailingSlash, appDir },
       buildId,
-      apiRoutes,
+      apiLambdas,
     })
 
     await writeEdgeFunctions({ netlifyConfig, routesManifest })

@@ -8,7 +8,7 @@ import { join } from 'pathe'
 import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX, HANDLER_FUNCTION_PATH } from '../constants'
 
 import { ApiRouteType } from './analysis'
-import type { ApiRouteConfig } from './functions'
+import type { APILambda } from './functions'
 import { I18n } from './types'
 
 const RESERVED_FILENAME = /[^\w_-]/g
@@ -198,20 +198,22 @@ export const redirectsForNextRouteWithData = ({
     force,
   }))
 
-export const getApiRewrites = (basePath: string, apiRoutes: Array<ApiRouteConfig>) => {
-  const apiRewrites = apiRoutes.map((apiRoute) => {
-    const [from] = toNetlifyRoute(`${basePath}${apiRoute.route}`)
+export const getApiRewrites = (basePath: string, apiLambdas: APILambda[]) => {
+  const apiRewrites = apiLambdas.flatMap((lambda) =>
+    lambda.routes.map((apiRoute) => {
+      const [from] = toNetlifyRoute(`${basePath}${apiRoute.route}`)
 
-    // Scheduled functions can't be invoked directly, so we 404 them.
-    if (apiRoute.config.type === ApiRouteType.SCHEDULED) {
-      return { from, to: '/404.html', status: 404 }
-    }
-    return {
-      from,
-      to: `/.netlify/functions/${apiRoute.functionName}`,
-      status: 200,
-    }
-  })
+      // Scheduled functions can't be invoked directly, so we 404 them.
+      if (apiRoute.config.type === ApiRouteType.SCHEDULED) {
+        return { from, to: '/404.html', status: 404 }
+      }
+      return {
+        from,
+        to: `/.netlify/functions/${lambda.functionName}`,
+        status: 200,
+      }
+    }),
+  )
 
   return [
     ...apiRewrites,

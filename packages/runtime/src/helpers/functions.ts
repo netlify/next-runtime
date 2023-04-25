@@ -38,28 +38,32 @@ export interface ApiRouteConfig {
   includedFiles: string[]
 }
 
+export interface APILambda {
+  functionName: string
+  routes: ApiRouteConfig[]
+  includedFiles: string[]
+  type?: ApiRouteType
+}
+
 export const generateFunctions = async (
   { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
   appDir: string,
-  apiRoutes: Array<ApiRouteConfig>,
+  apiLambdas: APILambda[],
 ): Promise<void> => {
   const publish = resolve(PUBLISH_DIR)
   const functionsDir = resolve(INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC)
   const functionDir = join(functionsDir, HANDLER_FUNCTION_NAME)
   const publishDir = relative(functionDir, publish)
 
-  for (const { route, config, compiled } of apiRoutes) {
-    // Don't write a lambda if the runtime is edge
-    if (isEdgeConfig(config.runtime)) {
-      continue
-    }
-    const apiHandlerSource = await getApiHandler({
-      page: route,
-      config,
+  for (const apiLambda of apiLambdas) {
+    const { functionName, routes, type, includedFiles } = apiLambda
+
+    const apiHandlerSource = getApiHandler({
+      schedule: type === ApiRouteType.SCHEDULED ? routes[0].config.schedule : undefined,
       publishDir,
       appDir: relative(functionDir, appDir),
     })
-    const functionName = getFunctionNameForPage(route, config.type === ApiRouteType.BACKGROUND)
+
     await ensureDir(join(functionsDir, functionName))
 
     // write main API handler file
@@ -82,13 +86,21 @@ export const generateFunctions = async (
     const resolverSource = await getResolverForSourceFiles({
       functionsDir,
       // These extra pages are always included by Next.js
-      sourceFiles: [compiled, 'pages/_app.js', 'pages/_document.js', 'pages/_error.js'].map(resolveSourceFile),
+      sourceFiles: [
+        ...routes.map((route) => route.compiled),
+        'pages/_app.js',
+        'pages/_document.js',
+        'pages/_error.js',
+      ].map(resolveSourceFile),
     })
     await writeFile(join(functionsDir, functionName, 'pages.js'), resolverSource)
+
+    const nfInternalFiles = await glob(join(functionsDir, functionName, '**'))
+    includedFiles.push(...nfInternalFiles)
   }
 
   const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
-    const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
+    const handlerSource = getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
     await ensureDir(join(functionsDir, functionName))
 
     // write main handler file (standard or ODB)
@@ -239,32 +251,35 @@ export const getAPIPRouteCommonDependencies = async (publish: string, baseDir: s
 const sum = (arr: number[]) => arr.reduce((v, current) => v + current, 0)
 
 // TODO: cache results
-const getBundleWeight = async (files: string[]) => {
+const getBundleWeight = async (patterns: string[]) => {
   const sizes = await Promise.all(
-    files.map(async (file) => {
-      const fStat = await stat(file)
-      if (fStat.isFile()) {
-        return fStat.size
-      }
-      return 0
+    patterns.flatMap(async (pattern) => {
+      const files = await glob(pattern)
+      return Promise.all(
+        files.map(async (file) => {
+          const fStat = await stat(file)
+          if (fStat.isFile()) {
+            return fStat.size
+          }
+          return 0
+        }),
+      )
     }),
   )
 
-  return sum(sizes)
-}
-
-interface APILambda {
-  functionName: string
-  routes: ApiRouteConfig[]
-  included_files: string[]
-  type?: ApiRouteType
+  return sum(sizes.flat(1))
 }
 
 const MB = 1024 * 1024
 
 export const getAPILambdas = async (publish: string, baseDir: string): Promise<APILambda[]> => {
+  console.time('traceCommonDependencies')
   const commonDependencies = await getAPIPRouteCommonDependencies(publish, baseDir)
+  console.timeEnd('traceCommonDependencies')
+
+  console.time('weighCommonDependencies')
   const threshold = 50 * MB - (await getBundleWeight(commonDependencies))
+  console.timeEnd('weighCommonDependencies')
 
   const apiRoutes = await getApiRouteConfigs(publish, baseDir)
 
@@ -278,13 +293,16 @@ export const getAPILambdas = async (publish: string, baseDir: string): Promise<A
     return bins.map((bin, index) => ({
       functionName: bin.length === 1 ? bin[0].functionName : `api-${index}`,
       routes: bin,
-      included_files: [...commonDependencies, ...routes.flatMap((route) => route.includedFiles)],
+      includedFiles: [...commonDependencies, ...routes.flatMap((route) => route.includedFiles)],
       type,
     }))
   }
 
   const standardFunctions = apiRoutes.filter(
-    (route) => route.config.type !== ApiRouteType.BACKGROUND && route.config.type !== ApiRouteType.SCHEDULED,
+    (route) =>
+      !isEdgeConfig(route.config.runtime) &&
+      route.config.type !== ApiRouteType.BACKGROUND &&
+      route.config.type !== ApiRouteType.SCHEDULED,
   )
   const scheduledFunctions = apiRoutes.filter((route) => route.config.type === ApiRouteType.SCHEDULED)
   const backgroundFunctions = apiRoutes.filter((route) => route.config.type === ApiRouteType.BACKGROUND)
@@ -320,11 +338,7 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
       const compiledPath = join(publish, 'server', compiled)
 
       const routeDependencies = await getDependenciesOfFile(compiledPath)
-      const includedFiles = [
-        compiledPath,
-        join('.netlify', 'functions-internal', functionName, '**', '*'),
-        ...routeDependencies,
-      ]
+      const includedFiles = [compiledPath, ...routeDependencies]
 
       return {
         functionName,
@@ -349,7 +363,7 @@ export const getExtendedApiRouteConfigs = async (publish: string, baseDir: strin
 
 export const packSingleFunction = (func: ApiRouteConfig): APILambda => ({
   functionName: func.functionName,
-  included_files: func.includedFiles,
+  includedFiles: func.includedFiles,
   routes: [func],
   type: func.config.type,
 })

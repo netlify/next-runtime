@@ -3,8 +3,9 @@ import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
 import { outdent as javascript } from 'outdent'
 
-import { ApiConfig, ApiRouteType } from '../helpers/analysis'
+import { ApiRouteType } from '../helpers/analysis'
 import type { NextConfig } from '../helpers/config'
+import type { ApiRouteConfig } from '../helpers/functions'
 
 import type { NextServerType } from './handlerUtils'
 
@@ -26,7 +27,7 @@ type Mutable<T> = {
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 
-const makeHandler = (conf: NextConfig, app, pageRoot, page) => {
+const makeHandler = (conf: NextConfig, app, pageRoot) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -88,12 +89,10 @@ const makeHandler = (conf: NextConfig, app, pageRoot, page) => {
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     // Ensure that paths are encoded - but don't double-encode them
-    event.path = event.rawUrl ? new URL(event.rawUrl).pathname : page
+    event.path = new URL(event.rawUrl).pathname
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
-    // We know the page
-    event.headers['x-matched-path'] = page
     const { headers, ...result } = await getBridge(event).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
@@ -114,13 +113,11 @@ const makeHandler = (conf: NextConfig, app, pageRoot, page) => {
  * Handlers for API routes are simpler than page routes, but they each have a separate one
  */
 export const getApiHandler = ({
-  page,
-  config,
+  schedule,
   publishDir = '../../../.next',
   appDir = '../../..',
 }: {
-  page: string
-  config: ApiConfig
+  schedule?: string,
   publishDir?: string
   appDir?: string
 }): string =>
@@ -131,15 +128,17 @@ export const getApiHandler = ({
   const { Bridge } = require("./bridge");
   const { getMultiValueHeaders, getNextServer } = require('./handlerUtils')
 
-  ${config.type === ApiRouteType.SCHEDULED ? `const { schedule } = require("@netlify/functions")` : ''}
+  ${schedule ? `const { schedule } = require("@netlify/functions")` : ''}
 
 
   const { config }  = require("${publishDir}/required-server-files.json")
   let staticManifest
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
-  const handler = (${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)})
+  const handler = (${makeHandler.toString()})(config, "${appDir}", pageRoot)
   exports.handler = ${
-    config.type === ApiRouteType.SCHEDULED ? `schedule(${JSON.stringify(config.schedule)}, handler);` : 'handler'
+    schedule
+      ? `schedule(${JSON.stringify(schedule)}, handler);`
+      : 'handler'
   }
 `
