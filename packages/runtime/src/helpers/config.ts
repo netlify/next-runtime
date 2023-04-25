@@ -169,7 +169,7 @@ export const configureHandlerFunctions = async ({
       const { functionName, includedFiles } = apiLambda
       // TODO: add all the nextRoot/wasm/excludedModules stuff from above
       netlifyConfig.functions[functionName] ||= { included_files: [] }
-      netlifyConfig.functions[functionName].node_bundler = 'none' as any
+      netlifyConfig.functions[functionName].node_bundler = 'none'
       netlifyConfig.functions[functionName].included_files = includedFiles
     }
   } else {

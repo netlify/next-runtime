@@ -3,9 +3,7 @@ import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
 import { outdent as javascript } from 'outdent'
 
-import { ApiRouteType } from '../helpers/analysis'
 import type { NextConfig } from '../helpers/config'
-import type { ApiRouteConfig } from '../helpers/functions'
 
 import type { NextServerType } from './handlerUtils'
 
@@ -117,7 +115,7 @@ export const getApiHandler = ({
   publishDir = '../../../.next',
   appDir = '../../..',
 }: {
-  schedule?: string,
+  schedule?: string
   publishDir?: string
   appDir?: string
 }): string =>
@@ -136,9 +134,5 @@ export const getApiHandler = ({
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   const handler = (${makeHandler.toString()})(config, "${appDir}", pageRoot)
-  exports.handler = ${
-    schedule
-      ? `schedule(${JSON.stringify(schedule)}, handler);`
-      : 'handler'
-  }
+  exports.handler = ${schedule ? `schedule(${JSON.stringify(schedule)}, handler);` : 'handler'}
 `

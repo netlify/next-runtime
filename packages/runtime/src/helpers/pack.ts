@@ -2,9 +2,9 @@
  * Naïve linear packing algorithm.
  * Takes items with weights, and packs them into boxes of a given threshold.
  * If an item weight exceeds the threshold, it is put into a box of its own.
- * 
+ *
  * We're using this to combine many API Routes into fewer Lambda functions.
- * 
+ *
  * This does not compute an optimal solution.
  * For that, we'd take the full dependency graph into account
  * and try to pack routes with intersecting dependencies together.
