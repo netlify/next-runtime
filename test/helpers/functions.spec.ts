@@ -1,4 +1,4 @@
-import { getApiRouteConfigs, getExtendedApiRouteConfigs } from '../../packages/runtime/src/helpers/functions'
+import { getApiRouteConfigs } from '../../packages/runtime/src/helpers/functions'
 import { describeCwdTmpDir, moveNextDist } from '../test-utils'
 
 describeCwdTmpDir('api route file analysis', () => {
@@ -63,28 +63,6 @@ describeCwdTmpDir('api route file analysis', () => {
           compiled: 'pages/api/revalidate.js',
           config: {},
           route: '/api/revalidate',
-        },
-      ]),
-    )
-  })
-
-  it('only shows scheduled/background functions as extended funcs', async () => {
-    await moveNextDist()
-    const configs = await getExtendedApiRouteConfigs('.next', process.cwd())
-    // Using a Set means the order doesn't matter
-    expect(new Set(configs.map(({ includedFiles, ...rest }) => rest))).toEqual(
-      new Set([
-        {
-          functionName: "_api_hello-background-background",
-          compiled: 'pages/api/hello-background.js',
-          config: { type: 'experimental-background' },
-          route: '/api/hello-background',
-        },
-        {
-          functionName: "_api_hello-scheduled-handler",
-          compiled: 'pages/api/hello-scheduled.js',
-          config: { schedule: '@hourly', type: 'experimental-scheduled' },
-          route: '/api/hello-scheduled',
         },
       ]),
     )
