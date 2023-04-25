@@ -3,8 +3,9 @@ import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
 import { outdent as javascript } from 'outdent'
 
-import { ApiConfig, ApiRouteType } from '../helpers/analysis'
+import { ApiConfig } from '../helpers/analysis'
 import type { NextConfig } from '../helpers/config'
+import { ApiRouteType } from '../helpers/types'
 
 import type { NextServerType } from './handlerUtils'
 
