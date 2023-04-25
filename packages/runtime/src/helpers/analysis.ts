@@ -2,12 +2,8 @@ import fs, { existsSync } from 'fs'
 
 import { relative } from 'pathe'
 
-// I have no idea what eslint is up to here but it gives an error
-// eslint-disable-next-line no-shadow
-export const enum ApiRouteType {
-  SCHEDULED = 'experimental-scheduled',
-  BACKGROUND = 'experimental-background',
-}
+import { getNextModulePath } from './files'
+import { ApiRouteType } from './types'
 
 export interface ApiStandardConfig {
   type?: never
@@ -87,18 +83,20 @@ let hasWarnedAboutNextVersion = false
 /**
  * Uses Next's swc static analysis to extract the config values from a file.
  */
-export const extractConfigFromFile = async (apiFilePath: string): Promise<ApiConfig> => {
+export const extractConfigFromFile = async (apiFilePath: string, appDir: string): Promise<ApiConfig> => {
   if (!apiFilePath || !existsSync(apiFilePath)) {
     return {}
   }
 
+  console.log(`updated extract`)
   try {
     if (!extractConstValue) {
-      extractConstValue = require('next/dist/build/analysis/extract-const-value')
+      // eslint-disable-next-line import/no-dynamic-require
+      extractConstValue = require(getNextModulePath(appDir, ['next/dist/build/analysis/extract-const-value']))
     }
     if (!parseModule) {
-      // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-var-requires
-      parseModule = require('next/dist/build/analysis/parse-module').parseModule
+      // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-var-requires, import/no-dynamic-require
+      parseModule = require(getNextModulePath(appDir, ['next/dist/build/analysis/parse-module'])).parseModule
     }
   } catch (error) {
     if (error.code === 'MODULE_NOT_FOUND') {

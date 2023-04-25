@@ -7,9 +7,8 @@ import { join } from 'pathe'
 
 import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX, HANDLER_FUNCTION_PATH } from '../constants'
 
-import { ApiRouteType } from './analysis'
 import type { ApiRouteConfig } from './functions'
-import { I18n } from './types'
+import { I18n, ApiRouteType } from './types'
 
 const RESERVED_FILENAME = /[^\w_-]/g
 

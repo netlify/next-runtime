@@ -20,9 +20,10 @@ import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
-import { ApiConfig, ApiRouteType, extractConfigFromFile, isEdgeConfig } from './analysis'
-import { getNextServerModulePath, getSourceFileForPage } from './files'
+import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
+import { getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
+import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
 
 export interface ApiRouteConfig {
@@ -41,7 +42,7 @@ export const generateFunctions = async (
   const functionDir = join(functionsDir, HANDLER_FUNCTION_NAME)
   const publishDir = relative(functionDir, publish)
 
-  const nextServerModuleAbsoluteLocation = getNextServerModulePath(appDir)
+  const nextServerModuleAbsoluteLocation = getServerFile(appDir, false)
   const nextServerModuleRelativeLocation = nextServerModuleAbsoluteLocation
     ? relative(functionDir, nextServerModuleAbsoluteLocation)
     : undefined
@@ -210,18 +211,18 @@ export const setupImageFunction = async ({
 /**
  * Look for API routes, and extract the config from the source file.
  */
-export const getApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
+export const getApiRouteConfigs = async (publish: string, appDir: string): Promise<Array<ApiRouteConfig>> => {
   const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
   const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
   // two possible places
   // Ref: https://nextjs.org/docs/advanced-features/src-directory
-  const pagesDir = join(baseDir, 'pages')
-  const srcPagesDir = join(baseDir, 'src', 'pages')
+  const pagesDir = join(appDir, 'pages')
+  const srcPagesDir = join(appDir, 'src', 'pages')
 
   return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
       const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir])
-      return { route: apiRoute, config: await extractConfigFromFile(filePath), compiled: pages[apiRoute] }
+      return { route: apiRoute, config: await extractConfigFromFile(filePath, appDir), compiled: pages[apiRoute] }
     }),
   )
 }
@@ -229,8 +230,8 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
 /**
  * Looks for extended API routes (background and scheduled functions) and extract the config from the source file.
  */
-export const getExtendedApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
-  const settledApiRoutes = await getApiRouteConfigs(publish, baseDir)
+export const getExtendedApiRouteConfigs = async (publish: string, appDir: string): Promise<Array<ApiRouteConfig>> => {
+  const settledApiRoutes = await getApiRouteConfigs(publish, appDir)
 
   // We only want to return the API routes that are background or scheduled functions
   return settledApiRoutes.filter((apiRoute) => apiRoute.config.type !== undefined)
