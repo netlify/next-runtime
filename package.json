@@ -4,7 +4,7 @@
   "description": "Run Next.js seamlessly on Netlify",
   "scripts": {
     "build:demo": "cd demos/default && npm run build",
-    "cy:open": "cypress open --config-file=cypress/config/all.config.ts",
+    "cy:open": "cypress open --config-file=cypress/config/all.config.ts --browser chrome --e2e",
     "dev:demo": "next dev demos/default",
     "format": "run-s format:check-fix:*",
     "format:ci": "run-s format:check:*",
