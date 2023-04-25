@@ -56,7 +56,7 @@ jobs:
       - name: Cypress run
         if: ${{ steps.deploy.outputs.origin-url }}
         id: cypress
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         with:
           browser: chrome
           headless: true
