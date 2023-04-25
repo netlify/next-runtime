@@ -317,7 +317,12 @@ export const getAPILambdas = async (publish: string, baseDir: string): Promise<A
   const scheduledFunctions = apiRoutes.filter((route) => route.config.type === ApiRouteType.SCHEDULED)
   const backgroundFunctions = apiRoutes.filter((route) => route.config.type === ApiRouteType.BACKGROUND)
 
-  const scheduledLambdas: APILambda[] = scheduledFunctions.map(packSingleFunction)
+  const scheduledLambdas: APILambda[] = scheduledFunctions.map((func) => ({
+    functionName: func.functionName,
+    includedFiles: func.includedFiles,
+    routes: [func],
+    type: func.config.type,
+  }))
 
   const [standardLambdas, backgroundLambdas] = await Promise.all([
     packFunctions(standardFunctions),
@@ -360,23 +365,6 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
     }),
   )
 }
-
-/**
- * Looks for extended API routes (background and scheduled functions) and extract the config from the source file.
- */
-export const getExtendedApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
-  const settledApiRoutes = await getApiRouteConfigs(publish, baseDir)
-
-  // We only want to return the API routes that are background or scheduled functions
-  return settledApiRoutes.filter((apiRoute) => apiRoute.config.type !== undefined)
-}
-
-export const packSingleFunction = (func: ApiRouteConfig): APILambda => ({
-  functionName: func.functionName,
-  includedFiles: func.includedFiles,
-  routes: [func],
-  type: func.config.type,
-})
 
 interface FunctionsManifest {
   functions: Array<{ name: string; schedule?: string }>

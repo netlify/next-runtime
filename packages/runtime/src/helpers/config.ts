@@ -8,7 +8,6 @@ import slash from 'slash'
 
 import { HANDLER_FUNCTION_NAME, IMAGE_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
-import { SPLIT_API_ROUTES } from './flags'
 import type { APILambda } from './functions'
 import type { RoutesManifest } from './types'
 import { escapeStringRegexp } from './utils'
@@ -121,7 +120,7 @@ export const configureHandlerFunctions = async ({
     (moduleName) => !hasManuallyAddedModule({ netlifyConfig, moduleName }),
   )
 
-  const configureFunction = (functionName: string) => {
+  ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME].forEach((functionName: string) => {
     netlifyConfig.functions[functionName] ||= { included_files: [], external_node_modules: [] }
     netlifyConfig.functions[functionName].node_bundler = 'nft'
     netlifyConfig.functions[functionName].included_files ||= []
@@ -160,20 +159,14 @@ export const configureHandlerFunctions = async ({
         netlifyConfig.functions[functionName].included_files.push(`!${moduleRoot}/**/*`)
       }
     })
-  }
+  })
 
-  configureFunction(HANDLER_FUNCTION_NAME)
-  configureFunction(ODB_FUNCTION_NAME)
-  if (SPLIT_API_ROUTES) {
-    for (const apiLambda of apiLambdas) {
-      const { functionName, includedFiles } = apiLambda
-      // TODO: add all the nextRoot/wasm/excludedModules stuff from above
-      netlifyConfig.functions[functionName] ||= { included_files: [] }
-      netlifyConfig.functions[functionName].node_bundler = 'none'
-      netlifyConfig.functions[functionName].included_files = includedFiles
-    }
-  } else {
-    configureFunction('_api_*')
+  for (const apiLambda of apiLambdas) {
+    const { functionName, includedFiles } = apiLambda
+    // TODO: add all the nextRoot/wasm/excludedModules stuff from above
+    netlifyConfig.functions[functionName] ||= { included_files: [] }
+    netlifyConfig.functions[functionName].node_bundler = 'none'
+    netlifyConfig.functions[functionName].included_files = includedFiles
   }
 }
 
