@@ -27,6 +27,7 @@ import {
   pathExists,
   writeFile,
   move,
+  copy,
 } from "fs-extra"
 import path from "path"
 import process from "process"
@@ -535,6 +536,10 @@ describe('onBuild()', () => {
   test('generates a file referencing all when publish dir is a subdirectory', async () => {
     const dir = 'web/.next'
     await moveNextDist(dir)
+
+    // node_modules need to be in same relative position to .next, so it also needs to go one level deep
+    await copy(path.join(__dirname, '..', 'node_modules'), path.join(__dirname, '..', 'tmp', 'node_modules'))
+
     netlifyConfig.build.publish = path.resolve(dir)
     const config = {
       ...defaultArgs,
