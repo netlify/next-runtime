@@ -391,7 +391,7 @@ describe('app dir - rsc basics', () => {
   })
 
   if (!isNextDev) {
-    it.only('should generate edge SSR manifests for Node.js', async () => {
+    it('should generate edge SSR manifests for Node.js', async () => {
       const distServerDir = path.join(distDir, 'server')
 
       const requiredServerFiles = (await fs.readJSON(path.join(distDir, 'required-server-files.json'))).files
