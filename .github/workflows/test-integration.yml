@@ -19,8 +19,10 @@ jobs:
       - name: Installing with LTS Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
           check-latest: true
+      - name: Install netlify-cli and npm
+        run: npm install -g netlify-cli npm
       - name: NPM Install
         run: npm install
       - name: Run integration tests
