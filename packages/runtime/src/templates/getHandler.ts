@@ -86,7 +86,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
         port,
       },
       {
-        revalidateToken: customContext.odb_refresh_hooks,
+        revalidateToken: customContext?.odb_refresh_hooks,
       },
     )
     const requestHandler = nextServer.getRequestHandler()
