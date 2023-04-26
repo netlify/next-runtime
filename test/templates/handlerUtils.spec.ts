@@ -3,7 +3,17 @@ import {
   unlocalizeRoute,
   localizeRoute,
   localizeDataRoute,
-} from '../packages/runtime/src/templates/handlerUtils'
+  downloadFile,
+} from '../../packages/runtime/src/templates/handlerUtils'
+import { join } from "pathe"
+import os from "os"
+import path from "path"
+import {
+  unlink,
+  existsSync,
+  readFileSync,
+  ensureDir,
+} from "fs-extra"
 
 describe('normalizeRoute', () => {
   it('removes a trailing slash from a route', () => {
@@ -83,5 +93,39 @@ describe('localizeDataRoute', () => {
   })
   it('does not modify an RSC data route', () => {
     expect(localizeDataRoute('/foo.rsc', '/foo')).toEqual('/foo.rsc')
+  })
+})
+
+describe('downloadFile', () => {
+  it('can download a file', async () => {
+    const url =
+      'https://raw.githubusercontent.com/netlify/next-runtime/c2668af24a78eb69b33222913f44c1900a3bce23/manifest.yml'
+    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
+    await ensureDir(path.dirname(tmpFile))
+    await downloadFile(url, tmpFile)
+    expect(existsSync(tmpFile)).toBeTruthy()
+    expect(readFileSync(tmpFile, 'utf8')).toMatchInlineSnapshot(`
+      "name: netlify-plugin-nextjs-experimental
+      "
+    `)
+    await unlink(tmpFile)
+  })
+
+  it('throws on bad domain', async () => {
+    const url = 'https://nonexistentdomain.example'
+    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
+    await ensureDir(path.dirname(tmpFile))
+    await expect(downloadFile(url, tmpFile)).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"getaddrinfo ENOTFOUND nonexistentdomain.example"`,
+    )
+  })
+
+  it('throws on 404', async () => {
+    const url = 'https://example.com/nonexistentfile'
+    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
+    await ensureDir(path.dirname(tmpFile))
+    await expect(downloadFile(url, tmpFile)).rejects.toThrowError(
+      'Failed to download https://example.com/nonexistentfile: 404 Not Found',
+    )
   })
 })
