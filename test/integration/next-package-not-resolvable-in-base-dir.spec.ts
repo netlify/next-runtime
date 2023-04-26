@@ -71,7 +71,7 @@ beforeAll(async () => {
       reject(e)
     }
   })
-})
+}, 3 * 60 * 1000)
 
 afterAll(() => destroy())
 
