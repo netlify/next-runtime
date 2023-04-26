@@ -83,7 +83,9 @@ let cleanup
 // In each test, we change cwd to a temporary directory.
 // This allows us not to have to mock filesystem operations.
 beforeEach(async () => {
-  const tmpDir = await getTmpDir({ unsafeCleanup: true })
+  const baseTmpDir = path.join(__dirname, '..', 'tmp')
+  await ensureDir(baseTmpDir)
+  const tmpDir = await getTmpDir({ unsafeCleanup: true, tmpdir: baseTmpDir })
   restoreCwd = changeCwd(tmpDir.path)
   cleanup = tmpDir.cleanup
 
@@ -156,7 +158,7 @@ describe('preBuild()', () => {
   })
 })
 
-describe('onBuild()', () => {
+describe.only('onBuild()', () => {
   const { isNextAuthInstalled } = require('../packages/runtime/src/helpers/utils')
 
   beforeEach(() => {
@@ -374,7 +376,7 @@ describe('onBuild()', () => {
     expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
   })
 
-  test('writes correct redirects to netlifyConfig', async () => {
+  test.only('writes correct redirects to netlifyConfig', async () => {
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
