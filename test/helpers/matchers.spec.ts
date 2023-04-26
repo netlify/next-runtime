@@ -42,22 +42,35 @@ describe('the middleware path matcher', () => {
   })
 
   it('removes lookaheads from the regex', () => {
-    const regexes = [
-      '^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/shows(?:\\/((?!99|88).*))(.json)?[\\/#\\?]?$',
-      '^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/shows(?:\\/((?!99|88).*))(.json)?[\\/#\\?]?$',
+    const matchers = [
+      {
+        regexp:
+          '^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/api(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(.json)?[\\/#\\?]?$',
+      },
+      {
+        regexp: '^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/headers(.json)?[\\/#\\?]?$',
+      },
+      {
+        regexp:
+          '^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/cookies(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(.json)?[\\/#\\?]?$',
+      },
+      {
+        regexp: '^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/static(.json)?[\\/#\\?]?$',
+      },
+      {
+        regexp: '^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/matcher-cookie(.json)?[\\/#\\?]?$',
+      },
+      {
+        regexp: '^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/shows(?:\\/((?!99|88).*))(.json)?[\\/#\\?]?$',
+      },
     ]
 
-    const expected = [
-      '^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))\\/shows(?:\\/(.*))(.json)?[\\/#\\?]?$',
-      '^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/shows(?:\\/(.*))(.json)?[\\/#\\?]?$',
-    ]
-
-    for (let i = 0; i < regexes.length; i++) {
-      const actual = stripLookahead(regexes[i])
-
-      expect(actual).toEqual(expected[i])
+    for (const matcher of matchers) {
+      const { regexp } = matcher
+      expect(stripLookahead(regexp)).toMatchSnapshot()
     }
   })
+
   it('converts regexes with lookaheads to stripped ones that still match at least the same paths', () => {
     const regex = '^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/shows(?:\\/((?!99|88).*))(.json)?[\\/#\\?]?$'
     expect(checkPath('/shows', regex)).toBe(false)

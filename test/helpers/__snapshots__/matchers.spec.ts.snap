@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`the middleware path matcher removes lookaheads from the regex 1`] = `"^(?:\\\\/(_next\\\\/data\\\\/[^/]{1,}))?(?:\\\\/([^/.]{1,}))\\\\/api(?:\\\\/((?:[^\\\\/#\\\\?]+?)(?:\\\\/(?:[^\\\\/#\\\\?]+?))*))?(.json)?[\\\\/#\\\\?]?$"`;
+
+exports[`the middleware path matcher removes lookaheads from the regex 2`] = `"^(?:\\\\/(_next\\\\/data\\\\/[^/]{1,}))?(?:\\\\/([^/.]{1,}))\\\\/headers(.json)?[\\\\/#\\\\?]?$"`;
+
+exports[`the middleware path matcher removes lookaheads from the regex 3`] = `"^(?:\\\\/(_next\\\\/data\\\\/[^/]{1,}))?(?:\\\\/([^/.]{1,}))\\\\/cookies(?:\\\\/((?:[^\\\\/#\\\\?]+?)(?:\\\\/(?:[^\\\\/#\\\\?]+?))*))?(.json)?[\\\\/#\\\\?]?$"`;
+
+exports[`the middleware path matcher removes lookaheads from the regex 4`] = `"^(?:\\\\/(_next\\\\/data\\\\/[^/]{1,}))?(?:\\\\/([^/.]{1,}))\\\\/static(.json)?[\\\\/#\\\\?]?$"`;
+
+exports[`the middleware path matcher removes lookaheads from the regex 5`] = `"^(?:\\\\/(_next\\\\/data\\\\/[^/]{1,}))?(?:\\\\/([^/.]{1,}))\\\\/matcher-cookie(.json)?[\\\\/#\\\\?]?$"`;
+
+exports[`the middleware path matcher removes lookaheads from the regex 6`] = `"^(?:\\\\/(_next\\\\/data\\\\/[^/]{1,}))?(?:\\\\/([^/.]{1,}))\\\\/shows(?:\\\\/(.*))(.json)?[\\\\/#\\\\?]?$"`;
