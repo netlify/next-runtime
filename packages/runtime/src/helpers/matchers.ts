@@ -34,4 +34,7 @@ const LOCALIZED_REGEX_PREFIX_13_3 = '(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!
 const OPTIONAL_REGEX_PREFIX_13_3 = '(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!_next\\/)[^/.]{1,}))?'
 
 // Make the locale section of the matcher regex optional
-export const makeLocaleOptional = (regex: string) => regex.replace(LOCALIZED_REGEX_PREFIX_13_1, OPTIONAL_REGEX_PREFIX_13_1).replace(LOCALIZED_REGEX_PREFIX_13_3, OPTIONAL_REGEX_PREFIX_13_3)
+export const makeLocaleOptional = (regex: string) =>
+  regex
+    .replace(LOCALIZED_REGEX_PREFIX_13_1, OPTIONAL_REGEX_PREFIX_13_1)
+    .replace(LOCALIZED_REGEX_PREFIX_13_3, OPTIONAL_REGEX_PREFIX_13_3)
