@@ -8,7 +8,7 @@ export const stripLookahead = (regex: string) => {
   }
   try {
     // Parse the regexp into an AST
-    const re = transform(`/${regex}/`, {
+    const re = transform(new RegExp(regex), {
       Assertion(path) {
         // Remove the lookahead
         if (path.node.kind === 'Lookahead') {
