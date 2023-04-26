@@ -1,4 +1,3 @@
-import execa from 'execa'
 import { relative } from 'pathe'
 import { getAllPageDependencies } from '../packages/runtime/src/templates/getPageResolver'
 
@@ -9,55 +8,50 @@ jest.mock('../packages/runtime/src/helpers/utils', () => {
   }
 })
 
-const Chance = require('chance')
-const {
+jest.mock('../packages/runtime/src/helpers/functionsMetaData', () => {
+  const { NEXT_PLUGIN_NAME } = require('../packages/runtime/src/constants')
+  return {
+    ...jest.requireActual('../packages/runtime/src/helpers/functionsMetaData'),
+    getPluginVersion: async () => `${NEXT_PLUGIN_NAME}@1.0.0`,
+  }
+})
+
+import Chance from "chance"
+import {
   writeJSON,
   unlink,
   existsSync,
   readFileSync,
-  copy,
   ensureDir,
   readJson,
   pathExists,
   writeFile,
   move,
-} = require('fs-extra')
-const path = require('path')
-const process = require('process')
-const os = require('os')
-const cpy = require('cpy')
-const { dir: getTmpDir } = require('tmp-promise')
-const { downloadFile } = require('../packages/runtime/src/templates/handlerUtils')
-const { getExtendedApiRouteConfigs } = require('../packages/runtime/src/helpers/functions')
-const nextRuntimeFactory = require('../packages/runtime/src')
+} from "fs-extra"
+import path from "path"
+import process from "process"
+import os from "os"
+import { dir as getTmpDir } from "tmp-promise"
+// @ts-expect-error - TODO: Convert runtime export to ES6
+import nextRuntimeFactory from "../packages/runtime/src"
 const nextRuntime = nextRuntimeFactory({})
-const { watchForMiddlewareChanges } = require('../packages/runtime/src/helpers/compiler')
-const { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } = require('../packages/runtime/src/constants')
-const { join } = require('pathe')
-const {
-  matchMiddleware,
-  stripLocale,
-  matchesRedirect,
-  matchesRewrite,
-  patchNextFiles,
-  unpatchNextFiles,
-} = require('../packages/runtime/src/helpers/files')
-const {
+import { watchForMiddlewareChanges } from "../packages/runtime/src/helpers/compiler"
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } from "../packages/runtime/src/constants"
+import { join } from "pathe"
+import {
   getRequiredServerFiles,
   updateRequiredServerFiles,
-  generateCustomHeaders,
-} = require('../packages/runtime/src/helpers/config')
-const { dirname, resolve } = require('path')
-const { getProblematicUserRewrites } = require('../packages/runtime/src/helpers/verification')
+} from "../packages/runtime/src/helpers/config"
+import { resolve } from "path"
+import type { NetlifyPluginOptions } from '@netlify/build'
+import { changeCwd, useFixture, moveNextDist } from "./test-utils"
 
 const chance = new Chance()
-const FIXTURES_DIR = `${__dirname}/fixtures`
-const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
 const constants = {
   INTERNAL_FUNCTIONS_SRC: '.netlify/functions-internal',
   PUBLISH_DIR: '.next',
   FUNCTIONS_DIST: '.netlify/functions',
-}
+} as unknown as NetlifyPluginOptions["constants"]
 const utils = {
   build: {
     failBuild(message) {
@@ -69,117 +63,19 @@ const utils = {
     save: jest.fn(),
     restore: jest.fn(),
   },
-}
+} as unknown as NetlifyPluginOptions["utils"]
 
 const normalizeChunkNames = (source) => source.replaceAll(/\/chunks\/\d+\.js/g, '/chunks/CHUNK_ID.js')
-
-const REDIRECTS = [
-  {
-    source: '/:file((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+)/',
-    destination: '/:file',
-    locale: false,
-    internal: true,
-    statusCode: 308,
-    regex: '^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+))/$',
-  },
-  {
-    source: '/:notfile((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+)',
-    destination: '/:notfile/',
-    locale: false,
-    internal: true,
-    statusCode: 308,
-    regex: '^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+))$',
-  },
-  {
-    source: '/en/redirectme',
-    destination: '/',
-    statusCode: 308,
-    regex: '^(?!/_next)/en/redirectme(?:/)?$',
-  },
-  {
-    source: '/:nextInternalLocale(en|es|fr)/redirectme',
-    destination: '/:nextInternalLocale/',
-    statusCode: 308,
-    regex: '^(?!/_next)(?:/(en|es|fr))/redirectme(?:/)?$',
-  },
-]
-
-const REWRITES = [
-  {
-    source: '/:nextInternalLocale(en|es|fr)/old/:path*',
-    destination: '/:nextInternalLocale/:path*',
-    regex: '^(?:/(en|es|fr))/old(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$',
-  },
-]
-
-// Temporary switch cwd
-const changeCwd = function (cwd) {
-  const originalCwd = process.cwd()
-  process.chdir(cwd)
-  return () => {
-    process.chdir(originalCwd)
-  }
-}
 
 const onBuildHasRun = (netlifyConfig) =>
   Boolean(netlifyConfig.functions[HANDLER_FUNCTION_NAME]?.included_files?.some((file) => file.includes('BUILD_ID')))
 
-const rewriteAppDir = async function (dir = '.next') {
-  const manifest = path.join(dir, 'required-server-files.json')
-  const manifestContent = await readJson(manifest)
-  manifestContent.appDir = process.cwd()
-
-  await writeJSON(manifest, manifestContent)
-}
-
-// Move .next from sample project to current directory
-export const moveNextDist = async function (dir = '.next', copyMods = false) {
-  if (copyMods) {
-    await copyModules(['next', 'sharp'])
-  } else {
-    await stubModules(['next', 'sharp'])
-  }
-  await ensureDir(dirname(dir))
-  await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
-
-  for (const file of ['pages', 'app', 'src', 'components', 'public', 'components', 'hello.txt', 'package.json']) {
-    const source = path.join(SAMPLE_PROJECT_DIR, file)
-    if (existsSync(source)) {
-      await copy(source, path.join(process.cwd(), file))
-    }
-  }
-
-  await rewriteAppDir(dir)
-}
-
-const copyModules = async function (modules) {
-  for (const mod of modules) {
-    const source = dirname(require.resolve(`${mod}/package.json`))
-    const dest = path.join(process.cwd(), 'node_modules', mod)
-    await copy(source, dest)
-  }
-}
-
-const stubModules = async function (modules) {
-  for (const mod of modules) {
-    const dir = path.join(process.cwd(), 'node_modules', mod)
-    await ensureDir(dir)
-    await writeJSON(path.join(dir, 'package.json'), { name: mod })
-  }
-}
-
-// Copy fixture files to the current directory
-const useFixture = async function (fixtureName) {
-  const fixtureDir = `${FIXTURES_DIR}/${fixtureName}`
-  await cpy('**', process.cwd(), { cwd: fixtureDir, parents: true, overwrite: true, dot: true })
-}
-
-const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] }
+const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] } as NetlifyPluginOptions["netlifyConfig"]
 const defaultArgs = {
   netlifyConfig,
   utils,
   constants,
-}
+} as NetlifyPluginOptions
 
 let restoreCwd
 let cleanup
@@ -730,6 +626,44 @@ describe('onBuild()', () => {
     expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
   })
 
+  test('generates edge-functions manifest', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    expect(existsSync(path.join('.netlify', 'edge-functions', 'manifest.json'))).toBeTruthy()
+  })
+
+  test('generates generator field within the edge-functions manifest', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
+    const manifest = manifestPath.functions
+    
+    expect(manifest).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          generator: '@netlify/next-runtime@1.0.0'
+        })
+      ])
+    )
+  })
+
+
+  test('generates generator field within the edge-functions manifest includes IPX', async () => {
+    process.env.NEXT_FORCE_EDGE_IMAGES = '1'
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+    const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
+    const manifest = manifestPath.functions
+    
+    expect(manifest).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          generator: '@netlify/next-runtime@1.0.0'
+        })
+      ])
+    )
+  })
+
   test('does not generate an ipx function when DISABLE_IPX is set', async () => {
     process.env.DISABLE_IPX = '1'
     await moveNextDist()
@@ -878,33 +812,6 @@ describe('onPostBuild', () => {
       title: 'Next Runtime did not run',
     })
     delete process.env.NEXT_PLUGIN_FORCE_RUN
-  })
-
-  test('finds problematic user rewrites', async () => {
-    await moveNextDist()
-    const rewrites = getProblematicUserRewrites({
-      redirects: [
-        { from: '/previous', to: '/rewrites-are-a-problem', status: 200 },
-        { from: '/api', to: '/.netlify/functions/are-ok', status: 200 },
-        { from: '/remote', to: 'http://example.com/proxying/is/ok', status: 200 },
-        { from: '/old', to: '/redirects-are-fine' },
-        { from: '/*', to: '/404-is-a-problem', status: 404 },
-        ...netlifyConfig.redirects,
-      ],
-      basePath: '',
-    })
-    expect(rewrites).toEqual([
-      {
-        from: '/previous',
-        status: 200,
-        to: '/rewrites-are-a-problem',
-      },
-      {
-        from: '/*',
-        status: 404,
-        to: '/404-is-a-problem',
-      },
-    ])
   })
 
   test('adds headers to Netlify configuration', async () => {
@@ -1132,189 +1039,7 @@ describe('onPostBuild', () => {
   })
 })
 
-describe('utility functions', () => {
-  test('middleware tester matches correct paths', () => {
-    const middleware = ['middle', 'sub/directory']
-    const paths = [
-      'middle.html',
-      'middle',
-      'middle/',
-      'middle/ware',
-      'sub/directory',
-      'sub/directory.html',
-      'sub/directory/child',
-      'sub/directory/child.html',
-    ]
-    for (const path of paths) {
-      expect(matchMiddleware(middleware, path)).toBeTruthy()
-    }
-  })
-
-  test('middleware tester does not match incorrect paths', () => {
-    const middleware = ['middle', 'sub/directory']
-    const paths = [
-      'middl',
-      '',
-      'somethingelse',
-      'another.html',
-      'another/middle.html',
-      'sub/anotherdirectory.html',
-      'sub/directoryelse',
-      'sub/directoryelse.html',
-    ]
-    for (const path of paths) {
-      expect(matchMiddleware(middleware, path)).toBeFalsy()
-    }
-  })
-
-  test('middleware tester matches root middleware', () => {
-    const middleware = ['']
-    const paths = [
-      'middl',
-      '',
-      'somethingelse',
-      'another.html',
-      'another/middle.html',
-      'sub/anotherdirectory.html',
-      'sub/directoryelse',
-      'sub/directoryelse.html',
-    ]
-    for (const path of paths) {
-      expect(matchMiddleware(middleware, path)).toBeTruthy()
-    }
-  })
-
-  test('middleware tester matches root middleware', () => {
-    const paths = [
-      'middl',
-      '',
-      'somethingelse',
-      'another.html',
-      'another/middle.html',
-      'sub/anotherdirectory.html',
-      'sub/directoryelse',
-      'sub/directoryelse.html',
-    ]
-    for (const path of paths) {
-      expect(matchMiddleware(undefined, path)).toBeFalsy()
-    }
-  })
-
-  test('stripLocale correctly strips matching locales', () => {
-    const locales = ['en', 'fr', 'en-GB']
-    const paths = [
-      ['en/file.html', 'file.html'],
-      ['fr/file.html', 'file.html'],
-      ['en-GB/file.html', 'file.html'],
-      ['file.html', 'file.html'],
-    ]
-
-    for (const [path, expected] of paths) {
-      expect(stripLocale(path, locales)).toEqual(expected)
-    }
-  })
-
-  test('stripLocale does not touch non-matching matching locales', () => {
-    const locales = ['en', 'fr', 'en-GB']
-    const paths = ['de/file.html', 'enfile.html', 'en-US/file.html']
-    for (const path of paths) {
-      expect(stripLocale(path, locales)).toEqual(path)
-    }
-  })
-
-  test('matchesRedirect correctly matches paths with locales', () => {
-    const paths = ['en/redirectme.html', 'en/redirectme.json', 'fr/redirectme.html', 'fr/redirectme.json']
-    paths.forEach((path) => {
-      expect(matchesRedirect(path, REDIRECTS)).toBeTruthy()
-    })
-  })
-
-  test("matchesRedirect doesn't match paths with invalid locales", () => {
-    const paths = ['dk/redirectme.html', 'dk/redirectme.json', 'gr/redirectme.html', 'gr/redirectme.json']
-    paths.forEach((path) => {
-      expect(matchesRedirect(path, REDIRECTS)).toBeFalsy()
-    })
-  })
-
-  test("matchesRedirect doesn't match internal redirects", () => {
-    const paths = ['en/notrailingslash']
-    paths.forEach((path) => {
-      expect(matchesRedirect(path, REDIRECTS)).toBeFalsy()
-    })
-  })
-
-  it('matchesRewrite matches array of rewrites', () => {
-    expect(matchesRewrite('en/old/page.html', REWRITES)).toBeTruthy()
-  })
-
-  it('matchesRewrite matches beforeFiles rewrites', () => {
-    expect(matchesRewrite('en/old/page.html', { beforeFiles: REWRITES })).toBeTruthy()
-  })
-
-  it("matchesRewrite doesn't match afterFiles rewrites", () => {
-    expect(matchesRewrite('en/old/page.html', { afterFiles: REWRITES })).toBeFalsy()
-  })
-
-  it('matchesRewrite matches various paths', () => {
-    const paths = ['en/old/page.html', 'fr/old/page.html', 'en/old/deep/page.html', 'en/old.html']
-    paths.forEach((path) => {
-      expect(matchesRewrite(path, REWRITES)).toBeTruthy()
-    })
-  })
-
-  test('patches Next server files', async () => {
-    const root = path.resolve(dirname(__dirname))
-    await copy(join(root, 'package.json'), path.join(process.cwd(), 'package.json'))
-    await ensureDir(path.join(process.cwd(), 'node_modules'))
-    await copy(path.join(root, 'node_modules', 'next'), path.join(process.cwd(), 'node_modules', 'next'))
-
-    await patchNextFiles(process.cwd())
-    const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
-    const patchedData = await readFileSync(serverFile, 'utf8')
-    expect(patchedData.includes('_REVALIDATE_SSG')).toBeTruthy()
-    expect(patchedData.includes('private: isPreviewMode && cachedData')).toBeTruthy()
-
-    await unpatchNextFiles(process.cwd())
-
-    const unPatchedData = await readFileSync(serverFile, 'utf8')
-    expect(unPatchedData.includes('_REVALIDATE_SSG')).toBeFalsy()
-    expect(unPatchedData.includes('private: isPreviewMode && cachedData')).toBeFalsy()
-  })
-})
-
 describe('function helpers', () => {
-  it('downloadFile can download a file', async () => {
-    const url =
-      'https://raw.githubusercontent.com/netlify/next-runtime/c2668af24a78eb69b33222913f44c1900a3bce23/manifest.yml'
-    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
-    await ensureDir(path.dirname(tmpFile))
-    await downloadFile(url, tmpFile)
-    expect(existsSync(tmpFile)).toBeTruthy()
-    expect(readFileSync(tmpFile, 'utf8')).toMatchInlineSnapshot(`
-      "name: netlify-plugin-nextjs-experimental
-      "
-    `)
-    await unlink(tmpFile)
-  })
-
-  it('downloadFile throws on bad domain', async () => {
-    const url = 'https://nonexistentdomain.example'
-    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
-    await ensureDir(path.dirname(tmpFile))
-    await expect(downloadFile(url, tmpFile)).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"getaddrinfo ENOTFOUND nonexistentdomain.example"`,
-    )
-  })
-
-  it('downloadFile throws on 404', async () => {
-    const url = 'https://example.com/nonexistentfile'
-    const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
-    await ensureDir(path.dirname(tmpFile))
-    await expect(downloadFile(url, tmpFile)).rejects.toThrowError(
-      'Failed to download https://example.com/nonexistentfile: 404 Not Found',
-    )
-  })
-
   describe('config', () => {
     describe('dependency tracing', () => {
       it('extracts a list of all dependencies', async () => {
@@ -1332,450 +1057,6 @@ describe('function helpers', () => {
         expect(filesExist.every((exists) => exists)).toBeTruthy()
       })
     })
-
-    describe('generateCustomHeaders', () => {
-      // The routesManifest is the contents of the routes-manifest.json file which will already contain the generated
-      // header paths which take locales and base path into account which is why you'll see them in the paths already
-      // in test data.
-
-      it('sets custom headers in the Netlify configuration', () => {
-        const nextConfig = {
-          routesManifest: {
-            headers: [
-              // single header for a route
-              {
-                source: '/',
-                headers: [
-                  {
-                    key: 'X-Unit-Test',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-              // multiple headers for a route
-              {
-                source: '/unit-test',
-                headers: [
-                  {
-                    key: 'X-Another-Unit-Test',
-                    value: 'true',
-                  },
-                  {
-                    key: 'X-Another-Unit-Test-Again',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-            ],
-          },
-        }
-
-        generateCustomHeaders(nextConfig, netlifyConfig.headers)
-
-        expect(netlifyConfig.headers).toEqual([
-          {
-            for: '/',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-          {
-            for: '/unit-test',
-            values: {
-              'X-Another-Unit-Test': 'true',
-              'X-Another-Unit-Test-Again': 'true',
-            },
-          },
-        ])
-      })
-
-      it('sets custom headers using a splat instead of a named splat in the Netlify configuration', () => {
-        netlifyConfig.headers = []
-
-        const nextConfig = {
-          routesManifest: {
-            headers: [
-              // single header for a route
-              {
-                source: '/:path*',
-                headers: [
-                  {
-                    key: 'X-Unit-Test',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-              // multiple headers for a route
-              {
-                source: '/some-other-path/:path*',
-                headers: [
-                  {
-                    key: 'X-Another-Unit-Test',
-                    value: 'true',
-                  },
-                  {
-                    key: 'X-Another-Unit-Test-Again',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-              {
-                source: '/some-other-path/yolo/:path*',
-                headers: [
-                  {
-                    key: 'X-Another-Unit-Test',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-            ],
-          },
-        }
-
-        generateCustomHeaders(nextConfig, netlifyConfig.headers)
-
-        expect(netlifyConfig.headers).toEqual([
-          {
-            for: '/*',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-          {
-            for: '/some-other-path/*',
-            values: {
-              'X-Another-Unit-Test': 'true',
-              'X-Another-Unit-Test-Again': 'true',
-            },
-          },
-          {
-            for: '/some-other-path/yolo/*',
-            values: {
-              'X-Another-Unit-Test': 'true',
-            },
-          },
-        ])
-      })
-
-      it('appends custom headers in the Netlify configuration', () => {
-        netlifyConfig.headers = [
-          {
-            for: '/',
-            values: {
-              'X-Existing-Header': 'true',
-            },
-          },
-        ]
-
-        const nextConfig = {
-          routesManifest: {
-            headers: [
-              // single header for a route
-              {
-                source: '/',
-                headers: [
-                  {
-                    key: 'X-Unit-Test',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-              // multiple headers for a route
-              {
-                source: '/unit-test',
-                headers: [
-                  {
-                    key: 'X-Another-Unit-Test',
-                    value: 'true',
-                  },
-                  {
-                    key: 'X-Another-Unit-Test-Again',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-            ],
-          },
-        }
-
-        generateCustomHeaders(nextConfig, netlifyConfig.headers)
-
-        expect(netlifyConfig.headers).toEqual([
-          {
-            for: '/',
-            values: {
-              'X-Existing-Header': 'true',
-            },
-          },
-          {
-            for: '/',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-          {
-            for: '/unit-test',
-            values: {
-              'X-Another-Unit-Test': 'true',
-              'X-Another-Unit-Test-Again': 'true',
-            },
-          },
-        ])
-      })
-
-      it('sets custom headers using basePath in the Next.js configuration', () => {
-        netlifyConfig.headers = []
-
-        const basePath = '/base-path'
-        const nextConfig = {
-          routesManifest: {
-            headers: [
-              // single header for a route
-              {
-                source: `${basePath}/:path*`,
-                headers: [
-                  {
-                    key: 'X-Unit-Test',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-              // multiple headers for a route
-              {
-                source: `${basePath}/some-other-path/:path*`,
-                headers: [
-                  {
-                    key: 'X-Another-Unit-Test',
-                    value: 'true',
-                  },
-                  {
-                    key: 'X-Another-Unit-Test-Again',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-            ],
-          },
-        }
-
-        generateCustomHeaders(nextConfig, netlifyConfig.headers)
-
-        expect(netlifyConfig.headers).toEqual([
-          {
-            for: '/base-path/*',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-          {
-            for: '/base-path/some-other-path/*',
-            values: {
-              'X-Another-Unit-Test': 'true',
-              'X-Another-Unit-Test-Again': 'true',
-            },
-          },
-        ])
-      })
-
-      it('sets custom headers omitting basePath when a header has basePath set to false', () => {
-        netlifyConfig.headers = []
-
-        const basePath = '/base-path'
-
-        const nextConfig = {
-          routesManifest: {
-            headers: [
-              // single header for a route
-              {
-                source: '/:path*',
-                headers: [
-                  {
-                    key: 'X-Unit-Test',
-                    value: 'true',
-                  },
-                ],
-                basePath: false,
-                regex: '^/(?:/)?$',
-              },
-              // multiple headers for a route
-              {
-                source: `${basePath}/some-other-path/:path*`,
-                headers: [
-                  {
-                    key: 'X-Another-Unit-Test',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-            ],
-          },
-        }
-
-        generateCustomHeaders(nextConfig, netlifyConfig.headers)
-
-        expect(netlifyConfig.headers).toEqual([
-          {
-            for: '/*',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-          {
-            for: '/base-path/some-other-path/*',
-            values: {
-              'X-Another-Unit-Test': 'true',
-            },
-          },
-        ])
-      })
-
-      it('prepends locales set in the next.config to paths for custom headers', () => {
-        netlifyConfig.headers = []
-
-        // I'm not setting locales in the nextConfig, because at this point in the post build when this runs,
-        // Next.js has modified the routesManifest to have the locales in the source.
-        const nextConfig = {
-          i18n: {
-            locales: ['en-US', 'fr'],
-            defaultLocale: 'en',
-          },
-          routesManifest: {
-            headers: [
-              {
-                source: '/:nextInternalLocale(en\\-US|fr)/with-locale/:path*',
-                headers: [
-                  {
-                    key: 'X-Unit-Test',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-            ],
-          },
-        }
-
-        generateCustomHeaders(nextConfig, netlifyConfig.headers)
-
-        expect(netlifyConfig.headers).toEqual([
-          {
-            for: '/with-locale/*',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-          {
-            for: '/en-US/with-locale/*',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-          {
-            for: '/fr/with-locale/*',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-        ])
-      })
-
-      it('does not prepend locales set in the next.config to custom headers that have locale set to false', () => {
-        netlifyConfig.headers = []
-
-        const nextConfig = {
-          i18n: {
-            locales: ['en', 'fr'],
-            defaultLocale: 'en',
-          },
-          routesManifest: {
-            headers: [
-              {
-                source: '/:nextInternalLocale(en|fr)/with-locale/:path*',
-                headers: [
-                  {
-                    key: 'X-Unit-Test',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-              {
-                source: '/fr/le-custom-locale-path/:path*',
-                locale: false,
-                headers: [
-                  {
-                    key: 'X-Unit-Test',
-                    value: 'true',
-                  },
-                ],
-                regex: '^/(?:/)?$',
-              },
-            ],
-          },
-        }
-
-        generateCustomHeaders(nextConfig, netlifyConfig.headers)
-
-        expect(netlifyConfig.headers).toEqual([
-          {
-            for: '/with-locale/*',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-          {
-            for: '/en/with-locale/*',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-          {
-            for: '/fr/with-locale/*',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-          {
-            for: '/fr/le-custom-locale-path/*',
-            values: {
-              'X-Unit-Test': 'true',
-            },
-          },
-        ])
-      })
-    })
-  })
-})
-
-describe('api route file analysis', () => {
-  it('extracts correct route configs from source files', async () => {
-    await moveNextDist()
-    const configs = await getExtendedApiRouteConfigs('.next', process.cwd())
-    // Using a Set means the order doesn't matter
-    expect(new Set(configs)).toEqual(
-      new Set([
-        {
-          compiled: 'pages/api/hello-background.js',
-          config: { type: 'experimental-background' },
-          route: '/api/hello-background',
-        },
-        {
-          compiled: 'pages/api/hello-scheduled.js',
-          config: { schedule: '@hourly', type: 'experimental-scheduled' },
-          route: '/api/hello-scheduled',
-        },
-      ]),
-    )
   })
 })
 

@@ -107,7 +107,7 @@ export const augmentFsModule = ({
   // Grab the real fs.promises.readFile...
   const readfileOrig = promises.readFile
   const statsOrig = promises.stat
-  // ...then money-patch it to see if it's requesting a CDN file
+  // ...then monkey-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
     const baseUrl = getBase()
 

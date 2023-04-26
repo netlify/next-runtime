@@ -1,5 +1,45 @@
 # Changelog
 
+## [4.36.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.35.0...plugin-nextjs-v4.36.0) (2023-04-24)
+
+
+### Features
+
+* add Generator to edge functions ([#2019](https://github.com/netlify/next-runtime/issues/2019)) ([b341938](https://github.com/netlify/next-runtime/commit/b341938ec9807c93b0f0484b40848d727eeeb265))
+
+
+### Bug Fixes
+
+* default to target server, not serverless ([#2060](https://github.com/netlify/next-runtime/issues/2060)) ([61c2458](https://github.com/netlify/next-runtime/commit/61c24583be0c45def82f51d8c7757bb91ec5fc79))
+
+## [4.35.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.34.0...plugin-nextjs-v4.35.0) (2023-04-17)
+
+
+### Features
+
+* support edge runtime key ([#2036](https://github.com/netlify/next-runtime/issues/2036)) ([b7b9392](https://github.com/netlify/next-runtime/commit/b7b939210661560c623cf0951597362a27d771b9))
+
+
+### Bug Fixes
+
+* ensure appDir routes with null dataRoutes are not added to edge manifest for rsc-data ([#2044](https://github.com/netlify/next-runtime/issues/2044)) ([2f31acb](https://github.com/netlify/next-runtime/commit/2f31acbb262a2caa8ed3e90bbec27d131be0e1d0))
+* now data routes for dynamic routes filter even when null when creating the RSC data router ([#2041](https://github.com/netlify/next-runtime/issues/2041)) ([5fa1435](https://github.com/netlify/next-runtime/commit/5fa14355428151f0c9748d72d96f3aea90f02bbd))
+* typo in comment ([#2049](https://github.com/netlify/next-runtime/issues/2049)) ([447b7d4](https://github.com/netlify/next-runtime/commit/447b7d48b5bf1876efbc09b6d3b340c926f3915d))
+
+## [4.34.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.33.0...plugin-nextjs-v4.34.0) (2023-04-10)
+
+
+### Features
+
+* use edge function layer for ipx ([#1880](https://github.com/netlify/next-runtime/issues/1880)) ([56c7828](https://github.com/netlify/next-runtime/commit/56c78282662d9f0c47e85e4a0b478f2a354e9c16))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.4.0 ([#2031](https://github.com/netlify/next-runtime/issues/2031)) ([03f60bb](https://github.com/netlify/next-runtime/commit/03f60bbfd67ba71b2db4fcfba0f2f82fc10bfdfc))
+* routes with null data routes can be filtered now ([#2018](https://github.com/netlify/next-runtime/issues/2018)) ([7c1673b](https://github.com/netlify/next-runtime/commit/7c1673b6b09a3b0461e92c6c54afb517d95954c3))
+* support setting cookies from MiddlewareResponse ([#2027](https://github.com/netlify/next-runtime/issues/2027)) ([a630ab4](https://github.com/netlify/next-runtime/commit/a630ab41e8a4d0f04e8de4b19a8886705a6b0fe8))
+
 ## [4.33.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.32.2...plugin-nextjs-v4.33.0) (2023-03-27)
 
 

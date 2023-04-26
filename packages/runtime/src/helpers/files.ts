@@ -85,7 +85,7 @@ export const moveStaticPages = async ({
   basePath?: string
 }): Promise<void> => {
   console.log('Moving static page files to serve from CDN...')
-  const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
+  const outputDir = join(netlifyConfig.build.publish, target === 'serverless' ? 'serverless' : 'server')
   const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
   const dataDir = join('_next', 'data', buildId)
   await ensureDir(join(netlifyConfig.build.publish, dataDir))
@@ -134,6 +134,7 @@ export const moveStaticPages = async ({
     const dest = join(netlifyConfig.build.publish, targetPath)
 
     try {
+      console.log(`Moving ${source} to ${dest}`)
       await move(source, dest)
     } catch (error) {
       console.warn('Error moving file', source, error)

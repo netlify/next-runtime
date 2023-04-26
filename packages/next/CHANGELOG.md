@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.5](https://github.com/netlify/next-runtime/compare/next-v1.4.4...next-v1.4.5) (2023-04-10)
+
+
+### Bug Fixes
+
+* support setting cookies from MiddlewareResponse ([#2027](https://github.com/netlify/next-runtime/issues/2027)) ([a630ab4](https://github.com/netlify/next-runtime/commit/a630ab41e8a4d0f04e8de4b19a8886705a6b0fe8))
+
 ## [1.4.4](https://github.com/netlify/next-runtime/compare/next-v1.4.3...next-v1.4.4) (2023-02-06)
 
 
