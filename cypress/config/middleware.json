@@ -1,5 +1,0 @@
-{
-  "baseUrl": "http://localhost:8888",
-  "integrationFolder": "cypress/integration/middleware",
-  "projectId": "yn8qwi"
-}

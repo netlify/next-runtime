@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.36.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.35.0...plugin-nextjs-v4.36.0) (2023-04-24)
+
+
+### Features
+
+* add Generator to edge functions ([#2019](https://github.com/netlify/next-runtime/issues/2019)) ([b341938](https://github.com/netlify/next-runtime/commit/b341938ec9807c93b0f0484b40848d727eeeb265))
+
+
+### Bug Fixes
+
+* default to target server, not serverless ([#2060](https://github.com/netlify/next-runtime/issues/2060)) ([61c2458](https://github.com/netlify/next-runtime/commit/61c24583be0c45def82f51d8c7757bb91ec5fc79))
+
 ## [4.35.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.34.0...plugin-nextjs-v4.35.0) (2023-04-17)
 
 
