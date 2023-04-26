@@ -17,6 +17,8 @@ beforeAll(async () => {
   console.log(`copying fixture site "${siteSrcDir}" to "${siteDestDir}"`)
   fs.copySync(siteSrcDir, siteDestDir)
 
+  await execa(`npm`, [`version`], { stdio: `inherit` })
+
   // bump version so no npm cache tries to use what's in npm registry
   const runtimeSrcDir = path.join(__dirname, '..', '..', 'packages', 'runtime')
   await execa(`npm`, [`version`, `prerelease`, `--no-git-tag-version`], { cwd: runtimeSrcDir, stdio: `inherit` })
