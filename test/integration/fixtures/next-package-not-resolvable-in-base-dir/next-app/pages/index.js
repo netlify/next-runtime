@@ -14,3 +14,11 @@ export default function Home() {
     </>
   )
 }
+
+export const getServerSideProps = async ({ params }) => {
+  return {
+    props: {
+      ssr: true,
+    },
+  }
+}
