@@ -267,6 +267,17 @@ export const findModuleFromBase = ({ paths, candidates }): string | null => {
       // Ignore the error
     }
   }
+  // if we couldn't find a module from paths, let's try to resolve from here
+  for (const candidate of candidates) {
+    try {
+      const modulePath = require.resolve(candidate)
+      if (modulePath) {
+        return modulePath
+      }
+    } catch {
+      // Ignore the error
+    }
+  }
   return null
 }
 

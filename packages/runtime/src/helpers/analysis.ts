@@ -2,8 +2,8 @@ import fs, { existsSync } from 'fs'
 
 import { relative } from 'pathe'
 
-import { getNextModulePath } from './files'
 import { ApiRouteType } from './types'
+import { findModuleFromBase } from './utils'
 
 export interface ApiStandardConfig {
   type?: never
@@ -92,11 +92,17 @@ export const extractConfigFromFile = async (apiFilePath: string, appDir: string)
   try {
     if (!extractConstValue) {
       // eslint-disable-next-line import/no-dynamic-require
-      extractConstValue = require(getNextModulePath(appDir, ['next/dist/build/analysis/extract-const-value']))
+      extractConstValue = require(findModuleFromBase({
+        paths: [appDir],
+        candidates: ['next/dist/build/analysis/extract-const-value'],
+      }))
     }
     if (!parseModule) {
       // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-var-requires, import/no-dynamic-require
-      parseModule = require(getNextModulePath(appDir, ['next/dist/build/analysis/parse-module'])).parseModule
+      parseModule = require(findModuleFromBase({
+        paths: [appDir],
+        candidates: ['next/dist/build/analysis/parse-module'],
+      })).parseModule
     }
   } catch (error) {
     if (error.code === 'MODULE_NOT_FOUND') {

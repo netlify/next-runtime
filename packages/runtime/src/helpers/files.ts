@@ -338,21 +338,7 @@ export const getServerFile = (root: string, includeBase = true) => {
     candidates.unshift('next/dist/server/base-server')
   }
 
-  return getNextModulePath(root, candidates)
-}
-
-export const getNextModulePath = (root: string, candidates: Array<string>): string | null => {
-  const module = findModuleFromBase({ candidates, paths: [root] })
-  if (module) {
-    return module
-  }
-
-  for (const candidate of candidates) {
-    try {
-      return require.resolve(candidate)
-    } catch {}
-  }
-  return null
+  return findModuleFromBase({ candidates, paths: [root] })
 }
 
 /**
