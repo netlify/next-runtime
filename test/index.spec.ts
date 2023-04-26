@@ -158,7 +158,7 @@ describe('preBuild()', () => {
   })
 })
 
-describe.only('onBuild()', () => {
+describe('onBuild()', () => {
   const { isNextAuthInstalled } = require('../packages/runtime/src/helpers/utils')
 
   beforeEach(() => {
@@ -376,7 +376,7 @@ describe.only('onBuild()', () => {
     expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
   })
 
-  test.only('writes correct redirects to netlifyConfig', async () => {
+  test('writes correct redirects to netlifyConfig', async () => {
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
