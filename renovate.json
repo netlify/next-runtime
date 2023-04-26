@@ -5,17 +5,12 @@
     {
       "groupName": "Next.js",
       "matchPackagePatterns": ["next"],
-      "matchUpdateTypes": [
-        "patch",
-        "minor"
-      ]
+      "matchUpdateTypes": ["patch", "minor"]
     },
     {
       "groupName": "Next.js (Major)",
       "matchPackagePatterns": ["next"],
-      "matchUpdateTypes": [
-        "major"
-      ]
+      "matchUpdateTypes": ["major"]
     }
   ]
 }
