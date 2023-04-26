@@ -119,8 +119,9 @@ export const getApiHandler = ({
   publishDir?: string
   appDir?: string
 }): string =>
-  // This is a string, but if you have the right editor plugin it should format as js
+  // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
   javascript/* javascript */ `
+  process.env.NODE_ENV = 'production';
   const { Server } = require("http");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
