@@ -1,4 +1,21 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>netlify/renovate-config"]
+  "extends": ["local>netlify/renovate-config"],
+  "packageRules": [
+    {
+      "groupName": "Next.js",
+      "matchPackagePatterns": ["next"],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ]
+    },
+    {
+      "groupName": "Next.js (Major)",
+      "matchPackagePatterns": ["next"],
+      "matchUpdateTypes": [
+        "major"
+      ]
+    }
+  ]
 }
