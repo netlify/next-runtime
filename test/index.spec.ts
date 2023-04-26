@@ -94,9 +94,9 @@ beforeEach(async () => {
 
   netlifyConfig.redirects = []
   netlifyConfig.headers = []
-  netlifyConfig.functions[HANDLER_FUNCTION_NAME] && (netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files = [])
-  netlifyConfig.functions[ODB_FUNCTION_NAME] && (netlifyConfig.functions[ODB_FUNCTION_NAME].included_files = [])
-  netlifyConfig.functions['_api_*'] && (netlifyConfig.functions['_api_*'].included_files = [])
+  for (const func of Object.values(netlifyConfig.functions)) {
+    func.included_files = []
+  }
   await useFixture('serverless_next_config')
 })
 
@@ -477,7 +477,7 @@ describe('onBuild()', () => {
   it("doesn't exclude sharp if manually included", async () => {
     await moveNextDist()
 
-    const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, '_api_*']
+    const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME]
 
     await nextRuntime.onBuild(defaultArgs)
 
