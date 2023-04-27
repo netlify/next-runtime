@@ -18,7 +18,6 @@ import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
 
 const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
-const SOURCE_FILE_EXTENSIONS = ['js', 'jsx', 'ts', 'tsx']
 
 export const isDynamicRoute = (route) => TEST_ROUTE.test(route)
 
@@ -85,7 +84,7 @@ export const moveStaticPages = async ({
   basePath?: string
 }): Promise<void> => {
   console.log('Moving static page files to serve from CDN...')
-  const outputDir = join(netlifyConfig.build.publish, target === 'server' ? 'server' : 'serverless')
+  const outputDir = join(netlifyConfig.build.publish, target === 'serverless' ? 'serverless' : 'server')
   const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
   const dataDir = join('_next', 'data', buildId)
   await ensureDir(join(netlifyConfig.build.publish, dataDir))
@@ -134,6 +133,7 @@ export const moveStaticPages = async ({
     const dest = join(netlifyConfig.build.publish, targetPath)
 
     try {
+      console.log(`Moving ${source} to ${dest}`)
       await move(source, dest)
     } catch (error) {
       console.warn('Error moving file', source, error)
@@ -340,12 +340,16 @@ const getServerFile = (root: string, includeBase = true) => {
   return findModuleFromBase({ candidates, paths: [root] })
 }
 
+// Next.js already defines a default `pageExtensions` array in its `required-server-files.json` file
+// In case it gets `undefined`, this is a fallback
+const SOURCE_FILE_EXTENSIONS = ['js', 'jsx', 'ts', 'tsx']
+
 /**
  * Find the source file for a given page route
  */
-export const getSourceFileForPage = (page: string, roots: string[]) => {
+export const getSourceFileForPage = (page: string, roots: string[], pageExtensions = SOURCE_FILE_EXTENSIONS) => {
   for (const root of roots) {
-    for (const extension of SOURCE_FILE_EXTENSIONS) {
+    for (const extension of pageExtensions) {
       const file = join(root, `${page}.${extension}`)
       if (existsSync(file)) {
         return file
@@ -372,6 +376,11 @@ const baseServerReplacements: Array<[string, string]> = [
   [
     `checkIsManualRevalidate(req, this.renderOpts.previewProps)`,
     `checkIsManualRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
+  ],
+  // In https://github.com/vercel/next.js/pull/47803 checkIsManualRevalidate was renamed to checkIsOnDemandRevalidate
+  [
+    `checkIsOnDemandRevalidate(req, this.renderOpts.previewProps)`,
+    `checkIsOnDemandRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
   ],
   // ensure ISR 404 pages send the correct SWR cache headers
   [`private: isPreviewMode || is404Page && cachedData`, `private: isPreviewMode && cachedData`],

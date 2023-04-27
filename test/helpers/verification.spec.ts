@@ -2,7 +2,7 @@ import Chance from 'chance'
 import { checkNextSiteHasBuilt, checkZipSize, getProblematicUserRewrites } from '../../packages/runtime/src/helpers/verification'
 import { outdent } from 'outdent'
 import type { NetlifyPluginOptions } from '@netlify/build'
-import { moveNextDist } from "../test-utils"
+import { describeCwdTmpDir, moveNextDist } from "../test-utils"
 
 const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] } as NetlifyPluginOptions["netlifyConfig"]
 
@@ -129,7 +129,7 @@ describe('checkZipSize', () => {
   })
 })
 
-describe("getProblematicUserRewrites", () => {
+describeCwdTmpDir("getProblematicUserRewrites", () => {
   it('finds problematic user rewrites', async () => {
     await moveNextDist()
     const rewrites = getProblematicUserRewrites({

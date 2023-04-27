@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - 'demos/static-root/**/*.{js,jsx,ts,tsx}'
-      - 'cypress/integration/static/**/*.{ts,js}'
+      - 'cypress/e2e/static/**/*.{ts,js}'
       - 'src/**/*.{ts,js}'
 jobs:
   cypress:
@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        containers: [1, 2, 3, 4]
+        containers: [1, 2]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -56,15 +56,14 @@ jobs:
       - name: Cypress run
         if: ${{ steps.deploy.outputs.origin-url }}
         id: cypress
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         with:
           browser: chrome
-          headless: true
           record: true
           parallel: true
-          config-file: cypress/config/static-root.json
+          config-file: cypress/config/static-root.config.ts
           group: 'Next Runtime - Demo Static'
-          spec: cypress/integration/static-root/*
+          spec: cypress/e2e/static-root/*
         env:
           DEBUG: '@cypress/github-action'
           CYPRESS_baseUrl: ${{ steps.deploy.outputs.origin-url }}
