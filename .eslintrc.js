@@ -72,6 +72,10 @@ module.exports = {
         'prefer-destructuring': 0,
         '@typescript-eslint/no-unused-vars': 0,
         'unicorn/no-await-expression-member': 0,
+        'import/no-anonymous-default-export': 0,
+        'no-shadow': 0,
+        '@typescript-eslint/no-var-requires': 0,
+        'require-await': 0,
         // esling-plugin-jest specific rules
         'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
         'jest/no-disabled-tests': 0,

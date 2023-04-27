@@ -14,7 +14,7 @@ import {
   getSourceFileForPage,
 } from '../../packages/runtime/src/helpers/files'
 import { Rewrites } from '../../packages/runtime/src/helpers/types'
-import { describeCwdTmpDir, moveNextDist } from '../test-utils'
+import { describeCwdTmpDir } from '../test-utils'
 
 const TEST_DIR = resolve(__dirname, '..')
 
@@ -110,7 +110,7 @@ describe('files utility functions', () => {
     }
   })
 
-  it('middleware tester matches root middleware', () => {
+  it('middleware tester does not match undefined', () => {
     const paths = [
       'middl',
       '',

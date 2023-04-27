@@ -21,6 +21,8 @@ type FailBuild = NetlifyPluginUtils['build']['failBuild']
 
 const chance = new Chance()
 
+const { existsSync } = require('fs')
+
 jest.mock('fs', () => ({
     ...jest.requireActual('fs'),
     existsSync: jest.fn(),
@@ -28,7 +30,6 @@ jest.mock('fs', () => ({
 
 describe('checkNextSiteHasBuilt', () => {
   let failBuildMock
-  const { existsSync } = require('fs')
 
   beforeEach(() => {
     failBuildMock = jest.fn() as unknown as FailBuild

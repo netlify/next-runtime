@@ -10,6 +10,7 @@ import { join , relative } from 'pathe'
 import { dir as getTmpDir } from 'tmp-promise'
 
 // @ts-expect-error - TODO: Convert runtime export to ES6
+// eslint-disable-next-line import/default
 import nextRuntimeFactory from '../packages/runtime/src'
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } from '../packages/runtime/src/constants'
 import { watchForMiddlewareChanges } from '../packages/runtime/src/helpers/compiler'
@@ -44,6 +45,7 @@ const utils = {
       throw new Error(message)
     },
   },
+  // eslint-disable-next-line no-void
   run: async () => void 0,
   cache: {
     save: jest.fn(),
@@ -101,15 +103,15 @@ afterEach(async () => {
 })
 
 describe('preBuild()', () => {
-  it('fails if publishing the root of the project', () => {
+  it('fails if publishing the root of the project', async () => {
     defaultArgs.netlifyConfig.build.publish = path.resolve('.')
-    expect(nextRuntime.onPreBuild(defaultArgs)).rejects.toThrow(
+    await expect(nextRuntime.onPreBuild(defaultArgs)).rejects.toThrow(
       /Your publish directory is pointing to the base directory of your site/,
     )
   })
 
-  it('fails if the build version is too old', () => {
-    expect(
+  it('fails if the build version is too old', async () => {
+    await expect(
       nextRuntime.onPreBuild({
         ...defaultArgs,
         constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.15.0' },
@@ -118,7 +120,7 @@ describe('preBuild()', () => {
   })
 
   it('passes if the build version is new enough', async () => {
-    expect(
+    await expect(
       nextRuntime.onPreBuild({
         ...defaultArgs,
         constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.16.1' },
@@ -320,7 +322,7 @@ describe('onBuild()', () => {
     const failBuild = jest.fn().mockImplementation((err) => {
       throw new Error(err)
     })
-    expect(() => nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
+    await expect(() => nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
       `In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config.`,
     )
     expect(failBuild).toHaveBeenCalled()
@@ -334,7 +336,7 @@ describe('onBuild()', () => {
     })
     netlifyConfig.build.publish = path.resolve('out')
 
-    expect(() => nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
+    await expect(() => nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
       `Your publish directory is set to "out", but in most cases it should be ".next".`,
     )
     expect(failBuild).toHaveBeenCalled()
