@@ -59,5 +59,18 @@ module.exports = {
         'promise/catch-or-return': 0,
       },
     },
+    {
+      files: ['test/**'],
+      plugins: ['jest'],
+      extends: ['plugin:jest/recommended'],
+      rules: {
+        // Disable global rules
+        'max-nested-callbacks': 0,
+        '@typescript-eslint/no-empty-function': 0,
+        'max-lines-per-function': 0,
+        // esling-plugin-jest specific rules
+        'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
+      }
+    }
   ],
 }

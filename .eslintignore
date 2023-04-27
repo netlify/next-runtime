@@ -1,6 +1,5 @@
 .next
 node_modules
-test
 lib
 demos
 packages/runtime/src/templates/edge
