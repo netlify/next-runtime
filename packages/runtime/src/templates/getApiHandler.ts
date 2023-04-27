@@ -25,9 +25,16 @@ type Mutable<T> = {
   -readonly [K in keyof T]: T[K]
 }
 
+type MakeApiHandlerParams = {
+  conf: NextConfig
+  app: string
+  pageRoot: string
+  page: string
+  NextServer: NextServerType
+}
+
 // We return a function and then call `toString()` on it to serialise it as the launcher function
-// eslint-disable-next-line max-params
-const makeHandler = (conf: NextConfig, app, pageRoot, page, NextServer: NextServerType) => {
+const makeApiHandler = ({ conf, app, pageRoot, page, NextServer }: MakeApiHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -145,7 +152,9 @@ export const getApiHandler = ({
   let staticManifest
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
-  const handler = (${makeHandler.toString()})(config, "${appDir}", pageRoot, ${JSON.stringify(page)}, NextServer)
+  const handler = (${makeApiHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, page:${JSON.stringify(
+    page,
+  )}, NextServer})
   exports.handler = ${
     config.type === ApiRouteType.SCHEDULED ? `schedule(${JSON.stringify(config.schedule)}, handler);` : 'handler'
   }

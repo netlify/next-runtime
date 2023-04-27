@@ -31,17 +31,18 @@ type Mutable<T> = {
   -readonly [K in keyof T]: T[K]
 }
 
+type MakeHandlerParams = {
+  conf: NextConfig
+  app: string
+  pageRoot: string
+  NextServer: NextServerType
+  staticManifest: Array<[string, string]>
+  mode: 'ssr' | 'odb'
+}
+
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 // eslint-disable-next-line max-lines-per-function
-const makeHandler = (
-  conf: NextConfig,
-  app: string,
-  pageRoot,
-  NextServer: NextServerType,
-  staticManifest: Array<[string, string]> = [],
-  mode = 'ssr',
-  // eslint-disable-next-line max-params
-) => {
+const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mode = 'ssr' }: MakeHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -117,7 +118,7 @@ const makeHandler = (
   }
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
-    let requestMode = mode
+    let requestMode: string = mode
     const prefetchResponse = getPrefetchResponse(event, mode)
     if (prefetchResponse) {
       return prefetchResponse
@@ -220,7 +221,7 @@ export const getHandler = ({
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})(config, "${appDir}", pageRoot, NextServer, staticManifest, 'odb'));`
-      : `(${makeHandler.toString()})(config, "${appDir}", pageRoot, NextServer, staticManifest, 'ssr');`
+      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb' }));`
+      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr' });`
   }
 `
