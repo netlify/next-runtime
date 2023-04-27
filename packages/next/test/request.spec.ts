@@ -2,6 +2,7 @@ import Chance from 'chance'
 import { NextURL } from 'next/dist/server/web/next-url'
 import { RequestCookies } from 'next/dist/server/web/spec-extension/cookies'
 import { NextRequest } from 'next/server'
+
 import { MiddlewareRequest } from '../src/middleware/request'
 
 const chance = new Chance()
