@@ -1,3 +1,9 @@
+import os from 'os'
+import path from 'path'
+
+import { unlink, existsSync, readFileSync, ensureDir } from 'fs-extra'
+import { join } from 'pathe'
+
 import {
   normalizeRoute,
   unlocalizeRoute,
@@ -5,10 +11,6 @@ import {
   localizeDataRoute,
   downloadFile,
 } from '../../packages/runtime/src/templates/handlerUtils'
-import { join } from 'pathe'
-import os from 'os'
-import path from 'path'
-import { unlink, existsSync, readFileSync, ensureDir } from 'fs-extra'
 
 describe('normalizeRoute', () => {
   it('removes a trailing slash from a route', () => {
@@ -119,7 +121,7 @@ describe('downloadFile', () => {
     const url = 'https://example.com/nonexistentfile'
     const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
     await ensureDir(path.dirname(tmpFile))
-    await expect(downloadFile(url, tmpFile)).rejects.toThrowError(
+    await expect(downloadFile(url, tmpFile)).rejects.toThrow(
       'Failed to download https://example.com/nonexistentfile: 404 Not Found',
     )
   })

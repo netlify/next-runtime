@@ -1,5 +1,6 @@
-import { generateCustomHeaders, NextConfig } from '../../packages/runtime/src/helpers/config'
 import type { NetlifyPluginOptions } from '@netlify/build'
+
+import { generateCustomHeaders, NextConfig } from '../../packages/runtime/src/helpers/config'
 
 const netlifyConfig = {
   build: { command: 'npm run build' },

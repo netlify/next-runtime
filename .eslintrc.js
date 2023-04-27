@@ -60,17 +60,22 @@ module.exports = {
       },
     },
     {
-      files: ['test/**'],
+      files: ['test/**', 'packages/**/test/**'],
       plugins: ['jest'],
       extends: ['plugin:jest/recommended'],
       rules: {
         // Disable global rules
-        'max-nested-callbacks': 0,
+        'max-nested-callbacks': 'off',
         '@typescript-eslint/no-empty-function': 0,
         'max-lines-per-function': 0,
         'unicorn/no-empty-file': 0,
+        'prefer-destructuring': 0,
+        '@typescript-eslint/no-unused-vars': 0,
+        'unicorn/no-await-expression-member': 0,
         // esling-plugin-jest specific rules
         'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
+        'jest/no-disabled-tests': 0,
+        'jest/no-conditional-expect': 0,
       },
     },
   ],

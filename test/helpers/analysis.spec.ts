@@ -1,5 +1,6 @@
-import { extractConfigFromFile } from '../../packages/runtime/src/helpers/analysis'
 import { resolve } from 'pathe'
+
+import { extractConfigFromFile } from '../../packages/runtime/src/helpers/analysis'
 
 describe('static source analysis', () => {
   beforeEach(() => {

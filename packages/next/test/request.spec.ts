@@ -2,6 +2,7 @@ import Chance from 'chance'
 import { NextURL } from 'next/dist/server/web/next-url'
 import { RequestCookies } from 'next/dist/server/web/spec-extension/cookies'
 import { NextRequest } from 'next/server'
+
 import { MiddlewareRequest } from '../src/middleware/request'
 
 const chance = new Chance()
@@ -75,19 +76,19 @@ describe('MiddlewareRequest', () => {
 
   it('throws an error when MiddlewareRequest is run outside of edge environment', () => {
     delete globalThis.Deno
-    expect(() => new MiddlewareRequest(nextRequest)).toThrowError(
+    expect(() => new MiddlewareRequest(nextRequest)).toThrow(
       'MiddlewareRequest only works in a Netlify Edge Function environment',
     )
   })
 
   it('throws an error when x-nf-request-id header is missing', () => {
     nextRequest.headers.delete('x-nf-request-id')
-    expect(() => new MiddlewareRequest(nextRequest)).toThrowError('Missing x-nf-request-id header')
+    expect(() => new MiddlewareRequest(nextRequest)).toThrow('Missing x-nf-request-id header')
   })
 
   it('throws an error when request context is missing', () => {
     globalThis.NFRequestContextMap.delete(requestId)
-    expect(() => new MiddlewareRequest(nextRequest)).toThrowError(
+    expect(() => new MiddlewareRequest(nextRequest)).toThrow(
       `Could not find request context for request id ${requestId}`,
     )
   })

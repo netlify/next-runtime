@@ -1,12 +1,14 @@
+import type { NetlifyPluginOptions , NetlifyPluginUtils } from '@netlify/build'
 import Chance from 'chance'
+import { outdent } from 'outdent'
+
 import {
   checkNextSiteHasBuilt,
   checkZipSize,
   getProblematicUserRewrites,
 } from '../../packages/runtime/src/helpers/verification'
-import { outdent } from 'outdent'
-import type { NetlifyPluginOptions } from '@netlify/build'
 import { describeCwdTmpDir, moveNextDist } from '../test-utils'
+
 
 const netlifyConfig = {
   build: { command: 'npm run build' },
@@ -15,17 +17,14 @@ const netlifyConfig = {
   headers: [],
 } as NetlifyPluginOptions['netlifyConfig']
 
-import type { NetlifyPluginUtils } from '@netlify/build'
 type FailBuild = NetlifyPluginUtils['build']['failBuild']
 
 const chance = new Chance()
 
-jest.mock('fs', () => {
-  return {
+jest.mock('fs', () => ({
     ...jest.requireActual('fs'),
     existsSync: jest.fn(),
-  }
-})
+  }))
 
 describe('checkNextSiteHasBuilt', () => {
   let failBuildMock
@@ -44,8 +43,8 @@ describe('checkNextSiteHasBuilt', () => {
     existsSync.mockReturnValue(true)
 
     const expectedFailureMessage = outdent`
-    Detected that "next export" was run, but site is incorrectly publishing the ".next" directory.
-    The publish directory should be set to "out", and you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
+      Detected that "next export" was run, but site is incorrectly publishing the ".next" directory.
+      The publish directory should be set to "out", and you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
     `
 
     checkNextSiteHasBuilt({ publish: '.next', failBuild: failBuildMock })
@@ -59,11 +58,11 @@ describe('checkNextSiteHasBuilt', () => {
     existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true)
 
     const expectedFailureMessage = outdent`
-    The directory "someCustomDir" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
-    However, a '.next' directory was found with a production build.
-    Consider changing your 'publish' directory to '.next'
-    If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
-  `
+      The directory "someCustomDir" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
+      However, a '.next' directory was found with a production build.
+      Consider changing your 'publish' directory to '.next'
+      If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
+    `
 
     checkNextSiteHasBuilt({ publish: 'someCustomDir', failBuild: failBuildMock })
 
@@ -74,10 +73,10 @@ describe('checkNextSiteHasBuilt', () => {
     existsSync.mockReturnValue(false)
 
     const expectedFailureMessage = outdent`
-    The directory "out" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
-    Your publish directory is set to "out", but in most cases it should be ".next".
-    If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
-  `
+      The directory "out" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
+      Your publish directory is set to "out", but in most cases it should be ".next".
+      If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
+    `
     checkNextSiteHasBuilt({ publish: 'out', failBuild: failBuildMock })
 
     expect(failBuildMock).toHaveBeenCalledWith(expectedFailureMessage)
@@ -86,10 +85,10 @@ describe('checkNextSiteHasBuilt', () => {
   it('returns default error message when production build was not found', () => {
     existsSync.mockReturnValue(false)
     const expectedFailureMessage = outdent`
-    The directory ".next" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
-    In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config.
-    If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
-  `
+      The directory ".next" does not contain a Next.js production build. Perhaps the build command was not run, or you specified the wrong publish directory.
+      In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config.
+      If you are using "next export" then you should set the environment variable NETLIFY_NEXT_PLUGIN_SKIP to "true".
+    `
     checkNextSiteHasBuilt({ publish: '.next', failBuild: failBuildMock })
 
     expect(failBuildMock).toHaveBeenCalledWith(expectedFailureMessage)

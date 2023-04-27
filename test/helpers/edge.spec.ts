@@ -1,5 +1,6 @@
-import { generateRscDataEdgeManifest } from '../../packages/runtime/src/helpers/edge'
 import type { PrerenderManifest } from 'next/dist/build'
+
+import { generateRscDataEdgeManifest } from '../../packages/runtime/src/helpers/edge'
 
 jest.mock('../../packages/runtime/src/helpers/functionsMetaData', () => {
   const { NEXT_PLUGIN_NAME } = require('../../packages/runtime/src/constants')

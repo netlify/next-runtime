@@ -1,5 +1,6 @@
-import { makeLocaleOptional, stripLookahead } from '../../packages/runtime/src/helpers/matchers'
 import { getEdgeFunctionPatternForPage } from '../../packages/runtime/src/helpers/edge'
+import { makeLocaleOptional, stripLookahead } from '../../packages/runtime/src/helpers/matchers'
+
 const makeDataPath = (path: string) => `/_next/data/build-id${path === '/' ? '/index' : path}.json`
 
 function checkPath(path: string, regex: string) {
