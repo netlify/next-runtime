@@ -282,7 +282,11 @@ const getBundleWeight = async (patterns: string[]) => {
 
 const MB = 1024 * 1024
 
-export const getAPILambdas = async (publish: string, baseDir: string): Promise<APILambda[]> => {
+export const getAPILambdas = async (
+  publish: string,
+  baseDir: string,
+  pageExtensions: string[],
+): Promise<APILambda[]> => {
   console.time('traceCommonDependencies')
   const commonDependencies = await getAPIPRouteCommonDependencies(publish, baseDir)
   console.timeEnd('traceCommonDependencies')
@@ -291,7 +295,7 @@ export const getAPILambdas = async (publish: string, baseDir: string): Promise<A
   const threshold = 50 * MB - (await getBundleWeight(commonDependencies))
   console.timeEnd('weighCommonDependencies')
 
-  const apiRoutes = await getApiRouteConfigs(publish, baseDir)
+  const apiRoutes = await getApiRouteConfigs(publish, baseDir, pageExtensions)
 
   const packFunctions = async (routes: ApiRouteConfig[], type?: ApiRouteType): Promise<APILambda[]> => {
     const weighedRoutes = await Promise.all(
@@ -334,7 +338,11 @@ export const getAPILambdas = async (publish: string, baseDir: string): Promise<A
 /**
  * Look for API routes, and extract the config from the source file.
  */
-export const getApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
+export const getApiRouteConfigs = async (
+  publish: string,
+  baseDir: string,
+  pageExtensions: string[],
+): Promise<Array<ApiRouteConfig>> => {
   const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
   const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
   // two possible places
@@ -344,7 +352,7 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
 
   return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
-      const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir])
+      const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir], pageExtensions)
       const config = await extractConfigFromFile(filePath)
 
       const functionName = getFunctionNameForPage(apiRoute, config.type === ApiRouteType.BACKGROUND)
