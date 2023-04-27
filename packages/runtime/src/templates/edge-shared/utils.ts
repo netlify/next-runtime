@@ -267,7 +267,7 @@ export const buildResponse = async ({
     }
     res.headers.set('x-middleware-rewrite', relativeUrl)
 
-    return addMiddlewareHeaders(context.rewrite(rewrite), res)
+    return addMiddlewareHeaders(new URL(rewrite, request.url), res)
   }
 
   const redirect = res.headers.get('Location')
