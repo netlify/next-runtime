@@ -27,8 +27,14 @@ export const stripLookahead = (regex: string) => {
 // The Go regexp lib has alternative syntax for named capture groups
 export const transformCaptureGroups = (regex: string) => regex.replace(/\(\?<\w+>/, '(')
 
-const LOCALIZED_REGEX_PREFIX = '(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))'
-const OPTIONAL_REGEX_PREFIX = '(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))?'
+const LOCALIZED_REGEX_PREFIX_13_1 = '(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))'
+const OPTIONAL_REGEX_PREFIX_13_1 = '(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/([^/.]{1,}))?'
+
+const LOCALIZED_REGEX_PREFIX_13_3 = '(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!_next\\/)[^/.]{1,}))'
+const OPTIONAL_REGEX_PREFIX_13_3 = '(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!_next\\/)[^/.]{1,}))?'
 
 // Make the locale section of the matcher regex optional
-export const makeLocaleOptional = (regex: string) => regex.replace(LOCALIZED_REGEX_PREFIX, OPTIONAL_REGEX_PREFIX)
+export const makeLocaleOptional = (regex: string) =>
+  regex
+    .replace(LOCALIZED_REGEX_PREFIX_13_1, OPTIONAL_REGEX_PREFIX_13_1)
+    .replace(LOCALIZED_REGEX_PREFIX_13_3, OPTIONAL_REGEX_PREFIX_13_3)
