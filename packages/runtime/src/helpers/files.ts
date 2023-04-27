@@ -18,7 +18,6 @@ import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
 
 const TEST_ROUTE = /(|\/)\[[^/]+?](\/|\.html|$)/
-const SOURCE_FILE_EXTENSIONS = ['js', 'jsx', 'ts', 'tsx']
 
 export const isDynamicRoute = (route) => TEST_ROUTE.test(route)
 
@@ -340,6 +339,10 @@ const getServerFile = (root: string, includeBase = true) => {
 
   return findModuleFromBase({ candidates, paths: [root] })
 }
+
+// Next.js already defines a default `pageExtensions` array in its `required-server-files.json` file
+// In case it gets `undefined`, this is a fallback
+const SOURCE_FILE_EXTENSIONS = ['js', 'jsx', 'ts', 'tsx']
 
 /**
  * Find the source file for a given page route
