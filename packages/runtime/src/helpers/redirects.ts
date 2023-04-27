@@ -238,7 +238,11 @@ const generateDynamicRewrites = ({
             withData: true,
           }),
         )
-      } else if (prerenderedDynamicRoutes[route.page].fallback === false && !is404Isr && !process.env.LEGACY_FALLBACK_FALSE) {
+      } else if (
+        prerenderedDynamicRoutes[route.page].fallback === false &&
+        !is404Isr &&
+        !process.env.LEGACY_FALLBACK_FALSE
+      ) {
         dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
       } else {
         dynamicRewrites.push(
