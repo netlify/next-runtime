@@ -396,7 +396,7 @@ describe('app dir - rsc basics', () => {
 
       const requiredServerFiles = (await fs.readJSON(path.join(distDir, 'required-server-files.json'))).files
 
-      const files = ['middleware-build-manifest.js', 'middleware-manifest.json', 'flight-manifest.json']
+      const files = ['middleware-build-manifest.js', 'middleware-manifest.json', 'client-reference-manifest.json']
 
       files.forEach((file) => {
         const filepath = path.join(distServerDir, file)
