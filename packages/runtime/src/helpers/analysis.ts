@@ -94,14 +94,14 @@ export const extractConfigFromFile = async (apiFilePath: string, appDir: string)
       extractConstValue = require(findModuleFromBase({
         paths: [appDir],
         candidates: ['next/dist/build/analysis/extract-const-value'],
-      }))
+      }) ?? 'next/dist/build/analysis/extract-const-value')
     }
     if (!parseModule) {
       // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-var-requires, import/no-dynamic-require
       parseModule = require(findModuleFromBase({
         paths: [appDir],
         candidates: ['next/dist/build/analysis/parse-module'],
-      })).parseModule
+      }) ?? 'next/dist/build/analysis/parse-module').parseModule
     }
   } catch (error) {
     if (error.code === 'MODULE_NOT_FOUND') {
