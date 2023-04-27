@@ -25,7 +25,7 @@ describe('appDir', () => {
       },
       followRedirect: false,
     }).then((response) => {
-      expect(response.headers).to.have.property('content-type', 'application/octet-stream')
+      expect(response.headers).to.have.property('content-type', 'text/x-component')
     })
   })
 
@@ -58,7 +58,7 @@ describe('appDir', () => {
       },
       followRedirect: false,
     }).then((response) => {
-      expect(response.headers).to.have.property('content-type', 'application/octet-stream')
+      expect(response.headers).to.have.property('content-type', 'text/x-component')
     })
   })
 
@@ -70,7 +70,7 @@ describe('appDir', () => {
       },
       followRedirect: false,
     }).then((response) => {
-      expect(response.headers).to.have.property('content-type', 'application/octet-stream')
+      expect(response.headers).to.have.property('content-type', 'text/x-component')
     })
   })
 

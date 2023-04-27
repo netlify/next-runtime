@@ -6,6 +6,7 @@ import {
   patchNextFiles,
   unpatchNextFiles,
   getDependenciesOfFile,
+  getSourceFileForPage,
 } from "../../packages/runtime/src/helpers/files"
 import {
   readFileSync,
@@ -18,6 +19,8 @@ import { resolve } from 'pathe'
 import { join } from "pathe"
 import { Rewrites } from "../../packages/runtime/src/helpers/types"
 import { describeCwdTmpDir, moveNextDist } from "../test-utils"
+
+const TEST_DIR = resolve(__dirname, '..')
 
 const REDIRECTS: Rewrites = [
   {
@@ -215,7 +218,27 @@ describe('dependency tracing', () => {
   it('generates dependency list from a source file', async () => {
     const dependencies = await getDependenciesOfFile(resolve(__dirname, '../fixtures/analysis/background.js'))
     expect(dependencies).toEqual(
-      ['test/webpack-api-runtime.js', 'package.json'].map((dep) => resolve(dirname(resolve(__dirname, '..')), dep)),
+      ['test/webpack-api-runtime.js', 'package.json'].map((dep) => resolve(dirname(TEST_DIR), dep)),
     )
+  })
+})
+
+describe('getSourceFileForPage', () => {
+  it('handles default pageExtensions', () => {
+    const pagesDir = resolve(__dirname, '../fixtures/page-extensions/default/pages')
+    const apiRoute = '/api/default'
+
+    const filePath = getSourceFileForPage(apiRoute, [pagesDir])
+
+    expect(filePath.replace(TEST_DIR, '')).toBe('/fixtures/page-extensions/default/pages/api/default.js')
+  })
+
+  it('handles custom pageExtensions', () => {
+    const pagesDir = resolve(__dirname, '../fixtures/page-extensions/custom/pages')
+    const apiRoute = '/api/custom'
+
+    const filePath = getSourceFileForPage(apiRoute, [pagesDir], ['api.js'])
+
+    expect(filePath.replace(TEST_DIR, '')).toBe('/fixtures/page-extensions/custom/pages/api/custom.api.js')
   })
 })
