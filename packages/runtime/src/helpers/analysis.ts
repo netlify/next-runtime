@@ -88,7 +88,6 @@ export const extractConfigFromFile = async (apiFilePath: string, appDir: string)
     return {}
   }
 
-  console.log(`updated extract`)
   try {
     if (!extractConstValue) {
       // eslint-disable-next-line import/no-dynamic-require
