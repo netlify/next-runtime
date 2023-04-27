@@ -344,9 +344,9 @@ const getServerFile = (root: string, includeBase = true) => {
 /**
  * Find the source file for a given page route
  */
-export const getSourceFileForPage = (page: string, roots: string[]) => {
+export const getSourceFileForPage = (page: string, roots: string[], pageExtensions = SOURCE_FILE_EXTENSIONS) => {
   for (const root of roots) {
-    for (const extension of SOURCE_FILE_EXTENSIONS) {
+    for (const extension of pageExtensions) {
       const file = join(root, `${page}.${extension}`)
       if (existsSync(file)) {
         return file
