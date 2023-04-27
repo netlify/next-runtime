@@ -1,10 +1,19 @@
 import Chance from 'chance'
-import { checkNextSiteHasBuilt, checkZipSize, getProblematicUserRewrites } from '../../packages/runtime/src/helpers/verification'
+import {
+  checkNextSiteHasBuilt,
+  checkZipSize,
+  getProblematicUserRewrites,
+} from '../../packages/runtime/src/helpers/verification'
 import { outdent } from 'outdent'
 import type { NetlifyPluginOptions } from '@netlify/build'
-import { describeCwdTmpDir, moveNextDist } from "../test-utils"
+import { describeCwdTmpDir, moveNextDist } from '../test-utils'
 
-const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] } as NetlifyPluginOptions["netlifyConfig"]
+const netlifyConfig = {
+  build: { command: 'npm run build' },
+  functions: {},
+  redirects: [],
+  headers: [],
+} as NetlifyPluginOptions['netlifyConfig']
 
 import type { NetlifyPluginUtils } from '@netlify/build'
 type FailBuild = NetlifyPluginUtils['build']['failBuild']
@@ -101,11 +110,13 @@ describe('checkZipSize', () => {
   it('emits a warning that DISABLE_BUNDLE_ZIP_SIZE_CHECK was enabled', async () => {
     process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'true'
     await checkZipSize(chance.string())
-    expect(consoleSpy).toHaveBeenCalledWith('Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.')
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.',
+    )
   })
 })
 
-describeCwdTmpDir("getProblematicUserRewrites", () => {
+describeCwdTmpDir('getProblematicUserRewrites', () => {
   it('finds problematic user rewrites', async () => {
     await moveNextDist()
     const rewrites = getProblematicUserRewrites({

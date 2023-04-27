@@ -5,15 +5,10 @@ import {
   localizeDataRoute,
   downloadFile,
 } from '../../packages/runtime/src/templates/handlerUtils'
-import { join } from "pathe"
-import os from "os"
-import path from "path"
-import {
-  unlink,
-  existsSync,
-  readFileSync,
-  ensureDir,
-} from "fs-extra"
+import { join } from 'pathe'
+import os from 'os'
+import path from 'path'
+import { unlink, existsSync, readFileSync, ensureDir } from 'fs-extra'
 
 describe('normalizeRoute', () => {
   it('removes a trailing slash from a route', () => {

@@ -7,18 +7,14 @@ import {
   unpatchNextFiles,
   getDependenciesOfFile,
   getSourceFileForPage,
-} from "../../packages/runtime/src/helpers/files"
-import {
-  readFileSync,
-  copy,
-  ensureDir,
-} from "fs-extra"
-import path from "path"
-import { dirname } from "path"
+} from '../../packages/runtime/src/helpers/files'
+import { readFileSync, copy, ensureDir } from 'fs-extra'
+import path from 'path'
+import { dirname } from 'path'
 import { resolve } from 'pathe'
-import { join } from "pathe"
-import { Rewrites } from "../../packages/runtime/src/helpers/types"
-import { describeCwdTmpDir, moveNextDist } from "../test-utils"
+import { join } from 'pathe'
+import { Rewrites } from '../../packages/runtime/src/helpers/types'
+import { describeCwdTmpDir, moveNextDist } from '../test-utils'
 
 const TEST_DIR = resolve(__dirname, '..')
 

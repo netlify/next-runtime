@@ -68,9 +68,10 @@ module.exports = {
         'max-nested-callbacks': 0,
         '@typescript-eslint/no-empty-function': 0,
         'max-lines-per-function': 0,
+        'unicorn/no-empty-file': 0,
         // esling-plugin-jest specific rules
         'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
-      }
-    }
+      },
+    },
   ],
 }

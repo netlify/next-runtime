@@ -82,5 +82,4 @@
       "build:ci:frontend": "npm ci && npm run build && yarn workspace frontend build"
     }
   }
-
 ]

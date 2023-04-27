@@ -1,14 +1,8 @@
-import path from "path"
-import { dirname } from "path"
-import cpy from "cpy"
-import {
-  writeJSON,
-  existsSync,
-  ensureDir,
-  readJson,
-  copy,
-} from "fs-extra"
-import { dir as getTmpDir } from "tmp-promise"
+import path from 'path'
+import { dirname } from 'path'
+import cpy from 'cpy'
+import { writeJSON, existsSync, ensureDir, readJson, copy } from 'fs-extra'
+import { dir as getTmpDir } from 'tmp-promise'
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`

@@ -1,10 +1,12 @@
-import {
-  generateCustomHeaders,
-  NextConfig
-} from "../../packages/runtime/src/helpers/config"
+import { generateCustomHeaders, NextConfig } from '../../packages/runtime/src/helpers/config'
 import type { NetlifyPluginOptions } from '@netlify/build'
 
-const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] } as NetlifyPluginOptions["netlifyConfig"]
+const netlifyConfig = {
+  build: { command: 'npm run build' },
+  functions: {},
+  redirects: [],
+  headers: [],
+} as NetlifyPluginOptions['netlifyConfig']
 
 describe('generateCustomHeaders', () => {
   // The routesManifest is the contents of the routes-manifest.json file which will already contain the generated
