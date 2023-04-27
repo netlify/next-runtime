@@ -65,6 +65,7 @@ const plugin: NetlifyPlugin = {
     netlifyConfig.build.environment.NEXT_PRIVATE_TARGET = 'server'
   },
 
+  // eslint-disable-next-line max-lines-per-function
   async onBuild({
     constants,
     netlifyConfig,
