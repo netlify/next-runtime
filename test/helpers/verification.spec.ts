@@ -27,6 +27,12 @@ jest.mock('fs', () => ({
   existsSync: jest.fn(),
 }))
 
+// disable chalk colors to easier validate console text output
+jest.mock(`chalk`, () => {
+  process.env.FORCE_COLOR = '0'
+  return jest.requireActual('chalk')
+})
+
 describe('checkNextSiteHasBuilt', () => {
   let failBuildMock
 
@@ -96,21 +102,59 @@ describe('checkNextSiteHasBuilt', () => {
 })
 
 describe('checkZipSize', () => {
-  let consoleSpy
+  let consoleWarnSpy, consoleLogSpy
+  const { existsSync, promises } = require('fs')
 
   beforeEach(() => {
-    consoleSpy = jest.spyOn(global.console, 'warn')
+    consoleWarnSpy = jest.spyOn(global.console, 'warn')
+    consoleWarnSpy.mockClear()
+    consoleLogSpy = jest.spyOn(global.console, 'log')
+    consoleLogSpy.mockClear()
+    process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'false'
   })
 
   afterEach(() => {
     delete process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK
   })
 
+  afterAll(() => {
+    consoleWarnSpy.mockReset()
+    consoleLogSpy.mockReset()
+    existsSync.mockReset()
+  })
+
   it('emits a warning that DISABLE_BUNDLE_ZIP_SIZE_CHECK was enabled', async () => {
     process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'true'
     await checkZipSize(chance.string())
-    expect(consoleSpy).toHaveBeenCalledWith(
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
       'Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.',
+    )
+  })
+
+  it('does not emit a warning if the file size is below the warning size', async () => {
+    existsSync.mockReturnValue(true)
+    jest.spyOn(promises, 'stat').mockResolvedValue({ size: 1024 * 1024 * 20 })
+
+    await checkZipSize('some-file.zip')
+
+    expect(consoleWarnSpy).not.toHaveBeenCalled()
+  })
+
+  it('emits a warning if the file size is above the warning size', async () => {
+    existsSync.mockReturnValue(true)
+    jest.spyOn(promises, 'stat').mockResolvedValue({ size: 1024 * 1024 * 200 })
+
+    try {
+      await checkZipSize('some-file.zip')
+    } catch {
+      // StreamZip is not mocked, so ultimately the call will throw an error,
+      // but we are logging message before that so we can assert it
+    }
+
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'The function zip some-file.zip size is 210 MB, which is larger than the recommended maximum size of 52.4 MB.',
+      ),
     )
   })
 })
