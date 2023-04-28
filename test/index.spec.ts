@@ -1,4 +1,3 @@
-
 import os from 'os'
 import path, { resolve } from 'path'
 import process from 'process'
@@ -6,7 +5,7 @@ import process from 'process'
 import type { NetlifyPluginOptions } from '@netlify/build'
 import Chance from 'chance'
 import { writeJSON, unlink, existsSync, readFileSync, ensureDir, readJson, pathExists, writeFile, move } from 'fs-extra'
-import { join , relative } from 'pathe'
+import { join, relative } from 'pathe'
 import { dir as getTmpDir } from 'tmp-promise'
 
 // @ts-expect-error - TODO: Convert runtime export to ES6
@@ -20,9 +19,9 @@ import { getAllPageDependencies } from '../packages/runtime/src/templates/getPag
 import { changeCwd, useFixture, moveNextDist } from './test-utils'
 
 jest.mock('../packages/runtime/src/helpers/utils', () => ({
-    ...jest.requireActual('../packages/runtime/src/helpers/utils'),
-    isNextAuthInstalled: jest.fn(),
-  }))
+  ...jest.requireActual('../packages/runtime/src/helpers/utils'),
+  isNextAuthInstalled: jest.fn(),
+}))
 
 jest.mock('../packages/runtime/src/helpers/functionsMetaData', () => {
   const { NEXT_PLUGIN_NAME } = require('../packages/runtime/src/constants')
@@ -322,7 +321,9 @@ describe('onBuild()', () => {
     const failBuild = jest.fn().mockImplementation((err) => {
       throw new Error(err)
     })
-    await expect(() => nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
+    await expect(() =>
+      nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } }),
+    ).rejects.toThrow(
       `In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config.`,
     )
     expect(failBuild).toHaveBeenCalled()
@@ -336,9 +337,9 @@ describe('onBuild()', () => {
     })
     netlifyConfig.build.publish = path.resolve('out')
 
-    await expect(() => nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
-      `Your publish directory is set to "out", but in most cases it should be ".next".`,
-    )
+    await expect(() =>
+      nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } }),
+    ).rejects.toThrow(`Your publish directory is set to "out", but in most cases it should be ".next".`)
     expect(failBuild).toHaveBeenCalled()
   })
 

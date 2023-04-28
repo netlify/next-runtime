@@ -4,9 +4,9 @@ import { NEXT_PLUGIN_NAME } from '../../packages/runtime/src/constants'
 import { generateRscDataEdgeManifest } from '../../packages/runtime/src/helpers/edge'
 
 jest.mock('../../packages/runtime/src/helpers/functionsMetaData', () => ({
-    ...jest.requireActual('../../packages/runtime/src/helpers/functionsMetaData'),
-    getPluginVersion: async () => `${NEXT_PLUGIN_NAME}@1.0.0`,
-  }))
+  ...jest.requireActual('../../packages/runtime/src/helpers/functionsMetaData'),
+  getPluginVersion: async () => `${NEXT_PLUGIN_NAME}@1.0.0`,
+}))
 
 const basePrerenderManifest: PrerenderManifest = {
   version: 4,

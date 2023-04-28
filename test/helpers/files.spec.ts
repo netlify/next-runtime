@@ -1,7 +1,7 @@
 import path, { dirname } from 'path'
 
 import { readFileSync, copy, ensureDir } from 'fs-extra'
-import { resolve , join } from 'pathe'
+import { resolve, join } from 'pathe'
 
 import {
   matchMiddleware,

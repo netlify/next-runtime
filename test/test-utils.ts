@@ -26,7 +26,7 @@ const rewriteAppDir = async function (dir = '.next') {
 
 // Move .next from sample project to current directory
 export const moveNextDist = async function (dir = '.next', copyMods = false) {
-  await (copyMods ? copyModules(['next', 'sharp']) : stubModules(['next', 'sharp']));
+  await (copyMods ? copyModules(['next', 'sharp']) : stubModules(['next', 'sharp']))
   await ensureDir(dirname(dir))
   await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
 

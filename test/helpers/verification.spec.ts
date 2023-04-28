@@ -1,4 +1,4 @@
-import type { NetlifyPluginOptions , NetlifyPluginUtils } from '@netlify/build'
+import type { NetlifyPluginOptions, NetlifyPluginUtils } from '@netlify/build'
 import Chance from 'chance'
 import { outdent } from 'outdent'
 
@@ -8,7 +8,6 @@ import {
   getProblematicUserRewrites,
 } from '../../packages/runtime/src/helpers/verification'
 import { describeCwdTmpDir, moveNextDist } from '../test-utils'
-
 
 const netlifyConfig = {
   build: { command: 'npm run build' },
@@ -24,9 +23,9 @@ const chance = new Chance()
 const { existsSync } = require('fs')
 
 jest.mock('fs', () => ({
-    ...jest.requireActual('fs'),
-    existsSync: jest.fn(),
-  }))
+  ...jest.requireActual('fs'),
+  existsSync: jest.fn(),
+}))
 
 describe('checkNextSiteHasBuilt', () => {
   let failBuildMock
