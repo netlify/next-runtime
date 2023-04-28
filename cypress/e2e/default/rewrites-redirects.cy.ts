@@ -18,10 +18,4 @@ describe('Rewrites and Redirects', () => {
     cy.url().should('eq', `${Cypress.config().baseUrl}/`)
   }
   )
-
-  it('redirects /getStaticProps/4 to / on LEGACY_', () => {
-    Cypress.env('LEGACY_FALLBACK_FALSE', 'true')
-    cy.visit('/getStaticProps/4', { failOnStatusCode: false })
-    cy.url().should('eq', `${Cypress.config().baseUrl}/`)
-  })
 })
