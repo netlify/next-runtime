@@ -54,6 +54,16 @@ describe('Dynamic Routing', () => {
       },
     )
   })
+  it('fallback:false and LEGACY_FALLBACK_FALSE=true does not return static 404', () => {
+    Cypress.env('LEGACY_FALLBACK_FALSE', 'true')
+    cy.request({ url: '/getStaticProps/3/', headers: { 'x-nf-debug-logging': '1' }, failOnStatusCode: false }).then(
+      (res) => {
+        expect(res.status).to.eq(404)
+        expect(res.headers).to.have.property('x-nf-render-mode')
+        expect(res.body).to.contain('Custom 404')
+      },
+    )
+  })
   it('serves correct static file on a prerendered dynamic route with fallback: true', () => {
     cy.request({ url: '/getStaticProps/withFallback/1/', headers: { 'x-nf-debug-logging': '1' } }).then((res) => {
       expect(res.status).to.eq(200)
