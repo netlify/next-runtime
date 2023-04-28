@@ -194,7 +194,7 @@ const generateStaticIsrRewrites = ({
 /**
  * Generate rewrites for all dynamic routes
  */
-const generateDynamicRewrites = ({
+export const generateDynamicRewrites = ({
   dynamicRoutes,
   prerenderedDynamicRoutes,
   middleware,
