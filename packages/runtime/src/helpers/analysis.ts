@@ -88,31 +88,32 @@ export const extractConfigFromFile = async (apiFilePath: string, appDir: string)
     return {}
   }
 
-  try {
-    if (!extractConstValue) {
-      // eslint-disable-next-line import/no-dynamic-require
-      extractConstValue = require(findModuleFromBase({
-        paths: [appDir],
-        candidates: ['next/dist/build/analysis/extract-const-value'],
-      }) ?? 'next/dist/build/analysis/extract-const-value')
+  const extractConstValueModulePath = findModuleFromBase({
+    paths: [appDir],
+    candidates: ['next/dist/build/analysis/extract-const-value'],
+  })
+
+  const parseModulePath = findModuleFromBase({
+    paths: [appDir],
+    candidates: ['next/dist/build/analysis/parse-module'],
+  })
+
+  if (!extractConstValueModulePath || !parseModulePath) {
+    if (!hasWarnedAboutNextVersion) {
+      console.log("This version of Next.js doesn't support advanced API routes. Skipping...")
+      hasWarnedAboutNextVersion = true
     }
-    if (!parseModule) {
-      // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-var-requires, import/no-dynamic-require
-      parseModule = require(findModuleFromBase({
-        paths: [appDir],
-        candidates: ['next/dist/build/analysis/parse-module'],
-      }) ?? 'next/dist/build/analysis/parse-module').parseModule
-    }
-  } catch (error) {
-    if (error.code === 'MODULE_NOT_FOUND') {
-      if (!hasWarnedAboutNextVersion) {
-        console.log("This version of Next.js doesn't support advanced API routes. Skipping...")
-        hasWarnedAboutNextVersion = true
-      }
-      // Old Next.js version
-      return {}
-    }
-    throw error
+    // Old Next.js version
+    return {}
+  }
+
+  if (!extractConstValue && extractConstValueModulePath) {
+    // eslint-disable-next-line import/no-dynamic-require
+    extractConstValue = require(extractConstValueModulePath)
+  }
+  if (!parseModule && parseModulePath) {
+    // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-var-requires, import/no-dynamic-require
+    parseModule = require(parseModulePath).parseModule
   }
 
   const { extractExportedConstValue, UnsupportedValueError } = extractConstValue
