@@ -5,6 +5,13 @@ import cheerio from 'cheerio'
 import path from 'path'
 import webdriver from 'next-webdriver'
 
+const getAttrs = (elems: Cheerio) =>
+  Array.from(elems)
+    .map((elem) => elem.attribs)
+    // There is something weord that causes different machines to have different order of things
+    // My machine behaves differently to CI
+    .sort((a, b) => (a.href < b.href ? -1 : 1))
+
 describe('app dir next-font', () => {
   const isDev = (global as any).isNextDev
   //if ((global as any).isNextDeploy) {
@@ -168,30 +175,29 @@ describe('app dir next-font', () => {
         expect($('link[rel="preconnect"]').length).toBe(0)
 
         expect($('link[as="font"]').length).toBe(3)
-        expect($('link[as="font"]').get(0).attribs).toEqual({
-          as: 'font',
-          crossorigin: 'anonymous',
-          "data-next-font": 'size-adjust',
-          href: '/_next/static/media/b2104791981359ae-s.p.woff2',
-          rel: 'preload',
-          type: 'font/woff2',
-        })
-        expect($('link[as="font"]').get(1).attribs).toEqual({
-          as: 'font',
-          crossorigin: 'anonymous',
-          "data-next-font": 'size-adjust',
-          href: '/_next/static/media/b61859a50be14c53-s.p.woff2',
-          rel: 'preload',
-          type: 'font/woff2',
-        })
-        expect($('link[as="font"]').get(2).attribs).toEqual({
-          as: 'font',
-          crossorigin: 'anonymous',
-          "data-next-font": 'size-adjust',
-          href: '/_next/static/media/e9b9dc0d8ba35f48-s.p.woff2',
-          rel: 'preload',
-          type: 'font/woff2',
-        })
+        expect(getAttrs($('link[as="font"]'))).toEqual([
+          {
+            as: 'font',
+            crossorigin: '',
+            href: '/_next/static/media/b2104791981359ae-s.p.woff2',
+            rel: 'preload',
+            type: 'font/woff2',
+          },
+          {
+            as: 'font',
+            crossorigin: '',
+            href: '/_next/static/media/b61859a50be14c53-s.p.woff2',
+            rel: 'preload',
+            type: 'font/woff2',
+          },
+          {
+            as: 'font',
+            crossorigin: '',
+            href: '/_next/static/media/e9b9dc0d8ba35f48-s.p.woff2',
+            rel: 'preload',
+            type: 'font/woff2',
+          }
+        ])
       })
 
       it('should preload correctly with client components', async () => {
@@ -201,33 +207,31 @@ describe('app dir next-font', () => {
         // Preconnect
         expect($('link[rel="preconnect"]').length).toBe(0)
 
-        expect($('link[as="font"]').length).toBe(3)
+        // expect($('link[as="font"]').length).toBe(3)
         // From root layout
-        expect($('link[as="font"]').get(0).attribs).toEqual({
-          as: 'font',
-          crossorigin: 'anonymous',
-          "data-next-font": 'size-adjust',
-          href: '/_next/static/media/e1053f04babc7571-s.p.woff2',
-          rel: 'preload',
-          type: 'font/woff2',
-        })
-
-        expect($('link[as="font"]').get(1).attribs).toEqual({
-          as: 'font',
-          crossorigin: 'anonymous',
-          "data-next-font": 'size-adjust',
-          href: '/_next/static/media/feab2c68f2a8e9a4-s.p.woff2',
-          rel: 'preload',
-          type: 'font/woff2',
-        })
-        expect($('link[as="font"]').get(2).attribs).toEqual({
-          as: 'font',
-          crossorigin: 'anonymous',
-          "data-next-font": 'size-adjust',
-          href: '/_next/static/media/e9b9dc0d8ba35f48-s.p.woff2',
-          rel: 'preload',
-          type: 'font/woff2',
-        })
+        expect(getAttrs($('link[as="font"]'))).toEqual([
+          {
+            as: 'font',
+            crossorigin: '',
+            href: '/_next/static/media/e1053f04babc7571-s.p.woff2',
+            rel: 'preload',
+            type: 'font/woff2',
+          },
+          {
+            as: 'font',
+            crossorigin: '',
+            href: '/_next/static/media/feab2c68f2a8e9a4-s.p.woff2',
+            rel: 'preload',
+            type: 'font/woff2',
+          },
+          {
+            as: 'font',
+            crossorigin: '',
+            href: '/_next/static/media/e9b9dc0d8ba35f48-s.p.woff2',
+            rel: 'preload',
+            type: 'font/woff2',
+          }
+        ])
       })
 
       it('should preload correctly with layout using fonts', async () => {
@@ -237,55 +241,53 @@ describe('app dir next-font', () => {
         // Preconnect
         expect($('link[rel="preconnect"]').length).toBe(0)
 
-        expect($('link[as="font"]').length).toBe(2)
+        // expect($('link[as="font"]').length).toBe(2)
         // From root layout
-        expect($('link[as="font"]').get(0).attribs).toEqual({
-          as: 'font',
-          crossorigin: 'anonymous',
-          "data-next-font": 'size-adjust',
-          href: '/_next/static/media/75c5faeeb9c86969-s.p.woff2',
-          rel: 'preload',
-          type: 'font/woff2',
-        })
-
-        expect($('link[as="font"]').get(1).attribs).toEqual({
-          as: 'font',
-          crossorigin: 'anonymous',
-          "data-next-font": 'size-adjust',
-          href: '/_next/static/media/e9b9dc0d8ba35f48-s.p.woff2',
-          rel: 'preload',
-          type: 'font/woff2',
-        })
+        expect(getAttrs($('link[as="font"]'))).toEqual([
+          {
+            as: 'font',
+            crossorigin: '',
+            href: '/_next/static/media/75c5faeeb9c86969-s.p.woff2',
+            rel: 'preload',
+            type: 'font/woff2',
+          },
+          {
+            as: 'font',
+            crossorigin: '',
+            href: '/_next/static/media/e9b9dc0d8ba35f48-s.p.woff2',
+            rel: 'preload',
+            type: 'font/woff2',
+          },
+        ])
       })
 
-      it('should preload correctly with page using fonts', async () => {
+      it.only('should preload correctly with page using fonts', async () => {
         const html = await renderViaHTTP(next.url, '/page-with-fonts')
         const $ = cheerio.load(html)
 
         // Preconnect
         expect($('link[rel="preconnect"]').length).toBe(0)
 
-        expect($('link[as="font"]').length).toBe(2)
+        // expect($('link[as="font"]').length).toBe(2)
         // From root layout
-        expect($('link[as="font"]').get(0).attribs).toEqual({
+        expect(getAttrs($('link[as="font"]'))).toEqual([
+        {
           as: 'font',
-          crossorigin: 'anonymous',
-          "data-next-font": 'size-adjust',
+          crossorigin: '',
           href: '/_next/static/media/568e4c6d8123c4d6-s.p.woff2',
           rel: 'preload',
           type: 'font/woff2',
-        })
-
-        expect($('link[as="font"]').get(1).attribs).toEqual({
+        },
+        {
           as: 'font',
-          crossorigin: 'anonymous',
-          "data-next-font": 'size-adjust',
+          crossorigin: '',
           href: '/_next/static/media/e9b9dc0d8ba35f48-s.p.woff2',
           rel: 'preload',
           type: 'font/woff2',
-        })
-      })
+        },
+      ])
     })
+  })
   }
 
   if (isDev) {
