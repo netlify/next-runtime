@@ -14,7 +14,7 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "next": "^13.3.0"
+    "next": "^13.3.4"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
