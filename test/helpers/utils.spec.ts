@@ -143,7 +143,7 @@ describe('redirectsForNext404Route', () => {
     ])
   })
 
-  it.only('returns static 404 redirects when LEGACY_FALLBACK_FALSE is not set', async () => {
+  it('returns static 404 redirects when LEGACY_FALLBACK_FALSE is not set', async () => {
     const prerenderManifest: PrerenderManifest = {
       ...basePrerenderManifest,
       dynamicRoutes: {
@@ -200,7 +200,7 @@ describe('redirectsForNext404Route', () => {
     expect(generateDynamicRewrites(route)).toStrictEqual(expected)
   })
 
-  it.only('does not return static 404 redirects when LEGACY_FALLBACK_FALSE is true', async () => {
+  it('does not return static 404 redirects when LEGACY_FALLBACK_FALSE is true', async () => {
     process.env.LEGACY_FALLBACK_FALSE = 'true'
 
     const prerenderManifest: PrerenderManifest = {
