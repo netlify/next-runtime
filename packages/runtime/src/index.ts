@@ -76,7 +76,7 @@ const plugin: NetlifyPlugin = {
     utils: {
       build: { failBuild },
     },
-    featureFlags,
+    featureFlags = {},
   }: NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }) {
     if (shouldSkip()) {
       return
