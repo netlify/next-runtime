@@ -48,6 +48,9 @@ module.exports = {
         'n/no-unsupported-features/es-syntax': 'off',
         '@typescript-eslint/no-extra-semi': 'off',
         'n/no-missing-import': 'off',
+        // https://github.com/typescript-eslint/typescript-eslint/issues/2483
+        'no-shadow': 'off',
+        '@typescript-eslint/no-shadow': 'error',
       },
     },
     {

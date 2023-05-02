@@ -52,8 +52,6 @@ export interface RoutesManifest {
   rewrites: Rewrites
 }
 
-// I have no idea what eslint is up to here but it gives an error
-// eslint-disable-next-line no-shadow
 export const enum ApiRouteType {
   SCHEDULED = 'experimental-scheduled',
   BACKGROUND = 'experimental-background',
