@@ -1,6 +1,6 @@
 import { join, relative } from 'path'
 
-import type { NetlifyPlugin } from '@netlify/build'
+import type { NetlifyPlugin, NetlifyPluginOptions } from '@netlify/build'
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
@@ -18,7 +18,7 @@ import {
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
-import { SPLIT_API_ROUTES } from './helpers/flags'
+import { splitApiRoutes } from './helpers/flags'
 import {
   generateFunctions,
   setupImageFunction,
@@ -76,7 +76,8 @@ const plugin: NetlifyPlugin = {
     utils: {
       build: { failBuild },
     },
-  }) {
+    featureFlags,
+  }: NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }) {
     if (shouldSkip()) {
       return
     }
@@ -165,7 +166,7 @@ const plugin: NetlifyPlugin = {
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
-    const apiLambdas: APILambda[] = SPLIT_API_ROUTES
+    const apiLambdas: APILambda[] = splitApiRoutes(featureFlags)
       ? await getAPILambdas(publish, appDir, pageExtensions)
       : await getExtendedApiRouteConfigs(publish, appDir, pageExtensions).then((extendedRoutes) =>
           extendedRoutes.map(packSingleFunction),
@@ -176,6 +177,7 @@ const plugin: NetlifyPlugin = {
       ignore,
       publish: relative(process.cwd(), publish),
       apiLambdas,
+      featureFlags,
     })
 
     await generateFunctions(constants, appDir, apiLambdas)

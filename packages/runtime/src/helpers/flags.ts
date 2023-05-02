@@ -1,5 +1,3 @@
-import destr from 'destr'
-
 /**
  * If this flag is enabled, we generate one function per API Route.
  * We'll also use the "none" bundling strategy where we fully rely on Next.js' `.nft.json` files.
@@ -10,4 +8,10 @@ import destr from 'destr'
  *
  * Enabled by default. Can be disabled by passing NEXT_SPLIT_API_ROUTES=false.
  */
-export const SPLIT_API_ROUTES = destr(process.env.NEXT_SPLIT_API_ROUTES ?? 'true')
+
+export const splitApiRoutes = (featureFlags: Record<string, unknown>): boolean => {
+  if (process.env.NEXT_SPLIT_API_ROUTES) {
+    return process.env.NEXT_SPLIT_API_ROUTES === 'true'
+  }
+  return Boolean(featureFlags.next_split_api_routes)
+}

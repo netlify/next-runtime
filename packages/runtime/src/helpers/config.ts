@@ -8,7 +8,7 @@ import slash from 'slash'
 
 import { HANDLER_FUNCTION_NAME, IMAGE_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
-import { SPLIT_API_ROUTES } from './flags'
+import { splitApiRoutes } from './flags'
 import type { APILambda } from './functions'
 import type { RoutesManifest } from './types'
 import { escapeStringRegexp } from './utils'
@@ -101,11 +101,13 @@ export const configureHandlerFunctions = async ({
   publish,
   ignore = [],
   apiLambdas,
+  featureFlags,
 }: {
   netlifyConfig: NetlifyConfig
   publish: string
   ignore: Array<string>
   apiLambdas: APILambda[]
+  featureFlags: Record<string, unknown>
 }) => {
   const config = await getRequiredServerFiles(publish)
   const files = config.files || []
@@ -165,7 +167,7 @@ export const configureHandlerFunctions = async ({
   configureFunction(HANDLER_FUNCTION_NAME)
   configureFunction(ODB_FUNCTION_NAME)
 
-  if (SPLIT_API_ROUTES) {
+  if (splitApiRoutes(featureFlags)) {
     for (const apiLambda of apiLambdas) {
       const { functionName, includedFiles } = apiLambda
       // TODO: add all the nextRoot/wasm/excludedModules stuff from above
