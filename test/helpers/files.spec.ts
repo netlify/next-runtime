@@ -195,6 +195,7 @@ describe('files utility functions', () => {
 
 describeCwdTmpDir('file patching', () => {
   it('patches Next server files', async () => {
+    // Testing to make sure that the patching functionality works within base-server.js and next-server.js files
     const root = path.resolve(dirname(resolve(__dirname, '..')))
     await copy(join(root, 'package.json'), path.join(process.cwd(), 'package.json'))
     await ensureDir(path.join(process.cwd(), 'node_modules'))
