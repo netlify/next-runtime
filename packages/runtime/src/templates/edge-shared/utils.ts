@@ -37,7 +37,7 @@ export function relativizeURL(url: string | string, base: string | URL) {
 }
 
 export const addMiddlewareHeaders = async (
-  originResponse: Promise<Response> | Response,
+  originResponse: Promise<Response> | Response | URL,
   middlewareResponse: Response,
 ) => {
   // If there are extra headers, we need to add them to the response.
