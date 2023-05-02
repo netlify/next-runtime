@@ -83,7 +83,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       for (const dynamicRoute in dynamicRoutes) {
         const { dataRoute, routeRegex } = dynamicRoutes[dynamicRoute]
         const matches = unlocalizedRoute.match(routeRegex)
-        if (matches && matches.length !== 0) {
+        if (matches?.length > 0) {
           // remove the first match, which is the full route
           matches.shift()
           // replace the dynamic segments with the actual values
