@@ -37,7 +37,7 @@ export function relativizeURL(url: string | string, base: string | URL) {
 }
 
 export const addMiddlewareHeaders = async (
-  originResponse: Promise<Response> | Response | URL,
+  originResponse: Promise<Response> | Response,
   middlewareResponse: Response,
 ) => {
   // If there are extra headers, we need to add them to the response.
@@ -267,7 +267,7 @@ export const buildResponse = async ({
     }
     res.headers.set('x-middleware-rewrite', relativeUrl)
 
-    return addMiddlewareHeaders(rewriteUrl, res)
+    return addMiddlewareHeaders(context.rewrite(rewrite), res)
   }
 
   const redirect = res.headers.get('Location')
