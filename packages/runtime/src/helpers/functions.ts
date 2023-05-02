@@ -1,5 +1,4 @@
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
-import { nodeFileTrace } from '@vercel/nft'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
@@ -226,14 +225,14 @@ const traceRequiredServerFiles = async (publish: string): Promise<string[]> => {
 const traceNextServer = async (publish: string, baseDir: string): Promise<string[]> => {
   const nextServerDeps = await getDependenciesOfFile(join(publish, 'next-server.js'))
 
-  // this takes quite a long while, but it's only done once per build.
-  // theoretically, it's only needed once per version of Next.js 🤷
-  const { fileList } = await nodeFileTrace(nextServerDeps, { base: '/' })
+  // during testing, i've seen `next-server` contain only one line.
+  // this is a sanity check to make sure we're getting all the deps.
+  if (nextServerDeps.length < 10) {
+    console.error(nextServerDeps)
+    throw new Error("next-server.js.nft.json didn't contain all dependencies.")
+  }
 
-  const filtered = [...fileList].filter((f) => {
-    // for some reason, NFT detects /bin/sh. let's not upload that to lambda.
-    if (f === 'bin/sh') return false
-
+  const filtered = nextServerDeps.filter((f) => {
     // NFT detects a bunch of large development files that we don't need.
     if (f.endsWith('.development.js')) return false
 
@@ -243,7 +242,7 @@ const traceNextServer = async (publish: string, baseDir: string): Promise<string
     return true
   })
 
-  return filtered.map((f) => `/${f}`).map((file) => relative(baseDir, file))
+  return filtered.map((file) => relative(baseDir, file))
 }
 
 export const getAPIPRouteCommonDependencies = async (publish: string, baseDir: string) => {
