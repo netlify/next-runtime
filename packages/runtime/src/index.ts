@@ -18,12 +18,16 @@ import {
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
+import { SPLIT_API_ROUTES } from './helpers/flags'
 import {
   generateFunctions,
   setupImageFunction,
   generatePagesResolver,
   warnOnApiRoutes,
   getAPILambdas,
+  packSingleFunction,
+  getExtendedApiRouteConfigs,
+  APILambda,
 } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
@@ -161,7 +165,11 @@ const plugin: NetlifyPlugin = {
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
-    const apiLambdas = await getAPILambdas(publish, appDir, pageExtensions)
+    const apiLambdas: APILambda[] = SPLIT_API_ROUTES
+      ? await getAPILambdas(publish, appDir, pageExtensions)
+      : await getExtendedApiRouteConfigs(publish, appDir, pageExtensions).then((extendedRoutes) =>
+          extendedRoutes.map(packSingleFunction),
+        )
 
     await configureHandlerFunctions({
       netlifyConfig,
