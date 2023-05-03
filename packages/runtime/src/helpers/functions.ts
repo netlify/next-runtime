@@ -374,7 +374,7 @@ export const getApiRouteConfigs = async (
 export const getExtendedApiRouteConfigs = async (
   publish: string,
   baseDir: string,
-  pageExtensions?: string[],
+  pageExtensions: string[],
 ): Promise<Array<ApiRouteConfig>> => {
   const settledApiRoutes = await getApiRouteConfigs(publish, baseDir, pageExtensions)
 
