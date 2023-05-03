@@ -1,5 +1,6 @@
 import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
+import destr from 'destr'
 import { readJSON } from 'fs-extra'
 import type { NextConfig } from 'next'
 import type { PrerenderManifest, SsgRoute } from 'next/dist/build'
@@ -241,7 +242,7 @@ export const generateDynamicRewrites = ({
       } else if (
         prerenderedDynamicRoutes[route.page].fallback === false &&
         !is404Isr &&
-        !process.env.LEGACY_FALLBACK_FALSE
+        !destr(process.env.LEGACY_FALLBACK_FALSE)
       ) {
         dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
       } else {
