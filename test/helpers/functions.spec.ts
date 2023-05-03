@@ -9,7 +9,7 @@ describeCwdTmpDir('api route file analysis', () => {
     expect(new Set(configs.map(({ includedFiles, ...rest }) => rest))).toEqual(
       new Set([
         {
-          functionName: "_api_og-handler",
+          functionName: '_api_og-handler',
           compiled: 'pages/api/og.js',
           config: {
             runtime: 'edge',
@@ -17,49 +17,49 @@ describeCwdTmpDir('api route file analysis', () => {
           route: '/api/og',
         },
         {
-          functionName: "_api_enterPreview-handler",
+          functionName: '_api_enterPreview-handler',
           compiled: 'pages/api/enterPreview.js',
           config: {},
           route: '/api/enterPreview',
         },
         {
-          functionName: "_api_exitPreview-handler",
+          functionName: '_api_exitPreview-handler',
           compiled: 'pages/api/exitPreview.js',
           config: {},
           route: '/api/exitPreview',
         },
         {
-          functionName: "_api_hello-handler",
+          functionName: '_api_hello-handler',
           compiled: 'pages/api/hello.js',
           config: {},
           route: '/api/hello',
         },
         {
-          functionName: "_api_shows_params-SPLAT-handler",
+          functionName: '_api_shows_params-SPLAT-handler',
           compiled: 'pages/api/shows/[...params].js',
           config: {},
           route: '/api/shows/[...params]',
         },
         {
-          functionName: "_api_shows_id-PARAM-handler",
+          functionName: '_api_shows_id-PARAM-handler',
           compiled: 'pages/api/shows/[id].js',
           config: {},
           route: '/api/shows/[id]',
         },
         {
-          functionName: "_api_hello-background-background",
+          functionName: '_api_hello-background-background',
           compiled: 'pages/api/hello-background.js',
           config: { type: 'experimental-background' },
           route: '/api/hello-background',
         },
         {
-          functionName: "_api_hello-scheduled-handler",
+          functionName: '_api_hello-scheduled-handler',
           compiled: 'pages/api/hello-scheduled.js',
           config: { schedule: '@hourly', type: 'experimental-scheduled' },
           route: '/api/hello-scheduled',
         },
         {
-          functionName: "_api_revalidate-handler",
+          functionName: '_api_revalidate-handler',
           compiled: 'pages/api/revalidate.js',
           config: {},
           route: '/api/revalidate',
@@ -75,13 +75,13 @@ describeCwdTmpDir('api route file analysis', () => {
     expect(new Set(configs.map(({ includedFiles, ...rest }) => rest))).toEqual(
       new Set([
         {
-          functionName: "_api_hello-background-background",
+          functionName: '_api_hello-background-background',
           compiled: 'pages/api/hello-background.js',
           config: { type: 'experimental-background' },
           route: '/api/hello-background',
         },
         {
-          functionName: "_api_hello-scheduled-handler",
+          functionName: '_api_hello-scheduled-handler',
           compiled: 'pages/api/hello-scheduled.js',
           config: { schedule: '@hourly', type: 'experimental-scheduled' },
           route: '/api/hello-scheduled',

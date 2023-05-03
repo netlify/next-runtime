@@ -4,7 +4,18 @@ import process from 'process'
 
 import type { NetlifyPluginOptions } from '@netlify/build'
 import Chance from 'chance'
-import { writeJSON, unlink, existsSync, readFileSync, ensureDir, readJson, pathExists, writeFile, move, copy } from 'fs-extra'
+import {
+  writeJSON,
+  unlink,
+  existsSync,
+  readFileSync,
+  ensureDir,
+  readJson,
+  pathExists,
+  writeFile,
+  move,
+  copy,
+} from 'fs-extra'
 import { join, relative } from 'pathe'
 import { dir as getTmpDir } from 'tmp-promise'
 
