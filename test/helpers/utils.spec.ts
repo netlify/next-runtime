@@ -8,14 +8,45 @@ import {
   ImagesConfig,
   redirectsForNext404Route,
 } from '../../packages/runtime/src/helpers/utils'
-import { getMiddleware } from '../../packages/runtime/src/helpers/files'
-import path from "path"
 
 const basePrerenderManifest: PrerenderManifest = {
   version: 3,
   routes: {},
   dynamicRoutes: {},
   notFoundRoutes: [],
+}
+
+const prerenderManifest: PrerenderManifest = {
+  ...basePrerenderManifest,
+  dynamicRoutes: {
+    "/getStaticProps/[id]": {
+      "routeRegex": "^/getStaticProps/([^/]+?)(?:/)?$",
+      "dataRoute": "/_next/data/build-id/getStaticProps/[id].json",
+      "fallback": false,
+      "dataRouteRegex": "^/_next/data/build\\-id/getStaticProps/([^/]+?)\\.json$"
+  },
+  },
+}
+
+const dynamicRoutes = [
+  {
+    "page": "/getStaticProps/[id]",
+    "regex": "^/getStaticProps/([^/]+?)(?:/)?$",
+    "routeKeys": {
+        "nextParamid": "nextParamid"
+    },
+    "namedRegex": "^/getStaticProps/(?<nextParamid>[^/]+?)(?:/)?$"
+},
+]
+
+const route = {
+  dynamicRoutes,
+  prerenderedDynamicRoutes: prerenderManifest.dynamicRoutes,
+  basePath: '',
+  i18n: null,
+  buildId: 'test',
+  middleware: [],
+  is404Isr: false,
 }
 
 const chance = new Chance()
@@ -144,40 +175,6 @@ describe('redirectsForNext404Route', () => {
   })
 
   it('returns static 404 redirects when LEGACY_FALLBACK_FALSE is not set', async () => {
-    const prerenderManifest: PrerenderManifest = {
-      ...basePrerenderManifest,
-      dynamicRoutes: {
-        "/getStaticProps/[id]": {
-          "routeRegex": "^/getStaticProps/([^/]+?)(?:/)?$",
-          "dataRoute": "/_next/data/build-id/getStaticProps/[id].json",
-          "fallback": false,
-          "dataRouteRegex": "^/_next/data/build\\-id/getStaticProps/([^/]+?)\\.json$"
-      },
-      },
-    }
-
-    const dynamicRoutes = [
-      {
-        "page": "/getStaticProps/[id]",
-        "regex": "^/getStaticProps/([^/]+?)(?:/)?$",
-        "routeKeys": {
-            "nextParamid": "nextParamid"
-        },
-        "namedRegex": "^/getStaticProps/(?<nextParamid>[^/]+?)(?:/)?$"
-    },
-    ]
-
-    const middleware = await getMiddleware(path.resolve('.next'))
-    
-    const route = {
-      dynamicRoutes,
-      prerenderedDynamicRoutes: prerenderManifest.dynamicRoutes,
-      basePath: '',
-      i18n: null,
-      buildId: 'test',
-      middleware,
-      is404Isr: false,
-    }
 
     const expected = {
       "dynamicRewrites": [
@@ -203,41 +200,6 @@ describe('redirectsForNext404Route', () => {
   it('does not return static 404 redirects when LEGACY_FALLBACK_FALSE is true', async () => {
     process.env.LEGACY_FALLBACK_FALSE = 'true'
 
-    const prerenderManifest: PrerenderManifest = {
-      ...basePrerenderManifest,
-      dynamicRoutes: {
-        "/getStaticProps/[id]": {
-          "routeRegex": "^/getStaticProps/([^/]+?)(?:/)?$",
-          "dataRoute": "/_next/data/build-id/getStaticProps/[id].json",
-          "fallback": false,
-          "dataRouteRegex": "^/_next/data/build\\-id/getStaticProps/([^/]+?)\\.json$"
-      },
-      },
-    }
-
-    const dynamicRoutes = [
-      {
-        "page": "/getStaticProps/[id]",
-        "regex": "^/getStaticProps/([^/]+?)(?:/)?$",
-        "routeKeys": {
-            "nextParamid": "nextParamid"
-        },
-        "namedRegex": "^/getStaticProps/(?<nextParamid>[^/]+?)(?:/)?$"
-    },
-    ]
-
-    const middleware = await getMiddleware(path.resolve('.next'))
-
-    const route = {
-      dynamicRoutes,
-      prerenderedDynamicRoutes: prerenderManifest.dynamicRoutes,
-      basePath: '',
-      i18n: null,
-      buildId: 'test',
-      middleware,
-      is404Isr: false,
-    }
-
     const expected = {
       "dynamicRewrites": [
         {
@@ -258,5 +220,31 @@ describe('redirectsForNext404Route', () => {
 
     expect(generateDynamicRewrites(route)).toStrictEqual(expected)
   })
+
+  it('returns static 404 redirects when LEGACY_FALLBACK_FALSE is set as "false"', async () => {
+    // testing to make sure that the any other string other than 'true' still returns the static 404 redirects
+    process.env.LEGACY_FALLBACK_FALSE = 'false'
+  
+    const expected = {
+      "dynamicRewrites": [
+        {
+          "force": false, 
+          "from": "/_next/data/test/getStaticProps/:id.json",
+          "status": 404, 
+          "to": "/server/pages/404.html",
+        }, 
+        {
+          "force": false, 
+          "from": "/getStaticProps/:id", 
+          "status": 404, 
+          "to": "/server/pages/404.html",
+        }
+      ], 
+      "dynamicRoutesThatMatchMiddleware": []
+    }
+  
+    expect(generateDynamicRewrites(route)).toStrictEqual(expected)
+  })
 })
+
 
