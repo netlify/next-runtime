@@ -1,12 +1,27 @@
-import { relative } from 'pathe'
+import os from 'os'
+import path, { resolve } from 'path'
+import process from 'process'
+
+import type { NetlifyPluginOptions } from '@netlify/build'
+import Chance from 'chance'
+import { writeJSON, unlink, existsSync, readFileSync, ensureDir, readJson, pathExists, writeFile, move, copy } from 'fs-extra'
+import { join, relative } from 'pathe'
+import { dir as getTmpDir } from 'tmp-promise'
+
+// @ts-expect-error - TODO: Convert runtime export to ES6
+// eslint-disable-next-line import/default
+import nextRuntimeFactory from '../packages/runtime/src'
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } from '../packages/runtime/src/constants'
+import { watchForMiddlewareChanges } from '../packages/runtime/src/helpers/compiler'
+import { getRequiredServerFiles, updateRequiredServerFiles } from '../packages/runtime/src/helpers/config'
 import { getAllPageDependencies } from '../packages/runtime/src/templates/getPageResolver'
 
-jest.mock('../packages/runtime/src/helpers/utils', () => {
-  return {
-    ...jest.requireActual('../packages/runtime/src/helpers/utils'),
-    isNextAuthInstalled: jest.fn(),
-  }
-})
+import { changeCwd, useFixture, moveNextDist } from './test-utils'
+
+jest.mock('../packages/runtime/src/helpers/utils', () => ({
+  ...jest.requireActual('../packages/runtime/src/helpers/utils'),
+  isNextAuthInstalled: jest.fn(),
+}))
 
 jest.mock('../packages/runtime/src/helpers/functionsMetaData', () => {
   const { NEXT_PLUGIN_NAME } = require('../packages/runtime/src/constants')
@@ -15,63 +30,39 @@ jest.mock('../packages/runtime/src/helpers/functionsMetaData', () => {
     getPluginVersion: async () => `${NEXT_PLUGIN_NAME}@1.0.0`,
   }
 })
-
-import Chance from "chance"
-import {
-  writeJSON,
-  unlink,
-  existsSync,
-  readFileSync,
-  ensureDir,
-  readJson,
-  pathExists,
-  writeFile,
-  move,
-  copy,
-} from "fs-extra"
-import path from "path"
-import process from "process"
-import os from "os"
-import { dir as getTmpDir } from "tmp-promise"
-// @ts-expect-error - TODO: Convert runtime export to ES6
-import nextRuntimeFactory from "../packages/runtime/src"
 const nextRuntime = nextRuntimeFactory({})
-import { watchForMiddlewareChanges } from "../packages/runtime/src/helpers/compiler"
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } from "../packages/runtime/src/constants"
-import { join } from "pathe"
-import {
-  getRequiredServerFiles,
-  updateRequiredServerFiles,
-} from "../packages/runtime/src/helpers/config"
-import { resolve } from "path"
-import type { NetlifyPluginOptions } from '@netlify/build'
-import { changeCwd, useFixture, moveNextDist } from "./test-utils"
 
 const chance = new Chance()
 const constants = {
   INTERNAL_FUNCTIONS_SRC: '.netlify/functions-internal',
   PUBLISH_DIR: '.next',
   FUNCTIONS_DIST: '.netlify/functions',
-} as unknown as NetlifyPluginOptions["constants"]
+} as unknown as NetlifyPluginOptions['constants']
 const utils = {
   build: {
     failBuild(message) {
       throw new Error(message)
     },
   },
+  // eslint-disable-next-line no-void
   run: async () => void 0,
   cache: {
     save: jest.fn(),
     restore: jest.fn(),
   },
-} as unknown as NetlifyPluginOptions["utils"]
+} as unknown as NetlifyPluginOptions['utils']
 
 const normalizeChunkNames = (source) => source.replaceAll(/\/chunks\/\d+\.js/g, '/chunks/CHUNK_ID.js')
 
 const onBuildHasRun = (netlifyConfig) =>
   Boolean(netlifyConfig.functions[HANDLER_FUNCTION_NAME]?.included_files?.some((file) => file.includes('BUILD_ID')))
 
-const netlifyConfig = { build: { command: 'npm run build' }, functions: {}, redirects: [], headers: [] } as NetlifyPluginOptions["netlifyConfig"]
+const netlifyConfig = {
+  build: { command: 'npm run build' },
+  functions: {},
+  redirects: [],
+  headers: [],
+} as NetlifyPluginOptions['netlifyConfig']
 const defaultArgs = {
   netlifyConfig,
   utils,
@@ -113,15 +104,15 @@ afterEach(async () => {
 })
 
 describe('preBuild()', () => {
-  test('fails if publishing the root of the project', () => {
+  it('fails if publishing the root of the project', async () => {
     defaultArgs.netlifyConfig.build.publish = path.resolve('.')
-    expect(nextRuntime.onPreBuild(defaultArgs)).rejects.toThrowError(
+    await expect(nextRuntime.onPreBuild(defaultArgs)).rejects.toThrow(
       /Your publish directory is pointing to the base directory of your site/,
     )
   })
 
-  test('fails if the build version is too old', () => {
-    expect(
+  it('fails if the build version is too old', async () => {
+    await expect(
       nextRuntime.onPreBuild({
         ...defaultArgs,
         constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.15.0' },
@@ -129,8 +120,8 @@ describe('preBuild()', () => {
     ).rejects.toThrow('This version of the Next Runtime requires netlify-cli')
   })
 
-  test('passes if the build version is new enough', async () => {
-    expect(
+  it('passes if the build version is new enough', async () => {
+    await expect(
       nextRuntime.onPreBuild({
         ...defaultArgs,
         constants: { IS_LOCAL: true, NETLIFY_BUILD_VERSION: '18.16.1' },
@@ -163,9 +154,7 @@ describe('onBuild()', () => {
   const { isNextAuthInstalled } = require('../packages/runtime/src/helpers/utils')
 
   beforeEach(() => {
-    isNextAuthInstalled.mockImplementation(() => {
-      return true
-    })
+    isNextAuthInstalled.mockImplementation(() => true)
   })
 
   afterEach(() => {
@@ -174,7 +163,7 @@ describe('onBuild()', () => {
     delete process.env.CONTEXT
   })
 
-  test('does not set NEXTAUTH_URL if value is already set', async () => {
+  it('does not set NEXTAUTH_URL if value is already set', async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = chance.url()
 
@@ -193,7 +182,7 @@ describe('onBuild()', () => {
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
 
-  test("sets the NEXTAUTH_URL to the DEPLOY_PRIME_URL when CONTEXT env variable is not 'production'", async () => {
+  it("sets the NEXTAUTH_URL to the DEPLOY_PRIME_URL when CONTEXT env variable is not 'production'", async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = mockUserDefinedSiteUrl
     process.env.URL = chance.url()
@@ -216,7 +205,7 @@ describe('onBuild()', () => {
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
 
-  test("sets the NEXTAUTH_URL to the user defined site URL when CONTEXT env variable is 'production'", async () => {
+  it("sets the NEXTAUTH_URL to the user defined site URL when CONTEXT env variable is 'production'", async () => {
     const mockUserDefinedSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = chance.url()
     process.env.URL = mockUserDefinedSiteUrl
@@ -239,7 +228,7 @@ describe('onBuild()', () => {
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockUserDefinedSiteUrl)
   })
 
-  test('sets the NEXTAUTH_URL specified in the netlify.toml or in the Netlify UI', async () => {
+  it('sets the NEXTAUTH_URL specified in the netlify.toml or in the Netlify UI', async () => {
     const mockSiteUrl = chance.url()
     process.env.NEXTAUTH_URL = mockSiteUrl
 
@@ -254,7 +243,7 @@ describe('onBuild()', () => {
     delete process.env.NEXTAUTH_URL
   })
 
-  test('sets NEXTAUTH_URL when next-auth package is detected', async () => {
+  it('sets NEXTAUTH_URL when next-auth package is detected', async () => {
     const mockSiteUrl = chance.url()
 
     // Value represents the main address to the site and is either
@@ -272,7 +261,7 @@ describe('onBuild()', () => {
     expect(config.config.env.NEXTAUTH_URL).toEqual(mockSiteUrl)
   })
 
-  test('includes the basePath on NEXTAUTH_URL when present', async () => {
+  it('includes the basePath on NEXTAUTH_URL when present', async () => {
     const mockSiteUrl = chance.url()
     process.env.DEPLOY_PRIME_URL = mockSiteUrl
 
@@ -290,10 +279,8 @@ describe('onBuild()', () => {
     expect(config.config.env.NEXTAUTH_URL).toEqual(`${mockSiteUrl}/foo`)
   })
 
-  test('skips setting NEXTAUTH_URL when next-auth package is not found', async () => {
-    isNextAuthInstalled.mockImplementation(() => {
-      return false
-    })
+  it('skips setting NEXTAUTH_URL when next-auth package is not found', async () => {
+    isNextAuthInstalled.mockImplementation(() => false)
 
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -304,7 +291,7 @@ describe('onBuild()', () => {
     expect(config.config.env.NEXTAUTH_URL).toBeUndefined()
   })
 
-  test('runs onBuild', async () => {
+  it('runs onBuild', async () => {
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
@@ -312,7 +299,7 @@ describe('onBuild()', () => {
     expect(onBuildHasRun(netlifyConfig)).toBe(true)
   })
 
-  test('skips if NETLIFY_NEXT_PLUGIN_SKIP is set', async () => {
+  it('skips if NETLIFY_NEXT_PLUGIN_SKIP is set', async () => {
     process.env.NETLIFY_NEXT_PLUGIN_SKIP = 'true'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -321,7 +308,7 @@ describe('onBuild()', () => {
     delete process.env.NETLIFY_NEXT_PLUGIN_SKIP
   })
 
-  test('skips if NEXT_PLUGIN_FORCE_RUN is "false"', async () => {
+  it('skips if NEXT_PLUGIN_FORCE_RUN is "false"', async () => {
     process.env.NEXT_PLUGIN_FORCE_RUN = 'false'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -330,19 +317,21 @@ describe('onBuild()', () => {
     delete process.env.NEXT_PLUGIN_FORCE_RUN
   })
 
-  test("fails if BUILD_ID doesn't exist", async () => {
+  it("fails if BUILD_ID doesn't exist", async () => {
     await moveNextDist()
     await unlink(path.join(process.cwd(), '.next/BUILD_ID'))
     const failBuild = jest.fn().mockImplementation((err) => {
       throw new Error(err)
     })
-    expect(() => nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
+    await expect(() =>
+      nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } }),
+    ).rejects.toThrow(
       `In most cases it should be set to ".next", unless you have chosen a custom "distDir" in your Next config.`,
     )
     expect(failBuild).toHaveBeenCalled()
   })
 
-  test("fails with helpful warning if BUILD_ID doesn't exist and publish is 'out'", async () => {
+  it("fails with helpful warning if BUILD_ID doesn't exist and publish is 'out'", async () => {
     await moveNextDist()
     await unlink(path.join(process.cwd(), '.next/BUILD_ID'))
     const failBuild = jest.fn().mockImplementation((err) => {
@@ -350,13 +339,13 @@ describe('onBuild()', () => {
     })
     netlifyConfig.build.publish = path.resolve('out')
 
-    expect(() => nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } })).rejects.toThrow(
-      `Your publish directory is set to "out", but in most cases it should be ".next".`,
-    )
+    await expect(() =>
+      nextRuntime.onBuild({ ...defaultArgs, utils: { ...utils, build: { failBuild } } }),
+    ).rejects.toThrow(`Your publish directory is set to "out", but in most cases it should be ".next".`)
     expect(failBuild).toHaveBeenCalled()
   })
 
-  test('fails build if next export has run', async () => {
+  it('fails build if next export has run', async () => {
     await moveNextDist()
     await writeJSON(path.join(process.cwd(), '.next/export-detail.json'), {})
     const failBuild = jest.fn()
@@ -364,7 +353,7 @@ describe('onBuild()', () => {
     expect(failBuild).toHaveBeenCalled()
   })
 
-  test('copy handlers to the internal functions directory', async () => {
+  it('copy handlers to the internal functions directory', async () => {
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
@@ -377,7 +366,7 @@ describe('onBuild()', () => {
     expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
   })
 
-  test('writes correct redirects to netlifyConfig', async () => {
+  it('writes correct redirects to netlifyConfig', async () => {
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
@@ -387,14 +376,14 @@ describe('onBuild()', () => {
     expect(sorted).toMatchSnapshot()
   })
 
-  test('publish dir is/has next dist', async () => {
+  it('publish dir is/has next dist', async () => {
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
     expect(existsSync(path.resolve('.next/BUILD_ID'))).toBeTruthy()
   })
 
-  test('generates static files manifest', async () => {
+  it('generates static files manifest', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const manifestPath = path.resolve('.next/static-manifest.json')
@@ -403,7 +392,7 @@ describe('onBuild()', () => {
     expect(data).toMatchSnapshot()
   })
 
-  test('moves static files to root', async () => {
+  it('moves static files to root', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
@@ -413,7 +402,7 @@ describe('onBuild()', () => {
     })
   })
 
-  test('copies default locale files to top level', async () => {
+  it('copies default locale files to top level', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const data = JSON.parse(readFileSync(path.resolve('.next/static-manifest.json'), 'utf8'))
@@ -424,13 +413,13 @@ describe('onBuild()', () => {
       if (!file.startsWith(locale)) {
         return
       }
-      const trimmed = file.substring(locale.length)
+      const trimmed = file.slice(locale.length)
       expect(existsSync(path.resolve(path.join('.next', trimmed)))).toBeTruthy()
     })
   })
 
   // TODO - TO BE MOVED TO TEST AGAINST A PROJECT WITH MIDDLEWARE IN ANOTHER PR
-  test.skip('skips static files that match middleware', async () => {
+  it.skip('skips static files that match middleware', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
 
@@ -438,7 +427,7 @@ describe('onBuild()', () => {
     expect(existsSync(path.resolve(path.join('.next', 'server', 'pages', 'en', 'middle.html')))).toBeTruthy()
   })
 
-  test('sets correct config', async () => {
+  it('sets correct config', async () => {
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
@@ -521,7 +510,7 @@ describe('onBuild()', () => {
     }
   })
 
-  test('generates a file referencing all page sources', async () => {
+  it('generates a file referencing all page sources', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
@@ -533,7 +522,7 @@ describe('onBuild()', () => {
     expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
   })
 
-  test('generates a file referencing all when publish dir is a subdirectory', async () => {
+  it('generates a file referencing all when publish dir is a subdirectory', async () => {
     const dir = 'web/.next'
     await moveNextDist(dir)
 
@@ -554,7 +543,7 @@ describe('onBuild()', () => {
     expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
   })
 
-  test('generates entrypoints with correct references', async () => {
+  it('generates entrypoints with correct references', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
 
@@ -573,7 +562,7 @@ describe('onBuild()', () => {
     expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
   })
 
-  test('handles empty routesManifest.staticRoutes', async () => {
+  it('handles empty routesManifest.staticRoutes', async () => {
     await moveNextDist()
     const manifestPath = path.resolve('.next/routes-manifest.json')
     const routesManifest = await readJson(manifestPath)
@@ -583,7 +572,7 @@ describe('onBuild()', () => {
     expect(await nextRuntime.onBuild(defaultArgs)).toBeUndefined()
   })
 
-  test('generates imageconfig file with entries for domains, remotePatterns, and custom response headers', async () => {
+  it('generates imageconfig file with entries for domains, remotePatterns, and custom response headers', async () => {
     await moveNextDist()
     const mockHeaderValue = chance.string()
 
@@ -613,65 +602,64 @@ describe('onBuild()', () => {
     })
   })
 
-  test('generates an ipx function by default', async () => {
+  it('generates an ipx function by default', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeTruthy()
   })
 
   // Enabled while edge images are off by default
-  test('does not generate an ipx edge function by default', async () => {
+  it('does not generate an ipx edge function by default', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
   })
 
-  test('generates an ipx edge function if force is set', async () => {
+  it('generates an ipx edge function if force is set', async () => {
     process.env.NEXT_FORCE_EDGE_IMAGES = '1'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
   })
 
-  test('generates edge-functions manifest', async () => {
+  it('generates edge-functions manifest', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     expect(existsSync(path.join('.netlify', 'edge-functions', 'manifest.json'))).toBeTruthy()
   })
 
-  test('generates generator field within the edge-functions manifest', async () => {
+  it('generates generator field within the edge-functions manifest', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
     const manifest = manifestPath.functions
-    
+
     expect(manifest).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          generator: '@netlify/next-runtime@1.0.0'
-        })
-      ])
+          generator: '@netlify/next-runtime@1.0.0',
+        }),
+      ]),
     )
   })
 
-
-  test('generates generator field within the edge-functions manifest includes IPX', async () => {
+  it('generates generator field within the edge-functions manifest includes IPX', async () => {
     process.env.NEXT_FORCE_EDGE_IMAGES = '1'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
     const manifest = manifestPath.functions
-    
+
     expect(manifest).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          generator: '@netlify/next-runtime@1.0.0'
-        })
-      ])
+          generator: '@netlify/next-runtime@1.0.0',
+        }),
+      ]),
     )
   })
 
-  test('does not generate an ipx function when DISABLE_IPX is set', async () => {
+  it('does not generate an ipx function when DISABLE_IPX is set', async () => {
     process.env.DISABLE_IPX = '1'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -679,7 +667,7 @@ describe('onBuild()', () => {
     delete process.env.DISABLE_IPX
   })
 
-  test('creates 404 redirect when DISABLE_IPX is set', async () => {
+  it('creates 404 redirect when DISABLE_IPX is set', async () => {
     process.env.DISABLE_IPX = '1'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -693,13 +681,13 @@ describe('onBuild()', () => {
     delete process.env.DISABLE_IPX
   })
 
-  test('generates an ipx edge function by default', async () => {
+  it('generates an ipx edge function by default', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
     expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
   })
 
-  test('does not generate an ipx edge function if the feature is disabled', async () => {
+  it('does not generate an ipx edge function if the feature is disabled', async () => {
     process.env.NEXT_DISABLE_EDGE_IMAGES = '1'
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -707,7 +695,7 @@ describe('onBuild()', () => {
     delete process.env.NEXT_DISABLE_EDGE_IMAGES
   })
 
-  test('does not generate an ipx edge function if Netlify Edge is disabled', async () => {
+  it('does not generate an ipx edge function if Netlify Edge is disabled', async () => {
     process.env.NEXT_DISABLE_NETLIFY_EDGE = '1'
     await moveNextDist()
 
@@ -724,7 +712,7 @@ describe('onBuild()', () => {
     delete process.env.NEXT_DISABLE_NETLIFY_EDGE
   })
 
-  test('moves static files to a subdirectory if basePath is set', async () => {
+  it('moves static files to a subdirectory if basePath is set', async () => {
     await moveNextDist()
 
     const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
@@ -743,7 +731,7 @@ describe('onBuild()', () => {
 })
 
 describe('onPostBuild', () => {
-  test('saves cache with right paths', async () => {
+  it('saves cache with right paths', async () => {
     await moveNextDist()
 
     const save = jest.fn()
@@ -756,7 +744,7 @@ describe('onPostBuild', () => {
     expect(save).toHaveBeenCalledWith(path.resolve('.next/cache'))
   })
 
-  test('warns if old functions exist', async () => {
+  it('warns if old functions exist', async () => {
     await moveNextDist()
 
     const list = jest.fn().mockResolvedValue([
@@ -792,7 +780,7 @@ describe('onPostBuild', () => {
     console.log = oldLog
   })
 
-  test('warns if NETLIFY_NEXT_PLUGIN_SKIP is set', async () => {
+  it('warns if NETLIFY_NEXT_PLUGIN_SKIP is set', async () => {
     await moveNextDist()
 
     process.env.NETLIFY_NEXT_PLUGIN_SKIP = 'true'
@@ -806,7 +794,7 @@ describe('onPostBuild', () => {
     delete process.env.NETLIFY_NEXT_PLUGIN_SKIP
   })
 
-  test('warns if NEXT_PLUGIN_FORCE_RUN is "false"', async () => {
+  it('warns if NEXT_PLUGIN_FORCE_RUN is "false"', async () => {
     await moveNextDist()
 
     process.env.NEXT_PLUGIN_FORCE_RUN = 'false'
@@ -821,7 +809,7 @@ describe('onPostBuild', () => {
     delete process.env.NEXT_PLUGIN_FORCE_RUN
   })
 
-  test('adds headers to Netlify configuration', async () => {
+  it('adds headers to Netlify configuration', async () => {
     await moveNextDist()
 
     const show = jest.fn()
@@ -908,7 +896,7 @@ describe('onPostBuild', () => {
     ])
   })
 
-  test('appends headers to existing headers in the Netlify configuration', async () => {
+  it('appends headers to existing headers in the Netlify configuration', async () => {
     await moveNextDist()
 
     netlifyConfig.headers = [
@@ -1010,7 +998,7 @@ describe('onPostBuild', () => {
     ])
   })
 
-  test('appends no additional headers in the Netlify configuration when none are in the routes manifest', async () => {
+  it('appends no additional headers in the Netlify configuration when none are in the routes manifest', async () => {
     await moveNextDist()
 
     netlifyConfig.headers = [
@@ -1248,7 +1236,7 @@ describe('the dev middleware watcher', () => {
     await isReady
     expect(middlewareExists()).toBeFalsy()
     await writeFile(path.join(process.cwd(), 'middleware.ts'), middlewareSourceTs)
-    let isBuilt = nextBuild()
+    const isBuilt = nextBuild()
     await writeFile(path.join(process.cwd(), 'middleware.js'), middlewareSourceJs)
     await isBuilt
     expect(middlewareExists()).toBeFalsy()

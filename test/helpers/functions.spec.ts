@@ -4,7 +4,7 @@ import { describeCwdTmpDir, moveNextDist } from '../test-utils'
 describeCwdTmpDir('api route file analysis', () => {
   it('extracts correct route configs from source files', async () => {
     await moveNextDist()
-    const configs = await getApiRouteConfigs('.next', process.cwd())
+    const configs = await getApiRouteConfigs('.next', process.cwd(), ['js', 'jsx', 'ts', 'tsx'])
     // Using a Set means the order doesn't matter
     expect(new Set(configs.map(({ includedFiles, ...rest }) => rest))).toEqual(
       new Set([
