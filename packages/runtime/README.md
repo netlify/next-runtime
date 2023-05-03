@@ -1,4 +1,4 @@
-![Next.js Runtime](https://github.com/netlify/next-runtime/raw/main/next-on-netlify.png)
+![Next.js Runtime](https://github.com/netlify/next-runtime/raw/main/next-js-runtime.png)
 
 # `@netlify/plugin-nextjs`
 
