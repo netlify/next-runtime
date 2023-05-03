@@ -1,8 +1,8 @@
 import Chance from 'chance'
-import { ExperimentalConfig } from 'next/dist/server/config-shared'
 import type { PrerenderManifest } from 'next/dist/build'
-import { generateDynamicRewrites } from '../../packages/runtime/src/helpers/redirects'
+import { ExperimentalConfig } from 'next/dist/server/config-shared'
 
+import { generateDynamicRewrites } from '../../packages/runtime/src/helpers/redirects'
 import {
   getCustomImageResponseHeaders,
   getRemotePatterns,
@@ -20,24 +20,24 @@ const basePrerenderManifest: PrerenderManifest = {
 const prerenderManifest: PrerenderManifest = {
   ...basePrerenderManifest,
   dynamicRoutes: {
-    "/getStaticProps/[id]": {
-      "routeRegex": "^/getStaticProps/([^/]+?)(?:/)?$",
-      "dataRoute": "/_next/data/build-id/getStaticProps/[id].json",
-      "fallback": false,
-      "dataRouteRegex": "^/_next/data/build\\-id/getStaticProps/([^/]+?)\\.json$"
-  },
+    '/getStaticProps/[id]': {
+      routeRegex: '^/getStaticProps/([^/]+?)(?:/)?$',
+      dataRoute: '/_next/data/build-id/getStaticProps/[id].json',
+      fallback: false,
+      dataRouteRegex: '^/_next/data/build\\-id/getStaticProps/([^/]+?)\\.json$',
+    },
   },
 }
 
 const dynamicRoutes = [
   {
-    "page": "/getStaticProps/[id]",
-    "regex": "^/getStaticProps/([^/]+?)(?:/)?$",
-    "routeKeys": {
-        "nextParamid": "nextParamid"
+    page: '/getStaticProps/[id]',
+    regex: '^/getStaticProps/([^/]+?)(?:/)?$',
+    routeKeys: {
+      nextParamid: 'nextParamid',
     },
-    "namedRegex": "^/getStaticProps/(?<nextParamid>[^/]+?)(?:/)?$"
-},
+    namedRegex: '^/getStaticProps/(?<nextParamid>[^/]+?)(?:/)?$',
+  },
 ]
 
 const route = {
@@ -176,23 +176,22 @@ describe('redirectsForNext404Route', () => {
   })
 
   it('returns static 404 redirects when LEGACY_FALLBACK_FALSE is not set', async () => {
-
     const expected = {
-      "dynamicRewrites": [
+      dynamicRewrites: [
         {
-          "force": false, 
-          "from": "/_next/data/test/getStaticProps/:id.json",
-          "status": 404, 
-          "to": "/server/pages/404.html",
-        }, 
+          force: false,
+          from: '/_next/data/test/getStaticProps/:id.json',
+          status: 404,
+          to: '/server/pages/404.html',
+        },
         {
-          "force": false, 
-          "from": "/getStaticProps/:id", 
-          "status": 404, 
-          "to": "/server/pages/404.html",
-        }
-      ], 
-      "dynamicRoutesThatMatchMiddleware": []
+          force: false,
+          from: '/getStaticProps/:id',
+          status: 404,
+          to: '/server/pages/404.html',
+        },
+      ],
+      dynamicRoutesThatMatchMiddleware: [],
     }
 
     expect(generateDynamicRewrites(route)).toStrictEqual(expected)
@@ -202,21 +201,21 @@ describe('redirectsForNext404Route', () => {
     process.env.LEGACY_FALLBACK_FALSE = 'true'
 
     const expected = {
-      "dynamicRewrites": [
+      dynamicRewrites: [
         {
-          "force": false, 
-          "from": "/_next/data/test/getStaticProps/:id.json",
-          "status": 200, 
-          "to": "/.netlify/builders/___netlify-odb-handler",
-        }, 
+          force: false,
+          from: '/_next/data/test/getStaticProps/:id.json',
+          status: 200,
+          to: '/.netlify/builders/___netlify-odb-handler',
+        },
         {
-          "force": false, 
-          "from": "/getStaticProps/:id", 
-          "status": 200, 
-          "to": "/.netlify/builders/___netlify-odb-handler",
-        }
-      ], 
-      "dynamicRoutesThatMatchMiddleware": []
+          force: false,
+          from: '/getStaticProps/:id',
+          status: 200,
+          to: '/.netlify/builders/___netlify-odb-handler',
+        },
+      ],
+      dynamicRoutesThatMatchMiddleware: [],
     }
 
     expect(generateDynamicRewrites(route)).toStrictEqual(expected)
@@ -225,27 +224,25 @@ describe('redirectsForNext404Route', () => {
   it('returns static 404 redirects when LEGACY_FALLBACK_FALSE is set as "false"', async () => {
     // testing to make sure that the any other string other than 'true' still returns the static 404 redirects
     process.env.LEGACY_FALLBACK_FALSE = 'false'
-  
+
     const expected = {
-      "dynamicRewrites": [
+      dynamicRewrites: [
         {
-          "force": false, 
-          "from": "/_next/data/test/getStaticProps/:id.json",
-          "status": 404, 
-          "to": "/server/pages/404.html",
-        }, 
+          force: false,
+          from: '/_next/data/test/getStaticProps/:id.json',
+          status: 404,
+          to: '/server/pages/404.html',
+        },
         {
-          "force": false, 
-          "from": "/getStaticProps/:id", 
-          "status": 404, 
-          "to": "/server/pages/404.html",
-        }
-      ], 
-      "dynamicRoutesThatMatchMiddleware": []
+          force: false,
+          from: '/getStaticProps/:id',
+          status: 404,
+          to: '/server/pages/404.html',
+        },
+      ],
+      dynamicRoutesThatMatchMiddleware: [],
     }
-  
+
     expect(generateDynamicRewrites(route)).toStrictEqual(expected)
   })
 })
-
-
