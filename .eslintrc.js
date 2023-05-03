@@ -88,10 +88,7 @@ module.exports = {
         'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
         'jest/no-disabled-tests': 0,
         'jest/no-conditional-expect': 0,
-        "jest/no-standalone-expect": [
-          2,
-          { "additionalTestBlockFunctions": ["beforeAll"] }
-        ]
+        'jest/no-standalone-expect': [2, { additionalTestBlockFunctions: ['beforeAll'] }],
       },
     },
   ],
