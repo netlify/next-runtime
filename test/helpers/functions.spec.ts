@@ -1,10 +1,10 @@
-import { getExtendedApiRouteConfigs } from "../../packages/runtime/src/helpers/functions"
-import { describeCwdTmpDir, moveNextDist } from "../test-utils"
+import { getExtendedApiRouteConfigs } from '../../packages/runtime/src/helpers/functions'
+import { describeCwdTmpDir, moveNextDist } from '../test-utils'
 
 describeCwdTmpDir('api route file analysis', () => {
   it('extracts correct route configs from source files', async () => {
     await moveNextDist()
-    const configs = await getExtendedApiRouteConfigs('.next', process.cwd())
+    const configs = await getExtendedApiRouteConfigs('.next', process.cwd(), ['js', 'jsx', 'ts', 'tsx'])
     // Using a Set means the order doesn't matter
     expect(new Set(configs)).toEqual(
       new Set([

@@ -21,6 +21,8 @@ node_modules
 lib
 tsconfig.json
 demos/nx-next-monorepo-demo
+test/fixtures/broken_next_config/next.config.js
+test/e2e
 
 **/CHANGELOG.md
 packages/runtime/lib
