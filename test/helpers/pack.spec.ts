@@ -1,6 +1,6 @@
 import { pack } from '../../packages/runtime/src/helpers/pack'
 
-test('pack', () => {
+it('pack', () => {
   expect(pack([], 0)).toEqual([])
   expect(pack([{ value: '10', weight: 10 }], 100)).toEqual([['10']])
   expect(
