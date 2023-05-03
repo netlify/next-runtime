@@ -1,14 +1,8 @@
-import path from "path"
-import { dirname } from "path"
-import cpy from "cpy"
-import {
-  writeJSON,
-  existsSync,
-  ensureDir,
-  readJson,
-  copy,
-} from "fs-extra"
-import { dir as getTmpDir } from "tmp-promise"
+import path, { dirname } from 'path'
+
+import cpy from 'cpy'
+import { writeJSON, existsSync, ensureDir, readJson, copy } from 'fs-extra'
+import { dir as getTmpDir } from 'tmp-promise'
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
 const SAMPLE_PROJECT_DIR = `${__dirname}/../demos/default`
@@ -32,11 +26,7 @@ const rewriteAppDir = async function (dir = '.next') {
 
 // Move .next from sample project to current directory
 export const moveNextDist = async function (dir = '.next', copyMods = false) {
-  if (copyMods) {
-    await copyModules(['next', 'sharp'])
-  } else {
-    await stubModules(['next', 'sharp'])
-  }
+  await (copyMods ? copyModules(['next', 'sharp']) : stubModules(['next', 'sharp']))
   await ensureDir(dirname(dir))
   await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
 
@@ -74,6 +64,7 @@ export const useFixture = async function (fixtureName) {
 
 // Change current cwd() to a temporary directory
 export const describeCwdTmpDir = (name: string, fn: () => void): void => {
+  // eslint-disable-next-line jest/valid-title
   describe(name, () => {
     let restoreCwd
     let cleanup
