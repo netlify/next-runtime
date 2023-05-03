@@ -116,14 +116,6 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
 
-    const graphToken = event.netlifyGraphToken
-    if (graphToken && requestMode !== 'ssr') {
-      // Prefix with underscore to help us determine the origin of the token
-      // allows us to write better error messages
-      // eslint-disable-next-line no-underscore-dangle
-      process.env._NETLIFY_GRAPH_TOKEN = graphToken
-    }
-
     const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
     // Convert all headers to multiValueHeaders

@@ -1,5 +1,6 @@
-import { extractConfigFromFile } from '../../packages/runtime/src/helpers/analysis'
 import { resolve } from 'pathe'
+
+import { extractConfigFromFile } from '../../packages/runtime/src/helpers/analysis'
 
 describe('static source analysis', () => {
   beforeEach(() => {
@@ -40,9 +41,9 @@ describe('static source analysis', () => {
     })
   })
   it('should throw if schedule is provided when type is background', async () => {
-    await expect(extractConfigFromFile(resolve(__dirname, '../fixtures/analysis/background-schedule.ts'))).rejects.toThrow(
-      'Unsupported config value in test/fixtures/analysis/background-schedule.ts',
-    )
+    await expect(
+      extractConfigFromFile(resolve(__dirname, '../fixtures/analysis/background-schedule.ts')),
+    ).rejects.toThrow('Unsupported config value in test/fixtures/analysis/background-schedule.ts')
     expect(console.error).toHaveBeenCalledWith(
       `Invalid config value in test/fixtures/analysis/background-schedule.ts: schedule is not allowed unless type is "experimental-scheduled"`,
     )
