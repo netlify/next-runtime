@@ -13,5 +13,6 @@ export const splitApiRoutes = (featureFlags: Record<string, unknown>): boolean =
   if (process.env.NEXT_SPLIT_API_ROUTES) {
     return process.env.NEXT_SPLIT_API_ROUTES === 'true'
   }
-  return Boolean(featureFlags.next_split_api_routes)
+  // default to true during testing, swap to false before merging
+  return typeof featureFlags.next_split_api_routes === 'boolean' ? featureFlags.next_split_api_routes : true
 }
