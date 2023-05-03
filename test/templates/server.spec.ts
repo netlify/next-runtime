@@ -1,8 +1,8 @@
 import { createRequestResponseMocks } from 'next/dist/server/lib/mock-request'
 import { Options } from 'next/dist/server/next-server'
 
-import { NextServerType, netlifyApiFetch } from '../../packages/runtime/src/templates/handlerUtils'
 import { getServerFile } from '../../packages/runtime/src/helpers/files'
+import { NextServerType, netlifyApiFetch } from '../../packages/runtime/src/templates/handlerUtils'
 import { getNetlifyNextServer, NetlifyNextServerType, NetlifyConfig } from '../../packages/runtime/src/templates/server'
 
 jest.mock('../../packages/runtime/src/templates/handlerUtils', () => {
