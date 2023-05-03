@@ -4,18 +4,7 @@ import process from 'process'
 
 import type { NetlifyPluginOptions } from '@netlify/build'
 import Chance from 'chance'
-import {
-  writeJSON,
-  unlink,
-  existsSync,
-  readFileSync,
-  ensureDir,
-  readJson,
-  pathExists,
-  writeFile,
-  move,
-  copy,
-} from 'fs-extra'
+import { writeJSON, unlink, existsSync, readFileSync, ensureDir, readJson, pathExists, writeFile, move } from 'fs-extra'
 import { join, relative } from 'pathe'
 import { dir as getTmpDir } from 'tmp-promise'
 
@@ -86,9 +75,7 @@ let cleanup
 // In each test, we change cwd to a temporary directory.
 // This allows us not to have to mock filesystem operations.
 beforeEach(async () => {
-  const baseTmpDir = path.join(__dirname, '..', 'tmp')
-  await ensureDir(baseTmpDir)
-  const tmpDir = await getTmpDir({ unsafeCleanup: true, tmpdir: baseTmpDir })
+  const tmpDir = await getTmpDir({ unsafeCleanup: true })
   restoreCwd = changeCwd(tmpDir.path)
   cleanup = tmpDir.cleanup
 
@@ -536,9 +523,6 @@ describe('onBuild()', () => {
   it('generates a file referencing all when publish dir is a subdirectory', async () => {
     const dir = 'web/.next'
     await moveNextDist(dir)
-
-    // node_modules need to be in same relative position to .next, so it also needs to go one level deep
-    await copy(path.join(__dirname, '..', 'node_modules'), path.join(__dirname, '..', 'tmp', 'node_modules'))
 
     netlifyConfig.build.publish = path.resolve(dir)
     const config = {
