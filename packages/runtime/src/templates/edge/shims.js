@@ -1,7 +1,11 @@
 // @ts-check
-// deno-lint-ignore-file no-var prefer-const no-unused-vars no-explicit-any
+// deno-lint-ignore-file prefer-const no-unused-vars
 import { decode as _base64Decode } from 'https://deno.land/std@0.175.0/encoding/base64.ts'
-import { AsyncLocalStorage as ALSCompat } from 'https://deno.land/std@0.175.0/node/async_hooks.ts'
+import BufferCompat from 'https://deno.land/std@0.175.0/node/buffer.ts'
+import EventsCompat from 'https://deno.land/std@0.175.0/node/events.ts'
+import AsyncHooksCompat from 'https://deno.land/std@0.175.0/node/async_hooks.ts'
+import AssertCompat from 'https://deno.land/std@0.175.0/node/assert.ts'
+import UtilCompat from 'https://deno.land/std@0.175.0/node/util.ts'
 
 /**
  * These are the shims, polyfills and other kludges to make Next.js work in standards-compliant runtime.
@@ -18,7 +22,7 @@ globalThis.EdgeRuntime = 'netlify-edge'
 let _ENTRIES = {}
 
 // Next.js expects this as a global
-globalThis.AsyncLocalStorage = ALSCompat
+globalThis.AsyncLocalStorage = AsyncHooksCompat.AsyncLocalStorage
 
 // Next.js uses this extension to the Headers API implemented by Cloudflare workerd
 if (!('getAll' in Headers.prototype)) {
@@ -45,6 +49,26 @@ const fetch /* type {typeof globalThis.fetch} */ = async (url, init) => {
   } catch (error) {
     console.error(error)
     throw error
+  }
+}
+
+// Shim native modules that Vercel makes available
+if (typeof require === 'undefined') {
+  globalThis.require = (name) => {
+    switch (name.replace(/^node:/, '')) {
+      case 'buffer':
+        return BufferCompat
+      case 'events':
+        return EventsCompat
+      case 'async_hooks':
+        return AsyncHooksCompat
+      case 'assert':
+        return AssertCompat
+      case 'util':
+        return UtilCompat
+      default:
+        throw new ReferenceError(`Native module not found: ${name}`)
+    }
   }
 }
 
