@@ -2,6 +2,7 @@ import Chance from 'chance'
 import { ExperimentalConfig } from 'next/dist/server/config-shared'
 import type { PrerenderManifest } from 'next/dist/build'
 import { generateDynamicRewrites } from '../../packages/runtime/src/helpers/redirects'
+
 import {
   getCustomImageResponseHeaders,
   getRemotePatterns,
