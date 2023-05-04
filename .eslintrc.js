@@ -48,6 +48,9 @@ module.exports = {
         'n/no-unsupported-features/es-syntax': 'off',
         '@typescript-eslint/no-extra-semi': 'off',
         'n/no-missing-import': 'off',
+        // https://github.com/typescript-eslint/typescript-eslint/issues/2483
+        'no-shadow': 'off',
+        '@typescript-eslint/no-shadow': 'error',
       },
     },
     {
@@ -74,12 +77,18 @@ module.exports = {
         'unicorn/no-await-expression-member': 0,
         'import/no-anonymous-default-export': 0,
         'no-shadow': 0,
+        '@typescript-eslint/no-shadow': 0,
         '@typescript-eslint/no-var-requires': 0,
         'require-await': 0,
+        'n/no-sync': 0,
+        'promise/prefer-await-to-then': 0,
+        'no-async-promise-executor': 0,
+        'import/no-dynamic-require': 0,
         // esling-plugin-jest specific rules
         'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
         'jest/no-disabled-tests': 0,
         'jest/no-conditional-expect': 0,
+        'jest/no-standalone-expect': [2, { additionalTestBlockFunctions: ['beforeAll'] }],
       },
     },
   ],

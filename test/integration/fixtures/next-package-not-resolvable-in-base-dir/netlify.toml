@@ -1,0 +1,9 @@
+[build]
+command = "cd next-app; npm install; npm run build"
+publish = "next-app/.next"
+
+[[plugins]]
+package = "@netlify/plugin-nextjs"
+
+[[plugins]]
+package = "/clear-node-modules-after-functions-bundling-plugin"
