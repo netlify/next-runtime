@@ -24,6 +24,7 @@
     "test:next:all": "RUN_SKIPPED_TESTS=1 jest -c test/e2e/jest.config.all.js",
     "test:next:appdir": "jest -c test/e2e/jest.config.appdir.js",
     "test:jest": "jest",
+    "test:integration": "jest -c test/integration/jest.config.js",
     "playwright:install": "playwright install --with-deps chromium",
     "test:jest:update": "jest --updateSnapshot",
     "test:update": "run-s build build:demo test:jest:update"
@@ -79,6 +80,7 @@
     "jest-junit": "^14.0.1",
     "mock-fs": "^5.2.0",
     "netlify-plugin-cypress": "^2.2.1",
+    "node-fetch": "^2.6.6",
     "npm-run-all": "^4.1.5",
     "outdent": "^0.8.0",
     "pathe": "^1.1.0",
@@ -90,7 +92,8 @@
     "sass": "^1.49.0",
     "sharp": "^0.30.4",
     "tmp-promise": "^3.0.2",
-    "typescript": "^4.3.4"
+    "typescript": "^4.3.4",
+    "wait-on": "^7.0.1"
   },
   "dependencies": {
     "next": "^13.3.0"
@@ -106,6 +109,7 @@
       "**/test/**/*.spec.js",
       "**/test/**/*.spec.ts",
       "!**/test/e2e/**",
+      "!**/test/integration/**",
       "!**/test/fixtures/**",
       "!**/test/sample/**",
       "!**/test/templates/edge-shared/**"
