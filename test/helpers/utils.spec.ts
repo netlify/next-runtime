@@ -220,5 +220,4 @@ describe('redirectsForNext404Route', () => {
 
     expect(generateDynamicRewrites(route)).toStrictEqual(expected)
   })
-
 })
