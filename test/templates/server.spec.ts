@@ -1,8 +1,9 @@
 import { createRequestResponseMocks } from 'next/dist/server/lib/mock-request'
 import { Options } from 'next/dist/server/next-server'
 
-import { getNextServer, NextServerType, netlifyApiFetch } from '../../packages/runtime/src/templates/handlerUtils'
-import { NetlifyNextServer, NetlifyConfig } from '../../packages/runtime/src/templates/server'
+import { getServerFile } from '../../packages/runtime/src/helpers/files'
+import { NextServerType, netlifyApiFetch } from '../../packages/runtime/src/templates/handlerUtils'
+import { getNetlifyNextServer, NetlifyNextServerType, NetlifyConfig } from '../../packages/runtime/src/templates/server'
 
 jest.mock('../../packages/runtime/src/templates/handlerUtils', () => {
   const originalModule = jest.requireActual('../../packages/runtime/src/templates/handlerUtils')
@@ -53,9 +54,11 @@ jest.mock(
   { virtual: true },
 )
 
+let NetlifyNextServer: NetlifyNextServerType
 beforeAll(() => {
-  const NextServer: NextServerType = getNextServer()
+  const NextServer: NextServerType = require(getServerFile(__dirname, false)).default
   jest.spyOn(NextServer.prototype, 'getRequestHandler').mockImplementation(() => () => Promise.resolve())
+  NetlifyNextServer = getNetlifyNextServer(NextServer)
 
   const MockNetlifyNextServerConstructor = function (nextOptions: Options, netlifyConfig: NetlifyConfig) {
     this.distDir = '.'
@@ -82,7 +85,10 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = createRequestResponseMocks({ url: '/non-i18n/with-revalidate/', headers: { 'x-prerender-revalidate': 'test' }})
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/non-i18n/with-revalidate/',
+      headers: { 'x-prerender-revalidate': 'test' },
+    })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
     await requestHandler(mockReq, mockRes)
 
@@ -99,7 +105,10 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: { ...mocki18nConfig } }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = createRequestResponseMocks({ url: '/i18n/with-revalidate/', headers: { 'x-prerender-revalidate': 'test' }})
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/i18n/with-revalidate/',
+      headers: { 'x-prerender-revalidate': 'test' },
+    })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
     await requestHandler(mockReq, mockRes)
 
@@ -116,7 +125,10 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = createRequestResponseMocks({ url: '/blog/rob/hello', headers: { 'x-prerender-revalidate': 'test' }})
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/blog/rob/hello',
+      headers: { 'x-prerender-revalidate': 'test' },
+    })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
     await requestHandler(mockReq, mockRes)
 
@@ -133,7 +145,10 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: { ...mocki18nConfig } }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = createRequestResponseMocks({ url: '/fr/posts/hello', headers: { 'x-prerender-revalidate': 'test' }})
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/fr/posts/hello',
+      headers: { 'x-prerender-revalidate': 'test' },
+    })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
     await requestHandler(mockReq, mockRes)
 
@@ -150,7 +165,10 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = createRequestResponseMocks({ url: '/not-a-valid-path/', headers: { 'x-prerender-revalidate': 'test' }})
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/not-a-valid-path/',
+      headers: { 'x-prerender-revalidate': 'test' },
+    })
 
     // @ts-expect-error - Types are incorrect for `MockedResponse`
     await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('not an ISR route')
@@ -160,7 +178,10 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = createRequestResponseMocks({ url: '/posts/hello/', headers: { 'x-prerender-revalidate': 'test' }})
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/posts/hello/',
+      headers: { 'x-prerender-revalidate': 'test' },
+    })
 
     mockedApiFetch.mockResolvedValueOnce({ code: 500, message: 'Failed to revalidate' })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
@@ -171,7 +192,10 @@ describe('the netlify next server', () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
-    const { req: mockReq, res: mockRes } = createRequestResponseMocks({ url: '/posts/hello', headers: { 'x-prerender-revalidate': 'test' }})
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/posts/hello',
+      headers: { 'x-prerender-revalidate': 'test' },
+    })
 
     mockedApiFetch.mockRejectedValueOnce(new Error('Unable to connect'))
     // @ts-expect-error - Types are incorrect for `MockedResponse`

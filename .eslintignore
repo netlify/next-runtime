@@ -1,6 +1,5 @@
 .next
 node_modules
-test
 lib
 demos
 packages/runtime/src/templates/edge
@@ -8,3 +7,6 @@ packages/runtime/src/templates/edge-shared
 packages/runtime/lib
 packages/runtime/dist-types
 jestSetup.js
+test/e2e
+test/fixtures/broken_next_config/next.config.js
+test/integration/fixtures
