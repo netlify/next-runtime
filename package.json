@@ -95,6 +95,9 @@
     "typescript": "^4.3.4",
     "wait-on": "^7.0.1"
   },
+  "dependencies": {
+    "next": "^13.4.0"
+  },
   "engines": {
     "node": ">=16.0.0"
   },
@@ -139,8 +142,5 @@
     "demos/middleware",
     "demos/custom-routes",
     "demos/next-with-edge-functions"
-  ],
-  "dependencies": {
-    "next": "^13.4.0"
-  }
+  ]
 }
