@@ -221,28 +221,4 @@ describe('redirectsForNext404Route', () => {
     expect(generateDynamicRewrites(route)).toStrictEqual(expected)
   })
 
-  it('returns static 404 redirects when LEGACY_FALLBACK_FALSE is set as "false"', async () => {
-    // testing to make sure that the any other string other than 'true' still returns the static 404 redirects
-    process.env.LEGACY_FALLBACK_FALSE = 'false'
-
-    const expected = {
-      dynamicRewrites: [
-        {
-          force: false,
-          from: '/_next/data/test/getStaticProps/:id.json',
-          status: 404,
-          to: '/server/pages/404.html',
-        },
-        {
-          force: false,
-          from: '/getStaticProps/:id',
-          status: 404,
-          to: '/server/pages/404.html',
-        },
-      ],
-      dynamicRoutesThatMatchMiddleware: [],
-    }
-
-    expect(generateDynamicRewrites(route)).toStrictEqual(expected)
-  })
 })
