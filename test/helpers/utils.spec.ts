@@ -197,7 +197,7 @@ describe('redirectsForNext404Route', () => {
     expect(generateDynamicRewrites(route)).toStrictEqual(expected)
   })
 
-  it('does not return static 404 redirects when LEGACY_FALLBACK_FALSE is true', async () => {
+  it('does not return static 404 redirects when LEGACY_FALLBACK_FALSE is set', async () => {
     process.env.LEGACY_FALLBACK_FALSE = 'true'
 
     const expected = {
