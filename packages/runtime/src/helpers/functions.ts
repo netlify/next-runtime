@@ -297,13 +297,9 @@ export const getAPILambdas = async (
   baseDir: string,
   pageExtensions: string[],
 ): Promise<APILambda[]> => {
-  console.time('traceCommonDependencies')
   const commonDependencies = await getAPIPRouteCommonDependencies(publish, baseDir)
-  console.timeEnd('traceCommonDependencies')
 
-  console.time('weighCommonDependencies')
   const threshold = 50 * MB - (await getBundleWeight(commonDependencies))
-  console.timeEnd('weighCommonDependencies')
 
   const apiRoutes = await getApiRouteConfigs(publish, baseDir, pageExtensions)
 
