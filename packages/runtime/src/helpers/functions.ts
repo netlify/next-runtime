@@ -245,9 +245,9 @@ const traceNextServer = async (publish: string, baseDir: string): Promise<string
   return filtered.map((file) => relative(baseDir, file))
 }
 
-export const traceNPMPackage = async (pack: string, publish: string) => {
+export const traceNPMPackage = async (packageName: string, publish: string) => {
   try {
-    return await glob(join(dirname(require.resolve(pack, { paths: [publish] })), '**', '*'))
+    return await glob(join(dirname(require.resolve(packageName, { paths: [publish] })), '**', '*'))
   } catch (error) {
     if (process.env.NODE_ENV === 'test') {
       return []
