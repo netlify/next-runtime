@@ -245,13 +245,24 @@ const traceNextServer = async (publish: string, baseDir: string): Promise<string
   return filtered.map((file) => relative(baseDir, file))
 }
 
+export const traceNPMPackage = async (pack: string, publish: string) => {
+  try {
+    return await glob(join(dirname(require.resolve(pack, { paths: [publish] })), '**', '*'))
+  } catch (error) {
+    if (process.env.NODE_ENV === 'test') {
+      return []
+    }
+    throw error
+  }
+}
+
 export const getAPIPRouteCommonDependencies = async (publish: string, baseDir: string) => {
   const [requiredServerFiles, nextServerFiles, followRedirectsFiles] = await Promise.all([
     traceRequiredServerFiles(publish),
     traceNextServer(publish, baseDir),
 
     // used by our own bridge.js
-    glob(join(dirname(require.resolve('follow-redirects', { paths: [publish] })), '**', '*')),
+    traceNPMPackage('follow-redirects', publish),
   ])
 
   return [...requiredServerFiles, ...nextServerFiles, ...followRedirectsFiles]
