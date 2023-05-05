@@ -242,11 +242,12 @@ const traceNextPages = async (pages: string[], publish: string): Promise<string[
 const traceRequiredServerFiles = async (publish: string): Promise<string[]> => {
   const requiredServerFilesPath = join(publish, 'required-server-files.json')
   const { files } = (await readJSON(requiredServerFilesPath)) as { files: string[] }
-  files.push(requiredServerFilesPath)
-  return files
+  const absoluteFiles = files.map((file) => join(dirname(publish), file))
+  absoluteFiles.push(requiredServerFilesPath)
+  return absoluteFiles
 }
 
-const traceNextServer = async (publish: string, baseDir: string): Promise<string[]> => {
+const traceNextServer = async (publish: string): Promise<string[]> => {
   const nextServerDeps = await getDependenciesOfFile(join(publish, 'next-server.js'))
 
   // during testing, i've seen `next-server` contain only one line.
@@ -266,12 +267,13 @@ const traceNextServer = async (publish: string, baseDir: string): Promise<string
     return true
   })
 
-  return filtered.map((file) => relative(baseDir, file))
+  return filtered
 }
 
 export const traceNPMPackage = async (packageName: string, publish: string) => {
   try {
-    return await glob(join(dirname(require.resolve(packageName, { paths: [publish] })), '**', '*'))
+    const paths = await glob(join(dirname(require.resolve(packageName, { paths: [publish] })), '**', '*'))
+    return paths.map((path) => join(publish, path))
   } catch (error) {
     if (process.env.NODE_ENV === 'test') {
       return []
@@ -280,10 +282,10 @@ export const traceNPMPackage = async (packageName: string, publish: string) => {
   }
 }
 
-export const getAPIPRouteCommonDependencies = async (publish: string, baseDir: string) => {
+export const getAPIPRouteCommonDependencies = async (publish: string) => {
   const deps = await Promise.all([
     traceRequiredServerFiles(publish),
-    traceNextServer(publish, baseDir),
+    traceNextServer(publish),
 
     // for some reason, ISR needs them
     traceNextPages(['_document', '_app'], publish),
@@ -324,7 +326,7 @@ export const getAPILambdas = async (
   baseDir: string,
   pageExtensions: string[],
 ): Promise<APILambda[]> => {
-  const commonDependencies = await getAPIPRouteCommonDependencies(publish, baseDir)
+  const commonDependencies = await getAPIPRouteCommonDependencies(publish)
 
   const threshold = 50 * MB - (await getBundleWeight(commonDependencies))
 

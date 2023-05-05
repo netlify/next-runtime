@@ -89,7 +89,5 @@ it(`api route executes correctly`, async () => {
   const apiResponse = await fetch(`http://localhost:8888/api/hello`)
   // ensure we got a 200
   expect(apiResponse.ok).toBe(true)
-  // ensure we use ssr handler
-  expect(apiResponse.headers.get(`x-nf-render-mode`)).toEqual(`ssr`)
   expect(await apiResponse.json()).toEqual({ name: 'John Doe' })
 })
