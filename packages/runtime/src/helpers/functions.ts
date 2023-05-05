@@ -272,8 +272,9 @@ const traceNextServer = async (publish: string): Promise<string[]> => {
 
 export const traceNPMPackage = async (packageName: string, publish: string) => {
   try {
-    const paths = await glob(join(dirname(require.resolve(packageName, { paths: [publish] })), '**', '*'))
-    return paths.map((path) => join(publish, path))
+    return await glob(join(dirname(require.resolve(packageName, { paths: [publish] })), '**', '*'), {
+      absolute: true,
+    })
   } catch (error) {
     if (process.env.NODE_ENV === 'test') {
       return []
