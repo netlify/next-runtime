@@ -8,6 +8,8 @@ import waitOn from 'wait-on'
 
 let destroy = () => {}
 
+const slugify = (str: string) => str.replace('@', '').replace(/\//g, '-')
+
 beforeAll(async () => {
   const tmpDir = mkdtempSync(join(tmpdir(), `isolated-test-`))
 
@@ -24,7 +26,7 @@ beforeAll(async () => {
 
   // create package tarball
   const o = await execa(`npm`, [`pack`, `--json`], { cwd: runtimeSrcDir })
-  const tgzName = JSON.parse(o.stdout)[0].filename
+  const tgzName = slugify(JSON.parse(o.stdout)[0].filename)
   const tgzPath = join(runtimeSrcDir, tgzName)
 
   // install runtime from tarball
