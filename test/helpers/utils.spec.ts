@@ -219,5 +219,7 @@ describe('redirectsForNext404Route', () => {
     }
 
     expect(generateDynamicRewrites(route)).toStrictEqual(expected)
+    
+    delete process.env.LEGACY_FALLBACK_FALSE
   })
 })
