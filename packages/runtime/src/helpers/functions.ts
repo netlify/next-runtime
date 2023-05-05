@@ -21,11 +21,12 @@ import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
-import { ApiConfig, ApiRouteType, extractConfigFromFile, isEdgeConfig } from './analysis'
-import { getSourceFileForPage, getDependenciesOfFile } from './files'
+import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
+import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
-import { pack } from './pack'
+import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
+import { pack } from './pack'
 
 // TODO, for reviewer: I added my properties here because that was the easiest way,
 // but is it the right spot for it?
@@ -54,6 +55,11 @@ export const generateFunctions = async (
   const functionDir = join(functionsDir, HANDLER_FUNCTION_NAME)
   const publishDir = relative(functionDir, publish)
 
+  const nextServerModuleAbsoluteLocation = getServerFile(appDir, false)
+  const nextServerModuleRelativeLocation = nextServerModuleAbsoluteLocation
+    ? relative(functionDir, nextServerModuleAbsoluteLocation)
+    : undefined
+
   for (const apiLambda of apiLambdas) {
     const { functionName, routes, type, includedFiles } = apiLambda
 
@@ -61,6 +67,7 @@ export const generateFunctions = async (
       schedule: type === ApiRouteType.SCHEDULED ? routes[0].config.schedule : undefined,
       publishDir,
       appDir: relative(functionDir, appDir),
+      nextServerModuleRelativeLocation,
     })
 
     await ensureDir(join(functionsDir, functionName))
@@ -99,7 +106,12 @@ export const generateFunctions = async (
   }
 
   const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
-    const handlerSource = getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
+    const handlerSource = getHandler({
+      isODB,
+      publishDir,
+      appDir: relative(functionDir, appDir),
+      nextServerModuleRelativeLocation,
+    })
     await ensureDir(join(functionsDir, functionName))
 
     // write main handler file (standard or ODB)
@@ -341,20 +353,20 @@ export const getAPILambdas = async (
  */
 export const getApiRouteConfigs = async (
   publish: string,
-  baseDir: string,
-  pageExtensions?: string[],
+  appDir: string,
+  pageExtensions: string[],
 ): Promise<Array<ApiRouteConfig>> => {
   const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
   const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
   // two possible places
   // Ref: https://nextjs.org/docs/advanced-features/src-directory
-  const pagesDir = join(baseDir, 'pages')
-  const srcPagesDir = join(baseDir, 'src', 'pages')
+  const pagesDir = join(appDir, 'pages')
+  const srcPagesDir = join(appDir, 'src', 'pages')
 
   return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
       const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir], pageExtensions)
-      const config = await extractConfigFromFile(filePath)
+      const config = await extractConfigFromFile(filePath, appDir)
 
       const functionName = getFunctionNameForPage(apiRoute, config.type === ApiRouteType.BACKGROUND)
 
@@ -380,10 +392,10 @@ export const getApiRouteConfigs = async (
  */
 export const getExtendedApiRouteConfigs = async (
   publish: string,
-  baseDir: string,
+  appDir: string,
   pageExtensions: string[],
 ): Promise<Array<ApiRouteConfig>> => {
-  const settledApiRoutes = await getApiRouteConfigs(publish, baseDir, pageExtensions)
+  const settledApiRoutes = await getApiRouteConfigs(publish, appDir, pageExtensions)
 
   // We only want to return the API routes that are background or scheduled functions
   return settledApiRoutes.filter((apiRoute) => apiRoute.config.type !== undefined)

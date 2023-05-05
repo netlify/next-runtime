@@ -551,8 +551,12 @@ describe('onBuild()', () => {
     expect(existsSync(handlerFile)).toBeTruthy()
     expect(existsSync(odbHandlerFile)).toBeTruthy()
 
-    expect(readFileSync(handlerFile, 'utf8')).toMatch(`(config, "../../..", pageRoot, staticManifest, 'ssr')`)
-    expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`(config, "../../..", pageRoot, staticManifest, 'odb')`)
+    expect(readFileSync(handlerFile, 'utf8')).toMatch(
+      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'ssr' })`,
+    )
+    expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(
+      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'odb' })`,
+    )
     expect(readFileSync(handlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
     expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
   })

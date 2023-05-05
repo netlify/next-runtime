@@ -16,16 +16,22 @@ const { URLSearchParams, URL } = require('url')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
 
-const { getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+const { getMultiValueHeaders } = require('./handlerUtils')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
   -readonly [K in keyof T]: T[K]
 }
 
-// We return a function and then call `toString()` on it to serialise it as the launcher function
+type MakeApiHandlerParams = {
+  conf: NextConfig
+  app: string
+  pageRoot: string
+  NextServer: NextServerType
+}
 
-const makeHandler = (conf: NextConfig, app, pageRoot) => {
+// We return a function and then call `toString()` on it to serialise it as the launcher function
+const makeApiHandler = ({ conf, app, pageRoot, NextServer }: MakeApiHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -63,7 +69,6 @@ const makeHandler = (conf: NextConfig, app, pageRoot) => {
     const url = event.rawUrl ? new URL(event.rawUrl) : new URL(path, process.env.URL || 'http://n')
     const port = Number.parseInt(url.port) || 80
 
-    const NextServer: NextServerType = getNextServer()
     const nextServer = new NextServer({
       conf,
       dir,
@@ -114,18 +119,25 @@ export const getApiHandler = ({
   schedule,
   publishDir = '../../../.next',
   appDir = '../../..',
+  nextServerModuleRelativeLocation,
 }: {
   schedule?: string
   publishDir?: string
   appDir?: string
+  nextServerModuleRelativeLocation: string | undefined
 }): string =>
   // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
   javascript/* javascript */ `
   process.env.NODE_ENV = 'production';
+  if (!${JSON.stringify(nextServerModuleRelativeLocation)}) {
+    throw new Error('Could not find Next.js server')
+  }
+
   const { Server } = require("http");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { getMultiValueHeaders, getNextServer } = require('./handlerUtils')
+  const { getMultiValueHeaders } = require('./handlerUtils')
+  const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
 
   ${schedule ? `const { schedule } = require("@netlify/functions")` : ''}
 
@@ -134,6 +146,8 @@ export const getApiHandler = ({
   let staticManifest
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
-  const handler = (${makeHandler.toString()})(config, "${appDir}", pageRoot)
-  exports.handler = ${schedule ? `schedule(${JSON.stringify(schedule)}, handler);` : 'handler'}
+  const handler = (${makeApiHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer})
+  exports.handler = ${
+    schedule ? `schedule(${JSON.stringify(schedule)}, handler);` : 'handler'
+  }
 `

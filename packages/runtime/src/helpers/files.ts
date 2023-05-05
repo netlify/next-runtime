@@ -133,7 +133,6 @@ export const moveStaticPages = async ({
     const dest = join(netlifyConfig.build.publish, targetPath)
 
     try {
-      console.log(`Moving ${source} to ${dest}`)
       await move(source, dest)
     } catch (error) {
       console.warn('Error moving file', source, error)
@@ -330,7 +329,7 @@ const patchFile = async ({
  * The file we need has moved around a bit over the past few versions,
  * so we iterate through the options until we find it
  */
-const getServerFile = (root: string, includeBase = true) => {
+export const getServerFile = (root: string, includeBase = true) => {
   const candidates = ['next/dist/server/next-server', 'next/dist/next-server/server/next-server']
 
   if (includeBase) {
