@@ -285,8 +285,8 @@ export const getAPIPRouteCommonDependencies = async (publish: string, baseDir: s
     traceRequiredServerFiles(publish),
     traceNextServer(publish, baseDir),
 
-    // for some reason, ISR needs `_document.js`
-    traceNextPages(['_document'], publish),
+    // for some reason, ISR needs them
+    traceNextPages(['_document', '_app'], publish),
 
     // used by our own bridge.js
     traceNPMPackage('follow-redirects', publish),
