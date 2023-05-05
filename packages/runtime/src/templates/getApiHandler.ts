@@ -147,7 +147,5 @@ export const getApiHandler = ({
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   const handler = (${makeApiHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer})
-  exports.handler = ${
-    schedule ? `schedule(${JSON.stringify(schedule)}, handler);` : 'handler'
-  }
+  exports.handler = ${schedule ? `schedule(${JSON.stringify(schedule)}, handler);` : 'handler'}
 `

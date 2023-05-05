@@ -24,9 +24,9 @@ import { getResolverForPages, getResolverForSourceFiles } from '../templates/get
 import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
 import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
+import { pack } from './pack'
 import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
-import { pack } from './pack'
 
 // TODO, for reviewer: I added my properties here because that was the easiest way,
 // but is it the right spot for it?
