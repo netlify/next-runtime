@@ -12,21 +12,9 @@ body:
     id: description
     attributes:
       label: Summary
-      description: A short description of the problem
+      description: Describe the problem you're seeing.
       placeholder: |
-        Include what you expected to happen, and what actually happened.
-    validations:
-      required: true
-  - type: textarea
-    id: steps-to-reproduce
-    attributes:
-      label: Steps to reproduce
-      description: Steps to reproduce the behavior
-      placeholder: |
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. See error
+        Be as precise as you can. Feel free to share screenshots, videos, or data from the devtools of your browser.
     validations:
       required: true
   - type: input
@@ -35,11 +23,36 @@ body:
       label: A link to a reproduction repository
       description: The fastest way to describe your bug is to provide a reproduction repository.
       placeholder: https://github.com/project/link-to-your-reproduction-repo
-
+    validations:
+      required: true
   - type: markdown
     attributes:
       value: |
-        Check out [CONTRIBUTING.md](https://github.com/netlify/next-runtime/blob/main/CONTRIBUTING.md#what-is-a-reproducible-test-case) for advice on producing a reproduction repo.
+        Check out PLACEHOLDER for advice on producing a reproduction repo.
+  - type: textarea
+    attributes:
+      label: Expected Result
+      description: Describe what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actual Result
+      description: Describe what actually happened.
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1.
+        2.
+        3.
+        4.
+    validations:
+      required: true
   - type: input
     id: runtime-version
     attributes:
@@ -52,7 +65,7 @@ body:
   - type: checkboxes
     id: more-nextjs-info
     attributes:
-      label: Is your issue related to the `app` directory (beta)?
+      label: Is your issue related to the `app` directory?
       options:
         - label: Yes, I am using the `app` directory
 
