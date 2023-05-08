@@ -241,9 +241,22 @@ const traceNextPages = async (pages: string[], publish: string): Promise<string[
 
 const traceRequiredServerFiles = async (publish: string): Promise<string[]> => {
   const requiredServerFilesPath = join(publish, 'required-server-files.json')
-  const { files } = (await readJSON(requiredServerFilesPath)) as { files: string[] }
-  const absoluteFiles = files.map((file) => join(dirname(publish), file))
+  const {
+    files,
+    relativeAppDir,
+    config: {
+      experimental: { outputFileTracingRoot },
+    },
+  } = (await readJSON(requiredServerFilesPath)) as {
+    files: string[]
+    relativeAppDir: string
+    config: { experimental: { outputFileTracingRoot: string } }
+  }
+  const appDirRoot = join(outputFileTracingRoot, relativeAppDir)
+  const absoluteFiles = files.map((file) => join(appDirRoot, file))
+
   absoluteFiles.push(requiredServerFilesPath)
+
   return absoluteFiles
 }
 
