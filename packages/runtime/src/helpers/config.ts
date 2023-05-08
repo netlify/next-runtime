@@ -170,10 +170,9 @@ export const configureHandlerFunctions = async ({
   if (splitApiRoutes(featureFlags)) {
     for (const apiLambda of apiLambdas) {
       const { functionName, includedFiles } = apiLambda
-      // TODO: add all the nextRoot/wasm/excludedModules stuff from above
       netlifyConfig.functions[functionName] ||= { included_files: [] }
       netlifyConfig.functions[functionName].node_bundler = 'none'
-      netlifyConfig.functions[functionName].included_files = includedFiles
+      netlifyConfig.functions[functionName].included_files.push(...includedFiles)
     }
   } else {
     configureFunction('_api_*')
