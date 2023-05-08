@@ -172,6 +172,7 @@ export const configureHandlerFunctions = async ({
       const { functionName, includedFiles } = apiLambda
       netlifyConfig.functions[functionName] ||= { included_files: [] }
       netlifyConfig.functions[functionName].node_bundler = 'none'
+      netlifyConfig.functions[functionName].included_files ||= []
       netlifyConfig.functions[functionName].included_files.push(...includedFiles)
     }
   } else {
