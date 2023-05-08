@@ -227,18 +227,6 @@ export const setupImageFunction = async ({
   }
 }
 
-const traceNextPages = async (pages: string[], publish: string): Promise<string[]> => {
-  const requiredFiles = await Promise.all(
-    pages.map(async (page) => {
-      const path = join(publish, 'server', 'pages', `${page}.js`)
-      const dependencies = await getDependenciesOfFile(path)
-      return [path, ...dependencies]
-    }),
-  )
-
-  return requiredFiles.flat(1)
-}
-
 const traceRequiredServerFiles = async (publish: string): Promise<string[]> => {
   const requiredServerFilesPath = join(publish, 'required-server-files.json')
   const {
@@ -300,9 +288,6 @@ export const getAPIPRouteCommonDependencies = async (publish: string) => {
   const deps = await Promise.all([
     traceRequiredServerFiles(publish),
     traceNextServer(publish),
-
-    // for some reason, ISR needs them
-    traceNextPages(['_document', '_app'], publish),
 
     // used by our own bridge.js
     traceNPMPackage('follow-redirects', publish),
