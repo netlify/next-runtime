@@ -6,6 +6,7 @@ import { outdent as javascript } from 'outdent'
 import type { NextConfig } from '../helpers/config'
 
 import type { NextServerType } from './handlerUtils'
+import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
@@ -17,6 +18,7 @@ const { URLSearchParams, URL } = require('url')
 const { Bridge } = require('@vercel/node-bridge/bridge')
 
 const { getMultiValueHeaders } = require('./handlerUtils')
+const { getNetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
@@ -45,6 +47,8 @@ const makeApiHandler = ({ conf, app, pageRoot, NextServer }: MakeApiHandlerParam
     require.resolve('./pages.js')
   } catch {}
 
+  const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
+
   // React assumes you want development mode if NODE_ENV is unset.
 
   ;(process.env as Mutable<NodeJS.ProcessEnv>).NODE_ENV ||= 'production'
@@ -61,21 +65,31 @@ const makeApiHandler = ({ conf, app, pageRoot, NextServer }: MakeApiHandlerParam
   // We memoize this because it can be shared between requests, but don't instantiate it until
   // the first request because we need the host and port.
   let bridge: NodeBridge
-  const getBridge = (event: HandlerEvent): NodeBridge => {
+  const getBridge = (event: HandlerEvent, context: HandlerContext): NodeBridge => {
     if (bridge) {
       return bridge
     }
+
+    const {
+      clientContext: { custom: customContext },
+    } = context
+
     // Scheduled functions don't have a URL, but we need to give one so Next knows the route to serve
     const url = event.rawUrl ? new URL(event.rawUrl) : new URL(path, process.env.URL || 'http://n')
     const port = Number.parseInt(url.port) || 80
 
-    const nextServer = new NextServer({
-      conf,
-      dir,
-      customServer: false,
-      hostname: url.hostname,
-      port,
-    })
+    const nextServer = new NetlifyNextServer(
+      {
+        conf,
+        dir,
+        customServer: false,
+        hostname: url.hostname,
+        port,
+      },
+      {
+        revalidateToken: customContext?.odb_refresh_hooks,
+      },
+    )
     const requestHandler = nextServer.getRequestHandler()
     const server = new Server(async (req, res) => {
       try {
@@ -96,7 +110,7 @@ const makeApiHandler = ({ conf, app, pageRoot, NextServer }: MakeApiHandlerParam
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
-    const { headers, ...result } = await getBridge(event).launcher(event, context)
+    const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
 
@@ -137,6 +151,7 @@ export const getApiHandler = ({
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { getMultiValueHeaders } = require('./handlerUtils')
+  const { getNetlifyNextServer } = require('./server')
   const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
 
   ${schedule ? `const { schedule } = require("@netlify/functions")` : ''}
