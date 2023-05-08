@@ -28,8 +28,6 @@ import { pack } from './pack'
 import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
 
-// TODO, for reviewer: I added my properties here because that was the easiest way,
-// but is it the right spot for it?
 export interface ApiRouteConfig {
   functionName: string
   route: string
