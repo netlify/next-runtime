@@ -1,10 +1,13 @@
 /**
- * If this flag is enabled, we generate one function per API Route.
- * We'll also use the "none" bundling strategy where we fully rely on Next.js' `.nft.json` files.
- * This should lead to smaller bundle sizes at the same speed, but is still experimental.
+ * If this flag is enabled, we generate individual Lambda functions for API Routes.
+ * They're packed together in 50mb chunks to avoid hitting the Lambda size limit.
+ *
+ * To prevent bundling times from rising,
+ * we use the "none" bundling strategy where we fully rely on Next.js' `.nft.json` files.
+ * This should to a significant speedup, but is still experimental.
  *
  * If disabled, we bundle all API Routes into a single function.
- * This is fast, but can lead to large bundle sizes.
+ * This is can lead to large bundle sizes.
  *
  * Enabled by default. Can be disabled by passing NEXT_SPLIT_API_ROUTES=false.
  */
