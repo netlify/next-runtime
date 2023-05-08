@@ -172,6 +172,9 @@ const plugin: NetlifyPlugin = {
           extendedRoutes.map(packSingleFunction),
         )
 
+    await generateFunctions(constants, appDir, apiLambdas)
+    await generatePagesResolver(constants)
+
     await configureHandlerFunctions({
       netlifyConfig,
       ignore,
@@ -179,9 +182,6 @@ const plugin: NetlifyPlugin = {
       apiLambdas,
       featureFlags,
     })
-
-    await generateFunctions(constants, appDir, apiLambdas)
-    await generatePagesResolver(constants)
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
 
