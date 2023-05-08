@@ -43,6 +43,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
 
           res = res as unknown as BaseNextResponse
           res.statusCode = 200
+          res.setHeader('x-nextjs-cache', 'REVALIDATED')
           res.send()
         } else {
           await handler(req, res, parsedUrl)
