@@ -263,7 +263,7 @@ const traceNextServer = async (publish: string): Promise<string[]> => {
     if (f.endsWith('.development.js')) return false
 
     // not needed for API Routes!
-    if (f === 'node_modules/sass/sass.dart.js') return false
+    if (f.endsWith('node_modules/sass/sass.dart.js')) return false
 
     return true
   })
