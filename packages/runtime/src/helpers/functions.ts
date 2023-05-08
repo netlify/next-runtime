@@ -88,7 +88,7 @@ export const generateFunctions = async (
 
     const resolveSourceFile = (file: string) => join(publish, 'server', file)
 
-    // TODO: this should be unneeded once we use the `none` bundler
+    // TODO: this should be unneeded once we use the `none` bundler everywhere
     const resolverSource = await getResolverForSourceFiles({
       functionsDir,
       // These extra pages are always included by Next.js
