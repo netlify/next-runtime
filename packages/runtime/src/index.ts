@@ -65,6 +65,7 @@ const plugin: NetlifyPlugin = {
     netlifyConfig.build.environment.NEXT_PRIVATE_TARGET = 'server'
   },
 
+  // eslint-disable-next-line max-lines-per-function
   async onBuild({
     constants,
     netlifyConfig,
@@ -79,11 +80,22 @@ const plugin: NetlifyPlugin = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const { appDir, basePath, i18n, images, target, ignore, trailingSlash, outdir, experimental, routesManifest } =
-      await getNextConfig({
-        publish,
-        failBuild,
-      })
+    const {
+      appDir,
+      basePath,
+      i18n,
+      images,
+      target,
+      ignore,
+      trailingSlash,
+      outdir,
+      experimental,
+      routesManifest,
+      pageExtensions,
+    } = await getNextConfig({
+      publish,
+      failBuild,
+    })
     await cleanupEdgeFunctions(constants)
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
@@ -150,7 +162,7 @@ const plugin: NetlifyPlugin = {
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
     await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
-    const apiRoutes = await getExtendedApiRouteConfigs(publish, appDir)
+    const apiRoutes = await getExtendedApiRouteConfigs(publish, appDir, pageExtensions)
 
     await generateFunctions(constants, appDir, apiRoutes)
     await generatePagesResolver(constants)

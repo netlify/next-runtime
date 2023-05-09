@@ -1,3 +1,8 @@
+import path, { dirname } from 'path'
+
+import { readFileSync, copy, ensureDir } from 'fs-extra'
+import { resolve, join } from 'pathe'
+
 import {
   matchMiddleware,
   stripLocale,
@@ -6,18 +11,12 @@ import {
   patchNextFiles,
   unpatchNextFiles,
   getDependenciesOfFile,
-} from "../../packages/runtime/src/helpers/files"
-import {
-  readFileSync,
-  copy,
-  ensureDir,
-} from "fs-extra"
-import path from "path"
-import { dirname } from "path"
-import { resolve } from 'pathe'
-import { join } from "pathe"
-import { Rewrites } from "../../packages/runtime/src/helpers/types"
-import { describeCwdTmpDir, moveNextDist } from "../test-utils"
+  getSourceFileForPage,
+} from '../../packages/runtime/src/helpers/files'
+import { Rewrites } from '../../packages/runtime/src/helpers/types'
+import { describeCwdTmpDir } from '../test-utils'
+
+const TEST_DIR = resolve(__dirname, '..')
 
 const REDIRECTS: Rewrites = [
   {
@@ -60,7 +59,7 @@ const REWRITES: Rewrites = [
 ]
 
 describe('files utility functions', () => {
-  test('middleware tester matches correct paths', () => {
+  it('middleware tester matches correct paths', () => {
     const middleware = ['middle', 'sub/directory']
     const paths = [
       'middle.html',
@@ -77,7 +76,7 @@ describe('files utility functions', () => {
     }
   })
 
-  test('middleware tester does not match incorrect paths', () => {
+  it('middleware tester does not match incorrect paths', () => {
     const middleware = ['middle', 'sub/directory']
     const paths = [
       'middl',
@@ -94,7 +93,7 @@ describe('files utility functions', () => {
     }
   })
 
-  test('middleware tester matches root middleware', () => {
+  it('middleware tester matches root middleware', () => {
     const middleware = ['']
     const paths = [
       'middl',
@@ -111,7 +110,7 @@ describe('files utility functions', () => {
     }
   })
 
-  test('middleware tester matches root middleware', () => {
+  it('middleware tester does not match undefined', () => {
     const paths = [
       'middl',
       '',
@@ -127,7 +126,7 @@ describe('files utility functions', () => {
     }
   })
 
-  test('stripLocale correctly strips matching locales', () => {
+  it('stripLocale correctly strips matching locales', () => {
     const locales = ['en', 'fr', 'en-GB']
     const paths = [
       ['en/file.html', 'file.html'],
@@ -141,7 +140,7 @@ describe('files utility functions', () => {
     }
   })
 
-  test('stripLocale does not touch non-matching matching locales', () => {
+  it('stripLocale does not touch non-matching matching locales', () => {
     const locales = ['en', 'fr', 'en-GB']
     const paths = ['de/file.html', 'enfile.html', 'en-US/file.html']
     for (const path of paths) {
@@ -149,21 +148,21 @@ describe('files utility functions', () => {
     }
   })
 
-  test('matchesRedirect correctly matches paths with locales', () => {
+  it('matchesRedirect correctly matches paths with locales', () => {
     const paths = ['en/redirectme.html', 'en/redirectme.json', 'fr/redirectme.html', 'fr/redirectme.json']
     paths.forEach((path) => {
       expect(matchesRedirect(path, REDIRECTS)).toBeTruthy()
     })
   })
 
-  test("matchesRedirect doesn't match paths with invalid locales", () => {
+  it("matchesRedirect doesn't match paths with invalid locales", () => {
     const paths = ['dk/redirectme.html', 'dk/redirectme.json', 'gr/redirectme.html', 'gr/redirectme.json']
     paths.forEach((path) => {
       expect(matchesRedirect(path, REDIRECTS)).toBeFalsy()
     })
   })
 
-  test("matchesRedirect doesn't match internal redirects", () => {
+  it("matchesRedirect doesn't match internal redirects", () => {
     const paths = ['en/notrailingslash']
     paths.forEach((path) => {
       expect(matchesRedirect(path, REDIRECTS)).toBeFalsy()
@@ -215,7 +214,27 @@ describe('dependency tracing', () => {
   it('generates dependency list from a source file', async () => {
     const dependencies = await getDependenciesOfFile(resolve(__dirname, '../fixtures/analysis/background.js'))
     expect(dependencies).toEqual(
-      ['test/webpack-api-runtime.js', 'package.json'].map((dep) => resolve(dirname(resolve(__dirname, '..')), dep)),
+      ['test/webpack-api-runtime.js', 'package.json'].map((dep) => resolve(dirname(TEST_DIR), dep)),
     )
+  })
+})
+
+describe('getSourceFileForPage', () => {
+  it('handles default pageExtensions', () => {
+    const pagesDir = resolve(__dirname, '../fixtures/page-extensions/default/pages')
+    const apiRoute = '/api/default'
+
+    const filePath = getSourceFileForPage(apiRoute, [pagesDir])
+
+    expect(filePath.replace(TEST_DIR, '')).toBe('/fixtures/page-extensions/default/pages/api/default.js')
+  })
+
+  it('handles custom pageExtensions', () => {
+    const pagesDir = resolve(__dirname, '../fixtures/page-extensions/custom/pages')
+    const apiRoute = '/api/custom'
+
+    const filePath = getSourceFileForPage(apiRoute, [pagesDir], ['api.js'])
+
+    expect(filePath.replace(TEST_DIR, '')).toBe('/fixtures/page-extensions/custom/pages/api/custom.api.js')
   })
 })
