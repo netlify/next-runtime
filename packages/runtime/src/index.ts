@@ -100,6 +100,7 @@ const plugin: NetlifyPlugin = {
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
 
+    // See: https://github.com/vercel/next.js/issues/49169
     if (!destr(process.env[NEXT_ENV_VARS.PREBUNDLED_REACT]) && experimental?.serverActions) {
       process.env[NEXT_ENV_VARS.PREBUNDLED_REACT] = experimental.serverActions ? 'experimental' : 'next'
     }
