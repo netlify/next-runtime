@@ -93,6 +93,11 @@ export const loadPrerenderManifest = (netlifyConfig: NetlifyConfig): Promise<Pre
  */
 const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 
+/**
+ * Convert the images path to strip the origin (until domain-level Edge functions are supported)
+ */
+const sanitizeEdgePath = (imagesPath: string) => new URL(imagesPath, process.env.URL || 'http://n').pathname
+
 // Slightly different spacing in different versions!
 const IMPORT_UNSUPPORTED = [
   `Object.defineProperty(globalThis,"__import_unsupported"`,
@@ -485,10 +490,11 @@ export const writeEdgeFunctions = async ({
       join('.netlify', 'functions-internal', IMAGE_FUNCTION_NAME, 'imageconfig.json'),
       join(edgeFunctionDir, 'imageconfig.json'),
     )
+
     manifest.functions.push({
       function: 'ipx',
       name: 'next/image handler',
-      path: nextConfig.images.path || '/_next/image',
+      path: nextConfig.images.path ? sanitizeEdgePath(nextConfig.images.path) : '/_next/image',
       generator,
     })
 
