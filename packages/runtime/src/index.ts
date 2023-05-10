@@ -6,7 +6,7 @@ import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
+import { HANDLER_FUNCTION_NAME, NEXT_ENV_VARS, ODB_FUNCTION_NAME } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
 import {
   getNextConfig,
@@ -99,6 +99,10 @@ const plugin: NetlifyPlugin = {
     await cleanupEdgeFunctions(constants)
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
+
+    if (!destr(process.env[NEXT_ENV_VARS.PREBUNDLED_REACT]) && experimental?.serverActions) {
+      process.env[NEXT_ENV_VARS.PREBUNDLED_REACT] = experimental.serverActions ? 'experimental' : 'next'
+    }
 
     if (
       middlewareManifest?.functions &&
