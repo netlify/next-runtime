@@ -60,6 +60,14 @@ const plugin: NetlifyPlugin = {
 
     await restoreCache({ cache, publish })
 
+    const config = await getRequiredServerFiles(publish)
+
+    // See: https://github.com/vercel/next.js/issues/49169
+    if (!destr(process.env[NEXT_ENV_VARS.PREBUNDLED_REACT]) && config.config.experimental?.serverActions) {
+      // eslint-disable-next-line unicorn/consistent-destructuring
+      netlifyConfig.build.environment[NEXT_ENV_VARS.PREBUNDLED_REACT] = config.config.experimental.serverActions ? 'experimental' : 'next'
+    }
+
     netlifyConfig.build.environment ||= {}
     // eslint-disable-next-line unicorn/consistent-destructuring
     netlifyConfig.build.environment.NEXT_PRIVATE_TARGET = 'server'
@@ -100,13 +108,6 @@ const plugin: NetlifyPlugin = {
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
     const config = await getRequiredServerFiles(publish)
-
-    // See: https://github.com/vercel/next.js/issues/49169
-    if (!destr(process.env[NEXT_ENV_VARS.PREBUNDLED_REACT]) && experimental?.serverActions) {
-      config.config.env[NEXT_ENV_VARS.PREBUNDLED_REACT] = experimental.serverActions ? 'experimental' : 'next'
-
-      await updateRequiredServerFiles(publish, config)
-    }
 
     if (
       middlewareManifest?.functions &&
