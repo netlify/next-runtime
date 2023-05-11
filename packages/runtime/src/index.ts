@@ -172,7 +172,7 @@ const plugin: NetlifyPlugin = {
           extendedRoutes.map(packSingleFunction),
         )
 
-    await generateFunctions(constants, appDir, apiLambdas)
+    await generateFunctions(constants, appDir, apiLambdas, featureFlags)
     await generatePagesResolver(constants)
 
     await configureHandlerFunctions({
