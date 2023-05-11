@@ -99,10 +99,11 @@ const plugin: NetlifyPlugin = {
     await cleanupEdgeFunctions(constants)
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
+    const config = await getRequiredServerFiles(publish)
 
     // See: https://github.com/vercel/next.js/issues/49169
     if (!destr(process.env[NEXT_ENV_VARS.PREBUNDLED_REACT]) && experimental?.serverActions) {
-      process.env[NEXT_ENV_VARS.PREBUNDLED_REACT] = experimental.serverActions ? 'experimental' : 'next'
+      config.config.env[NEXT_ENV_VARS.PREBUNDLED_REACT] = experimental.serverActions ? 'experimental' : 'next'
     }
 
     if (
@@ -132,8 +133,6 @@ const plugin: NetlifyPlugin = {
     }
 
     if (isNextAuthInstalled()) {
-      const config = await getRequiredServerFiles(publish)
-
       const userDefinedNextAuthUrl = config.config.env.NEXTAUTH_URL
 
       if (userDefinedNextAuthUrl) {
