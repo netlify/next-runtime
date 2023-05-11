@@ -3,10 +3,10 @@ import { join, relative } from 'path'
 import type { NetlifyPlugin, NetlifyPluginOptions } from '@netlify/build'
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
-import { existsSync, readFileSync } from 'fs-extra'
+import { existsSync, readFileSync, remove } from 'fs-extra'
 import { outdent } from 'outdent'
 
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, HIDDEN_PATHS } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
 import {
   getNextConfig,
@@ -254,6 +254,13 @@ const plugin: NetlifyPlugin = {
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
     await warnOnApiRoutes({ FUNCTIONS_DIST })
+
+    for (const HIDDEN_PATH of HIDDEN_PATHS) {
+      const pathToDelete = join(publish, HIDDEN_PATH)
+      console.log({ pathToDelete })
+      await remove(pathToDelete)
+    }
+
     if (experimental?.appDir) {
       console.log(
         '🧪 Thank you for testing "appDir" support on Netlify. For known issues and to give feedback, visit https://ntl.fyi/next-13-feedback',

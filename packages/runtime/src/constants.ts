@@ -8,9 +8,9 @@ export const ODB_FUNCTION_TITLE = 'Next.js ISR handler'
 export const IMAGE_FUNCTION_TITLE = 'next/image handler'
 // These are paths in .next that shouldn't be publicly accessible
 export const HIDDEN_PATHS = [
-  '/cache/*',
-  '/server/*',
-  '/serverless/*',
+  '/cache',
+  '/server',
+  '/serverless',
   '/trace',
   '/traces',
   '/routes-manifest.json',
