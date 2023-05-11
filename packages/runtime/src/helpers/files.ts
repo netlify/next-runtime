@@ -353,6 +353,11 @@ export const getSourceFileForPage = (page: string, roots: string[], pageExtensio
       if (existsSync(file)) {
         return file
       }
+
+      const fileAtFolderIndex = join(root, page, `index.${extension}`)
+      if (existsSync(fileAtFolderIndex)) {
+        return fileAtFolderIndex
+      }
     }
   }
   console.log('Could not find source file for page', page)
