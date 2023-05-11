@@ -4,6 +4,7 @@ import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
+import { splitApiRoutes as isSplitApiRoutesEnabled } from '../helpers/flags'
 
 import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
@@ -30,10 +31,11 @@ type MakeApiHandlerParams = {
   app: string
   pageRoot: string
   NextServer: NextServerType
+  splitApiRoutes: boolean
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
-const makeApiHandler = ({ conf, app, pageRoot, NextServer }: MakeApiHandlerParams) => {
+const makeApiHandler = ({ conf, app, pageRoot, NextServer, splitApiRoutes }: MakeApiHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -88,6 +90,7 @@ const makeApiHandler = ({ conf, app, pageRoot, NextServer }: MakeApiHandlerParam
       },
       {
         revalidateToken: customContext?.odb_refresh_hooks,
+        splitApiRoutes,
       },
     )
     const requestHandler = nextServer.getRequestHandler()
@@ -134,11 +137,13 @@ export const getApiHandler = ({
   publishDir = '../../../.next',
   appDir = '../../..',
   nextServerModuleRelativeLocation,
+  featureFlags,
 }: {
   schedule?: string
   publishDir?: string
   appDir?: string
   nextServerModuleRelativeLocation: string | undefined
+  featureFlags: Record<string, unknown>
 }): string =>
   // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
   javascript/* javascript */ `
@@ -161,6 +166,8 @@ export const getApiHandler = ({
   let staticManifest
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
-  const handler = (${makeApiHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer})
+  const handler = (${makeApiHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, splitApiRoutes: ${isSplitApiRoutesEnabled(
+    featureFlags,
+  )} })
   exports.handler = ${schedule ? `schedule(${JSON.stringify(schedule)}, handler);` : 'handler'}
 `

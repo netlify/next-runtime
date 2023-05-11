@@ -13,6 +13,7 @@ import {
 
 interface NetlifyConfig {
   revalidateToken?: string
+  splitApiRoutes: boolean
 }
 
 const getNetlifyNextServer = (NextServer: NextServerType) => {
@@ -37,16 +38,26 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       return async (req, res, parsedUrl) => {
         // preserve the URL before Next.js mutates it for i18n
         const { url, headers } = req
-        if (headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {
-          // handle on-demand revalidation by purging the ODB cache
-          await this.netlifyRevalidate(url)
 
-          res = res as unknown as BaseNextResponse
-          res.statusCode = 200
-          res.setHeader('x-nextjs-cache', 'REVALIDATED')
-          res.send()
+        if (this.netlifyConfig.splitApiRoutes) {
+          if (headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {
+            // handle on-demand revalidation by purging the ODB cache
+            await this.netlifyRevalidate(url)
+
+            res = res as unknown as BaseNextResponse
+            res.statusCode = 200
+            res.setHeader('x-nextjs-cache', 'REVALIDATED')
+            res.send()
+          } else {
+            await handler(req, res, parsedUrl)
+          }
         } else {
+          // handle the original res.revalidate() request
           await handler(req, res, parsedUrl)
+          // handle on-demand revalidation by purging the ODB cache
+          if (res.statusCode === 200 && headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {
+            await this.netlifyRevalidate(url)
+          }
         }
       }
     }
