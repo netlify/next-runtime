@@ -19,6 +19,7 @@ type NetlifyHeaders = NetlifyConfig['headers']
 
 export interface RequiredServerFiles {
   version?: number
+  relativeAppDir?: string
   config?: NextConfigComplete
   appDir?: string
   files?: string[]

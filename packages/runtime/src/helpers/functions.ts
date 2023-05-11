@@ -22,6 +22,7 @@ import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
+import { getRequiredServerFiles } from './config'
 import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
 import { pack } from './pack'
@@ -226,22 +227,17 @@ export const setupImageFunction = async ({
 }
 
 const traceRequiredServerFiles = async (publish: string): Promise<string[]> => {
-  const requiredServerFilesPath = join(publish, 'required-server-files.json')
   const {
     files,
     relativeAppDir,
     config: {
       experimental: { outputFileTracingRoot },
     },
-  } = (await readJSON(requiredServerFilesPath)) as {
-    files: string[]
-    relativeAppDir: string
-    config: { experimental: { outputFileTracingRoot: string } }
-  }
+  } = await getRequiredServerFiles(publish)
   const appDirRoot = join(outputFileTracingRoot, relativeAppDir)
   const absoluteFiles = files.map((file) => join(appDirRoot, file))
 
-  absoluteFiles.push(requiredServerFilesPath)
+  absoluteFiles.push(join(publish, 'required-server-files.json'))
 
   return absoluteFiles
 }
