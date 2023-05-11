@@ -237,4 +237,13 @@ describe('getSourceFileForPage', () => {
 
     expect(filePath.replace(TEST_DIR, '')).toBe('/fixtures/page-extensions/custom/pages/api/custom.api.js')
   })
+
+  it("handles getting file when index of folder", () => {
+    const pagesDir = resolve(__dirname, '../fixtures/page-extensions/index/pages')
+    const apiRoute = '/api/index'
+
+    const filePath = getSourceFileForPage(apiRoute, [pagesDir])
+
+    expect(filePath.replace(TEST_DIR, '')).toBe('/fixtures/page-extensions/default/pages/api/index/index.api.js')
+  })
 })
