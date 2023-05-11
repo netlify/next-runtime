@@ -63,6 +63,8 @@ export const generateFunctions = async (
     const { functionName, routes, type, includedFiles } = apiLambda
 
     const apiHandlerSource = getApiHandler({
+      // most api lambdas serve multiple routes, but scheduled functions need to be in separate lambdas.
+      // so routes[0] is safe to access.
       schedule: type === ApiRouteType.SCHEDULED ? routes[0].config.schedule : undefined,
       publishDir,
       appDir: relative(functionDir, appDir),
