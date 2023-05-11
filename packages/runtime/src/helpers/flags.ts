@@ -1,3 +1,5 @@
+import destr from 'destr'
+
 /**
  * If this flag is enabled, we generate individual Lambda functions for API Routes.
  * They're packed together in 50mb chunks to avoid hitting the Lambda size limit.
@@ -9,13 +11,7 @@
  * If disabled, we bundle all API Routes into a single function.
  * This is can lead to large bundle sizes.
  *
- * Enabled by default. Can be disabled by passing NEXT_SPLIT_API_ROUTES=false.
+ * Disabled by default. Can be overriden using the NEXT_SPLIT_API_ROUTES env var.
  */
-
-export const splitApiRoutes = (featureFlags: Record<string, unknown>): boolean => {
-  if (process.env.NEXT_SPLIT_API_ROUTES) {
-    return process.env.NEXT_SPLIT_API_ROUTES === 'true'
-  }
-  // default to true during testing, swap to false before merging
-  return typeof featureFlags.next_split_api_routes === 'boolean' ? featureFlags.next_split_api_routes : true
-}
+export const splitApiRoutes = (featureFlags: Record<string, unknown>): boolean =>
+  destr(process.env.NEXT_SPLIT_API_ROUTES) ?? featureFlags.next_split_api_routes ?? false
