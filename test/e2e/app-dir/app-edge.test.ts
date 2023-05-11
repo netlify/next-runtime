@@ -1,30 +1,14 @@
-import { createNext, FileRef } from 'e2e-utils'
+import { createNextDescribe, FileRef } from 'e2e-utils'
 import { NextInstance } from 'test/lib/next-modes/base'
 import { check, renderViaHTTP, fetchViaHTTP } from 'next-test-utils'
 import path from 'path'
 
-describe('app-dir edge SSR', () => {
-  if ((global as any).isNextDeploy) {
-   it('should skip next deploy', () => {})
-   return
-  }
-
-  let next: NextInstance
-
-  beforeAll(async () => {
-    next = await createNext({
-      files: new FileRef(path.join(__dirname, 'app-edge')),
-      dependencies: {
-        react: 'latest',
-        'react-dom': 'latest',
-        typescript: 'latest',
-        '@types/react': 'latest',
-        '@types/node': 'latest',
-      },
-    })
-  }, 600000)
-  afterAll(() => next.destroy())
-
+createNextDescribe('app-dir edge SSR',
+{
+  files: new FileRef(path.join(__dirname, 'app-edge')),
+  skipDeployment: true,
+},
+({ next }) => {
   it('should handle edge only routes', async () => {
     const appHtml = await renderViaHTTP(next.url, '/edge/basic')
     expect(appHtml).toContain('<p>Edge!</p>')
@@ -39,6 +23,17 @@ describe('app-dir edge SSR', () => {
   })
 
   if ((globalThis as any).isNextDev) {
+    it('should resolve module without error in edge runtime', async () => {
+      const logs = []
+      next.on('stderr', (log) => {
+        logs.push(log)
+      })
+      await renderViaHTTP(next.url,'app-edge')
+      expect(
+        logs.some((log) => log.includes(`Attempted import error:`))
+      ).toBe(false)
+    })
+
     it('should handle edge rsc hmr', async () => {
       const pageFile = 'app/edge/basic/page.tsx'
       const content = await next.readFile(pageFile)
@@ -57,6 +52,19 @@ describe('app-dir edge SSR', () => {
         const html = await renderViaHTTP(next.url, '/edge/basic')
         return html
       }, /Edge!/)
+    })
+  } else {
+    // Production tests
+    it('should generate matchers correctly in middleware manifest', async () => {
+      const manifest = JSON.parse(
+        await next.readFile('.next/server/middleware-manifest.json')
+      )
+      expect(manifest.functions['/(group)/group/page'].matchers).toEqual([
+        {
+          regexp: '^/group$',
+          originalSource: '/group',
+        },
+      ])
     })
   }
 })
