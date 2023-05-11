@@ -104,6 +104,8 @@ const plugin: NetlifyPlugin = {
     // See: https://github.com/vercel/next.js/issues/49169
     if (!destr(process.env[NEXT_ENV_VARS.PREBUNDLED_REACT]) && experimental?.serverActions) {
       config.config.env[NEXT_ENV_VARS.PREBUNDLED_REACT] = experimental.serverActions ? 'experimental' : 'next'
+
+      await updateRequiredServerFiles(publish, config)
     }
 
     if (
