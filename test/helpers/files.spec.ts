@@ -244,6 +244,6 @@ describe('getSourceFileForPage', () => {
 
     const filePath = getSourceFileForPage(apiRoute, [pagesDir])
 
-    expect(filePath.replace(TEST_DIR, '')).toBe('/fixtures/page-extensions/default/pages/api/index/index.api.js')
+    expect(filePath.replace(TEST_DIR, '')).toBe('/fixtures/page-extensions/index/pages/api/index/index.js')
   })
 })
