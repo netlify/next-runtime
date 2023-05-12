@@ -1,4 +1,5 @@
 name: Run e2e (default demo)
+
 on:
   pull_request:
     types: [opened, synchronize]
@@ -9,6 +10,10 @@ on:
       - 'demos/default/**/*.{js,jsx,ts,tsx}'
       - 'cypress/e2e/default/**/*.{ts,js}'
       - 'src/**/*.{ts,js}'
+
+env:
+  __NEXT_PRIVATE_PREBUNDLED_REACT: 'next'
+
 jobs:
   cypress:
     name: Cypress
