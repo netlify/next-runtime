@@ -9,6 +9,7 @@ createNextDescribe('app-dir edge SSR',
   skipDeployment: true,
 },
 ({ next }) => {
+  // Was originally within app-edge-global.test.ts
   it('should handle edge only routes', async () => {
     const appHtml = await renderViaHTTP(next.url, '/edge/basic')
     expect(appHtml).toContain('<p>Edge!</p>')
