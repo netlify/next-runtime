@@ -33,7 +33,7 @@ describe('On-demand revalidation', () => {
     cy.request({ url: '/api/revalidate/?select=5', failOnStatusCode: false }).then((res) => {
       expect(res.status).to.eq(500)
       expect(res.body).to.have.property('message')
-      expect(res.body.message).to.include('Invalid response 404')
+      expect(res.body.message).to.include('could not refresh content for path /getStaticProps/withRevalidate/3/, path is not handled by an odb')
     })
   })
   it('revalidates dynamic non-prerendered ISR route with fallback blocking', () => {

@@ -371,7 +371,7 @@ export const getDependenciesOfFile = async (file: string) => {
   if (!existsSync(nft)) {
     return []
   }
-  const dependencies = await readJson(nft, 'utf8')
+  const dependencies = (await readJson(nft, 'utf8')) as { files: string[] }
   return dependencies.files.map((dep) => resolve(dirname(file), dep))
 }
 
