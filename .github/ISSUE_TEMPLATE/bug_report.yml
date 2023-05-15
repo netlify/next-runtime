@@ -28,7 +28,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Check out PLACEHOLDER for advice on producing a reproduction repo.
+        Check out [our contributing guide](https://github.com/netlify/next-runtime/blob/main/CONTRIBUTING.md#how-to-make-a-minimal-reproduction) for advice on producing a reproduction repo.
   - type: textarea
     attributes:
       label: Expected Result
