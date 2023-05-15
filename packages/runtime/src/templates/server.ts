@@ -47,7 +47,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
           res.setHeader('x-nextjs-cache', 'REVALIDATED')
           res.send()
         } else {
-          await handler(req, res, parsedUrl)
+          return handler(req, res, parsedUrl)
         }
       }
     }
