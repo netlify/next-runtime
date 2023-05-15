@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.37.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.36.1...plugin-nextjs-v4.37.0) (2023-05-15)
+
+
+### Features
+
+* split up API Routes + use .nft.json files to make builds fast ([#2058](https://github.com/netlify/next-runtime/issues/2058)) ([d98efc1](https://github.com/netlify/next-runtime/commit/d98efc19852089a4a586170f27ed7c5cb1b5763a))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.5.0 ([#2096](https://github.com/netlify/next-runtime/issues/2096)) ([2eba019](https://github.com/netlify/next-runtime/commit/2eba019675819c4d04da6824337609ed5672ab57))
+* **deps:** update dependency @netlify/functions to ^1.6.0 ([#2107](https://github.com/netlify/next-runtime/issues/2107)) ([5ee2fce](https://github.com/netlify/next-runtime/commit/5ee2fce03bf0fadd7f8e06f60963e4c0243c2aee))
+* follow-up to split-api revalidate behaviour ([#2113](https://github.com/netlify/next-runtime/issues/2113)) ([cce048a](https://github.com/netlify/next-runtime/commit/cce048ac0b301e47e8f3e8c28d8a5ebe1d3fa546))
+* support api routes at index of folder ([#2101](https://github.com/netlify/next-runtime/issues/2101)) ([cc9ed84](https://github.com/netlify/next-runtime/commit/cc9ed84652e21d52dabe1114dbe64aad288672bc))
+
 ## [4.36.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.36.0...plugin-nextjs-v4.36.1) (2023-05-08)
 
 
