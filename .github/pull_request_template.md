@@ -1,22 +1,21 @@
 <!-- Before opening a pull request, ensure you've read our contributing guidelines, https://github.com/netlify/next-runtime/blob/main/CONTRIBUTING.md. -->
 
-### Summary
+## Description
 
 <!-- Provide a brief summary of the change. -->
 
-### Test plan
+### Documentation
 
-1. Visit the Deploy Preview ([insert link to specific page]()) ...
+<!-- Where is this feature or API documented? Did you create an internal and/or external artifact to document this change? -->
 
-### Relevant links (GitHub issues, Notion docs, etc.) or a picture of cute animal
+## Tests
 
-### Standard checks:
+<!-- Did you add tests? How did you test this change? -->
 
-<!-- Please delete any options that reviewers shouldn't check. -->
+You can test this change yourself like so:
 
-- [ ] Check the Deploy Preview's Demo site for your PR's functionality
-- [ ] Add docs when necessary
+1. TODO
 
----
+## Relevant links (GitHub issues, etc.) or a picture of cute animal
 
-🧪 Once merged, make sure to update the version if needed and that it was published correctly.
+<!-- Link to an issue that is fixed by this PR or related to this PR. -->
