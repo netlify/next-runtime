@@ -12,9 +12,10 @@ import { outdent } from 'outdent'
 
 import { IMAGE_FUNCTION_NAME } from '../constants'
 
-import { getRequiredServerFiles, NextConfig } from './config'
+import type { NextConfig } from './config'
 import { getPluginVersion } from './functionsMetaData'
 import { makeLocaleOptional, stripLookahead, transformCaptureGroups } from './matchers'
+import { getRequiredServerFiles } from './tracing'
 import { RoutesManifest } from './types'
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
