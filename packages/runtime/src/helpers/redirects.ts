@@ -1,5 +1,6 @@
 import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
+import destr from 'destr'
 import { readJSON } from 'fs-extra'
 import type { NextConfig } from 'next'
 import type { PrerenderManifest, SsgRoute } from 'next/dist/build'
@@ -10,7 +11,7 @@ import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../const
 
 import { isAppDirRoute, loadAppPathRoutesManifest } from './edge'
 import { getMiddleware } from './files'
-import { ApiRouteConfig } from './functions'
+import { APILambda } from './functions'
 import { RoutesManifest } from './types'
 import {
   getApiRewrites,
@@ -194,7 +195,7 @@ const generateStaticIsrRewrites = ({
 /**
  * Generate rewrites for all dynamic routes
  */
-const generateDynamicRewrites = ({
+export const generateDynamicRewrites = ({
   dynamicRoutes,
   prerenderedDynamicRoutes,
   middleware,
@@ -238,7 +239,11 @@ const generateDynamicRewrites = ({
             withData: true,
           }),
         )
-      } else if (prerenderedDynamicRoutes[route.page].fallback === false && !is404Isr) {
+      } else if (
+        prerenderedDynamicRoutes[route.page].fallback === false &&
+        !is404Isr &&
+        !destr(process.env.LEGACY_FALLBACK_FALSE)
+      ) {
         dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
       } else {
         dynamicRewrites.push(
@@ -262,12 +267,12 @@ export const generateRedirects = async ({
   netlifyConfig,
   nextConfig: { i18n, basePath, trailingSlash, appDir },
   buildId,
-  apiRoutes,
+  apiLambdas,
 }: {
   netlifyConfig: NetlifyConfig
   nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash' | 'appDir'>
   buildId: string
-  apiRoutes: Array<ApiRouteConfig>
+  apiLambdas: APILambda[]
 }) => {
   const { dynamicRoutes: prerenderedDynamicRoutes, routes: prerenderedStaticRoutes }: PrerenderManifest =
     await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
@@ -285,7 +290,7 @@ export const generateRedirects = async ({
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
     // API routes always need to be served from the regular function
-    ...getApiRewrites(basePath, apiRoutes),
+    ...getApiRewrites(basePath, apiLambdas),
     // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
     ...(await getPreviewRewrites({ basePath, appDir })),
   )

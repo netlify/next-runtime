@@ -2,16 +2,12 @@ import fs, { existsSync } from 'fs'
 
 import { relative } from 'pathe'
 
-// I have no idea what eslint is up to here but it gives an error
-// eslint-disable-next-line no-shadow
-export const enum ApiRouteType {
-  SCHEDULED = 'experimental-scheduled',
-  BACKGROUND = 'experimental-background',
-}
+import { ApiRouteType } from './types'
+import { findModuleFromBase } from './utils'
 
 export interface ApiStandardConfig {
   type?: never
-  runtime?: 'nodejs' | 'experimental-edge'
+  runtime?: 'nodejs' | 'experimental-edge' | 'edge'
   schedule?: never
 }
 
@@ -29,6 +25,8 @@ export interface ApiBackgroundConfig {
 
 export type ApiConfig = ApiStandardConfig | ApiScheduledConfig | ApiBackgroundConfig
 
+export const isEdgeConfig = (config: string) => ['experimental-edge', 'edge'].includes(config)
+
 export const validateConfigValue = (config: ApiConfig, apiFilePath: string): config is ApiConfig => {
   if (config.type === ApiRouteType.SCHEDULED) {
     if (!config.schedule) {
@@ -39,7 +37,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if ((config as ApiConfig).runtime === 'experimental-edge') {
+    if (isEdgeConfig((config as ApiConfig).runtime)) {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),
@@ -60,7 +58,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       )
       return false
     }
-    if (config.type && (config as ApiConfig).runtime === 'experimental-edge') {
+    if (config.type && isEdgeConfig((config as ApiConfig).runtime)) {
       console.error(
         `Invalid config value in ${relative(
           process.cwd(),
@@ -85,29 +83,37 @@ let hasWarnedAboutNextVersion = false
 /**
  * Uses Next's swc static analysis to extract the config values from a file.
  */
-export const extractConfigFromFile = async (apiFilePath: string): Promise<ApiConfig> => {
+export const extractConfigFromFile = async (apiFilePath: string, appDir: string): Promise<ApiConfig> => {
   if (!apiFilePath || !existsSync(apiFilePath)) {
     return {}
   }
 
-  try {
-    if (!extractConstValue) {
-      extractConstValue = require('next/dist/build/analysis/extract-const-value')
+  const extractConstValueModulePath = findModuleFromBase({
+    paths: [appDir],
+    candidates: ['next/dist/build/analysis/extract-const-value'],
+  })
+
+  const parseModulePath = findModuleFromBase({
+    paths: [appDir],
+    candidates: ['next/dist/build/analysis/parse-module'],
+  })
+
+  if (!extractConstValueModulePath || !parseModulePath) {
+    if (!hasWarnedAboutNextVersion) {
+      console.log("This version of Next.js doesn't support advanced API routes. Skipping...")
+      hasWarnedAboutNextVersion = true
     }
-    if (!parseModule) {
-      // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-var-requires
-      parseModule = require('next/dist/build/analysis/parse-module').parseModule
-    }
-  } catch (error) {
-    if (error.code === 'MODULE_NOT_FOUND') {
-      if (!hasWarnedAboutNextVersion) {
-        console.log("This version of Next.js doesn't support advanced API routes. Skipping...")
-        hasWarnedAboutNextVersion = true
-      }
-      // Old Next.js version
-      return {}
-    }
-    throw error
+    // Old Next.js version
+    return {}
+  }
+
+  if (!extractConstValue && extractConstValueModulePath) {
+    // eslint-disable-next-line import/no-dynamic-require
+    extractConstValue = require(extractConstValueModulePath)
+  }
+  if (!parseModule && parseModulePath) {
+    // eslint-disable-next-line prefer-destructuring, @typescript-eslint/no-var-requires, import/no-dynamic-require
+    parseModule = require(parseModulePath).parseModule
   }
 
   const { extractExportedConstValue, UnsupportedValueError } = extractConstValue

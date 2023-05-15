@@ -6,9 +6,9 @@ import { outdent as javascript } from 'outdent'
 import type { NextConfig } from '../helpers/config'
 
 import type { NextServerType } from './handlerUtils'
+import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-
 const { promises } = require('fs')
 const { Server } = require('http')
 const path = require('path')
@@ -22,18 +22,27 @@ const {
   getMaxAge,
   getMultiValueHeaders,
   getPrefetchResponse,
-  getNextServer,
   normalizePath,
 } = require('./handlerUtils')
+const { getNetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
   -readonly [K in keyof T]: T[K]
 }
 
+type MakeHandlerParams = {
+  conf: NextConfig
+  app: string
+  pageRoot: string
+  NextServer: NextServerType
+  staticManifest: Array<[string, string]>
+  mode: 'ssr' | 'odb'
+}
+
 // We return a function and then call `toString()` on it to serialise it as the launcher function
-// eslint-disable-next-line max-params
-const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[string, string]> = [], mode = 'ssr') => {
+// eslint-disable-next-line max-lines-per-function
+const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mode = 'ssr' }: MakeHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -46,6 +55,8 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     // eslint-disable-next-line n/no-missing-require
     require.resolve('./pages.js')
   } catch {}
+
+  const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
@@ -68,7 +79,11 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   // We memoize this because it can be shared between requests, but don't instantiate it until
   // the first request because we need the host and port.
   let bridge: NodeBridge
-  const getBridge = (event: HandlerEvent): NodeBridge => {
+  const getBridge = (event: HandlerEvent, context: HandlerContext): NodeBridge => {
+    const {
+      clientContext: { custom: customContext },
+    } = context
+
     if (bridge) {
       return bridge
     }
@@ -76,14 +91,19 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     const port = Number.parseInt(url.port) || 80
     base = url.origin
 
-    const NextServer: NextServerType = getNextServer()
-    const nextServer = new NextServer({
-      conf,
-      dir,
-      customServer: false,
-      hostname: url.hostname,
-      port,
-    })
+    const nextServer = new NetlifyNextServer(
+      {
+        conf,
+        dir,
+        customServer: false,
+        hostname: url.hostname,
+        port,
+      },
+      {
+        revalidateToken: customContext?.odb_refresh_hooks,
+        splitApiRoutes: false,
+      },
+    )
     const requestHandler = nextServer.getRequestHandler()
     const server = new Server(async (req, res) => {
       try {
@@ -99,7 +119,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   }
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
-    let requestMode = mode
+    let requestMode: string = mode
     const prefetchResponse = getPrefetchResponse(event, mode)
     if (prefetchResponse) {
       return prefetchResponse
@@ -111,15 +131,7 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
 
-    const graphToken = event.netlifyGraphToken
-    if (graphToken && requestMode !== 'ssr') {
-      // Prefix with underscore to help us determine the origin of the token
-      // allows us to write better error messages
-      // eslint-disable-next-line no-underscore-dangle
-      process.env._NETLIFY_GRAPH_TOKEN = graphToken
-    }
-
-    const { headers, ...result } = await getBridge(event).launcher(event, context)
+    const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
 
@@ -172,14 +184,25 @@ const makeHandler = (conf: NextConfig, app, pageRoot, staticManifest: Array<[str
   }
 }
 
-export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDir = '../../..' }): string =>
-  // This is a string, but if you have the right editor plugin it should format as js
+export const getHandler = ({
+  isODB = false,
+  publishDir = '../../../.next',
+  appDir = '../../..',
+  nextServerModuleRelativeLocation,
+}): string =>
+  // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
   javascript/* javascript */ `
+  if (!${JSON.stringify(nextServerModuleRelativeLocation)}) {
+    throw new Error('Could not find Next.js server')
+  }
+
   const { Server } = require("http");
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, getNextServer, normalizePath } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
+  const { getNetlifyNextServer } = require('./server')
+  const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
 
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")
@@ -191,7 +214,7 @@ export const getHandler = ({ isODB = false, publishDir = '../../../.next', appDi
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})(config, "${appDir}", pageRoot, staticManifest, 'odb'));`
-      : `(${makeHandler.toString()})(config, "${appDir}", pageRoot, staticManifest, 'ssr');`
+      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb' }));`
+      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr' });`
   }
 `

@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.4.6](https://github.com/netlify/next-runtime/compare/next-v1.4.5...next-v1.4.6) (2023-05-08)
+
+
+### Bug Fixes
+
+* update next to 13.3.0 & ensure compatibility ([#2056](https://github.com/netlify/next-runtime/issues/2056)) ([75ed977](https://github.com/netlify/next-runtime/commit/75ed977553edc36ac018191bee5bba08b800f722))
+
+## [1.4.5](https://github.com/netlify/next-runtime/compare/next-v1.4.4...next-v1.4.5) (2023-04-10)
+
+
+### Bug Fixes
+
+* support setting cookies from MiddlewareResponse ([#2027](https://github.com/netlify/next-runtime/issues/2027)) ([a630ab4](https://github.com/netlify/next-runtime/commit/a630ab41e8a4d0f04e8de4b19a8886705a6b0fe8))
+
+## [1.4.4](https://github.com/netlify/next-runtime/compare/next-v1.4.3...next-v1.4.4) (2023-02-06)
+
+
+### Bug Fixes
+
+* add `AsyncLocalStorage` to `globalThis` ([#1907](https://github.com/netlify/next-runtime/issues/1907)) ([1ec8203](https://github.com/netlify/next-runtime/commit/1ec820322fea66fa4027a353d5ba562074c90509))
+
 ## [1.4.3](https://github.com/netlify/next-runtime/compare/next-v1.4.2...next-v1.4.3) (2022-12-19)
 
 

@@ -6,8 +6,10 @@ import type { NextConfigComplete } from 'next/dist/server/config-shared'
 import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
 
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
+import { HANDLER_FUNCTION_NAME, IMAGE_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
+import { splitApiRoutes } from './flags'
+import type { APILambda } from './functions'
 import type { RoutesManifest } from './types'
 import { escapeStringRegexp } from './utils'
 
@@ -17,6 +19,7 @@ type NetlifyHeaders = NetlifyConfig['headers']
 
 export interface RequiredServerFiles {
   version?: number
+  relativeAppDir?: string
   config?: NextConfigComplete
   appDir?: string
   files?: string[]
@@ -71,7 +74,7 @@ export const updateRequiredServerFiles = async (publish: string, modifiedConfig:
   await writeJSON(configFile, modifiedConfig)
 }
 
-const resolveModuleRoot = (moduleName) => {
+export const resolveModuleRoot = (moduleName) => {
   try {
     return dirname(relative(process.cwd(), require.resolve(`${moduleName}/package.json`, { paths: [process.cwd()] })))
   } catch {
@@ -98,19 +101,22 @@ export const configureHandlerFunctions = async ({
   netlifyConfig,
   publish,
   ignore = [],
+  apiLambdas,
+  featureFlags,
 }: {
   netlifyConfig: NetlifyConfig
   publish: string
   ignore: Array<string>
+  apiLambdas: APILambda[]
+  featureFlags: Record<string, unknown>
 }) => {
   const config = await getRequiredServerFiles(publish)
   const files = config.files || []
   const cssFilesToInclude = files.filter((f) => f.startsWith(`${publish}/static/css/`))
 
-  /* eslint-disable no-underscore-dangle */
   if (!destr(process.env.DISABLE_IPX)) {
-    netlifyConfig.functions._ipx ||= {}
-    netlifyConfig.functions._ipx.node_bundler = 'nft'
+    netlifyConfig.functions[IMAGE_FUNCTION_NAME] ||= {}
+    netlifyConfig.functions[IMAGE_FUNCTION_NAME].node_bundler = 'nft'
   }
 
   // If the user has manually added the module to included_files, then don't exclude it
@@ -118,8 +124,7 @@ export const configureHandlerFunctions = async ({
     (moduleName) => !hasManuallyAddedModule({ netlifyConfig, moduleName }),
   )
 
-  /* eslint-enable no-underscore-dangle */
-  ;[HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, '_api_*'].forEach((functionName) => {
+  const configureFunction = (functionName: string) => {
     netlifyConfig.functions[functionName] ||= { included_files: [], external_node_modules: [] }
     netlifyConfig.functions[functionName].node_bundler = 'nft'
     netlifyConfig.functions[functionName].included_files ||= []
@@ -158,7 +163,22 @@ export const configureHandlerFunctions = async ({
         netlifyConfig.functions[functionName].included_files.push(`!${moduleRoot}/**/*`)
       }
     })
-  })
+  }
+
+  configureFunction(HANDLER_FUNCTION_NAME)
+  configureFunction(ODB_FUNCTION_NAME)
+
+  if (splitApiRoutes(featureFlags)) {
+    for (const apiLambda of apiLambdas) {
+      const { functionName, includedFiles } = apiLambda
+      netlifyConfig.functions[functionName] ||= { included_files: [] }
+      netlifyConfig.functions[functionName].node_bundler = 'none'
+      netlifyConfig.functions[functionName].included_files ||= []
+      netlifyConfig.functions[functionName].included_files.push(...includedFiles)
+    }
+  } else {
+    configureFunction('_api_*')
+  }
 }
 
 interface BuildHeaderParams {

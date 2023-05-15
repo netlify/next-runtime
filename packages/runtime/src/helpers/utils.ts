@@ -7,9 +7,8 @@ import { join } from 'pathe'
 
 import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX, HANDLER_FUNCTION_PATH } from '../constants'
 
-import { ApiRouteType } from './analysis'
-import type { ApiRouteConfig } from './functions'
-import { I18n } from './types'
+import type { APILambda } from './functions'
+import { I18n, ApiRouteType } from './types'
 
 const RESERVED_FILENAME = /[^\w_-]/g
 
@@ -74,7 +73,7 @@ export const generateNetlifyRoutes = ({
 }) => [...(withData ? toNetlifyRoute(dataRoute) : []), ...toNetlifyRoute(route)]
 
 export const routeToDataRoute = (route: string, buildId: string, locale?: string) =>
-  `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? '/index' : route}.json`
+  `/_next/data/${buildId}${locale ? `/${locale}` : ''}${route === '/' ? (locale ? '' : '/index') : route}.json`
 
 // Default locale is served from root, not localized
 export const localizeRoute = (route: string, locale: string, defaultLocale: string) =>
@@ -198,23 +197,22 @@ export const redirectsForNextRouteWithData = ({
     force,
   }))
 
-export const getApiRewrites = (basePath: string, apiRoutes: Array<ApiRouteConfig>) => {
-  const apiRewrites = apiRoutes.map((apiRoute) => {
-    const [from] = toNetlifyRoute(`${basePath}${apiRoute.route}`)
+export const getApiRewrites = (basePath: string, apiLambdas: APILambda[]) => {
+  const apiRewrites = apiLambdas.flatMap((lambda) =>
+    lambda.routes.map((apiRoute) => {
+      const [from] = toNetlifyRoute(`${basePath}${apiRoute.route}`)
 
-    // Scheduled functions can't be invoked directly, so we 404 them.
-    if (apiRoute.config.type === ApiRouteType.SCHEDULED) {
-      return { from, to: '/404.html', status: 404 }
-    }
-    return {
-      from,
-      to: `/.netlify/functions/${getFunctionNameForPage(
-        apiRoute.route,
-        apiRoute.config.type === ApiRouteType.BACKGROUND,
-      )}`,
-      status: 200,
-    }
-  })
+      // Scheduled functions can't be invoked directly, so we 404 them.
+      if (apiRoute.config.type === ApiRouteType.SCHEDULED) {
+        return { from, to: '/404.html', status: 404 }
+      }
+      return {
+        from,
+        to: `/.netlify/functions/${lambda.functionName}`,
+        status: 200,
+      }
+    }),
+  )
 
   return [
     ...apiRewrites,
@@ -261,6 +259,17 @@ export const findModuleFromBase = ({ paths, candidates }): string | null => {
   for (const candidate of candidates) {
     try {
       const modulePath = require.resolve(candidate, { paths })
+      if (modulePath) {
+        return modulePath
+      }
+    } catch {
+      // Ignore the error
+    }
+  }
+  // if we couldn't find a module from paths, let's try to resolve from here
+  for (const candidate of candidates) {
+    try {
+      const modulePath = require.resolve(candidate)
       if (modulePath) {
         return modulePath
       }

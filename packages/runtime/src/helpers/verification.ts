@@ -2,13 +2,13 @@ import { existsSync, promises } from 'fs'
 import path, { relative, join } from 'path'
 
 import type { NetlifyConfig, NetlifyPluginUtils } from '@netlify/build'
-import { yellowBright, greenBright, blueBright, redBright, reset } from 'chalk'
+import { yellowBright, greenBright, blueBright, reset } from 'chalk'
 import { async as StreamZip } from 'node-stream-zip'
 import { outdent } from 'outdent'
 import prettyBytes from 'pretty-bytes'
 import { satisfies } from 'semver'
 
-import { LAMBDA_MAX_SIZE } from '../constants'
+import { LAMBDA_MAX_SIZE, LAMBDA_WARNING_SIZE } from '../constants'
 
 import { isBundleSizeCheckDisabled } from './utils'
 
@@ -105,7 +105,11 @@ export const checkForRootPublish = ({
   }
 }
 
-export const checkZipSize = async (file: string, maxSize: number = LAMBDA_MAX_SIZE): Promise<void> => {
+export const checkZipSize = async (
+  file: string,
+  maxSize: number = LAMBDA_MAX_SIZE,
+  warningSize: number = LAMBDA_WARNING_SIZE,
+): Promise<void> => {
   // Requires contacting the Netlify Support team to fully enable.
   // Enabling this without contacting them can result in failed deploys.
   if (isBundleSizeCheckDisabled()) {
@@ -120,15 +124,16 @@ export const checkZipSize = async (file: string, maxSize: number = LAMBDA_MAX_SI
     return
   }
   const fileSize = await promises.stat(file).then(({ size }) => size)
-  if (fileSize < maxSize) {
+  if (fileSize < warningSize) {
     return
   }
   // We don't fail the build, because the actual hard max size is larger so it might still succeed
   console.log(
-    redBright(outdent`
-      The function zip ${yellowBright(relative(process.cwd(), file))} size is ${prettyBytes(
+    yellowBright(outdent`
+      The function zip ${blueBright(relative(process.cwd(), file))} size is ${prettyBytes(
       fileSize,
-    )}, which is larger than the maximum supported size of ${prettyBytes(maxSize)}.
+    )}, which is larger than the recommended maximum size of ${prettyBytes(warningSize)}.
+      This will fail the build if the unzipped size is bigger than the maximum size of ${prettyBytes(maxSize)}.
       There are a few reasons this could happen. You may have accidentally bundled a large dependency, or you might have a
       large number of pre-rendered pages included.
     `),

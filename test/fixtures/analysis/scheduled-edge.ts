@@ -7,5 +7,5 @@ export default (req, res) => {
 export const config = {
   type: 'experimental-scheduled',
   schedule: '@daily',
-  runtime: 'experimental-edge',
+  runtime: 'edge',
 }

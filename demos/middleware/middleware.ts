@@ -24,7 +24,7 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith('/static')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
     const res = await request.next()
-    const message = `This was static but has been transformed in ${req.geo?.city}`
+    const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
 
     // Transform the response HTML and props
     res.replaceText('p[id=message]', message)
@@ -51,6 +51,13 @@ export async function middleware(req: NextRequest) {
     // Add a header to the rewritten request
     req.headers.set('x-hello', 'world')
     return request.rewrite('/api/hello')
+  }
+
+  if (pathname.startsWith('/cookies/middleware')) {
+    const response = await new MiddlewareRequest(req).next()
+    response.cookies.set('middlewareCookie', 'true')
+    response.headers.set('x-foo', 'bar')
+    return response
   }
 
   if (pathname.startsWith('/cookies')) {
@@ -129,8 +136,8 @@ export const config = {
   matcher: [
     '/api/:all*',
     '/headers',
+    '/cookies/:path*',
     { source: '/static' },
-    { source: '/cookies' },
     { source: '/matcher-cookie'},
     { source: '/shows/((?!99|88).*)' },
     {

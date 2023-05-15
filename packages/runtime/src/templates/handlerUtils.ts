@@ -1,4 +1,5 @@
 import fs, { createWriteStream, existsSync } from 'fs'
+import { ServerResponse } from 'http'
 import { tmpdir } from 'os'
 import path from 'path'
 import { pipeline } from 'stream'
@@ -106,7 +107,7 @@ export const augmentFsModule = ({
   // Grab the real fs.promises.readFile...
   const readfileOrig = promises.readFile
   const statsOrig = promises.stat
-  // ...then money-patch it to see if it's requesting a CDN file
+  // ...then monkey-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
     const baseUrl = getBase()
 
@@ -160,37 +161,6 @@ export const augmentFsModule = ({
 }
 
 /**
- * Next.js has an annoying habit of needing deep imports, but then moving those in patch releases. This is our abstraction.
- */
-export const getNextServer = (): NextServerType => {
-  let NextServer: NextServerType
-  try {
-    // next >= 11.0.1. Yay breaking changes in patch releases!
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    NextServer = require('next/dist/server/next-server').default
-  } catch (error) {
-    if (!error.message.includes("Cannot find module 'next/dist/server/next-server'")) {
-      // A different error, so rethrow it
-      throw error
-    }
-    // Probably an old version of next, so fall through and find it elsewhere.
-  }
-
-  if (!NextServer) {
-    try {
-      // next < 11.0.1
-      // eslint-disable-next-line n/no-missing-require, import/no-unresolved, @typescript-eslint/no-var-requires
-      NextServer = require('next/dist/next-server/server/next-server').default
-    } catch (error) {
-      if (!error.message.includes("Cannot find module 'next/dist/next-server/server/next-server'")) {
-        throw error
-      }
-      throw new Error('Could not find Next.js server')
-    }
-  }
-  return NextServer
-}
-/**
  * Prefetch requests are used to check for middleware redirects, and shouldn't trigger SSR.
  */
 export const getPrefetchResponse = (event: HandlerEvent, mode: string): HandlerResponse | false => {
@@ -221,4 +191,72 @@ export const normalizePath = (event: HandlerEvent) => {
   }
   // Ensure that paths are encoded - but don't double-encode them
   return new URL(event.rawUrl).pathname
+}
+
+// Simple Netlify API client
+export const netlifyApiFetch = <T>({
+  endpoint,
+  payload,
+  token,
+  method = 'GET',
+}: {
+  endpoint: string
+  payload: unknown
+  token: string
+  method: 'GET' | 'POST'
+}): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const body = JSON.stringify(payload)
+
+    const req = https.request(
+      {
+        hostname: 'api.netlify.com',
+        port: 443,
+        path: `/api/v1/${endpoint}`,
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': body.length,
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      (res: ServerResponse) => {
+        let data = ''
+        res.on('data', (chunk) => {
+          data += chunk
+        })
+        res.on('end', () => {
+          resolve(JSON.parse(data))
+        })
+      },
+    )
+
+    req.on('error', reject)
+
+    req.write(body)
+    req.end()
+  })
+
+// Remove trailing slash from a route (except for the root route)
+export const normalizeRoute = (route: string): string => (route.endsWith('/') ? route.slice(0, -1) || '/' : route)
+
+// Check if a route has a locale prefix (including the root route)
+const isLocalized = (route: string, i18n: { defaultLocale: string; locales: string[] }): boolean =>
+  i18n.locales.some((locale) => route === `/${locale}` || route.startsWith(`/${locale}/`))
+
+// Remove the locale prefix from a route (if any)
+export const unlocalizeRoute = (route: string, i18n: { defaultLocale: string; locales: string[] }): string =>
+  isLocalized(route, i18n) ? `/${route.split('/').slice(2).join('/')}` : route
+
+// Add the default locale prefix to a route (if necessary)
+export const localizeRoute = (route: string, i18n: { defaultLocale: string; locales: string[] }): string =>
+  isLocalized(route, i18n) ? route : normalizeRoute(`/${i18n.defaultLocale}${route}`)
+
+// Normalize a data route to include the locale prefix and remove the index suffix
+export const localizeDataRoute = (dataRoute: string, localizedRoute: string): string => {
+  if (dataRoute.endsWith('.rsc')) return dataRoute
+  const locale = localizedRoute.split('/').find(Boolean)
+  return dataRoute
+    .replace(new RegExp(`/_next/data/(.+?)/(${locale}/)?`), `/_next/data/$1/${locale}/`)
+    .replace(/\/index\.json$/, '.json')
 }

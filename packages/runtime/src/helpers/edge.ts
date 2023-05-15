@@ -4,16 +4,18 @@ import { resolve, join } from 'path'
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { greenBright } from 'chalk'
 import destr from 'destr'
-import { copy, copyFile, emptyDir, ensureDir, readJSON, readJson, writeJSON, writeJson } from 'fs-extra'
+import { copy, copyFile, emptyDir, ensureDir, readJSON, writeJSON, writeJson } from 'fs-extra'
 import type { PrerenderManifest } from 'next/dist/build'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
 
+import { IMAGE_FUNCTION_NAME } from '../constants'
+
 import { getRequiredServerFiles, NextConfig } from './config'
+import { getPluginVersion } from './functionsMetaData'
 import { makeLocaleOptional, stripLookahead, transformCaptureGroups } from './matchers'
 import { RoutesManifest } from './types'
-
 // This is the format as of next@12.2
 interface EdgeFunctionDefinitionV1 {
   env: string[]
@@ -55,20 +57,23 @@ export interface FunctionManifest {
         name?: string
         path: string
         cache?: 'manual'
+        generator: string
       }
     | {
         function: string
         name?: string
         pattern: string
         cache?: 'manual'
+        generator: string
       }
   >
+  layers?: Array<{ name: `https://${string}/mod.ts`; flag: string }>
   import_map?: string
 }
 
 const maybeLoadJson = <T>(path: string): Promise<T> | null => {
   if (existsSync(path)) {
-    return readJson(path)
+    return readJSON(path)
   }
 }
 export const isAppDirRoute = (route: string, appPathRoutesManifest: Record<string, string> | null): boolean =>
@@ -88,54 +93,6 @@ export const loadPrerenderManifest = (netlifyConfig: NetlifyConfig): Promise<Pre
  */
 const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 
-/**
- * Initialization added to the top of the edge function bundle
- */
-const preamble = /* js */ `
-import {
-  decode as _base64Decode,
-} from "https://deno.land/std@0.159.0/encoding/base64.ts";
-// Deno defines "window", but naughty libraries think this means it's a browser
-delete globalThis.window
-globalThis.process = { env: {...Deno.env.toObject(), NEXT_RUNTIME: 'edge', 'NEXT_PRIVATE_MINIMAL_MODE': '1' } }
-globalThis.EdgeRuntime = "netlify-edge"
-let _ENTRIES = {}
-
-// Next.js uses this extension to the Headers API implemented by Cloudflare workerd
-if(!('getAll' in Headers.prototype)) {
-  Headers.prototype.getAll = function getAll(name) {
-    name = name.toLowerCase();
-    if (name !== "set-cookie") {
-      throw new Error("Headers.getAll is only supported for Set-Cookie");
-    }
-    return [...this.entries()]
-      .filter(([key]) => key === name)
-      .map(([, value]) => value);
-  };
-}
-//  Next uses blob: urls to refer to local assets, so we need to intercept these
-const _fetch = globalThis.fetch
-const fetch = async (url, init) => {
-  try {
-    if (typeof url === 'object' && url.href?.startsWith('blob:')) {
-      const key = url.href.slice(5)
-      if (key in _ASSETS) {
-        return new Response(_base64Decode(_ASSETS[key]))
-      }
-    }
-    return await _fetch(url, init)
-  } catch (error) {
-    console.error(error)
-    throw error
-  }
-}
-
-// Next edge runtime uses "self" as a function-scoped global-like object, but some of the older polyfills expect it to equal globalThis
-// See https://nextjs.org/docs/basic-features/supported-browsers-features#polyfills
-const self = { ...globalThis, fetch }
-
-`
-
 // Slightly different spacing in different versions!
 const IMPORT_UNSUPPORTED = [
   `Object.defineProperty(globalThis,"__import_unsupported"`,
@@ -152,7 +109,10 @@ const getMiddlewareBundle = async ({
   netlifyConfig: NetlifyConfig
 }): Promise<string> => {
   const { publish } = netlifyConfig.build
-  const chunks: Array<string> = [preamble]
+
+  const shims = await fs.readFile(getEdgeTemplatePath('shims.js'), 'utf8')
+
+  const chunks: Array<string> = [shims]
 
   chunks.push(`export const _DEFINITION = ${JSON.stringify(edgeFunctionDefinition)}`)
 
@@ -263,15 +223,17 @@ const generateEdgeFunctionMiddlewareMatchers = ({
 const middlewareMatcherToEdgeFunctionDefinition = (
   matcher: MiddlewareMatcher,
   name: string,
+  generator: string,
   cache?: 'manual',
 ): {
   function: string
   name?: string
   pattern: string
   cache?: 'manual'
+  generator: string
 } => {
   const pattern = transformCaptureGroups(stripLookahead(matcher.regexp))
-  return { function: name, pattern, name, cache }
+  return { function: name, pattern, name, cache, generator }
 }
 
 export const cleanupEdgeFunctions = ({
@@ -281,12 +243,14 @@ export const cleanupEdgeFunctions = ({
 export const writeDevEdgeFunction = async ({
   INTERNAL_EDGE_FUNCTIONS_SRC = '.netlify/edge-functions',
 }: NetlifyPluginConstants) => {
+  const generator = await getPluginVersion()
   const manifest: FunctionManifest = {
     functions: [
       {
         function: 'next-dev',
         name: 'netlify dev handler',
         path: '/*',
+        generator,
       },
     ],
     version: 1,
@@ -305,26 +269,27 @@ export const writeDevEdgeFunction = async ({
  * Writes an edge function that routes RSC data requests to the `.rsc` route
  */
 
-export const writeRscDataEdgeFunction = async ({
+export const generateRscDataEdgeManifest = async ({
   prerenderManifest,
   appPathRoutesManifest,
 }: {
   prerenderManifest?: PrerenderManifest
   appPathRoutesManifest?: Record<string, string>
 }): Promise<FunctionManifest['functions']> => {
+  const generator = await getPluginVersion()
   if (!prerenderManifest || !appPathRoutesManifest) {
     return []
   }
   const staticAppdirRoutes: Array<string> = []
   for (const [path, route] of Object.entries(prerenderManifest.routes)) {
-    if (isAppDirRoute(route.srcRoute, appPathRoutesManifest)) {
+    if (isAppDirRoute(route.srcRoute, appPathRoutesManifest) && route.dataRoute) {
       staticAppdirRoutes.push(path, route.dataRoute)
     }
   }
   const dynamicAppDirRoutes: Array<string> = []
 
   for (const [path, route] of Object.entries(prerenderManifest.dynamicRoutes)) {
-    if (isAppDirRoute(path, appPathRoutesManifest)) {
+    if (isAppDirRoute(path, appPathRoutesManifest) && route.dataRouteRegex) {
       dynamicAppDirRoutes.push(route.routeRegex, route.dataRouteRegex)
     }
   }
@@ -342,11 +307,13 @@ export const writeRscDataEdgeFunction = async ({
       function: 'rsc-data',
       name: 'RSC data routing',
       path,
+      generator,
     })),
     ...dynamicAppDirRoutes.map((pattern) => ({
       function: 'rsc-data',
       name: 'RSC data routing',
       pattern,
+      generator,
     })),
   ]
 }
@@ -386,8 +353,11 @@ export const writeEdgeFunctions = async ({
   netlifyConfig: NetlifyConfig
   routesManifest: RoutesManifest
 }) => {
+  const generator = await getPluginVersion()
+
   const manifest: FunctionManifest = {
     functions: [],
+    layers: [],
     version: 1,
   }
 
@@ -403,11 +373,108 @@ export const writeEdgeFunctions = async ({
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
   await copy(join(publish, 'prerender-manifest.json'), join(edgeFunctionRoot, 'edge-shared', 'prerender-manifest.json'))
 
+  // early return if edge is disabled
+  if (destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
+    console.log('Environment variable NEXT_DISABLE_NETLIFY_EDGE has been set, skipping Netlify Edge Function creation.')
+    return
+  }
+
+  const rscFunctions = await generateRscDataEdgeManifest({
+    prerenderManifest: await loadPrerenderManifest(netlifyConfig),
+    appPathRoutesManifest: await loadAppPathRoutesManifest(netlifyConfig),
+  })
+
+  manifest.functions.push(...rscFunctions)
+
+  const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
+  if (!middlewareManifest) {
+    console.error("Couldn't find the middleware manifest")
+    return
+  }
+
+  let usesEdge = false
+
+  for (const middleware of middlewareManifest.sortedMiddleware) {
+    usesEdge = true
+    const edgeFunctionDefinition = middlewareManifest.middleware[middleware]
+    const functionName = sanitizeName(edgeFunctionDefinition.name)
+    const matchers = generateEdgeFunctionMiddlewareMatchers({
+      edgeFunctionDefinition,
+      edgeFunctionRoot,
+      nextConfig,
+    })
+    await writeEdgeFunction({
+      edgeFunctionDefinition,
+      edgeFunctionRoot,
+      netlifyConfig,
+      functionName,
+      matchers,
+      middleware: true,
+    })
+
+    manifest.functions.push(
+      ...matchers.map((matcher) => middlewareMatcherToEdgeFunctionDefinition(matcher, functionName, generator)),
+    )
+  }
+  // Functions (i.e. not middleware, but edge SSR and API routes)
+  if (typeof middlewareManifest.functions === 'object') {
+    // When using the app dir, we also need to check if the EF matches a page
+    const appPathRoutesManifest = await loadAppPathRoutesManifest(netlifyConfig)
+
+    // A map of all route pages to their page regex. This is used for pages dir and appDir.
+    const pageRegexMap = new Map(
+      [...(routesManifest.dynamicRoutes || []), ...(routesManifest.staticRoutes || [])].map((route) => [
+        route.page,
+        route.regex,
+      ]),
+    )
+    // Create a map of pages-dir routes to their data route regex (appDir uses the same route as the HTML)
+    const dataRoutesMap = new Map(
+      [...(routesManifest.dataRoutes || [])].map((route) => [route.page, route.dataRouteRegex]),
+    )
+
+    for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
+      usesEdge = true
+      const functionName = sanitizeName(edgeFunctionDefinition.name)
+      await writeEdgeFunction({
+        edgeFunctionDefinition,
+        edgeFunctionRoot,
+        netlifyConfig,
+        functionName,
+      })
+      const pattern = getEdgeFunctionPatternForPage({
+        edgeFunctionDefinition,
+        pageRegexMap,
+        appPathRoutesManifest,
+      })
+      manifest.functions.push({
+        function: functionName,
+        name: edgeFunctionDefinition.name,
+        pattern,
+        // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
+        cache: usesAppDir ? 'manual' : undefined,
+        generator,
+      })
+      // pages-dir page routes also have a data route. If there's a match, add an entry mapping that to the function too
+      const dataRoute = dataRoutesMap.get(edgeFunctionDefinition.page)
+      if (dataRoute) {
+        manifest.functions.push({
+          function: functionName,
+          name: edgeFunctionDefinition.name,
+          pattern: dataRoute,
+          cache: usesAppDir ? 'manual' : undefined,
+          generator,
+        })
+      }
+    }
+  }
+
   if (
+    destr(process.env.NEXT_FORCE_EDGE_IMAGES) &&
     !destr(process.env.NEXT_DISABLE_EDGE_IMAGES) &&
-    !destr(process.env.NEXT_DISABLE_NETLIFY_EDGE) &&
     !destr(process.env.DISABLE_IPX)
   ) {
+    usesEdge = true
     console.log(
       'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
     )
@@ -415,109 +482,31 @@ export const writeEdgeFunctions = async ({
     await ensureDir(edgeFunctionDir)
     await copyEdgeSourceFile({ edgeFunctionDir, file: 'ipx.ts', target: 'index.ts' })
     await copyFile(
-      join('.netlify', 'functions-internal', '_ipx', 'imageconfig.json'),
+      join('.netlify', 'functions-internal', IMAGE_FUNCTION_NAME, 'imageconfig.json'),
       join(edgeFunctionDir, 'imageconfig.json'),
     )
     manifest.functions.push({
       function: 'ipx',
       name: 'next/image handler',
-      path: '/_next/image*',
+      path: nextConfig.images.path || '/_next/image',
+      generator,
     })
+
+    manifest.layers.push({
+      name: 'https://ipx-edge-function-layer.netlify.app/mod.ts',
+      flag: 'ipx-edge-function-layer-url',
+    })
+  } else {
+    console.log(
+      'You are not using Netlify Edge Functions for image format detection. Set env var "NEXT_FORCE_EDGE_IMAGES=true" to enable.',
+    )
   }
-  if (!destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
-    const rscFunctions = await writeRscDataEdgeFunction({
-      prerenderManifest: await loadPrerenderManifest(netlifyConfig),
-      appPathRoutesManifest: await loadAppPathRoutesManifest(netlifyConfig),
-    })
 
-    manifest.functions.push(...rscFunctions)
-
-    const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
-    if (!middlewareManifest) {
-      console.error("Couldn't find the middleware manifest")
-      return
-    }
-
-    let usesEdge = false
-
-    for (const middleware of middlewareManifest.sortedMiddleware) {
-      usesEdge = true
-      const edgeFunctionDefinition = middlewareManifest.middleware[middleware]
-      const functionName = sanitizeName(edgeFunctionDefinition.name)
-      const matchers = generateEdgeFunctionMiddlewareMatchers({
-        edgeFunctionDefinition,
-        edgeFunctionRoot,
-        nextConfig,
-      })
-      await writeEdgeFunction({
-        edgeFunctionDefinition,
-        edgeFunctionRoot,
-        netlifyConfig,
-        functionName,
-        matchers,
-        middleware: true,
-      })
-
-      manifest.functions.push(
-        ...matchers.map((matcher) => middlewareMatcherToEdgeFunctionDefinition(matcher, functionName)),
-      )
-    }
-    // Functions (i.e. not middleware, but edge SSR and API routes)
-    if (typeof middlewareManifest.functions === 'object') {
-      // When using the app dir, we also need to check if the EF matches a page
-      const appPathRoutesManifest = await loadAppPathRoutesManifest(netlifyConfig)
-
-      // A map of all route pages to their page regex. This is used for pages dir and appDir.
-      const pageRegexMap = new Map(
-        [...(routesManifest.dynamicRoutes || []), ...(routesManifest.staticRoutes || [])].map((route) => [
-          route.page,
-          route.regex,
-        ]),
-      )
-      // Create a map of pages-dir routes to their data route regex (appDir uses the same route as the HTML)
-      const dataRoutesMap = new Map(
-        [...(routesManifest.dataRoutes || [])].map((route) => [route.page, route.dataRouteRegex]),
-      )
-
-      for (const edgeFunctionDefinition of Object.values(middlewareManifest.functions)) {
-        usesEdge = true
-        const functionName = sanitizeName(edgeFunctionDefinition.name)
-        await writeEdgeFunction({
-          edgeFunctionDefinition,
-          edgeFunctionRoot,
-          netlifyConfig,
-          functionName,
-        })
-        const pattern = getEdgeFunctionPatternForPage({
-          edgeFunctionDefinition,
-          pageRegexMap,
-          appPathRoutesManifest,
-        })
-        manifest.functions.push({
-          function: functionName,
-          name: edgeFunctionDefinition.name,
-          pattern,
-          // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
-          cache: usesAppDir ? 'manual' : undefined,
-        })
-        // pages-dir page routes also have a data route. If there's a match, add an entry mapping that to the function too
-        const dataRoute = dataRoutesMap.get(edgeFunctionDefinition.page)
-        if (dataRoute) {
-          manifest.functions.push({
-            function: functionName,
-            name: edgeFunctionDefinition.name,
-            pattern: dataRoute,
-            cache: usesAppDir ? 'manual' : undefined,
-          })
-        }
-      }
-    }
-    if (usesEdge) {
-      console.log(outdent`
-        ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
-        This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
-      `)
-    }
+  if (usesEdge) {
+    console.log(outdent`
+      ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
+      This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
+    `)
   }
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
 }

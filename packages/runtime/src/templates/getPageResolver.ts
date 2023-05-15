@@ -34,10 +34,10 @@ export const getResolverForDependencies = ({
 }) => {
   const pageFiles = dependencies.map((file) => `require.resolve('${relative(functionDir, file)}')`)
   return outdent/* javascript */ `
-    // This file is purely to allow nft to know about these pages. 
+    // This file is purely to allow nft to know about these pages.
     exports.resolvePages = () => {
         try {
-            ${pageFiles.join('\n        ')}
+            ${pageFiles.sort().join('\n        ')}
         } catch {}
     }
   `
