@@ -101,6 +101,8 @@ const getHandlerDependencies = async (publish: string): Promise<string[]> => {
     }
   }
 
+  includedFiles.add(join(publish, '**', '*.html'))
+
   const commonDependencies = await getCommonDependencies(publish)
 
   return [...includedFiles, ...commonDependencies].map(escapeGlob)
