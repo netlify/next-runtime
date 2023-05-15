@@ -3,7 +3,7 @@ import { outdent } from 'outdent'
 import { join, relative, resolve } from 'pathe'
 
 import { HANDLER_FUNCTION_NAME } from '../constants'
-import { getDependenciesOfFile } from '../helpers/tracing'
+import { getDependenciesOfFile } from '../helpers/files'
 
 // Generate a file full of require.resolve() calls for all the pages in the
 // build. This is used by the nft bundler to find all the pages.

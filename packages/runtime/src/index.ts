@@ -8,7 +8,13 @@ import { outdent } from 'outdent'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
-import { getNextConfig, configureHandlerFunctions, generateCustomHeaders } from './helpers/config'
+import {
+  getNextConfig,
+  getRequiredServerFiles,
+  updateRequiredServerFiles,
+  configureHandlerFunctions,
+  generateCustomHeaders,
+} from './helpers/config'
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
@@ -24,7 +30,6 @@ import {
   APILambda,
 } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
-import { getRequiredServerFiles, updateRequiredServerFiles } from './helpers/tracing'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,

@@ -7,12 +7,12 @@ import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
 import pLimit from 'p-limit'
-import { join } from 'pathe'
+import { join, resolve, dirname } from 'pathe'
 import slash from 'slash'
 
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
 
-import type { NextConfig } from './config'
+import { NextConfig, NFTFile } from './config'
 import { loadPrerenderManifest } from './edge'
 import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
@@ -361,6 +361,18 @@ export const getSourceFileForPage = (page: string, roots: string[], pageExtensio
     }
   }
   console.log('Could not find source file for page', page)
+}
+
+/**
+ * Reads the node file trace file for a given file, and resolves the dependencies
+ */
+export const getDependenciesOfFile = async (file: string) => {
+  const nft = `${file}.nft.json`
+  if (!existsSync(nft)) {
+    return []
+  }
+  const dependencies = (await readJson(nft, 'utf8')) as NFTFile
+  return dependencies.files.map((dep) => resolve(dirname(file), dep))
 }
 
 const baseServerReplacements: Array<[string, string]> = [
