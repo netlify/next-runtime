@@ -107,7 +107,7 @@ export const augmentFsModule = ({
   // Grab the real fs.promises.readFile...
   const readfileOrig = promises.readFile
   const statsOrig = promises.stat
-  // ...then money-patch it to see if it's requesting a CDN file
+  // ...then monkey-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
     const baseUrl = getBase()
 
@@ -160,37 +160,6 @@ export const augmentFsModule = ({
   }) as typeof promises.stat
 }
 
-/**
- * Next.js has an annoying habit of needing deep imports, but then moving those in patch releases. This is our abstraction.
- */
-export const getNextServer = (): NextServerType => {
-  let NextServer: NextServerType
-  try {
-    // next >= 11.0.1. Yay breaking changes in patch releases!
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    NextServer = require('next/dist/server/next-server').default
-  } catch (error) {
-    if (!error.message.includes("Cannot find module 'next/dist/server/next-server'")) {
-      // A different error, so rethrow it
-      throw error
-    }
-    // Probably an old version of next, so fall through and find it elsewhere.
-  }
-
-  if (!NextServer) {
-    try {
-      // next < 11.0.1
-      // eslint-disable-next-line n/no-missing-require, import/no-unresolved, @typescript-eslint/no-var-requires
-      NextServer = require('next/dist/next-server/server/next-server').default
-    } catch (error) {
-      if (!error.message.includes("Cannot find module 'next/dist/next-server/server/next-server'")) {
-        throw error
-      }
-      throw new Error('Could not find Next.js server')
-    }
-  }
-  return NextServer
-}
 /**
  * Prefetch requests are used to check for middleware redirects, and shouldn't trigger SSR.
  */

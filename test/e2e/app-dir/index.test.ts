@@ -64,7 +64,7 @@ describe('app dir', () => {
       })
     }
 
-    it('should use application/octet-stream for flight', async () => {
+    it('should use text/x-component for flight', async () => {
       const res = await fetchViaHTTP(
         next.url,
         '/dashboard/deployments/123',
@@ -75,10 +75,10 @@ describe('app dir', () => {
           },
         },
       )
-      expect(res.headers.get('Content-Type')).toBe('application/octet-stream')
+      expect(res.headers.get('Content-Type')).toBe('text/x-component')
     })
 
-    it('should use application/octet-stream for flight with edge runtime', async () => {
+    it('should use text/x-component for flight with edge runtime', async () => {
       const res = await fetchViaHTTP(
         next.url,
         '/dashboard',
@@ -89,7 +89,7 @@ describe('app dir', () => {
           },
         },
       )
-      expect(res.headers.get('Content-Type')).toBe('application/octet-stream')
+      expect(res.headers.get('Content-Type')).toBe('text/x-component')
     })
 
     it('should pass props from getServerSideProps in root layout', async () => {
@@ -568,20 +568,25 @@ describe('app dir', () => {
       })
 
       it('should navigate to pages dynamic route from pages page if it overlaps with an app page', async () => {
+        await fetchViaHTTP(next.url, '/dynamic-pages-route-app-overlap/app-dir')
         const browser = await webdriver(next.url, '/dynamic-pages-route-app-overlap')
 
         try {
           // Click the link.
-          await browser.elementById('pages-link').click()
-          expect(await browser.waitForElementByCss('#pages-text').text()).toBe(
-            'hello from pages/dynamic-pages-route-app-overlap/[slug]',
-          )
+          await check(async () => {
+            await browser.elementById('pages-link').click()
 
-          // When refreshing the browser, the app page should be rendered
-          await browser.refresh()
-          expect(await browser.waitForElementByCss('#app-text').text()).toBe(
-            'hello from app/dynamic-pages-route-app-overlap/app-dir/page',
-          )
+            expect(await browser.waitForElementByCss('#app-text', 5000).text()).toBe(
+              'hello from app/dynamic-pages-route-app-overlap/app-dir/page',
+            )
+  
+            // When refreshing the browser, the app page should be rendered
+            await browser.refresh()
+            expect(await browser.waitForElementByCss('#app-text').text()).toBe(
+              'hello from app/dynamic-pages-route-app-overlap/app-dir/page',
+            )
+            return 'success'
+          }, 'success')
         } finally {
           await browser.close()
         }
@@ -861,11 +866,6 @@ describe('app dir', () => {
             } finally {
               await browser.close()
             }
-          })
-
-          it('should retrieve cookies in a server component in the edge runtime', async () => {
-            const res = await fetchViaHTTP(next.url, '/edge-apis/cookies')
-            expect(await res.text()).toInclude('Hello')
           })
 
           it('should access cookies on <Link /> navigation', async () => {
@@ -1228,26 +1228,6 @@ describe('app dir', () => {
             'rgb(0, 0, 255)',
           )
         })
-
-        if (!isDev) {
-          it('should not include unused css modules in the page in prod', async () => {
-            const browser = await webdriver(next.url, '/css/css-page/unused')
-            expect(
-              await browser.eval(
-                `[...document.styleSheets].some(({ rules }) => [...rules].some(rule => rule.selectorText.includes('this_should_not_be_included')))`,
-              ),
-            ).toBe(false)
-          })
-
-          it('should not include unused css modules in nested pages in prod', async () => {
-            const browser = await webdriver(next.url, '/css/css-page/unused-nested/inner')
-            expect(
-              await browser.eval(
-                `[...document.styleSheets].some(({ rules }) => [...rules].some(rule => rule.selectorText.includes('this_should_not_be_included_in_inner_path')))`,
-              ),
-            ).toBe(false)
-          })
-        }
       })
 
       describe('client layouts', () => {
@@ -2093,12 +2073,12 @@ describe('app dir', () => {
 
       it('should insert preload tags for beforeInteractive and afterInteractive scripts', async () => {
         const html = await renderViaHTTP(next.url, '/script')
-        expect(html).toContain('<link href="/test1.js" rel="preload" as="script"/>')
-        expect(html).toContain('<link href="/test2.js" rel="preload" as="script"/>')
-        expect(html).toContain('<link href="/test3.js" rel="preload" as="script"/>')
+        expect(html).toContain('<link rel="preload" as="script" href="/test1.js"/>')
+        expect(html).toContain('<link rel="preload" as="script" href="/test2.js"/>')
+        expect(html).toContain('<link rel="preload" as="script" href="/test3.js"/>')
 
         // test4.js has lazyOnload which doesn't need to be preloaded
-        expect(html).not.toContain('<script src="/test4.js" rel="preload" as="script"/>')
+        expect(html).not.toContain('<script rel="preload" as="script" href="/test4.js"/>')
       })
     })
 

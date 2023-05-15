@@ -9,4 +9,4 @@ export default function Page() {
   )
 }
 
-export const config = { runtime: 'experimental-edge' }
+export const config = { runtime: 'edge' }
