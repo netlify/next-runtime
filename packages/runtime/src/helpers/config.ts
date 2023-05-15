@@ -5,10 +5,11 @@ import type { Header } from 'next/dist/lib/load-custom-routes'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'
 import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
+import glob from 'tiny-glob'
 
 import { HANDLER_FUNCTION_NAME, IMAGE_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
-import { splitApiRoutes } from './flags'
+import { splitApiRoutes, useNoneBundler } from './flags'
 import type { APILambda } from './functions'
 import type { RoutesManifest } from './types'
 import { escapeStringRegexp } from './utils'
@@ -74,6 +75,32 @@ export const updateRequiredServerFiles = async (publish: string, modifiedConfig:
   await writeJSON(configFile, modifiedConfig)
 }
 
+export interface NFTFile {
+  version: number
+  files: string[]
+}
+
+const getHandlerDependencies = async (publish: string): Promise<string[]> => {
+  const includedFiles = new Set<string>()
+
+  for (const match of await glob('./**/*.js.nft.json', {
+    cwd: publish,
+  })) {
+    const nftFilePath = join(publish, match)
+    const nftFile = (await readJSON(nftFilePath)) as NFTFile
+    if (nftFile.version !== 1) {
+      throw new Error(`unexpected version ${nftFile.version} .nft.json`)
+    }
+
+    includedFiles.add(nftFilePath.replace('.nft.json', ''))
+    for (const requiredFile of nftFile.files) {
+      includedFiles.add(join(dirname(nftFilePath), requiredFile))
+    }
+  }
+
+  return [...includedFiles]
+}
+
 export const resolveModuleRoot = (moduleName) => {
   try {
     return dirname(relative(process.cwd(), require.resolve(`${moduleName}/package.json`, { paths: [process.cwd()] })))
@@ -124,7 +151,17 @@ export const configureHandlerFunctions = async ({
     (moduleName) => !hasManuallyAddedModule({ netlifyConfig, moduleName }),
   )
 
+  const handlerIncludedFiles = useNoneBundler(featureFlags) ? await getHandlerDependencies(publish) : []
   const configureFunction = (functionName: string) => {
+    if (useNoneBundler(featureFlags)) {
+      netlifyConfig.functions[functionName] ||= { included_files: [] }
+      netlifyConfig.functions[functionName].node_bundler = 'none'
+      netlifyConfig.functions[functionName].included_files ||= []
+      netlifyConfig.functions[functionName].included_files.push(...handlerIncludedFiles)
+      netlifyConfig.functions[functionName].included_files.push(`.netlify/functions-internal/${functionName}/**/*`)
+      return
+    }
+
     netlifyConfig.functions[functionName] ||= { included_files: [], external_node_modules: [] }
     netlifyConfig.functions[functionName].node_bundler = 'nft'
     netlifyConfig.functions[functionName].included_files ||= []

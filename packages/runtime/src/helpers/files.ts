@@ -12,7 +12,7 @@ import slash from 'slash'
 
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
 
-import { NextConfig } from './config'
+import { NextConfig, NFTFile } from './config'
 import { loadPrerenderManifest } from './edge'
 import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
@@ -371,7 +371,7 @@ export const getDependenciesOfFile = async (file: string) => {
   if (!existsSync(nft)) {
     return []
   }
-  const dependencies = (await readJson(nft, 'utf8')) as { files: string[] }
+  const dependencies = (await readJson(nft, 'utf8')) as NFTFile
   return dependencies.files.map((dep) => resolve(dirname(file), dep))
 }
 
