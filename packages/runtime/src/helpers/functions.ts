@@ -48,7 +48,6 @@ export const generateFunctions = async (
   { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
   appDir: string,
   apiLambdas: APILambda[],
-  featureFlags: Record<string, unknown>,
 ): Promise<void> => {
   const publish = resolve(PUBLISH_DIR)
   const functionsDir = resolve(INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC)
@@ -70,7 +69,6 @@ export const generateFunctions = async (
       publishDir,
       appDir: relative(functionDir, appDir),
       nextServerModuleRelativeLocation,
-      featureFlags,
     })
 
     await ensureDir(join(functionsDir, functionName))

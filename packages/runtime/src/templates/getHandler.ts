@@ -101,7 +101,6 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
       },
       {
         revalidateToken: customContext?.odb_refresh_hooks,
-        splitApiRoutes: false,
       },
     )
     const requestHandler = nextServer.getRequestHandler()
