@@ -1,0 +1,2982 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`function helpers config dependency tracing extracts a list of all dependencies 1`] = `
+Array [
+  "../../node_modules/next/dist/client/add-base-path.js",
+  "../../node_modules/next/dist/client/add-locale.js",
+  "../../node_modules/next/dist/client/detect-domain-locale.js",
+  "../../node_modules/next/dist/client/has-base-path.js",
+  "../../node_modules/next/dist/client/head-manager.js",
+  "../../node_modules/next/dist/client/normalize-trailing-slash.js",
+  "../../node_modules/next/dist/client/remove-base-path.js",
+  "../../node_modules/next/dist/client/remove-locale.js",
+  "../../node_modules/next/dist/client/request-idle-callback.js",
+  "../../node_modules/next/dist/client/route-loader.js",
+  "../../node_modules/next/dist/client/router.js",
+  "../../node_modules/next/dist/client/script.js",
+  "../../node_modules/next/dist/client/trusted-types.js",
+  "../../node_modules/next/dist/client/with-router.js",
+  "../../node_modules/next/dist/compiled/path-to-regexp/index.js",
+  "../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js",
+  "../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js",
+  "../../node_modules/next/dist/compiled/react-dom/package.json",
+  "../../node_modules/next/dist/compiled/react-dom/server-rendering-stub.js",
+  "../../node_modules/next/dist/compiled/react-is/cjs/react-is.development.js",
+  "../../node_modules/next/dist/compiled/react-is/cjs/react-is.production.min.js",
+  "../../node_modules/next/dist/compiled/react-is/index.js",
+  "../../node_modules/next/dist/compiled/react-is/package.json",
+  "../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js",
+  "../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.min.js",
+  "../../node_modules/next/dist/compiled/react-server-dom-webpack/client.browser.js",
+  "../../node_modules/next/dist/compiled/react-server-dom-webpack/client.js",
+  "../../node_modules/next/dist/compiled/react-server-dom-webpack/package.json",
+  "../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js",
+  "../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js",
+  "../../node_modules/next/dist/compiled/react/cjs/react.development.js",
+  "../../node_modules/next/dist/compiled/react/cjs/react.production.min.js",
+  "../../node_modules/next/dist/compiled/react/index.js",
+  "../../node_modules/next/dist/compiled/react/jsx-runtime.js",
+  "../../node_modules/next/dist/compiled/react/package.json",
+  "../../node_modules/next/dist/lib/is-api-route.js",
+  "../../node_modules/next/dist/lib/is-error.js",
+  "../../node_modules/next/dist/pages/_error.js",
+  "../../node_modules/next/dist/server/app-render/get-segment-param.js",
+  "../../node_modules/next/dist/server/future/helpers/interception-routes.js",
+  "../../node_modules/next/dist/server/get-page-files.js",
+  "../../node_modules/next/dist/server/htmlescape.js",
+  "../../node_modules/next/dist/server/utils.js",
+  "../../node_modules/next/dist/shared/lib/amp-context.js",
+  "../../node_modules/next/dist/shared/lib/amp-mode.js",
+  "../../node_modules/next/dist/shared/lib/app-router-context.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/index.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter/utils.js",
+  "../../node_modules/next/dist/shared/lib/constants.js",
+  "../../node_modules/next/dist/shared/lib/escape-regexp.js",
+  "../../node_modules/next/dist/shared/lib/fnv1a.js",
+  "../../node_modules/next/dist/shared/lib/head-manager-context.js",
+  "../../node_modules/next/dist/shared/lib/head.js",
+  "../../node_modules/next/dist/shared/lib/hooks-client-context.js",
+  "../../node_modules/next/dist/shared/lib/html-context.js",
+  "../../node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js",
+  "../../node_modules/next/dist/shared/lib/i18n/normalize-locale-path.js",
+  "../../node_modules/next/dist/shared/lib/is-plain-object.js",
+  "../../node_modules/next/dist/shared/lib/loadable-context.js",
+  "../../node_modules/next/dist/shared/lib/loadable.js",
+  "../../node_modules/next/dist/shared/lib/mitt.js",
+  "../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js",
+  "../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js",
+  "../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js",
+  "../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js",
+  "../../node_modules/next/dist/shared/lib/router-context.js",
+  "../../node_modules/next/dist/shared/lib/router/router.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/add-locale.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/add-path-prefix.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/add-path-suffix.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/app-paths.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/compare-states.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/format-next-pathname-info.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/format-url.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/get-asset-path-from-route.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/handle-smooth-scroll.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/index.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/interpolate-as.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/is-bot.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/is-local-url.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/omit.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/parse-path.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/parse-relative-url.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/parse-url.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/path-has-prefix.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/path-match.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/prepare-destination.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/querystring.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/remove-path-prefix.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/remove-trailing-slash.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/resolve-href.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/resolve-rewrites.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/route-matcher.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/route-regex.js",
+  "../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js",
+  "../../node_modules/next/dist/shared/lib/server-inserted-html.js",
+  "../../node_modules/next/dist/shared/lib/side-effect.js",
+  "../../node_modules/next/dist/shared/lib/utils.js",
+  "../../node_modules/next/dist/shared/lib/utils/warn-once.js",
+  "../../node_modules/next/error.js",
+  "../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js",
+  "../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js",
+  "../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js",
+  "../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js",
+  "../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js",
+  "../../node_modules/next/node_modules/@swc/helpers/package.json",
+  "../../node_modules/next/package.json",
+  "../../node_modules/next/router.js",
+  "../../node_modules/react-dom/cjs/react-dom.development.js",
+  "../../node_modules/react-dom/cjs/react-dom.production.min.js",
+  "../../node_modules/react-dom/index.js",
+  "../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.development.js",
+  "../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js",
+  "../../node_modules/react-dom/node_modules/scheduler/index.js",
+  "../../node_modules/react-dom/node_modules/scheduler/package.json",
+  "../../node_modules/react-dom/package.json",
+  "../../node_modules/react/cjs/react.development.js",
+  "../../node_modules/react/cjs/react.production.min.js",
+  "../../node_modules/react/index.js",
+  "../../node_modules/react/package.json",
+  "../../package.json",
+  ".next/package.json",
+  ".next/server/app/app-edge/page.js",
+  ".next/server/app/blog/[author]/[slug]/page.js",
+  ".next/server/app/blog/[author]/page.js",
+  ".next/server/chunks/CHUNK_ID.js",
+  ".next/server/chunks/CHUNK_ID.js",
+  ".next/server/chunks/CHUNK_ID.js",
+  ".next/server/chunks/CHUNK_ID.js",
+  ".next/server/chunks/CHUNK_ID.js",
+  ".next/server/chunks/CHUNK_ID.js",
+  ".next/server/chunks/CHUNK_ID.js",
+  ".next/server/chunks/CHUNK_ID.js",
+  ".next/server/chunks/CHUNK_ID.js",
+  ".next/server/chunks/header.js",
+  ".next/server/pages/_app.js",
+  ".next/server/pages/_document.js",
+  ".next/server/pages/_error.js",
+  ".next/server/pages/api/enterPreview.js",
+  ".next/server/pages/api/exitPreview.js",
+  ".next/server/pages/api/hello-background.js",
+  ".next/server/pages/api/hello-scheduled.js",
+  ".next/server/pages/api/hello.js",
+  ".next/server/pages/api/og.js",
+  ".next/server/pages/api/revalidate.js",
+  ".next/server/pages/api/shows/[...params].js",
+  ".next/server/pages/api/shows/[id].js",
+  ".next/server/pages/deep/import.js",
+  ".next/server/pages/edge/[id].js",
+  ".next/server/pages/getServerSideProps/[id].js",
+  ".next/server/pages/getServerSideProps/all/[[...slug]].js",
+  ".next/server/pages/getServerSideProps/file.js",
+  ".next/server/pages/getServerSideProps/static.js",
+  ".next/server/pages/getStaticProps/[id].js",
+  ".next/server/pages/getStaticProps/env.js",
+  ".next/server/pages/getStaticProps/static.js",
+  ".next/server/pages/getStaticProps/with-revalidate-404.js",
+  ".next/server/pages/getStaticProps/with-revalidate.js",
+  ".next/server/pages/getStaticProps/withFallback/[...slug].js",
+  ".next/server/pages/getStaticProps/withFallback/[id].js",
+  ".next/server/pages/getStaticProps/withFallbackBlocking/[id].js",
+  ".next/server/pages/getStaticProps/withRevalidate/[id].js",
+  ".next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js",
+  ".next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js",
+  ".next/server/pages/index.js",
+  ".next/server/pages/previewTest.js",
+  ".next/server/pages/shows/[...params].js",
+  ".next/server/pages/shows/[id].js",
+  ".next/server/webpack-api-runtime.js",
+  ".next/server/webpack-runtime.js",
+  "components/Header.js",
+  "hello.txt",
+  "package.json",
+]
+`;
+
+exports[`onBuild() generates a file referencing all API route sources: for _api_hello-background-background 1`] = `
+"// This file is purely to allow nft to know about these pages.
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../../node_modules/next/package.json')
+        require.resolve('../../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/react/index.js')
+        require.resolve('../../../../../node_modules/react/package.json')
+        require.resolve('../../../../../package.json')
+        require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/webpack-api-runtime.js')
+        require.resolve('../../../.next/server/webpack-runtime.js')
+        require.resolve('../../../package.json')
+    } catch {}
+}"
+`;
+
+exports[`onBuild() generates a file referencing all API route sources: for _api_hello-scheduled-handler 1`] = `
+"// This file is purely to allow nft to know about these pages.
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../../node_modules/next/package.json')
+        require.resolve('../../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/react/index.js')
+        require.resolve('../../../../../node_modules/react/package.json')
+        require.resolve('../../../../../package.json')
+        require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../.next/server/webpack-api-runtime.js')
+        require.resolve('../../../.next/server/webpack-runtime.js')
+        require.resolve('../../../package.json')
+    } catch {}
+}"
+`;
+
+exports[`onBuild() generates a file referencing all page sources 1`] = `
+"// This file is purely to allow nft to know about these pages.
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../../../node_modules/next/dist/client/add-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/add-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/detect-domain-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/has-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/head-manager.js')
+        require.resolve('../../../../../node_modules/next/dist/client/normalize-trailing-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/client/remove-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/remove-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/request-idle-callback.js')
+        require.resolve('../../../../../node_modules/next/dist/client/route-loader.js')
+        require.resolve('../../../../../node_modules/next/dist/client/router.js')
+        require.resolve('../../../../../node_modules/next/dist/client/script.js')
+        require.resolve('../../../../../node_modules/next/dist/client/trusted-types.js')
+        require.resolve('../../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/server-rendering-stub.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.browser.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../../node_modules/next/dist/lib/is-api-route.js')
+        require.resolve('../../../../../node_modules/next/dist/lib/is-error.js')
+        require.resolve('../../../../../node_modules/next/dist/pages/_error.js')
+        require.resolve('../../../../../node_modules/next/dist/server/app-render/get-segment-param.js')
+        require.resolve('../../../../../node_modules/next/dist/server/future/helpers/interception-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/app-router-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/fnv1a.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/i18n/normalize-locale-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/router.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-path-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-path-suffix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/app-paths.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/compare-states.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/format-next-pathname-info.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/format-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/get-asset-path-from-route.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/handle-smooth-scroll.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/interpolate-as.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-bot.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-local-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/omit.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-relative-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/path-has-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/path-match.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/prepare-destination.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/querystring.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/remove-path-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/remove-trailing-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/resolve-href.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/resolve-rewrites.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/route-matcher.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/route-regex.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/server-inserted-html.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../../node_modules/next/error.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../../node_modules/next/package.json')
+        require.resolve('../../../../../node_modules/next/router.js')
+        require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.development.js')
+        require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.production.min.js')
+        require.resolve('../../../../../node_modules/react-dom/index.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.development.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/index.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/package.json')
+        require.resolve('../../../../../node_modules/react-dom/package.json')
+        require.resolve('../../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/react/index.js')
+        require.resolve('../../../../../node_modules/react/package.json')
+        require.resolve('../../../../../package.json')
+        require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/app/app-edge/page.js')
+        require.resolve('../../../.next/server/app/blog/[author]/[slug]/page.js')
+        require.resolve('../../../.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/header.js')
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../.next/server/pages/api/hello.js')
+        require.resolve('../../../.next/server/pages/api/og.js')
+        require.resolve('../../../.next/server/pages/api/revalidate.js')
+        require.resolve('../../../.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../.next/server/pages/deep/import.js')
+        require.resolve('../../../.next/server/pages/edge/[id].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/file.js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/env.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate-404.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
+        require.resolve('../../../.next/server/pages/index.js')
+        require.resolve('../../../.next/server/pages/previewTest.js')
+        require.resolve('../../../.next/server/pages/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/shows/[id].js')
+        require.resolve('../../../.next/server/webpack-api-runtime.js')
+        require.resolve('../../../.next/server/webpack-runtime.js')
+        require.resolve('../../../components/Header.js')
+        require.resolve('../../../hello.txt')
+        require.resolve('../../../package.json')
+    } catch {}
+}"
+`;
+
+exports[`onBuild() generates a file referencing all page sources 2`] = `
+"// This file is purely to allow nft to know about these pages.
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../../../node_modules/next/dist/client/add-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/add-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/detect-domain-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/has-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/head-manager.js')
+        require.resolve('../../../../../node_modules/next/dist/client/normalize-trailing-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/client/remove-base-path.js')
+        require.resolve('../../../../../node_modules/next/dist/client/remove-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/client/request-idle-callback.js')
+        require.resolve('../../../../../node_modules/next/dist/client/route-loader.js')
+        require.resolve('../../../../../node_modules/next/dist/client/router.js')
+        require.resolve('../../../../../node_modules/next/dist/client/script.js')
+        require.resolve('../../../../../node_modules/next/dist/client/trusted-types.js')
+        require.resolve('../../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/server-rendering-stub.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-is/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.browser.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react-server-dom-webpack/package.json')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../../node_modules/next/dist/lib/is-api-route.js')
+        require.resolve('../../../../../node_modules/next/dist/lib/is-error.js')
+        require.resolve('../../../../../node_modules/next/dist/pages/_error.js')
+        require.resolve('../../../../../node_modules/next/dist/server/app-render/get-segment-param.js')
+        require.resolve('../../../../../node_modules/next/dist/server/future/helpers/interception-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/app-router-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/fnv1a.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/head.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/i18n/normalize-locale-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router-context.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/router.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-locale.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-path-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/add-path-suffix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/app-paths.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/compare-states.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/format-next-pathname-info.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/format-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/get-asset-path-from-route.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/handle-smooth-scroll.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/interpolate-as.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-bot.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/is-local-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/omit.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-path.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-relative-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/parse-url.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/path-has-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/path-match.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/prepare-destination.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/querystring.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/remove-path-prefix.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/remove-trailing-slash.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/resolve-href.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/resolve-rewrites.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/route-matcher.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/route-regex.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/server-inserted-html.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../../node_modules/next/error.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
+        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../../node_modules/next/package.json')
+        require.resolve('../../../../../node_modules/next/router.js')
+        require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.development.js')
+        require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.production.min.js')
+        require.resolve('../../../../../node_modules/react-dom/index.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.development.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/index.js')
+        require.resolve('../../../../../node_modules/react-dom/node_modules/scheduler/package.json')
+        require.resolve('../../../../../node_modules/react-dom/package.json')
+        require.resolve('../../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../../node_modules/react/index.js')
+        require.resolve('../../../../../node_modules/react/package.json')
+        require.resolve('../../../../../package.json')
+        require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/app/app-edge/page.js')
+        require.resolve('../../../.next/server/app/blog/[author]/[slug]/page.js')
+        require.resolve('../../../.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../.next/server/chunks/header.js')
+        require.resolve('../../../.next/server/pages/_app.js')
+        require.resolve('../../../.next/server/pages/_document.js')
+        require.resolve('../../../.next/server/pages/_error.js')
+        require.resolve('../../../.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../.next/server/pages/api/hello-background.js')
+        require.resolve('../../../.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../.next/server/pages/api/hello.js')
+        require.resolve('../../../.next/server/pages/api/og.js')
+        require.resolve('../../../.next/server/pages/api/revalidate.js')
+        require.resolve('../../../.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../.next/server/pages/deep/import.js')
+        require.resolve('../../../.next/server/pages/edge/[id].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/file.js')
+        require.resolve('../../../.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/env.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate-404.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
+        require.resolve('../../../.next/server/pages/index.js')
+        require.resolve('../../../.next/server/pages/previewTest.js')
+        require.resolve('../../../.next/server/pages/shows/[...params].js')
+        require.resolve('../../../.next/server/pages/shows/[id].js')
+        require.resolve('../../../.next/server/webpack-api-runtime.js')
+        require.resolve('../../../.next/server/webpack-runtime.js')
+        require.resolve('../../../components/Header.js')
+        require.resolve('../../../hello.txt')
+        require.resolve('../../../package.json')
+    } catch {}
+}"
+`;
+
+exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 1`] = `
+"// This file is purely to allow nft to know about these pages.
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../../node_modules/next/dist/client/add-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/add-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/detect-domain-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/has-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/head-manager.js')
+        require.resolve('../../../../node_modules/next/dist/client/normalize-trailing-slash.js')
+        require.resolve('../../../../node_modules/next/dist/client/remove-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/remove-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/request-idle-callback.js')
+        require.resolve('../../../../node_modules/next/dist/client/route-loader.js')
+        require.resolve('../../../../node_modules/next/dist/client/router.js')
+        require.resolve('../../../../node_modules/next/dist/client/script.js')
+        require.resolve('../../../../node_modules/next/dist/client/trusted-types.js')
+        require.resolve('../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/server-rendering-stub.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.browser.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../node_modules/next/dist/lib/is-api-route.js')
+        require.resolve('../../../../node_modules/next/dist/lib/is-error.js')
+        require.resolve('../../../../node_modules/next/dist/pages/_error.js')
+        require.resolve('../../../../node_modules/next/dist/server/app-render/get-segment-param.js')
+        require.resolve('../../../../node_modules/next/dist/server/future/helpers/interception-routes.js')
+        require.resolve('../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/app-router-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/fnv1a.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/head.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/i18n/normalize-locale-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/loadable-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/loadable.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/router.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-locale.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-path-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-path-suffix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/app-paths.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/compare-states.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/format-next-pathname-info.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/format-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/get-asset-path-from-route.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/handle-smooth-scroll.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/interpolate-as.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-bot.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-local-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/omit.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-relative-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/path-has-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/path-match.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/prepare-destination.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/querystring.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/remove-path-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/remove-trailing-slash.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/resolve-href.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/resolve-rewrites.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/route-matcher.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/route-regex.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/server-inserted-html.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../node_modules/next/error.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../node_modules/next/package.json')
+        require.resolve('../../../../node_modules/next/router.js')
+        require.resolve('../../../../node_modules/react-dom/cjs/react-dom.development.js')
+        require.resolve('../../../../node_modules/react-dom/cjs/react-dom.production.min.js')
+        require.resolve('../../../../node_modules/react-dom/index.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.development.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/index.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/package.json')
+        require.resolve('../../../../node_modules/react-dom/package.json')
+        require.resolve('../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../node_modules/react/index.js')
+        require.resolve('../../../../node_modules/react/package.json')
+        require.resolve('../../../../package.json')
+        require.resolve('../../../web/.next/package.json')
+        require.resolve('../../../web/.next/server/app/app-edge/page.js')
+        require.resolve('../../../web/.next/server/app/blog/[author]/[slug]/page.js')
+        require.resolve('../../../web/.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/header.js')
+        require.resolve('../../../web/.next/server/pages/_app.js')
+        require.resolve('../../../web/.next/server/pages/_document.js')
+        require.resolve('../../../web/.next/server/pages/_error.js')
+        require.resolve('../../../web/.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-background.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../web/.next/server/pages/api/hello.js')
+        require.resolve('../../../web/.next/server/pages/api/og.js')
+        require.resolve('../../../web/.next/server/pages/api/revalidate.js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../web/.next/server/pages/deep/import.js')
+        require.resolve('../../../web/.next/server/pages/edge/[id].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/file.js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/env.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate-404.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
+        require.resolve('../../../web/.next/server/pages/index.js')
+        require.resolve('../../../web/.next/server/pages/previewTest.js')
+        require.resolve('../../../web/.next/server/pages/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/shows/[id].js')
+        require.resolve('../../../web/.next/server/webpack-api-runtime.js')
+        require.resolve('../../../web/.next/server/webpack-runtime.js')
+        require.resolve('../../../web/components/Header.js')
+        require.resolve('../../../web/hello.txt')
+        require.resolve('../../../web/package.json')
+    } catch {}
+}"
+`;
+
+exports[`onBuild() generates a file referencing all when publish dir is a subdirectory 2`] = `
+"// This file is purely to allow nft to know about these pages.
+exports.resolvePages = () => {
+    try {
+        require.resolve('../../../../node_modules/next/dist/client/add-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/add-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/detect-domain-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/has-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/head-manager.js')
+        require.resolve('../../../../node_modules/next/dist/client/normalize-trailing-slash.js')
+        require.resolve('../../../../node_modules/next/dist/client/remove-base-path.js')
+        require.resolve('../../../../node_modules/next/dist/client/remove-locale.js')
+        require.resolve('../../../../node_modules/next/dist/client/request-idle-callback.js')
+        require.resolve('../../../../node_modules/next/dist/client/route-loader.js')
+        require.resolve('../../../../node_modules/next/dist/client/router.js')
+        require.resolve('../../../../node_modules/next/dist/client/script.js')
+        require.resolve('../../../../node_modules/next/dist/client/trusted-types.js')
+        require.resolve('../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-dom/server-rendering-stub.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/cjs/react-is.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-is/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.browser.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/client.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react-server-dom-webpack/package.json')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/react/package.json')
+        require.resolve('../../../../node_modules/next/dist/lib/is-api-route.js')
+        require.resolve('../../../../node_modules/next/dist/lib/is-error.js')
+        require.resolve('../../../../node_modules/next/dist/pages/_error.js')
+        require.resolve('../../../../node_modules/next/dist/server/app-render/get-segment-param.js')
+        require.resolve('../../../../node_modules/next/dist/server/future/helpers/interception-routes.js')
+        require.resolve('../../../../node_modules/next/dist/server/get-page-files.js')
+        require.resolve('../../../../node_modules/next/dist/server/htmlescape.js')
+        require.resolve('../../../../node_modules/next/dist/server/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/amp-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/amp-mode.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/app-router-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/constants.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/fnv1a.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/head.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/html-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/i18n/detect-domain-locale.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/i18n/normalize-locale-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/loadable-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/loadable.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-path-sep.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router-context.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/router.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-locale.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-path-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/add-path-suffix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/app-paths.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/compare-states.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/format-next-pathname-info.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/format-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/get-asset-path-from-route.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/handle-smooth-scroll.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/index.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/interpolate-as.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-bot.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-dynamic.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/is-local-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/omit.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-path.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-relative-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/parse-url.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/path-has-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/path-match.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/prepare-destination.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/querystring.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/remove-path-prefix.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/remove-trailing-slash.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/resolve-href.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/resolve-rewrites.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/route-matcher.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/route-regex.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/router/utils/sorted-routes.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/server-inserted-html.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/side-effect.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
+        require.resolve('../../../../node_modules/next/error.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
+        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/package.json')
+        require.resolve('../../../../node_modules/next/package.json')
+        require.resolve('../../../../node_modules/next/router.js')
+        require.resolve('../../../../node_modules/react-dom/cjs/react-dom.development.js')
+        require.resolve('../../../../node_modules/react-dom/cjs/react-dom.production.min.js')
+        require.resolve('../../../../node_modules/react-dom/index.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.development.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/index.js')
+        require.resolve('../../../../node_modules/react-dom/node_modules/scheduler/package.json')
+        require.resolve('../../../../node_modules/react-dom/package.json')
+        require.resolve('../../../../node_modules/react/cjs/react.development.js')
+        require.resolve('../../../../node_modules/react/cjs/react.production.min.js')
+        require.resolve('../../../../node_modules/react/index.js')
+        require.resolve('../../../../node_modules/react/package.json')
+        require.resolve('../../../../package.json')
+        require.resolve('../../../web/.next/package.json')
+        require.resolve('../../../web/.next/server/app/app-edge/page.js')
+        require.resolve('../../../web/.next/server/app/blog/[author]/[slug]/page.js')
+        require.resolve('../../../web/.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
+        require.resolve('../../../web/.next/server/chunks/header.js')
+        require.resolve('../../../web/.next/server/pages/_app.js')
+        require.resolve('../../../web/.next/server/pages/_document.js')
+        require.resolve('../../../web/.next/server/pages/_error.js')
+        require.resolve('../../../web/.next/server/pages/api/enterPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/exitPreview.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-background.js')
+        require.resolve('../../../web/.next/server/pages/api/hello-scheduled.js')
+        require.resolve('../../../web/.next/server/pages/api/hello.js')
+        require.resolve('../../../web/.next/server/pages/api/og.js')
+        require.resolve('../../../web/.next/server/pages/api/revalidate.js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../web/.next/server/pages/deep/import.js')
+        require.resolve('../../../web/.next/server/pages/edge/[id].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/all/[[...slug]].js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/file.js')
+        require.resolve('../../../web/.next/server/pages/getServerSideProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/env.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/static.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate-404.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/with-revalidate.js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[...slug].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withFallbackBlocking/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallback/[id].js')
+        require.resolve('../../../web/.next/server/pages/getStaticProps/withRevalidate/withFallbackBlocking/[id].js')
+        require.resolve('../../../web/.next/server/pages/index.js')
+        require.resolve('../../../web/.next/server/pages/previewTest.js')
+        require.resolve('../../../web/.next/server/pages/shows/[...params].js')
+        require.resolve('../../../web/.next/server/pages/shows/[id].js')
+        require.resolve('../../../web/.next/server/webpack-api-runtime.js')
+        require.resolve('../../../web/.next/server/webpack-runtime.js')
+        require.resolve('../../../web/components/Header.js')
+        require.resolve('../../../web/hello.txt')
+        require.resolve('../../../web/package.json')
+    } catch {}
+}"
+`;
+
+exports[`onBuild() generates static files manifest 1`] = `
+Array [
+  Array [
+    "app/blog/erica/first-post.html",
+    "blog/erica/first-post.html",
+  ],
+  Array [
+    "app/blog/erica/first-post.rsc",
+    "blog/erica/first-post.rsc",
+  ],
+  Array [
+    "app/blog/nick/first-post.html",
+    "blog/nick/first-post.html",
+  ],
+  Array [
+    "app/blog/nick/first-post.rsc",
+    "blog/nick/first-post.rsc",
+  ],
+  Array [
+    "app/blog/nick/second-post.html",
+    "blog/nick/second-post.html",
+  ],
+  Array [
+    "app/blog/nick/second-post.rsc",
+    "blog/nick/second-post.rsc",
+  ],
+  Array [
+    "app/blog/rob/second-post.html",
+    "blog/rob/second-post.html",
+  ],
+  Array [
+    "app/blog/rob/second-post.rsc",
+    "blog/rob/second-post.rsc",
+  ],
+  Array [
+    "app/blog/sarah/second-post.html",
+    "blog/sarah/second-post.html",
+  ],
+  Array [
+    "app/blog/sarah/second-post.rsc",
+    "blog/sarah/second-post.rsc",
+  ],
+  Array [
+    "pages/en/broken-image.html",
+    "en/broken-image.html",
+  ],
+  Array [
+    "pages/en/css.html",
+    "en/css.html",
+  ],
+  Array [
+    "pages/en/env.html",
+    "en/env.html",
+  ],
+  Array [
+    "pages/en/font.html",
+    "en/font.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/1.html",
+    "en/getStaticProps/1.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/1.json",
+    "_next/data/build-id/en/getStaticProps/1.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/2.html",
+    "en/getStaticProps/2.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/2.json",
+    "_next/data/build-id/en/getStaticProps/2.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/env.html",
+    "en/getStaticProps/env.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/env.json",
+    "_next/data/build-id/en/getStaticProps/env.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/static.html",
+    "en/getStaticProps/static.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/static.json",
+    "_next/data/build-id/en/getStaticProps/static.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallback/1.html",
+    "en/getStaticProps/withFallback/1.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallback/1.json",
+    "_next/data/build-id/en/getStaticProps/withFallback/1.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallback/2.html",
+    "en/getStaticProps/withFallback/2.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallback/2.json",
+    "_next/data/build-id/en/getStaticProps/withFallback/2.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallback/my/path/1.html",
+    "en/getStaticProps/withFallback/my/path/1.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallback/my/path/1.json",
+    "_next/data/build-id/en/getStaticProps/withFallback/my/path/1.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallback/my/path/2.html",
+    "en/getStaticProps/withFallback/my/path/2.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallback/my/path/2.json",
+    "_next/data/build-id/en/getStaticProps/withFallback/my/path/2.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallbackBlocking/1.html",
+    "en/getStaticProps/withFallbackBlocking/1.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallbackBlocking/1.json",
+    "_next/data/build-id/en/getStaticProps/withFallbackBlocking/1.json",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallbackBlocking/2.html",
+    "en/getStaticProps/withFallbackBlocking/2.html",
+  ],
+  Array [
+    "pages/en/getStaticProps/withFallbackBlocking/2.json",
+    "_next/data/build-id/en/getStaticProps/withFallbackBlocking/2.json",
+  ],
+  Array [
+    "pages/en/image.html",
+    "en/image.html",
+  ],
+  Array [
+    "pages/en/layouts.html",
+    "en/layouts.html",
+  ],
+  Array [
+    "pages/en/previewTest.html",
+    "en/previewTest.html",
+  ],
+  Array [
+    "pages/en/previewTest.json",
+    "_next/data/build-id/en/previewTest.json",
+  ],
+  Array [
+    "pages/en/script.html",
+    "en/script.html",
+  ],
+  Array [
+    "pages/en/static.html",
+    "en/static.html",
+  ],
+  Array [
+    "pages/es/broken-image.html",
+    "es/broken-image.html",
+  ],
+  Array [
+    "pages/es/css.html",
+    "es/css.html",
+  ],
+  Array [
+    "pages/es/env.html",
+    "es/env.html",
+  ],
+  Array [
+    "pages/es/font.html",
+    "es/font.html",
+  ],
+  Array [
+    "pages/es/getStaticProps/env.html",
+    "es/getStaticProps/env.html",
+  ],
+  Array [
+    "pages/es/getStaticProps/env.json",
+    "_next/data/build-id/es/getStaticProps/env.json",
+  ],
+  Array [
+    "pages/es/getStaticProps/static.html",
+    "es/getStaticProps/static.html",
+  ],
+  Array [
+    "pages/es/getStaticProps/static.json",
+    "_next/data/build-id/es/getStaticProps/static.json",
+  ],
+  Array [
+    "pages/es/image.html",
+    "es/image.html",
+  ],
+  Array [
+    "pages/es/layouts.html",
+    "es/layouts.html",
+  ],
+  Array [
+    "pages/es/previewTest.html",
+    "es/previewTest.html",
+  ],
+  Array [
+    "pages/es/previewTest.json",
+    "_next/data/build-id/es/previewTest.json",
+  ],
+  Array [
+    "pages/es/script.html",
+    "es/script.html",
+  ],
+  Array [
+    "pages/es/static.html",
+    "es/static.html",
+  ],
+  Array [
+    "pages/fr/broken-image.html",
+    "fr/broken-image.html",
+  ],
+  Array [
+    "pages/fr/css.html",
+    "fr/css.html",
+  ],
+  Array [
+    "pages/fr/env.html",
+    "fr/env.html",
+  ],
+  Array [
+    "pages/fr/font.html",
+    "fr/font.html",
+  ],
+  Array [
+    "pages/fr/getStaticProps/env.html",
+    "fr/getStaticProps/env.html",
+  ],
+  Array [
+    "pages/fr/getStaticProps/env.json",
+    "_next/data/build-id/fr/getStaticProps/env.json",
+  ],
+  Array [
+    "pages/fr/getStaticProps/static.html",
+    "fr/getStaticProps/static.html",
+  ],
+  Array [
+    "pages/fr/getStaticProps/static.json",
+    "_next/data/build-id/fr/getStaticProps/static.json",
+  ],
+  Array [
+    "pages/fr/image.html",
+    "fr/image.html",
+  ],
+  Array [
+    "pages/fr/layouts.html",
+    "fr/layouts.html",
+  ],
+  Array [
+    "pages/fr/previewTest.html",
+    "fr/previewTest.html",
+  ],
+  Array [
+    "pages/fr/previewTest.json",
+    "_next/data/build-id/fr/previewTest.json",
+  ],
+  Array [
+    "pages/fr/script.html",
+    "fr/script.html",
+  ],
+  Array [
+    "pages/fr/static.html",
+    "fr/static.html",
+  ],
+]
+`;
+
+exports[`onBuild() writes correct redirects to netlifyConfig 1`] = `
+Array [
+  Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "NEXT_LOCALE",
+      ],
+    },
+    "force": true,
+    "from": "/",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "conditions": Object {
+      "Language": Array [
+        "es",
+      ],
+    },
+    "force": true,
+    "from": "/",
+    "status": 301,
+    "to": "/es/",
+  },
+  Object {
+    "conditions": Object {
+      "Language": Array [
+        "fr",
+      ],
+    },
+    "force": true,
+    "from": "/",
+    "status": 301,
+    "to": "/fr/",
+  },
+  Object {
+    "force": true,
+    "from": "/",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "from": "/_ipx/*",
+    "status": 200,
+    "to": "/.netlify/builders/_ipx",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/500.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/app-edge.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/broken-image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/css.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/deep/import.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/edge/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/font.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/all.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/file.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/:id.json",
+    "status": 404,
+    "to": "/server/pages/en/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/with-revalidate.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/:id.json",
+    "status": 404,
+    "to": "/server/pages/en/404.html",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/1.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/2.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/1.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/2.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/1.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/2.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/layouts.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/old/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/previewTest.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/redirectme.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/script.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/shows/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/static/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/es.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/500.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/app-edge.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/broken-image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/css.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/deep/import.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/edge/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/font.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/all.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/file.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/:id.json",
+    "status": 404,
+    "to": "/server/pages/es/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/es/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/es/getStaticProps/with-revalidate.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withRevalidate/:id.json",
+    "status": 404,
+    "to": "/server/pages/es/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withRevalidate/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withRevalidate/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/layouts.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/old/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/previewTest.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/redirectme.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/script.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/shows/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/static/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/fr.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/500.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/app-edge.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/broken-image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/css.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/deep/import.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/edge/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/font.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/all.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/file.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/:id.json",
+    "status": 404,
+    "to": "/server/pages/fr/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/fr/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/fr/getStaticProps/with-revalidate.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withRevalidate/:id.json",
+    "status": 404,
+    "to": "/server/pages/fr/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withRevalidate/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withRevalidate/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/layouts.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/old/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/previewTest.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/redirectme.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/script.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/shows/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/static/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "from": "/_next/image/*",
+    "query": Object {
+      "q": ":quality",
+      "url": ":url",
+      "w": ":width",
+    },
+    "status": 301,
+    "to": "/_ipx/w_:width,q_:quality/:url",
+  },
+  Object {
+    "from": "/_next/static/*",
+    "status": 200,
+    "to": "/static/:splat",
+  },
+  Object {
+    "from": "/:locale/_next/static/*",
+    "status": 200,
+    "to": "/static/:splat",
+  },
+  Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "__prerender_bypass",
+        "__next_preview_data",
+      ],
+    },
+    "force": true,
+    "from": "/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "from": "/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/500",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "from": "/api/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "from": "/api/enterPreview",
+    "status": 200,
+    "to": "/.netlify/functions/api-0",
+  },
+  Object {
+    "from": "/api/exitPreview",
+    "status": 200,
+    "to": "/.netlify/functions/api-0",
+  },
+  Object {
+    "from": "/api/hello",
+    "status": 200,
+    "to": "/.netlify/functions/api-0",
+  },
+  Object {
+    "from": "/api/hello-background",
+    "status": 200,
+    "to": "/.netlify/functions/_api_hello-background-background",
+  },
+  Object {
+    "from": "/api/hello-scheduled",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "from": "/api/revalidate",
+    "status": 200,
+    "to": "/.netlify/functions/api-0",
+  },
+  Object {
+    "from": "/api/shows/:id",
+    "status": 200,
+    "to": "/.netlify/functions/api-0",
+  },
+  Object {
+    "from": "/api/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/api-0",
+  },
+  Object {
+    "force": false,
+    "from": "/app-edge",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author/:slug",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author/:slug.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/erica",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/erica.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/nick",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/nick.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/rob",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/rob.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/sarah",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/sarah.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/broken-image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/BUILD_ID",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": true,
+    "from": "/build-manifest.json",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": true,
+    "from": "/cache/*",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/css",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/deep/import",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/edge/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/es",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/500",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/app-edge",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author/:slug",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author/:slug.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/broken-image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/css",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/deep/import",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/edge/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/font",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/all",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/file",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/:id",
+    "status": 404,
+    "to": "/server/pages/es/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/es/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/es/getStaticProps/with-revalidate-404",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withRevalidate/:id",
+    "status": 404,
+    "to": "/server/pages/es/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withRevalidate/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withRevalidate/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/layouts",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/old/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/previewTest",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/redirectme",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/script",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/shows/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/static/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/font",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/fr",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/500",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/app-edge",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author/:slug",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author/:slug.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/broken-image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/css",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/deep/import",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/edge/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/font",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getServerSideProps/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getServerSideProps/all",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getServerSideProps/file",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getServerSideProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/:id",
+    "status": 404,
+    "to": "/server/pages/fr/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/fr/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/fr/getStaticProps/with-revalidate-404",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withRevalidate/:id",
+    "status": 404,
+    "to": "/server/pages/fr/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withRevalidate/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withRevalidate/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/layouts",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/old/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/previewTest",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/redirectme",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/script",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/shows/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/static/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getServerSideProps/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getServerSideProps/all",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getServerSideProps/file",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getServerSideProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/:id",
+    "status": 404,
+    "to": "/server/pages/en/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/with-revalidate-404",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withRevalidate/:id",
+    "status": 404,
+    "to": "/server/pages/en/404.html",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/1",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/2",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withRevalidate/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallback/1",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallback/2",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/1",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/2",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/layouts",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "__prerender_bypass",
+        "__next_preview_data",
+      ],
+    },
+    "from": "/next-on-netlify.png",
+    "status": 200,
+    "to": "/next-on-netlify.png",
+  },
+  Object {
+    "force": false,
+    "from": "/old/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/prerender-manifest.json",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/previewTest",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/react-loadable-manifest.json",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/redirectme",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/routes-manifest.json",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/script",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/server/*",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": true,
+    "from": "/serverless/*",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/shows/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "__prerender_bypass",
+        "__next_preview_data",
+      ],
+    },
+    "from": "/shows1.json",
+    "status": 200,
+    "to": "/shows1.json",
+  },
+  Object {
+    "force": false,
+    "from": "/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/static/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/trace",
+    "status": 404,
+    "to": "/404.html",
+  },
+  Object {
+    "force": true,
+    "from": "/traces",
+    "status": 404,
+    "to": "/404.html",
+  },
+]
+`;

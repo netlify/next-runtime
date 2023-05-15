@@ -1,5 +1,44 @@
 # Changelog
 
+## [4.36.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.36.0...plugin-nextjs-v4.36.1) (2023-05-08)
+
+
+### Bug Fixes
+
+* add shim for `require('node:buffer')` ([#2050](https://github.com/netlify/next-runtime/issues/2050)) ([e007b08](https://github.com/netlify/next-runtime/commit/e007b08aad356674279ab6649ef4e27d355918f0))
+* Legacy fallback env var ([#2074](https://github.com/netlify/next-runtime/issues/2074)) ([aad9e5f](https://github.com/netlify/next-runtime/commit/aad9e5f738e5f3e1391e1c0e8f65a526bcbc9ac8))
+* make large lambda warning message more informative ([#2057](https://github.com/netlify/next-runtime/issues/2057)) ([b4cb75b](https://github.com/netlify/next-runtime/commit/b4cb75b7d71901aa8c1902067ffafecad19fd9d8))
+* resolve next-server from next app directory and not from plugin ([#2059](https://github.com/netlify/next-runtime/issues/2059)) ([38f34c7](https://github.com/netlify/next-runtime/commit/38f34c7d8f7f06c96073ebed54675fea38eca7fa))
+* Respect `pageExtensions` config setting ([#2073](https://github.com/netlify/next-runtime/issues/2073)) ([940cbbc](https://github.com/netlify/next-runtime/commit/940cbbc38d320677bdc8ade4616d1733ebfda2c7))
+* update next to 13.3.0 & ensure compatibility ([#2056](https://github.com/netlify/next-runtime/issues/2056)) ([75ed977](https://github.com/netlify/next-runtime/commit/75ed977553edc36ac018191bee5bba08b800f722))
+* workaround netlify-cli not matching prod ([#2030](https://github.com/netlify/next-runtime/issues/2030)) ([fd29ea5](https://github.com/netlify/next-runtime/commit/fd29ea5b7b608d71fcb111c17a92f3dec6d021a9))
+
+## [4.36.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.35.0...plugin-nextjs-v4.36.0) (2023-04-24)
+
+
+### Features
+
+* add Generator to edge functions ([#2019](https://github.com/netlify/next-runtime/issues/2019)) ([b341938](https://github.com/netlify/next-runtime/commit/b341938ec9807c93b0f0484b40848d727eeeb265))
+
+
+### Bug Fixes
+
+* default to target server, not serverless ([#2060](https://github.com/netlify/next-runtime/issues/2060)) ([61c2458](https://github.com/netlify/next-runtime/commit/61c24583be0c45def82f51d8c7757bb91ec5fc79))
+
+## [4.35.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.34.0...plugin-nextjs-v4.35.0) (2023-04-17)
+
+
+### Features
+
+* support edge runtime key ([#2036](https://github.com/netlify/next-runtime/issues/2036)) ([b7b9392](https://github.com/netlify/next-runtime/commit/b7b939210661560c623cf0951597362a27d771b9))
+
+
+### Bug Fixes
+
+* ensure appDir routes with null dataRoutes are not added to edge manifest for rsc-data ([#2044](https://github.com/netlify/next-runtime/issues/2044)) ([2f31acb](https://github.com/netlify/next-runtime/commit/2f31acbb262a2caa8ed3e90bbec27d131be0e1d0))
+* now data routes for dynamic routes filter even when null when creating the RSC data router ([#2041](https://github.com/netlify/next-runtime/issues/2041)) ([5fa1435](https://github.com/netlify/next-runtime/commit/5fa14355428151f0c9748d72d96f3aea90f02bbd))
+* typo in comment ([#2049](https://github.com/netlify/next-runtime/issues/2049)) ([447b7d4](https://github.com/netlify/next-runtime/commit/447b7d48b5bf1876efbc09b6d3b340c926f3915d))
+
 ## [4.34.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.33.0...plugin-nextjs-v4.34.0) (2023-04-10)
 
 

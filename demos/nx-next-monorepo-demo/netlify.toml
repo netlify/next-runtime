@@ -3,6 +3,9 @@ command = "npm run build"
 publish = "dist/apps/demo-monorepo/.next"
 ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
 
+[build.environment]
+NEXT_SPLIT_API_ROUTES = "true"
+
 [dev]
 command = "npm run start"
 targetPort = 4200

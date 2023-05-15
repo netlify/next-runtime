@@ -51,3 +51,8 @@ export interface RoutesManifest {
   i18n: I18n
   rewrites: Rewrites
 }
+
+export const enum ApiRouteType {
+  SCHEDULED = 'experimental-scheduled',
+  BACKGROUND = 'experimental-background',
+}

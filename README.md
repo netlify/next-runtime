@@ -89,6 +89,10 @@ The Next.js Runtime fully supports ISR on Netlify. For more details see
 
 Note that Netlify has a minimum TTL of 60 seconds for revalidation.
 
+## Disable Static 404 on Dynamic Routes with fallback:false
+
+Currently when hitting a non-prerendered path with `fallback=false` it will default to a 404 page. You can now change this default setting by using the environemnt variable `LEGACY_FALLBACK_FALSE=true`. With the environment variable set, those non-prerendered paths will now be routed through using the ISR Handler and will allow you to add redirects for those non-prerendered paths. 
+
 ## Use with `next export`
 
 If you are using `next export` to generate a static site, you do not need most of the functionality of this Next.js
