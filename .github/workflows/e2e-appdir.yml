@@ -8,6 +8,7 @@ on:
 
 env:
   NEXT_SPLIT_API_ROUTES: true
+  NEXT_USE_NONE_BUNDLER: true
 
 jobs:
   setup:
