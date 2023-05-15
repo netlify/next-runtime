@@ -2,10 +2,11 @@ import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
-import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON } from 'fs-extra'
+import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat } from 'fs-extra'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
-import { join, relative, resolve } from 'pathe'
+import { join, relative, resolve, dirname } from 'pathe'
+import glob from 'tiny-glob'
 
 import {
   HANDLER_FUNCTION_NAME,
@@ -20,39 +21,58 @@ import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
-import { ApiConfig, ApiRouteType, extractConfigFromFile } from './analysis'
-import { getSourceFileForPage } from './files'
+import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
+import { getRequiredServerFiles } from './config'
+import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
+import { pack } from './pack'
+import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
 
 export interface ApiRouteConfig {
+  functionName: string
   route: string
   config: ApiConfig
   compiled: string
+  includedFiles: string[]
+}
+
+export interface APILambda {
+  functionName: string
+  routes: ApiRouteConfig[]
+  includedFiles: string[]
+  type?: ApiRouteType
 }
 
 export const generateFunctions = async (
   { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
   appDir: string,
-  apiRoutes: Array<ApiRouteConfig>,
+  apiLambdas: APILambda[],
+  featureFlags: Record<string, unknown>,
 ): Promise<void> => {
   const publish = resolve(PUBLISH_DIR)
   const functionsDir = resolve(INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC)
   const functionDir = join(functionsDir, HANDLER_FUNCTION_NAME)
   const publishDir = relative(functionDir, publish)
 
-  for (const { route, config, compiled } of apiRoutes) {
-    // Don't write a lambda if the runtime is edge
-    if (config.runtime === 'experimental-edge') {
-      continue
-    }
-    const apiHandlerSource = await getApiHandler({
-      page: route,
-      config,
+  const nextServerModuleAbsoluteLocation = getServerFile(appDir, false)
+  const nextServerModuleRelativeLocation = nextServerModuleAbsoluteLocation
+    ? relative(functionDir, nextServerModuleAbsoluteLocation)
+    : undefined
+
+  for (const apiLambda of apiLambdas) {
+    const { functionName, routes, type, includedFiles } = apiLambda
+
+    const apiHandlerSource = getApiHandler({
+      // most api lambdas serve multiple routes, but scheduled functions need to be in separate lambdas.
+      // so routes[0] is safe to access.
+      schedule: type === ApiRouteType.SCHEDULED ? routes[0].config.schedule : undefined,
       publishDir,
       appDir: relative(functionDir, appDir),
+      nextServerModuleRelativeLocation,
+      featureFlags,
     })
-    const functionName = getFunctionNameForPage(route, config.type === ApiRouteType.BACKGROUND)
+
     await ensureDir(join(functionsDir, functionName))
 
     // write main API handler file
@@ -71,16 +91,30 @@ export const generateFunctions = async (
 
     const resolveSourceFile = (file: string) => join(publish, 'server', file)
 
+    // TODO: this should be unneeded once we use the `none` bundler everywhere
     const resolverSource = await getResolverForSourceFiles({
       functionsDir,
       // These extra pages are always included by Next.js
-      sourceFiles: [compiled, 'pages/_app.js', 'pages/_document.js', 'pages/_error.js'].map(resolveSourceFile),
+      sourceFiles: [
+        ...routes.map((route) => route.compiled),
+        'pages/_app.js',
+        'pages/_document.js',
+        'pages/_error.js',
+      ].map(resolveSourceFile),
     })
     await writeFile(join(functionsDir, functionName, 'pages.js'), resolverSource)
+
+    const nfInternalFiles = await glob(join(functionsDir, functionName, '**'))
+    includedFiles.push(...nfInternalFiles)
   }
 
   const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
-    const handlerSource = await getHandler({ isODB, publishDir, appDir: relative(functionDir, appDir) })
+    const handlerSource = getHandler({
+      isODB,
+      publishDir,
+      appDir: relative(functionDir, appDir),
+      nextServerModuleRelativeLocation,
+    })
     await ensureDir(join(functionsDir, functionName))
 
     // write main handler file (standard or ODB)
@@ -196,21 +230,173 @@ export const setupImageFunction = async ({
   }
 }
 
+const traceRequiredServerFiles = async (publish: string): Promise<string[]> => {
+  const {
+    files,
+    relativeAppDir,
+    config: {
+      experimental: { outputFileTracingRoot },
+    },
+  } = await getRequiredServerFiles(publish)
+  const appDirRoot = join(outputFileTracingRoot, relativeAppDir)
+  const absoluteFiles = files.map((file) => join(appDirRoot, file))
+
+  absoluteFiles.push(join(publish, 'required-server-files.json'))
+
+  return absoluteFiles
+}
+
+const traceNextServer = async (publish: string): Promise<string[]> => {
+  const nextServerDeps = await getDependenciesOfFile(join(publish, 'next-server.js'))
+
+  // during testing, i've seen `next-server` contain only one line.
+  // this is a sanity check to make sure we're getting all the deps.
+  if (nextServerDeps.length < 10) {
+    console.error(nextServerDeps)
+    throw new Error("next-server.js.nft.json didn't contain all dependencies.")
+  }
+
+  const filtered = nextServerDeps.filter((f) => {
+    // NFT detects a bunch of large development files that we don't need.
+    if (f.endsWith('.development.js')) return false
+
+    // not needed for API Routes!
+    if (f.endsWith('node_modules/sass/sass.dart.js')) return false
+
+    return true
+  })
+
+  return filtered
+}
+
+export const traceNPMPackage = async (packageName: string, publish: string) => {
+  try {
+    return await glob(join(dirname(require.resolve(packageName, { paths: [publish] })), '**', '*'), {
+      absolute: true,
+    })
+  } catch (error) {
+    if (process.env.NODE_ENV === 'test') {
+      return []
+    }
+    throw error
+  }
+}
+
+export const getAPIPRouteCommonDependencies = async (publish: string) => {
+  const deps = await Promise.all([
+    traceRequiredServerFiles(publish),
+    traceNextServer(publish),
+
+    // used by our own bridge.js
+    traceNPMPackage('follow-redirects', publish),
+  ])
+
+  return deps.flat(1)
+}
+
+const sum = (arr: number[]) => arr.reduce((v, current) => v + current, 0)
+
+// TODO: cache results
+const getBundleWeight = async (patterns: string[]) => {
+  const sizes = await Promise.all(
+    patterns.flatMap(async (pattern) => {
+      const files = await glob(pattern)
+      return Promise.all(
+        files.map(async (file) => {
+          const fStat = await stat(file)
+          if (fStat.isFile()) {
+            return fStat.size
+          }
+          return 0
+        }),
+      )
+    }),
+  )
+
+  return sum(sizes.flat(1))
+}
+
+const MB = 1024 * 1024
+
+export const getAPILambdas = async (
+  publish: string,
+  baseDir: string,
+  pageExtensions: string[],
+): Promise<APILambda[]> => {
+  const commonDependencies = await getAPIPRouteCommonDependencies(publish)
+
+  const threshold = 50 * MB - (await getBundleWeight(commonDependencies))
+
+  const apiRoutes = await getApiRouteConfigs(publish, baseDir, pageExtensions)
+
+  const packFunctions = async (routes: ApiRouteConfig[], type?: ApiRouteType): Promise<APILambda[]> => {
+    const weighedRoutes = await Promise.all(
+      routes.map(async (route) => ({ value: route, weight: await getBundleWeight(route.includedFiles) })),
+    )
+
+    const bins = pack(weighedRoutes, threshold)
+
+    return bins.map((bin, index) => ({
+      functionName: bin.length === 1 ? bin[0].functionName : `api-${index}`,
+      routes: bin,
+      includedFiles: [...commonDependencies, ...routes.flatMap((route) => route.includedFiles)],
+      type,
+    }))
+  }
+
+  const standardFunctions = apiRoutes.filter(
+    (route) =>
+      !isEdgeConfig(route.config.runtime) &&
+      route.config.type !== ApiRouteType.BACKGROUND &&
+      route.config.type !== ApiRouteType.SCHEDULED,
+  )
+  const scheduledFunctions = apiRoutes.filter((route) => route.config.type === ApiRouteType.SCHEDULED)
+  const backgroundFunctions = apiRoutes.filter((route) => route.config.type === ApiRouteType.BACKGROUND)
+
+  const scheduledLambdas: APILambda[] = scheduledFunctions.map(packSingleFunction)
+
+  const [standardLambdas, backgroundLambdas] = await Promise.all([
+    packFunctions(standardFunctions),
+    packFunctions(backgroundFunctions, ApiRouteType.BACKGROUND),
+  ])
+  return [...standardLambdas, ...backgroundLambdas, ...scheduledLambdas]
+}
+
 /**
  * Look for API routes, and extract the config from the source file.
  */
-export const getApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
+export const getApiRouteConfigs = async (
+  publish: string,
+  appDir: string,
+  pageExtensions: string[],
+): Promise<Array<ApiRouteConfig>> => {
   const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
   const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
   // two possible places
   // Ref: https://nextjs.org/docs/advanced-features/src-directory
-  const pagesDir = join(baseDir, 'pages')
-  const srcPagesDir = join(baseDir, 'src', 'pages')
+  const pagesDir = join(appDir, 'pages')
+  const srcPagesDir = join(appDir, 'src', 'pages')
 
   return await Promise.all(
     apiRoutes.map(async (apiRoute) => {
-      const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir])
-      return { route: apiRoute, config: await extractConfigFromFile(filePath), compiled: pages[apiRoute] }
+      const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir], pageExtensions)
+      const config = await extractConfigFromFile(filePath, appDir)
+
+      const functionName = getFunctionNameForPage(apiRoute, config.type === ApiRouteType.BACKGROUND)
+
+      const compiled = pages[apiRoute]
+      const compiledPath = join(publish, 'server', compiled)
+
+      const routeDependencies = await getDependenciesOfFile(compiledPath)
+      const includedFiles = [compiledPath, ...routeDependencies]
+
+      return {
+        functionName,
+        route: apiRoute,
+        config,
+        compiled,
+        includedFiles,
+      }
     }),
   )
 }
@@ -218,12 +404,23 @@ export const getApiRouteConfigs = async (publish: string, baseDir: string): Prom
 /**
  * Looks for extended API routes (background and scheduled functions) and extract the config from the source file.
  */
-export const getExtendedApiRouteConfigs = async (publish: string, baseDir: string): Promise<Array<ApiRouteConfig>> => {
-  const settledApiRoutes = await getApiRouteConfigs(publish, baseDir)
+export const getExtendedApiRouteConfigs = async (
+  publish: string,
+  appDir: string,
+  pageExtensions: string[],
+): Promise<Array<ApiRouteConfig>> => {
+  const settledApiRoutes = await getApiRouteConfigs(publish, appDir, pageExtensions)
 
   // We only want to return the API routes that are background or scheduled functions
   return settledApiRoutes.filter((apiRoute) => apiRoute.config.type !== undefined)
 }
+
+export const packSingleFunction = (func: ApiRouteConfig): APILambda => ({
+  functionName: func.functionName,
+  includedFiles: func.includedFiles,
+  routes: [func],
+  type: func.config.type,
+})
 
 interface FunctionsManifest {
   functions: Array<{ name: string; schedule?: string }>

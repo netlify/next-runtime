@@ -1,10 +1,15 @@
 name: Next.js e2e test suite
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-  push:
-    branches: [main]
+  # pull_request:
+  #   types: [opened, synchronize]
+  # push:
+  #   branches: [main]
+  schedule:
+    - cron: '0 0 * * *'
+
+env:
+  NEXT_SPLIT_API_ROUTES: true
 
 jobs:
   setup:
@@ -35,7 +40,7 @@ jobs:
         test-file: ${{ fromJson(needs.setup.outputs['test-files']) }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: '16'
           cache: 'npm'

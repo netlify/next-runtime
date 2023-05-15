@@ -67,6 +67,11 @@ module.exports = {
         destination: '/',
         permanent: true,
       },
+      {
+        source: '/getStaticProps/4/',
+        destination: '/',
+        permanent: true,
+      },
     ]
   },
   // https://nextjs.org/docs/basic-features/image-optimization#domains

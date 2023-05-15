@@ -6,5 +6,5 @@ export default (req, res) => {
 
 export const config = {
   type: 'experimental-background',
-  runtime: 'experimental-edge',
+  runtime: 'edge',
 }

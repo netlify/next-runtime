@@ -44,7 +44,7 @@ export const getRscDataRouter = ({ routes: staticRoutes, dynamicRoutes }: Preren
   )
 
   const dynamicRouteMatcher = Object.values(dynamicRoutes)
-    .filter(({ dataRoute }) => dataRoute.endsWith('.rsc'))
+    .filter(({ dataRoute }) => dataRoute?.endsWith('.rsc'))
     .map(({ routeRegex }) => new RegExp(routeRegex))
 
   const matchesDynamicRscDataRoute = (pathname: string) => {
