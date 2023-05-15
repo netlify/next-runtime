@@ -10,7 +10,7 @@ import glob from 'tiny-glob'
 import { HANDLER_FUNCTION_NAME, IMAGE_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
 import { splitApiRoutes, useNoneBundler } from './flags'
-import type { APILambda } from './functions'
+import { APILambda, getCommonDependencies } from './functions'
 import type { RoutesManifest } from './types'
 import { escapeStringRegexp } from './utils'
 
@@ -75,6 +75,9 @@ export const updateRequiredServerFiles = async (publish: string, modifiedConfig:
   await writeJSON(configFile, modifiedConfig)
 }
 
+// hack to make files like `[id].js` work.
+const escapeGlob = (str: string) => str.replace(/\[/g, '*').replace(/]/g, '*')
+
 export interface NFTFile {
   version: number
   files: string[]
@@ -83,10 +86,10 @@ export interface NFTFile {
 const getHandlerDependencies = async (publish: string): Promise<string[]> => {
   const includedFiles = new Set<string>()
 
-  for (const match of await glob('./**/*.js.nft.json', {
+  for (const nftFilePath of await glob('./**/*.js.nft.json', {
     cwd: publish,
+    absolute: true,
   })) {
-    const nftFilePath = join(publish, match)
     const nftFile = (await readJSON(nftFilePath)) as NFTFile
     if (nftFile.version !== 1) {
       throw new Error(`unexpected version ${nftFile.version} .nft.json`)
@@ -98,7 +101,9 @@ const getHandlerDependencies = async (publish: string): Promise<string[]> => {
     }
   }
 
-  return [...includedFiles]
+  const commonDependencies = await getCommonDependencies(publish)
+
+  return [...includedFiles, ...commonDependencies].map(escapeGlob)
 }
 
 export const resolveModuleRoot = (moduleName) => {
