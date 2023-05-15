@@ -1,6 +1,6 @@
 import { join, relative } from 'path'
 
-import type { NetlifyPlugin } from '@netlify/build'
+import type { NetlifyPlugin, NetlifyPluginOptions } from '@netlify/build'
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
@@ -18,12 +18,16 @@ import {
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
+import { splitApiRoutes } from './helpers/flags'
 import {
   generateFunctions,
   setupImageFunction,
   generatePagesResolver,
-  getExtendedApiRouteConfigs,
   warnOnApiRoutes,
+  getAPILambdas,
+  packSingleFunction,
+  getExtendedApiRouteConfigs,
+  APILambda,
 } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
@@ -72,7 +76,8 @@ const plugin: NetlifyPlugin = {
     utils: {
       build: { failBuild },
     },
-  }) {
+    featureFlags = {},
+  }: NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }) {
     if (shouldSkip()) {
       return
     }
@@ -161,11 +166,22 @@ const plugin: NetlifyPlugin = {
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
-    await configureHandlerFunctions({ netlifyConfig, ignore, publish: relative(process.cwd(), publish) })
-    const apiRoutes = await getExtendedApiRouteConfigs(publish, appDir, pageExtensions)
+    const apiLambdas: APILambda[] = splitApiRoutes(featureFlags)
+      ? await getAPILambdas(publish, appDir, pageExtensions)
+      : await getExtendedApiRouteConfigs(publish, appDir, pageExtensions).then((extendedRoutes) =>
+          extendedRoutes.map(packSingleFunction),
+        )
 
-    await generateFunctions(constants, appDir, apiRoutes)
+    await generateFunctions(constants, appDir, apiLambdas, featureFlags)
     await generatePagesResolver(constants)
+
+    await configureHandlerFunctions({
+      netlifyConfig,
+      ignore,
+      publish: relative(process.cwd(), publish),
+      apiLambdas,
+      featureFlags,
+    })
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
 
@@ -193,7 +209,7 @@ const plugin: NetlifyPlugin = {
       netlifyConfig,
       nextConfig: { basePath, i18n, trailingSlash, appDir },
       buildId,
-      apiRoutes,
+      apiLambdas,
     })
 
     await writeEdgeFunctions({ netlifyConfig, routesManifest })
