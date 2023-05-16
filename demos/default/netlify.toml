@@ -12,6 +12,7 @@ TERM = "xterm"
 NODE_VERSION = "16.15.1"
 NEXT_SPLIT_API_ROUTES = "true"
 NEXT_USE_NONE_BUNDLER = "true"
+NEXT_PRIVATE_DEBUG_CACHE = "true"
 
 [[headers]]
 for = "/_next/image/*"
