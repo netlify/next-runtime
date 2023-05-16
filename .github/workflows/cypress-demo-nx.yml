@@ -8,7 +8,7 @@ on:
     paths:
       - 'demos/nx-next-monorepo-demo/**/*.{js,jsx,ts,tsx}'
       - 'cypress/e2e/nx/**/*.{ts,js}'
-      - 'src/**/*.{ts,js}'
+      - 'packages/*/src/**/*.{ts,js}'
 jobs:
   cypress:
     name: Cypress
