@@ -428,74 +428,81 @@ describe('onBuild()', () => {
   it('sets correct config', async () => {
     await moveNextDist()
 
-    await nextRuntime.onBuild(defaultArgs)
-    const includes = [
-      '.env',
-      '.env.local',
-      '.env.production',
-      '.env.production.local',
-      './public/locales/**',
-      './next-i18next.config.js',
-      '.next/server/**',
-      '.next/serverless/**',
-      '.next/*.json',
-      '.next/BUILD_ID',
-      '.next/static/chunks/webpack-middleware*.js',
-      '!.next/server/**/*.js.nft.json',
-      '!.next/server/**/*.map',
-      '!**/node_modules/@next/swc*/**/*',
-      '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
-      `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
-      `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
-      '!node_modules/next/dist/compiled/webpack/bundle4.js',
-      '!node_modules/next/dist/compiled/webpack/bundle5.js',
-      '!node_modules/sharp/**/*',
-    ]
-    // Relative paths in Windows are different
-    if (os.platform() !== 'win32') {
-      expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files).toEqual(includes)
-      expect(netlifyConfig.functions[ODB_FUNCTION_NAME].included_files).toEqual(includes)
+    if (process.env.NEXT_USE_NONE_BUNDLER) {
+      expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toEqual('none')
+      expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toEqual('none')
+    } else {
+      await nextRuntime.onBuild(defaultArgs)
+      const includes = [
+        '.env',
+        '.env.local',
+        '.env.production',
+        '.env.production.local',
+        './public/locales/**',
+        './next-i18next.config.js',
+        '.next/server/**',
+        '.next/serverless/**',
+        '.next/*.json',
+        '.next/BUILD_ID',
+        '.next/static/chunks/webpack-middleware*.js',
+        '!.next/server/**/*.js.nft.json',
+        '!.next/server/**/*.map',
+        '!**/node_modules/@next/swc*/**/*',
+        '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
+        `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
+        `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
+        '!node_modules/next/dist/compiled/webpack/bundle4.js',
+        '!node_modules/next/dist/compiled/webpack/bundle5.js',
+        '!node_modules/sharp/**/*',
+      ]
+      // Relative paths in Windows are different
+      if (os.platform() !== 'win32') {
+        expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files).toEqual(includes)
+        expect(netlifyConfig.functions[ODB_FUNCTION_NAME].included_files).toEqual(includes)
+      }
+      expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toEqual('nft')
+      expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toEqual('nft')
     }
-    expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toEqual('nft')
-    expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toEqual('nft')
   })
 
   const excludesSharp = (includedFiles) => includedFiles.some((file) => file.startsWith('!') && file.includes('sharp'))
 
-  it("doesn't exclude sharp if manually included", async () => {
-    await moveNextDist()
+  if (!process.env.NEXT_USE_NONE_BUNDLER) {
+    it("doesn't exclude sharp if manually included", async () => {
+      await moveNextDist()
 
-    const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME]
+      const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME]
 
-    await nextRuntime.onBuild(defaultArgs)
+      await nextRuntime.onBuild(defaultArgs)
 
-    // Should exclude by default
-    for (const func of functions) {
-      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeTruthy()
-    }
+      // Should exclude by default
+      for (const func of functions) {
+        expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeTruthy()
+      }
 
-    // ...but if the user has added it, we shouldn't exclude it
-    for (const func of functions) {
-      netlifyConfig.functions[func].included_files = ['node_modules/sharp/**/*']
-    }
+      // ...but if the user has added it, we shouldn't exclude it
+      for (const func of functions) {
+        netlifyConfig.functions[func].included_files = ['node_modules/sharp/**/*']
+      }
 
-    await nextRuntime.onBuild(defaultArgs)
+      await nextRuntime.onBuild(defaultArgs)
 
-    for (const func of functions) {
-      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
-    }
+      for (const func of functions) {
+        expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+      }
 
-    // ...even if it's in a subdirectory
-    for (const func of functions) {
-      netlifyConfig.functions[func].included_files = ['subdirectory/node_modules/sharp/**/*']
-    }
+      // ...even if it's in a subdirectory
+      for (const func of functions) {
+        netlifyConfig.functions[func].included_files = ['subdirectory/node_modules/sharp/**/*']
+      }
 
-    await nextRuntime.onBuild(defaultArgs)
+      await nextRuntime.onBuild(defaultArgs)
 
-    for (const func of functions) {
-      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
-    }
-  })
+      for (const func of functions) {
+        expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+      }
+    })
+  }
 
   it('generates a file referencing all API route sources', async () => {
     await moveNextDist()
