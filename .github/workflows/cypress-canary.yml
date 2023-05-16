@@ -8,7 +8,7 @@ on:
     paths:
       - 'demos/canary/**/*.{js,jsx,ts,tsx}'
       - 'cypress/e2e/canary/**/*.{ts,js}'
-      - 'src/**/*.{ts,js}'
+      - 'packages/*/src/**/*.{ts,js}'
 jobs:
   cypress:
     name: Cypress

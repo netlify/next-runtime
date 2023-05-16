@@ -8,7 +8,7 @@ on:
     paths:
       - 'demos/middleware/**/*.{js,jsx,ts,tsx}'
       - 'cypress/e2e/middleware/**/*.{ts,js}'
-      - 'src/**/*.{ts,js}'
+      - 'packages/*/src/**/*.{ts,js}'
 jobs:
   cypress:
     name: Cypress
