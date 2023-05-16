@@ -306,4 +306,4 @@ export const redirectTrailingSlash = (url: URL, trailingSlash: boolean): Respons
   }
 }
 
-export const isFunction = f => Boolean(f) && typeof f === 'function'
+export const isFunction = (f) => Boolean(f) && typeof f === 'function'
