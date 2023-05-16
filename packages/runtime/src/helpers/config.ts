@@ -102,6 +102,7 @@ const getHandlerDependencies = async (publish: string): Promise<string[]> => {
   }
 
   includedFiles.add(join(publish, '**', '*.html'))
+  includedFiles.add(join(publish, 'static-manifest.json'))
 
   const commonDependencies = await getCommonDependencies(publish)
 
