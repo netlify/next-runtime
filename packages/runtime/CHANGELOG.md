@@ -1,5 +1,33 @@
 # Changelog
 
+## [4.37.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.36.1...plugin-nextjs-v4.37.0) (2023-05-15)
+
+
+### Features
+
+* split up API Routes + use .nft.json files to make builds fast ([#2058](https://github.com/netlify/next-runtime/issues/2058)) ([d98efc1](https://github.com/netlify/next-runtime/commit/d98efc19852089a4a586170f27ed7c5cb1b5763a))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.5.0 ([#2096](https://github.com/netlify/next-runtime/issues/2096)) ([2eba019](https://github.com/netlify/next-runtime/commit/2eba019675819c4d04da6824337609ed5672ab57))
+* **deps:** update dependency @netlify/functions to ^1.6.0 ([#2107](https://github.com/netlify/next-runtime/issues/2107)) ([5ee2fce](https://github.com/netlify/next-runtime/commit/5ee2fce03bf0fadd7f8e06f60963e4c0243c2aee))
+* follow-up to split-api revalidate behaviour ([#2113](https://github.com/netlify/next-runtime/issues/2113)) ([cce048a](https://github.com/netlify/next-runtime/commit/cce048ac0b301e47e8f3e8c28d8a5ebe1d3fa546))
+* support api routes at index of folder ([#2101](https://github.com/netlify/next-runtime/issues/2101)) ([cc9ed84](https://github.com/netlify/next-runtime/commit/cc9ed84652e21d52dabe1114dbe64aad288672bc))
+
+## [4.36.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.36.0...plugin-nextjs-v4.36.1) (2023-05-08)
+
+
+### Bug Fixes
+
+* add shim for `require('node:buffer')` ([#2050](https://github.com/netlify/next-runtime/issues/2050)) ([e007b08](https://github.com/netlify/next-runtime/commit/e007b08aad356674279ab6649ef4e27d355918f0))
+* Legacy fallback env var ([#2074](https://github.com/netlify/next-runtime/issues/2074)) ([aad9e5f](https://github.com/netlify/next-runtime/commit/aad9e5f738e5f3e1391e1c0e8f65a526bcbc9ac8))
+* make large lambda warning message more informative ([#2057](https://github.com/netlify/next-runtime/issues/2057)) ([b4cb75b](https://github.com/netlify/next-runtime/commit/b4cb75b7d71901aa8c1902067ffafecad19fd9d8))
+* resolve next-server from next app directory and not from plugin ([#2059](https://github.com/netlify/next-runtime/issues/2059)) ([38f34c7](https://github.com/netlify/next-runtime/commit/38f34c7d8f7f06c96073ebed54675fea38eca7fa))
+* Respect `pageExtensions` config setting ([#2073](https://github.com/netlify/next-runtime/issues/2073)) ([940cbbc](https://github.com/netlify/next-runtime/commit/940cbbc38d320677bdc8ade4616d1733ebfda2c7))
+* update next to 13.3.0 & ensure compatibility ([#2056](https://github.com/netlify/next-runtime/issues/2056)) ([75ed977](https://github.com/netlify/next-runtime/commit/75ed977553edc36ac018191bee5bba08b800f722))
+* workaround netlify-cli not matching prod ([#2030](https://github.com/netlify/next-runtime/issues/2030)) ([fd29ea5](https://github.com/netlify/next-runtime/commit/fd29ea5b7b608d71fcb111c17a92f3dec6d021a9))
+
 ## [4.36.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.35.0...plugin-nextjs-v4.36.0) (2023-04-24)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.6](https://github.com/netlify/next-runtime/compare/next-v1.4.5...next-v1.4.6) (2023-05-08)
+
+
+### Bug Fixes
+
+* update next to 13.3.0 & ensure compatibility ([#2056](https://github.com/netlify/next-runtime/issues/2056)) ([75ed977](https://github.com/netlify/next-runtime/commit/75ed977553edc36ac018191bee5bba08b800f722))
+
 ## [1.4.5](https://github.com/netlify/next-runtime/compare/next-v1.4.4...next-v1.4.5) (2023-04-10)
 
 

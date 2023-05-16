@@ -6,6 +6,9 @@ on:
   push:
     branches: [main]
 
+env:
+  NEXT_SPLIT_API_ROUTES: true
+
 jobs:
   setup:
     runs-on: ubuntu-latest
