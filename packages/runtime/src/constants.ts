@@ -35,3 +35,6 @@ export const LAMBDA_MAX_SIZE = 1024 * 1024 * 250
 export const DIVIDER = `
 ────────────────────────────────────────────────────────────────
 `
+export const NEXT_ENV_VARS = {
+  PREBUNDLED_REACT: '__NEXT_PRIVATE_PREBUNDLED_REACT',
+}
