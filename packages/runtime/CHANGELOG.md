@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.37.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.0...plugin-nextjs-v4.37.1) (2023-05-17)
+
+
+### Bug Fixes
+
+* clientContext isn't available in background functions ([#2121](https://github.com/netlify/next-runtime/issues/2121)) ([df0f6bc](https://github.com/netlify/next-runtime/commit/df0f6bcecee39f203327598120ad3ec778e45624))
+* support named & default export for middleware in ntl dev ([#2116](https://github.com/netlify/next-runtime/issues/2116)) ([b31f858](https://github.com/netlify/next-runtime/commit/b31f858e135d5727729c5c6336ce6519f60678d6))
+
 ## [4.37.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.36.1...plugin-nextjs-v4.37.0) (2023-05-15)
 
 
