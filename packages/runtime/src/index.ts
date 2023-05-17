@@ -106,6 +106,9 @@ const plugin: NetlifyPlugin = {
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
     const config = await getRequiredServerFiles(publish)
 
+    config.config.env[NEXT_ENV_VARS.PREBUNDLED_REACT] =
+      experimental && experimental.serverActions ? 'experimental' : 'next'
+
     if (
       middlewareManifest?.functions &&
       Object.keys(middlewareManifest.functions).length !== 0 &&
@@ -164,8 +167,6 @@ const plugin: NetlifyPlugin = {
     }
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
-
-    process.env[NEXT_ENV_VARS.PREBUNDLED_REACT] = experimental && experimental.serverActions ? 'experimental' : 'next'
 
     const apiLambdas: APILambda[] = splitApiRoutes(featureFlags)
       ? await getAPILambdas(publish, appDir, pageExtensions)
