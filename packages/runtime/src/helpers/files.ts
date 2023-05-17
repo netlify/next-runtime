@@ -149,7 +149,7 @@ export const moveStaticPages = async ({
       console.warn('Error moving file', source, error)
     }
   }
-  // Move all static files, except error documents and nft manifests
+  // Move all static files, except nft manifests
   const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/*.js.nft.{html,json}'], {
     cwd: outputDir,
     dot: true,
