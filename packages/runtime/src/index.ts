@@ -180,7 +180,7 @@ const plugin: NetlifyPlugin = {
       ignore,
       publish: relative(process.cwd(), publish),
       apiLambdas,
-      featureFlags,
+      splitApiRoutes: splitApiRoutes(featureFlags),
     })
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
