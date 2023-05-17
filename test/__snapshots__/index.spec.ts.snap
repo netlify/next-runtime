@@ -2083,21 +2083,6 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/api/enterPreview",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/exitPreview",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/hello",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
     "from": "/api/hello-background",
     "status": 200,
     "to": "/.netlify/functions/_api_hello-background-background",
@@ -2106,21 +2091,6 @@ Array [
     "from": "/api/hello-scheduled",
     "status": 404,
     "to": "/404.html",
-  },
-  Object {
-    "from": "/api/revalidate",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/shows/:id",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/shows/:params/*",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
   },
   Object {
     "force": false,
@@ -2205,24 +2175,6 @@ Array [
     "from": "/broken-image",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/BUILD_ID",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/build-manifest.json",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/cache/*",
-    "status": 404,
-    "to": "/404.html",
   },
   Object {
     "force": false,
@@ -2884,22 +2836,10 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "force": true,
-    "from": "/prerender-manifest.json",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
     "force": false,
     "from": "/previewTest",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/react-loadable-manifest.json",
-    "status": 404,
-    "to": "/404.html",
   },
   Object {
     "force": false,
@@ -2908,28 +2848,10 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "force": true,
-    "from": "/routes-manifest.json",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
     "force": false,
     "from": "/script",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/server/*",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/serverless/*",
-    "status": 404,
-    "to": "/404.html",
   },
   Object {
     "force": false,
@@ -2965,18 +2887,6 @@ Array [
     "from": "/static/:id",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/trace",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/traces",
-    "status": 404,
-    "to": "/404.html",
   },
 ]
 `;
