@@ -22,7 +22,7 @@ export const splitApiRoutes = (featureFlags: Record<string, unknown>, publish: s
 
   if (isEnabled && !existsSync(join(publish, 'next-server.js.nft.json'))) {
     console.warn(
-      'Trace-based bundling not possible on this version of Next.js. Speed up your builds significantly by upgrading to Next.js v12.',
+      'Trace-based bundling not possible on this version of Next.js. Speed up your builds significantly by upgrading to Next.js v12 or newer.',
     )
     return false
   }
