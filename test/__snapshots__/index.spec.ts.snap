@@ -1088,6 +1088,14 @@ Array [
     "blog/sarah/second-post.rsc",
   ],
   Array [
+    "pages/en/404.html",
+    "en/404.html",
+  ],
+  Array [
+    "pages/en/500.html",
+    "en/500.html",
+  ],
+  Array [
     "pages/en/broken-image.html",
     "en/broken-image.html",
   ],
@@ -1208,6 +1216,14 @@ Array [
     "en/static.html",
   ],
   Array [
+    "pages/es/404.html",
+    "es/404.html",
+  ],
+  Array [
+    "pages/es/500.html",
+    "es/500.html",
+  ],
+  Array [
     "pages/es/broken-image.html",
     "es/broken-image.html",
   ],
@@ -1262,6 +1278,14 @@ Array [
   Array [
     "pages/es/static.html",
     "es/static.html",
+  ],
+  Array [
+    "pages/fr/404.html",
+    "fr/404.html",
+  ],
+  Array [
+    "pages/fr/500.html",
+    "fr/500.html",
   ],
   Array [
     "pages/fr/broken-image.html",
@@ -1456,7 +1480,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/en/getStaticProps/:id.json",
     "status": 404,
-    "to": "/server/pages/en/404.html",
+    "to": "/en/404.html",
   },
   Object {
     "force": false,
@@ -1504,7 +1528,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/:id.json",
     "status": 404,
-    "to": "/server/pages/en/404.html",
+    "to": "/en/404.html",
   },
   Object {
     "force": true,
@@ -1702,7 +1726,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/es/getStaticProps/:id.json",
     "status": 404,
-    "to": "/server/pages/es/404.html",
+    "to": "/es/404.html",
   },
   Object {
     "force": false,
@@ -1750,7 +1774,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/es/getStaticProps/withRevalidate/:id.json",
     "status": 404,
-    "to": "/server/pages/es/404.html",
+    "to": "/es/404.html",
   },
   Object {
     "force": false,
@@ -1912,7 +1936,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/fr/getStaticProps/:id.json",
     "status": 404,
-    "to": "/server/pages/fr/404.html",
+    "to": "/fr/404.html",
   },
   Object {
     "force": false,
@@ -1960,7 +1984,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/fr/getStaticProps/withRevalidate/:id.json",
     "status": 404,
-    "to": "/server/pages/fr/404.html",
+    "to": "/fr/404.html",
   },
   Object {
     "force": false,
@@ -2312,7 +2336,7 @@ Array [
     "force": false,
     "from": "/es/getStaticProps/:id",
     "status": 404,
-    "to": "/server/pages/es/404.html",
+    "to": "/es/404.html",
   },
   Object {
     "force": false,
@@ -2360,7 +2384,7 @@ Array [
     "force": false,
     "from": "/es/getStaticProps/withRevalidate/:id",
     "status": 404,
-    "to": "/server/pages/es/404.html",
+    "to": "/es/404.html",
   },
   Object {
     "force": false,
@@ -2552,7 +2576,7 @@ Array [
     "force": false,
     "from": "/fr/getStaticProps/:id",
     "status": 404,
-    "to": "/server/pages/fr/404.html",
+    "to": "/fr/404.html",
   },
   Object {
     "force": false,
@@ -2600,7 +2624,7 @@ Array [
     "force": false,
     "from": "/fr/getStaticProps/withRevalidate/:id",
     "status": 404,
-    "to": "/server/pages/fr/404.html",
+    "to": "/fr/404.html",
   },
   Object {
     "force": false,
@@ -2708,7 +2732,7 @@ Array [
     "force": false,
     "from": "/getStaticProps/:id",
     "status": 404,
-    "to": "/server/pages/en/404.html",
+    "to": "/en/404.html",
   },
   Object {
     "force": false,
@@ -2756,7 +2780,7 @@ Array [
     "force": false,
     "from": "/getStaticProps/withRevalidate/:id",
     "status": 404,
-    "to": "/server/pages/en/404.html",
+    "to": "/en/404.html",
   },
   Object {
     "force": true,
