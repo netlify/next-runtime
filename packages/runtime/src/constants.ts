@@ -1,3 +1,5 @@
+import destr from 'destr'
+
 export const HANDLER_FUNCTION_NAME = '___netlify-handler'
 export const ODB_FUNCTION_NAME = '___netlify-odb-handler'
 export const IMAGE_FUNCTION_NAME = '_ipx'
@@ -6,7 +8,6 @@ export const NEXT_PLUGIN = '@netlify/plugin-nextjs'
 export const HANDLER_FUNCTION_TITLE = 'Next.js SSR handler'
 export const ODB_FUNCTION_TITLE = 'Next.js ISR handler'
 export const IMAGE_FUNCTION_TITLE = 'next/image handler'
-
 // These are paths in .next that shouldn't be publicly accessible
 export const HIDDEN_PATHS = [
   '/cache',
@@ -18,7 +19,7 @@ export const HIDDEN_PATHS = [
   '/build-manifest.json',
   '/prerender-manifest.json',
   '/react-loadable-manifest.json',
-  process.env.NODE_ENV === `test` ? `` : '/BUILD_ID',
+  destr(process.env.NEXT_KEEP_BUILD_ID) ? `` : '/BUILD_ID',
   '/app-build-manifest.json',
   '/app-path-routes-manifest.json',
   '/export-marker.json',
