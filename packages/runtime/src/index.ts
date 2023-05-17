@@ -254,6 +254,10 @@ const plugin: NetlifyPlugin = {
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
     await warnOnApiRoutes({ FUNCTIONS_DIST })
+
+    // we are removing metadata files from Publish directory
+    // we have to do this after functions were bundled as bundling still
+    // require those files, but we don't want to publish them
     await removeMetadataFiles(publish)
 
     if (experimental?.appDir) {
