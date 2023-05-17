@@ -353,6 +353,11 @@ export const getSourceFileForPage = (page: string, roots: string[], pageExtensio
       if (existsSync(file)) {
         return file
       }
+
+      const fileAtFolderIndex = join(root, page, `index.${extension}`)
+      if (existsSync(fileAtFolderIndex)) {
+        return fileAtFolderIndex
+      }
     }
   }
   console.log('Could not find source file for page', page)
@@ -366,7 +371,7 @@ export const getDependenciesOfFile = async (file: string) => {
   if (!existsSync(nft)) {
     return []
   }
-  const dependencies = await readJson(nft, 'utf8')
+  const dependencies = (await readJson(nft, 'utf8')) as { files: string[] }
   return dependencies.files.map((dep) => resolve(dirname(file), dep))
 }
 

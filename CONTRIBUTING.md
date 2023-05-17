@@ -45,5 +45,15 @@ Most common commit message prefixes are:
 
 ## Releasing
 
-1. Merge the release PR
-2. Run `npm publish`
+This repository uses [release-please](https://github.com/googleapis/release-please) to automate its releases.
+
+## How to make a minimal reproduction
+
+A reproducible test case is a small Next.js site built to demonstrate a problem - often this problem is caused by a bug in Next.js, next-runtime or user code. Your reproducible test case should contain the bare minimum features needed to clearly demonstrate the bug.
+
+Steps to create a reproducible test case:
+
+- Create a new Next.js site: `npx create-next-app@latest`
+- Add any code or functionality related to the issue. For example, if you have problems with middleware functionality you should add all the necessary code of your middleware.
+- Verify that you're seeing the expected error(s) when running `netlify serve` and on a deployed version on [Netlify](https://www.netlify.com)
+- Publish the code (your GitHub account is a good place to do this) and then link to it when creating an issue. While creating the issue, please give as many details as possible. This could also include screenshots of error messages.

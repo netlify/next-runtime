@@ -1,3 +1,4 @@
+import { NodeNextRequest, NodeNextResponse } from 'next/dist/server/base-http/node'
 import { createRequestResponseMocks } from 'next/dist/server/lib/mock-request'
 import { Options } from 'next/dist/server/next-server'
 
@@ -76,7 +77,7 @@ describe('the netlify next server', () => {
 
     const { req: mockReq, res: mockRes } = createRequestResponseMocks({ url: '/getStaticProps/with-revalidate/' })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
-    await requestHandler(mockReq, mockRes)
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
 
     expect(mockedApiFetch).not.toHaveBeenCalled()
   })
@@ -90,7 +91,7 @@ describe('the netlify next server', () => {
       headers: { 'x-prerender-revalidate': 'test' },
     })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
-    await requestHandler(mockReq, mockRes)
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
 
     expect(mockedApiFetch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -110,7 +111,7 @@ describe('the netlify next server', () => {
       headers: { 'x-prerender-revalidate': 'test' },
     })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
-    await requestHandler(mockReq, mockRes)
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
 
     expect(mockedApiFetch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -130,7 +131,7 @@ describe('the netlify next server', () => {
       headers: { 'x-prerender-revalidate': 'test' },
     })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
-    await requestHandler(mockReq, mockRes)
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
 
     expect(mockedApiFetch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -150,7 +151,7 @@ describe('the netlify next server', () => {
       headers: { 'x-prerender-revalidate': 'test' },
     })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
-    await requestHandler(mockReq, mockRes)
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
 
     expect(mockedApiFetch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -171,7 +172,9 @@ describe('the netlify next server', () => {
     })
 
     // @ts-expect-error - Types are incorrect for `MockedResponse`
-    await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('not an ISR route')
+    await expect(requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))).rejects.toThrow(
+      'not an ISR route',
+    )
   })
 
   it('throws an error when paths are not found by the API', async () => {
@@ -185,7 +188,9 @@ describe('the netlify next server', () => {
 
     mockedApiFetch.mockResolvedValueOnce({ code: 500, message: 'Failed to revalidate' })
     // @ts-expect-error - Types are incorrect for `MockedResponse`
-    await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('Failed to revalidate')
+    await expect(requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))).rejects.toThrow(
+      'Failed to revalidate',
+    )
   })
 
   it('throws an error when the revalidate API is unreachable', async () => {
@@ -199,6 +204,8 @@ describe('the netlify next server', () => {
 
     mockedApiFetch.mockRejectedValueOnce(new Error('Unable to connect'))
     // @ts-expect-error - Types are incorrect for `MockedResponse`
-    await expect(requestHandler(mockReq, mockRes)).rejects.toThrow('Unable to connect')
+    await expect(requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))).rejects.toThrow(
+      'Unable to connect',
+    )
   })
 })

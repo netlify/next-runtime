@@ -11,7 +11,7 @@ import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../const
 
 import { isAppDirRoute, loadAppPathRoutesManifest } from './edge'
 import { getMiddleware } from './files'
-import { ApiRouteConfig } from './functions'
+import { APILambda } from './functions'
 import { RoutesManifest } from './types'
 import {
   getApiRewrites,
@@ -267,12 +267,12 @@ export const generateRedirects = async ({
   netlifyConfig,
   nextConfig: { i18n, basePath, trailingSlash, appDir },
   buildId,
-  apiRoutes,
+  apiLambdas,
 }: {
   netlifyConfig: NetlifyConfig
   nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash' | 'appDir'>
   buildId: string
-  apiRoutes: Array<ApiRouteConfig>
+  apiLambdas: APILambda[]
 }) => {
   const { dynamicRoutes: prerenderedDynamicRoutes, routes: prerenderedStaticRoutes }: PrerenderManifest =
     await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
@@ -290,7 +290,7 @@ export const generateRedirects = async ({
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
     // API routes always need to be served from the regular function
-    ...getApiRewrites(basePath, apiRoutes),
+    ...getApiRewrites(basePath, apiLambdas),
     // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
     ...(await getPreviewRewrites({ basePath, appDir })),
   )

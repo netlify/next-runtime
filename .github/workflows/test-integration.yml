@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+env:
+  NEXT_SPLIT_API_ROUTES: true
+
 jobs:
   build:
     name: Integration tests

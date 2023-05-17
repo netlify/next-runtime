@@ -3,11 +3,10 @@ import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
 import { outdent as javascript } from 'outdent'
 
-import { ApiConfig } from '../helpers/analysis'
 import type { NextConfig } from '../helpers/config'
-import { ApiRouteType } from '../helpers/types'
 
 import type { NextServerType } from './handlerUtils'
+import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
@@ -19,6 +18,7 @@ const { URLSearchParams, URL } = require('url')
 const { Bridge } = require('@vercel/node-bridge/bridge')
 
 const { getMultiValueHeaders } = require('./handlerUtils')
+const { getNetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 type Mutable<T> = {
@@ -29,12 +29,11 @@ type MakeApiHandlerParams = {
   conf: NextConfig
   app: string
   pageRoot: string
-  page: string
   NextServer: NextServerType
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
-const makeApiHandler = ({ conf, app, pageRoot, page, NextServer }: MakeApiHandlerParams) => {
+const makeApiHandler = ({ conf, app, pageRoot, NextServer }: MakeApiHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -47,6 +46,8 @@ const makeApiHandler = ({ conf, app, pageRoot, page, NextServer }: MakeApiHandle
     // eslint-disable-next-line n/no-missing-require
     require.resolve('./pages.js')
   } catch {}
+
+  const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
 
   // React assumes you want development mode if NODE_ENV is unset.
 
@@ -64,21 +65,29 @@ const makeApiHandler = ({ conf, app, pageRoot, page, NextServer }: MakeApiHandle
   // We memoize this because it can be shared between requests, but don't instantiate it until
   // the first request because we need the host and port.
   let bridge: NodeBridge
-  const getBridge = (event: HandlerEvent): NodeBridge => {
+  const getBridge = (event: HandlerEvent, context: HandlerContext): NodeBridge => {
     if (bridge) {
       return bridge
     }
+
+    const customContext = context.clientContext?.custom
+
     // Scheduled functions don't have a URL, but we need to give one so Next knows the route to serve
     const url = event.rawUrl ? new URL(event.rawUrl) : new URL(path, process.env.URL || 'http://n')
     const port = Number.parseInt(url.port) || 80
 
-    const nextServer = new NextServer({
-      conf,
-      dir,
-      customServer: false,
-      hostname: url.hostname,
-      port,
-    })
+    const nextServer = new NetlifyNextServer(
+      {
+        conf,
+        dir,
+        customServer: false,
+        hostname: url.hostname,
+        port,
+      },
+      {
+        revalidateToken: customContext?.odb_refresh_hooks,
+      },
+    )
     const requestHandler = nextServer.getRequestHandler()
     const server = new Server(async (req, res) => {
       try {
@@ -95,13 +104,11 @@ const makeApiHandler = ({ conf, app, pageRoot, page, NextServer }: MakeApiHandle
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     // Ensure that paths are encoded - but don't double-encode them
-    event.path = event.rawUrl ? new URL(event.rawUrl).pathname : page
+    event.path = new URL(event.rawUrl).pathname
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
-    // We know the page
-    event.headers['x-matched-path'] = page
-    const { headers, ...result } = await getBridge(event).launcher(event, context)
+    const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
 
@@ -121,20 +128,19 @@ const makeApiHandler = ({ conf, app, pageRoot, page, NextServer }: MakeApiHandle
  * Handlers for API routes are simpler than page routes, but they each have a separate one
  */
 export const getApiHandler = ({
-  page,
-  config,
+  schedule,
   publishDir = '../../../.next',
   appDir = '../../..',
   nextServerModuleRelativeLocation,
 }: {
-  page: string
-  config: ApiConfig
+  schedule?: string
   publishDir?: string
   appDir?: string
   nextServerModuleRelativeLocation: string | undefined
 }): string =>
-  // This is a string, but if you have the right editor plugin it should format as js
+  // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
   javascript/* javascript */ `
+  process.env.NODE_ENV = 'production';
   if (!${JSON.stringify(nextServerModuleRelativeLocation)}) {
     throw new Error('Could not find Next.js server')
   }
@@ -143,19 +149,16 @@ export const getApiHandler = ({
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { getMultiValueHeaders } = require('./handlerUtils')
+  const { getNetlifyNextServer } = require('./server')
   const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
 
-  ${config.type === ApiRouteType.SCHEDULED ? `const { schedule } = require("@netlify/functions")` : ''}
+  ${schedule ? `const { schedule } = require("@netlify/functions")` : ''}
 
 
   const { config }  = require("${publishDir}/required-server-files.json")
   let staticManifest
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
-  const handler = (${makeApiHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, page:${JSON.stringify(
-    page,
-  )}, NextServer})
-  exports.handler = ${
-    config.type === ApiRouteType.SCHEDULED ? `schedule(${JSON.stringify(config.schedule)}, handler);` : 'handler'
-  }
+  const handler = (${makeApiHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer })
+  exports.handler = ${schedule ? `schedule(${JSON.stringify(schedule)}, handler);` : 'handler'}
 `

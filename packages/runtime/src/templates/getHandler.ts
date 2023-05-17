@@ -189,7 +189,7 @@ export const getHandler = ({
   appDir = '../../..',
   nextServerModuleRelativeLocation,
 }): string =>
-  // This is a string, but if you have the right editor plugin it should format as js
+  // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
   javascript/* javascript */ `
   if (!${JSON.stringify(nextServerModuleRelativeLocation)}) {
     throw new Error('Could not find Next.js server')
