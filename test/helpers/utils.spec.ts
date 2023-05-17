@@ -149,8 +149,8 @@ describe('redirectsForNext404Route', () => {
     }
 
     expect(redirectsForNext404Route(mockRoute)).toStrictEqual([
-      { force: false, from: '/_next/data/test/test.json', status: 404, to: '/server/pages/404.html' },
-      { force: false, from: '/test', status: 404, to: '/server/pages/404.html' },
+      { force: false, from: '/_next/data/test/test.json', status: 404, to: '/404.html' },
+      { force: false, from: '/test', status: 404, to: '/404.html' },
     ])
   })
 
@@ -166,12 +166,12 @@ describe('redirectsForNext404Route', () => {
     }
 
     expect(redirectsForNext404Route(mockRoute)).toStrictEqual([
-      { force: false, from: '/_next/data/test/en/test.json', status: 404, to: '/server/pages/en/404.html' },
-      { force: false, from: '/test', status: 404, to: '/server/pages/en/404.html' },
-      { force: false, from: '/_next/data/test/es/test.json', status: 404, to: '/server/pages/es/404.html' },
-      { force: false, from: '/es/test', status: 404, to: '/server/pages/es/404.html' },
-      { force: false, from: '/_next/data/test/fr/test.json', status: 404, to: '/server/pages/fr/404.html' },
-      { force: false, from: '/fr/test', status: 404, to: '/server/pages/fr/404.html' },
+      { force: false, from: '/_next/data/test/en/test.json', status: 404, to: '/en/404.html' },
+      { force: false, from: '/test', status: 404, to: '/en/404.html' },
+      { force: false, from: '/_next/data/test/es/test.json', status: 404, to: '/es/404.html' },
+      { force: false, from: '/es/test', status: 404, to: '/es/404.html' },
+      { force: false, from: '/_next/data/test/fr/test.json', status: 404, to: '/fr/404.html' },
+      { force: false, from: '/fr/test', status: 404, to: '/fr/404.html' },
     ])
   })
 
@@ -182,13 +182,13 @@ describe('redirectsForNext404Route', () => {
           force: false,
           from: '/_next/data/test/getStaticProps/:id.json',
           status: 404,
-          to: '/server/pages/404.html',
+          to: '/404.html',
         },
         {
           force: false,
           from: '/getStaticProps/:id',
           status: 404,
-          to: '/server/pages/404.html',
+          to: '/404.html',
         },
       ],
       dynamicRoutesThatMatchMiddleware: [],
