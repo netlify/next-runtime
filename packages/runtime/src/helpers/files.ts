@@ -2,7 +2,18 @@ import { cpus } from 'os'
 
 import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
-import { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir, readFileSync } from 'fs-extra'
+import {
+  existsSync,
+  readJson,
+  move,
+  copy,
+  writeJson,
+  readFile,
+  writeFile,
+  ensureDir,
+  readFileSync,
+  remove,
+} from 'fs-extra'
 import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
@@ -10,7 +21,7 @@ import pLimit from 'p-limit'
 import { join, resolve, dirname } from 'pathe'
 import slash from 'slash'
 
-import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
+import { MINIMUM_REVALIDATE_SECONDS, DIVIDER, HIDDEN_PATHS } from '../constants'
 
 import { NextConfig } from './config'
 import { loadPrerenderManifest } from './edge'
@@ -465,5 +476,12 @@ export const movePublicFiles = async ({
   const publicDir = outdir ? join(appDir, outdir, 'public') : join(appDir, 'public')
   if (existsSync(publicDir)) {
     await copy(publicDir, `${publish}${basePath}/`)
+  }
+}
+
+export const removeMetadataFiles = async (publish: string) => {
+  for (const HIDDEN_PATH of HIDDEN_PATHS) {
+    const pathToDelete = join(publish, HIDDEN_PATH)
+    await remove(pathToDelete)
   }
 }
