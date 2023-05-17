@@ -7,6 +7,7 @@ export const HANDLER_FUNCTION_TITLE = 'Next.js SSR handler'
 export const ODB_FUNCTION_TITLE = 'Next.js ISR handler'
 export const IMAGE_FUNCTION_TITLE = 'next/image handler'
 // These are paths in .next that shouldn't be publicly accessible
+
 export const HIDDEN_PATHS = [
   '/cache',
   '/server',
@@ -18,6 +19,15 @@ export const HIDDEN_PATHS = [
   '/prerender-manifest.json',
   '/react-loadable-manifest.json',
   '/BUILD_ID',
+  '/app-build-manifest.json',
+  '/app-path-routes-manifest.json',
+  '/export-marker.json',
+  '/images-manifest.json',
+  '/next-server.js.nft.json',
+  '/package.json',
+  '/prerender-manifest.js',
+  '/required-server-files.json',
+  'static-manifest.json',
 ]
 
 export const ODB_FUNCTION_PATH = `/.netlify/builders/${ODB_FUNCTION_NAME}`
