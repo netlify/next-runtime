@@ -308,3 +308,5 @@ export const redirectTrailingSlash = (url: URL, trailingSlash: boolean): Respons
     return Response.redirect(url, 308)
   }
 }
+
+export const isFunction = (f: unknown) => Boolean(f) && typeof f === 'function'

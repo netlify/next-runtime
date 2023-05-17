@@ -70,9 +70,7 @@ const makeApiHandler = ({ conf, app, pageRoot, NextServer }: MakeApiHandlerParam
       return bridge
     }
 
-    const {
-      clientContext: { custom: customContext },
-    } = context
+    const customContext = context.clientContext?.custom
 
     // Scheduled functions don't have a URL, but we need to give one so Next knows the route to serve
     const url = event.rawUrl ? new URL(event.rawUrl) : new URL(path, process.env.URL || 'http://n')

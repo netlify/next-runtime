@@ -269,7 +269,7 @@ const traceNextServer = async (publish: string): Promise<string[]> => {
 
 export const traceNPMPackage = async (packageName: string, publish: string) => {
   try {
-    return await glob(join(dirname(require.resolve(packageName, { paths: [publish] })), '**', '*'), {
+    return await glob(join(dirname(require.resolve(packageName, { paths: [__dirname, publish] })), '**', '*'), {
       absolute: true,
     })
   } catch (error) {
