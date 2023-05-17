@@ -17,7 +17,7 @@ export const HIDDEN_PATHS = [
   '/build-manifest.json',
   '/prerender-manifest.json',
   '/react-loadable-manifest.json',
-  '/BUILD_ID',
+  process.env.NODE_ENV === `test` ? false : '/BUILD_ID',
   '/app-build-manifest.json',
   '/app-path-routes-manifest.json',
   '/export-marker.json',
@@ -27,7 +27,7 @@ export const HIDDEN_PATHS = [
   '/prerender-manifest.js',
   '/required-server-files.json',
   '/static-manifest.json',
-]
+].filter(Boolean)
 
 export const ODB_FUNCTION_PATH = `/.netlify/builders/${ODB_FUNCTION_NAME}`
 export const HANDLER_FUNCTION_PATH = `/.netlify/functions/${HANDLER_FUNCTION_NAME}`
