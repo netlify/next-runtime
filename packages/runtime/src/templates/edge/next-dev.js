@@ -38,7 +38,11 @@ const handler = async (req, context) => {
     const nextMiddleware = await import(`../../middleware.js#${++idx}`)
 
     // The middleware file can export a named `middleware` export or a `default` export
-    middleware = isFunction(nextMiddleware.middleware) ? nextMiddleware.middleware : nextMiddleware.default
+    middleware = isFunction(nextMiddleware.middleware) ? nextMiddleware.middleware : isFunction(nextMiddleware.default) ? nextMiddleware.default : undefined
+
+    if (!middleware) {
+      throw new Error('The middleware must export a `middleware` or a `default` function')
+    }
   } catch (importError) {
     if (importError.code === 'ERR_MODULE_NOT_FOUND' && importError.message.includes(`middleware.js`)) {
       //  No middleware, so we silently return
