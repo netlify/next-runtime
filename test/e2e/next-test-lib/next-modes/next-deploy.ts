@@ -74,7 +74,7 @@ export class NextDeployInstance extends NextInstance {
         NETLIFY_SITE_ID: this._netlifySiteId,
         NODE_ENV: 'production',
         DISABLE_IPX: platform() === 'linux' ? undefined : '1',
-        NEXT_KEEP_BUILD_ID: 'true',
+        NEXT_KEEP_METADATA_FILES: 'true',
       },
     })
 
