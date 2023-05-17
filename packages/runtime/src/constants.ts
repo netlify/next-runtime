@@ -17,7 +17,7 @@ export const HIDDEN_PATHS = [
   '/build-manifest.json',
   '/prerender-manifest.json',
   '/react-loadable-manifest.json',
-  process.env.NODE_ENV === `test` ? false : '/BUILD_ID',
+  process.env.NODE_ENV === `test` ? `` : '/BUILD_ID',
   '/app-build-manifest.json',
   '/app-path-routes-manifest.json',
   '/export-marker.json',
