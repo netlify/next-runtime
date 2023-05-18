@@ -480,7 +480,7 @@ export const movePublicFiles = async ({
 }
 
 export const removeMetadataFiles = async (publish: string) => {
-  // Limit concurrent file moves to number of cpus or 2 if there is only 1
+  // Limit concurrent deletions to number of cpus or 2 if there is only 1
   const limit = pLimit(Math.max(2, cpus().length))
 
   const removePromises = HIDDEN_PATHS.map((HIDDEN_PATH) => {
