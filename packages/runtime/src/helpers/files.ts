@@ -480,8 +480,13 @@ export const movePublicFiles = async ({
 }
 
 export const removeMetadataFiles = async (publish: string) => {
-  for (const HIDDEN_PATH of HIDDEN_PATHS) {
+  // Limit concurrent file moves to number of cpus or 2 if there is only 1
+  const limit = pLimit(Math.max(2, cpus().length))
+
+  const removePromises = HIDDEN_PATHS.map((HIDDEN_PATH) => {
     const pathToDelete = join(publish, HIDDEN_PATH)
-    await remove(pathToDelete)
-  }
+    return limit(() => remove(pathToDelete))
+  })
+
+  await Promise.all(removePromises)
 }
