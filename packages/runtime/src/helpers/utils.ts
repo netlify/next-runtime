@@ -170,7 +170,7 @@ export const redirectsForNext404Route = ({
 }): NetlifyConfig['redirects'] =>
   netlifyRoutesForNextRoute({ route, buildId, i18n }).map(({ redirect, locale }) => ({
     from: `${basePath}${redirect}`,
-    to: locale ? `${basePath}/server/pages/${locale}/404.html` : `${basePath}/server/pages/404.html`,
+    to: locale ? `${basePath}/${locale}/404.html` : `${basePath}/404.html`,
     status: 404,
     force,
   }))
