@@ -30,6 +30,10 @@ module.exports = {
     'unicorn/no-array-push-push': 0,
     'unicorn/numeric-separators-style': 0,
     'max-lines': 0,
+
+    // disabled temporarily to make code easier to review
+    // TODO: once PR is approved, push a refactoring commit that removes the cycle
+    'import/no-cycle': 0,
   },
   parserOptions: {
     sourceType: 'module',

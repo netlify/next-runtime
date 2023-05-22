@@ -280,13 +280,17 @@ export const traceNPMPackage = async (packageName: string, publish: string) => {
   }
 }
 
-export const getAPIPRouteCommonDependencies = async (publish: string) => {
+export const getCommonDependencies = async (publish: string) => {
   const deps = await Promise.all([
     traceRequiredServerFiles(publish),
     traceNextServer(publish),
 
     // used by our own bridge.js
     traceNPMPackage('follow-redirects', publish),
+
+    // used by bridge.js, only for ODB routes - they don't weigh a lot, so we can include them anyway
+    traceNPMPackage('@netlify/functions/package.json', publish),
+    traceNPMPackage('is-promise', publish),
   ])
 
   return deps.flat(1)
@@ -321,7 +325,7 @@ export const getAPILambdas = async (
   baseDir: string,
   pageExtensions: string[],
 ): Promise<APILambda[]> => {
-  const commonDependencies = await getAPIPRouteCommonDependencies(publish)
+  const commonDependencies = await getCommonDependencies(publish)
 
   const threshold = 50 * MB - (await getBundleWeight(commonDependencies))
 

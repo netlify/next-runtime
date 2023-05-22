@@ -15,3 +15,9 @@ import destr from 'destr'
  */
 export const splitApiRoutes = (featureFlags: Record<string, unknown>): boolean =>
   destr(process.env.NEXT_SPLIT_API_ROUTES) ?? featureFlags.next_split_api_routes ?? false
+
+/**
+ * TODO: write some docs
+ */
+export const useNoneBundler = (featureFlags: Record<string, unknown>): boolean =>
+  destr(process.env.NEXT_USE_NONE_BUNDLER) ?? featureFlags.next_use_none_bundler ?? false

@@ -5,6 +5,7 @@ ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff
 
 [build.environment]
 NEXT_SPLIT_API_ROUTES = "true"
+NEXT_USE_NONE_BUNDLER = "true"
 
 [dev]
 command = "npm run start"
