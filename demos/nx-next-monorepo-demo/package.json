@@ -10,7 +10,7 @@
   "private": true,
   "dependencies": {
     "@netlify/plugin-nextjs": "file:plugin-wrapper",
-    "@nrwl/next": "15.9.2",
+    "@nrwl/next": "15.9.4",
     "core-js": "^3.6.5",
     "next": "^13.3.0",
     "react": "^18.2.0",
