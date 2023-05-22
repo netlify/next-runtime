@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.37.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.1...plugin-nextjs-v4.37.2) (2023-05-22)
+
+
+### Bug Fixes
+
+* checks when Next.js' implementation of ResponseCookies._headers is undefined now ([#2119](https://github.com/netlify/next-runtime/issues/2119)) ([f051e22](https://github.com/netlify/next-runtime/commit/f051e227ca10ddc228b1d044eb835fe66fd1d733))
+* don't deploy metadata files to CDN ([#2104](https://github.com/netlify/next-runtime/issues/2104)) ([ba3a430](https://github.com/netlify/next-runtime/commit/ba3a430c74cf951ac27e07c6808679b887702950))
+* guard split api routes behaviour by next version ([#2125](https://github.com/netlify/next-runtime/issues/2125)) ([a8bb0e3](https://github.com/netlify/next-runtime/commit/a8bb0e3db3c7d550921bc3ed54d0ec575f1a2191))
+* resolve follow-redirects from runtime package, so it's available also in auto-installs ([#2124](https://github.com/netlify/next-runtime/issues/2124)) ([49ada27](https://github.com/netlify/next-runtime/commit/49ada272e732542a85f2618c065080444e1c299c))
+
 ## [4.37.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.0...plugin-nextjs-v4.37.1) (2023-05-17)
 
 
