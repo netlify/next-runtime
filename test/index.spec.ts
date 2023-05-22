@@ -727,6 +727,16 @@ describe('onBuild()', () => {
     expect(existsSync(publicFile)).toBe(true)
     expect(await readJson(publicFile)).toMatchObject(expect.any(Array))
   })
+
+  it('does not split APIs when .nft.json files are unavailable', async () => {
+    await moveNextDist()
+
+    await unlink(path.join(process.cwd(), '.next', 'next-server.js.nft.json'))
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(netlifyConfig.functions['_api_*'].node_bundler).toEqual('nft')
+  })
 })
 
 describe('onPostBuild', () => {

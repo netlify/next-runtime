@@ -166,7 +166,7 @@ const plugin: NetlifyPlugin = {
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
-    const apiLambdas: APILambda[] = splitApiRoutes(featureFlags)
+    const apiLambdas: APILambda[] = splitApiRoutes(featureFlags, publish)
       ? await getAPILambdas(publish, appDir, pageExtensions)
       : await getExtendedApiRouteConfigs(publish, appDir, pageExtensions).then((extendedRoutes) =>
           extendedRoutes.map(packSingleFunction),
@@ -180,7 +180,7 @@ const plugin: NetlifyPlugin = {
       ignore,
       publish: relative(process.cwd(), publish),
       apiLambdas,
-      featureFlags,
+      splitApiRoutes: splitApiRoutes(featureFlags, publish),
     })
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
