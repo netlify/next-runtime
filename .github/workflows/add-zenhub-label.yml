@@ -1,0 +1,24 @@
+# Ensure we add the correct ZenHub label for all new issues
+# Avoids problem where checklist issues are not added to the correct ZenHub pipeline
+
+name: Add ZenHub label to issues
+on:
+  issues:
+    types:
+      - reopened
+      - opened
+jobs:
+  label_issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ["Ecosystem: Frameworks"]
+            })
