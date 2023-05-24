@@ -21,6 +21,8 @@ Array [
   "../../node_modules/next/dist/client/script.js",
   "../../node_modules/next/dist/client/trusted-types.js",
   "../../node_modules/next/dist/client/with-router.js",
+  "../../node_modules/next/dist/compiled/gzip-size/index.js",
+  "../../node_modules/next/dist/compiled/gzip-size/package.json",
   "../../node_modules/next/dist/compiled/path-to-regexp/index.js",
   "../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js",
   "../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js",
@@ -53,16 +55,9 @@ Array [
   "../../node_modules/next/dist/shared/lib/amp-context.js",
   "../../node_modules/next/dist/shared/lib/amp-mode.js",
   "../../node_modules/next/dist/shared/lib/app-router-context.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/index.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/utils.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter.js",
   "../../node_modules/next/dist/shared/lib/constants.js",
   "../../node_modules/next/dist/shared/lib/escape-regexp.js",
-  "../../node_modules/next/dist/shared/lib/fnv1a.js",
   "../../node_modules/next/dist/shared/lib/head-manager-context.js",
   "../../node_modules/next/dist/shared/lib/head.js",
   "../../node_modules/next/dist/shared/lib/hooks-client-context.js",
@@ -317,6 +312,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -349,16 +346,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -506,6 +496,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -538,16 +530,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -695,6 +680,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -727,16 +714,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -884,6 +864,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -916,16 +898,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -2112,21 +2087,6 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/api/enterPreview",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/exitPreview",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/hello",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
     "from": "/api/hello-background",
     "status": 200,
     "to": "/.netlify/functions/_api_hello-background-background",
@@ -2135,21 +2095,6 @@ Array [
     "from": "/api/hello-scheduled",
     "status": 404,
     "to": "/404.html",
-  },
-  Object {
-    "from": "/api/revalidate",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/shows/:id",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/shows/:params/*",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
   },
   Object {
     "force": false,
