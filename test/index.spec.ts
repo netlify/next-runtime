@@ -727,6 +727,16 @@ describe('onBuild()', () => {
     expect(existsSync(publicFile)).toBe(true)
     expect(await readJson(publicFile)).toMatchObject(expect.any(Array))
   })
+
+  it('does not split APIs when .nft.json files are unavailable', async () => {
+    await moveNextDist()
+
+    await unlink(path.join(process.cwd(), '.next', 'next-server.js.nft.json'))
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(netlifyConfig.functions['_api_*'].node_bundler).toEqual('nft')
+  })
 })
 
 describe('onPostBuild', () => {
@@ -1030,6 +1040,23 @@ describe('onPostBuild', () => {
         },
       },
     ])
+  })
+
+  it(`removes metadata files`, async () => {
+    await moveNextDist()
+
+    // routes-manifest.json is one of metadata files that seems to be created with default demo site
+    // there are a lot of other files, but we will test just one
+    const manifestPath = path.resolve('.next/routes-manifest.json')
+
+    expect(await pathExists(manifestPath)).toBe(true)
+
+    await nextRuntime.onPostBuild({
+      ...defaultArgs,
+      utils: { ...utils, cache: { save: jest.fn() }, functions: { list: jest.fn().mockResolvedValue([]) } },
+    })
+
+    expect(await pathExists(manifestPath)).toBe(false)
   })
 })
 

@@ -58,6 +58,8 @@ export const addMiddlewareHeaders = async (
 }
 
 interface ResponseCookies {
+  // This is non-standard that Next.js adds.
+  // See github.com/vercel/next.js/blob/de08f8b3d31ef45131dad97a7d0e95fa01001167/packages/next/src/compiled/@edge-runtime/cookies/index.js#L158
   readonly _headers: Headers
 }
 
@@ -191,7 +193,8 @@ export const buildResponse = async ({
     }
 
     // NextResponse doesn't set cookies onto the originResponse, so we need to copy them over
-    if (response.cookies._headers.has('set-cookie')) {
+    // In some cases, it's possible there are no headers set. See https://github.com/netlify/pod-ecosystem-frameworks/issues/475
+    if (response.cookies._headers?.has('set-cookie')) {
       response.originResponse.headers.set('set-cookie', response.cookies._headers.get('set-cookie')!)
     }
 
@@ -305,3 +308,5 @@ export const redirectTrailingSlash = (url: URL, trailingSlash: boolean): Respons
     return Response.redirect(url, 308)
   }
 }
+
+export const isFunction = (f: unknown) => Boolean(f) && typeof f === 'function'

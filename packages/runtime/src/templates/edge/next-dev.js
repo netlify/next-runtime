@@ -1,7 +1,7 @@
 import { NextRequest } from 'https://esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/request.js'
 import { NextResponse } from 'https://esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/response.js'
 import { fromFileUrl } from 'https://deno.land/std@0.151.0/path/mod.ts'
-import { buildResponse } from '../edge-shared/utils.ts'
+import { buildResponse, isFunction } from '../edge-shared/utils.ts'
 
 globalThis.NFRequestContextMap ||= new Map()
 globalThis.__dirname = fromFileUrl(new URL('./', import.meta.url)).slice(0, -1)
@@ -36,7 +36,17 @@ const handler = async (req, context) => {
     // We need to cache-bust the import because otherwise it will claim it
     // doesn't exist if the user creates it after the server starts
     const nextMiddleware = await import(`../../middleware.js#${++idx}`)
-    middleware = nextMiddleware.middleware
+
+    // The middleware file can export a named `middleware` export or a `default` export
+    middleware = isFunction(nextMiddleware.middleware)
+      ? nextMiddleware.middleware
+      : isFunction(nextMiddleware.default)
+      ? nextMiddleware.default
+      : undefined
+
+    if (!middleware) {
+      throw new Error('The middleware must export a `middleware` or a `default` function')
+    }
   } catch (importError) {
     if (importError.code === 'ERR_MODULE_NOT_FOUND' && importError.message.includes(`middleware.js`)) {
       //  No middleware, so we silently return

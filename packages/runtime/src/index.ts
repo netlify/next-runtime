@@ -17,7 +17,7 @@ import {
 } from './helpers/config'
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
-import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
+import { moveStaticPages, movePublicFiles, patchNextFiles, removeMetadataFiles } from './helpers/files'
 import { splitApiRoutes } from './helpers/flags'
 import {
   generateFunctions,
@@ -165,7 +165,7 @@ const plugin: NetlifyPlugin = {
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
-    const apiLambdas: APILambda[] = splitApiRoutes(featureFlags)
+    const apiLambdas: APILambda[] = splitApiRoutes(featureFlags, publish)
       ? await getAPILambdas(publish, appDir, pageExtensions)
       : await getExtendedApiRouteConfigs(publish, appDir, pageExtensions).then((extendedRoutes) =>
           extendedRoutes.map(packSingleFunction),
@@ -179,7 +179,7 @@ const plugin: NetlifyPlugin = {
       ignore,
       publish: relative(process.cwd(), publish),
       apiLambdas,
-      featureFlags,
+      splitApiRoutes: splitApiRoutes(featureFlags, publish),
     })
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
@@ -253,6 +253,12 @@ const plugin: NetlifyPlugin = {
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
     await warnOnApiRoutes({ FUNCTIONS_DIST })
+
+    // we are removing metadata files from Publish directory
+    // we have to do this after functions were bundled as bundling still
+    // require those files, but we don't want to publish them
+    await removeMetadataFiles(publish)
+
     if (experimental?.appDir) {
       console.log(
         '🧪 Thank you for testing "appDir" support on Netlify. For known issues and to give feedback, visit https://ntl.fyi/next-13-feedback',
