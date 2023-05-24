@@ -65,15 +65,9 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
   // We don't want to write ISR files to disk in the lambda environment
   conf.experimental.isrFlushToDisk = false
-
   // This is our flag that we use when patching the source
   // eslint-disable-next-line no-underscore-dangle
   process.env._REVALIDATE_SSG = 'true'
-
-  // Doing what they do in https://github.com/vercel/vercel/blob/1663db7ca34d3dd99b57994f801fb30b72fbd2f3/packages/next/src/server-build.ts#L576-L580
-  // eslint-disable-next-line no-underscore-dangle
-  process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = conf.experimental?.serverActions ? 'experimental' : 'next'
-
   for (const [key, value] of Object.entries(conf.env)) {
     process.env[key] = String(value)
   }

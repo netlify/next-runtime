@@ -3,6 +3,7 @@ import type { BaseNextResponse } from 'next/dist/server/base-http'
 import { NodeRequestHandler, Options } from 'next/dist/server/next-server'
 
 import {
+  setPrebundledReact,
   netlifyApiFetch,
   NextServerType,
   normalizeRoute,
@@ -37,6 +38,9 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       return async (req, res, parsedUrl) => {
         // preserve the URL before Next.js mutates it for i18n
         const { url, headers } = req
+
+        // conditionally resolve to the prebundled React
+        setPrebundledReact(url, this.distDir, this.nextConfig)
 
         if (headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {
           // handle on-demand revalidation by purging the ODB cache
