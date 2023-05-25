@@ -130,6 +130,14 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
 
+    if (event.headers['accept-language']) {
+      // keep just first language to match Netlify redirect limitation:
+      // https://docs.netlify.com/routing/redirects/redirect-options/#redirect-by-country-or-language
+      // > Language-based redirects always match against the first language reported by the browser in the Accept-Language header regardless of quality value weighting.
+      // If we wouldn't keep just first language, it's possible for `next-server` to generate locale redirect that could be cached by ODB
+      event.headers['accept-language'] = event.headers['accept-language'].replace(/\s*,.*$/, '')
+    }
+
     const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
