@@ -232,7 +232,7 @@ const traceRequiredServerFiles = async (publish: string): Promise<string[]> => {
   const requiredServerFiles = await getRequiredServerFiles(publish)
 
   let appDirRoot = requiredServerFiles.appDir ?? join(publish, '..')
-  if (requiredServerFiles.relativeAppDir && requiredServerFiles.config.experimental.outputFileTracingRoot) {
+  if (requiredServerFiles.relativeAppDir && requiredServerFiles.config?.experimental.outputFileTracingRoot) {
     appDirRoot = join(requiredServerFiles.relativeAppDir, requiredServerFiles.config.experimental.outputFileTracingRoot)
   }
 
