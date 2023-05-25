@@ -273,5 +273,5 @@ export const setPrebundledReact = (route: string, distDir: string, config: NextO
 
   // app routes should use prebundled React
   // eslint-disable-next-line no-underscore-dangle
-  process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = config.experimental.serverActions ? 'experimental' : 'next'
+  process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = config.experimental?.serverActions ? 'experimental' : 'next'
 }
