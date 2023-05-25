@@ -229,13 +229,12 @@ export const setupImageFunction = async ({
 }
 
 const traceRequiredServerFiles = async (publish: string): Promise<string[]> => {
-  const {
-    files,
-    relativeAppDir,
-    config: {
-      experimental: { outputFileTracingRoot },
-    },
-  } = await getRequiredServerFiles(publish)
+  const requiredServerFiles = await getRequiredServerFiles(publish)
+
+  const relativeAppDir = requiredServerFiles.relativeAppDir ?? ''
+  const outputFileTracingRoot = requiredServerFiles.config.experimental.outputFileTracingRoot ?? ''
+  const files = requiredServerFiles.files ?? []
+
   const appDirRoot = join(outputFileTracingRoot, relativeAppDir)
   const absoluteFiles = files.map((file) => join(appDirRoot, file))
 
