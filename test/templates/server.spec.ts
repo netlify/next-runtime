@@ -55,6 +55,16 @@ jest.mock(
   { virtual: true },
 )
 
+jest.mock(
+  'server/pages-manifest.json',
+  () => ({
+    '/non-i18n/with-revalidate': 'pages/non-i18n/with-revalidate.js',
+    '/en/i18n/with-revalidate': 'pages/en/i18n/with-revalidate.js',
+    '/posts/[title]': 'pages/posts/[title].js',
+  }),
+  { virtual: true },
+)
+
 let NetlifyNextServer: NetlifyNextServerType
 beforeAll(() => {
   const NextServer: NextServerType = require(getServerFile(__dirname, false)).default
