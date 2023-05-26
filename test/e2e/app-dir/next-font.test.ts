@@ -251,7 +251,7 @@ const getAttrs = (elems: Cheerio) =>
           ])
         })
 
-        it.only('should preload correctly with page using fonts', async () => {
+        it('should preload correctly with page using fonts', async () => {
           const html = await renderViaHTTP(next.url, '/page-with-fonts')
           const $ = cheerio.load(html)
 
