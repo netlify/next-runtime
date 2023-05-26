@@ -915,32 +915,6 @@ describe('app dir', () => {
           })
         })
 
-        describe('previewData function', () => {
-          it('should return no preview data when there is none', async () => {
-            const browser = await webdriver(next.url, '/hooks/use-preview-data')
-
-            try {
-              await browser.waitForElementByCss('#does-not-have-preview-data')
-            } finally {
-              await browser.close()
-            }
-          })
-          // Currently not used in updated nextjs tests
-          it.skip('should return preview data when there is some', async () => {
-            const browser = await webdriver(next.url, '/api/preview')
-
-            try {
-              await browser.loadPage(next.url + '/hooks/use-preview-data', {
-                disableCache: false,
-                beforePageLoad: null,
-              })
-              await browser.waitForElementByCss('#has-preview-data')
-            } finally {
-              await browser.close()
-            }
-          })
-        })
-
         describe('useRouter', () => {
           // TODO-APP: should enable when implemented
           it.skip('should throw an error when imported', async () => {
