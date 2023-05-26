@@ -8,6 +8,8 @@ import { promisify } from 'util'
 import { HandlerEvent, HandlerResponse } from '@netlify/functions'
 import { http, https } from 'follow-redirects'
 import NextNodeServer, { Options as NextOptions } from 'next/dist/server/next-server'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { getMaybePagePath } from 'next/dist/server/require'
 
 export type NextServerType = typeof NextNodeServer
