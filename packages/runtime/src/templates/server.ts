@@ -58,7 +58,8 @@ const getNetlifyNextServer = (NextServer: NextServerType, NextRequire: NextRequi
 
     // doing what they do in https://github.com/vercel/vercel/blob/1663db7ca34d3dd99b57994f801fb30b72fbd2f3/packages/next/src/server-build.ts#L576-L580
     private netlifyPrebundleReact(route: string) {
-      const { getMaybePagePath } = NextRequire
+      const getMaybePagePath = NextRequire?.getMaybePagePath
+
       // pages routes should use use node_modules React
       if (!getMaybePagePath || getMaybePagePath(route, this.distDir, this.nextConfig.i18n?.locales, false)) {
         // eslint-disable-next-line no-underscore-dangle
