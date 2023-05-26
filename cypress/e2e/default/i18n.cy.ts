@@ -49,6 +49,9 @@ describe('Localization', () => {
         'Accept-Language': 'jp, fr;q=0.9',
         // make sure we don't use cached results
         cookie: '__prerender_bypass=1',
+        // above cookie header cause us to hit non-ODB function variant
+        // below header allow us to force ODB-only code path despite not running ODB (this is just for testing purposes)
+        'x-next-just-first-accept-language': '1',
       },
     }).then((response) => {
       // make sure we didn't hit SSR handler - not ODB and nothing else handles this request
