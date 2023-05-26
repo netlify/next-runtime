@@ -130,7 +130,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
 
-    if (event.headers['accept-language']) {
+    if (event.headers['accept-language'] && mode === 'odb') {
       // keep just first language to match Netlify redirect limitation:
       // https://docs.netlify.com/routing/redirects/redirect-options/#redirect-by-country-or-language
       // > Language-based redirects always match against the first language reported by the browser in the Accept-Language header regardless of quality value weighting.
