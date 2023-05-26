@@ -3,9 +3,9 @@ import type { BaseNextResponse } from 'next/dist/server/base-http'
 import { NodeRequestHandler, Options } from 'next/dist/server/next-server'
 
 import {
-  setPrebundledReact,
   netlifyApiFetch,
   NextServerType,
+  NextRequireType,
   normalizeRoute,
   localizeRoute,
   localizeDataRoute,
@@ -16,7 +16,7 @@ interface NetlifyConfig {
   revalidateToken?: string
 }
 
-const getNetlifyNextServer = (NextServer: NextServerType) => {
+const getNetlifyNextServer = (NextServer: NextServerType, NextRequire: NextRequireType) => {
   class NetlifyNextServer extends NextServer {
     private netlifyConfig: NetlifyConfig
     private netlifyPrerenderManifest: PrerenderManifest
@@ -39,8 +39,8 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         // preserve the URL before Next.js mutates it for i18n
         const { url, headers } = req
 
-        // conditionally resolve to the prebundled React
-        setPrebundledReact(url, this.distDir, this.nextConfig)
+        // conditionally use the prebundled React module
+        this.netlifyPrebundleReact(url)
 
         if (headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {
           // handle on-demand revalidation by purging the ODB cache
@@ -54,6 +54,23 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
           return handler(req, res, parsedUrl)
         }
       }
+    }
+
+    // doing what they do in https://github.com/vercel/vercel/blob/1663db7ca34d3dd99b57994f801fb30b72fbd2f3/packages/next/src/server-build.ts#L576-L580
+    private netlifyPrebundleReact(route: string) {
+      const { getMaybePagePath } = NextRequire
+      // pages routes should use use node_modules React
+      if (!getMaybePagePath || getMaybePagePath(route, this.distDir, this.nextConfig.i18n?.locales, false)) {
+        // eslint-disable-next-line no-underscore-dangle
+        process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = ''
+        return
+      }
+
+      // app routes should use prebundled React
+      // eslint-disable-next-line no-underscore-dangle
+      process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = this.nextConfig.experimental?.serverActions
+        ? 'experimental'
+        : 'next'
     }
 
     private async netlifyRevalidate(route: string) {
