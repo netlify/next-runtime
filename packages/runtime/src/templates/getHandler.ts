@@ -135,6 +135,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
       // https://docs.netlify.com/routing/redirects/redirect-options/#redirect-by-country-or-language
       // > Language-based redirects always match against the first language reported by the browser in the Accept-Language header regardless of quality value weighting.
       // If we wouldn't keep just first language, it's possible for `next-server` to generate locale redirect that could be cached by ODB
+      // because it matches on every language listed: https://github.com/vercel/next.js/blob/5d9597879c46b383d595d6f7b37fd373325b7544/test/unit/accept-headers.test.ts
       event.headers['accept-language'] = event.headers['accept-language'].replace(/\s*,.*$/, '')
     }
 
