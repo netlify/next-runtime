@@ -738,6 +738,7 @@ describe('onBuild()', () => {
     expect(netlifyConfig.functions['_api_*'].node_bundler).toEqual('nft')
   })
 
+  // eslint-disable-next-line jest/expect-expect
   it('works when `relativeAppDir` is undefined', async () => {
     await moveNextDist()
 
@@ -746,9 +747,9 @@ describe('onBuild()', () => {
     await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
 
     await nextRuntime.onBuild(defaultArgs)
-    expect.pass("Didn't throw")
   })
 
+  // eslint-disable-next-line jest/expect-expect
   it('works when `outputFileTracingRoot` is undefined', async () => {
     await moveNextDist()
 
@@ -757,7 +758,6 @@ describe('onBuild()', () => {
     await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
 
     await nextRuntime.onBuild(defaultArgs)
-    expect.pass("Didn't throw")
   })
 })
 
