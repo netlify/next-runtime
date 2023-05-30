@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.37.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.3...plugin-nextjs-v4.37.4) (2023-05-30)
+
+
+### Bug Fixes
+
+* pass only first language to next-server to match platform redirects support ([#2138](https://github.com/netlify/next-runtime/issues/2138)) ([aca3dc6](https://github.com/netlify/next-runtime/commit/aca3dc6d09aaf5586f3acfe41f7e12cb504c3325))
+
 ## [4.37.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.2...plugin-nextjs-v4.37.3) (2023-05-30)
 
 
