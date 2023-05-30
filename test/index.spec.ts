@@ -745,7 +745,8 @@ describe('onBuild()', () => {
     delete initialConfig.relativeAppDir
     await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
 
-    await expect(nextRuntime.onBuild(defaultArgs)).toResolve()
+    await nextRuntime.onBuild(defaultArgs)
+    expect.pass("Didn't throw")
   })
 
   it('works when `outputFileTracingRoot` is undefined', async () => {
@@ -755,7 +756,8 @@ describe('onBuild()', () => {
     delete initialConfig.config.experimental.outputFileTracingRoot
     await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
 
-    await expect(nextRuntime.onBuild(defaultArgs)).toResolve()
+    await nextRuntime.onBuild(defaultArgs)
+    expect.pass("Didn't throw")
   })
 })
 
