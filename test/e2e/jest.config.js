@@ -1,6 +1,11 @@
 // @ts-check
 /** @type {import('@jest/types').Config.InitialOptions} */
 
+const esModules = [
+  `strip-ansi`,
+  `ansi-regex`,
+].join(`|`)
+
 const config = {
   maxWorkers: 1,
   rootDir: __dirname,
@@ -14,6 +19,7 @@ const config = {
   transform: {
     '\\.[jt]sx?$': 'babel-jest',
   },
+  transformIgnorePatterns: [`/node_modules/(?!${esModules})`],
   verbose: true,
   testTimeout: 600000, // ten minutes
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
