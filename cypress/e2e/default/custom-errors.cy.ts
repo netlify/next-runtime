@@ -9,6 +9,6 @@
 
   it('should show custom 500 page on /500', () => {
     cy.visit('/500', {failOnStatusCode: false})
-    cy.findByText('Custom 500 - Server-side error occurred')
+    cy.get('h1').findByText('Custom 500 - Server-side error occurred')
   })
 })
