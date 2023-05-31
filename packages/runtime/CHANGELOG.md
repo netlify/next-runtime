@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.37.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.3...plugin-nextjs-v4.37.4) (2023-05-30)
+
+
+### Bug Fixes
+
+* pass only first language to next-server to match platform redirects support ([#2138](https://github.com/netlify/next-runtime/issues/2138)) ([aca3dc6](https://github.com/netlify/next-runtime/commit/aca3dc6d09aaf5586f3acfe41f7e12cb504c3325))
+
+## [4.37.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.2...plugin-nextjs-v4.37.3) (2023-05-30)
+
+
+### Bug Fixes
+
+* remove edge functions beta label ([#2133](https://github.com/netlify/next-runtime/issues/2133)) ([7a10491](https://github.com/netlify/next-runtime/commit/7a10491647fcaf71e5ed38a999306065ed56ac70))
+* tracing root use `appDir` as fallback ([#2136](https://github.com/netlify/next-runtime/issues/2136)) ([64280e5](https://github.com/netlify/next-runtime/commit/64280e5a424d09dd04241d89b2f9335c1d997586))
+
 ## [4.37.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.1...plugin-nextjs-v4.37.2) (2023-05-22)
 
 
