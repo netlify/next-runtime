@@ -4,11 +4,11 @@
  describe('Custom error pages', () => {
   it('should show custom 404 page on /404', () => {
     cy.visit('/404', {failOnStatusCode: false})
-    cy.findByText('Custom 404 - Page Not Found')
+    cy.findByText('Custom 404 - Page Not Found', { selector: 'h1' })
   })
 
   it('should show custom 500 page on /500', () => {
     cy.visit('/500', {failOnStatusCode: false})
-    cy.get('h1').findByText('Custom 500 - Server-side error occurred')
+    cy.findByText('Custom 500 - Server-side error occurred', { selector: 'h1' })
   })
 })
