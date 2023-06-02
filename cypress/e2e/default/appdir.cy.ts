@@ -58,7 +58,6 @@ describe('appDir', () => {
       },
       followRedirect: false,
     }).then((response) => {
-      console.log({ response })
       expect(response.headers).to.have.property('content-type', 'text/x-component')
     })
   })
@@ -71,7 +70,6 @@ describe('appDir', () => {
       },
       followRedirect: false,
     }).then((response) => {
-      console.log({ response })
       expect(response.headers).to.have.property('content-type', 'text/x-component')
     })
   })
