@@ -505,7 +505,6 @@ export const writeEdgeFunctions = async ({
   if (usesEdge) {
     console.log(outdent`
       ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
-      This feature is in beta. Please share your feedback here: https://ntl.fyi/next-netlify-edge
     `)
   }
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)

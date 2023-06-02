@@ -1,6 +1,6 @@
 {
   "name": "@netlify/plugin-nextjs",
-  "version": "4.37.1",
+  "version": "4.37.4",
   "description": "Run Next.js seamlessly on Netlify",
   "main": "index.js",
   "files": [
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^29.11.5",
+    "@netlify/build": "^29.11.6",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.1",
     "@types/merge-stream": "^1.1.2",

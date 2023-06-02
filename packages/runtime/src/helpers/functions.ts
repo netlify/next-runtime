@@ -229,14 +229,14 @@ export const setupImageFunction = async ({
 }
 
 const traceRequiredServerFiles = async (publish: string): Promise<string[]> => {
-  const {
-    files,
-    relativeAppDir,
-    config: {
-      experimental: { outputFileTracingRoot },
-    },
-  } = await getRequiredServerFiles(publish)
-  const appDirRoot = join(outputFileTracingRoot, relativeAppDir)
+  const requiredServerFiles = await getRequiredServerFiles(publish)
+
+  let appDirRoot = requiredServerFiles.appDir ?? join(publish, '..')
+  if (requiredServerFiles.relativeAppDir && requiredServerFiles.config?.experimental.outputFileTracingRoot) {
+    appDirRoot = join(requiredServerFiles.config.experimental.outputFileTracingRoot, requiredServerFiles.relativeAppDir)
+  }
+
+  const files = requiredServerFiles.files ?? []
   const absoluteFiles = files.map((file) => join(appDirRoot, file))
 
   absoluteFiles.push(join(publish, 'required-server-files.json'))
@@ -269,7 +269,7 @@ const traceNextServer = async (publish: string): Promise<string[]> => {
 
 export const traceNPMPackage = async (packageName: string, publish: string) => {
   try {
-    return await glob(join(dirname(require.resolve(packageName, { paths: [publish] })), '**', '*'), {
+    return await glob(join(dirname(require.resolve(packageName, { paths: [__dirname, publish] })), '**', '*'), {
       absolute: true,
     })
   } catch (error) {
