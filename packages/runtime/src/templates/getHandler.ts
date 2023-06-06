@@ -130,6 +130,16 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
 
+    if (event.headers['accept-language'] && (mode === 'odb' || event.headers['x-next-just-first-accept-language'])) {
+      // keep just first language to match Netlify redirect limitation:
+      // https://docs.netlify.com/routing/redirects/redirect-options/#redirect-by-country-or-language
+      // > Language-based redirects always match against the first language reported by the browser in the Accept-Language header regardless of quality value weighting.
+      // If we wouldn't keep just first language, it's possible for `next-server` to generate locale redirect that could be cached by ODB
+      // because it matches on every language listed: https://github.com/vercel/next.js/blob/5d9597879c46b383d595d6f7b37fd373325b7544/test/unit/accept-headers.test.ts
+      // 'x-next-just-first-accept-language' header is escape hatch to be able to hit this code for tests (both automated and manual)
+      event.headers['accept-language'] = event.headers['accept-language'].replace(/\s*,.*$/, '')
+    }
+
     const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
@@ -189,7 +199,7 @@ export const getHandler = ({
   appDir = '../../..',
   nextServerModuleRelativeLocation,
 }): string =>
-  // This is a string, but if you have the right editor plugin it should format as js
+  // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
   javascript/* javascript */ `
   if (!${JSON.stringify(nextServerModuleRelativeLocation)}) {
     throw new Error('Could not find Next.js server')

@@ -84,9 +84,9 @@ beforeEach(async () => {
 
   netlifyConfig.redirects = []
   netlifyConfig.headers = []
-  netlifyConfig.functions[HANDLER_FUNCTION_NAME] && (netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files = [])
-  netlifyConfig.functions[ODB_FUNCTION_NAME] && (netlifyConfig.functions[ODB_FUNCTION_NAME].included_files = [])
-  netlifyConfig.functions['_api_*'] && (netlifyConfig.functions['_api_*'].included_files = [])
+  for (const func of Object.values(netlifyConfig.functions)) {
+    func.included_files = []
+  }
   await useFixture('serverless_next_config')
 })
 
@@ -465,7 +465,7 @@ describe('onBuild()', () => {
   it("doesn't exclude sharp if manually included", async () => {
     await moveNextDist()
 
-    const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, '_api_*']
+    const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME]
 
     await nextRuntime.onBuild(defaultArgs)
 
@@ -523,6 +523,7 @@ describe('onBuild()', () => {
   it('generates a file referencing all when publish dir is a subdirectory', async () => {
     const dir = 'web/.next'
     await moveNextDist(dir)
+
     netlifyConfig.build.publish = path.resolve(dir)
     const config = {
       ...defaultArgs,
@@ -725,6 +726,38 @@ describe('onBuild()', () => {
     const publicFile = path.join(netlifyConfig.build.publish, 'docs', 'shows1.json')
     expect(existsSync(publicFile)).toBe(true)
     expect(await readJson(publicFile)).toMatchObject(expect.any(Array))
+  })
+
+  it('does not split APIs when .nft.json files are unavailable', async () => {
+    await moveNextDist()
+
+    await unlink(path.join(process.cwd(), '.next', 'next-server.js.nft.json'))
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(netlifyConfig.functions['_api_*'].node_bundler).toEqual('nft')
+  })
+
+  // eslint-disable-next-line jest/expect-expect
+  it('works when `relativeAppDir` is undefined', async () => {
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+    delete initialConfig.relativeAppDir
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+  })
+
+  // eslint-disable-next-line jest/expect-expect
+  it('works when `outputFileTracingRoot` is undefined', async () => {
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+    delete initialConfig.config.experimental.outputFileTracingRoot
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
   })
 })
 
@@ -1029,6 +1062,23 @@ describe('onPostBuild', () => {
         },
       },
     ])
+  })
+
+  it(`removes metadata files`, async () => {
+    await moveNextDist()
+
+    // routes-manifest.json is one of metadata files that seems to be created with default demo site
+    // there are a lot of other files, but we will test just one
+    const manifestPath = path.resolve('.next/routes-manifest.json')
+
+    expect(await pathExists(manifestPath)).toBe(true)
+
+    await nextRuntime.onPostBuild({
+      ...defaultArgs,
+      utils: { ...utils, cache: { save: jest.fn() }, functions: { list: jest.fn().mockResolvedValue([]) } },
+    })
+
+    expect(await pathExists(manifestPath)).toBe(false)
   })
 })
 

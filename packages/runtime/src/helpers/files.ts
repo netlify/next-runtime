@@ -2,7 +2,18 @@ import { cpus } from 'os'
 
 import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
-import { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir, readFileSync } from 'fs-extra'
+import {
+  existsSync,
+  readJson,
+  move,
+  copy,
+  writeJson,
+  readFile,
+  writeFile,
+  ensureDir,
+  readFileSync,
+  remove,
+} from 'fs-extra'
 import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
@@ -10,7 +21,7 @@ import pLimit from 'p-limit'
 import { join, resolve, dirname } from 'pathe'
 import slash from 'slash'
 
-import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
+import { MINIMUM_REVALIDATE_SECONDS, DIVIDER, HIDDEN_PATHS } from '../constants'
 
 import { NextConfig } from './config'
 import { loadPrerenderManifest } from './edge'
@@ -138,8 +149,8 @@ export const moveStaticPages = async ({
       console.warn('Error moving file', source, error)
     }
   }
-  // Move all static files, except error documents and nft manifests
-  const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/(500|404|*.js.nft).{html,json}'], {
+  // Move all static files, except nft manifests
+  const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/*.js.nft.{html,json}'], {
     cwd: outputDir,
     dot: true,
   })
@@ -353,6 +364,11 @@ export const getSourceFileForPage = (page: string, roots: string[], pageExtensio
       if (existsSync(file)) {
         return file
       }
+
+      const fileAtFolderIndex = join(root, page, `index.${extension}`)
+      if (existsSync(fileAtFolderIndex)) {
+        return fileAtFolderIndex
+      }
     }
   }
   console.log('Could not find source file for page', page)
@@ -366,7 +382,7 @@ export const getDependenciesOfFile = async (file: string) => {
   if (!existsSync(nft)) {
     return []
   }
-  const dependencies = await readJson(nft, 'utf8')
+  const dependencies = (await readJson(nft, 'utf8')) as { files: string[] }
   return dependencies.files.map((dep) => resolve(dirname(file), dep))
 }
 
@@ -461,4 +477,16 @@ export const movePublicFiles = async ({
   if (existsSync(publicDir)) {
     await copy(publicDir, `${publish}${basePath}/`)
   }
+}
+
+export const removeMetadataFiles = async (publish: string) => {
+  // Limit concurrent deletions to number of cpus or 2 if there is only 1
+  const limit = pLimit(Math.max(2, cpus().length))
+
+  const removePromises = HIDDEN_PATHS.map((HIDDEN_PATH) => {
+    const pathToDelete = join(publish, HIDDEN_PATH)
+    return limit(() => remove(pathToDelete))
+  })
+
+  await Promise.all(removePromises)
 }

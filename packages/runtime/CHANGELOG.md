@@ -1,5 +1,53 @@
 # Changelog
 
+## [4.37.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.3...plugin-nextjs-v4.37.4) (2023-05-30)
+
+
+### Bug Fixes
+
+* pass only first language to next-server to match platform redirects support ([#2138](https://github.com/netlify/next-runtime/issues/2138)) ([aca3dc6](https://github.com/netlify/next-runtime/commit/aca3dc6d09aaf5586f3acfe41f7e12cb504c3325))
+
+## [4.37.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.2...plugin-nextjs-v4.37.3) (2023-05-30)
+
+
+### Bug Fixes
+
+* remove edge functions beta label ([#2133](https://github.com/netlify/next-runtime/issues/2133)) ([7a10491](https://github.com/netlify/next-runtime/commit/7a10491647fcaf71e5ed38a999306065ed56ac70))
+* tracing root use `appDir` as fallback ([#2136](https://github.com/netlify/next-runtime/issues/2136)) ([64280e5](https://github.com/netlify/next-runtime/commit/64280e5a424d09dd04241d89b2f9335c1d997586))
+
+## [4.37.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.1...plugin-nextjs-v4.37.2) (2023-05-22)
+
+
+### Bug Fixes
+
+* checks when Next.js' implementation of ResponseCookies._headers is undefined now ([#2119](https://github.com/netlify/next-runtime/issues/2119)) ([f051e22](https://github.com/netlify/next-runtime/commit/f051e227ca10ddc228b1d044eb835fe66fd1d733))
+* don't deploy metadata files to CDN ([#2104](https://github.com/netlify/next-runtime/issues/2104)) ([ba3a430](https://github.com/netlify/next-runtime/commit/ba3a430c74cf951ac27e07c6808679b887702950))
+* guard split api routes behaviour by next version ([#2125](https://github.com/netlify/next-runtime/issues/2125)) ([a8bb0e3](https://github.com/netlify/next-runtime/commit/a8bb0e3db3c7d550921bc3ed54d0ec575f1a2191))
+* resolve follow-redirects from runtime package, so it's available also in auto-installs ([#2124](https://github.com/netlify/next-runtime/issues/2124)) ([49ada27](https://github.com/netlify/next-runtime/commit/49ada272e732542a85f2618c065080444e1c299c))
+
+## [4.37.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.0...plugin-nextjs-v4.37.1) (2023-05-17)
+
+
+### Bug Fixes
+
+* clientContext isn't available in background functions ([#2121](https://github.com/netlify/next-runtime/issues/2121)) ([df0f6bc](https://github.com/netlify/next-runtime/commit/df0f6bcecee39f203327598120ad3ec778e45624))
+* support named & default export for middleware in ntl dev ([#2116](https://github.com/netlify/next-runtime/issues/2116)) ([b31f858](https://github.com/netlify/next-runtime/commit/b31f858e135d5727729c5c6336ce6519f60678d6))
+
+## [4.37.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.36.1...plugin-nextjs-v4.37.0) (2023-05-15)
+
+
+### Features
+
+* split up API Routes + use .nft.json files to make builds fast ([#2058](https://github.com/netlify/next-runtime/issues/2058)) ([d98efc1](https://github.com/netlify/next-runtime/commit/d98efc19852089a4a586170f27ed7c5cb1b5763a))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/functions to ^1.5.0 ([#2096](https://github.com/netlify/next-runtime/issues/2096)) ([2eba019](https://github.com/netlify/next-runtime/commit/2eba019675819c4d04da6824337609ed5672ab57))
+* **deps:** update dependency @netlify/functions to ^1.6.0 ([#2107](https://github.com/netlify/next-runtime/issues/2107)) ([5ee2fce](https://github.com/netlify/next-runtime/commit/5ee2fce03bf0fadd7f8e06f60963e4c0243c2aee))
+* follow-up to split-api revalidate behaviour ([#2113](https://github.com/netlify/next-runtime/issues/2113)) ([cce048a](https://github.com/netlify/next-runtime/commit/cce048ac0b301e47e8f3e8c28d8a5ebe1d3fa546))
+* support api routes at index of folder ([#2101](https://github.com/netlify/next-runtime/issues/2101)) ([cc9ed84](https://github.com/netlify/next-runtime/commit/cc9ed84652e21d52dabe1114dbe64aad288672bc))
+
 ## [4.36.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.36.0...plugin-nextjs-v4.36.1) (2023-05-08)
 
 

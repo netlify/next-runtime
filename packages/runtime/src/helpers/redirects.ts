@@ -7,11 +7,11 @@ import type { PrerenderManifest, SsgRoute } from 'next/dist/build'
 import { outdent } from 'outdent'
 import { join } from 'pathe'
 
-import { HANDLER_FUNCTION_PATH, HIDDEN_PATHS, ODB_FUNCTION_PATH } from '../constants'
+import { HANDLER_FUNCTION_PATH, ODB_FUNCTION_PATH } from '../constants'
 
 import { isAppDirRoute, loadAppPathRoutesManifest } from './edge'
 import { getMiddleware } from './files'
-import { ApiRouteConfig } from './functions'
+import { APILambda } from './functions'
 import { RoutesManifest } from './types'
 import {
   getApiRewrites,
@@ -26,14 +26,6 @@ import {
 
 const matchesMiddleware = (middleware: Array<string>, route: string): boolean =>
   middleware.some((middlewarePath) => route.startsWith(middlewarePath))
-
-const generateHiddenPathRedirects = ({ basePath }: Pick<NextConfig, 'basePath'>): NetlifyConfig['redirects'] =>
-  HIDDEN_PATHS.map((path) => ({
-    from: `${basePath}${path}`,
-    to: '/404.html',
-    status: 404,
-    force: true,
-  }))
 
 const generateLocaleRedirects = ({
   i18n,
@@ -267,12 +259,12 @@ export const generateRedirects = async ({
   netlifyConfig,
   nextConfig: { i18n, basePath, trailingSlash, appDir },
   buildId,
-  apiRoutes,
+  apiLambdas,
 }: {
   netlifyConfig: NetlifyConfig
   nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash' | 'appDir'>
   buildId: string
-  apiRoutes: Array<ApiRouteConfig>
+  apiLambdas: APILambda[]
 }) => {
   const { dynamicRoutes: prerenderedDynamicRoutes, routes: prerenderedStaticRoutes }: PrerenderManifest =
     await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
@@ -281,8 +273,6 @@ export const generateRedirects = async ({
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 
-  netlifyConfig.redirects.push(...generateHiddenPathRedirects({ basePath }))
-
   if (i18n && i18n.localeDetection !== false) {
     netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))
   }
@@ -290,7 +280,7 @@ export const generateRedirects = async ({
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
     // API routes always need to be served from the regular function
-    ...getApiRewrites(basePath, apiRoutes),
+    ...getApiRewrites(basePath, apiLambdas),
     // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
     ...(await getPreviewRewrites({ basePath, appDir })),
   )
