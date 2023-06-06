@@ -4,6 +4,7 @@ import { join } from 'pathe'
 
 import { NEXT_PLUGIN_NAME } from '../../packages/runtime/src/constants'
 import { writeFunctionConfiguration } from '../../packages/runtime/src/helpers/functionsMetaData'
+import { getFunctionNameForPage } from '../../packages/runtime/src/helpers/utils'
 
 describe('writeFunctionConfiguration', () => {
   afterEach(() => {
@@ -102,5 +103,9 @@ describe('writeFunctionConfiguration', () => {
     const actual = await readJSON(filePathToSaveTo)
 
     expect(actual).toEqual(expected)
+  })
+
+  it('test', () => {
+    expect(getFunctionNameForPage('/api/shows/[id]')).toEqual('index')
   })
 })
