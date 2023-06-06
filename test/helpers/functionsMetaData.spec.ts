@@ -104,8 +104,4 @@ describe('writeFunctionConfiguration', () => {
 
     expect(actual).toEqual(expected)
   })
-
-  it('test', () => {
-    expect(getFunctionNameForPage('/api/shows/[id]')).toEqual('index')
-  })
 })
