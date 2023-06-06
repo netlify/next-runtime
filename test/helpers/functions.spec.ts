@@ -70,7 +70,7 @@ describeCwdTmpDir('api route file analysis', () => {
 
   it('only shows scheduled/background functions as extended funcs', async () => {
     await moveNextDist()
-    const configs = await getExtendedApiRouteConfigs('.next', process.cwd())
+    const configs = await getExtendedApiRouteConfigs('.next', process.cwd(), [])
     // Using a Set means the order doesn't matter
     expect(new Set(configs.map(({ includedFiles, ...rest }) => rest))).toEqual(
       new Set([

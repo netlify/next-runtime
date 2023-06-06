@@ -16,6 +16,8 @@ import {
   HANDLER_FUNCTION_TITLE,
   ODB_FUNCTION_TITLE,
   IMAGE_FUNCTION_TITLE,
+  API_FUNCTION_TITLE,
+  API_FUNCTION_NAME,
 } from '../constants'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
@@ -31,6 +33,7 @@ import { getFunctionNameForPage } from './utils'
 
 export interface ApiRouteConfig {
   functionName: string
+  functionTitle?: string
   route: string
   config: ApiConfig
   compiled: string
@@ -39,6 +42,7 @@ export interface ApiRouteConfig {
 
 export interface APILambda {
   functionName: string
+  functionTitle: string
   routes: ApiRouteConfig[]
   includedFiles: string[]
   type?: ApiRouteType
@@ -60,7 +64,7 @@ export const generateFunctions = async (
     : undefined
 
   for (const apiLambda of apiLambdas) {
-    const { functionName, routes, type, includedFiles } = apiLambda
+    const { functionName, functionTitle, routes, type, includedFiles } = apiLambda
 
     const apiHandlerSource = getApiHandler({
       // most api lambdas serve multiple routes, but scheduled functions need to be in separate lambdas.
@@ -102,6 +106,8 @@ export const generateFunctions = async (
     })
     await writeFile(join(functionsDir, functionName, 'pages.js'), resolverSource)
 
+    await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
+
     const nfInternalFiles = await glob(join(functionsDir, functionName, '**'))
     includedFiles.push(...nfInternalFiles)
   }
@@ -128,7 +134,7 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
-    writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
+    await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
   }
 
   await writeHandler(HANDLER_FUNCTION_NAME, HANDLER_FUNCTION_TITLE, false)
@@ -334,12 +340,41 @@ export const getAPILambdas = async (
 
     const bins = pack(weighedRoutes, threshold)
 
-    return bins.map((bin, index) => ({
-      functionName: bin.length === 1 ? bin[0].functionName : `api-${index}`,
-      routes: bin,
-      includedFiles: [...commonDependencies, ...routes.flatMap((route) => route.includedFiles)],
-      type,
-    }))
+    return bins.map((bin) => {
+      if (bin.length === 1) {
+        const [func] = bin
+        const { functionName, functionTitle, config, includedFiles } = func
+        return {
+          functionName,
+          functionTitle,
+          routes: [func],
+          includedFiles: [...commonDependencies, ...includedFiles],
+          type: config.type,
+        }
+      }
+
+      const includedFiles = [...commonDependencies, ...bin.flatMap((route) => route.includedFiles)]
+      const nonSingletonBins = bins.filter((b) => b.length > 1)
+      if (nonSingletonBins.length === 1) {
+        return {
+          functionName: API_FUNCTION_NAME,
+          functionTitle: API_FUNCTION_TITLE,
+          includedFiles,
+          routes: bin,
+          type,
+        }
+      }
+
+      const indexInNonSingletonBins = nonSingletonBins.indexOf(bin)
+
+      return {
+        functionName: `${API_FUNCTION_NAME}-${indexInNonSingletonBins + 1}`,
+        functionTitle: `${API_FUNCTION_TITLE} ${indexInNonSingletonBins + 1}/${nonSingletonBins.length}`,
+        includedFiles,
+        routes: bin,
+        type,
+      }
+    })
   }
 
   const standardFunctions = apiRoutes.filter(
@@ -381,6 +416,7 @@ export const getApiRouteConfigs = async (
       const config = await extractConfigFromFile(filePath, appDir)
 
       const functionName = getFunctionNameForPage(apiRoute, config.type === ApiRouteType.BACKGROUND)
+      const functionTitle = `${API_FUNCTION_TITLE} ${apiRoute}`
 
       const compiled = pages[apiRoute]
       const compiledPath = join(publish, 'server', compiled)
@@ -390,6 +426,7 @@ export const getApiRouteConfigs = async (
 
       return {
         functionName,
+        functionTitle,
         route: apiRoute,
         config,
         compiled,
@@ -415,6 +452,7 @@ export const getExtendedApiRouteConfigs = async (
 
 export const packSingleFunction = (func: ApiRouteConfig): APILambda => ({
   functionName: func.functionName,
+  functionTitle: func.functionTitle,
   includedFiles: func.includedFiles,
   routes: [func],
   type: func.config.type,
