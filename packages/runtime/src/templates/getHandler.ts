@@ -5,7 +5,7 @@ import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
 
-import type { NextServerType, NextRequireType } from './handlerUtils'
+import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -24,6 +24,7 @@ const {
   getPrefetchResponse,
   normalizePath,
 } = require('./handlerUtils')
+const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
@@ -36,22 +37,13 @@ type MakeHandlerParams = {
   app: string
   pageRoot: string
   NextServer: NextServerType
-  NextRequire: NextRequireType
   staticManifest: Array<[string, string]>
   mode: 'ssr' | 'odb'
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 // eslint-disable-next-line max-lines-per-function
-const makeHandler = ({
-  conf,
-  app,
-  pageRoot,
-  NextServer,
-  NextRequire,
-  staticManifest = [],
-  mode = 'ssr',
-}: MakeHandlerParams) => {
+const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mode = 'ssr' }: MakeHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -65,7 +57,9 @@ const makeHandler = ({
     require.resolve('./pages.js')
   } catch {}
 
-  const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer, NextRequire)
+  overrideRequireHooks(conf)
+  const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
+  applyRequireHooks()
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
@@ -219,13 +213,9 @@ export const getHandler = ({
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
+  const { overrideRequireHooks, applyRequireHooks } = require("./requireHooks")
   const { getNetlifyNextServer } = require("./server")
   const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
-  let NextRequire = {}
-  try {
-    NextRequire = require("next/dist/server/require")
-  } catch {}
-
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")
   let staticManifest
@@ -236,7 +226,7 @@ export const getHandler = ({
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, NextRequire, staticManifest, mode: 'odb' }));`
-      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, NextRequire, staticManifest, mode: 'ssr' });`
+      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb' }));`
+      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr' });`
   }
 `

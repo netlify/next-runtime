@@ -83,6 +83,10 @@ export const generateFunctions = async (
       join(functionsDir, functionName, 'server.js'),
     )
     await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'requireHooks.js'),
+      join(functionsDir, functionName, 'requireHooks.js'),
+    )
+    await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
@@ -123,6 +127,10 @@ export const generateFunctions = async (
     await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'server.js'),
       join(functionsDir, functionName, 'server.js'),
+    )
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'requireHooks.js'),
+      join(functionsDir, functionName, 'requireHooks.js'),
     )
     await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),

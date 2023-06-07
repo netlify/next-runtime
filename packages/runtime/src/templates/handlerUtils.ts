@@ -8,10 +8,8 @@ import { promisify } from 'util'
 import { HandlerEvent, HandlerResponse } from '@netlify/functions'
 import { http, https } from 'follow-redirects'
 import type NextNodeServer from 'next/dist/server/next-server'
-import type NextRequire from 'next/dist/server/require'
 
 export type NextServerType = typeof NextNodeServer
-export type NextRequireType = typeof NextRequire
 
 const streamPipeline = promisify(pipeline)
 
@@ -241,6 +239,10 @@ export const netlifyApiFetch = <T>({
 
 // Remove trailing slash from a route (except for the root route)
 export const normalizeRoute = (route: string): string => (route.endsWith('/') ? route.slice(0, -1) || '/' : route)
+
+// Join multiple paths together, ensuring that there is only one slash between them
+export const joinPaths = (...paths: string[]): string =>
+  paths.reduce((a, b) => (a.endsWith('/') ? `${a}${b}` : `${a}/${b}`))
 
 // Check if a route has a locale prefix (including the root route)
 const isLocalized = (route: string, i18n: { defaultLocale: string; locales: string[] }): boolean =>

@@ -5,18 +5,18 @@ import { NodeRequestHandler, Options } from 'next/dist/server/next-server'
 import {
   netlifyApiFetch,
   NextServerType,
-  NextRequireType,
   normalizeRoute,
   localizeRoute,
   localizeDataRoute,
   unlocalizeRoute,
+  joinPaths,
 } from './handlerUtils'
 
 interface NetlifyConfig {
   revalidateToken?: string
 }
 
-const getNetlifyNextServer = (NextServer: NextServerType, NextRequire: NextRequireType) => {
+const getNetlifyNextServer = (NextServer: NextServerType) => {
   class NetlifyNextServer extends NextServer {
     private netlifyConfig: NetlifyConfig
     private netlifyPrerenderManifest: PrerenderManifest
@@ -57,21 +57,26 @@ const getNetlifyNextServer = (NextServer: NextServerType, NextRequire: NextRequi
     }
 
     // doing what they do in https://github.com/vercel/vercel/blob/1663db7ca34d3dd99b57994f801fb30b72fbd2f3/packages/next/src/server-build.ts#L576-L580
-    private netlifyPrebundleReact(route: string) {
-      const getMaybePagePath = NextRequire?.getMaybePagePath
+    private netlifyPrebundleReact(path: string) {
+      const routesManifest = this.getRoutesManifest()
+      const appPathsManifest = this.getAppPathsManifest()
 
-      // pages routes should use use node_modules React
-      if (!getMaybePagePath || getMaybePagePath(route, this.distDir, this.nextConfig.i18n?.locales, false)) {
+      const routes = [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
+      const matchedRoute = routes.find((route) => new RegExp(route.regex).test(path))
+      const isAppRoute = matchedRoute ? appPathsManifest[joinPaths(matchedRoute.page, 'page')] : false
+
+      if (isAppRoute) {
+        // app routes should use prebundled React
         // eslint-disable-next-line no-underscore-dangle
-        process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = ''
+        process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = this.nextConfig.experimental?.serverActions
+          ? 'experimental'
+          : 'next'
         return
       }
 
-      // app routes should use prebundled React
+      // pages routes should use use node_modules React
       // eslint-disable-next-line no-underscore-dangle
-      process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = this.nextConfig.experimental?.serverActions
-        ? 'experimental'
-        : 'next'
+      process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = ''
     }
 
     private async netlifyRevalidate(route: string) {
