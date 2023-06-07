@@ -401,7 +401,7 @@ export const getAPILambdas = async (
 export const getApiRouteConfigs = async (
   publish: string,
   appDir: string,
-  pageExtensions: string[],
+  pageExtensions?: string[],
 ): Promise<Array<ApiRouteConfig>> => {
   const pages = await readJSON(join(publish, 'server', 'pages-manifest.json'))
   const apiRoutes = Object.keys(pages).filter((page) => page.startsWith('/api/'))
@@ -442,7 +442,7 @@ export const getApiRouteConfigs = async (
 export const getExtendedApiRouteConfigs = async (
   publish: string,
   appDir: string,
-  pageExtensions: string[],
+  pageExtensions?: string[],
 ): Promise<Array<ApiRouteConfig>> => {
   const settledApiRoutes = await getApiRouteConfigs(publish, appDir, pageExtensions)
 
