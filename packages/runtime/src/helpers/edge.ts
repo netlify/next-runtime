@@ -96,7 +96,7 @@ const sanitizeName = (name: string) => `next_${name.replace(/\W/g, '_')}`
 /**
  * Convert the images path to strip the origin (until domain-level Edge functions are supported)
  */
-const sanitizeEdgePath = (imagesPath: string) => new URL(imagesPath, process.env.URL || 'http://n').pathname
+export const sanitizeEdgePath = (imagesPath: string) => new URL(imagesPath, process.env.URL || 'http://n').pathname
 
 // Slightly different spacing in different versions!
 const IMPORT_UNSUPPORTED = [
