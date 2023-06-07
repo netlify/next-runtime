@@ -4,7 +4,6 @@ import { join } from 'pathe'
 
 import { NEXT_PLUGIN_NAME } from '../../packages/runtime/src/constants'
 import { writeFunctionConfiguration } from '../../packages/runtime/src/helpers/functionsMetaData'
-import { getFunctionNameForPage } from '../../packages/runtime/src/helpers/utils'
 
 describe('writeFunctionConfiguration', () => {
   afterEach(() => {
