@@ -90,5 +90,6 @@ module.exports = {
   experimental: {
     optimizeCss: false,
     appDir: true,
+    incrementalCacheHandlerPath: './netlify-incremental-cache-handler.js',
   },
 }
