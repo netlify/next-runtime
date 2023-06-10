@@ -17,7 +17,13 @@ import {
 } from './helpers/config'
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
-import { moveStaticPages, movePublicFiles, patchNextFiles, removeMetadataFiles } from './helpers/files'
+import {
+  moveStaticPages,
+  movePublicFiles,
+  patchNextFiles,
+  removeMetadataFiles,
+  copyIncrementalCacheFile,
+} from './helpers/files'
 import { splitApiRoutes } from './helpers/flags'
 import {
   generateFunctions,
@@ -84,6 +90,7 @@ const plugin: NetlifyPlugin = {
     const { publish } = netlifyConfig.build
 
     checkNextSiteHasBuilt({ publish, failBuild })
+    await copyIncrementalCacheFile(publish, join(__dirname, '../src/helpers/netlify-incremental-cache-handler.js'))
 
     const {
       appDir,
@@ -101,6 +108,7 @@ const plugin: NetlifyPlugin = {
       publish,
       failBuild,
     })
+
     await cleanupEdgeFunctions(constants)
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)

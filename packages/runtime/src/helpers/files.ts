@@ -387,22 +387,6 @@ export const getDependenciesOfFile = async (file: string) => {
 }
 
 const baseServerReplacements: Array<[string, string]> = [
-  // force manual revalidate during cache fetches
-  // for more info https://github.com/netlify/next-runtime/pull/1541
-  [
-    `checkIsManualRevalidate(req, this.renderOpts.previewProps)`,
-    `checkIsManualRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
-  ],
-  // In https://github.com/vercel/next.js/pull/47803 checkIsManualRevalidate was renamed to checkIsOnDemandRevalidate
-  [
-    `checkIsOnDemandRevalidate(req, this.renderOpts.previewProps)`,
-    `checkIsOnDemandRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
-  ],
-  // format of checkIsOnDemandRevalidate changed in 13.3.4
-  [
-    'checkIsOnDemandRevalidate)(req, this.renderOpts.previewProps)',
-    'checkIsOnDemandRevalidate)(process.env._REVALIDATE_SSG ? { headers: { "x-prerender-revalidate": this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)',
-  ],
   // ensure ISR 404 pages send the correct SWR cache headers
   [`private: isPreviewMode || is404Page && cachedData`, `private: isPreviewMode && cachedData`],
 ]
@@ -495,4 +479,10 @@ export const removeMetadataFiles = async (publish: string) => {
   })
 
   await Promise.all(removePromises)
+}
+
+export const copyIncrementalCacheFile = async (publishPath: string, incrementalCacheFilePath: string) => {
+  const content = readFileSync(incrementalCacheFilePath, 'utf8').trim()
+
+  await writeFile(join(publishPath, 'netlify-incremental-cache-handler.js'), content)
 }

@@ -46,6 +46,15 @@ export const getNextConfig = async function getNextConfig({
       return failBuild('Error loading your Next config')
     }
 
+    if ('incrementalCacheHandlerPath' in config.experimental) {
+      console.warn(
+        "Your Next.js configuration has the experimental incrementalCacheHandlerPath option set. It will be overridden by Netlify's internal cache.",
+      )
+    }
+
+    // For more info, see https://nextjs.org/docs/app/api-reference/next-config-js/incrementalCacheHandlerPath
+    config.experimental.incrementalCacheHandlerPath = './netlify-incremental-cache-handler.js'
+
     const routesManifest: RoutesManifest = await readJSON(join(publish, ROUTES_MANIFEST_FILE))
 
     // If you need access to other manifest files, you can add them here as well
