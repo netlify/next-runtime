@@ -387,6 +387,7 @@ export const getDependenciesOfFile = async (file: string) => {
 }
 
 const baseServerReplacements: Array<[string, string]> = [
+  // TODO: Ensure we probably need to keep the file patches for ISR pre-incremental cache
   // ensure ISR 404 pages send the correct SWR cache headers
   [`private: isPreviewMode || is404Page && cachedData`, `private: isPreviewMode && cachedData`],
 ]
@@ -484,5 +485,5 @@ export const removeMetadataFiles = async (publish: string) => {
 export const copyIncrementalCacheFile = async (publishPath: string, incrementalCacheFilePath: string) => {
   const content = readFileSync(incrementalCacheFilePath, 'utf8').trim()
 
-  await writeFile(join(publishPath, 'netlify-incremental-cache-handler.js'), content)
+  await writeFile(join(publishPath, 'netlify-incremental-cache-handlers.js'), content)
 }
