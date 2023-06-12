@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-commented-out-tests */
 // import { NodeNextRequest, NodeNextResponse } from 'next/dist/server/base-http/node'
 // import { createRequestResponseMocks } from 'next/dist/server/lib/mock-request'
 // import { Options } from 'next/dist/server/next-server'
@@ -219,3 +220,4 @@
 //     )
 //   })
 // })
+/* eslint-enable jest/no-commented-out-tests */
