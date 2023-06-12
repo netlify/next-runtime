@@ -738,6 +738,23 @@ describe('onBuild()', () => {
     expect(netlifyConfig.functions['_api_*'].node_bundler).toEqual('nft')
   })
 
+  it('provides displayname for split api routes', async () => {
+    await moveNextDist()
+    await nextRuntime.onBuild(defaultArgs)
+
+    const functionsManifest = await readJson(
+      path.join('.netlify', 'functions-internal', '___netlify-api-handler', '___netlify-api-handler.json'),
+    )
+
+    expect(functionsManifest).toEqual({
+      config: {
+        generator: '@netlify/next-runtime@unknown',
+        name: 'Next.js API handler',
+      },
+      version: 1,
+    })
+  })
+
   // eslint-disable-next-line jest/expect-expect
   it('works when `relativeAppDir` is undefined', async () => {
     await moveNextDist()
