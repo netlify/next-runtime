@@ -185,7 +185,7 @@ const Index = ({ shows, nodeEnv }) => {
 
 export async function getStaticProps(context) {
   const dev = process.env.CONTEXT !== 'production'
-
+  console.log('process.env.CONTEXT', process.env.CONTEXT)
   // Set a random page between 1 and 100
   const randomPage = Math.floor(Math.random() * 100) + 1
   // FIXME: stub out in dev
@@ -193,8 +193,13 @@ export async function getStaticProps(context) {
     ? `https://tvproxy.netlify.app/shows/page/${randomPage}`
     : `https://tvproxy.netlify.app/shows/page/${randomPage}`
 
+  console.log(`fetching ${server}`)
+
   // Get the data
   const res = await fetch(server)
+
+  console.log(`fetched ${server}`)
+
   const data = await res.json()
 
   return {
