@@ -63,7 +63,8 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
 
       const routes = [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
       const matchedRoute = routes.find((route) => new RegExp(route.regex).test(path))
-      const isAppRoute = matchedRoute ? appPathsManifest[joinPaths(matchedRoute.page, 'page')] : false
+      const isAppRoute =
+        appPathsManifest && matchedRoute ? appPathsManifest[joinPaths(matchedRoute.page, 'page')] : false
 
       if (isAppRoute) {
         // app routes should use prebundled React
