@@ -18,6 +18,7 @@ import {
   IMAGE_FUNCTION_TITLE,
   API_FUNCTION_TITLE,
   API_FUNCTION_NAME,
+  LAMBDA_WARNING_SIZE,
 } from '../constants'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
@@ -320,8 +321,6 @@ const getBundleWeight = async (patterns: string[]) => {
   return sum(sizes.flat(1))
 }
 
-const MB = 1024 * 1024
-
 export const getAPILambdas = async (
   publish: string,
   baseDir: string,
@@ -329,7 +328,7 @@ export const getAPILambdas = async (
 ): Promise<APILambda[]> => {
   const commonDependencies = await getAPIPRouteCommonDependencies(publish)
 
-  const threshold = 50 * MB - (await getBundleWeight(commonDependencies))
+  const threshold = LAMBDA_WARNING_SIZE - (await getBundleWeight(commonDependencies))
 
   const apiRoutes = await getApiRouteConfigs(publish, baseDir, pageExtensions)
 
