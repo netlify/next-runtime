@@ -96,6 +96,12 @@ export const hasManuallyAddedModule = ({
   )
 /* eslint-enable camelcase */
 
+/**
+ * Transforms `/api/shows/[id].js` into `/api/shows/*id*.js`,
+ * so that the file `[id].js` is matched correctly.
+ */
+const escapeGlob = (path: string) => path.replace(/\[/g, '*').replace(/]/g, '*')
+
 export const configureHandlerFunctions = async ({
   netlifyConfig,
   publish,
@@ -173,7 +179,7 @@ export const configureHandlerFunctions = async ({
       netlifyConfig.functions[functionName] ||= { included_files: [] }
       netlifyConfig.functions[functionName].node_bundler = 'none'
       netlifyConfig.functions[functionName].included_files ||= []
-      netlifyConfig.functions[functionName].included_files.push(...includedFiles)
+      netlifyConfig.functions[functionName].included_files.push(...includedFiles.map(escapeGlob))
     }
   } else {
     configureFunction('_api_*')
