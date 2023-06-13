@@ -6,6 +6,14 @@ describe('API routes', () => {
   })
 })
 
+describe('Dynamic API routes', () => {
+  it('are bundled correctly', () => {
+    cy.request('/api/shows/1').then((response) => {
+      expect(response.status).to.equal(200)
+    })
+  })
+})
+
 describe('Extended API routes', () => {
   it('returns HTTP 202 Accepted for background route', () => {
     cy.request('/api/hello-background').then((response) => {

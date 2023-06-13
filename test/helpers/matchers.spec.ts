@@ -1,4 +1,4 @@
-import { getEdgeFunctionPatternForPage } from '../../packages/runtime/src/helpers/edge'
+import { getEdgeFunctionPatternForPage, sanitizeEdgePath } from '../../packages/runtime/src/helpers/edge'
 import { makeLocaleOptional, stripLookahead } from '../../packages/runtime/src/helpers/matchers'
 
 const makeDataPath = (path: string) => `/_next/data/build-id${path === '/' ? '/index' : path}.json`
@@ -181,5 +181,26 @@ describe('the edge function matcher helpers', () => {
     expect(regex).toBe('^/edge/(?<id>[^/]+?)/?$')
     expect('/edge/1').toMatch(new RegExp(regex))
     expect('/edge/1/').toMatch(new RegExp(regex))
+  })
+})
+
+describe('the images path is sanitized', () => {
+  it('passes through a path', () => {
+    expect(sanitizeEdgePath('/_next/image')).toBe('/_next/image')
+  })
+
+  it('strips domains', () => {
+    expect(sanitizeEdgePath('http://example.com/_next/image')).toBe('/_next/image')
+    expect(sanitizeEdgePath('https://example.com/_next/image')).toBe('/_next/image')
+  })
+
+  it('strips domains with globs', () => {
+    expect(sanitizeEdgePath('http://example.com/_next/image/*')).toBe('/_next/image/*')
+    expect(sanitizeEdgePath('https://example.com/_next/image/*')).toBe('/_next/image/*')
+  })
+
+  it('strips domains with tokens', () => {
+    expect(sanitizeEdgePath('http://example.com/_next/image/:slug/')).toBe('/_next/image/:slug/')
+    expect(sanitizeEdgePath('https://example.com/_next/image/:slug/')).toBe('/_next/image/:slug/')
   })
 })

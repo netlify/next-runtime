@@ -2,11 +2,13 @@ import destr from 'destr'
 
 export const HANDLER_FUNCTION_NAME = '___netlify-handler'
 export const ODB_FUNCTION_NAME = '___netlify-odb-handler'
+export const API_FUNCTION_NAME = '___netlify-api-handler'
 export const IMAGE_FUNCTION_NAME = '_ipx'
 export const NEXT_PLUGIN_NAME = '@netlify/next-runtime'
 export const NEXT_PLUGIN = '@netlify/plugin-nextjs'
 export const HANDLER_FUNCTION_TITLE = 'Next.js SSR handler'
 export const ODB_FUNCTION_TITLE = 'Next.js ISR handler'
+export const API_FUNCTION_TITLE = 'Next.js API handler'
 export const IMAGE_FUNCTION_TITLE = 'next/image handler'
 // These are paths in .next that shouldn't be publicly accessible
 export const HIDDEN_PATHS = destr(process.env.NEXT_KEEP_METADATA_FILES)

@@ -2089,17 +2089,17 @@ Array [
   Object {
     "from": "/api/enterPreview",
     "status": 200,
-    "to": "/.netlify/functions/api-0",
+    "to": "/.netlify/functions/___netlify-api-handler",
   },
   Object {
     "from": "/api/exitPreview",
     "status": 200,
-    "to": "/.netlify/functions/api-0",
+    "to": "/.netlify/functions/___netlify-api-handler",
   },
   Object {
     "from": "/api/hello",
     "status": 200,
-    "to": "/.netlify/functions/api-0",
+    "to": "/.netlify/functions/___netlify-api-handler",
   },
   Object {
     "from": "/api/hello-background",
@@ -2114,17 +2114,17 @@ Array [
   Object {
     "from": "/api/revalidate",
     "status": 200,
-    "to": "/.netlify/functions/api-0",
+    "to": "/.netlify/functions/___netlify-api-handler",
   },
   Object {
     "from": "/api/shows/:id",
     "status": 200,
-    "to": "/.netlify/functions/api-0",
+    "to": "/.netlify/functions/___netlify-api-handler",
   },
   Object {
     "from": "/api/shows/:params/*",
     "status": 200,
-    "to": "/.netlify/functions/api-0",
+    "to": "/.netlify/functions/___netlify-api-handler",
   },
   Object {
     "force": false,
