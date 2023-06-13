@@ -24,6 +24,7 @@ const {
   getPrefetchResponse,
   normalizePath,
 } = require('./handlerUtils')
+const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
@@ -56,7 +57,10 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     require.resolve('./pages.js')
   } catch {}
 
+  // Next 13.4 conditionally uses different React versions and we need to make sure we use the same one
+  overrideRequireHooks(conf)
   const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
+  applyRequireHooks()
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
@@ -210,9 +214,9 @@ export const getHandler = ({
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
-  const { getNetlifyNextServer } = require('./server')
+  const { overrideRequireHooks, applyRequireHooks } = require("./requireHooks")
+  const { getNetlifyNextServer } = require("./server")
   const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
-
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")
   let staticManifest

@@ -388,6 +388,7 @@ export const getDependenciesOfFile = async (file: string) => {
 
 const baseServerReplacements: Array<[string, string]> = [
   // force manual revalidate during cache fetches
+  // for more info https://github.com/netlify/next-runtime/pull/1541
   [
     `checkIsManualRevalidate(req, this.renderOpts.previewProps)`,
     `checkIsManualRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
@@ -397,6 +398,11 @@ const baseServerReplacements: Array<[string, string]> = [
     `checkIsOnDemandRevalidate(req, this.renderOpts.previewProps)`,
     `checkIsOnDemandRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
   ],
+  // format of checkIsOnDemandRevalidate changed in 13.3.4
+  [
+    'checkIsOnDemandRevalidate)(req, this.renderOpts.previewProps)',
+    'checkIsOnDemandRevalidate)(process.env._REVALIDATE_SSG ? { headers: { "x-prerender-revalidate": this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)',
+  ],
   // ensure ISR 404 pages send the correct SWR cache headers
   [`private: isPreviewMode || is404Page && cachedData`, `private: isPreviewMode && cachedData`],
 ]
@@ -404,19 +410,19 @@ const baseServerReplacements: Array<[string, string]> = [
 const nextServerReplacements: Array<[string, string]> = [
   [
     `getMiddlewareManifest() {\n        if (this.minimalMode) return null;`,
-    `getMiddlewareManifest() {\n        if (this.minimalMode || (process.env.NETLIFY && process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return null;`,
+    `getMiddlewareManifest() {\n        if (this.minimalMode || (!process.env.NETLIFY_DEV && process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return null;`,
   ],
   [
     `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode) return []`,
-    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || (process.env.NETLIFY && process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return [];`,
+    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || (!process.env.NETLIFY_DEV && process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return [];`,
   ],
   [
     `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode) return undefined;`,
-    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || (process.env.NETLIFY && process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return undefined;`,
+    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || (!process.env.NETLIFY_DEV && process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return undefined;`,
   ],
   [
     `getMiddlewareManifest() {\n        if (this.minimalMode) {`,
-    `getMiddlewareManifest() {\n        if (!this.minimalMode && (process.env.NETLIFY && process.env.NEXT_DISABLE_NETLIFY_EDGE === 'true' || process.env.NEXT_DISABLE_NETLIFY_EDGE === '1')) {`,
+    `getMiddlewareManifest() {\n        if (!this.minimalMode && (!process.env.NETLIFY_DEV && process.env.NEXT_DISABLE_NETLIFY_EDGE === 'true' || process.env.NEXT_DISABLE_NETLIFY_EDGE === '1')) {`,
   ],
 ]
 

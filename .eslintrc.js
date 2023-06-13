@@ -54,7 +54,7 @@ module.exports = {
       },
     },
     {
-      files: ['cypress/**/*.spec.ts'],
+      files: ['cypress/**/*.cy.ts'],
       rules: {
         'max-nested-callbacks': 0,
         'promise/prefer-await-to-then': 0,
