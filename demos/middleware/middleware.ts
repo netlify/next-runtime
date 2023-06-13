@@ -37,9 +37,8 @@ export async function middleware(req: NextRequest) {
   }
 
   if (pathname.startsWith('/request-rewrite')) {
-    // Unlike NextResponse.next(), this actually sends the request to the origin
+    // request.rewrite() should return the MiddlewareResponse obj instead of the Response obj
     const res = await request.rewrite('/static-rewrite')
-    console.log({"REWRITE": res})
     const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
 
     // Transform the response HTML and props

@@ -20,19 +20,6 @@ export interface NextOptions {
   sendConditionalRequest?: boolean
 }
 
-interface ModifiedRequest {
-  /**
-   * If this is set, the request headers will be overridden with this value.
-   */
-  headers?: Headers
-}
-
-interface MiddlewareResponseInit extends ResponseInit {
-  /**
-   * These fields will override the request from clients.
-   */
-  request?: ModifiedRequest
-}
 
 /**
  * Supercharge your Next middleware with Netlify Edge Functions
@@ -78,18 +65,8 @@ export class MiddlewareRequest extends Request {
     if (response.status === 301 && locationHeader?.startsWith('/')) {
       response = await this.context.rewrite(locationHeader)
     }
-    console.log("TESTING", response)
     return new MiddlewareResponse(response)
   }
-
-  // rewrite(destination: string | URL | NextURL, init?: MiddlewareResponseInit): NextResponse {
-  //   if (typeof destination === 'string' && destination.startsWith('/')) {
-  //     destination = new URL(destination, this.url)
-  //   }
-  //   this.applyHeaders()
-  //   console.log({init, destination})
-  //   return NextResponse.rewrite(destination, init)
-  // }
 
   async rewrite(destination: string | URL | NextURL, init?: ResponseInit){
     if (typeof destination === 'string' && destination.startsWith('/')) {
@@ -97,7 +74,6 @@ export class MiddlewareRequest extends Request {
     }
     const response = await this.context.rewrite(destination)
     this.applyHeaders()
-    console.log({init, destination})
     return new MiddlewareResponse(response)
   }
 
