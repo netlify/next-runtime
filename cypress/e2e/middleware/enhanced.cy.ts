@@ -1,5 +1,27 @@
 describe('Enhanced middleware', () => {
-  it('rewrites the response body', () => {
+  it('rewrites the response body using request.rewrite()', () => {
+    cy.visit('/request-rewrite')
+    cy.get('#message').contains('This was static (& escaping test &amp;) but has been transformed in')
+    cy.contains("This is an ad that isn't shown by default")
+  })
+
+  it('modifies the page props when using request.rewrite()', () => {
+    cy.request('/_next/data/build-id/en/request-rewrite.json').then((response) => {
+      expect(response.body).to.have.nested.property('pageProps.showAd', true)
+      expect(response.body)
+        .to.have.nested.property('pageProps.message')
+        .that.includes('This was static (& escaping test &amp;) but has been transformed in')
+    })
+  })
+
+  it('passes in headers within request.rewrite()', () => {
+    cy.request('/request-rewrite').then((response) => {
+      expect(response.headers).to.have.property('x-rewrite-test', 'hello')
+    })
+  })
+
+
+  it('rewrites the response body using request.next()', () => {
     cy.visit('/static')
     cy.get('#message').contains('This was static (& escaping test &amp;) but has been transformed in')
     cy.contains("This is an ad that isn't shown by default")

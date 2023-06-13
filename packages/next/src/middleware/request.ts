@@ -1,6 +1,5 @@
 import type { Context } from '@netlify/edge-functions'
 import type { NextURL } from 'next/dist/server/web/next-url'
-import { NextResponse } from 'next/server'
 import type { NextRequest as InternalNextRequest } from 'next/server'
 
 import { MiddlewareResponse } from './response'
@@ -19,7 +18,6 @@ export interface NextOptions {
    */
   sendConditionalRequest?: boolean
 }
-
 
 /**
  * Supercharge your Next middleware with Netlify Edge Functions
@@ -68,13 +66,13 @@ export class MiddlewareRequest extends Request {
     return new MiddlewareResponse(response)
   }
 
-  async rewrite(destination: string | URL | NextURL, init?: ResponseInit){
+  async rewrite(destination: string | URL | NextURL, init?: ResponseInit) {
     if (typeof destination === 'string' && destination.startsWith('/')) {
       destination = new URL(destination, this.url)
     }
     const response = await this.context.rewrite(destination)
     this.applyHeaders()
-    return new MiddlewareResponse(response)
+    return new MiddlewareResponse(response, init)
   }
 
   get headers() {
