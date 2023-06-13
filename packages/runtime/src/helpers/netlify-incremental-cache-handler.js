@@ -1,3 +1,4 @@
+console.log('loading Netlify IncrementalCache for Next.js')
 module.exports = class IncrementalCache {
   // eslint-disable-next-line class-methods-use-this
   async revalidateTag() {

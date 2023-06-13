@@ -1,13 +1,18 @@
 import { notFound } from 'next/navigation'
 
-export const revalidate = null
+// export const revalidate = null
 
 export const dynamicParams = true
+
+export const revalidate = 60
 
 export default function Page({ params }) {
   if (params.author === 'matt') {
     return notFound()
   }
+
+  console.log(`Regerated the page at ${Date.now()}`)
+
   return (
     <>
       <p id="page">/blog/[author]/[slug]</p>

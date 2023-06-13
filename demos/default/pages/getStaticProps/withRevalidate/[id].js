@@ -8,7 +8,7 @@ const Show = ({ show, time }) => (
     <hr />
 
     <h1>Show #{show.id}</h1>
-    <p>{show.name}</p>
+    <p>{show}</p>
     <p>Rendered at {time} (slowly)</p>
     <hr />
 
@@ -29,8 +29,11 @@ export async function getStaticProps({ params }) {
   // The ID to render
   const { id } = params
 
-  const res = await fetch(`https://tvproxy.netlify.app/shows/${Number(id)}`)
-  const data = await res.json()
+  // console.log(`Fetch https://tvproxy.netlify.app/shows/${Number(id)}`)
+  // const res = await fetch(`https://tvproxy.netlify.app/shows/${Number(id)}`)
+  // const data = await res.json()
+  // console.log(`Done https://tvproxy.netlify.app/shows/${Number(id)}`)
+  const data = `New data is ${id}`
   const time = new Date().toLocaleTimeString()
 
   return {
