@@ -2,6 +2,11 @@
 
 exports[`function helpers config dependency tracing extracts a list of all dependencies 1`] = `
 Array [
+  "../../node_modules/@swc/helpers/_/_interop_require_default/package.json",
+  "../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json",
+  "../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs",
+  "../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs",
+  "../../node_modules/@swc/helpers/package.json",
   "../../node_modules/next/dist/client/add-base-path.js",
   "../../node_modules/next/dist/client/add-locale.js",
   "../../node_modules/next/dist/client/detect-domain-locale.js",
@@ -16,6 +21,8 @@ Array [
   "../../node_modules/next/dist/client/script.js",
   "../../node_modules/next/dist/client/trusted-types.js",
   "../../node_modules/next/dist/client/with-router.js",
+  "../../node_modules/next/dist/compiled/gzip-size/index.js",
+  "../../node_modules/next/dist/compiled/gzip-size/package.json",
   "../../node_modules/next/dist/compiled/path-to-regexp/index.js",
   "../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js",
   "../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js",
@@ -48,16 +55,9 @@ Array [
   "../../node_modules/next/dist/shared/lib/amp-context.js",
   "../../node_modules/next/dist/shared/lib/amp-mode.js",
   "../../node_modules/next/dist/shared/lib/app-router-context.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/index.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/utils.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter.js",
   "../../node_modules/next/dist/shared/lib/constants.js",
   "../../node_modules/next/dist/shared/lib/escape-regexp.js",
-  "../../node_modules/next/dist/shared/lib/fnv1a.js",
   "../../node_modules/next/dist/shared/lib/head-manager-context.js",
   "../../node_modules/next/dist/shared/lib/head.js",
   "../../node_modules/next/dist/shared/lib/hooks-client-context.js",
@@ -68,6 +68,7 @@ Array [
   "../../node_modules/next/dist/shared/lib/loadable-context.js",
   "../../node_modules/next/dist/shared/lib/loadable.js",
   "../../node_modules/next/dist/shared/lib/mitt.js",
+  "../../node_modules/next/dist/shared/lib/modern-browserslist-target.js",
   "../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js",
   "../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js",
   "../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js",
@@ -109,12 +110,6 @@ Array [
   "../../node_modules/next/dist/shared/lib/utils.js",
   "../../node_modules/next/dist/shared/lib/utils/warn-once.js",
   "../../node_modules/next/error.js",
-  "../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js",
-  "../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js",
-  "../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js",
-  "../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js",
-  "../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js",
-  "../../node_modules/next/node_modules/@swc/helpers/package.json",
   "../../node_modules/next/package.json",
   "../../node_modules/next/router.js",
   "../../node_modules/react-dom/cjs/react-dom.development.js",
@@ -134,6 +129,7 @@ Array [
   ".next/server/app/app-edge/page.js",
   ".next/server/app/blog/[author]/[slug]/page.js",
   ".next/server/app/blog/[author]/page.js",
+  ".next/server/chunks/CHUNK_ID.js",
   ".next/server/chunks/CHUNK_ID.js",
   ".next/server/chunks/CHUNK_ID.js",
   ".next/server/chunks/CHUNK_ID.js",
@@ -189,12 +185,14 @@ exports[`onBuild() generates a file referencing all API route sources: for _api_
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
         require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
         require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
@@ -205,6 +203,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -215,10 +214,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/package.json')
         require.resolve('../../../../../node_modules/react/cjs/react.development.js')
         require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
@@ -226,6 +221,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/react/package.json')
         require.resolve('../../../../../package.json')
         require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/pages/_app.js')
@@ -243,12 +239,14 @@ exports[`onBuild() generates a file referencing all API route sources: for _api_
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
         require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
         require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
@@ -259,6 +257,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -269,10 +268,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/package.json')
         require.resolve('../../../../../node_modules/react/cjs/react.development.js')
         require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
@@ -280,6 +275,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/react/package.json')
         require.resolve('../../../../../package.json')
         require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/pages/_app.js')
@@ -297,6 +293,11 @@ exports[`onBuild() generates a file referencing all page sources 1`] = `
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/dist/client/add-base-path.js')
         require.resolve('../../../../../node_modules/next/dist/client/add-locale.js')
         require.resolve('../../../../../node_modules/next/dist/client/detect-domain-locale.js')
@@ -311,6 +312,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -343,16 +346,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -363,6 +359,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -404,12 +401,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
         require.resolve('../../../../../node_modules/next/error.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/package.json')
         require.resolve('../../../../../node_modules/next/router.js')
         require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.development.js')
@@ -429,6 +420,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/app/app-edge/page.js')
         require.resolve('../../../.next/server/app/blog/[author]/[slug]/page.js')
         require.resolve('../../../.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
@@ -485,6 +477,11 @@ exports[`onBuild() generates a file referencing all page sources 2`] = `
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/dist/client/add-base-path.js')
         require.resolve('../../../../../node_modules/next/dist/client/add-locale.js')
         require.resolve('../../../../../node_modules/next/dist/client/detect-domain-locale.js')
@@ -499,6 +496,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -531,16 +530,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -551,6 +543,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -592,12 +585,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
         require.resolve('../../../../../node_modules/next/error.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/package.json')
         require.resolve('../../../../../node_modules/next/router.js')
         require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.development.js')
@@ -617,6 +604,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/app/app-edge/page.js')
         require.resolve('../../../.next/server/app/blog/[author]/[slug]/page.js')
         require.resolve('../../../.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
@@ -673,6 +661,11 @@ exports[`onBuild() generates a file referencing all when publish dir is a subdir
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
+        require.resolve('../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../node_modules/next/dist/client/add-base-path.js')
         require.resolve('../../../../node_modules/next/dist/client/add-locale.js')
         require.resolve('../../../../node_modules/next/dist/client/detect-domain-locale.js')
@@ -687,6 +680,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -719,16 +714,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -739,6 +727,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/loadable-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/loadable.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -780,12 +769,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
         require.resolve('../../../../node_modules/next/error.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../node_modules/next/package.json')
         require.resolve('../../../../node_modules/next/router.js')
         require.resolve('../../../../node_modules/react-dom/cjs/react-dom.development.js')
@@ -805,6 +788,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/app/app-edge/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/[slug]/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
@@ -861,6 +845,11 @@ exports[`onBuild() generates a file referencing all when publish dir is a subdir
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
+        require.resolve('../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../node_modules/next/dist/client/add-base-path.js')
         require.resolve('../../../../node_modules/next/dist/client/add-locale.js')
         require.resolve('../../../../node_modules/next/dist/client/detect-domain-locale.js')
@@ -875,6 +864,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -907,16 +898,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -927,6 +911,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/loadable-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/loadable.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -968,12 +953,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
         require.resolve('../../../../node_modules/next/error.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../node_modules/next/package.json')
         require.resolve('../../../../node_modules/next/router.js')
         require.resolve('../../../../node_modules/react-dom/cjs/react-dom.development.js')
@@ -993,6 +972,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/app/app-edge/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/[slug]/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')

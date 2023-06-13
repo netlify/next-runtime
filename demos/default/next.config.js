@@ -89,6 +89,5 @@ module.exports = {
   },
   experimental: {
     optimizeCss: false,
-    appDir: true,
   },
 }

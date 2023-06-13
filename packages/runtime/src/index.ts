@@ -104,6 +104,7 @@ const plugin: NetlifyPlugin = {
     await cleanupEdgeFunctions(constants)
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
+    const config = await getRequiredServerFiles(publish)
 
     if (
       middlewareManifest?.functions &&
@@ -132,8 +133,6 @@ const plugin: NetlifyPlugin = {
     }
 
     if (isNextAuthInstalled()) {
-      const config = await getRequiredServerFiles(publish)
-
       const userDefinedNextAuthUrl = config.config.env.NEXTAUTH_URL
 
       if (userDefinedNextAuthUrl) {

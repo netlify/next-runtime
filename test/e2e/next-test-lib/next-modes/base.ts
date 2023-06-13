@@ -5,6 +5,7 @@ import { NextConfig } from 'next'
 import { FileRef } from '../e2e-utils'
 import { ChildProcess } from 'child_process'
 import { createNextInstall } from '../create-next-install'
+import { renderViaHTTP } from 'next-test-utils'
 
 type Event = 'stdout' | 'stderr' | 'error' | 'destroy'
 export type InstallCommand = string | ((ctx: { dependencies: { [key: string]: string } }) => string)
@@ -271,6 +272,15 @@ export class NextInstance {
   }
   public async deleteFile(filename: string) {
     return fs.remove(path.join(this.testDir, filename))
+  }
+
+  /**
+  * Fetch the HTML for the provided page. This is a shortcut for `fetchViaHTTP().then(res => res.text())`.
+  */
+  public async render(
+    ...args: Parameters<OmitFirstArgument<typeof renderViaHTTP>>
+  ) {
+    return renderViaHTTP(this.url, ...args)
   }
 
   public on(event: Event, cb: (...args: any[]) => any) {
