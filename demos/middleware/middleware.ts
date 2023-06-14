@@ -27,7 +27,7 @@ export async function middleware(req: NextRequest) {
     const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
 
     // Transform the response HTML and props
-    res.replaceText('h1[id=testing-rewrite]', message)
+    res.replaceText('#message', message)
     res.setPageProp('message', message)
     res.setPageProp('showAd', true)
 
@@ -46,7 +46,7 @@ export async function middleware(req: NextRequest) {
     const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
 
     // Transform the response HTML and props
-    res.replaceText('h1[id=testing-rewrite]', message)
+    res.replaceText('#message', message)
     res.setPageProp('message', message)
     res.setPageProp('showAd', true)
 
