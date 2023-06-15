@@ -2,18 +2,7 @@ import { cpus } from 'os'
 
 import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
-import {
-  existsSync,
-  readJson,
-  move,
-  copy,
-  writeJson,
-  readFile,
-  writeFile,
-  ensureDir,
-  readFileSync,
-  remove,
-} from 'fs-extra'
+import { existsSync, readJson, move, copy, writeJson, ensureDir, readFileSync, remove } from 'fs-extra'
 import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
@@ -297,45 +286,6 @@ export const moveStaticPages = async ({
   }
 }
 
-const PATCH_WARNING = `/* File patched by Netlify */`
-
-/**
- * Attempt to patch a source file, preserving a backup
- */
-const patchFile = async ({
-  file,
-  replacements,
-}: {
-  file: string
-  replacements: Array<[from: string, to: string]>
-}): Promise<boolean> => {
-  if (!existsSync(file)) {
-    console.warn('File was not found')
-    return false
-  }
-  let content = await readFile(file, 'utf8')
-
-  // If the file has already been patched, patch the backed-up original instead
-  if (content.includes(PATCH_WARNING) && existsSync(`${file}.orig`)) {
-    content = await readFile(`${file}.orig`, 'utf8')
-  }
-
-  const newContent = replacements.reduce((acc, [from, to]) => {
-    if (acc.includes(to)) {
-      console.log('Already patched. Skipping.')
-      return acc
-    }
-    return acc.replace(from, to)
-  }, content)
-  if (newContent === content) {
-    console.warn('File was not changed')
-    return false
-  }
-  await writeFile(`${file}.orig`, content)
-  await writeFile(file, `${newContent}\n${PATCH_WARNING}`)
-  console.log('Done')
-  return true
-}
 /**
  * The file we need has moved around a bit over the past few versions,
  * so we iterate through the options until we find it
