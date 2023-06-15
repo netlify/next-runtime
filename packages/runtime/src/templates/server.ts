@@ -1,6 +1,6 @@
 import { PrerenderManifest } from 'next/dist/build'
 import type { BaseNextResponse } from 'next/dist/server/base-http'
-import { NodeRequestHandler, Options } from 'next/dist/server/next-server'
+import type { NodeRequestHandler, Options } from 'next/dist/server/next-server'
 
 import {
   netlifyApiFetch,
@@ -54,17 +54,10 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
           return
         }
 
-        // intercept requests for initial ISR renders and return static content
-        // (we need to do this manually because we disable the Next.js cache)
-        if (headers['x-nf-builder-cache'] === 'miss') {
-          const pagePath = this.getPagePath(url, this.nextConfig.i18n?.locales)
-          return this.serveStatic(req, res, pagePath)
-        }
-
         // force all standard requests to revalidate so that we always have fresh content
         // (we handle caching with ODBs instead of stale-while-revalidate)
         // eslint-disable-next-line no-underscore-dangle
-        if (!headers.__prerender_bypass) {
+        if (headers['x-nf-builder-cache'] === 'revalidate' && !headers.__prerender_bypass) {
           headers['x-prerender-revalidate'] = this.renderOpts.previewProps.previewModeId
         }
 
