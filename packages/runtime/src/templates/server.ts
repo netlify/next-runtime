@@ -42,7 +42,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         // conditionally use the prebundled React module
         this.netlifyPrebundleReact(url)
 
-        // intercept on-demand revalidation requests and handler with the Netlify API
+        // intercept on-demand revalidation requests and handle with the Netlify API
         if (headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {
           // handle on-demand revalidation by purging the ODB cache
           await this.netlifyRevalidate(url)
@@ -54,10 +54,11 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
           return
         }
 
-        // force all standard requests to revalidate so that we always have fresh content
-        // (we handle caching with ODBs instead of stale-while-revalidate)
+        // force Next to revalidate all ODB revalidation requests so that we always have fresh content...
+        // setting this header to the preview mode ID is how Next knows to revalidate
         // eslint-disable-next-line no-underscore-dangle
         if (headers['x-nf-builder-cache'] === 'revalidate' && !headers.__prerender_bypass) {
+          console.log(`Revalidating ${url}`)
           headers['x-prerender-revalidate'] = this.renderOpts.previewProps.previewModeId
         }
 
