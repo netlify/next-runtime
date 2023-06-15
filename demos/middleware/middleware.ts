@@ -40,7 +40,8 @@ export async function middleware(req: NextRequest) {
     // request.rewrite() should return the MiddlewareResponse obj instead of the Response obj
     const res = await request.rewrite('/static-rewrite', {
       headers: {
-        'x-rewrite-test': 'hello'
+        'x-rewrite-test': 'hello',
+        'x-rewrite-test-2': 'hello-2'
       }
     })
     const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
@@ -52,6 +53,7 @@ export async function middleware(req: NextRequest) {
 
     res.headers.set('x-modified-edge', 'true')
     res.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
+    console.log({res})
     return res
   }
 

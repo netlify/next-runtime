@@ -10,7 +10,7 @@ export type NextDataTransform = <T extends { pageProps?: Record<string, any> }>(
 export class MiddlewareResponse extends NextResponse {
   private readonly dataTransforms: NextDataTransform[]
   private readonly elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   constructor(public originResponse: Response, init?: ResponseInit) {
     // we need to propagate the set-cookie header, so response.cookies.get works correctly
     const initHeaders = new Headers()
@@ -21,6 +21,12 @@ export class MiddlewareResponse extends NextResponse {
     super(undefined, {
       headers: initHeaders,
     })
+
+    if (init?.headers) {
+      Object.entries(init.headers).forEach(([key, value]) => {
+        this.headers.set(key, value)
+      })
+    }
 
     // These are private in Node when compiling, but we access them in Deno at runtime
     Object.defineProperty(this, 'dataTransforms', {
