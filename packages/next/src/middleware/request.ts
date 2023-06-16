@@ -70,8 +70,9 @@ export class MiddlewareRequest extends Request {
     if (typeof destination === 'string' && destination.startsWith('/')) {
       destination = new URL(destination, this.url)
     }
-    const response = await this.context.rewrite(destination)
     this.applyHeaders()
+    const response = await this.context.rewrite(destination)
+
     return new MiddlewareResponse(response, init)
   }
 
