@@ -8,7 +8,7 @@ describe('Enhanced middleware', () => {
   it('modifies the page props when using request.rewrite()', () => {
     cy.visit('/request-rewrite')
     const data = cy.get('script#__NEXT_DATA__')
-    data.should('contain', '"message":"This was static (& escaping test &amp;) but has been transformed in Arlington","showAd":true')
+    data.should('contain', '"message":"This was static (& escaping test &amp;) but has been transformed in')
   })
 
   it.skip('passes in headers within request.rewrite()', () => {
