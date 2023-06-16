@@ -13,7 +13,7 @@
   "dependencies": {
     "@netlify/esbuild": "0.14.39",
     "@netlify/functions": "^1.6.0",
-    "@netlify/ipx": "^1.4.0",
+    "@netlify/ipx": "^1.4.1",
     "@vercel/node-bridge": "^2.1.0",
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
