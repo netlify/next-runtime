@@ -1,5 +1,22 @@
 # Changelog
 
+## [4.38.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.4...plugin-nextjs-v4.38.0) (2023-06-16)
+
+
+### Features
+
+* provide display name for split api routes ([#2155](https://github.com/netlify/next-runtime/issues/2155)) ([10250a0](https://github.com/netlify/next-runtime/commit/10250a01cc422a36a53c079872b5cd84b62be3dd))
+
+
+### Bug Fixes
+
+* bundle dynamic API routes correctly with split-api-routes ([#2154](https://github.com/netlify/next-runtime/issues/2154)) ([dc7c479](https://github.com/netlify/next-runtime/commit/dc7c4791280286c85fc5676ab1ee82db04567a12))
+* ensure next-server patches only run on Netlify ([#2117](https://github.com/netlify/next-runtime/issues/2117)) ([6bdaec1](https://github.com/netlify/next-runtime/commit/6bdaec1d6d68549939c65608d37d59b3a925a3ef))
+* ensures compatibility with Next.js 13.4 (support for some features still en-route) ([9f85472](https://github.com/netlify/next-runtime/commit/9f8547260f654ad89a6412c6deaeb096ffd56671))
+* new ISR cache handling to resolve regression in 13.4 ([#2165](https://github.com/netlify/next-runtime/issues/2165)) ([6817cc9](https://github.com/netlify/next-runtime/commit/6817cc93b8147edc95558ad8ea0f9fdb058832e1))
+* strip domain from ipx edge functions path ([#2098](https://github.com/netlify/next-runtime/issues/2098)) ([#2099](https://github.com/netlify/next-runtime/issues/2099)) ([c9ab983](https://github.com/netlify/next-runtime/commit/c9ab9835844aad926df47e800226687bcb65592c))
+* uses pre-bundled React modules for App Router paths ([9f85472](https://github.com/netlify/next-runtime/commit/9f8547260f654ad89a6412c6deaeb096ffd56671))
+
 ## [4.37.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.3...plugin-nextjs-v4.37.4) (2023-05-30)
 
 
