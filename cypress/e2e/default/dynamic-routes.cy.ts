@@ -66,7 +66,8 @@ describe('Dynamic Routing', () => {
       expect(res.status).to.eq(200)
       // expect 'odb' until https://github.com/netlify/pillar-runtime/issues/438 is fixed
       expect(res.headers).to.have.property('x-nf-render-mode', 'odb')
-      expect(res.body).to.contain('Loading...')
+      // expect 'Bitten' until the above is fixed and we can test for fallback 'Loading...' message
+      expect(res.body).to.contain('Bitten')
     })
   })
   it('serves correct static file on a prerendered dynamic route with fallback: blocking', () => {
