@@ -18,7 +18,7 @@ import {
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, patchNextFiles, removeMetadataFiles } from './helpers/files'
-import { splitApiRoutes } from './helpers/flags'
+import { bundleBasedOnNftFiles, splitApiRoutes } from './helpers/flags'
 import {
   generateFunctions,
   setupImageFunction,
@@ -28,6 +28,7 @@ import {
   packSingleFunction,
   getExtendedApiRouteConfigs,
   APILambda,
+  getSSRLambdas,
 } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
@@ -50,6 +51,7 @@ const plugin: NetlifyPlugin = {
       cache,
     },
   }) {
+    console.log("using local version")
     const { publish } = netlifyConfig.build
     if (shouldSkip()) {
       await restoreCache({ cache, publish })
@@ -171,7 +173,9 @@ const plugin: NetlifyPlugin = {
           extendedRoutes.map(packSingleFunction),
         )
 
-    await generateFunctions(constants, appDir, apiLambdas)
+    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas(publish) : []
+
+    await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
     await generatePagesResolver(constants)
 
     await configureHandlerFunctions({
@@ -179,6 +183,7 @@ const plugin: NetlifyPlugin = {
       ignore,
       publish: relative(process.cwd(), publish),
       apiLambdas,
+      ssrLambdas,
       splitApiRoutes: splitApiRoutes(featureFlags, publish),
     })
 

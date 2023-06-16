@@ -3,9 +3,10 @@ import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
 import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat } from 'fs-extra'
+import { PrerenderManifest } from 'next/dist/build'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
-import { join, relative, resolve, dirname } from 'pathe'
+import { join, relative, resolve, dirname, basename, extname } from 'pathe'
 import glob from 'tiny-glob'
 
 import {
@@ -32,20 +33,27 @@ import { pack } from './pack'
 import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
 
-export interface ApiRouteConfig {
+export interface RouteConfig {
   functionName: string
   functionTitle?: string
   route: string
-  config: ApiConfig
   compiled: string
   includedFiles: string[]
 }
 
-export interface APILambda {
+export interface ApiRouteConfig extends RouteConfig {
+  config: ApiConfig
+}
+
+export interface SSRLambda {
   functionName: string
   functionTitle: string
-  routes: ApiRouteConfig[]
+  routes: RouteConfig[]
   includedFiles: string[]
+}
+
+export interface APILambda extends SSRLambda {
+  routes: ApiRouteConfig[]
   type?: ApiRouteType
 }
 
@@ -53,6 +61,7 @@ export const generateFunctions = async (
   { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
   appDir: string,
   apiLambdas: APILambda[],
+  ssrLambdas: SSRLambda[],
 ): Promise<void> => {
   const publish = resolve(PUBLISH_DIR)
   const functionsDir = resolve(INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC)
@@ -144,6 +153,12 @@ export const generateFunctions = async (
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
     await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
+
+    const nfInternalFiles = await glob(join(functionsDir, functionName, '**'))
+    const lambda = ssrLambdas.find((l) => l.functionName === functionName)
+    if (lambda) {
+      lambda.includedFiles.push(...nfInternalFiles)
+    }
   }
 
   await writeHandler(HANDLER_FUNCTION_NAME, HANDLER_FUNCTION_TITLE, false)
@@ -295,13 +310,17 @@ export const traceNPMPackage = async (packageName: string, publish: string) => {
   }
 }
 
-export const getAPIPRouteCommonDependencies = async (publish: string) => {
+export const getCommonDependencies = async (publish: string) => {
   const deps = await Promise.all([
     traceRequiredServerFiles(publish),
     traceNextServer(publish),
 
     // used by our own bridge.js
     traceNPMPackage('follow-redirects', publish),
+
+    // using package.json because otherwise, we'd find some /dist/... path
+    traceNPMPackage('@netlify/functions/package.json', publish),
+    traceNPMPackage('is-promise', publish),
   ])
 
   return deps.flat(1)
@@ -329,12 +348,98 @@ const getBundleWeight = async (patterns: string[]) => {
   return sum(sizes.flat(1))
 }
 
+const changeExtension = (file: string, extension: string) => {
+  const base = basename(file, extname(file))
+  return join(dirname(file), base + extension)
+}
+
+const getSSRDependencies = async (publish: string): Promise<string[]> => {
+  const prerenderManifest: PrerenderManifest = await readJSON(join(publish, 'prerender-manifest.json'))
+
+  return [
+    ...Object.entries(prerenderManifest.routes).flatMap(([route, ssgRoute]) => {
+      if (ssgRoute.initialRevalidateSeconds === false) {
+        return []
+      }
+
+      if (ssgRoute.dataRoute.endsWith('.rsc')) {
+        return [
+          join(publish, 'server', 'app', ssgRoute.dataRoute),
+          join(publish, 'server', 'app', changeExtension(ssgRoute.dataRoute, '.html')),
+        ]
+      }
+
+      const trimmedPath = route === '/' ? 'index' : route.slice(1)
+      return [
+        join(publish, 'server', 'pages', `${trimmedPath}.html`),
+        join(publish, 'server', 'pages', `${trimmedPath}.json`),
+      ]
+    }),
+    join(publish, '**', '*.html'),
+  ]
+}
+
+export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
+  const commonDependencies = await getCommonDependencies(publish)
+  const ssrRoutes = await getSSRRoutes(publish)
+
+  // TODO: for now, they're the same - but we should separate them
+  const nonOdbRoutes = ssrRoutes
+  const odbRoutes = ssrRoutes
+
+  const ssrDependencies = await getSSRDependencies(publish)
+
+  return [
+    {
+      functionName: HANDLER_FUNCTION_NAME,
+      functionTitle: HANDLER_FUNCTION_TITLE,
+      includedFiles: [
+        ...commonDependencies,
+        ...ssrDependencies,
+        ...nonOdbRoutes.flatMap((route) => route.includedFiles),
+      ],
+      routes: nonOdbRoutes,
+    },
+    {
+      functionName: ODB_FUNCTION_NAME,
+      functionTitle: ODB_FUNCTION_TITLE,
+      includedFiles: [...commonDependencies, ...ssrDependencies, ...odbRoutes.flatMap((route) => route.includedFiles)],
+      routes: odbRoutes,
+    },
+  ]
+}
+
+const getSSRRoutes = async (publish: string): Promise<RouteConfig[]> => {
+  const pages = (await readJSON(join(publish, 'server', 'pages-manifest.json'))) as Record<string, string>
+  const routes = Object.entries(pages).filter(
+    ([page, compiled]) => !page.startsWith('/api/') && !compiled.endsWith('.html'),
+  )
+
+  return await Promise.all(
+    routes.map(async ([route, compiled]) => {
+      const functionName = getFunctionNameForPage(route)
+
+      const compiledPath = join(publish, 'server', compiled)
+
+      const routeDependencies = await getDependenciesOfFile(compiledPath)
+      const includedFiles = [compiledPath, ...routeDependencies]
+
+      return {
+        functionName,
+        route,
+        compiled,
+        includedFiles,
+      }
+    }),
+  )
+}
+
 export const getAPILambdas = async (
   publish: string,
   baseDir: string,
   pageExtensions: string[],
 ): Promise<APILambda[]> => {
-  const commonDependencies = await getAPIPRouteCommonDependencies(publish)
+  const commonDependencies = await getCommonDependencies(publish)
 
   const threshold = LAMBDA_WARNING_SIZE - (await getBundleWeight(commonDependencies))
 
