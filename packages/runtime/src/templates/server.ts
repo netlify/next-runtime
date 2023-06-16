@@ -54,11 +54,14 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
           return
         }
 
-        // force Next to revalidate all ODB revalidation requests so that we always have fresh content...
-        // setting this header to the preview mode ID is how Next knows to revalidate
+        // force Next to revalidate all requests so that we always have fresh content
+        // for our ODBs and middleware is disabled at the origin
+        // but ignore in preview mode (prerender_bypass is set to true in preview mode)
+        // because otherwise revalidate will override preview mode
         // eslint-disable-next-line no-underscore-dangle
-        if (headers['x-nf-builder-cache'] === 'revalidate' && !headers.__prerender_bypass) {
-          console.log(`Revalidating ${url}`)
+        if (!headers.__prerender_bypass) {
+          // this header controls whether Next.js will revalidate the page
+          // and needs to be set to the preview mode id to enable it
           headers['x-prerender-revalidate'] = this.renderOpts.previewProps.previewModeId
         }
 
