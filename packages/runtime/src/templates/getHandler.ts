@@ -69,9 +69,6 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
   // We don't want to write ISR files to disk in the lambda environment
   conf.experimental.isrFlushToDisk = false
-  // This is our flag that we use when patching the source
-  // eslint-disable-next-line no-underscore-dangle
-  process.env._REVALIDATE_SSG = 'true'
   for (const [key, value] of Object.entries(conf.env)) {
     process.env[key] = String(value)
   }

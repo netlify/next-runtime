@@ -8,8 +8,6 @@ import {
   stripLocale,
   matchesRedirect,
   matchesRewrite,
-  patchNextFiles,
-  unpatchNextFiles,
   getDependenciesOfFile,
   getSourceFileForPage,
 } from '../../packages/runtime/src/helpers/files'
@@ -186,28 +184,6 @@ describe('files utility functions', () => {
     paths.forEach((path) => {
       expect(matchesRewrite(path, REWRITES)).toBeTruthy()
     })
-  })
-})
-
-describeCwdTmpDir('file patching', () => {
-  it('patches Next server files', async () => {
-    // Testing to make sure that the patching functionality works within base-server.js and next-server.js files
-    const root = path.resolve(dirname(resolve(__dirname, '..')))
-    await copy(join(root, 'package.json'), path.join(process.cwd(), 'package.json'))
-    await ensureDir(path.join(process.cwd(), 'node_modules'))
-    await copy(path.join(root, 'node_modules', 'next'), path.join(process.cwd(), 'node_modules', 'next'))
-
-    await patchNextFiles(process.cwd())
-    const serverFile = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'server', 'base-server.js')
-    const patchedData = await readFileSync(serverFile, 'utf8')
-    expect(patchedData.includes('_REVALIDATE_SSG')).toBeTruthy()
-    expect(patchedData.includes('private: isPreviewMode && cachedData')).toBeTruthy()
-
-    await unpatchNextFiles(process.cwd())
-
-    const unPatchedData = await readFileSync(serverFile, 'utf8')
-    expect(unPatchedData.includes('_REVALIDATE_SSG')).toBeFalsy()
-    expect(unPatchedData.includes('private: isPreviewMode && cachedData')).toBeFalsy()
   })
 })
 

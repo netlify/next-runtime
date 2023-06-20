@@ -17,7 +17,7 @@ import {
 } from './helpers/config'
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
-import { moveStaticPages, movePublicFiles, patchNextFiles, removeMetadataFiles } from './helpers/files'
+import { moveStaticPages, movePublicFiles, removeMetadataFiles } from './helpers/files'
 import { bundleBasedOnNftFiles, splitApiRoutes } from './helpers/flags'
 import {
   generateFunctions,
@@ -188,8 +188,6 @@ const plugin: NetlifyPlugin = {
     })
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
-
-    await patchNextFiles(appDir)
 
     if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
       await moveStaticPages({ target, netlifyConfig, i18n, basePath })

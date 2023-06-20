@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.7](https://github.com/netlify/next-runtime/compare/next-v1.4.6...next-v1.4.7) (2023-06-16)
+
+
+### Bug Fixes
+
+* ensures compatibility with Next.js 13.4 (support for some features still en-route) ([9f85472](https://github.com/netlify/next-runtime/commit/9f8547260f654ad89a6412c6deaeb096ffd56671))
+* uses pre-bundled React modules for App Router paths ([9f85472](https://github.com/netlify/next-runtime/commit/9f8547260f654ad89a6412c6deaeb096ffd56671))
+
 ## [1.4.6](https://github.com/netlify/next-runtime/compare/next-v1.4.5...next-v1.4.6) (2023-05-08)
 
 
