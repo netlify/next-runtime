@@ -416,7 +416,9 @@ const getSSRRoutes = async (publish: string): Promise<RouteConfig[]> => {
     ([page, compiled]) => !page.startsWith('/api/') && !compiled.endsWith('.html'),
   )
 
-  const appPathsManifest: Record<string, string> = await readJSON(join(publish, 'server', 'app-paths-manifest.json'))
+  const appPathsManifest: Record<string, string> = await readJSON(
+    join(publish, 'server', 'app-paths-manifest.json'),
+  ).catch(() => ({}))
   const appRoutes = Object.entries(appPathsManifest)
 
   const routes = [...pageManifestRoutes, ...appRoutes]
