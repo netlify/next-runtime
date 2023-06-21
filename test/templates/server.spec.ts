@@ -75,13 +75,15 @@ beforeAll(() => {
     this.distDir = '.'
     this.buildId = mockBuildId
     this.nextConfig = nextOptions.conf
+    this.renderOpts = { previewProps: {} }
     this.netlifyConfig = netlifyConfig
+    this.netlifyPrebundleReact = jest.fn()
   }
   Object.setPrototypeOf(NetlifyNextServer, MockNetlifyNextServerConstructor)
 })
 
 describe('the netlify next server', () => {
-  it.skip('does not revalidate a request without an `x-prerender-revalidate` header', async () => {
+  it('does not revalidate a request without an `x-prerender-revalidate` header', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -92,7 +94,7 @@ describe('the netlify next server', () => {
     expect(mockedApiFetch).not.toHaveBeenCalled()
   })
 
-  it.skip('revalidates a static non-i18n route with an `x-prerender-revalidate` header', async () => {
+  it('revalidates a static non-i18n route with an `x-prerender-revalidate` header', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -112,7 +114,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('revalidates a static i18n route with an `x-prerender-revalidate` header', async () => {
+  it('revalidates a static i18n route with an `x-prerender-revalidate` header', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: { ...mocki18nConfig } }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -132,7 +134,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('revalidates a dynamic non-i18n route with an `x-prerender-revalidate` header', async () => {
+  it('revalidates a dynamic non-i18n route with an `x-prerender-revalidate` header', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -152,7 +154,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('revalidates a dynamic i18n route with an `x-prerender-revalidate` header', async () => {
+  it('revalidates a dynamic i18n route with an `x-prerender-revalidate` header', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: { ...mocki18nConfig } }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -172,7 +174,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('throws an error when route is not found in the manifest', async () => {
+  it('throws an error when route is not found in the manifest', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -187,7 +189,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('throws an error when paths are not found by the API', async () => {
+  it('throws an error when paths are not found by the API', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -203,7 +205,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('throws an error when the revalidate API is unreachable', async () => {
+  it('throws an error when the revalidate API is unreachable', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
