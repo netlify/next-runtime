@@ -189,6 +189,13 @@ export const normalizePath = (event: HandlerEvent) => {
       return originalPath
     }
   }
+
+  if (event.headers['x-original-path']) {
+    if (event.headers['x-next-debug-logging']) {
+      console.log('Original path:', event.headers['x-original-path'])
+    }
+    return event.headers['x-original-path']
+  }
   // Ensure that paths are encoded - but don't double-encode them
   return new URL(event.rawUrl).pathname
 }
