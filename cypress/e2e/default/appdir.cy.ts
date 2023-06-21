@@ -29,7 +29,7 @@ describe('appDir', () => {
     })
   })
 
-  it.skip('returns a vary header for RSC data requests to ISR pages', () => {
+  it('returns a vary header for RSC data requests to ISR pages', () => {
     cy.request({
       url: '/blog/erica/',
       followRedirect: false,
@@ -41,7 +41,7 @@ describe('appDir', () => {
     })
   })
 
-  it.skip('returns a vary header for non-RSC data requests to ISR pages', () => {
+  it('returns a vary header for non-RSC data requests to ISR pages', () => {
     cy.request({
       url: '/blog/erica/',
       followRedirect: false,
