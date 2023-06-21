@@ -411,10 +411,15 @@ export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
 }
 
 const getSSRRoutes = async (publish: string): Promise<RouteConfig[]> => {
-  const pages = (await readJSON(join(publish, 'server', 'pages-manifest.json'))) as Record<string, string>
-  const routes = Object.entries(pages).filter(
+  const pageManifest = (await readJSON(join(publish, 'server', 'pages-manifest.json'))) as Record<string, string>
+  const pageManifestRoutes = Object.entries(pageManifest).filter(
     ([page, compiled]) => !page.startsWith('/api/') && !compiled.endsWith('.html'),
   )
+
+  const appPathsManifest: Record<string, string> = await readJSON(join(publish, 'server', 'app-paths-manifest.json'))
+  const appRoutes = Object.entries(appPathsManifest)
+
+  const routes = [...pageManifestRoutes, ...appRoutes]
 
   return await Promise.all(
     routes.map(async ([route, compiled]) => {
