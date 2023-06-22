@@ -2,7 +2,6 @@
 import spawn from 'cross-spawn'
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
 import { writeFile } from 'fs-extra'
-import { fetch as undiciFetch } from 'undici'
 import nodeFetch from 'node-fetch'
 import path from 'path'
 import qs from 'querystring'
