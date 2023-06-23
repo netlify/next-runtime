@@ -75,7 +75,9 @@ let cleanup
 // In each test, we change cwd to a temporary directory.
 // This allows us not to have to mock filesystem operations.
 beforeEach(async () => {
-  const tmpDir = await getTmpDir({ unsafeCleanup: true })
+  const tmpdir = join(__dirname, '..', 'tmp')
+  await ensureDir(tmpdir)
+  const tmpDir = await getTmpDir({ unsafeCleanup: true, tmpdir })
   restoreCwd = changeCwd(tmpDir.path)
   cleanup = tmpDir.cleanup
 
