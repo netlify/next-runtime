@@ -2117,12 +2117,12 @@ Array [
     "to": "/.netlify/functions/___netlify-api-handler",
   },
   Object {
-    "from": "/api/shows/:id",
+    "from": "/api/shows/:params/*",
     "status": 200,
     "to": "/.netlify/functions/___netlify-api-handler",
   },
   Object {
-    "from": "/api/shows/:params/*",
+    "from": "/api/shows/:show-id",
     "status": 200,
     "to": "/.netlify/functions/___netlify-api-handler",
   },
