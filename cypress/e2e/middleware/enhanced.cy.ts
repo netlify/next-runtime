@@ -7,18 +7,11 @@ describe('Enhanced middleware', () => {
 
   it('modifies the page props when using request.rewrite()', () => {
     cy.visit('/request-rewrite')
-    const data = cy.get('script#__NEXT_DATA__').then((element) => {
+    cy.get('script#__NEXT_DATA__').then((element) => {
       const { props } = JSON.parse(element.text());
       expect(props.pageProps.message).to.include('This was static (& escaping test &amp;) but has been transformed in')
     })
   })
-
-  it.skip('passes in headers within request.rewrite()', () => {
-    cy.request('/request-rewrite').then((response) => {
-      expect(response.headers).to.have.property('x-rewrite-test', 'hello')
-    })
-  })
-
 
   it('rewrites the response body using request.next()', () => {
     cy.visit('/static')
