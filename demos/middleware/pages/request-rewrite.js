@@ -7,4 +7,4 @@ const Rewrite = () => {
   }
   
 export default Rewrite
-  
+
