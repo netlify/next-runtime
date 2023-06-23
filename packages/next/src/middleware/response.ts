@@ -10,7 +10,9 @@ export type NextDataTransform = <T extends { pageProps?: Record<string, any> }>(
 export class MiddlewareResponse extends NextResponse {
   private readonly dataTransforms: NextDataTransform[]
   private readonly elementHandlers: Array<[selector: string, handlers: ElementHandlers]>
-  constructor(public originResponse: Response) {
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor(public originResponse: Response, init?: ResponseInit) {
     // we need to propagate the set-cookie header, so response.cookies.get works correctly
     const initHeaders = new Headers()
     if (originResponse.headers.has('set-cookie')) {

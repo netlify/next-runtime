@@ -27,7 +27,22 @@ export async function middleware(req: NextRequest) {
     const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
 
     // Transform the response HTML and props
-    res.replaceText('p[id=message]', message)
+    res.replaceText('#message', message)
+    res.setPageProp('message', message)
+    res.setPageProp('showAd', true)
+
+    res.headers.set('x-modified-edge', 'true')
+    res.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
+    return res
+  }
+
+  if (pathname.startsWith('/request-rewrite')) {
+    // request.rewrite() should return the MiddlewareResponse object instead of the Response object.
+    const res = await request.rewrite('/static-rewrite')
+    const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
+
+    // Transform the response HTML and props
+    res.replaceText('#message', message)
     res.setPageProp('message', message)
     res.setPageProp('showAd', true)
 
@@ -138,6 +153,7 @@ export const config = {
     '/headers',
     '/cookies/:path*',
     { source: '/static' },
+    {source: '/request-rewrite' },
     { source: '/matcher-cookie'},
     { source: '/shows/((?!99|88).*)' },
     {
