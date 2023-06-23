@@ -310,19 +310,14 @@ export const getAPIPRouteCommonDependencies = async (publish: string) => {
 const sum = (arr: number[]) => arr.reduce((v, current) => v + current, 0)
 
 // TODO: cache results
-const getBundleWeight = async (patterns: string[]) => {
+const getBundleWeight = async (files: string[]) => {
   const sizes = await Promise.all(
-    patterns.flatMap(async (pattern) => {
-      const files = await glob(pattern)
-      return Promise.all(
-        files.map(async (file) => {
-          const fStat = await stat(file)
-          if (fStat.isFile()) {
-            return fStat.size
-          }
-          return 0
-        }),
-      )
+    files.map(async (file) => {
+      const fStat = await stat(file)
+      if (fStat.isFile()) {
+        return fStat.size
+      }
+      return 0
     }),
   )
 
