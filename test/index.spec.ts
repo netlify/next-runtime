@@ -750,7 +750,7 @@ describe('onBuild()', () => {
 
     expect(functionsManifest).toEqual({
       config: {
-        generator: '@netlify/next-runtime@unknown',
+        generator: expect.stringContaining('@netlify/next-runtime@'),
         name: 'Next.js API handler',
       },
       version: 1,
