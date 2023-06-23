@@ -46,11 +46,11 @@ describeCwdTmpDir('api route file analysis', () => {
           route: '/api/shows/[...params]',
         },
         {
-          functionName: '_api_shows_id-PARAM-handler',
-          functionTitle: 'Next.js API handler /api/shows/[id]',
-          compiled: 'pages/api/shows/[id].js',
+          functionName: '_api_shows_show-id-PARAM-handler',
+          functionTitle: 'Next.js API handler /api/shows/[show-id]',
+          compiled: 'pages/api/shows/[show-id].js',
           config: {},
-          route: '/api/shows/[id]',
+          route: '/api/shows/[show-id]',
         },
         {
           functionName: '_api_hello-background-background',

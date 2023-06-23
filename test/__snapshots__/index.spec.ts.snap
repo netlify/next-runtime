@@ -151,7 +151,7 @@ Array [
   ".next/server/pages/api/og.js",
   ".next/server/pages/api/revalidate.js",
   ".next/server/pages/api/shows/[...params].js",
-  ".next/server/pages/api/shows/[id].js",
+  ".next/server/pages/api/shows/[show-id].js",
   ".next/server/pages/deep/import.js",
   ".next/server/pages/edge/[id].js",
   ".next/server/pages/getServerSideProps/[id].js",
@@ -442,7 +442,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/og.js')
         require.resolve('../../../.next/server/pages/api/revalidate.js')
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
-        require.resolve('../../../.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../.next/server/pages/api/shows/[show-id].js')
         require.resolve('../../../.next/server/pages/deep/import.js')
         require.resolve('../../../.next/server/pages/edge/[id].js')
         require.resolve('../../../.next/server/pages/getServerSideProps/[id].js')
@@ -626,7 +626,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/pages/api/og.js')
         require.resolve('../../../.next/server/pages/api/revalidate.js')
         require.resolve('../../../.next/server/pages/api/shows/[...params].js')
-        require.resolve('../../../.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../.next/server/pages/api/shows/[show-id].js')
         require.resolve('../../../.next/server/pages/deep/import.js')
         require.resolve('../../../.next/server/pages/edge/[id].js')
         require.resolve('../../../.next/server/pages/getServerSideProps/[id].js')
@@ -810,7 +810,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/og.js')
         require.resolve('../../../web/.next/server/pages/api/revalidate.js')
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
-        require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[show-id].js')
         require.resolve('../../../web/.next/server/pages/deep/import.js')
         require.resolve('../../../web/.next/server/pages/edge/[id].js')
         require.resolve('../../../web/.next/server/pages/getServerSideProps/[id].js')
@@ -994,7 +994,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/pages/api/og.js')
         require.resolve('../../../web/.next/server/pages/api/revalidate.js')
         require.resolve('../../../web/.next/server/pages/api/shows/[...params].js')
-        require.resolve('../../../web/.next/server/pages/api/shows/[id].js')
+        require.resolve('../../../web/.next/server/pages/api/shows/[show-id].js')
         require.resolve('../../../web/.next/server/pages/deep/import.js')
         require.resolve('../../../web/.next/server/pages/edge/[id].js')
         require.resolve('../../../web/.next/server/pages/getServerSideProps/[id].js')

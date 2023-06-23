@@ -4,7 +4,7 @@ export default async (req, res) => {
 
   // Get the ID of the show
   const { query } = req
-  const { id } = query
+  const id = query['show-id']
 
   // Get the data
   const fetchRes = await fetch(`https://tvproxy.netlify.app/shows/${Number(id)}`)
