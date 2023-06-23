@@ -6,5 +6,5 @@ const Rewrite = () => {
     )
   }
   
-  export default Rewrite
+export default Rewrite
   
