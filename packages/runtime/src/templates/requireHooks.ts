@@ -1,4 +1,4 @@
-/* eslint-disable n/no-extraneous-require, no-underscore-dangle, @typescript-eslint/no-explicit-any */
+/* eslint-disable no-underscore-dangle, @typescript-eslint/no-explicit-any */
 
 // This is a modified version of the require hooks from Next.js
 // https://github.com/vercel/next.js/blob/b04c70573ac199a9bb3ea42201e0865e610d5b67/packages/next/src/server/require-hook.ts
@@ -114,4 +114,4 @@ export const applyRequireHooks = () => {
     // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
   }.bind(null, resolveFilename, requireHooks)
 }
-/* eslint-enable n/no-extraneous-require, no-underscore-dangle, @typescript-eslint/no-explicit-any */
+/* eslint-enable no-underscore-dangle, @typescript-eslint/no-explicit-any */
