@@ -38,7 +38,13 @@ export async function middleware(req: NextRequest) {
 
   if (pathname.startsWith('/request-rewrite')) {
     // request.rewrite() should return the MiddlewareResponse object instead of the Response object.
-    const res = await request.rewrite('/static-rewrite')
+    const res = await request.rewrite('/static-rewrite',
+    {
+      headers: {
+        'x-rewrite-test': 'hello',
+        'x-rewrite-test-2': 'hello-2'
+      }
+    })
     const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
 
     // Transform the response HTML and props
