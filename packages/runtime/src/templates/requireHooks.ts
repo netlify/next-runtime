@@ -103,7 +103,7 @@ export const applyRequireHooks = () => {
     isMain: boolean,
     options: any,
   ) {
-    const reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REACT ?? 'default'
+    const reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REACT || 'default'
     const resolvedRequest = hooks.get(reactMode)?.get(request) ?? request
 
     return originalResolveFilename.call(mod, resolvedRequest, parent, isMain, options)
