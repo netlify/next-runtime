@@ -11,6 +11,7 @@ const nextConfig = {
     defaultLocale: 'en',
     locales: ['en', 'de-DE'],
   },
+  skipMiddlewareUrlNormalize: true,
 }
 
 module.exports = nextConfig
