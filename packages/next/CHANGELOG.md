@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.8](https://github.com/netlify/next-runtime/compare/next-v1.4.7...next-v1.4.8) (2023-06-26)
+
+
+### Bug Fixes
+
+* Return MiddlewareResponse obj for rewrite ([#2159](https://github.com/netlify/next-runtime/issues/2159)) ([0eda10b](https://github.com/netlify/next-runtime/commit/0eda10b5d978c20b2f888d749b57b932c455c6e0))
+
 ## [1.4.7](https://github.com/netlify/next-runtime/compare/next-v1.4.6...next-v1.4.7) (2023-06-16)
 
 
