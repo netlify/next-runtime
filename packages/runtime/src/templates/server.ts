@@ -74,7 +74,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       const appPathsManifest = this.getAppPathsManifest?.()
 
       const routes = routesManifest && [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
-      const matchedRoute = routes?.find((route) => new RegExp(route.regex).test(path))
+      const matchedRoute = routes?.find((route) => new RegExp(route.regex).test(path.split('?')[0]))
       const isAppRoute =
         appPathsManifest && matchedRoute ? appPathsManifest[joinPaths(matchedRoute.page, 'page')] : false
 
