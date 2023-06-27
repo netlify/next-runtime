@@ -89,7 +89,7 @@ const resolveRequireHooks = () => {
         const resolvedPath = require.resolve(path, opts)
         mode.set(hook, resolvedPath)
       } catch {
-        // ignore
+        // module not present (older version of Next.js)
         mode.delete(hook)
       }
     })
