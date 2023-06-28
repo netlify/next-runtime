@@ -13,6 +13,12 @@ describe('Enhanced middleware', () => {
     })
   })
 
+  it('passes in headers within request.rewrite()', () => {
+    cy.request('/request-rewrite').then((response) => {
+      expect(response.headers).to.have.property('x-rewrite-test', 'hello')
+    })
+  })
+
   it('rewrites the response body using request.next()', () => {
     cy.visit('/static')
     cy.get('#message').contains('This was static (& escaping test &amp;) but has been transformed in')
