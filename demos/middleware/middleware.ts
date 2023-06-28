@@ -21,7 +21,9 @@ export async function middleware(req: NextRequest) {
   }
   
   const request = new MiddlewareRequest(req)
-  if (pathname.startsWith('/static')) {
+
+  // skipMiddlewareUrlNormalize next config option is used so we have to try to match both html path and data blob path
+  if (pathname.startsWith('/static') || pathname.endsWith('/static.json')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
     const res = await request.next()
     const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
@@ -36,7 +38,8 @@ export async function middleware(req: NextRequest) {
     return res
   }
 
-  if (pathname.startsWith('/request-rewrite')) {
+  // skipMiddlewareUrlNormalize next config option is used so we have to try to match both html path and data blob path
+  if (pathname.startsWith('/request-rewrite') || pathname.endsWith('/request-rewrite.json')) {
     // request.rewrite() should return the MiddlewareResponse object instead of the Response object.
     const res = await request.rewrite('/static-rewrite')
     const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
@@ -100,6 +103,10 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
+  if (pathname.includes('locale-preserving-rewrite')) {
+    return NextResponse.rewrite(new URL('/locale-test', req.url))
+  }
+
   if (pathname.startsWith('/shows')) {
     if (pathname.startsWith('/shows/222')) {
       response = NextResponse.next()
@@ -151,6 +158,7 @@ export const config = {
   matcher: [
     '/api/:all*',
     '/headers',
+    '/:all*/locale-preserving-rewrite',
     '/cookies/:path*',
     { source: '/static' },
     {source: '/request-rewrite' },
