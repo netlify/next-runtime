@@ -13,7 +13,7 @@ describe('Enhanced middleware', () => {
     })
   })
 
-  it.skip('passes in headers within request.rewrite()', () => {
+  it('passes in headers within request.rewrite()', () => {
     cy.request('/request-rewrite').then((response) => {
       expect(response.headers).to.have.property('x-rewrite-test', 'hello')
     })
