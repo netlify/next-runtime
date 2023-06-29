@@ -1,4 +1,7 @@
-import { PrerenderManifest } from 'next/dist/build'
+// eslint-disable-next-line n/no-deprecated-api -- this is what Next.js uses as well
+import { parse } from 'url'
+
+import type { PrerenderManifest } from 'next/dist/build'
 import type { BaseNextResponse } from 'next/dist/server/base-http'
 import type { NodeRequestHandler, Options } from 'next/dist/server/next-server'
 
@@ -36,6 +39,10 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
     public getRequestHandler(): NodeRequestHandler {
       const handler = super.getRequestHandler()
       return async (req, res, parsedUrl) => {
+        if (!parsedUrl && typeof req?.headers?.['x-middleware-rewrite'] === 'string') {
+          parsedUrl = parse(req.headers['x-middleware-rewrite'], true)
+        }
+
         // preserve the URL before Next.js mutates it for i18n
         const { url, headers } = req
 

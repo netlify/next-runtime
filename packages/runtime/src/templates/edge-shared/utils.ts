@@ -270,6 +270,9 @@ export const buildResponse = async ({
     }
     res.headers.set('x-middleware-rewrite', relativeUrl)
 
+    request.headers.set('x-original-path', new URL(request.url, `http://n`).pathname)
+    request.headers.set('x-middleware-rewrite', rewrite)
+
     return addMiddlewareHeaders(context.rewrite(rewrite), res)
   }
 
