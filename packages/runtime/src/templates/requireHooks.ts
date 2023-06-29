@@ -84,7 +84,7 @@ const resolveRequireHooks = () => {
 
   // resolve require hooks with module paths
   requireHooks.forEach((mode) => {
-    mode.forEach((hook, path) => {
+    mode.forEach((path, hook) => {
       try {
         const resolvedPath = require.resolve(path, opts)
         mode.set(hook, resolvedPath)
