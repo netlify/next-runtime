@@ -1,4 +1,7 @@
-import { PrerenderManifest } from 'next/dist/build'
+// eslint-disable-next-line n/no-deprecated-api -- this is what Next.js uses as well
+import { parse } from 'url'
+
+import type { PrerenderManifest } from 'next/dist/build'
 import type { BaseNextResponse } from 'next/dist/server/base-http'
 import type { NodeRequestHandler, Options } from 'next/dist/server/next-server'
 
@@ -36,6 +39,10 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
     public getRequestHandler(): NodeRequestHandler {
       const handler = super.getRequestHandler()
       return async (req, res, parsedUrl) => {
+        if (!parsedUrl && typeof req?.headers?.['x-middleware-rewrite'] === 'string') {
+          parsedUrl = parse(req.headers['x-middleware-rewrite'], true)
+        }
+
         // preserve the URL before Next.js mutates it for i18n
         const { url, headers } = req
 
@@ -70,11 +77,11 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
 
     // doing what they do in https://github.com/vercel/vercel/blob/1663db7ca34d3dd99b57994f801fb30b72fbd2f3/packages/next/src/server-build.ts#L576-L580
     private netlifyPrebundleReact(path: string) {
-      const routesManifest = this.getRoutesManifest()
-      const appPathsManifest = this.getAppPathsManifest()
+      const routesManifest = this.getRoutesManifest?.()
+      const appPathsManifest = this.getAppPathsManifest?.()
 
-      const routes = [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
-      const matchedRoute = routes.find((route) => new RegExp(route.regex).test(path))
+      const routes = routesManifest && [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
+      const matchedRoute = routes?.find((route) => new RegExp(route.regex).test(path.split('?')[0]))
       const isAppRoute =
         appPathsManifest && matchedRoute ? appPathsManifest[joinPaths(matchedRoute.page, 'page')] : false
 

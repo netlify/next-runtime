@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.38.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.38.0...plugin-nextjs-v4.38.1) (2023-06-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.4.1 ([#2167](https://github.com/netlify/next-runtime/issues/2167)) ([c295bc2](https://github.com/netlify/next-runtime/commit/c295bc23bd769e0d946a40d75ee7340f4d5cdf9d))
+* optionally chain server functions when selecting react version ([#2179](https://github.com/netlify/next-runtime/issues/2179)) ([e63fcf0](https://github.com/netlify/next-runtime/commit/e63fcf0f98b52a830d8b328be803755ba91942ff))
+
 ## [4.38.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.4...plugin-nextjs-v4.38.0) (2023-06-16)
 
 

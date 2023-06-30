@@ -2,7 +2,7 @@
 import spawn from 'cross-spawn'
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
 import { writeFile } from 'fs-extra'
-import { fetch as undiciFetch } from 'undici'
+import { fetch as undiciFetch } from 'next/dist/compiled/undici'
 import nodeFetch from 'node-fetch'
 import path from 'path'
 import qs from 'querystring'
@@ -111,7 +111,7 @@ async function processChunkedResponse(response) {
  * @param {string | number} appPort
  * @param {string} pathname
  * @param {Record<string, any> | string | undefined} [query]
- * @param {import("undici").RequestInit} [opts]
+ * @param {import("next/dist/compiled/undici").RequestInit} [opts]
  * @returns {Promise<string>}
  */
 export function renderViaHTTP(appPort, pathname, query, opts) {
@@ -121,11 +121,11 @@ export function renderViaHTTP(appPort, pathname, query, opts) {
 /**
  * @param {string | number} appPort
  * @param {string} pathname
- * @param {Record<string, any> | string | undefined} query
- * @param {RequestInit} opts
- * @returns {Promise<Response>}
+ * @param {Record<string, any> | string | null | undefined} [query]
+ * @param {import('node-fetch').RequestInit} [opts]
+ * @returns {Promise<Response & {buffer: any} & {headers: Headers}>}
  */
-export async function fetchViaHTTP(appPort, pathname, query = undefined, opts = undefined, useUndici = false) {
+export function fetchViaHTTP(appPort, pathname, query, opts, useUndici = false) {
   const url = `${pathname}${typeof query === 'string' ? query : query ? `?${qs.stringify(query)}` : ''}`
   const fetch = useUndici ? undiciFetch : nodeFetch
   const fullUrl = getFullUrl(appPort, url)
