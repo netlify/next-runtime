@@ -51,7 +51,6 @@ const plugin: NetlifyPlugin = {
       cache,
     },
   }) {
-    console.log('using local version')
     const { publish } = netlifyConfig.build
     if (shouldSkip()) {
       await restoreCache({ cache, publish })
