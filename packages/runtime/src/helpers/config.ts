@@ -8,7 +8,7 @@ import slash from 'slash'
 
 import { HANDLER_FUNCTION_NAME, IMAGE_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
-import type { APILambda } from './functions'
+import type { APILambda, SSRLambda } from './functions'
 import type { RoutesManifest } from './types'
 import { escapeStringRegexp } from './utils'
 
@@ -107,12 +107,14 @@ export const configureHandlerFunctions = async ({
   publish,
   ignore = [],
   apiLambdas,
+  ssrLambdas,
   splitApiRoutes,
 }: {
   netlifyConfig: NetlifyConfig
   publish: string
   ignore: Array<string>
   apiLambdas: APILambda[]
+  ssrLambdas: SSRLambda[]
   splitApiRoutes: boolean
 }) => {
   const config = await getRequiredServerFiles(publish)
@@ -170,17 +172,23 @@ export const configureHandlerFunctions = async ({
     })
   }
 
-  configureFunction(HANDLER_FUNCTION_NAME)
-  configureFunction(ODB_FUNCTION_NAME)
+  const configureLambda = (lambda: APILambda) => {
+    const { functionName, includedFiles } = lambda
+    netlifyConfig.functions[functionName] ||= { included_files: [] }
+    netlifyConfig.functions[functionName].node_bundler = 'none'
+    netlifyConfig.functions[functionName].included_files ||= []
+    netlifyConfig.functions[functionName].included_files.push(...includedFiles.map(escapeGlob))
+  }
+
+  if (ssrLambdas.length === 0) {
+    configureFunction(HANDLER_FUNCTION_NAME)
+    configureFunction(ODB_FUNCTION_NAME)
+  } else {
+    ssrLambdas.forEach(configureLambda)
+  }
 
   if (splitApiRoutes) {
-    for (const apiLambda of apiLambdas) {
-      const { functionName, includedFiles } = apiLambda
-      netlifyConfig.functions[functionName] ||= { included_files: [] }
-      netlifyConfig.functions[functionName].node_bundler = 'none'
-      netlifyConfig.functions[functionName].included_files ||= []
-      netlifyConfig.functions[functionName].included_files.push(...includedFiles.map(escapeGlob))
-    }
+    apiLambdas.forEach(configureLambda)
   } else {
     configureFunction('_api_*')
   }

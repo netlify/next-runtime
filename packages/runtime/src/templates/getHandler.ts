@@ -206,6 +206,8 @@ export const getHandler = ({
     throw new Error('Could not find Next.js server')
   }
 
+  process.env.NODE_ENV = 'production';
+
   const { Server } = require("http");
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
