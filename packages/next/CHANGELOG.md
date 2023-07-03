@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.9](https://github.com/netlify/next-runtime/compare/next-v1.4.8...next-v1.4.9) (2023-07-03)
+
+
+### Bug Fixes
+
+* override headers within req.rewrite() ([#2189](https://github.com/netlify/next-runtime/issues/2189)) ([cc8546e](https://github.com/netlify/next-runtime/commit/cc8546e77f4f6cb784a0f8fe0484a1b96fb8137a))
+
 ## [1.4.8](https://github.com/netlify/next-runtime/compare/next-v1.4.7...next-v1.4.8) (2023-06-26)
 
 
