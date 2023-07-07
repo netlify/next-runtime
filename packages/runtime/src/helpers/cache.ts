@@ -1,8 +1,8 @@
 import { existsSync } from 'fs'
 import { join, resolve } from 'path'
 
-import { shouldSkip } from './utils'
 import logger from './logger'
+import { shouldSkip } from './utils'
 
 const findDistDir = (publish) => {
   // In normal operation, the dist dir is the same as the publish dir
@@ -26,10 +26,8 @@ export const restoreCache = async ({ cache, publish }) => {
   }
   if (await cache.restore(join(distDir, 'cache'))) {
     logger.info('Next.js cache restored.')
-    // console.log('Next.js cache restored.')
   } else {
     logger.info('No Next.js cache to restore.')
-    // console.log('No Next.js cache to restore.')
   }
 }
 
@@ -39,8 +37,8 @@ export const saveCache = async ({ cache, publish }) => {
     return
   }
   if (await cache.save(join(distDir, 'cache'))) {
-    console.log('Next.js cache saved.')
+    logger.info('Next.js cache saved.')
   } else {
-    console.log('No Next.js cache to save.')
+    logger.info('No Next.js cache to save.')
   }
 }

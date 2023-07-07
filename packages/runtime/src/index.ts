@@ -30,6 +30,7 @@ import {
   APILambda,
   getSSRLambdas,
 } from './helpers/functions'
+import logger from './helpers/logger'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
 import {
@@ -42,8 +43,6 @@ import {
   warnForRootRedirects,
 } from './helpers/verification'
 
-import logger from './helpers/logger'
-
 const plugin: NetlifyPlugin = {
   async onPreBuild({
     constants,
@@ -53,14 +52,12 @@ const plugin: NetlifyPlugin = {
       cache,
     },
   }) {
-    logger.info('*** Netlify Build Plugin: Next.js ***');
-
     const { publish } = netlifyConfig.build
     if (shouldSkip()) {
       await restoreCache({ cache, publish })
-      console.log('Not running Next Runtime')
+      logger.info('Not running Next Runtime')
       if (existsSync(join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME))) {
-        console.log(`Please ensure you remove any generated functions from ${constants.INTERNAL_FUNCTIONS_SRC}`)
+        logger.info(`Please ensure you remove any generated functions from ${constants.INTERNAL_FUNCTIONS_SRC}`)
       }
       return
     }
@@ -127,7 +124,7 @@ const plugin: NetlifyPlugin = {
       Object.keys(middlewareManifest.middleware).length !== 0 &&
       destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)
     ) {
-      console.log(
+      logger.info(
         redBright(outdent`
           You are using Next.js Middleware without Netlify Edge Functions.
           This is deprecated because it negatively affects performance and will disable ISR and static rendering.
@@ -141,14 +138,14 @@ const plugin: NetlifyPlugin = {
       const userDefinedNextAuthUrl = config.config.env.NEXTAUTH_URL
 
       if (userDefinedNextAuthUrl) {
-        console.log(
+        logger.info(
           `NextAuth package detected, NEXTAUTH_URL environment variable set by user in next.config.js to ${userDefinedNextAuthUrl}`,
         )
       } else if (process.env.NEXTAUTH_URL) {
         // When the value is specified in the netlify.toml or the Netlify UI (will be evaluated in this order)
         const nextAuthUrl = `${process.env.NEXTAUTH_URL}${basePath}`
 
-        console.log(
+        logger.info(
           `NextAuth package detected, NEXTAUTH_URL environment variable set by user in Netlify configuration to ${nextAuthUrl}`,
         )
         config.config.env.NEXTAUTH_URL = nextAuthUrl
@@ -161,7 +158,7 @@ const plugin: NetlifyPlugin = {
           process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
         }${basePath}`
 
-        console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
+        logger.info(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
         config.config.env.NEXTAUTH_URL = nextAuthUrl
 
         await updateRequiredServerFiles(publish, config)
@@ -266,7 +263,7 @@ const plugin: NetlifyPlugin = {
     await removeMetadataFiles(publish)
 
     if (experimental?.appDir) {
-      console.log(
+      logger.info(
         '🧪 Thank you for testing "appDir" support on Netlify. For known issues and to give feedback, visit https://ntl.fyi/next-13-feedback',
       )
     }
