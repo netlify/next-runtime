@@ -42,6 +42,8 @@ import {
   warnForRootRedirects,
 } from './helpers/verification'
 
+import logger from './helpers/logger'
+
 const plugin: NetlifyPlugin = {
   async onPreBuild({
     constants,
@@ -51,6 +53,8 @@ const plugin: NetlifyPlugin = {
       cache,
     },
   }) {
+    logger.info('*** Netlify Build Plugin: Next.js ***');
+
     const { publish } = netlifyConfig.build
     if (shouldSkip()) {
       await restoreCache({ cache, publish })

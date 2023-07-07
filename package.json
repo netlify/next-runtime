@@ -97,7 +97,8 @@
     "wait-on": "^7.0.1"
   },
   "dependencies": {
-    "next": "^13.4.1"
+    "next": "^13.4.1",
+    "winston": "^3.9.0"
   },
   "engines": {
     "node": ">=16.0.0"
