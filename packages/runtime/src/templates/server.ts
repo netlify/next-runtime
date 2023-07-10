@@ -12,7 +12,6 @@ import {
   localizeRoute,
   localizeDataRoute,
   unlocalizeRoute,
-  joinPaths,
 } from './handlerUtils'
 
 interface NetlifyConfig {
@@ -78,12 +77,11 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
     // doing what they do in https://github.com/vercel/vercel/blob/1663db7ca34d3dd99b57994f801fb30b72fbd2f3/packages/next/src/server-build.ts#L576-L580
     private netlifyPrebundleReact(path: string) {
       const routesManifest = this.getRoutesManifest?.()
-      const appPathsManifest = this.getAppPathsManifest?.()
+      const appPathsRoutes = this.getAppPathRoutes?.()
 
       const routes = routesManifest && [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
-      const matchedRoute = routes?.find((route) => new RegExp(route.regex).test(path.split('?')[0]))
-      const isAppRoute =
-        appPathsManifest && matchedRoute ? appPathsManifest[joinPaths(matchedRoute.page, 'page')] : false
+      const matchedRoute = routes?.find((route) => new RegExp(route.regex).test(new URL(path, 'http://n').pathname))
+      const isAppRoute = appPathsRoutes && matchedRoute ? appPathsRoutes[matchedRoute.page] : false
 
       if (isAppRoute) {
         // app routes should use prebundled React
