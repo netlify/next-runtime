@@ -66,14 +66,6 @@ jest.mock(
 )
 
 jest.mock(
-  'server/app-paths-manifest.json',
-  () => ({
-    '/blog/(test)/[author]/[slug]/page': 'app/blog/[author]/[slug]/page.js',
-  }),
-  { virtual: true },
-)
-
-jest.mock(
   'routes-manifest.json',
   () => ({
     dynamicRoutes: [
@@ -113,6 +105,10 @@ jest.mock(
   { virtual: true },
 )
 
+const appPathsManifest = {
+  '/blog/(test)/[author]/[slug]/page': 'app/blog/[author]/[slug]/page.js',
+}
+
 let NetlifyNextServer: NetlifyNextServerType
 beforeAll(() => {
   const NextServer: NextServerType = require(getServerFile(__dirname, false)).default
@@ -125,8 +121,7 @@ beforeAll(() => {
     this.nextConfig = nextOptions.conf
     this.netlifyConfig = netlifyConfig
     this.renderOpts = { previewProps: {} }
-    this.hasAppDir = Boolean(this.nextConfig?.experimental?.appDir)
-    this.appPathsManifest = this.getAppPathsManifest()
+    this.appPathsManifest = appPathsManifest
   }
   Object.setPrototypeOf(NetlifyNextServer, MockNetlifyNextServerConstructor)
 })
