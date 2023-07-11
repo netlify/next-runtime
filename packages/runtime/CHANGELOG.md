@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.39.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.0...plugin-nextjs-v4.39.1) (2023-07-11)
+
+
+### Bug Fixes
+
+* use native path matching for prebundled react conditional ([#2206](https://github.com/netlify/next-runtime/issues/2206)) ([ba036fb](https://github.com/netlify/next-runtime/commit/ba036fbcce431b8b95f006ebca72e2bd07741a15))
+
 ## [4.39.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.38.1...plugin-nextjs-v4.39.0) (2023-07-03)
 
 
