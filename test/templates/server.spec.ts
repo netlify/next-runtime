@@ -65,6 +65,50 @@ jest.mock(
   { virtual: true },
 )
 
+jest.mock(
+  'routes-manifest.json',
+  () => ({
+    dynamicRoutes: [
+      {
+        page: '/posts/[title]',
+        regex: '^/posts/([^/]+?)(?:/)?$',
+        routeKeys: {
+          nxtPtitle: 'nxtPtitle',
+        },
+        namedRegex: '^/posts/(?<nxtPtitle>[^/]+?)(?:/)?$',
+      },
+      {
+        page: '/blog/[author]/[slug]',
+        regex: '^/blog/([^/]+?)/([^/]+?)(?:/)?$',
+        routeKeys: {
+          nxtPauthor: 'nxtPauthor',
+          nxtPslug: 'nxtPslug',
+        },
+        namedRegex: '^/blog/(?<nxtPauthor>[^/]+?)/(?<nxtPslug>[^/]+?)(?:/)?$',
+      },
+    ],
+    staticRoutes: [
+      {
+        page: '/non-i18n/with-revalidate',
+        regex: '^/non-i18n/with-revalidate(?:/)?$',
+        routeKeys: {},
+        namedRegex: '^/non-i18n/with-revalidate(?:/)?$',
+      },
+      {
+        page: '/i18n/with-revalidate',
+        regex: '^/i18n/with-revalidate(?:/)?$',
+        routeKeys: {},
+        namedRegex: '^/i18n/with-revalidate(?:/)?$',
+      },
+    ],
+  }),
+  { virtual: true },
+)
+
+const appPathsManifest = {
+  '/blog/(test)/[author]/[slug]/page': 'app/blog/[author]/[slug]/page.js',
+}
+
 let NetlifyNextServer: NetlifyNextServerType
 beforeAll(() => {
   const NextServer: NextServerType = require(getServerFile(__dirname, false)).default
@@ -76,12 +120,14 @@ beforeAll(() => {
     this.buildId = mockBuildId
     this.nextConfig = nextOptions.conf
     this.netlifyConfig = netlifyConfig
+    this.renderOpts = { previewProps: {} }
+    this.appPathsManifest = appPathsManifest
   }
   Object.setPrototypeOf(NetlifyNextServer, MockNetlifyNextServerConstructor)
 })
 
 describe('the netlify next server', () => {
-  it.skip('does not revalidate a request without an `x-prerender-revalidate` header', async () => {
+  it('does not revalidate a request without an `x-prerender-revalidate` header', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -92,7 +138,7 @@ describe('the netlify next server', () => {
     expect(mockedApiFetch).not.toHaveBeenCalled()
   })
 
-  it.skip('revalidates a static non-i18n route with an `x-prerender-revalidate` header', async () => {
+  it('revalidates a static non-i18n route with an `x-prerender-revalidate` header', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -112,7 +158,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('revalidates a static i18n route with an `x-prerender-revalidate` header', async () => {
+  it('revalidates a static i18n route with an `x-prerender-revalidate` header', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: { ...mocki18nConfig } }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -132,7 +178,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('revalidates a dynamic non-i18n route with an `x-prerender-revalidate` header', async () => {
+  it('revalidates a dynamic non-i18n route with an `x-prerender-revalidate` header', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -152,7 +198,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('revalidates a dynamic i18n route with an `x-prerender-revalidate` header', async () => {
+  it('revalidates a dynamic i18n route with an `x-prerender-revalidate` header', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: { ...mocki18nConfig } }, { ...mockTokenConfig })
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -172,7 +218,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('throws an error when route is not found in the manifest', async () => {
+  it('throws an error when route is not found in the manifest', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -187,7 +233,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('throws an error when paths are not found by the API', async () => {
+  it('throws an error when paths are not found by the API', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -203,7 +249,7 @@ describe('the netlify next server', () => {
     )
   })
 
-  it.skip('throws an error when the revalidate API is unreachable', async () => {
+  it('throws an error when the revalidate API is unreachable', async () => {
     const netlifyNextServer = new NetlifyNextServer({ conf: {} }, mockTokenConfig)
     const requestHandler = netlifyNextServer.getRequestHandler()
 
@@ -217,5 +263,53 @@ describe('the netlify next server', () => {
     await expect(requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))).rejects.toThrow(
       'Unable to connect',
     )
+  })
+
+  it('resolves react as normal for pages routes', async () => {
+    const netlifyNextServer = new NetlifyNextServer({ conf: {} }, {})
+    const requestHandler = netlifyNextServer.getRequestHandler()
+
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/posts/hello',
+    })
+
+    // @ts-expect-error - Types are incorrect for `MockedResponse`
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
+
+    // eslint-disable-next-line no-underscore-dangle
+    expect(process.env.__NEXT_PRIVATE_PREBUNDLED_REACT).toBe('')
+  })
+
+  it('resolves the prebundled react version for app routes', async () => {
+    const netlifyNextServer = new NetlifyNextServer({ conf: { experimental: { appDir: true } } }, {})
+    const requestHandler = netlifyNextServer.getRequestHandler()
+
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/blog/rob/hello',
+    })
+
+    // @ts-expect-error - Types are incorrect for `MockedResponse`
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
+
+    // eslint-disable-next-line no-underscore-dangle
+    expect(process.env.__NEXT_PRIVATE_PREBUNDLED_REACT).toBe('next')
+  })
+
+  it('resolves the experimental prebundled react version for app routes with server actions', async () => {
+    const netlifyNextServer = new NetlifyNextServer(
+      { conf: { experimental: { appDir: true, serverActions: true } } },
+      {},
+    )
+    const requestHandler = netlifyNextServer.getRequestHandler()
+
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/blog/rob/hello',
+    })
+
+    // @ts-expect-error - Types are incorrect for `MockedResponse`
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
+
+    // eslint-disable-next-line no-underscore-dangle
+    expect(process.env.__NEXT_PRIVATE_PREBUNDLED_REACT).toBe('experimental')
   })
 })
