@@ -1,5 +1,26 @@
 # Changelog
 
+## [4.39.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.0...plugin-nextjs-v4.39.1) (2023-07-11)
+
+
+### Bug Fixes
+
+* use native path matching for prebundled react conditional ([#2206](https://github.com/netlify/next-runtime/issues/2206)) ([ba036fb](https://github.com/netlify/next-runtime/commit/ba036fbcce431b8b95f006ebca72e2bd07741a15))
+
+## [4.39.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.38.1...plugin-nextjs-v4.39.0) (2023-07-03)
+
+
+### Features
+
+* Use `none` bundler for SSR Routes ([#2084](https://github.com/netlify/next-runtime/issues/2084)) ([4b3d3f4](https://github.com/netlify/next-runtime/commit/4b3d3f46060448e2527d94eda952314142150ddd))
+
+
+### Bug Fixes
+
+* **deps:** update dependency pathe to ^0.3.0 ([#2199](https://github.com/netlify/next-runtime/issues/2199)) ([87391e1](https://github.com/netlify/next-runtime/commit/87391e162588910459d9ca0eb7080c04bb713988))
+* edge cases for custom react module resolution ([#2188](https://github.com/netlify/next-runtime/issues/2188)) ([6b527be](https://github.com/netlify/next-runtime/commit/6b527be4473032c2e22ed67c819ef662d410f457))
+* preserve original path after middleware rewrite ([#2177](https://github.com/netlify/next-runtime/issues/2177)) ([9c6ec9f](https://github.com/netlify/next-runtime/commit/9c6ec9f669b8325f6cd4a3ed61446dc7cf550d3a))
+
 ## [4.38.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.38.0...plugin-nextjs-v4.38.1) (2023-06-22)
 
 

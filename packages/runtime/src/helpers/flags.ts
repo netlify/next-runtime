@@ -29,3 +29,10 @@ export const splitApiRoutes = (featureFlags: Record<string, unknown>, publish: s
 
   return isEnabled
 }
+
+export const bundleBasedOnNftFiles = (featureFlags: Record<string, unknown>): boolean => {
+  const isEnabled =
+    destr(process.env.NEXT_BUNDLE_BASED_ON_NFT_FILES) ?? featureFlags.next_bundle_based_on_nft_files ?? false
+
+  return isEnabled
+}

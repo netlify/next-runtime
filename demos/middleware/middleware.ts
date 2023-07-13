@@ -21,13 +21,37 @@ export async function middleware(req: NextRequest) {
   }
   
   const request = new MiddlewareRequest(req)
-  if (pathname.startsWith('/static')) {
+
+  // skipMiddlewareUrlNormalize next config option is used so we have to try to match both html path and data blob path
+  if (pathname.startsWith('/static') || pathname.endsWith('/static.json')) {
     // Unlike NextResponse.next(), this actually sends the request to the origin
     const res = await request.next()
     const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
 
     // Transform the response HTML and props
-    res.replaceText('p[id=message]', message)
+    res.replaceText('#message', message)
+    res.setPageProp('message', message)
+    res.setPageProp('showAd', true)
+
+    res.headers.set('x-modified-edge', 'true')
+    res.headers.set('x-is-deno', 'Deno' in globalThis ? 'true' : 'false')
+    return res
+  }
+
+  // skipMiddlewareUrlNormalize next config option is used so we have to try to match both html path and data blob path
+  if (pathname.startsWith('/request-rewrite') || pathname.endsWith('/request-rewrite.json')) {
+    // request.rewrite() should return the MiddlewareResponse object instead of the Response object.
+    const res = await request.rewrite('/static-rewrite',
+    {
+      headers: {
+        'x-rewrite-test': 'hello',
+        'x-rewrite-test-2': 'hello-2'
+      }
+    })
+    const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
+
+    // Transform the response HTML and props
+    res.replaceText('#message', message)
     res.setPageProp('message', message)
     res.setPageProp('showAd', true)
 
@@ -85,6 +109,10 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
+  if (pathname.includes('locale-preserving-rewrite')) {
+    return NextResponse.rewrite(new URL('/locale-test', req.url))
+  }
+
   if (pathname.startsWith('/shows')) {
     if (pathname.startsWith('/shows/222')) {
       response = NextResponse.next()
@@ -136,8 +164,10 @@ export const config = {
   matcher: [
     '/api/:all*',
     '/headers',
+    '/:all*/locale-preserving-rewrite',
     '/cookies/:path*',
     { source: '/static' },
+    {source: '/request-rewrite' },
     { source: '/matcher-cookie'},
     { source: '/shows/((?!99|88).*)' },
     {
