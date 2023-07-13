@@ -4,18 +4,7 @@ import process from 'process'
 
 import type { NetlifyPluginOptions } from '@netlify/build'
 import Chance from 'chance'
-import {
-  writeJSON,
-  unlink,
-  existsSync,
-  readFileSync,
-  ensureDir,
-  readJson,
-  pathExists,
-  writeFile,
-  move,
-  symlink,
-} from 'fs-extra'
+import { writeJSON, unlink, existsSync, readFileSync, ensureDir, readJson, pathExists, writeFile, move } from 'fs-extra'
 import { join, relative } from 'pathe'
 import { dir as getTmpDir } from 'tmp-promise'
 
@@ -86,9 +75,7 @@ let cleanup
 // In each test, we change cwd to a temporary directory.
 // This allows us not to have to mock filesystem operations.
 beforeEach(async () => {
-  const tmpdir = join(__dirname, '..', 'tmp')
-  await ensureDir(tmpdir)
-  const tmpDir = await getTmpDir({ unsafeCleanup: true, tmpdir })
+  const tmpDir = await getTmpDir({ unsafeCleanup: true })
   restoreCwd = changeCwd(tmpDir.path)
   cleanup = tmpDir.cleanup
 
@@ -536,9 +523,6 @@ describe('onBuild()', () => {
   it('generates a file referencing all when publish dir is a subdirectory', async () => {
     const dir = 'web/.next'
     await moveNextDist(dir)
-    const symlinkPath = join(__dirname, '..', 'tmp', 'node_modules')
-
-    await symlink(join(__dirname, '..', 'node_modules'), symlinkPath)
 
     netlifyConfig.build.publish = path.resolve(dir)
     const config = {
@@ -552,8 +536,6 @@ describe('onBuild()', () => {
 
     expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
     expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
-
-    await unlink(symlinkPath)
   })
 
   it('generates entrypoints with correct references', async () => {
@@ -766,7 +748,7 @@ describe('onBuild()', () => {
 
     expect(functionsManifest).toEqual({
       config: {
-        generator: expect.stringContaining('@netlify/next-runtime@'),
+        generator: '@netlify/next-runtime@unknown',
         name: 'Next.js API handler',
       },
       version: 1,
