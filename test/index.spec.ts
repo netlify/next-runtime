@@ -21,7 +21,7 @@ import { changeCwd, useFixture, moveNextDist } from './test-utils'
 jest.mock('../packages/runtime/src/helpers/utils', () => ({
   ...jest.requireActual('../packages/runtime/src/helpers/utils'),
   isNextAuthInstalled: jest.fn(),
-  getBundleWeight: jest.fn().mockReturnValue(0),
+  getBundleWeight: async () => 0,
 }))
 
 jest.mock('../packages/runtime/src/helpers/functionsMetaData', () => {
