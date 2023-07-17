@@ -1,5 +1,6 @@
 import type { NetlifyConfig } from '@netlify/build'
 import type { Header } from '@netlify/build/types/config/netlify_config'
+import { stat } from 'fs-extra'
 import globby from 'globby'
 import type { ExperimentalConfig } from 'next/dist/server/config-shared'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
@@ -327,3 +328,20 @@ export const getRemotePatterns = (experimental: ExperimentalConfigWithLegacy, im
 const reHasRegExp = /[|\\{}()[\]^$+*?.-]/
 const reReplaceRegExp = /[|\\{}()[\]^$+*?.-]/g
 export const escapeStringRegexp = (str: string) => (reHasRegExp.test(str) ? str.replace(reReplaceRegExp, '\\$&') : str)
+
+const sum = (arr: number[]) => arr.reduce((v, current) => v + current, 0)
+
+// TODO: cache results
+export const getBundleWeight = async (files: string[]) => {
+  const sizes = await Promise.all(
+    files.map(async (file) => {
+      const fStat = await stat(file)
+      if (fStat.isFile()) {
+        return fStat.size
+      }
+      return 0
+    }),
+  )
+
+  return sum(sizes.flat(1))
+}

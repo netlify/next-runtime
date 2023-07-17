@@ -2,7 +2,7 @@ import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
-import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat } from 'fs-extra'
+import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON } from 'fs-extra'
 import { PrerenderManifest } from 'next/dist/build'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
@@ -31,7 +31,7 @@ import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './fi
 import { writeFunctionConfiguration } from './functionsMetaData'
 import { pack } from './pack'
 import { ApiRouteType } from './types'
-import { getFunctionNameForPage } from './utils'
+import { getBundleWeight, getFunctionNameForPage } from './utils'
 
 export interface RouteConfig {
   functionName: string
@@ -324,23 +324,6 @@ export const getCommonDependencies = async (publish: string) => {
   ])
 
   return deps.flat(1)
-}
-
-const sum = (arr: number[]) => arr.reduce((v, current) => v + current, 0)
-
-// TODO: cache results
-const getBundleWeight = async (files: string[]) => {
-  const sizes = await Promise.all(
-    files.map(async (file) => {
-      const fStat = await stat(file)
-      if (fStat.isFile()) {
-        return fStat.size
-      }
-      return 0
-    }),
-  )
-
-  return sum(sizes.flat(1))
 }
 
 const changeExtension = (file: string, extension: string) => {
