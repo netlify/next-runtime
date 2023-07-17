@@ -58,7 +58,7 @@
     "@testing-library/cypress": "^9.0.0",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
-    "@types/mocha": "^9.0.0",
+    "@types/mocha": "^10.0.0",
     "@types/node": "^17.0.10",
     "@types/react": "^18.0.25",
     "babel-jest": "^27.2.5",
