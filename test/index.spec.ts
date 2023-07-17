@@ -18,9 +18,12 @@ import { getAllPageDependencies } from '../packages/runtime/src/templates/getPag
 
 import { changeCwd, useFixture, moveNextDist } from './test-utils'
 
+const getBundleWeightMock = jest.fn().mockReturnValue(0)
+
 jest.mock('../packages/runtime/src/helpers/utils', () => ({
   ...jest.requireActual('../packages/runtime/src/helpers/utils'),
   isNextAuthInstalled: jest.fn(),
+  getBundleWeight: getBundleWeightMock,
 }))
 
 jest.mock('../packages/runtime/src/helpers/functionsMetaData', () => {
