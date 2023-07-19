@@ -1,7 +1,7 @@
 import winston from 'winston'
 
 // Define log level from environment variable so we can change it if needed
-const logLevel = process.env.LOG_LEVEL ?? 'info';
+const logLevel = process.env.LOG_LEVEL ?? 'info'
 
 export const logger = winston.createLogger({
   transports: [new winston.transports.Console({ level: logLevel })],
