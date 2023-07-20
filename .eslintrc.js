@@ -30,6 +30,7 @@ module.exports = {
     'unicorn/no-array-push-push': 0,
     'unicorn/numeric-separators-style': 0,
     'max-lines': 0,
+    'no-console': 2,
   },
   parserOptions: {
     sourceType: 'module',
