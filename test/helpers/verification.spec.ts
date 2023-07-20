@@ -10,7 +10,6 @@ import {
 } from '../../packages/runtime/src/helpers/verification'
 import { describeCwdTmpDir, moveNextDist } from '../test-utils'
 
-
 const netlifyConfig = {
   build: { command: 'npm run build' },
   functions: {},
