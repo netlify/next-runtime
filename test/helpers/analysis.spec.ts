@@ -6,9 +6,7 @@ import logger from '../../packages/runtime/src/helpers/logger'
 describe('static source analysis', () => {
   beforeEach(() => {
     //  Spy on logger.error
-    // TODO: Request for PR comments - Do we need to mock this?
-    // We can just leave it as is, but it will print out the error message
-    jest.spyOn(logger, 'error')
+    jest.spyOn(logger, 'error').mockImplementation(() => logger)
   })
   afterEach(() => {
     //  Restore logger.error
