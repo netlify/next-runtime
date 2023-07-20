@@ -1,15 +1,18 @@
 import { resolve } from 'pathe'
 
 import { extractConfigFromFile } from '../../packages/runtime/src/helpers/analysis'
+import logger from '../../packages/runtime/src/helpers/logger'
 
 describe('static source analysis', () => {
   beforeEach(() => {
-    //  Spy on console.error
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    //  Spy on logger.error
+    // TODO: Request for PR comments - Do we need to mock this?
+    // We can just leave it as is, but it will print out the error message
+    jest.spyOn(logger, 'error')
   })
   afterEach(() => {
-    //  Restore console.error
-    ;(console.error as jest.Mock).mockRestore()
+    //  Restore logger.error
+    ;(logger.error as jest.Mock).mockRestore()
   })
   it('should extract config values from a source file', async () => {
     const config = await extractConfigFromFile(resolve(__dirname, '../fixtures/analysis/background.js'), process.cwd())
@@ -44,7 +47,7 @@ describe('static source analysis', () => {
     await expect(
       extractConfigFromFile(resolve(__dirname, '../fixtures/analysis/background-schedule.ts'), process.cwd()),
     ).rejects.toThrow('Unsupported config value in test/fixtures/analysis/background-schedule.ts')
-    expect(console.error).toHaveBeenCalledWith(
+    expect(logger.error).toHaveBeenCalledWith(
       `Invalid config value in test/fixtures/analysis/background-schedule.ts: schedule is not allowed unless type is "experimental-scheduled"`,
     )
   })
@@ -52,7 +55,7 @@ describe('static source analysis', () => {
     await expect(
       extractConfigFromFile(resolve(__dirname, '../fixtures/analysis/default-schedule.ts'), process.cwd()),
     ).rejects.toThrow('Unsupported config value in test/fixtures/analysis/default-schedule.ts')
-    expect(console.error).toHaveBeenCalledWith(
+    expect(logger.error).toHaveBeenCalledWith(
       `Invalid config value in test/fixtures/analysis/default-schedule.ts: schedule is not allowed unless type is "experimental-scheduled"`,
     )
   })
@@ -60,7 +63,7 @@ describe('static source analysis', () => {
     await expect(
       extractConfigFromFile(resolve(__dirname, '../fixtures/analysis/missing-schedule.ts'), process.cwd()),
     ).rejects.toThrow('Unsupported config value in test/fixtures/analysis/missing-schedule.ts')
-    expect(console.error).toHaveBeenCalledWith(
+    expect(logger.error).toHaveBeenCalledWith(
       `Invalid config value in test/fixtures/analysis/missing-schedule.ts: schedule is required when type is "experimental-scheduled"`,
     )
   })
@@ -68,7 +71,7 @@ describe('static source analysis', () => {
     await expect(
       extractConfigFromFile(resolve(__dirname, '../fixtures/analysis/scheduled-edge.ts'), process.cwd()),
     ).rejects.toThrow('Unsupported config value in test/fixtures/analysis/scheduled-edge.ts')
-    expect(console.error).toHaveBeenCalledWith(
+    expect(logger.error).toHaveBeenCalledWith(
       `Invalid config value in test/fixtures/analysis/scheduled-edge.ts: edge runtime is not supported for scheduled functions`,
     )
   })
@@ -76,7 +79,7 @@ describe('static source analysis', () => {
     await expect(
       extractConfigFromFile(resolve(__dirname, '../fixtures/analysis/background-edge.ts'), process.cwd()),
     ).rejects.toThrow('Unsupported config value in test/fixtures/analysis/background-edge.ts')
-    expect(console.error).toHaveBeenCalledWith(
+    expect(logger.error).toHaveBeenCalledWith(
       `Invalid config value in test/fixtures/analysis/background-edge.ts: edge runtime is not supported for background functions`,
     )
   })

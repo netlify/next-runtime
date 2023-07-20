@@ -2,6 +2,8 @@ import destr from 'destr'
 import { existsSync } from 'fs-extra'
 import { join } from 'pathe'
 
+import logger from './logger'
+
 /**
  * If this flag is enabled, we generate individual Lambda functions for API Routes.
  * They're packed together in 50mb chunks to avoid hitting the Lambda size limit.
@@ -21,7 +23,7 @@ export const splitApiRoutes = (featureFlags: Record<string, unknown>, publish: s
   const isEnabled = destr(process.env.NEXT_SPLIT_API_ROUTES) ?? featureFlags.next_split_api_routes ?? false
 
   if (isEnabled && !existsSync(join(publish, 'next-server.js.nft.json'))) {
-    console.warn(
+    logger.warn(
       'Trace-based bundling not possible on this version of Next.js. Speed up your builds significantly by upgrading to Next.js v12 or newer.',
     )
     return false

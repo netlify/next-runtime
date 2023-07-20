@@ -1,3 +1,5 @@
+// Do we want logging in the tests?
+/* eslint-disable no-console */
 import os from 'os'
 import path, { resolve } from 'path'
 import process from 'process'
@@ -14,6 +16,7 @@ import nextRuntimeFactory from '../packages/runtime/src'
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } from '../packages/runtime/src/constants'
 import { watchForMiddlewareChanges } from '../packages/runtime/src/helpers/compiler'
 import { getRequiredServerFiles, updateRequiredServerFiles } from '../packages/runtime/src/helpers/config'
+import logger from '../packages/runtime/src/helpers/logger'
 import { getAllPageDependencies } from '../packages/runtime/src/templates/getPageResolver'
 
 import { changeCwd, useFixture, moveNextDist } from './test-utils'
@@ -840,9 +843,9 @@ describe('onPostBuild', () => {
       },
     ])
 
-    const oldLog = console.log
+    const oldLoggerInfo = logger.info
     const logMock = jest.fn()
-    console.log = logMock
+    logger.info = logMock
     await nextRuntime.onPostBuild({
       ...defaultArgs,
 
@@ -855,7 +858,7 @@ describe('onPostBuild', () => {
       ),
     )
 
-    console.log = oldLog
+    logger.info = oldLoggerInfo
   })
 
   it('warns if NETLIFY_NEXT_PLUGIN_SKIP is set', async () => {
@@ -1414,3 +1417,5 @@ describe('the dev middleware watcher', () => {
     expect(middlewareExists()).toBeFalsy()
   })
 })
+
+/* eslint-enable no-console */

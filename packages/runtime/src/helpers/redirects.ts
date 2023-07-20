@@ -12,6 +12,7 @@ import { HANDLER_FUNCTION_PATH, ODB_FUNCTION_PATH } from '../constants'
 import { isAppDirRoute, loadAppPathRoutesManifest } from './edge'
 import { getMiddleware } from './files'
 import { APILambda } from './functions'
+import logger from './logger'
 import { RoutesManifest } from './types'
 import {
   getApiRewrites,
@@ -345,7 +346,7 @@ export const generateRedirects = async ({
 
   const middlewareMatches = new Set(routesThatMatchMiddleware).size
   if (middlewareMatches > 0) {
-    console.log(
+    logger.info(
       yellowBright(outdent`
         There ${
           middlewareMatches === 1

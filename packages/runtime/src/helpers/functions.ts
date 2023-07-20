@@ -29,6 +29,7 @@ import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
 import { getRequiredServerFiles } from './config'
 import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
+import logger from './logger'
 import { pack } from './pack'
 import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
@@ -280,7 +281,7 @@ const traceNextServer = async (publish: string): Promise<string[]> => {
   // during testing, i've seen `next-server` contain only one line.
   // this is a sanity check to make sure we're getting all the deps.
   if (nextServerDeps.length < 10) {
-    console.error(nextServerDeps)
+    logger.error(nextServerDeps)
     throw new Error("next-server.js.nft.json didn't contain all dependencies.")
   }
 
@@ -597,7 +598,7 @@ export const warnOnApiRoutes = async ({
   const { functions }: FunctionsManifest = await readJSON(functionsManifestPath)
 
   if (functions.some((func) => func.name.endsWith('-background'))) {
-    console.warn(
+    logger.warn(
       outdent`
         ${chalk.yellowBright`Using background API routes`}
         If your account type does not support background functions, the deploy will fail.
@@ -607,7 +608,7 @@ export const warnOnApiRoutes = async ({
   }
 
   if (functions.some((func) => func.schedule)) {
-    console.warn(
+    logger.warn(
       outdent`
         ${chalk.yellowBright`Using scheduled API routes`}
         These are run on a schedule when deployed to production.

@@ -14,6 +14,7 @@ import { IMAGE_FUNCTION_NAME } from '../constants'
 
 import { getRequiredServerFiles, NextConfig } from './config'
 import { getPluginVersion } from './functionsMetaData'
+import logger from './logger'
 import { makeLocaleOptional, stripLookahead, transformCaptureGroups } from './matchers'
 import { RoutesManifest } from './types'
 // This is the format as of next@12.2
@@ -380,7 +381,7 @@ export const writeEdgeFunctions = async ({
 
   // early return if edge is disabled
   if (destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
-    console.log('Environment variable NEXT_DISABLE_NETLIFY_EDGE has been set, skipping Netlify Edge Function creation.')
+    logger.info('Environment variable NEXT_DISABLE_NETLIFY_EDGE has been set, skipping Netlify Edge Function creation.')
     return
   }
 
@@ -393,7 +394,7 @@ export const writeEdgeFunctions = async ({
 
   const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
   if (!middlewareManifest) {
-    console.error("Couldn't find the middleware manifest")
+    logger.error("Couldn't find the middleware manifest")
     return
   }
 
@@ -480,7 +481,7 @@ export const writeEdgeFunctions = async ({
     !destr(process.env.DISABLE_IPX)
   ) {
     usesEdge = true
-    console.log(
+    logger.info(
       'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
     )
     const edgeFunctionDir = join(edgeFunctionRoot, 'ipx')
@@ -503,13 +504,13 @@ export const writeEdgeFunctions = async ({
       flag: 'ipx-edge-function-layer-url',
     })
   } else {
-    console.log(
+    logger.info(
       'You are not using Netlify Edge Functions for image format detection. Set env var "NEXT_FORCE_EDGE_IMAGES=true" to enable.',
     )
   }
 
   if (usesEdge) {
-    console.log(outdent`
+    logger.info(outdent`
       ✨ Deploying middleware and functions to ${greenBright`Netlify Edge Functions`} ✨
     `)
   }

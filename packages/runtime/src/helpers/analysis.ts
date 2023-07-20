@@ -2,6 +2,7 @@ import fs, { existsSync } from 'fs'
 
 import { relative } from 'pathe'
 
+import logger from './logger'
 import { ApiRouteType } from './types'
 import { findModuleFromBase } from './utils'
 
@@ -30,7 +31,7 @@ export const isEdgeConfig = (config: string) => ['experimental-edge', 'edge'].in
 export const validateConfigValue = (config: ApiConfig, apiFilePath: string): config is ApiConfig => {
   if (config.type === ApiRouteType.SCHEDULED) {
     if (!config.schedule) {
-      console.error(
+      logger.error(
         `Invalid config value in ${relative(process.cwd(), apiFilePath)}: schedule is required when type is "${
           ApiRouteType.SCHEDULED
         }"`,
@@ -38,7 +39,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       return false
     }
     if (isEdgeConfig((config as ApiConfig).runtime)) {
-      console.error(
+      logger.error(
         `Invalid config value in ${relative(
           process.cwd(),
           apiFilePath,
@@ -51,7 +52,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
 
   if (!config.type || config.type === ApiRouteType.BACKGROUND) {
     if (config.schedule) {
-      console.error(
+      logger.error(
         `Invalid config value in ${relative(process.cwd(), apiFilePath)}: schedule is not allowed unless type is "${
           ApiRouteType.SCHEDULED
         }"`,
@@ -59,7 +60,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
       return false
     }
     if (config.type && isEdgeConfig((config as ApiConfig).runtime)) {
-      console.error(
+      logger.error(
         `Invalid config value in ${relative(
           process.cwd(),
           apiFilePath,
@@ -69,7 +70,7 @@ export const validateConfigValue = (config: ApiConfig, apiFilePath: string): con
     }
     return true
   }
-  console.error(
+  logger.error(
     `Invalid config value in ${relative(process.cwd(), apiFilePath)}: type ${
       (config as ApiConfig).type
     } is not supported`,
@@ -100,7 +101,7 @@ export const extractConfigFromFile = async (apiFilePath: string, appDir: string)
 
   if (!extractConstValueModulePath || !parseModulePath) {
     if (!hasWarnedAboutNextVersion) {
-      console.log("This version of Next.js doesn't support advanced API routes. Skipping...")
+      logger.log("This version of Next.js doesn't support advanced API routes. Skipping...")
       hasWarnedAboutNextVersion = true
     }
     // Old Next.js version
@@ -130,7 +131,7 @@ export const extractConfigFromFile = async (apiFilePath: string, appDir: string)
     config = extractExportedConstValue(ast, 'config')
   } catch (error) {
     if (UnsupportedValueError && error instanceof UnsupportedValueError) {
-      console.warn(`Unsupported config value in ${relative(process.cwd(), apiFilePath)}`)
+      logger.warn(`Unsupported config value in ${relative(process.cwd(), apiFilePath)}`)
     }
     return {}
   }

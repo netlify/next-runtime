@@ -2,12 +2,14 @@ import type { NetlifyPluginOptions, NetlifyPluginUtils } from '@netlify/build'
 import Chance from 'chance'
 import { outdent } from 'outdent'
 
+import logger from '../../packages/runtime/src/helpers/logger'
 import {
   checkNextSiteHasBuilt,
   checkZipSize,
   getProblematicUserRewrites,
 } from '../../packages/runtime/src/helpers/verification'
 import { describeCwdTmpDir, moveNextDist } from '../test-utils'
+
 
 const netlifyConfig = {
   build: { command: 'npm run build' },
@@ -102,14 +104,14 @@ describe('checkNextSiteHasBuilt', () => {
 })
 
 describe('checkZipSize', () => {
-  let consoleWarnSpy, consoleLogSpy
+  let loggerWarnSpy, loggerInfoSpy
   const { existsSync, promises } = require('fs')
 
   beforeEach(() => {
-    consoleWarnSpy = jest.spyOn(global.console, 'warn')
-    consoleWarnSpy.mockClear()
-    consoleLogSpy = jest.spyOn(global.console, 'log')
-    consoleLogSpy.mockClear()
+    loggerWarnSpy = jest.spyOn(logger, 'warn')
+    loggerWarnSpy.mockClear()
+    loggerInfoSpy = jest.spyOn(logger, 'info')
+    loggerInfoSpy.mockClear()
     process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'false'
   })
 
@@ -118,15 +120,15 @@ describe('checkZipSize', () => {
   })
 
   afterAll(() => {
-    consoleWarnSpy.mockReset()
-    consoleLogSpy.mockReset()
+    loggerWarnSpy.mockReset()
+    loggerInfoSpy.mockReset()
     existsSync.mockReset()
   })
 
   it('emits a warning that DISABLE_BUNDLE_ZIP_SIZE_CHECK was enabled', async () => {
     process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK = 'true'
     await checkZipSize(chance.string())
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
+    expect(loggerWarnSpy).toHaveBeenCalledWith(
       'Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.',
     )
   })
@@ -137,7 +139,7 @@ describe('checkZipSize', () => {
 
     await checkZipSize('some-file.zip')
 
-    expect(consoleWarnSpy).not.toHaveBeenCalled()
+    expect(loggerWarnSpy).not.toHaveBeenCalled()
   })
 
   it('emits a warning if the file size is above the warning size', async () => {
@@ -151,7 +153,7 @@ describe('checkZipSize', () => {
       // but we are logging message before that so we can assert it
     }
 
-    expect(consoleLogSpy).toHaveBeenCalledWith(
+    expect(loggerInfoSpy).toHaveBeenCalledWith(
       expect.stringContaining(
         'The function zip some-file.zip size is 210 MB, which is larger than the recommended maximum size of 52.4 MB.',
       ),

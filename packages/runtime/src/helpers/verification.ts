@@ -10,6 +10,7 @@ import { satisfies } from 'semver'
 
 import { LAMBDA_MAX_SIZE, LAMBDA_WARNING_SIZE } from '../constants'
 
+import logger from './logger'
 import { isBundleSizeCheckDisabled } from './utils'
 
 // This is when nft support was added
@@ -39,7 +40,7 @@ export const checkForOldFunctions = async ({ functions }: Pick<NetlifyPluginUtil
   const allOldFunctions = await functions.list()
   const oldFunctions = allOldFunctions.filter(({ name }) => name.startsWith('next_'))
   if (oldFunctions.length !== 0) {
-    console.log(
+    logger.info(
       yellowBright(outdent`
         We have found the following functions in your site that seem to be left over from the old Next.js plugin (v3). We have guessed this because the name starts with "next_".
 
@@ -113,14 +114,14 @@ export const checkZipSize = async (
   // Requires contacting the Netlify Support team to fully enable.
   // Enabling this without contacting them can result in failed deploys.
   if (isBundleSizeCheckDisabled()) {
-    console.warn(
+    logger.warn(
       'Function bundle size check was DISABLED with the DISABLE_BUNDLE_ZIP_SIZE_CHECK environment variable. Your deployment will break if it exceeds the maximum supported size of function zip files in your account.',
     )
     return
   }
 
   if (!existsSync(file)) {
-    console.warn(`Could not check zip size because ${file} does not exist`)
+    logger.warn(`Could not check zip size because ${file} does not exist`)
     return
   }
   const fileSize = await promises.stat(file).then(({ size }) => size)
@@ -128,7 +129,7 @@ export const checkZipSize = async (
     return
   }
   // We don't fail the build, because the actual hard max size is larger so it might still succeed
-  console.log(
+  logger.info(
     yellowBright(outdent`
       The function zip ${blueBright(relative(process.cwd(), file))} size is ${prettyBytes(
       fileSize,
@@ -139,7 +140,7 @@ export const checkZipSize = async (
     `),
   )
   const zip = new StreamZip({ file })
-  console.log(`Contains ${await zip.entriesCount} files`)
+  logger.info(`Contains ${await zip.entriesCount} files`)
   const sortedFiles = Object.values(await zip.entries()).sort((a, b) => b.size - a.size)
 
   const largest = {}
@@ -150,9 +151,11 @@ export const checkZipSize = async (
       'Uncompressed Size': prettyBytes(sortedFiles[i].size),
     }
   }
-  console.log(yellowBright`\n\nThese are the largest files in the zip:`)
+  logger.info(yellowBright`\n\nThese are the largest files in the zip:`)
+  // Disabling lint rule as the logger doesn't have a table formatter
+  // eslint-disable-next-line no-console
   console.table(largest)
-  console.log(
+  logger.info(
     greenBright`\n\nFor more information on fixing this, see ${blueBright`https://ntl.fyi/large-next-functions`}`,
   )
 }
@@ -195,7 +198,7 @@ export const warnForProblematicUserRewrites = ({
   if (userRewrites.length === 0) {
     return
   }
-  console.log(
+  logger.info(
     yellowBright(outdent`
       You have the following Netlify rewrite${
         userRewrites.length === 1 ? '' : 's'
@@ -210,7 +213,7 @@ export const warnForProblematicUserRewrites = ({
 
 export const warnForRootRedirects = ({ appDir }: { appDir: string }) => {
   if (existsSync(join(appDir, '_redirects'))) {
-    console.log(
+    logger.info(
       yellowBright(
         `You have a "_redirects" file in your root directory, which is not deployed and will be ignored. If you want it to be used, please move it into "public".`,
       ),

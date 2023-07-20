@@ -1,3 +1,5 @@
+// Do we want logging in the tests?
+/* eslint-disable no-console */
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -91,3 +93,5 @@ it(`api route executes correctly`, async () => {
   expect(apiResponse.ok).toBe(true)
   expect(await apiResponse.json()).toEqual({ name: 'John Doe' })
 })
+
+/* eslint-enable no-console */

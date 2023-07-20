@@ -4,6 +4,8 @@ import { join } from 'path'
 import { build } from '@netlify/esbuild'
 import { FSWatcher, watch } from 'chokidar'
 
+import logger from './logger'
+
 // For more information on Next.js middleware, see https://nextjs.org/docs/advanced-features/middleware
 
 // These are the locations that a middleware file can exist in a Next.js application
@@ -34,7 +36,7 @@ const buildMiddlewareFile = async (entryPoints: Array<string>, base: string) => 
       external: ['next/dist/compiled/@vercel/og'],
     })
   } catch (error) {
-    console.error(error.toString())
+    logger.error(error.toString())
   }
 }
 
@@ -45,14 +47,14 @@ const shouldFilesBeCompiled = (watchedFiles: Array<string>, isFirstRun: boolean)
   if (watchedFiles.length === 0) {
     if (!isFirstRun) {
       // Only log on subsequent builds, because having it on first build makes it seem like a warning, when it's a normal state
-      console.log('No middleware found')
+      logger.info('No middleware found')
     }
     return false
   }
   if (watchedFiles.length > 1) {
-    console.log('Multiple middleware files found:')
-    console.log(watchedFiles.join('\n'))
-    console.log('This is not supported.')
+    logger.info('Multiple middleware files found:')
+    logger.info(watchedFiles.join('\n'))
+    logger.info('This is not supported.')
     return false
   }
   return true
@@ -72,9 +74,9 @@ const updateWatchedFiles = async (watcher: FSWatcher, base: string, isFirstRun =
     watcher.emit('build')
     return
   }
-  console.log(`${isFirstRun ? 'Building' : 'Rebuilding'} middleware ${watchedFiles[0]}...`)
+  logger.info(`${isFirstRun ? 'Building' : 'Rebuilding'} middleware ${watchedFiles[0]}...`)
   await buildMiddlewareFile(watchedFiles, base)
-  console.log('...done')
+  logger.info('...done')
   watcher.emit('build')
 }
 
@@ -95,15 +97,15 @@ export const watchForMiddlewareChanges = (base: string) => {
 
   watcher
     .on('change', (path) => {
-      console.log(`File ${path} has been changed`)
+      logger.info(`File ${path} has been changed`)
       updateWatchedFiles(watcher, base)
     })
     .on('add', (path) => {
-      console.log(`File ${path} has been added`)
+      logger.info(`File ${path} has been added`)
       updateWatchedFiles(watcher, base)
     })
     .on('unlink', (path) => {
-      console.log(`File ${path} has been removed`)
+      logger.info(`File ${path} has been removed`)
       updateWatchedFiles(watcher, base)
     })
 
@@ -111,10 +113,10 @@ export const watchForMiddlewareChanges = (base: string) => {
     watcher,
     isReady: new Promise<void>((resolve) => {
       watcher.on('ready', async () => {
-        console.log('Initial scan for middleware file complete. Ready for changes.')
+        logger.info('Initial scan for middleware file complete. Ready for changes.')
         // This only happens on the first scan
         await updateWatchedFiles(watcher, base, true)
-        console.log('Ready')
+        logger.info('Ready')
         resolve()
       })
     }),

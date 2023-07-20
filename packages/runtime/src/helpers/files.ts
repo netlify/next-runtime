@@ -14,6 +14,7 @@ import { MINIMUM_REVALIDATE_SECONDS, DIVIDER, HIDDEN_PATHS } from '../constants'
 
 import { NextConfig } from './config'
 import { loadPrerenderManifest } from './edge'
+import logger from './logger'
 import { Rewrites, RoutesManifest } from './types'
 import { findModuleFromBase } from './utils'
 
@@ -83,7 +84,7 @@ export const moveStaticPages = async ({
   i18n: NextConfig['i18n']
   basePath?: string
 }): Promise<void> => {
-  console.log('Moving static page files to serve from CDN...')
+  logger.info('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'serverless' ? 'serverless' : 'server')
   const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
   const dataDir = join('_next', 'data', buildId)
@@ -135,7 +136,7 @@ export const moveStaticPages = async ({
     try {
       await move(source, dest)
     } catch (error) {
-      console.warn('Error moving file', source, error)
+      logger.warn('Error moving file', source, error)
     }
   }
   // Move all static files, except nft manifests
@@ -183,10 +184,10 @@ export const moveStaticPages = async ({
     return limit(moveFile, filePath)
   })
   await Promise.all(promises)
-  console.log(`Moved ${fileCount} files`)
+  logger.info(`Moved ${fileCount} files`)
 
   if (matchedPages.size !== 0) {
-    console.log(
+    logger.info(
       yellowBright(outdent`
         Skipped moving ${matchedPages.size} ${
         matchedPages.size === 1 ? 'file because it matches' : 'files because they match'
@@ -195,7 +196,7 @@ export const moveStaticPages = async ({
       `),
     )
 
-    console.log(
+    logger.info(
       outdent`
         The following middleware matched statically-rendered pages:
 
@@ -205,7 +206,7 @@ export const moveStaticPages = async ({
     )
     // There could potentially be thousands of matching pages, so we don't want to spam the console with this
     if (matchedPages.size < 50) {
-      console.log(
+      logger.info(
         outdent`
           The following files matched middleware and were not moved to the CDN:
 
@@ -217,7 +218,7 @@ export const moveStaticPages = async ({
   }
 
   if (matchedRedirects.size !== 0 || matchedRewrites.size !== 0) {
-    console.log(
+    logger.info(
       yellowBright(outdent`
         Skipped moving ${
           matchedRedirects.size + matchedRewrites.size
@@ -225,7 +226,7 @@ export const moveStaticPages = async ({
       `),
     )
     if (matchedRedirects.size < 50 && matchedRedirects.size !== 0) {
-      console.log(
+      logger.info(
         outdent`
           The following files matched redirects and were not moved to the CDN:
 
@@ -235,7 +236,7 @@ export const moveStaticPages = async ({
       )
     }
     if (matchedRewrites.size < 50 && matchedRewrites.size !== 0) {
-      console.log(
+      logger.info(
         outdent`
           The following files matched beforeFiles rewrites and were not moved to the CDN:
 
@@ -271,13 +272,16 @@ export const moveStaticPages = async ({
   }
 
   if (shortRevalidateRoutes.length !== 0) {
-    console.log(outdent`
+    logger.info(outdent`
       The following routes use "revalidate" values of under ${MINIMUM_REVALIDATE_SECONDS} seconds, which is not supported.
       They will use a revalidate time of ${MINIMUM_REVALIDATE_SECONDS} seconds instead.
     `)
+
+    // Disabling lint rule as the logger doesn't have a table formatter
+    // eslint-disable-next-line no-console
     console.table(shortRevalidateRoutes)
     // TODO: add these docs
-    // console.log(
+    // logger.info(
     //   outdent`
     //     For more information, see https://ntl.fyi/next-revalidate-time
     //     ${DIVIDER}
@@ -321,7 +325,7 @@ export const getSourceFileForPage = (page: string, roots: string[], pageExtensio
       }
     }
   }
-  console.log('Could not find source file for page', page)
+  logger.info('Could not find source file for page', page)
 }
 
 /**
