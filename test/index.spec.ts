@@ -364,7 +364,7 @@ describe('onBuild()', () => {
     expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
   })
 
-  it('when splitting routes is disabled it writes correct redirects to netlifyConfig', async () => {
+  it('when splitting API routes is disabled, it writes correct redirects to netlifyConfig', async () => {
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
