@@ -365,8 +365,8 @@ describe('onBuild()', () => {
   })
 
   it('when splitting API routes is disabled, it writes correct redirects to netlifyConfig', async () => {
-    const oldProcessEnv = process.env
-    process.env.NEXT_SPLIT_API_ROUTES = 'true'
+    const oldProcessEnv = { ...process.env }
+    process.env.NEXT_SPLIT_API_ROUTES = 'false'
 
     await moveNextDist()
 
