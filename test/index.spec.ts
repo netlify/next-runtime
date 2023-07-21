@@ -364,14 +364,20 @@ describe('onBuild()', () => {
     expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
   })
 
-  it('writes correct redirects to netlifyConfig', async () => {
+  it('when splitting API routes is disabled, it writes correct redirects to netlifyConfig', async () => {
+    const oldProcessEnv = { ...process.env }
+    process.env.NEXT_SPLIT_API_ROUTES = 'false'
+
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
     // Not ideal, because it doesn't test precedence, but unfortunately the exact order seems to
     // be non-deterministic, as it depends on filesystem globbing across platforms.
     const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
+
     expect(sorted).toMatchSnapshot()
+
+    process.env = oldProcessEnv
   })
 
   it('publish dir is/has next dist', async () => {
@@ -738,20 +744,44 @@ describe('onBuild()', () => {
     expect(netlifyConfig.functions['_api_*'].node_bundler).toEqual('nft')
   })
 
-  it('provides displayname for split api routes', async () => {
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
+  describe('when splitting API routes is enabled', () => {
+    let oldProcessEnv
 
-    const functionsManifest = await readJson(
-      path.join('.netlify', 'functions-internal', '___netlify-api-handler', '___netlify-api-handler.json'),
-    )
+    beforeEach(() => {
+      oldProcessEnv = { ...process.env }
+      process.env.NEXT_SPLIT_API_ROUTES = 'true'
+    })
 
-    expect(functionsManifest).toEqual({
-      config: {
-        generator: '@netlify/next-runtime@unknown',
-        name: 'Next.js API handler',
-      },
-      version: 1,
+    afterEach(() => {
+      process.env = oldProcessEnv
+    })
+
+    it('provides displayname for split api routes', async () => {
+      await moveNextDist()
+      await nextRuntime.onBuild(defaultArgs)
+
+      const functionsManifest = await readJson(
+        path.join('.netlify', 'functions-internal', '___netlify-api-handler', '___netlify-api-handler.json'),
+      )
+
+      expect(functionsManifest).toEqual({
+        config: {
+          generator: '@netlify/next-runtime@unknown',
+          name: 'Next.js API handler',
+        },
+        version: 1,
+      })
+    })
+
+    it('writes correct redirects to netlifyConfig', async () => {
+      await moveNextDist()
+
+      await nextRuntime.onBuild(defaultArgs)
+      // Not ideal, because it doesn't test precedence, but unfortunately the exact order seems to
+      // be non-deterministic, as it depends on filesystem globbing across platforms.
+      const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
+
+      expect(sorted).toMatchSnapshot()
     })
   })
 
