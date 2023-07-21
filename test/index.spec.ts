@@ -365,6 +365,9 @@ describe('onBuild()', () => {
   })
 
   it('when splitting API routes is disabled, it writes correct redirects to netlifyConfig', async () => {
+    const oldProcessEnv = process.env
+    process.env.NEXT_SPLIT_API_ROUTES = 'true'
+
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
@@ -373,6 +376,8 @@ describe('onBuild()', () => {
     const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
 
     expect(sorted).toMatchSnapshot()
+
+    process.env = oldProcessEnv
   })
 
   it('publish dir is/has next dist', async () => {
@@ -776,7 +781,6 @@ describe('onBuild()', () => {
       // be non-deterministic, as it depends on filesystem globbing across platforms.
       const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
 
-      console.log(sorted)
       expect(sorted).toMatchSnapshot()
     })
   })
