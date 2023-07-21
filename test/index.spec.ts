@@ -748,7 +748,7 @@ describe('onBuild()', () => {
     let oldProcessEnv
 
     beforeEach(() => {
-      oldProcessEnv = process.env
+      oldProcessEnv = { ...process.env }
       process.env.NEXT_SPLIT_API_ROUTES = 'true'
     })
 
