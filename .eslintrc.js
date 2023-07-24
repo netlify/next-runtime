@@ -91,6 +91,15 @@ module.exports = {
         'jest/no-disabled-tests': 0,
         'jest/no-conditional-expect': 0,
         'jest/no-standalone-expect': [2, { additionalTestBlockFunctions: ['beforeAll'] }],
+        'no-console': 0,
+      },
+    },
+    // Turn off no-console for runtime code to avoid
+    // needing extra logging dependencies
+    {
+      files: ['packages/runtime/src/templates/**/*.ts'],
+      rules: {
+        'no-console': 0,
       },
     },
   ],

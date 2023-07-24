@@ -1,6 +1,3 @@
-// This is a runtime function so assuming we don't want to add
-// an additional dependency on a logger (Winston) for runtime code
-/* eslint-disable no-console */
 import { HandlerContext, HandlerEvent } from '@netlify/functions'
 import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
@@ -165,4 +162,3 @@ export const getApiHandler = ({
   const handler = (${makeApiHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer })
   exports.handler = ${schedule ? `schedule(${JSON.stringify(schedule)}, handler);` : 'handler'}
 `
-/* eslint-enable no-console */

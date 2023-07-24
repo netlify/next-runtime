@@ -1,5 +1,3 @@
-// Do we want logging in the tests?
-/* eslint-disable no-console */
 import os from 'os'
 import path, { resolve } from 'path'
 import process from 'process'
@@ -1417,5 +1415,3 @@ describe('the dev middleware watcher', () => {
     expect(middlewareExists()).toBeFalsy()
   })
 })
-
-/* eslint-enable no-console */

@@ -1,6 +1,3 @@
-// This is a runtime function so assuming we don't want to add
-// an additional dependency on a logger (Winston) for runtime code
-/* eslint-disable no-console */
 import fs, { createWriteStream, existsSync } from 'fs'
 import { ServerResponse } from 'http'
 import { tmpdir } from 'os'
@@ -274,5 +271,3 @@ export const localizeDataRoute = (dataRoute: string, localizedRoute: string): st
     .replace(new RegExp(`/_next/data/(.+?)/(${locale}/)?`), `/_next/data/$1/${locale}/`)
     .replace(/\/index\.json$/, '.json')
 }
-
-/* eslint-enable no-console */

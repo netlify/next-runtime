@@ -1,6 +1,3 @@
-// This is a runtime function so assuming we don't want to add
-// an additional dependency on a logger (Winston) for runtime code
-/* eslint-disable no-console */
 // eslint-disable-next-line n/no-deprecated-api -- this is what Next.js uses as well
 import { parse } from 'url'
 
@@ -160,5 +157,3 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
 export type NetlifyNextServerType = ReturnType<typeof getNetlifyNextServer>
 
 export { getNetlifyNextServer, NetlifyConfig }
-
-/* eslint-enable no-console */
