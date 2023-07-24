@@ -101,7 +101,7 @@ export const extractConfigFromFile = async (apiFilePath: string, appDir: string)
 
   if (!extractConstValueModulePath || !parseModulePath) {
     if (!hasWarnedAboutNextVersion) {
-      logger.log("This version of Next.js doesn't support advanced API routes. Skipping...")
+      logger.info("This version of Next.js doesn't support advanced API routes. Skipping...")
       hasWarnedAboutNextVersion = true
     }
     // Old Next.js version
