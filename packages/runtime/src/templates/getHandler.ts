@@ -163,11 +163,6 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     // Sending SWR headers causes undefined behaviour with the Netlify CDN
     const cacheHeader = multiValueHeaders['cache-control']?.[0]
 
-    // special case for ISR 404s
-    if (result.statusCode === 404 && requestMode === 'odb') {
-      result.ttl = 60
-    }
-
     if (cacheHeader?.includes('stale-while-revalidate')) {
       if (requestMode === 'odb') {
         const ttl = getMaxAge(cacheHeader)
@@ -183,6 +178,11 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         }
       }
       multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
+    }
+
+    // ISR 404s are not served with SWR headers so we need to set the TTL here
+    if (requestMode === 'odb' && result.statusCode === 404) {
+      result.ttl = 60
     }
 
     if (result.ttl > 0) {
