@@ -171,17 +171,24 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
           // ODBs currently have a minimum TTL of 60 seconds
           result.ttl = Math.max(ttl, 60)
         }
-        const ephemeralCodes = [301, 302, 307, 308, 404]
+        const ephemeralCodes = [301, 302, 307, 308]
         if (ttl === ONE_YEAR_IN_SECONDS && ephemeralCodes.includes(result.statusCode)) {
           // Only cache for 60s if default TTL provided
           result.ttl = 60
         }
-        if (result.ttl > 0) {
-          requestMode = `odb ttl=${result.ttl}`
-        }
       }
       multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
     }
+
+    // ISR 404s are not served with SWR headers so we need to set the TTL here
+    if (requestMode === 'odb' && result.statusCode === 404) {
+      result.ttl = 60
+    }
+
+    if (result.ttl > 0) {
+      requestMode = `odb ttl=${result.ttl}`
+    }
+
     multiValueHeaders['x-nf-render-mode'] = [requestMode]
 
     console.log(`[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()})`)
