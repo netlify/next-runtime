@@ -171,7 +171,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
           // ODBs currently have a minimum TTL of 60 seconds
           result.ttl = Math.max(ttl, 60)
         }
-        const ephemeralCodes = [301, 302, 307, 308, 404]
+        const ephemeralCodes = [301, 302, 307, 308]
         if (ttl === ONE_YEAR_IN_SECONDS && ephemeralCodes.includes(result.statusCode)) {
           // Only cache for 60s if default TTL provided
           result.ttl = 60
