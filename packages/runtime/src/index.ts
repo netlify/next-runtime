@@ -17,8 +17,8 @@ import {
 } from './helpers/config'
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
-import { moveStaticPages, movePublicFiles, patchNextFiles } from './helpers/files'
-import { splitApiRoutes } from './helpers/flags'
+import { moveStaticPages, movePublicFiles, removeMetadataFiles } from './helpers/files'
+import { bundleBasedOnNftFiles, splitApiRoutes } from './helpers/flags'
 import {
   generateFunctions,
   setupImageFunction,
@@ -28,6 +28,7 @@ import {
   packSingleFunction,
   getExtendedApiRouteConfigs,
   APILambda,
+  getSSRLambdas,
 } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
@@ -104,6 +105,7 @@ const plugin: NetlifyPlugin = {
     await cleanupEdgeFunctions(constants)
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
+    const config = await getRequiredServerFiles(publish)
 
     if (
       middlewareManifest?.functions &&
@@ -132,8 +134,6 @@ const plugin: NetlifyPlugin = {
     }
 
     if (isNextAuthInstalled()) {
-      const config = await getRequiredServerFiles(publish)
-
       const userDefinedNextAuthUrl = config.config.env.NEXTAUTH_URL
 
       if (userDefinedNextAuthUrl) {
@@ -166,13 +166,15 @@ const plugin: NetlifyPlugin = {
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
-    const apiLambdas: APILambda[] = splitApiRoutes(featureFlags)
+    const apiLambdas: APILambda[] = splitApiRoutes(featureFlags, publish)
       ? await getAPILambdas(publish, appDir, pageExtensions)
       : await getExtendedApiRouteConfigs(publish, appDir, pageExtensions).then((extendedRoutes) =>
           extendedRoutes.map(packSingleFunction),
         )
 
-    await generateFunctions(constants, appDir, apiLambdas)
+    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas(publish) : []
+
+    await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
     await generatePagesResolver(constants)
 
     await configureHandlerFunctions({
@@ -180,12 +182,11 @@ const plugin: NetlifyPlugin = {
       ignore,
       publish: relative(process.cwd(), publish),
       apiLambdas,
-      featureFlags,
+      ssrLambdas,
+      splitApiRoutes: splitApiRoutes(featureFlags, publish),
     })
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
-
-    await patchNextFiles(appDir)
 
     if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
       await moveStaticPages({ target, netlifyConfig, i18n, basePath })
@@ -254,6 +255,12 @@ const plugin: NetlifyPlugin = {
     warnForProblematicUserRewrites({ basePath, redirects })
     warnForRootRedirects({ appDir })
     await warnOnApiRoutes({ FUNCTIONS_DIST })
+
+    // we are removing metadata files from Publish directory
+    // we have to do this after functions were bundled as bundling still
+    // require those files, but we don't want to publish them
+    await removeMetadataFiles(publish)
+
     if (experimental?.appDir) {
       console.log(
         '🧪 Thank you for testing "appDir" support on Netlify. For known issues and to give feedback, visit https://ntl.fyi/next-13-feedback',

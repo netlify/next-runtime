@@ -11,6 +11,7 @@ CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
 TERM = "xterm"
 NODE_VERSION = "16.15.1"
 NEXT_SPLIT_API_ROUTES = "true"
+NEXT_BUNDLE_BASED_ON_NFT_FILES = "true"
 
 [[headers]]
 for = "/_next/image/*"

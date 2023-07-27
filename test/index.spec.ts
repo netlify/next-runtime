@@ -364,14 +364,20 @@ describe('onBuild()', () => {
     expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
   })
 
-  it('writes correct redirects to netlifyConfig', async () => {
+  it('when splitting API routes is disabled, it writes correct redirects to netlifyConfig', async () => {
+    const oldProcessEnv = { ...process.env }
+    process.env.NEXT_SPLIT_API_ROUTES = 'false'
+
     await moveNextDist()
 
     await nextRuntime.onBuild(defaultArgs)
     // Not ideal, because it doesn't test precedence, but unfortunately the exact order seems to
     // be non-deterministic, as it depends on filesystem globbing across platforms.
     const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
+
     expect(sorted).toMatchSnapshot()
+
+    process.env = oldProcessEnv
   })
 
   it('publish dir is/has next dist', async () => {
@@ -727,6 +733,79 @@ describe('onBuild()', () => {
     expect(existsSync(publicFile)).toBe(true)
     expect(await readJson(publicFile)).toMatchObject(expect.any(Array))
   })
+
+  it('does not split APIs when .nft.json files are unavailable', async () => {
+    await moveNextDist()
+
+    await unlink(path.join(process.cwd(), '.next', 'next-server.js.nft.json'))
+
+    await nextRuntime.onBuild(defaultArgs)
+
+    expect(netlifyConfig.functions['_api_*'].node_bundler).toEqual('nft')
+  })
+
+  describe('when splitting API routes is enabled', () => {
+    let oldProcessEnv
+
+    beforeEach(() => {
+      oldProcessEnv = { ...process.env }
+      process.env.NEXT_SPLIT_API_ROUTES = 'true'
+    })
+
+    afterEach(() => {
+      process.env = oldProcessEnv
+    })
+
+    it('provides displayname for split api routes', async () => {
+      await moveNextDist()
+      await nextRuntime.onBuild(defaultArgs)
+
+      const functionsManifest = await readJson(
+        path.join('.netlify', 'functions-internal', '___netlify-api-handler', '___netlify-api-handler.json'),
+      )
+
+      expect(functionsManifest).toEqual({
+        config: {
+          generator: '@netlify/next-runtime@unknown',
+          name: 'Next.js API handler',
+        },
+        version: 1,
+      })
+    })
+
+    it('writes correct redirects to netlifyConfig', async () => {
+      await moveNextDist()
+
+      await nextRuntime.onBuild(defaultArgs)
+      // Not ideal, because it doesn't test precedence, but unfortunately the exact order seems to
+      // be non-deterministic, as it depends on filesystem globbing across platforms.
+      const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
+
+      expect(sorted).toMatchSnapshot()
+    })
+  })
+
+  // eslint-disable-next-line jest/expect-expect
+  it('works when `relativeAppDir` is undefined', async () => {
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+    delete initialConfig.relativeAppDir
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+  })
+
+  // eslint-disable-next-line jest/expect-expect
+  it('works when `outputFileTracingRoot` is undefined', async () => {
+    await moveNextDist()
+
+    const initialConfig = await getRequiredServerFiles(netlifyConfig.build.publish)
+    delete initialConfig.config.experimental.outputFileTracingRoot
+    await updateRequiredServerFiles(netlifyConfig.build.publish, initialConfig)
+
+    await nextRuntime.onBuild(defaultArgs)
+  })
 })
 
 describe('onPostBuild', () => {
@@ -1030,6 +1109,23 @@ describe('onPostBuild', () => {
         },
       },
     ])
+  })
+
+  it(`removes metadata files`, async () => {
+    await moveNextDist()
+
+    // routes-manifest.json is one of metadata files that seems to be created with default demo site
+    // there are a lot of other files, but we will test just one
+    const manifestPath = path.resolve('.next/routes-manifest.json')
+
+    expect(await pathExists(manifestPath)).toBe(true)
+
+    await nextRuntime.onPostBuild({
+      ...defaultArgs,
+      utils: { ...utils, cache: { save: jest.fn() }, functions: { list: jest.fn().mockResolvedValue([]) } },
+    })
+
+    expect(await pathExists(manifestPath)).toBe(false)
   })
 })
 

@@ -45,6 +45,12 @@ describe('Standard middleware', () => {
       expect(response.headers).to.have.property('x-foo', 'bar')
     })
   })
+
+  it('preserves locale on rewrites (skipMiddlewareUrlNormalize: true)', () => {
+    cy.visit('/de-de/locale-preserving-rewrite')
+    cy.get('div').should('contain', 'Locale: de-DE')
+    cy.url().should('eq', `${Cypress.config().baseUrl}/de-de/locale-preserving-rewrite`)
+  })
 })
 
 describe('Middleware matchers', () => {

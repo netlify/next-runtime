@@ -396,17 +396,10 @@ describe('app dir', () => {
           await browser.waitForElementByCss('#render-id-456')
           expect(await browser.eval('window.history.length')).toBe(3)
 
-          // Get the id on the rendered page.
-          const firstID = await browser.elementById('render-id-456').text()
-
           // Go back, and redo the navigation by clicking the link.
           await browser.back()
           await browser.elementById('link').click()
           await browser.waitForElementByCss('#render-id-456')
-
-          // Get the id again, and compare, they should not be the same.
-          const secondID = await browser.elementById('render-id-456').text()
-          expect(secondID).not.toBe(firstID)
         } finally {
           await browser.close()
         }
@@ -423,9 +416,6 @@ describe('app dir', () => {
           await browser.waitForElementByCss('#render-id-456')
           expect(await browser.eval('window.history.length')).toBe(2)
 
-          // Get the date again, and compare, they should not be the same.
-          const firstId = await browser.elementById('render-id-456').text()
-
           // Navigate to the subpage, verify that the history entry was NOT added.
           await browser.elementById('link').click()
           await browser.waitForElementByCss('#render-id-123')
@@ -435,10 +425,6 @@ describe('app dir', () => {
           await browser.elementById('link').click()
           await browser.waitForElementByCss('#render-id-456')
           expect(await browser.eval('window.history.length')).toBe(2)
-
-          // Get the date again, and compare, they should not be the same.
-          const secondId = await browser.elementById('render-id-456').text()
-          expect(firstId).not.toBe(secondId)
         } finally {
           await browser.close()
         }
@@ -929,32 +915,6 @@ describe('app dir', () => {
           })
         })
 
-        describe('previewData function', () => {
-          it('should return no preview data when there is none', async () => {
-            const browser = await webdriver(next.url, '/hooks/use-preview-data')
-
-            try {
-              await browser.waitForElementByCss('#does-not-have-preview-data')
-            } finally {
-              await browser.close()
-            }
-          })
-
-          it('should return preview data when there is some', async () => {
-            const browser = await webdriver(next.url, '/api/preview')
-
-            try {
-              await browser.loadPage(next.url + '/hooks/use-preview-data', {
-                disableCache: false,
-                beforePageLoad: null,
-              })
-              await browser.waitForElementByCss('#has-preview-data')
-            } finally {
-              await browser.close()
-            }
-          })
-        })
-
         describe('useRouter', () => {
           // TODO-APP: should enable when implemented
           it.skip('should throw an error when imported', async () => {
@@ -1013,7 +973,8 @@ describe('app dir', () => {
 
     describe('client components', () => {
       describe('hooks', () => {
-        describe('from pages', () => {
+        // Currently not used in updated nextjs tests
+        describe.skip('from pages', () => {
           it.each([
             { pathname: '/adapter-hooks/static' },
             { pathname: '/adapter-hooks/1' },

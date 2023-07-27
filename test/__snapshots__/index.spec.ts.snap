@@ -2,6 +2,11 @@
 
 exports[`function helpers config dependency tracing extracts a list of all dependencies 1`] = `
 Array [
+  "../../node_modules/@swc/helpers/_/_interop_require_default/package.json",
+  "../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json",
+  "../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs",
+  "../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs",
+  "../../node_modules/@swc/helpers/package.json",
   "../../node_modules/next/dist/client/add-base-path.js",
   "../../node_modules/next/dist/client/add-locale.js",
   "../../node_modules/next/dist/client/detect-domain-locale.js",
@@ -16,6 +21,8 @@ Array [
   "../../node_modules/next/dist/client/script.js",
   "../../node_modules/next/dist/client/trusted-types.js",
   "../../node_modules/next/dist/client/with-router.js",
+  "../../node_modules/next/dist/compiled/gzip-size/index.js",
+  "../../node_modules/next/dist/compiled/gzip-size/package.json",
   "../../node_modules/next/dist/compiled/path-to-regexp/index.js",
   "../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js",
   "../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js",
@@ -48,16 +55,9 @@ Array [
   "../../node_modules/next/dist/shared/lib/amp-context.js",
   "../../node_modules/next/dist/shared/lib/amp-mode.js",
   "../../node_modules/next/dist/shared/lib/app-router-context.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/index.js",
-  "../../node_modules/next/dist/shared/lib/bloom-filter/utils.js",
+  "../../node_modules/next/dist/shared/lib/bloom-filter.js",
   "../../node_modules/next/dist/shared/lib/constants.js",
   "../../node_modules/next/dist/shared/lib/escape-regexp.js",
-  "../../node_modules/next/dist/shared/lib/fnv1a.js",
   "../../node_modules/next/dist/shared/lib/head-manager-context.js",
   "../../node_modules/next/dist/shared/lib/head.js",
   "../../node_modules/next/dist/shared/lib/hooks-client-context.js",
@@ -68,6 +68,7 @@ Array [
   "../../node_modules/next/dist/shared/lib/loadable-context.js",
   "../../node_modules/next/dist/shared/lib/loadable.js",
   "../../node_modules/next/dist/shared/lib/mitt.js",
+  "../../node_modules/next/dist/shared/lib/modern-browserslist-target.js",
   "../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js",
   "../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js",
   "../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js",
@@ -109,12 +110,6 @@ Array [
   "../../node_modules/next/dist/shared/lib/utils.js",
   "../../node_modules/next/dist/shared/lib/utils/warn-once.js",
   "../../node_modules/next/error.js",
-  "../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js",
-  "../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js",
-  "../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js",
-  "../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js",
-  "../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js",
-  "../../node_modules/next/node_modules/@swc/helpers/package.json",
   "../../node_modules/next/package.json",
   "../../node_modules/next/router.js",
   "../../node_modules/react-dom/cjs/react-dom.development.js",
@@ -134,6 +129,7 @@ Array [
   ".next/server/app/app-edge/page.js",
   ".next/server/app/blog/[author]/[slug]/page.js",
   ".next/server/app/blog/[author]/page.js",
+  ".next/server/chunks/CHUNK_ID.js",
   ".next/server/chunks/CHUNK_ID.js",
   ".next/server/chunks/CHUNK_ID.js",
   ".next/server/chunks/CHUNK_ID.js",
@@ -189,12 +185,14 @@ exports[`onBuild() generates a file referencing all API route sources: for _api_
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
         require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
         require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
@@ -205,6 +203,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -215,10 +214,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/package.json')
         require.resolve('../../../../../node_modules/react/cjs/react.development.js')
         require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
@@ -226,6 +221,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/react/package.json')
         require.resolve('../../../../../package.json')
         require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/pages/_app.js')
@@ -243,12 +239,14 @@ exports[`onBuild() generates a file referencing all API route sources: for _api_
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.development.js')
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react-jsx-runtime.production.min.js')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.development.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/cjs/react.production.min.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/index.js')
-        require.resolve('../../../../../node_modules/next/dist/compiled/react/jsx-runtime.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react/package.json')
         require.resolve('../../../../../node_modules/next/dist/server/get-page-files.js')
         require.resolve('../../../../../node_modules/next/dist/server/htmlescape.js')
@@ -259,6 +257,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/html-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/is-plain-object.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -269,10 +268,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/side-effect.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/package.json')
         require.resolve('../../../../../node_modules/react/cjs/react.development.js')
         require.resolve('../../../../../node_modules/react/cjs/react.production.min.js')
@@ -280,6 +275,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/react/package.json')
         require.resolve('../../../../../package.json')
         require.resolve('../../../.next/package.json')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/pages/_app.js')
@@ -297,6 +293,11 @@ exports[`onBuild() generates a file referencing all page sources 1`] = `
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/dist/client/add-base-path.js')
         require.resolve('../../../../../node_modules/next/dist/client/add-locale.js')
         require.resolve('../../../../../node_modules/next/dist/client/detect-domain-locale.js')
@@ -311,6 +312,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -343,16 +346,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -363,6 +359,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -404,12 +401,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
         require.resolve('../../../../../node_modules/next/error.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/package.json')
         require.resolve('../../../../../node_modules/next/router.js')
         require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.development.js')
@@ -429,6 +420,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/app/app-edge/page.js')
         require.resolve('../../../.next/server/app/blog/[author]/[slug]/page.js')
         require.resolve('../../../.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
@@ -485,6 +477,11 @@ exports[`onBuild() generates a file referencing all page sources 2`] = `
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/dist/client/add-base-path.js')
         require.resolve('../../../../../node_modules/next/dist/client/add-locale.js')
         require.resolve('../../../../../node_modules/next/dist/client/detect-domain-locale.js')
@@ -499,6 +496,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -531,16 +530,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -551,6 +543,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable-context.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/loadable.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -592,12 +585,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
         require.resolve('../../../../../node_modules/next/error.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
-        require.resolve('../../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../../node_modules/next/package.json')
         require.resolve('../../../../../node_modules/next/router.js')
         require.resolve('../../../../../node_modules/react-dom/cjs/react-dom.development.js')
@@ -617,6 +604,7 @@ exports.resolvePages = () => {
         require.resolve('../../../.next/server/app/app-edge/page.js')
         require.resolve('../../../.next/server/app/blog/[author]/[slug]/page.js')
         require.resolve('../../../.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../.next/server/chunks/CHUNK_ID.js')
@@ -673,6 +661,11 @@ exports[`onBuild() generates a file referencing all when publish dir is a subdir
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
+        require.resolve('../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../node_modules/next/dist/client/add-base-path.js')
         require.resolve('../../../../node_modules/next/dist/client/add-locale.js')
         require.resolve('../../../../node_modules/next/dist/client/detect-domain-locale.js')
@@ -687,6 +680,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -719,16 +714,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -739,6 +727,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/loadable-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/loadable.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -780,12 +769,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
         require.resolve('../../../../node_modules/next/error.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../node_modules/next/package.json')
         require.resolve('../../../../node_modules/next/router.js')
         require.resolve('../../../../node_modules/react-dom/cjs/react-dom.development.js')
@@ -805,6 +788,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/app/app-edge/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/[slug]/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
@@ -861,6 +845,11 @@ exports[`onBuild() generates a file referencing all when publish dir is a subdir
 "// This file is purely to allow nft to know about these pages.
 exports.resolvePages = () => {
     try {
+        require.resolve('../../../../node_modules/@swc/helpers/_/_interop_require_default/package.json')
+        require.resolve('../../../../node_modules/@swc/helpers/_/_interop_require_wildcard/package.json')
+        require.resolve('../../../../node_modules/@swc/helpers/cjs/_interop_require_default.cjs')
+        require.resolve('../../../../node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs')
+        require.resolve('../../../../node_modules/@swc/helpers/package.json')
         require.resolve('../../../../node_modules/next/dist/client/add-base-path.js')
         require.resolve('../../../../node_modules/next/dist/client/add-locale.js')
         require.resolve('../../../../node_modules/next/dist/client/detect-domain-locale.js')
@@ -875,6 +864,8 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/client/script.js')
         require.resolve('../../../../node_modules/next/dist/client/trusted-types.js')
         require.resolve('../../../../node_modules/next/dist/client/with-router.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/index.js')
+        require.resolve('../../../../node_modules/next/dist/compiled/gzip-size/package.json')
         require.resolve('../../../../node_modules/next/dist/compiled/path-to-regexp/index.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.development.js')
         require.resolve('../../../../node_modules/next/dist/compiled/react-dom/cjs/react-dom-server-rendering-stub.production.min.js')
@@ -907,16 +898,9 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/amp-mode.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/app-router-context.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base-filter.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/base64-arraybuffer.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/bit-set.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/formulas.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/hashing.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/index.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter/utils.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/bloom-filter.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/constants.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/escape-regexp.js')
-        require.resolve('../../../../node_modules/next/dist/shared/lib/fnv1a.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head-manager-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/head.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/hooks-client-context.js')
@@ -927,6 +911,7 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/loadable-context.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/loadable.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/mitt.js')
+        require.resolve('../../../../node_modules/next/dist/shared/lib/modern-browserslist-target.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/denormalize-page-path.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/ensure-leading-slash.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/page-path/normalize-page-path.js')
@@ -968,12 +953,6 @@ exports.resolvePages = () => {
         require.resolve('../../../../node_modules/next/dist/shared/lib/utils.js')
         require.resolve('../../../../node_modules/next/dist/shared/lib/utils/warn-once.js')
         require.resolve('../../../../node_modules/next/error.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_async_to_generator.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_extends.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_default.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_interop_require_wildcard.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/lib/_object_without_properties_loose.js')
-        require.resolve('../../../../node_modules/next/node_modules/@swc/helpers/package.json')
         require.resolve('../../../../node_modules/next/package.json')
         require.resolve('../../../../node_modules/next/router.js')
         require.resolve('../../../../node_modules/react-dom/cjs/react-dom.development.js')
@@ -993,6 +972,7 @@ exports.resolvePages = () => {
         require.resolve('../../../web/.next/server/app/app-edge/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/[slug]/page.js')
         require.resolve('../../../web/.next/server/app/blog/[author]/page.js')
+        require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
         require.resolve('../../../web/.next/server/chunks/CHUNK_ID.js')
@@ -1086,6 +1066,14 @@ Array [
   Array [
     "app/blog/sarah/second-post.rsc",
     "blog/sarah/second-post.rsc",
+  ],
+  Array [
+    "pages/en/404.html",
+    "en/404.html",
+  ],
+  Array [
+    "pages/en/500.html",
+    "en/500.html",
   ],
   Array [
     "pages/en/broken-image.html",
@@ -1208,6 +1196,14 @@ Array [
     "en/static.html",
   ],
   Array [
+    "pages/es/404.html",
+    "es/404.html",
+  ],
+  Array [
+    "pages/es/500.html",
+    "es/500.html",
+  ],
+  Array [
     "pages/es/broken-image.html",
     "es/broken-image.html",
   ],
@@ -1262,6 +1258,14 @@ Array [
   Array [
     "pages/es/static.html",
     "es/static.html",
+  ],
+  Array [
+    "pages/fr/404.html",
+    "fr/404.html",
+  ],
+  Array [
+    "pages/fr/500.html",
+    "fr/500.html",
   ],
   Array [
     "pages/fr/broken-image.html",
@@ -1322,7 +1326,7 @@ Array [
 ]
 `;
 
-exports[`onBuild() writes correct redirects to netlifyConfig 1`] = `
+exports[`onBuild() when splitting API routes is disabled, it writes correct redirects to netlifyConfig 1`] = `
 Array [
   Object {
     "conditions": Object {
@@ -1456,7 +1460,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/en/getStaticProps/:id.json",
     "status": 404,
-    "to": "/server/pages/en/404.html",
+    "to": "/en/404.html",
   },
   Object {
     "force": false,
@@ -1504,7 +1508,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/:id.json",
     "status": 404,
-    "to": "/server/pages/en/404.html",
+    "to": "/en/404.html",
   },
   Object {
     "force": true,
@@ -1702,7 +1706,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/es/getStaticProps/:id.json",
     "status": 404,
-    "to": "/server/pages/es/404.html",
+    "to": "/es/404.html",
   },
   Object {
     "force": false,
@@ -1750,7 +1754,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/es/getStaticProps/withRevalidate/:id.json",
     "status": 404,
-    "to": "/server/pages/es/404.html",
+    "to": "/es/404.html",
   },
   Object {
     "force": false,
@@ -1912,7 +1916,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/fr/getStaticProps/:id.json",
     "status": 404,
-    "to": "/server/pages/fr/404.html",
+    "to": "/fr/404.html",
   },
   Object {
     "force": false,
@@ -1960,7 +1964,7 @@ Array [
     "force": false,
     "from": "/_next/data/build-id/fr/getStaticProps/withRevalidate/:id.json",
     "status": 404,
-    "to": "/server/pages/fr/404.html",
+    "to": "/fr/404.html",
   },
   Object {
     "force": false,
@@ -2083,21 +2087,6 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/api/enterPreview",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/exitPreview",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/hello",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
     "from": "/api/hello-background",
     "status": 200,
     "to": "/.netlify/functions/_api_hello-background-background",
@@ -2106,21 +2095,6 @@ Array [
     "from": "/api/hello-scheduled",
     "status": 404,
     "to": "/404.html",
-  },
-  Object {
-    "from": "/api/revalidate",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/shows/:id",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
-  },
-  Object {
-    "from": "/api/shows/:params/*",
-    "status": 200,
-    "to": "/.netlify/functions/api-0",
   },
   Object {
     "force": false,
@@ -2205,24 +2179,6 @@ Array [
     "from": "/broken-image",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/BUILD_ID",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/build-manifest.json",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/cache/*",
-    "status": 404,
-    "to": "/404.html",
   },
   Object {
     "force": false,
@@ -2360,7 +2316,7 @@ Array [
     "force": false,
     "from": "/es/getStaticProps/:id",
     "status": 404,
-    "to": "/server/pages/es/404.html",
+    "to": "/es/404.html",
   },
   Object {
     "force": false,
@@ -2408,7 +2364,7 @@ Array [
     "force": false,
     "from": "/es/getStaticProps/withRevalidate/:id",
     "status": 404,
-    "to": "/server/pages/es/404.html",
+    "to": "/es/404.html",
   },
   Object {
     "force": false,
@@ -2600,7 +2556,7 @@ Array [
     "force": false,
     "from": "/fr/getStaticProps/:id",
     "status": 404,
-    "to": "/server/pages/fr/404.html",
+    "to": "/fr/404.html",
   },
   Object {
     "force": false,
@@ -2648,7 +2604,7 @@ Array [
     "force": false,
     "from": "/fr/getStaticProps/withRevalidate/:id",
     "status": 404,
-    "to": "/server/pages/fr/404.html",
+    "to": "/fr/404.html",
   },
   Object {
     "force": false,
@@ -2756,7 +2712,7 @@ Array [
     "force": false,
     "from": "/getStaticProps/:id",
     "status": 404,
-    "to": "/server/pages/en/404.html",
+    "to": "/en/404.html",
   },
   Object {
     "force": false,
@@ -2804,7 +2760,7 @@ Array [
     "force": false,
     "from": "/getStaticProps/withRevalidate/:id",
     "status": 404,
-    "to": "/server/pages/en/404.html",
+    "to": "/en/404.html",
   },
   Object {
     "force": true,
@@ -2884,22 +2840,10 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "force": true,
-    "from": "/prerender-manifest.json",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
     "force": false,
     "from": "/previewTest",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/react-loadable-manifest.json",
-    "status": 404,
-    "to": "/404.html",
   },
   Object {
     "force": false,
@@ -2908,28 +2852,10 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "force": true,
-    "from": "/routes-manifest.json",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
     "force": false,
     "from": "/script",
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
-  },
-  Object {
-    "force": true,
-    "from": "/server/*",
-    "status": 404,
-    "to": "/404.html",
-  },
-  Object {
-    "force": true,
-    "from": "/serverless/*",
-    "status": 404,
-    "to": "/404.html",
   },
   Object {
     "force": false,
@@ -2966,17 +2892,1604 @@ Array [
     "status": 200,
     "to": "/.netlify/functions/___netlify-handler",
   },
+]
+`;
+
+exports[`onBuild() when splitting API routes is enabled writes correct redirects to netlifyConfig 1`] = `
+Array [
+  Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "NEXT_LOCALE",
+      ],
+    },
+    "force": true,
+    "from": "/",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "conditions": Object {
+      "Language": Array [
+        "es",
+      ],
+    },
+    "force": true,
+    "from": "/",
+    "status": 301,
+    "to": "/es/",
+  },
+  Object {
+    "conditions": Object {
+      "Language": Array [
+        "fr",
+      ],
+    },
+    "force": true,
+    "from": "/",
+    "status": 301,
+    "to": "/fr/",
+  },
   Object {
     "force": true,
-    "from": "/trace",
+    "from": "/",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "from": "/_ipx/*",
+    "status": 200,
+    "to": "/.netlify/builders/_ipx",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/500.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/app-edge.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/broken-image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/css.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/deep/import.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/edge/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/font.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/all.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/file.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getServerSideProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/:id.json",
+    "status": 404,
+    "to": "/en/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/with-revalidate.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/:id.json",
+    "status": 404,
+    "to": "/en/404.html",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/1.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/2.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/1.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallback/2.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/1.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/en/getStaticProps/withRevalidate/withFallbackBlocking/2.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/layouts.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/old/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/previewTest.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/redirectme.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/script.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/shows/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/en/static/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/es.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/500.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/app-edge.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/broken-image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/css.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/deep/import.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/edge/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/font.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/all.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/file.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getServerSideProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/:id.json",
+    "status": 404,
+    "to": "/es/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/es/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/es/getStaticProps/with-revalidate.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withRevalidate/:id.json",
+    "status": 404,
+    "to": "/es/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withRevalidate/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/getStaticProps/withRevalidate/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/layouts.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/old/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/previewTest.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/redirectme.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/script.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/shows/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/es/static/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/fr.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/500.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/app-edge.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/broken-image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/css.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/deep/import.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/edge/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/font.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/all.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/file.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getServerSideProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/:id.json",
+    "status": 404,
+    "to": "/fr/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/env.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/fr/getStaticProps/with-revalidate-404.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/_next/data/build-id/fr/getStaticProps/with-revalidate.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withRevalidate/:id.json",
+    "status": 404,
+    "to": "/fr/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withRevalidate/withFallback/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/getStaticProps/withRevalidate/withFallbackBlocking/:id.json",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/layouts.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/old/image.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/previewTest.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/redirectme.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/script.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/shows/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/static.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/_next/data/build-id/fr/static/:id.json",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "from": "/_next/image/*",
+    "query": Object {
+      "q": ":quality",
+      "url": ":url",
+      "w": ":width",
+    },
+    "status": 301,
+    "to": "/_ipx/w_:width,q_:quality/:url",
+  },
+  Object {
+    "from": "/_next/static/*",
+    "status": 200,
+    "to": "/static/:splat",
+  },
+  Object {
+    "from": "/:locale/_next/static/*",
+    "status": 200,
+    "to": "/static/:splat",
+  },
+  Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "__prerender_bypass",
+        "__next_preview_data",
+      ],
+    },
+    "force": true,
+    "from": "/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "from": "/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/500",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "from": "/api/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "from": "/api/enterPreview",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-api-handler",
+  },
+  Object {
+    "from": "/api/exitPreview",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-api-handler",
+  },
+  Object {
+    "from": "/api/hello",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-api-handler",
+  },
+  Object {
+    "from": "/api/hello-background",
+    "status": 200,
+    "to": "/.netlify/functions/_api_hello-background-background",
+  },
+  Object {
+    "from": "/api/hello-scheduled",
     "status": 404,
     "to": "/404.html",
   },
   Object {
+    "from": "/api/revalidate",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-api-handler",
+  },
+  Object {
+    "from": "/api/shows/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-api-handler",
+  },
+  Object {
+    "from": "/api/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-api-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/app-edge",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author/:slug",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/blog/:author/:slug.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
     "force": true,
-    "from": "/traces",
+    "from": "/blog/erica",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/erica.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/nick",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/nick.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/rob",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/rob.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/sarah",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/blog/sarah.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/broken-image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/css",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/deep/import",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/edge/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/es",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/500",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/app-edge",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author/:slug",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/blog/:author/:slug.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/broken-image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/css",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/deep/import",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/edge/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/font",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/all",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/file",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getServerSideProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/:id",
     "status": 404,
-    "to": "/404.html",
+    "to": "/es/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/es/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/es/getStaticProps/with-revalidate-404",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withRevalidate/:id",
+    "status": 404,
+    "to": "/es/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withRevalidate/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/getStaticProps/withRevalidate/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/layouts",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/old/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/previewTest",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/redirectme",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/script",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/shows/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/es/static/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/font",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/fr",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/500",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/app-edge",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author/:slug",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/blog/:author/:slug.rsc",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/broken-image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/css",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/deep/import",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/edge/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/font",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getServerSideProps/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getServerSideProps/all",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getServerSideProps/file",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getServerSideProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/:id",
+    "status": 404,
+    "to": "/fr/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/fr/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/fr/getStaticProps/with-revalidate-404",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withRevalidate/:id",
+    "status": 404,
+    "to": "/fr/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withRevalidate/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/getStaticProps/withRevalidate/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/layouts",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/old/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/previewTest",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/redirectme",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/script",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/shows/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/fr/static/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getServerSideProps/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getServerSideProps/all",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getServerSideProps/all/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getServerSideProps/file",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getServerSideProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/:id",
+    "status": 404,
+    "to": "/en/404.html",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/env",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/with-revalidate",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/with-revalidate-404",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withFallback/:slug/*",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withRevalidate/:id",
+    "status": 404,
+    "to": "/en/404.html",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/1",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/2",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withRevalidate/withFallback/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallback/1",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallback/2",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/:id",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/1",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": true,
+    "from": "/getStaticProps/withRevalidate/withFallbackBlocking/2",
+    "status": 200,
+    "to": "/.netlify/builders/___netlify-odb-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/layouts",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "__prerender_bypass",
+        "__next_preview_data",
+      ],
+    },
+    "from": "/next-on-netlify.png",
+    "status": 200,
+    "to": "/next-on-netlify.png",
+  },
+  Object {
+    "force": false,
+    "from": "/old/image",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/previewTest",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/redirectme",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/script",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/shows/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/shows/:params/*",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "conditions": Object {
+      "Cookie": Array [
+        "__prerender_bypass",
+        "__next_preview_data",
+      ],
+    },
+    "from": "/shows1.json",
+    "status": 200,
+    "to": "/shows1.json",
+  },
+  Object {
+    "force": false,
+    "from": "/static",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
+  },
+  Object {
+    "force": false,
+    "from": "/static/:id",
+    "status": 200,
+    "to": "/.netlify/functions/___netlify-handler",
   },
 ]
 `;

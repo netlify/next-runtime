@@ -1,5 +1,76 @@
 # Changelog
 
+## [4.39.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.0...plugin-nextjs-v4.39.1) (2023-07-11)
+
+
+### Bug Fixes
+
+* use native path matching for prebundled react conditional ([#2206](https://github.com/netlify/next-runtime/issues/2206)) ([ba036fb](https://github.com/netlify/next-runtime/commit/ba036fbcce431b8b95f006ebca72e2bd07741a15))
+
+## [4.39.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.38.1...plugin-nextjs-v4.39.0) (2023-07-03)
+
+
+### Features
+
+* Use `none` bundler for SSR Routes ([#2084](https://github.com/netlify/next-runtime/issues/2084)) ([4b3d3f4](https://github.com/netlify/next-runtime/commit/4b3d3f46060448e2527d94eda952314142150ddd))
+
+
+### Bug Fixes
+
+* **deps:** update dependency pathe to ^0.3.0 ([#2199](https://github.com/netlify/next-runtime/issues/2199)) ([87391e1](https://github.com/netlify/next-runtime/commit/87391e162588910459d9ca0eb7080c04bb713988))
+* edge cases for custom react module resolution ([#2188](https://github.com/netlify/next-runtime/issues/2188)) ([6b527be](https://github.com/netlify/next-runtime/commit/6b527be4473032c2e22ed67c819ef662d410f457))
+* preserve original path after middleware rewrite ([#2177](https://github.com/netlify/next-runtime/issues/2177)) ([9c6ec9f](https://github.com/netlify/next-runtime/commit/9c6ec9f669b8325f6cd4a3ed61446dc7cf550d3a))
+
+## [4.38.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.38.0...plugin-nextjs-v4.38.1) (2023-06-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.4.1 ([#2167](https://github.com/netlify/next-runtime/issues/2167)) ([c295bc2](https://github.com/netlify/next-runtime/commit/c295bc23bd769e0d946a40d75ee7340f4d5cdf9d))
+* optionally chain server functions when selecting react version ([#2179](https://github.com/netlify/next-runtime/issues/2179)) ([e63fcf0](https://github.com/netlify/next-runtime/commit/e63fcf0f98b52a830d8b328be803755ba91942ff))
+
+## [4.38.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.4...plugin-nextjs-v4.38.0) (2023-06-16)
+
+
+### Features
+
+* provide display name for split api routes ([#2155](https://github.com/netlify/next-runtime/issues/2155)) ([10250a0](https://github.com/netlify/next-runtime/commit/10250a01cc422a36a53c079872b5cd84b62be3dd))
+
+
+### Bug Fixes
+
+* bundle dynamic API routes correctly with split-api-routes ([#2154](https://github.com/netlify/next-runtime/issues/2154)) ([dc7c479](https://github.com/netlify/next-runtime/commit/dc7c4791280286c85fc5676ab1ee82db04567a12))
+* ensure next-server patches only run on Netlify ([#2117](https://github.com/netlify/next-runtime/issues/2117)) ([6bdaec1](https://github.com/netlify/next-runtime/commit/6bdaec1d6d68549939c65608d37d59b3a925a3ef))
+* ensures compatibility with Next.js 13.4 (support for some features still en-route) ([9f85472](https://github.com/netlify/next-runtime/commit/9f8547260f654ad89a6412c6deaeb096ffd56671))
+* new ISR cache handling to resolve regression in 13.4 ([#2165](https://github.com/netlify/next-runtime/issues/2165)) ([6817cc9](https://github.com/netlify/next-runtime/commit/6817cc93b8147edc95558ad8ea0f9fdb058832e1))
+* strip domain from ipx edge functions path ([#2098](https://github.com/netlify/next-runtime/issues/2098)) ([#2099](https://github.com/netlify/next-runtime/issues/2099)) ([c9ab983](https://github.com/netlify/next-runtime/commit/c9ab9835844aad926df47e800226687bcb65592c))
+* uses pre-bundled React modules for App Router paths ([9f85472](https://github.com/netlify/next-runtime/commit/9f8547260f654ad89a6412c6deaeb096ffd56671))
+
+## [4.37.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.3...plugin-nextjs-v4.37.4) (2023-05-30)
+
+
+### Bug Fixes
+
+* pass only first language to next-server to match platform redirects support ([#2138](https://github.com/netlify/next-runtime/issues/2138)) ([aca3dc6](https://github.com/netlify/next-runtime/commit/aca3dc6d09aaf5586f3acfe41f7e12cb504c3325))
+
+## [4.37.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.2...plugin-nextjs-v4.37.3) (2023-05-30)
+
+
+### Bug Fixes
+
+* remove edge functions beta label ([#2133](https://github.com/netlify/next-runtime/issues/2133)) ([7a10491](https://github.com/netlify/next-runtime/commit/7a10491647fcaf71e5ed38a999306065ed56ac70))
+* tracing root use `appDir` as fallback ([#2136](https://github.com/netlify/next-runtime/issues/2136)) ([64280e5](https://github.com/netlify/next-runtime/commit/64280e5a424d09dd04241d89b2f9335c1d997586))
+
+## [4.37.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.1...plugin-nextjs-v4.37.2) (2023-05-22)
+
+
+### Bug Fixes
+
+* checks when Next.js' implementation of ResponseCookies._headers is undefined now ([#2119](https://github.com/netlify/next-runtime/issues/2119)) ([f051e22](https://github.com/netlify/next-runtime/commit/f051e227ca10ddc228b1d044eb835fe66fd1d733))
+* don't deploy metadata files to CDN ([#2104](https://github.com/netlify/next-runtime/issues/2104)) ([ba3a430](https://github.com/netlify/next-runtime/commit/ba3a430c74cf951ac27e07c6808679b887702950))
+* guard split api routes behaviour by next version ([#2125](https://github.com/netlify/next-runtime/issues/2125)) ([a8bb0e3](https://github.com/netlify/next-runtime/commit/a8bb0e3db3c7d550921bc3ed54d0ec575f1a2191))
+* resolve follow-redirects from runtime package, so it's available also in auto-installs ([#2124](https://github.com/netlify/next-runtime/issues/2124)) ([49ada27](https://github.com/netlify/next-runtime/commit/49ada272e732542a85f2618c065080444e1c299c))
+
 ## [4.37.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.37.0...plugin-nextjs-v4.37.1) (2023-05-17)
 
 

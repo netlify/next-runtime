@@ -55,6 +55,60 @@ jest.mock(
   { virtual: true },
 )
 
+jest.mock(
+  'server/pages-manifest.json',
+  () => ({
+    '/non-i18n/with-revalidate': 'pages/non-i18n/with-revalidate.js',
+    '/en/i18n/with-revalidate': 'pages/en/i18n/with-revalidate.js',
+    '/posts/[title]': 'pages/posts/[title].js',
+  }),
+  { virtual: true },
+)
+
+jest.mock(
+  'routes-manifest.json',
+  () => ({
+    dynamicRoutes: [
+      {
+        page: '/posts/[title]',
+        regex: '^/posts/([^/]+?)(?:/)?$',
+        routeKeys: {
+          nxtPtitle: 'nxtPtitle',
+        },
+        namedRegex: '^/posts/(?<nxtPtitle>[^/]+?)(?:/)?$',
+      },
+      {
+        page: '/blog/[author]/[slug]',
+        regex: '^/blog/([^/]+?)/([^/]+?)(?:/)?$',
+        routeKeys: {
+          nxtPauthor: 'nxtPauthor',
+          nxtPslug: 'nxtPslug',
+        },
+        namedRegex: '^/blog/(?<nxtPauthor>[^/]+?)/(?<nxtPslug>[^/]+?)(?:/)?$',
+      },
+    ],
+    staticRoutes: [
+      {
+        page: '/non-i18n/with-revalidate',
+        regex: '^/non-i18n/with-revalidate(?:/)?$',
+        routeKeys: {},
+        namedRegex: '^/non-i18n/with-revalidate(?:/)?$',
+      },
+      {
+        page: '/i18n/with-revalidate',
+        regex: '^/i18n/with-revalidate(?:/)?$',
+        routeKeys: {},
+        namedRegex: '^/i18n/with-revalidate(?:/)?$',
+      },
+    ],
+  }),
+  { virtual: true },
+)
+
+const appPathsManifest = {
+  '/blog/(test)/[author]/[slug]/page': 'app/blog/[author]/[slug]/page.js',
+}
+
 let NetlifyNextServer: NetlifyNextServerType
 beforeAll(() => {
   const NextServer: NextServerType = require(getServerFile(__dirname, false)).default
@@ -66,6 +120,8 @@ beforeAll(() => {
     this.buildId = mockBuildId
     this.nextConfig = nextOptions.conf
     this.netlifyConfig = netlifyConfig
+    this.renderOpts = { previewProps: {} }
+    this.appPathsManifest = appPathsManifest
   }
   Object.setPrototypeOf(NetlifyNextServer, MockNetlifyNextServerConstructor)
 })
@@ -207,5 +263,53 @@ describe('the netlify next server', () => {
     await expect(requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))).rejects.toThrow(
       'Unable to connect',
     )
+  })
+
+  it('resolves react as normal for pages routes', async () => {
+    const netlifyNextServer = new NetlifyNextServer({ conf: {} }, {})
+    const requestHandler = netlifyNextServer.getRequestHandler()
+
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/posts/hello',
+    })
+
+    // @ts-expect-error - Types are incorrect for `MockedResponse`
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
+
+    // eslint-disable-next-line no-underscore-dangle
+    expect(process.env.__NEXT_PRIVATE_PREBUNDLED_REACT).toBe('')
+  })
+
+  it('resolves the prebundled react version for app routes', async () => {
+    const netlifyNextServer = new NetlifyNextServer({ conf: { experimental: { appDir: true } } }, {})
+    const requestHandler = netlifyNextServer.getRequestHandler()
+
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/blog/rob/hello',
+    })
+
+    // @ts-expect-error - Types are incorrect for `MockedResponse`
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
+
+    // eslint-disable-next-line no-underscore-dangle
+    expect(process.env.__NEXT_PRIVATE_PREBUNDLED_REACT).toBe('next')
+  })
+
+  it('resolves the experimental prebundled react version for app routes with server actions', async () => {
+    const netlifyNextServer = new NetlifyNextServer(
+      { conf: { experimental: { appDir: true, serverActions: true } } },
+      {},
+    )
+    const requestHandler = netlifyNextServer.getRequestHandler()
+
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/blog/rob/hello',
+    })
+
+    // @ts-expect-error - Types are incorrect for `MockedResponse`
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
+
+    // eslint-disable-next-line no-underscore-dangle
+    expect(process.env.__NEXT_PRIVATE_PREBUNDLED_REACT).toBe('experimental')
   })
 })

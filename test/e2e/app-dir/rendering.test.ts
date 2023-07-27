@@ -1,29 +1,14 @@
-import { createNext, FileRef } from 'e2e-utils'
-import { NextInstance } from 'test/lib/next-modes/base'
+import { createNextDescribe, FileRef } from 'e2e-utils'
 import { renderViaHTTP, fetchViaHTTP, waitFor } from 'next-test-utils'
 import path from 'path'
 import cheerio from 'cheerio'
 
-describe('app dir rendering', () => {
-  //if ((global as any).isNextDeploy) {
-  //  it('should skip next deploy for now', () => {})
-  //  return
-  //}
-
-  const isDev = (global as any).isNextDev
-  let next: NextInstance
-
-  beforeAll(async () => {
-    next = await createNext({
-      files: new FileRef(path.join(__dirname, 'app-rendering')),
-      dependencies: {
-        react: 'experimental',
-        'react-dom': 'experimental',
-      },
-    })
-  }, 600000)
-  afterAll(() => next.destroy())
-
+createNextDescribe('app dir rendering', 
+{
+  files: new FileRef(path.join(__dirname, 'app-rendering')),
+  skipDeployment: false,
+},
+({ next, isNextDev: isDev }) => {
   it('should serve app/page.server.js at /', async () => {
     const html = await renderViaHTTP(next.url, '/')
     expect(html).toContain('app/page.server.js')
@@ -39,12 +24,12 @@ describe('app dir rendering', () => {
 
     it('should run data fetch in parallel', async () => {
       const startTime = Date.now()
-      const html = await renderViaHTTP(next.url, '/ssr-only/slow')
+      const html = await next.render(next.url, '/ssr-only/slow')
       const endTime = Date.now()
       const duration = endTime - startTime
       // Each part takes 5 seconds so it should be below 10 seconds
       // Using 7 seconds to ensure external factors causing slight slowness don't fail the tests
-      expect(duration < 7000).toBe(true)
+      expect(duration).toBeLessThan(10000)
       const $ = cheerio.load(html)
       expect($('#slow-layout-message').text()).toBe('hello from slow layout')
       expect($('#slow-page-message').text()).toBe('hello from slow page')

@@ -189,6 +189,13 @@ export const normalizePath = (event: HandlerEvent) => {
       return originalPath
     }
   }
+
+  if (event.headers['x-original-path']) {
+    if (event.headers['x-next-debug-logging']) {
+      console.log('Original path:', event.headers['x-original-path'])
+    }
+    return event.headers['x-original-path']
+  }
   // Ensure that paths are encoded - but don't double-encode them
   return new URL(event.rawUrl).pathname
 }
@@ -239,6 +246,10 @@ export const netlifyApiFetch = <T>({
 
 // Remove trailing slash from a route (except for the root route)
 export const normalizeRoute = (route: string): string => (route.endsWith('/') ? route.slice(0, -1) || '/' : route)
+
+// Join multiple paths together, ensuring that there is only one slash between them
+export const joinPaths = (...paths: string[]): string =>
+  paths.reduce((a, b) => (a.endsWith('/') ? `${a}${b}` : `${a}/${b}`))
 
 // Check if a route has a locale prefix (including the root route)
 const isLocalized = (route: string, i18n: { defaultLocale: string; locales: string[] }): boolean =>

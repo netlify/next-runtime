@@ -1,6 +1,5 @@
 import type { Context } from '@netlify/edge-functions'
 import type { NextURL } from 'next/dist/server/web/next-url'
-import { NextResponse } from 'next/server'
 import type { NextRequest as InternalNextRequest } from 'next/server'
 
 import { MiddlewareResponse } from './response'
@@ -64,16 +63,17 @@ export class MiddlewareRequest extends Request {
     if (response.status === 301 && locationHeader?.startsWith('/')) {
       response = await this.context.rewrite(locationHeader)
     }
-
     return new MiddlewareResponse(response)
   }
 
-  rewrite(destination: string | URL | NextURL, init?: ResponseInit): NextResponse {
+  async rewrite(destination: string | URL | NextURL, init?: ResponseInit) {
     if (typeof destination === 'string' && destination.startsWith('/')) {
       destination = new URL(destination, this.url)
     }
     this.applyHeaders()
-    return NextResponse.rewrite(destination, init)
+    const response = await this.context.rewrite(destination)
+
+    return new MiddlewareResponse(response, init)
   }
 
   get headers() {

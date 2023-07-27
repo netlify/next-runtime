@@ -1,24 +1,39 @@
+import destr from 'destr'
+
 export const HANDLER_FUNCTION_NAME = '___netlify-handler'
 export const ODB_FUNCTION_NAME = '___netlify-odb-handler'
+export const API_FUNCTION_NAME = '___netlify-api-handler'
 export const IMAGE_FUNCTION_NAME = '_ipx'
 export const NEXT_PLUGIN_NAME = '@netlify/next-runtime'
 export const NEXT_PLUGIN = '@netlify/plugin-nextjs'
 export const HANDLER_FUNCTION_TITLE = 'Next.js SSR handler'
 export const ODB_FUNCTION_TITLE = 'Next.js ISR handler'
+export const API_FUNCTION_TITLE = 'Next.js API handler'
 export const IMAGE_FUNCTION_TITLE = 'next/image handler'
 // These are paths in .next that shouldn't be publicly accessible
-export const HIDDEN_PATHS = [
-  '/cache/*',
-  '/server/*',
-  '/serverless/*',
-  '/trace',
-  '/traces',
-  '/routes-manifest.json',
-  '/build-manifest.json',
-  '/prerender-manifest.json',
-  '/react-loadable-manifest.json',
-  '/BUILD_ID',
-]
+export const HIDDEN_PATHS = destr(process.env.NEXT_KEEP_METADATA_FILES)
+  ? []
+  : [
+      '/cache',
+      '/server',
+      '/serverless',
+      '/trace',
+      '/traces',
+      '/routes-manifest.json',
+      '/build-manifest.json',
+      '/prerender-manifest.json',
+      '/react-loadable-manifest.json',
+      '/BUILD_ID',
+      '/app-build-manifest.json',
+      '/app-path-routes-manifest.json',
+      '/export-marker.json',
+      '/images-manifest.json',
+      '/next-server.js.nft.json',
+      '/package.json',
+      '/prerender-manifest.js',
+      '/required-server-files.json',
+      '/static-manifest.json',
+    ]
 
 export const ODB_FUNCTION_PATH = `/.netlify/builders/${ODB_FUNCTION_NAME}`
 export const HANDLER_FUNCTION_PATH = `/.netlify/functions/${HANDLER_FUNCTION_NAME}`

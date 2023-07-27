@@ -1,6 +1,9 @@
-import { PrerenderManifest } from 'next/dist/build'
+// eslint-disable-next-line n/no-deprecated-api -- this is what Next.js uses as well
+import { parse } from 'url'
+
+import type { PrerenderManifest } from 'next/dist/build'
 import type { BaseNextResponse } from 'next/dist/server/base-http'
-import { NodeRequestHandler, Options } from 'next/dist/server/next-server'
+import type { NodeRequestHandler, Options } from 'next/dist/server/next-server'
 
 import {
   netlifyApiFetch,
@@ -35,9 +38,17 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
     public getRequestHandler(): NodeRequestHandler {
       const handler = super.getRequestHandler()
       return async (req, res, parsedUrl) => {
+        if (!parsedUrl && typeof req?.headers?.['x-middleware-rewrite'] === 'string') {
+          parsedUrl = parse(req.headers['x-middleware-rewrite'], true)
+        }
+
         // preserve the URL before Next.js mutates it for i18n
         const { url, headers } = req
 
+        // conditionally use the prebundled React module
+        this.netlifyPrebundleReact(url)
+
+        // intercept on-demand revalidation requests and handle with the Netlify API
         if (headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {
           // handle on-demand revalidation by purging the ODB cache
           await this.netlifyRevalidate(url)
@@ -46,10 +57,44 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
           res.statusCode = 200
           res.setHeader('x-nextjs-cache', 'REVALIDATED')
           res.send()
-        } else {
-          return handler(req, res, parsedUrl)
+          return
         }
+
+        // force Next to revalidate all requests so that we always have fresh content
+        // for our ODBs and middleware is disabled at the origin
+        // but ignore in preview mode (prerender_bypass is set to true in preview mode)
+        // because otherwise revalidate will override preview mode
+        if (!headers.cookie?.includes('__prerender_bypass')) {
+          // this header controls whether Next.js will revalidate the page
+          // and needs to be set to the preview mode id to enable it
+          headers['x-prerender-revalidate'] = this.renderOpts.previewProps.previewModeId
+        }
+
+        return handler(req, res, parsedUrl)
       }
+    }
+
+    // doing what they do in https://github.com/vercel/vercel/blob/1663db7ca34d3dd99b57994f801fb30b72fbd2f3/packages/next/src/server-build.ts#L576-L580
+    private netlifyPrebundleReact(path: string) {
+      const routesManifest = this.getRoutesManifest?.()
+      const appPathsRoutes = this.getAppPathRoutes?.()
+
+      const routes = routesManifest && [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
+      const matchedRoute = routes?.find((route) => new RegExp(route.regex).test(new URL(path, 'http://n').pathname))
+      const isAppRoute = appPathsRoutes && matchedRoute ? appPathsRoutes[matchedRoute.page] : false
+
+      if (isAppRoute) {
+        // app routes should use prebundled React
+        // eslint-disable-next-line no-underscore-dangle
+        process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = this.nextConfig.experimental?.serverActions
+          ? 'experimental'
+          : 'next'
+        return
+      }
+
+      // pages routes should use use node_modules React
+      // eslint-disable-next-line no-underscore-dangle
+      process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = ''
     }
 
     private async netlifyRevalidate(route: string) {

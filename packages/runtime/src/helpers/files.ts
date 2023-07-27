@@ -2,7 +2,7 @@ import { cpus } from 'os'
 
 import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
-import { existsSync, readJson, move, copy, writeJson, readFile, writeFile, ensureDir, readFileSync } from 'fs-extra'
+import { existsSync, readJson, move, copy, writeJson, ensureDir, readFileSync, remove } from 'fs-extra'
 import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
@@ -10,7 +10,7 @@ import pLimit from 'p-limit'
 import { join, resolve, dirname } from 'pathe'
 import slash from 'slash'
 
-import { MINIMUM_REVALIDATE_SECONDS, DIVIDER } from '../constants'
+import { MINIMUM_REVALIDATE_SECONDS, DIVIDER, HIDDEN_PATHS } from '../constants'
 
 import { NextConfig } from './config'
 import { loadPrerenderManifest } from './edge'
@@ -138,8 +138,8 @@ export const moveStaticPages = async ({
       console.warn('Error moving file', source, error)
     }
   }
-  // Move all static files, except error documents and nft manifests
-  const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/(500|404|*.js.nft).{html,json}'], {
+  // Move all static files, except nft manifests
+  const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/*.js.nft.{html,json}'], {
     cwd: outputDir,
     dot: true,
   })
@@ -286,45 +286,6 @@ export const moveStaticPages = async ({
   }
 }
 
-const PATCH_WARNING = `/* File patched by Netlify */`
-
-/**
- * Attempt to patch a source file, preserving a backup
- */
-const patchFile = async ({
-  file,
-  replacements,
-}: {
-  file: string
-  replacements: Array<[from: string, to: string]>
-}): Promise<boolean> => {
-  if (!existsSync(file)) {
-    console.warn('File was not found')
-    return false
-  }
-  let content = await readFile(file, 'utf8')
-
-  // If the file has already been patched, patch the backed-up original instead
-  if (content.includes(PATCH_WARNING) && existsSync(`${file}.orig`)) {
-    content = await readFile(`${file}.orig`, 'utf8')
-  }
-
-  const newContent = replacements.reduce((acc, [from, to]) => {
-    if (acc.includes(to)) {
-      console.log('Already patched. Skipping.')
-      return acc
-    }
-    return acc.replace(from, to)
-  }, content)
-  if (newContent === content) {
-    console.warn('File was not changed')
-    return false
-  }
-  await writeFile(`${file}.orig`, content)
-  await writeFile(file, `${newContent}\n${PATCH_WARNING}`)
-  console.log('Done')
-  return true
-}
 /**
  * The file we need has moved around a bit over the past few versions,
  * so we iterate through the options until we find it
@@ -375,76 +336,6 @@ export const getDependenciesOfFile = async (file: string) => {
   return dependencies.files.map((dep) => resolve(dirname(file), dep))
 }
 
-const baseServerReplacements: Array<[string, string]> = [
-  // force manual revalidate during cache fetches
-  [
-    `checkIsManualRevalidate(req, this.renderOpts.previewProps)`,
-    `checkIsManualRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
-  ],
-  // In https://github.com/vercel/next.js/pull/47803 checkIsManualRevalidate was renamed to checkIsOnDemandRevalidate
-  [
-    `checkIsOnDemandRevalidate(req, this.renderOpts.previewProps)`,
-    `checkIsOnDemandRevalidate(process.env._REVALIDATE_SSG ? { headers: { 'x-prerender-revalidate': this.renderOpts.previewProps.previewModeId } } : req, this.renderOpts.previewProps)`,
-  ],
-  // ensure ISR 404 pages send the correct SWR cache headers
-  [`private: isPreviewMode || is404Page && cachedData`, `private: isPreviewMode && cachedData`],
-]
-
-const nextServerReplacements: Array<[string, string]> = [
-  [
-    `getMiddlewareManifest() {\n        if (this.minimalMode) return null;`,
-    `getMiddlewareManifest() {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return null;`,
-  ],
-  [
-    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode) return []`,
-    `generateCatchAllMiddlewareRoute(devReady) {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return [];`,
-  ],
-  [
-    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode) return undefined;`,
-    `generateCatchAllMiddlewareRoute() {\n        if (this.minimalMode || (process.env.NEXT_DISABLE_NETLIFY_EDGE !== 'true' && process.env.NEXT_DISABLE_NETLIFY_EDGE !== '1')) return undefined;`,
-  ],
-  [
-    `getMiddlewareManifest() {\n        if (this.minimalMode) {`,
-    `getMiddlewareManifest() {\n        if (!this.minimalMode && (process.env.NEXT_DISABLE_NETLIFY_EDGE === 'true' || process.env.NEXT_DISABLE_NETLIFY_EDGE === '1')) {`,
-  ],
-]
-
-export const patchNextFiles = async (root: string): Promise<void> => {
-  const baseServerFile = getServerFile(root)
-  console.log(`Patching ${baseServerFile}`)
-  if (baseServerFile) {
-    await patchFile({
-      file: baseServerFile,
-      replacements: baseServerReplacements,
-    })
-  }
-
-  const nextServerFile = getServerFile(root, false)
-  console.log(`Patching ${nextServerFile}`)
-  if (nextServerFile) {
-    await patchFile({
-      file: nextServerFile,
-      replacements: nextServerReplacements,
-    })
-  }
-}
-
-export const unpatchFile = async (file: string): Promise<void> => {
-  const origFile = `${file}.orig`
-  if (existsSync(origFile)) {
-    await move(origFile, file, { overwrite: true })
-  }
-}
-
-export const unpatchNextFiles = async (root: string): Promise<void> => {
-  const baseServerFile = getServerFile(root)
-  await unpatchFile(baseServerFile)
-  const nextServerFile = getServerFile(root, false)
-  if (nextServerFile !== baseServerFile) {
-    await unpatchFile(nextServerFile)
-  }
-}
-
 export const movePublicFiles = async ({
   appDir,
   outdir,
@@ -466,4 +357,16 @@ export const movePublicFiles = async ({
   if (existsSync(publicDir)) {
     await copy(publicDir, `${publish}${basePath}/`)
   }
+}
+
+export const removeMetadataFiles = async (publish: string) => {
+  // Limit concurrent deletions to number of cpus or 2 if there is only 1
+  const limit = pLimit(Math.max(2, cpus().length))
+
+  const removePromises = HIDDEN_PATHS.map((HIDDEN_PATH) => {
+    const pathToDelete = join(publish, HIDDEN_PATH)
+    return limit(() => remove(pathToDelete))
+  })
+
+  await Promise.all(removePromises)
 }

@@ -24,6 +24,7 @@ const {
   getPrefetchResponse,
   normalizePath,
 } = require('./handlerUtils')
+const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
@@ -56,7 +57,10 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     require.resolve('./pages.js')
   } catch {}
 
+  // Next 13.4 conditionally uses different React versions and we need to make sure we use the same one
+  overrideRequireHooks(conf)
   const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
+  applyRequireHooks()
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
@@ -65,9 +69,6 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
   // We don't want to write ISR files to disk in the lambda environment
   conf.experimental.isrFlushToDisk = false
-  // This is our flag that we use when patching the source
-  // eslint-disable-next-line no-underscore-dangle
-  process.env._REVALIDATE_SSG = 'true'
   for (const [key, value] of Object.entries(conf.env)) {
     process.env[key] = String(value)
   }
@@ -130,6 +131,16 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
 
+    if (event.headers['accept-language'] && (mode === 'odb' || event.headers['x-next-just-first-accept-language'])) {
+      // keep just first language to match Netlify redirect limitation:
+      // https://docs.netlify.com/routing/redirects/redirect-options/#redirect-by-country-or-language
+      // > Language-based redirects always match against the first language reported by the browser in the Accept-Language header regardless of quality value weighting.
+      // If we wouldn't keep just first language, it's possible for `next-server` to generate locale redirect that could be cached by ODB
+      // because it matches on every language listed: https://github.com/vercel/next.js/blob/5d9597879c46b383d595d6f7b37fd373325b7544/test/unit/accept-headers.test.ts
+      // 'x-next-just-first-accept-language' header is escape hatch to be able to hit this code for tests (both automated and manual)
+      event.headers['accept-language'] = event.headers['accept-language'].replace(/\s*,.*$/, '')
+    }
+
     const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
@@ -160,17 +171,24 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
           // ODBs currently have a minimum TTL of 60 seconds
           result.ttl = Math.max(ttl, 60)
         }
-        const ephemeralCodes = [301, 302, 307, 308, 404]
+        const ephemeralCodes = [301, 302, 307, 308]
         if (ttl === ONE_YEAR_IN_SECONDS && ephemeralCodes.includes(result.statusCode)) {
           // Only cache for 60s if default TTL provided
           result.ttl = 60
         }
-        if (result.ttl > 0) {
-          requestMode = `odb ttl=${result.ttl}`
-        }
       }
       multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
     }
+
+    // ISR 404s are not served with SWR headers so we need to set the TTL here
+    if (requestMode === 'odb' && result.statusCode === 404) {
+      result.ttl = 60
+    }
+
+    if (result.ttl > 0) {
+      requestMode = `odb ttl=${result.ttl}`
+    }
+
     multiValueHeaders['x-nf-render-mode'] = [requestMode]
 
     console.log(`[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()})`)
@@ -195,14 +213,16 @@ export const getHandler = ({
     throw new Error('Could not find Next.js server')
   }
 
+  process.env.NODE_ENV = 'production';
+
   const { Server } = require("http");
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
-  const { getNetlifyNextServer } = require('./server')
+  const { overrideRequireHooks, applyRequireHooks } = require("./requireHooks")
+  const { getNetlifyNextServer } = require("./server")
   const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
-
   ${isODB ? `const { builder } = require("@netlify/functions")` : ''}
   const { config }  = require("${publishDir}/required-server-files.json")
   let staticManifest

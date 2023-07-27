@@ -51,10 +51,11 @@ module.exports = {
         // https://github.com/typescript-eslint/typescript-eslint/issues/2483
         'no-shadow': 'off',
         '@typescript-eslint/no-shadow': 'error',
+        'import/max-dependencies': 'off',
       },
     },
     {
-      files: ['cypress/**/*.spec.ts'],
+      files: ['cypress/**/*.cy.ts'],
       rules: {
         'max-nested-callbacks': 0,
         'promise/prefer-await-to-then': 0,
