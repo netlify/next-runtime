@@ -109,8 +109,23 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
       try {
         await requestHandler(req, res)
       } catch (error) {
-        console.error(error)
-        throw new Error('Error handling request. See function logs for details.')
+        // This is a naive approach to fixing the experimental version of React not being set properly.
+        // in some scenarios. We have something more robust in the works, but for now this is good enough.
+        if (
+          error.message.includes(`[ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './ server.edge' is not defined`)
+        ) {
+          try {
+            // eslint-disable-next-line no-underscore-dangle
+            process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = 'experimental'
+            await requestHandler(req, res)
+          } catch (validError) {
+            console.error(validError)
+            throw new Error('Error handling request. See function logs for details.')
+          }
+        } else {
+          console.error(error)
+          throw new Error('Error handling request. See function logs for details.')
+        }
       }
     })
     bridge = new Bridge(server)
