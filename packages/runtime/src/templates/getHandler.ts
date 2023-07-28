@@ -55,7 +55,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
   try {
     // eslint-disable-next-line n/no-missing-require
     require.resolve('./pages.js')
-  } catch {}
+  } catch { }
 
   // Next 13.4 conditionally uses different React versions and we need to make sure we use the same one
   overrideRequireHooks(conf)
@@ -64,8 +64,8 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
-  // React assumes you want development mode if NODE_ENV is unset.
-  ;(process.env as Mutable<NodeJS.ProcessEnv>).NODE_ENV ||= 'production'
+    // React assumes you want development mode if NODE_ENV is unset.
+    ; (process.env as Mutable<NodeJS.ProcessEnv>).NODE_ENV ||= 'production'
 
   // We don't want to write ISR files to disk in the lambda environment
   conf.experimental.isrFlushToDisk = false
@@ -116,7 +116,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         ) {
           try {
             // eslint-disable-next-line no-underscore-dangle
-            process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = 'experimental'
+            process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = nextServer.getAppRouterReactVersion()
             await requestHandler(req, res)
           } catch (validError) {
             console.error(validError)
@@ -246,9 +246,8 @@ export const getHandler = ({
   } catch {}
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
-  exports.handler = ${
-    isODB
+  exports.handler = ${isODB
       ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb' }));`
       : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr' });`
-  }
+    }
 `

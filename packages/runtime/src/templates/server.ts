@@ -23,6 +23,10 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
     private netlifyConfig: NetlifyConfig
     private netlifyPrerenderManifest: PrerenderManifest
 
+    public getAppRouterReactVersion(): string {
+      return this.nextConfig.experimental?.serverActions ? 'experimental' : 'next'
+    }
+
     public constructor(options: Options, netlifyConfig: NetlifyConfig) {
       super(options)
       this.netlifyConfig = netlifyConfig
@@ -86,9 +90,8 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       if (isAppRoute) {
         // app routes should use prebundled React
         // eslint-disable-next-line no-underscore-dangle
-        process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = this.nextConfig.experimental?.serverActions
-          ? 'experimental'
-          : 'next'
+        process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = this.getAppRouterReactVersion()
+
         return
       }
 
