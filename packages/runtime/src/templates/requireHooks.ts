@@ -100,7 +100,7 @@ const resolveRequireHooks = () => {
   })
 }
 
-export const applyRequireHooks = () => {
+export const applyRequireHooks = (conf: NextConfig) => {
   // eslint-disable-next-line max-params, func-names
   ;(mod as any)._resolveFilename = function (
     originalResolveFilename: typeof resolveFilename,
@@ -110,10 +110,18 @@ export const applyRequireHooks = () => {
     isMain: boolean,
     options: any,
   ) {
-    const reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REACT || 'default'
+    let reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REACT || 'default'
     const resolvedRequest = hooks.get(reactMode)?.get(request) ?? request
-
-    return originalResolveFilename.call(mod, resolvedRequest, parent, isMain, options)
+    try {
+      return originalResolveFilename.call(mod, resolvedRequest, parent, isMain, options)
+    } catch (error) {
+      const e = error.code.toString()
+      if (e === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+        process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = conf.experimental.serverActions ? 'experimental' : 'next'
+        reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REAC
+        return originalResolveFilename.call(mod, resolvedRequest, parent, isMain, options)
+      }
+    }
 
     // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
   }.bind(null, resolveFilename, requireHooks)

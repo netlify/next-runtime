@@ -60,7 +60,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
   // Next 13.4 conditionally uses different React versions and we need to make sure we use the same one
   overrideRequireHooks(conf)
   const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
-  applyRequireHooks()
+  applyRequireHooks(conf)
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
@@ -108,24 +108,24 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     const server = new Server(async (req, res) => {
       try {
         await requestHandler(req, res)
-      } catch (error) {
+      } catch {
         // This is a naive approach to fixing the experimental version of React not being set properly
         // in some scenarios. We have something more robust in the works, but for now this is good enough.
-        if (
-          error.message.includes(`[ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './ server.edge' is not defined`)
-        ) {
-          try {
-            // eslint-disable-next-line no-underscore-dangle
-            process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = nextServer.getAppRouterReactVersion()
-            await requestHandler(req, res)
-          } catch (validError) {
-            console.error(validError)
-            throw new Error('Error handling request. See function logs for details.')
-          }
-        } else {
-          console.error(error)
-          throw new Error('Error handling request. See function logs for details.')
-        }
+        // if (
+        //   error.message.includes(`[ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './ server.edge' is not defined`)
+        // ) {
+        //   try {
+        //     // eslint-disable-next-line no-underscore-dangle
+        //     process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = nextServer.getAppRouterReactVersion()
+        //     await requestHandler(req, res)
+        //   } catch (validError) {
+        //     console.error(validError)
+        //     throw new Error('Error handling request. See function logs for details.')
+        //   }
+        // } else {
+        //   console.error(error)
+        //   throw new Error('Error handling request. See function logs for details.')
+        // }
       }
     })
     bridge = new Bridge(server)
