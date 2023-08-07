@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.39.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.2...plugin-nextjs-v4.39.3) (2023-08-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.4.2 ([#2240](https://github.com/netlify/next-runtime/issues/2240)) ([b911230](https://github.com/netlify/next-runtime/commit/b91123091492bb10b726a2b911482bff67f8834a))
+
+## [4.39.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.1...plugin-nextjs-v4.39.2) (2023-08-01)
+
+
+### Bug Fixes
+
+* ISR 404 pages should be cached ephemerally ([#2233](https://github.com/netlify/next-runtime/issues/2233)) ([d7aad8a](https://github.com/netlify/next-runtime/commit/d7aad8a4b11d563b0336476862823d852f4f6e44))
+
 ## [4.39.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.0...plugin-nextjs-v4.39.1) (2023-07-11)
 
 

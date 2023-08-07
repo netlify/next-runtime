@@ -1,6 +1,6 @@
 {
   "name": "@netlify/plugin-nextjs",
-  "version": "4.39.1",
+  "version": "4.39.3",
   "description": "Run Next.js seamlessly on Netlify",
   "main": "index.js",
   "files": [
@@ -13,7 +13,7 @@
   "dependencies": {
     "@netlify/esbuild": "0.14.39",
     "@netlify/functions": "^1.6.0",
-    "@netlify/ipx": "^1.4.1",
+    "@netlify/ipx": "^1.4.2",
     "@vercel/node-bridge": "^2.1.0",
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^29.16.2",
+    "@netlify/build": "^29.18.0",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.1",
     "@types/merge-stream": "^1.1.2",
