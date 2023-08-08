@@ -48,6 +48,9 @@ export default function Home() {
         <p>
           <Link href="/headers">Adds `x-hello` request header to a rewrite</Link>
         </p>
+        <p>
+          <Link href="/previewTest">Preview mode</Link>
+        </p>
       </main>
     </div>
   )
