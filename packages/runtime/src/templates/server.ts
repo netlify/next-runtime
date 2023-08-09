@@ -18,6 +18,7 @@ interface NetlifyConfig {
   revalidateToken?: string
 }
 
+// eslint-disable-next-line max-lines-per-function
 const getNetlifyNextServer = (NextServer: NextServerType) => {
   class NetlifyNextServer extends NextServer {
     private netlifyConfig: NetlifyConfig
@@ -115,6 +116,13 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       } catch (error) {
         console.log(`Error revalidating ${route}:`, error.message)
         throw error
+      }
+    }
+
+    // eslint-disable-next-line class-methods-use-this, require-await
+    async runMiddleware(): Promise<{ finished: boolean }> {
+      return {
+        finished: false,
       }
     }
 
