@@ -110,7 +110,7 @@ export const applyRequireHooks = (conf: NextConfig) => {
     isMain: boolean,
     options: any,
   ) {
-    let reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REACT || 'default'
+    const reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REACT || 'default'
     const resolvedRequest = hooks.get(reactMode)?.get(request) ?? request
     try {
       return originalResolveFilename.call(mod, resolvedRequest, parent, isMain, options)
@@ -118,7 +118,6 @@ export const applyRequireHooks = (conf: NextConfig) => {
       const e = error.code.toString()
       if (e === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
         process.env.__NEXT_PRIVATE_PREBUNDLED_REACT = conf.experimental.serverActions ? 'experimental' : 'next'
-        reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REAC
         return originalResolveFilename.call(mod, resolvedRequest, parent, isMain, options)
       }
     }
