@@ -15,11 +15,11 @@ export async function middleware(req: NextRequest) {
     headers.set('x-hello', 'world')
     return NextResponse.next({
       request: {
-        headers
-      }
+        headers,
+      },
     })
   }
-  
+
   const request = new MiddlewareRequest(req)
 
   // skipMiddlewareUrlNormalize next config option is used so we have to try to match both html path and data blob path
@@ -41,12 +41,11 @@ export async function middleware(req: NextRequest) {
   // skipMiddlewareUrlNormalize next config option is used so we have to try to match both html path and data blob path
   if (pathname.startsWith('/request-rewrite') || pathname.endsWith('/request-rewrite.json')) {
     // request.rewrite() should return the MiddlewareResponse object instead of the Response object.
-    const res = await request.rewrite('/static-rewrite',
-    {
+    const res = await request.rewrite('/static-rewrite', {
       headers: {
         'x-rewrite-test': 'hello',
-        'x-rewrite-test-2': 'hello-2'
-      }
+        'x-rewrite-test-2': 'hello-2',
+      },
     })
     const message = `This was static (& escaping test &amp;) but has been transformed in ${req.geo?.city}`
 
@@ -90,7 +89,7 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
-  if(pathname.startsWith('/matcher-cookie')) {
+  if (pathname.startsWith('/matcher-cookie')) {
     response = NextResponse.next()
     response.cookies.set('missingCookie', 'true')
     return response
@@ -106,6 +105,13 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith('/missing')) {
     response = NextResponse.next()
     response.headers.set('x-cookie-missing', 'true')
+    return response
+  }
+
+  if (pathname.startsWith('/previewTest')) {
+    response = NextResponse.next()
+
+    response.headers.set('x-middleware-executed', 'true')
     return response
   }
 
@@ -167,8 +173,8 @@ export const config = {
     '/:all*/locale-preserving-rewrite',
     '/cookies/:path*',
     { source: '/static' },
-    {source: '/request-rewrite' },
-    { source: '/matcher-cookie'},
+    { source: '/request-rewrite' },
+    { source: '/matcher-cookie' },
     { source: '/shows/((?!99|88).*)' },
     {
       source: '/conditional',
@@ -186,8 +192,9 @@ export const config = {
         {
           type: 'cookie',
           key: 'missingCookie',
-        }
+        },
       ],
     },
+    '/previewTest',
   ],
 }
