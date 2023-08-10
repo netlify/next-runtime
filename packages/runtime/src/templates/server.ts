@@ -12,6 +12,7 @@ import {
   localizeRoute,
   localizeDataRoute,
   unlocalizeRoute,
+  getMatchedRoute,
 } from './handlerUtils'
 
 interface NetlifyConfig {
@@ -50,7 +51,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         const { url, headers } = req
 
         // conditionally use the prebundled React module
-        this.netlifyPrebundleReact(url)
+        this.netlifyPrebundleReact(url, parsedUrl)
 
         // intercept on-demand revalidation requests and handle with the Netlify API
         if (headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {
@@ -79,12 +80,12 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
     }
 
     // doing what they do in https://github.com/vercel/vercel/blob/1663db7ca34d3dd99b57994f801fb30b72fbd2f3/packages/next/src/server-build.ts#L576-L580
-    private netlifyPrebundleReact(path: string) {
+    private netlifyPrebundleReact(path: string, parsedUrl?) {
       const routesManifest = this.getRoutesManifest?.()
       const appPathsRoutes = this.getAppPathRoutes?.()
 
       const routes = routesManifest && [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
-      const matchedRoute = routes?.find((route) => new RegExp(route.regex).test(new URL(path, 'http://n').pathname))
+      const matchedRoute = getMatchedRoute(path, routes, parsedUrl, this.nextConfig.basePath)
       const isAppRoute = appPathsRoutes && matchedRoute ? appPathsRoutes[matchedRoute.page] : false
 
       if (isAppRoute) {
