@@ -1,7 +1,7 @@
 [build]
-command = "next build"
-publish = ".next"
-ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
+command = "npm run build -w demos/next-i18next"
+publish = "demos/next-i18next/.next"
+ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ./; fi;"
 
 [[plugins]]
 package = "@netlify/plugin-nextjs"
@@ -11,4 +11,4 @@ package = "@netlify/plugin-nextjs"
 package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
-package = "../plugin-wrapper"
+package = "demos/plugin-wrapper"

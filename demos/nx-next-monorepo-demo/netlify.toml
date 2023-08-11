@@ -1,18 +1,18 @@
 [build]
-command = "npm run build"
+command = "npm run build -w demos/nx-next-monorepo-demo"
 publish = "dist/apps/demo-monorepo/.next"
-ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
+ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ./; fi;"
 
 [build.environment]
 NEXT_SPLIT_API_ROUTES = "true"
 NEXT_BUNDLE_BASED_ON_NFT_FILES = "true"
 
 [dev]
-command = "npm run start"
+command = "npm run start -w demos/nx-next-monorepo-demo"
 targetPort = 4200
 
 [[plugins]]
-package = "../plugin-wrapper"
+package = "demos/plugin-wrapper"
 
 [[plugins]]
 package = "@netlify/plugin-nextjs"

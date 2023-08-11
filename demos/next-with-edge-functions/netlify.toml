@@ -1,6 +1,6 @@
 [build]
-command = "next build"
-publish = ".next"
+command = "npm run build -w demos/next-with-edge-functions"
+publish = "demos/next-with-edge-functions/.next"
 
 [[plugins]]
 package = "@netlify/plugin-nextjs"
@@ -10,4 +10,4 @@ package = "@netlify/plugin-nextjs"
 package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
-package = "../plugin-wrapper"
+package = "demos/plugin-wrapper"

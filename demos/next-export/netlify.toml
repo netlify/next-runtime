@@ -1,7 +1,7 @@
 [build]
-command = "next build && next export"
-publish = "out"
-ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
+command = "npm run build -w demos/next-export"
+publish = "demos/next-export/out"
+ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ./; fi;"
 
 [build.environment]
 NETLIFY_NEXT_PLUGIN_SKIP = "true"
@@ -14,4 +14,4 @@ package = "@netlify/plugin-nextjs"
 package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
-package = "../plugin-wrapper"
+package = "demos/plugin-wrapper"

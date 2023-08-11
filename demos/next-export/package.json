@@ -17,6 +17,7 @@
     "typescript": "^4.6.3"
   },
   "scripts": {
+    "build": "next build && next export",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

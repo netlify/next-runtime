@@ -1,7 +1,7 @@
 [build]
-command = "npm run build"
-publish = ".next"
-ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
+command = "npm run build -w demos/middleware"
+publish = "demos/middleware/.next"
+ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ./; fi;"
 
 [build.environment]
 NEXT_SPLIT_API_ROUTES = "true"
@@ -15,7 +15,7 @@ package = "@netlify/plugin-nextjs"
 package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
-package = "../plugin-wrapper"
+package = "demos/plugin-wrapper"
 # Uncomment this if testing the built files rather than dev
 # [dev]
 # framework = "#static"

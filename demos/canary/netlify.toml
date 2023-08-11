@@ -1,6 +1,6 @@
 [build]
-command = "next build"
-publish = ".next"
+command = "npm run build -w demos/canary"
+publish = "demos/canary/.next"
 ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
 
 [build.environment]
@@ -15,4 +15,4 @@ package = "@netlify/plugin-nextjs"
 package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
-package = "../plugin-wrapper"
+package = "demos/plugin-wrapper"
