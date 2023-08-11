@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.39.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.3...plugin-nextjs-v4.39.4) (2023-08-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.4.3 ([#2256](https://github.com/netlify/next-runtime/issues/2256)) ([ffdf101](https://github.com/netlify/next-runtime/commit/ffdf101db31a15f08cf9559c19406be24c472bb7))
+* don't ever execute middleware in lambda ([#2249](https://github.com/netlify/next-runtime/issues/2249)) ([b9e87d1](https://github.com/netlify/next-runtime/commit/b9e87d1962e5c14e0a764dbf69957aa2d593f31a))
+
 ## [4.39.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.2...plugin-nextjs-v4.39.3) (2023-08-03)
 
 
