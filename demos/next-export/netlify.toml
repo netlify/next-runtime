@@ -14,4 +14,4 @@ package = "@netlify/plugin-nextjs"
 package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
-package = "demos/plugin-wrapper"
+package = "./demos/plugin-wrapper"

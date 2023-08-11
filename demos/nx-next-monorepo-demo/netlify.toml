@@ -12,7 +12,7 @@ command = "npm run start -w demos/nx-next-monorepo-demo"
 targetPort = 4200
 
 [[plugins]]
-package = "demos/plugin-wrapper"
+package = "./demos/plugin-wrapper"
 
 [[plugins]]
 package = "@netlify/plugin-nextjs"

@@ -15,7 +15,7 @@ package = "@netlify/plugin-nextjs"
 package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
-package = "demos/plugin-wrapper"
+package = "./demos/plugin-wrapper"
 # Uncomment this if testing the built files rather than dev
 # [dev]
 # framework = "#static"
