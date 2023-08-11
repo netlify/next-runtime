@@ -1,7 +1,6 @@
 import { Buffer } from 'node:buffer'
 import { env } from 'node:process'
 
- 
 import { Blobs } from '@netlify/blobs'
 import { Handler, HandlerContext } from '@netlify/functions'
 
@@ -15,13 +14,13 @@ export const setBlobFiles = async ({ NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_I
     siteID: SITE_ID,
   })
 
-    const files = filePaths.map((filePath) => ({ key: filePath, path: filePath }))
+  const files = filePaths.map((filePath) => ({ key: filePath, path: filePath }))
 
-    // setFile reads the file path and stores the content within the blob,
-    // we set the key with the same file path so we can retrieve the file contents later using the path
-    await blobs.setFiles(files)
+  // setFile reads the file path and stores the content within the blob,
+  // we set the key with the same file path so we can retrieve the file contents later using the path
+  await blobs.setFiles(files)
 
-  console.log("SSR Files are now in the blob", { blobs })
+  console.log('SSR Files are now in the blob', { blobs })
 }
 
 export const getBlobFile: Handler = async ({ headers, path }, context: HandlerContext) => {
@@ -35,7 +34,7 @@ export const getBlobFile: Handler = async ({ headers, path }, context: HandlerCo
     },
     context: `deploy:${headers['x-nf-deploy-id']}`,
     siteID: headers['x-nf-site-id'],
-    })
+  })
 
   const value = await blobs.get(path)
 

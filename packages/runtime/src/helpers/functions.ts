@@ -407,9 +407,8 @@ export const getSSRLambdas = async (publish: string, constants): Promise<SSRLamb
   //   '/Users/tatyananovell/Documents/next-runtime/demos/default/.next/server/app/blog/sarah.rsc',
   // ]
   // moving the ssrDeps to the Blob store so we can access them in templates/getHandler
-  setBlobFiles( constants, ssrDependencies )
+  setBlobFiles(constants, ssrDependencies)
 
-  
   return [
     {
       functionName: HANDLER_FUNCTION_NAME,
