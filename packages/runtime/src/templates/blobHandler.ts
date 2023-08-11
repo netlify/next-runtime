@@ -14,11 +14,13 @@ export const setBlobFiles = async ({ NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_I
     context: `deploy:${env.DEPLOY_ID}`,
     siteID: SITE_ID,
   })
-  for (const file of filePaths) {
+
+    const files = filePaths.map((filePath) => ({ key: filePath, path: filePath }))
+
     // setFile reads the file path and stores the content within the blob,
     // we set the key with the same file path so we can retrieve the file contents later using the path
-    await blobs.setFile(file, file)
-  }
+    await blobs.setFiles(files)
+
   console.log("SSR Files are now in the blob", { blobs })
 }
 
