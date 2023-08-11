@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer'
 import { env } from 'node:process'
 
-// eslint-disable-next-line n/no-extraneous-import, import/no-extraneous-dependencies
+ 
 import { Blobs } from '@netlify/blobs'
 import { Handler, HandlerContext } from '@netlify/functions'
 
