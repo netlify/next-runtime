@@ -21,6 +21,7 @@ import {
   API_FUNCTION_NAME,
   LAMBDA_WARNING_SIZE,
 } from '../constants'
+import { setBlobFiles } from '../templates/blobHandler'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
@@ -380,7 +381,7 @@ const getSSRDependencies = async (publish: string): Promise<string[]> => {
   ]
 }
 
-export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
+export const getSSRLambdas = async (publish: string, constants): Promise<SSRLambda[]> => {
   const commonDependencies = await getCommonDependencies(publish)
   const ssrRoutes = await getSSRRoutes(publish)
 
@@ -389,7 +390,15 @@ export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
   const odbRoutes = ssrRoutes
 
   const ssrDependencies = await getSSRDependencies(publish)
+  // const testDeps = [
+  //   '/Users/tatyananovell/Documents/next-runtime/demos/default/.next/server/app/blog/nick.rsc',
+  //   '/Users/tatyananovell/Documents/next-runtime/demos/default/.next/server/app/blog/nick.html',
+  //   '/Users/tatyananovell/Documents/next-runtime/demos/default/.next/server/app/blog/sarah.rsc',
+  // ]
+  // moving the ssrDeps to the Blob store so we can access them in templates/getHandler
+  setBlobFiles( constants, ssrDependencies )
 
+  
   return [
     {
       functionName: HANDLER_FUNCTION_NAME,
@@ -404,7 +413,8 @@ export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
     {
       functionName: ODB_FUNCTION_NAME,
       functionTitle: ODB_FUNCTION_TITLE,
-      includedFiles: [...commonDependencies, ...ssrDependencies, ...odbRoutes.flatMap((route) => route.includedFiles)],
+      // SSR dependencies will no longer be part of the includedFiles since they will now be sent to the Blob
+      includedFiles: [...commonDependencies, ...odbRoutes.flatMap((route) => route.includedFiles)],
       routes: odbRoutes,
     },
   ]
