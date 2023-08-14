@@ -1,5 +1,34 @@
 # Changelog
 
+## [4.40.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.4...plugin-nextjs-v4.40.0) (2023-08-14)
+
+
+### Features
+
+* support new monorepo setup ([#2260](https://github.com/netlify/next-runtime/issues/2260)) ([7185d62](https://github.com/netlify/next-runtime/commit/7185d6287a3aad18771d905192b1e4918be08a4b))
+
+## [4.39.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.3...plugin-nextjs-v4.39.4) (2023-08-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.4.3 ([#2256](https://github.com/netlify/next-runtime/issues/2256)) ([ffdf101](https://github.com/netlify/next-runtime/commit/ffdf101db31a15f08cf9559c19406be24c472bb7))
+* don't ever execute middleware in lambda ([#2249](https://github.com/netlify/next-runtime/issues/2249)) ([b9e87d1](https://github.com/netlify/next-runtime/commit/b9e87d1962e5c14e0a764dbf69957aa2d593f31a))
+
+## [4.39.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.2...plugin-nextjs-v4.39.3) (2023-08-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.4.2 ([#2240](https://github.com/netlify/next-runtime/issues/2240)) ([b911230](https://github.com/netlify/next-runtime/commit/b91123091492bb10b726a2b911482bff67f8834a))
+
+## [4.39.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.1...plugin-nextjs-v4.39.2) (2023-08-01)
+
+
+### Bug Fixes
+
+* ISR 404 pages should be cached ephemerally ([#2233](https://github.com/netlify/next-runtime/issues/2233)) ([d7aad8a](https://github.com/netlify/next-runtime/commit/d7aad8a4b11d563b0336476862823d852f4f6e44))
+
 ## [4.39.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.0...plugin-nextjs-v4.39.1) (2023-07-11)
 
 
