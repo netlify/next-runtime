@@ -1,5 +1,5 @@
 [build]
-command = "npm -w default-demo run build "
+command = "npm run build -w @netlify/plugin-nextjs && npm -w default-demo run build"
 publish = "/demos/default/.next"
 ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF; fi;"
 
@@ -21,7 +21,7 @@ Strict-Transport-Security = "max-age=31536000"
 X-Test = 'foobar'
 
 [[plugins]]
-package = "@netlify/plugin-nextjs"
+package = "../../packages/runtime"
 
 # This is a fake plugin, that makes it run npm install
 [[plugins]]
