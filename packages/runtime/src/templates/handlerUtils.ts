@@ -7,7 +7,9 @@ import { promisify } from 'util'
 
 import { HandlerEvent, HandlerResponse } from '@netlify/functions'
 import { http, https } from 'follow-redirects'
-import type NextNodeServer from 'next/dist/server/next-server'
+import NextNodeServer from 'next/dist/server/next-server'
+
+import type { StaticRoute } from '../helpers/types'
 
 export type NextServerType = typeof NextNodeServer
 
@@ -272,28 +274,27 @@ export const localizeDataRoute = (dataRoute: string, localizedRoute: string): st
     .replace(/\/index\.json$/, '.json')
 }
 
-interface Routes {
-  page?: string
-  regex?: string
-  routeKeys?: object
-  namedRegex?: string
-  dataRouteRegex?: string
-}
-
 export const getMatchedRoute = (
   paths: string,
-  routes: Array<Routes>,
-  parsedUrl?: string,
-  basePath?: string,
-): Routes => {
-  const matchedRoute = routes?.find((route) => {
+  routesManifest: Array<StaticRoute>,
+  parsedUrl: string,
+  basePath: string,
+  trailingSlash: boolean,
+  // eslint-disable-next-line max-params
+): StaticRoute =>
+  routesManifest?.find((route) => {
     // Some internationalized routes are automatically removing the locale prefix making the path not match the route
-    // we can use the parsedURL, which has the locale included '/en' and will match the route
-    if (!basePath && parsedUrl) {
-      return new RegExp(route.regex).test(new URL(parsedUrl, 'http://n').pathname)
-    }
-    // Default to the original path
-    return new RegExp(route.regex).test(new URL(paths, 'http://n').pathname)
+    // we can use the parsedURL, which has the locale included and will match
+    const base = '/'
+    return new RegExp(route.regex).test(
+      new URL(
+        // If using basepath config, we have to use the original path to match the route
+        // This seems to only be an issue on the index page when using group routes
+        parsedUrl ||
+          (basePath && paths === (trailingSlash && !basePath?.endsWith('/') ? `${basePath}/` : basePath)
+            ? base
+            : paths),
+        'http://n',
+      ).pathname,
+    )
   })
-  return matchedRoute
-}
