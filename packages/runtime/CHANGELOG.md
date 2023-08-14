@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.40.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.4...plugin-nextjs-v4.40.0) (2023-08-14)
+
+
+### Features
+
+* support new monorepo setup ([#2260](https://github.com/netlify/next-runtime/issues/2260)) ([7185d62](https://github.com/netlify/next-runtime/commit/7185d6287a3aad18771d905192b1e4918be08a4b))
+
 ## [4.39.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.3...plugin-nextjs-v4.39.4) (2023-08-10)
 
 
