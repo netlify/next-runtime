@@ -21,7 +21,7 @@ Strict-Transport-Security = "max-age=31536000"
 X-Test = 'foobar'
 
 [[plugins]]
-package = "../../packages/runtime"
+package = "/packages/runtime"
 
 # This is a fake plugin, that makes it run npm install
 [[plugins]]
