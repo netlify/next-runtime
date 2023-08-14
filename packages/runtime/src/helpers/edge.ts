@@ -354,9 +354,11 @@ export const getEdgeFunctionPatternForPage = ({
 export const writeEdgeFunctions = async ({
   netlifyConfig,
   routesManifest,
+  constants: { PACKAGE_PATH = '' },
 }: {
   netlifyConfig: NetlifyConfig
   routesManifest: RoutesManifest
+  constants: NetlifyPluginConstants
 }) => {
   const generator = await getPluginVersion()
 
@@ -366,7 +368,7 @@ export const writeEdgeFunctions = async ({
     version: 1,
   }
 
-  const edgeFunctionRoot = resolve('.netlify', 'edge-functions')
+  const edgeFunctionRoot = resolve(PACKAGE_PATH, '.netlify', 'edge-functions')
   await emptyDir(edgeFunctionRoot)
 
   const { publish } = netlifyConfig.build
