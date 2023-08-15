@@ -68,6 +68,7 @@ jest.mock(
 jest.mock(
   'routes-manifest.json',
   () => ({
+    basePath: '',
     dynamicRoutes: [
       {
         page: '/posts/[title]',
@@ -89,6 +90,12 @@ jest.mock(
     ],
     staticRoutes: [
       {
+        namedRegex: '^/(?:/)?$',
+        page: '/',
+        regex: '^/(?:/)?$',
+        routeKeys: {},
+      },
+      {
         page: '/non-i18n/with-revalidate',
         regex: '^/non-i18n/with-revalidate(?:/)?$',
         routeKeys: {},
@@ -101,11 +108,23 @@ jest.mock(
         namedRegex: '^/i18n/with-revalidate(?:/)?$',
       },
     ],
+    redirects: [
+      {
+        basePath: false,
+        destination: '/docs/',
+        internal: true,
+        locale: false,
+        regex: '^/docs$',
+        source: '/docs',
+        statusCode: 308,
+      },
+    ],
   }),
   { virtual: true },
 )
 
 const appPathsManifest = {
+  '/(group)/page': 'app/(group)/page.js',
   '/blog/(test)/[author]/[slug]/page': 'app/blog/[author]/[slug]/page.js',
 }
 
@@ -311,5 +330,20 @@ describe('the netlify next server', () => {
 
     // eslint-disable-next-line no-underscore-dangle
     expect(process.env.__NEXT_PRIVATE_PREBUNDLED_REACT).toBe('experimental')
+  })
+
+  it('assigns correct prebundled react with basePath config using appdir', async () => {
+    const netlifyNextServer = new NetlifyNextServer({ conf: { experimental: { appDir: true }, basePath: '/docs' } }, {})
+    const requestHandler = netlifyNextServer.getRequestHandler()
+
+    const { req: mockReq, res: mockRes } = createRequestResponseMocks({
+      url: '/docs',
+    })
+
+    // @ts-expect-error - Types are incorrect for `MockedResponse`
+    await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
+
+    // eslint-disable-next-line no-underscore-dangle
+    expect(process.env.__NEXT_PRIVATE_PREBUNDLED_REACT).toBe('next')
   })
 })
