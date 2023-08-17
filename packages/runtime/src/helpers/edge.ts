@@ -277,9 +277,9 @@ export const writeDevEdgeFunction = async ({
 export const generateRscDataEdgeManifest = async ({
   prerenderManifest,
   appPathRoutesManifest,
-  packagePath,
+  packagePath = '',
 }: {
-  packagePath: string
+  packagePath?: string
   prerenderManifest?: PrerenderManifest
   appPathRoutesManifest?: Record<string, string>
 }): Promise<FunctionManifest['functions']> => {
