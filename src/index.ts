@@ -1,8 +1,8 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 
 import { overrideNextJsConfig, revertNextJsConfig } from './helpers/config.js'
+import { publishStaticAssets } from './helpers/files.js'
 import { createHandlerFunction } from './helpers/functions.js'
-import { publishStaticAssets } from './helpers/static.js'
 
 type NetlifyPluginOptionsWithFlags = NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }
 
