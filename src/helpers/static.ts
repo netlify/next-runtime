@@ -15,7 +15,11 @@ const promoteStaticAssets = (publishDir: string) => {
   moveSync(PUBLISH_STAGING_DIR, publishDir, { overwrite: true })
 }
 
-export const moveStaticAssets = (publishDir: string) => {
+export const publishStaticAssets = (publishDir: string) => {
   stageStaticAssets(publishDir)
   promoteStaticAssets(publishDir)
+}
+
+export const revertStaticAssets = (publishDir: string) => {
+  moveSync('.netlify/.next', publishDir, { overwrite: true })
 }
