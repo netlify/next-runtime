@@ -3,11 +3,51 @@
   "tasks": [
     {
       "type": "npm",
+      "script": "build",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "build",
+      "detail": "tsc"
+    },
+    {
+      "type": "npm",
       "script": "build:debug",
       "group": "build",
       "problemMatcher": [],
       "label": "build:debug",
-      "detail": "tsc --sourceMap"
+      "detail": "tsc --sourceMap",
+      "presentation": {
+        "reveal": "silent"
+      }
+    },
+    {
+      "type": "npm",
+      "script": "build",
+      "path": "demo",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "build:demo-next",
+      "detail": "next build"
+    },
+    {
+      "type": "shell",
+      "command": "netlify build",
+      "options": {
+        "cwd": "demo"
+      },
+      "group": "build",
+      "label": "build:demo-netlify",
+      "detail": "netlify build"
+    },
+    {
+      "type": "shell",
+      "command": "netlify deploy --build",
+      "options": {
+        "cwd": "demo"
+      },
+      "group": "build",
+      "label": "deploy:demo-netlify",
+      "detail": "netlify deploy --build"
     }
   ]
 }
