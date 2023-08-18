@@ -6,15 +6,18 @@
       "script": "build",
       "group": "build",
       "problemMatcher": [],
-      "label": "build",
-      "detail": "tsc"
+      "label": "package: build",
+      "detail": "tsc",
+      "presentation": {
+        "showReuseMessage": false
+      }
     },
     {
       "type": "npm",
       "script": "build:debug",
       "group": "build",
       "problemMatcher": [],
-      "label": "build:debug",
+      "label": "package: debug",
       "detail": "tsc --sourceMap",
       "presentation": {
         "reveal": "silent"
@@ -26,8 +29,11 @@
       "path": "demo",
       "group": "build",
       "problemMatcher": [],
-      "label": "build:demo-next",
-      "detail": "next build"
+      "label": "demo: next build",
+      "detail": "next build",
+      "presentation": {
+        "showReuseMessage": false
+      }
     },
     {
       "type": "shell",
@@ -36,8 +42,13 @@
         "cwd": "demo"
       },
       "group": "build",
-      "label": "build:demo-netlify",
-      "detail": "netlify build"
+      "label": "demo: netlify build",
+      "detail": "netlify build",
+      "dependsOrder": "sequence",
+      "dependsOn": ["package: build"],
+      "presentation": {
+        "showReuseMessage": false
+      }
     },
     {
       "type": "shell",
@@ -46,8 +57,13 @@
         "cwd": "demo"
       },
       "group": "build",
-      "label": "deploy:demo-netlify",
-      "detail": "netlify deploy --build"
+      "label": "demo: netlify deploy",
+      "detail": "netlify deploy --build",
+      "dependsOrder": "sequence",
+      "dependsOn": ["package: build"],
+      "presentation": {
+        "showReuseMessage": false
+      }
     }
   ]
 }

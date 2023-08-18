@@ -34,7 +34,7 @@
   "homepage": "https://github.com/netlify/next-runtime-minimal#readme",
   "dependencies": {
     "@netlify/build": "^29.20.5",
-    "@vercel/node-bridge": "^4.0.1",
+    "@vercel/node-bridge": "^3.1.14",
     "fs-extra": "^11.1.1",
     "next": "^13.4.16"
   },

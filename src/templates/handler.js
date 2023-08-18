@@ -3,6 +3,10 @@ const http = require('http')
 const { Bridge } = require('@vercel/node-bridge/bridge')
 const { getRequestHandlers } = require('next/dist/server/lib/start-server')
 
+const requiredServerFiles = require('./.next/required-server-files.json')
+
+process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
+
 process.chdir(__dirname)
 
 let bridge
