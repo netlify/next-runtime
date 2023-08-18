@@ -11,11 +11,11 @@ export const onPreBuild = () => {
 }
 
 export const onBuild = ({ constants, netlifyConfig }: NetlifyPluginOptionsWithFlags) => {
-  // createHandlerFunction(constants.PUBLISH_DIR, netlifyConfig)
-  // publishStaticAssets(constants.PUBLISH_DIR)
+  createHandlerFunction(constants.PUBLISH_DIR, netlifyConfig)
+  publishStaticAssets(constants.PUBLISH_DIR)
 }
 
 export const onEnd = ({ constants }) => {
-  // revertStaticAssets(constants.PUBLISH_DIR)
-  // revertNextJsConfig()
+  revertStaticAssets(constants.PUBLISH_DIR)
+  revertNextJsConfig()
 }

@@ -21,6 +21,8 @@ module.exports = {
         'import/extensions': 0,
         'import/no-unresolved': 0,
         'n/no-missing-require': 0,
+        'n/exports-style': 0,
+        'func-names': 0,
       },
     },
   ],

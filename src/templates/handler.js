@@ -1,18 +1,9 @@
-/* eslint-disable @typescript-eslint/no-var-requires, n/exports-style, func-names */
-
 const http = require('http')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
 const { getRequestHandlers } = require('next/dist/server/lib/start-server')
 
-process.env.NODE_ENV = 'production'
 process.chdir(__dirname)
-
-const currentPort = Number.parseInt(process.env.PORT) || 3000
-const hostname = process.env.HOSTNAME || 'localhost'
-const nextConfig = {}
-
-process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(nextConfig)
 
 let bridge
 
@@ -20,8 +11,8 @@ exports.handler = async function (event, context) {
   if (!bridge) {
     // let Next.js initialize and create the request handler
     const [nextHandler] = await getRequestHandlers({
-      port: currentPort,
-      hostname,
+      port: 3000,
+      hostname: 'localhost',
       dir: __dirname,
     })
 
@@ -54,5 +45,3 @@ exports.handler = async function (event, context) {
     isBase64Encoded: result.encoding === 'base64',
   }
 }
-
-/* eslint-enable @typescript-eslint/no-var-requires, n/exports-style, func-names */
