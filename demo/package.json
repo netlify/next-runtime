@@ -1,0 +1,19 @@
+{
+  "name": "demo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@netlify/plugin-nextjs": "file:..",
+    "eslint": "8.47.0",
+    "eslint-config-next": "13.4.18",
+    "next": "13.4.18",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}

@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch",
+    "build:debug": "tsc --sourceMap",
+    "build:watch": "tsc --watch",
     "test": "jest"
   },
   "repository": {
