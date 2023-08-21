@@ -112,7 +112,6 @@ export const applyRequireHooks = () => {
   ) {
     const reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REACT || 'default'
     const resolvedRequest = hooks.get(reactMode)?.get(request) ?? request
-
     return originalResolveFilename.call(mod, resolvedRequest, parent, isMain, options)
 
     // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
