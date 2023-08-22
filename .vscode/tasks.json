@@ -7,10 +7,7 @@
       "group": "build",
       "problemMatcher": [],
       "label": "package: build",
-      "detail": "tsc",
-      "presentation": {
-        "showReuseMessage": false
-      }
+      "detail": "tsc"
     },
     {
       "type": "npm",
@@ -30,10 +27,7 @@
       "group": "build",
       "problemMatcher": [],
       "label": "demo: next build",
-      "detail": "next build",
-      "presentation": {
-        "showReuseMessage": false
-      }
+      "detail": "next build"
     },
     {
       "type": "shell",
@@ -45,10 +39,7 @@
       "label": "demo: netlify build",
       "detail": "netlify build",
       "dependsOrder": "sequence",
-      "dependsOn": ["package: build"],
-      "presentation": {
-        "showReuseMessage": false
-      }
+      "dependsOn": ["package: build"]
     },
     {
       "type": "shell",
@@ -60,10 +51,7 @@
       "label": "demo: netlify deploy",
       "detail": "netlify deploy --build",
       "dependsOrder": "sequence",
-      "dependsOn": ["package: build"],
-      "presentation": {
-        "showReuseMessage": false
-      }
+      "dependsOn": ["package: build"]
     }
   ]
 }
