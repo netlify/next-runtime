@@ -1,5 +1,4 @@
 import type { NetlifyConfig } from '@netlify/build'
-import destr from 'destr'
 import { readJSON, writeJSON } from 'fs-extra'
 import type { Header } from 'next/dist/lib/load-custom-routes'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'
@@ -115,13 +114,13 @@ export const configureHandlerFunctions = async ({
   ignore: Array<string>
   apiLambdas: APILambda[]
   ssrLambdas: SSRLambda[]
-  splitApiRoutes: boolean
+  splitApiRoutes: any
 }) => {
   const config = await getRequiredServerFiles(publish)
   const files = config.files || []
   const cssFilesToInclude = files.filter((f) => f.startsWith(`${publish}/static/css/`))
-
-  if (!destr(process.env.DISABLE_IPX)) {
+  const destr = await import('destr')
+  if (!destr.destr(process.env.DISABLE_IPX)) {
     netlifyConfig.functions[IMAGE_FUNCTION_NAME] ||= {}
     netlifyConfig.functions[IMAGE_FUNCTION_NAME].node_bundler = 'nft'
   }

@@ -18,7 +18,7 @@
     "@vercel/node-bridge": "^2.1.0",
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
-    "destr": "^1.1.1",
+    "destr": "^2.0.1",
     "execa": "^5.1.1",
     "follow-redirects": "^1.15.2",
     "fs-extra": "^10.0.0",

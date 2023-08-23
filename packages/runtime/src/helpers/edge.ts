@@ -3,7 +3,6 @@ import { resolve, join } from 'path'
 
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { greenBright } from 'chalk'
-import destr from 'destr'
 import { copy, copyFile, emptyDir, ensureDir, readJSON, writeJSON, writeJson } from 'fs-extra'
 import type { PrerenderManifest } from 'next/dist/build'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
@@ -381,9 +380,9 @@ export const writeEdgeFunctions = async ({
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
   await copy(join(publish, 'prerender-manifest.json'), join(edgeFunctionRoot, 'edge-shared', 'prerender-manifest.json'))
-
+  const destr = await import('destr')
   // early return if edge is disabled
-  if (destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
+  if (destr.destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)) {
     console.log('Environment variable NEXT_DISABLE_NETLIFY_EDGE has been set, skipping Netlify Edge Function creation.')
     return
   }
@@ -480,9 +479,9 @@ export const writeEdgeFunctions = async ({
   }
 
   if (
-    destr(process.env.NEXT_FORCE_EDGE_IMAGES) &&
-    !destr(process.env.NEXT_DISABLE_EDGE_IMAGES) &&
-    !destr(process.env.DISABLE_IPX)
+    destr.destr(process.env.NEXT_FORCE_EDGE_IMAGES) &&
+    !destr.destr(process.env.NEXT_DISABLE_EDGE_IMAGES) &&
+    !destr.destr(process.env.DISABLE_IPX)
   ) {
     usesEdge = true
     console.log(
