@@ -1,4 +1,6 @@
-import { existsSync, copySync, moveSync } from 'fs-extra'
+import { existsSync } from 'node:fs'
+
+import { copySync, moveSync } from 'fs-extra/esm'
 
 import { PUBLISH_STAGING_DIR } from './constants.js'
 

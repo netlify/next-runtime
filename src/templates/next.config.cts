@@ -1,4 +1,5 @@
-const original = require('./.netlify/next.config.js')
+// @ts-ignore
+import original from './.netlify/next.config.js'
 
 module.exports = {
   ...original,

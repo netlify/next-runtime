@@ -1,4 +1,5 @@
-import { existsSync } from 'fs-extra'
+import { existsSync } from 'node:fs'
+
 import mockFs from 'mock-fs'
 
 import { moveStaticAssets } from '../../src/static.js'

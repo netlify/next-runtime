@@ -15,7 +15,7 @@ export const onBuild = ({ constants, netlifyConfig }: NetlifyPluginOptionsWithFl
   publishStaticAssets(constants.PUBLISH_DIR)
 }
 
-export const onEnd = ({ constants }) => {
+export const onEnd = () => {
   // TODO: call revertStaticAssets when we figure out
   // why onEnd is called before the deploy finishes
   revertNextJsConfig()
