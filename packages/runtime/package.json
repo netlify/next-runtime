@@ -18,7 +18,7 @@
     "@vercel/node-bridge": "^2.1.0",
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
-    "destr": "^1.1.1",
+    "destr": "^2.0.1",
     "execa": "^5.1.1",
     "follow-redirects": "^1.15.2",
     "fs-extra": "^10.0.0",
@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@delucis/if-env": "^1.1.2",
-    "@netlify/build": "^29.20.1",
+    "@netlify/build": "^29.20.6",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.1",
     "@types/merge-stream": "^1.1.2",

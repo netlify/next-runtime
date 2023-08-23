@@ -5,7 +5,6 @@ import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
 
-import { getBlobFile } from './blobHandler'
 import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
@@ -121,10 +120,11 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     event.path = normalizePath(event)
+    // const netliBlob = await import('./blobHandler.mjs')
     // We are checking if path is ODB and cache miss to pull in the blobbed pre-rendered content
     if (mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss') {
       console.log('odb builder cache miss, get from Blob')
-      return getBlobFile(event, context)
+      // return netliBlob.getBlobFile(event, context)
     }
 
     let requestMode: string = mode
