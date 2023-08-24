@@ -363,7 +363,8 @@ export const removeMetadataFiles = async (publish: string) => {
   // Limit concurrent deletions to number of cpus or 2 if there is only 1
   const limit = pLimit(Math.max(2, cpus().length))
 
-  const removePromises = HIDDEN_PATHS.map((HIDDEN_PATH) => {
+  // eslint-disable-next-line unicorn/no-await-expression-member
+  const removePromises = (await HIDDEN_PATHS).map((HIDDEN_PATH) => {
     const pathToDelete = join(publish, HIDDEN_PATH)
     return limit(() => remove(pathToDelete))
   })

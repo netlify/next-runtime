@@ -1,13 +1,14 @@
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
-import destr from 'destr'
 import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat } from 'fs-extra'
 import { PrerenderManifest } from 'next/dist/build'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
 import { join, relative, resolve, dirname, basename, extname } from 'pathe'
 import glob from 'tiny-glob'
+
+
 
 import {
   HANDLER_FUNCTION_NAME,
@@ -32,6 +33,7 @@ import { writeFunctionConfiguration } from './functionsMetaData'
 import { pack } from './pack'
 import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
+import { async } from 'node-stream-zip'
 
 export interface RouteConfig {
   functionName: string
@@ -210,8 +212,8 @@ export const setupImageFunction = async ({
   responseHeaders?: Record<string, string>
 }): Promise<void> => {
   const imagePath = imageconfig.path || '/_next/image'
-
-  if (destr(process.env.DISABLE_IPX)) {
+  const destr = await import('destr')
+  if (destr.destr(process.env.DISABLE_IPX)) {
     // If no image loader is specified, need to redirect to a 404 page since there's no
     // backing loader to serve local site images once deployed to Netlify
     if (!IS_LOCAL && imageconfig.loader === 'default') {
@@ -391,7 +393,7 @@ const getSSRDependencies = async (publish: string): Promise<string[]> => {
   ]
 }
 
-export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
+export const getSSRLambdas = async (publish: string, constants): Promise<SSRLambda[]> => {
   const commonDependencies = await getCommonDependencies(publish)
   const ssrRoutes = await getSSRRoutes(publish)
 
@@ -400,6 +402,15 @@ export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
   const odbRoutes = ssrRoutes
 
   const ssrDependencies = await getSSRDependencies(publish)
+  const netliBlob = await import('../templates/blobHandler.mjs')
+
+  // const testDeps = [
+  //   '/Users/tatyananovell/Documents/next-runtime/demos/default/.next/server/app/blog/nick.rsc',
+  //   '/Users/tatyananovell/Documents/next-runtime/demos/default/.next/server/app/blog/nick.html',
+  //   '/Users/tatyananovell/Documents/next-runtime/demos/default/.next/server/app/blog/sarah.rsc',
+  // ]
+  // moving the ssrDeps to the Blob store so we can access them in templates/getHandler
+  await netliBlob.setBlobFiles(constants, ssrDependencies)
 
   return [
     {
@@ -415,7 +426,8 @@ export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
     {
       functionName: ODB_FUNCTION_NAME,
       functionTitle: ODB_FUNCTION_TITLE,
-      includedFiles: [...commonDependencies, ...ssrDependencies, ...odbRoutes.flatMap((route) => route.includedFiles)],
+      // SSR dependencies will no longer be part of the includedFiles since they will now be sent to the Blob
+      includedFiles: [...commonDependencies, ...odbRoutes.flatMap((route) => route.includedFiles)],
       routes: odbRoutes,
     },
   ]

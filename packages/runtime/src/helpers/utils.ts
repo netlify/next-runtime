@@ -1,5 +1,4 @@
-import type { NetlifyConfig } from '@netlify/build'
-import type { Header } from '@netlify/build/types/config/netlify_config'
+import type { NetlifyConfig, Header } from '@netlify/build'
 import globby from 'globby'
 import type { ExperimentalConfig } from 'next/dist/server/config-shared'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
