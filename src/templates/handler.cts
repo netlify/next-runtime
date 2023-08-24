@@ -49,6 +49,11 @@ export const handler: Handler = async function (event: HandlerEvent, context: Ha
   const response = { headers, statusCode: result.statusCode }
   console.log('Next server response:', JSON.stringify(response, null, 2))
 
+  if (headers['cache-control'].includes('stale-while-revalidate')) {
+    headers['NF-CDN-Cache-Control'] = headers['cache-control']
+    headers['cache-control'] = 'public, max-age=0, must-revalidate'
+  }
+
   return {
     ...result,
     headers,
