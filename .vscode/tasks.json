@@ -43,13 +43,13 @@
     },
     {
       "type": "shell",
-      "command": "netlify serve --no-open",
+      "command": "netlify serve",
       "options": {
         "cwd": "demo"
       },
       "group": "build",
       "label": "demo: netlify serve",
-      "detail": "netlify serve --no-open",
+      "detail": "netlify serve",
       "dependsOrder": "sequence",
       "dependsOn": ["package: build"]
     },
