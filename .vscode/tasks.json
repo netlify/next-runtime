@@ -43,6 +43,18 @@
     },
     {
       "type": "shell",
+      "command": "netlify serve --no-open",
+      "options": {
+        "cwd": "demo"
+      },
+      "group": "build",
+      "label": "demo: netlify serve",
+      "detail": "netlify serve --no-open",
+      "dependsOrder": "sequence",
+      "dependsOn": ["package: build"]
+    },
+    {
+      "type": "shell",
       "command": "netlify deploy --build",
       "options": {
         "cwd": "demo"
