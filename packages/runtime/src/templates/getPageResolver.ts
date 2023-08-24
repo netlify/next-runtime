@@ -43,8 +43,8 @@ export const getResolverForDependencies = ({
   `
 }
 
-export const getResolverForPages = async (publish: string) => {
-  const functionDir = resolve('.netlify', 'functions', HANDLER_FUNCTION_NAME)
+export const getResolverForPages = async (publish: string, packagePath: string) => {
+  const functionDir = resolve(packagePath, '.netlify', 'functions', HANDLER_FUNCTION_NAME)
   const dependencies = await getAllPageDependencies(publish)
   return getResolverForDependencies({ dependencies, functionDir })
 }

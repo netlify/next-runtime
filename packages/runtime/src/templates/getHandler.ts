@@ -108,8 +108,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     const server = new Server(async (req, res) => {
       try {
         await requestHandler(req, res)
-      } catch (error) {
-        console.error(error)
+      } catch {
         throw new Error('Error handling request. See function logs for details.')
       }
     })

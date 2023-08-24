@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.40.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.40.0...plugin-nextjs-v4.40.1) (2023-08-21)
+
+
+### Bug Fixes
+
+* improves support for __NEXT_PRIVATE_PREBUNDLED_REACT ([#2236](https://github.com/netlify/next-runtime/issues/2236)) ([4261de7](https://github.com/netlify/next-runtime/commit/4261de73db3a678c4526b15f58acb3bd5711f98a))
+* pass packagePath down to rsc edge manifest ([#2269](https://github.com/netlify/next-runtime/issues/2269)) ([3517973](https://github.com/netlify/next-runtime/commit/3517973dd6507a07303f6875b629acb0f976514b))
+
+## [4.40.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.4...plugin-nextjs-v4.40.0) (2023-08-14)
+
+
+### Features
+
+* support new monorepo setup ([#2260](https://github.com/netlify/next-runtime/issues/2260)) ([7185d62](https://github.com/netlify/next-runtime/commit/7185d6287a3aad18771d905192b1e4918be08a4b))
+
 ## [4.39.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.39.3...plugin-nextjs-v4.39.4) (2023-08-10)
 
 

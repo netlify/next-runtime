@@ -60,7 +60,12 @@ export interface APILambda extends SSRLambda {
 }
 
 export const generateFunctions = async (
-  { FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, INTERNAL_FUNCTIONS_SRC, PUBLISH_DIR }: NetlifyPluginConstants,
+  {
+    INTERNAL_FUNCTIONS_SRC,
+    PUBLISH_DIR,
+    PACKAGE_PATH = '',
+    FUNCTIONS_SRC = join(PACKAGE_PATH, DEFAULT_FUNCTIONS_SRC),
+  }: NetlifyPluginConstants,
   appDir: string,
   apiLambdas: APILambda[],
   ssrLambdas: SSRLambda[],
@@ -173,12 +178,13 @@ export const generateFunctions = async (
  */
 export const generatePagesResolver = async ({
   INTERNAL_FUNCTIONS_SRC,
-  FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC,
   PUBLISH_DIR,
+  PACKAGE_PATH = '',
+  FUNCTIONS_SRC = join(PACKAGE_PATH, DEFAULT_FUNCTIONS_SRC),
 }: NetlifyPluginConstants): Promise<void> => {
   const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
 
-  const jsSource = await getResolverForPages(PUBLISH_DIR)
+  const jsSource = await getResolverForPages(PUBLISH_DIR, PACKAGE_PATH)
 
   await writeFile(join(functionsPath, ODB_FUNCTION_NAME, 'pages.js'), jsSource)
   await writeFile(join(functionsPath, HANDLER_FUNCTION_NAME, 'pages.js'), jsSource)
@@ -186,7 +192,12 @@ export const generatePagesResolver = async ({
 
 // Move our next/image function into the correct functions directory
 export const setupImageFunction = async ({
-  constants: { INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC = DEFAULT_FUNCTIONS_SRC, IS_LOCAL },
+  constants: {
+    IS_LOCAL,
+    INTERNAL_FUNCTIONS_SRC,
+    PACKAGE_PATH = '',
+    FUNCTIONS_SRC = join(PACKAGE_PATH, DEFAULT_FUNCTIONS_SRC),
+  },
   imageconfig = {},
   netlifyConfig,
   basePath,

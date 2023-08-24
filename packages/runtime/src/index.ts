@@ -212,7 +212,7 @@ const plugin: NetlifyPlugin = {
       apiLambdas,
     })
 
-    await writeEdgeFunctions({ netlifyConfig, routesManifest })
+    await writeEdgeFunctions({ constants, netlifyConfig, routesManifest })
   },
 
   async onPostBuild({

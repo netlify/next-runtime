@@ -276,7 +276,9 @@ export const writeDevEdgeFunction = async ({
 export const generateRscDataEdgeManifest = async ({
   prerenderManifest,
   appPathRoutesManifest,
+  packagePath = '',
 }: {
+  packagePath?: string
   prerenderManifest?: PrerenderManifest
   appPathRoutesManifest?: Record<string, string>
 }): Promise<FunctionManifest['functions']> => {
@@ -302,7 +304,7 @@ export const generateRscDataEdgeManifest = async ({
     return []
   }
 
-  const edgeFunctionDir = resolve('.netlify', 'edge-functions', 'rsc-data')
+  const edgeFunctionDir = resolve(packagePath, '.netlify', 'edge-functions', 'rsc-data')
   await ensureDir(edgeFunctionDir)
   await copyEdgeSourceFile({ edgeFunctionDir, file: 'rsc-data.ts' })
 
@@ -353,9 +355,11 @@ export const getEdgeFunctionPatternForPage = ({
 export const writeEdgeFunctions = async ({
   netlifyConfig,
   routesManifest,
+  constants: { PACKAGE_PATH = '' },
 }: {
   netlifyConfig: NetlifyConfig
   routesManifest: RoutesManifest
+  constants: NetlifyPluginConstants
 }) => {
   const generator = await getPluginVersion()
 
@@ -365,7 +369,7 @@ export const writeEdgeFunctions = async ({
     version: 1,
   }
 
-  const edgeFunctionRoot = resolve('.netlify', 'edge-functions')
+  const edgeFunctionRoot = resolve(PACKAGE_PATH, '.netlify', 'edge-functions')
   await emptyDir(edgeFunctionRoot)
 
   const { publish } = netlifyConfig.build
@@ -384,6 +388,7 @@ export const writeEdgeFunctions = async ({
   }
 
   const rscFunctions = await generateRscDataEdgeManifest({
+    packagePath: PACKAGE_PATH,
     prerenderManifest: await loadPrerenderManifest(netlifyConfig),
     appPathRoutesManifest: await loadAppPathRoutesManifest(netlifyConfig),
   })
