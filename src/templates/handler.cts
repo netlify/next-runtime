@@ -29,6 +29,7 @@ export const handler: Handler = async function (event: HandlerEvent, context: Ha
     // requests from the bridge and send them to Next.js
     const server = http.createServer(async (req, res) => {
       try {
+        console.log('Next server request:', req.url)
         await nextHandler(req, res)
       } catch (error) {
         console.error(error)
