@@ -2,6 +2,7 @@ import { join, relative } from 'path'
 
 import type { NetlifyPlugin, NetlifyPluginOptions } from '@netlify/build'
 import { bold, redBright } from 'chalk'
+import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
@@ -78,8 +79,6 @@ const plugin: NetlifyPlugin = {
     },
     featureFlags = {},
   }: NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }) {
-    const destr = await import('destr')
-
     if (shouldSkip()) {
       return
     }
@@ -111,7 +110,7 @@ const plugin: NetlifyPlugin = {
     if (
       middlewareManifest?.functions &&
       Object.keys(middlewareManifest.functions).length !== 0 &&
-      destr.destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)
+      destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)
     ) {
       failBuild(outdent`
         You are using Next.js experimental edge runtime, but have set NEXT_DISABLE_NETLIFY_EDGE to true. This is not supported.
@@ -122,7 +121,7 @@ const plugin: NetlifyPlugin = {
     if (
       middlewareManifest?.middleware &&
       Object.keys(middlewareManifest.middleware).length !== 0 &&
-      destr.destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)
+      destr(process.env.NEXT_DISABLE_NETLIFY_EDGE)
     ) {
       console.log(
         redBright(outdent`
@@ -154,9 +153,8 @@ const plugin: NetlifyPlugin = {
       } else {
         // Using the deploy prime url in production leads to issues because the unique deploy ID is part of the generated URL
         // and will not match the expected URL in the callback URL of an OAuth application.
-        const nextAuthUrl = `${
-          process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
-        }${basePath}`
+        const nextAuthUrl = `${process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
+          }${basePath}`
 
         console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
         config.config.env.NEXTAUTH_URL = nextAuthUrl
@@ -170,8 +168,8 @@ const plugin: NetlifyPlugin = {
     const apiLambdas: APILambda[] = splitApiRoutes(featureFlags, publish)
       ? await getAPILambdas(publish, appDir, pageExtensions)
       : await getExtendedApiRouteConfigs(publish, appDir, pageExtensions).then((extendedRoutes) =>
-          extendedRoutes.map(packSingleFunction),
-        )
+        extendedRoutes.map(packSingleFunction),
+      )
     const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas(publish, constants) : []
     await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
     await generatePagesResolver(constants)
@@ -187,7 +185,7 @@ const plugin: NetlifyPlugin = {
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
 
-    if (!destr.destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
+    if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
       await moveStaticPages({ target, netlifyConfig, i18n, basePath })
     }
 
@@ -234,11 +232,10 @@ const plugin: NetlifyPlugin = {
     if (shouldSkip()) {
       status.show({
         title: 'Next Runtime did not run',
-        summary: `Next cache was stored, but all other functions were skipped because ${
-          process.env.NETLIFY_NEXT_PLUGIN_SKIP
-            ? `NETLIFY_NEXT_PLUGIN_SKIP is set`
-            : `NEXT_PLUGIN_FORCE_RUN is set to ${process.env.NEXT_PLUGIN_FORCE_RUN}`
-        }`,
+        summary: `Next cache was stored, but all other functions were skipped because ${process.env.NETLIFY_NEXT_PLUGIN_SKIP
+          ? `NETLIFY_NEXT_PLUGIN_SKIP is set`
+          : `NEXT_PLUGIN_FORCE_RUN is set to ${process.env.NEXT_PLUGIN_FORCE_RUN}`
+          }`,
       })
       return
     }

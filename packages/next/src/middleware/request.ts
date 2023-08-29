@@ -1,4 +1,4 @@
-// import type { Context } from '@netlify/edge-functions'
+import type { Context } from '@netlify/edge-functions'
 import type { NextURL } from 'next/dist/server/web/next-url'
 import type { NextRequest as InternalNextRequest } from 'next/server'
 
@@ -23,7 +23,7 @@ export interface NextOptions {
  * Supercharge your Next middleware with Netlify Edge Functions
  */
 export class MiddlewareRequest extends Request {
-  context: any
+  context: Context
   originalRequest: Request
 
   constructor(private nextRequest: NextRequest) {
