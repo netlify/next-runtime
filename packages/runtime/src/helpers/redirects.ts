@@ -1,5 +1,6 @@
 import type { NetlifyConfig } from '@netlify/build'
 import { yellowBright } from 'chalk'
+import destr from 'destr'
 import { readJSON } from 'fs-extra'
 import type { NextConfig } from 'next'
 import type { PrerenderManifest, SsgRoute } from 'next/dist/build'
@@ -211,8 +212,7 @@ export const generateDynamicRewrites = ({
   const dynamicRewrites: NetlifyConfig['redirects'] = []
   const dynamicRoutesThatMatchMiddleware: Array<string> = []
 
-  const dynamicR = async () => {
-    const destr = await import('destr')
+  const dynamicR = () => {
     dynamicRoutes.forEach((route) => {
       if (isApiRoute(route.page) || is404Route(route.page, i18n)) {
         return
@@ -235,7 +235,7 @@ export const generateDynamicRewrites = ({
         } else if (
           prerenderedDynamicRoutes[route.page].fallback === false &&
           !is404Isr &&
-          !destr.destr(process.env.LEGACY_FALLBACK_FALSE)
+          !destr(process.env.LEGACY_FALLBACK_FALSE)
         ) {
           dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
         } else {
@@ -350,10 +350,9 @@ export const generateRedirects = async ({
   if (middlewareMatches > 0) {
     console.log(
       yellowBright(outdent`
-        There ${
-          middlewareMatches === 1
-            ? `is one statically-generated or ISR route that matches`
-            : `are ${middlewareMatches} statically-generated or ISR routes that match`
+        There ${middlewareMatches === 1
+          ? `is one statically-generated or ISR route that matches`
+          : `are ${middlewareMatches} statically-generated or ISR routes that match`
         } a middleware function. Matched routes will always be served from the SSR function and will not use ISR or be served from the CDN.
         If this was not intended, ensure that your middleware only matches routes that you intend to use SSR.
       `),

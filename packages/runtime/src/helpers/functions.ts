@@ -1,6 +1,7 @@
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
+import destr from 'destr'
 import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat } from 'fs-extra'
 import { PrerenderManifest } from 'next/dist/build'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
@@ -209,8 +210,8 @@ export const setupImageFunction = async ({
   responseHeaders?: Record<string, string>
 }): Promise<void> => {
   const imagePath = imageconfig.path || '/_next/image'
-  const destr = await import('destr')
-  if (destr.destr(process.env.DISABLE_IPX)) {
+
+  if (destr(process.env.DISABLE_IPX)) {
     // If no image loader is specified, need to redirect to a 404 page since there's no
     // backing loader to serve local site images once deployed to Netlify
     if (!IS_LOCAL && imageconfig.loader === 'default') {

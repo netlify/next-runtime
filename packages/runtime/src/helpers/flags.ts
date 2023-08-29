@@ -1,3 +1,4 @@
+import destr from 'destr'
 import { existsSync } from 'fs-extra'
 import { join } from 'pathe'
 
@@ -16,9 +17,8 @@ import { join } from 'pathe'
  *
  * Disabled by default. Can be overriden using the NEXT_SPLIT_API_ROUTES env var.
  */
-export const splitApiRoutes = async (featureFlags: Record<string, unknown>, publish: string) => {
-  const destr = await import('destr')
-  const isEnabled = destr.destr(process.env.NEXT_SPLIT_API_ROUTES) ?? featureFlags.next_split_api_routes ?? false
+export const splitApiRoutes = (featureFlags: Record<string, unknown>, publish: string) => {
+  const isEnabled = destr(process.env.NEXT_SPLIT_API_ROUTES) ?? featureFlags.next_split_api_routes ?? false
 
   if (isEnabled && !existsSync(join(publish, 'next-server.js.nft.json'))) {
     console.warn(
@@ -30,10 +30,9 @@ export const splitApiRoutes = async (featureFlags: Record<string, unknown>, publ
   return isEnabled
 }
 
-export const bundleBasedOnNftFiles = async (featureFlags: Record<string, unknown>) => {
-  const destr = await import('destr')
+export const bundleBasedOnNftFiles = (featureFlags: Record<string, unknown>) => {
   const isEnabled =
-    destr.destr(process.env.NEXT_BUNDLE_BASED_ON_NFT_FILES) ?? featureFlags.next_bundle_based_on_nft_files ?? false
+    destr(process.env.NEXT_BUNDLE_BASED_ON_NFT_FILES) ?? featureFlags.next_bundle_based_on_nft_files ?? false
 
   return isEnabled
 }
