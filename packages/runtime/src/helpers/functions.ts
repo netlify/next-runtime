@@ -364,7 +364,7 @@ const changeExtension = (file: string, extension: string) => {
   return join(dirname(file), base + extension)
 }
 
-const getSSRDependencies = async (publish: string): Promise<string[]> => {
+const getPrerenderedContent = async (publish: string): Promise<string[]> => {
   const prerenderManifest: PrerenderManifest = await readJSON(join(publish, 'prerender-manifest.json'))
 
   return [
@@ -399,16 +399,10 @@ export const getSSRLambdas = async (publish: string, constants): Promise<SSRLamb
   const nonOdbRoutes = ssrRoutes
   const odbRoutes = ssrRoutes
 
-  const ssrDependencies = await getSSRDependencies(publish)
-  const netliBlob = await import('../templates/blobHandler.mjs')
-
-  // const testDeps = [
-  //   '/Users/tatyananovell/Documents/next-runtime/demos/default/.next/server/app/blog/nick.rsc',
-  //   '/Users/tatyananovell/Documents/next-runtime/demos/default/.next/server/app/blog/nick.html',
-  //   '/Users/tatyananovell/Documents/next-runtime/demos/default/.next/server/app/blog/sarah.rsc',
-  // ]
-  // moving the ssrDeps to the Blob store so we can access them in templates/getHandler
-  await netliBlob.setBlobFiles(constants, ssrDependencies)
+  const prerenderedContent = await getPrerenderedContent(publish)
+  // TODO: This does not need to be a template, it can be a regular class that is imported.
+  const netliBlob = await import('../templates/blobHandler.js')
+  await netliBlob.setBlobFiles(constants, prerenderedContent)
 
   return [
     {
@@ -416,7 +410,7 @@ export const getSSRLambdas = async (publish: string, constants): Promise<SSRLamb
       functionTitle: HANDLER_FUNCTION_TITLE,
       includedFiles: [
         ...commonDependencies,
-        ...ssrDependencies,
+        ...prerenderedContent,
         ...nonOdbRoutes.flatMap((route) => route.includedFiles),
       ],
       routes: nonOdbRoutes,

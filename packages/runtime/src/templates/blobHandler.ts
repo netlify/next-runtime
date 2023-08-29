@@ -1,11 +1,22 @@
-import { Buffer } from 'node:buffer'
+// import { Buffer } from 'node:buffer'
 import { env } from 'node:process'
 
-import { Blobs } from '@netlify/blobs'
-import { Handler, HandlerContext } from '@netlify/functions'
+// import type { Blobs } from '@netlify/blobs/dist/src/main'
+// import type { Handler, HandlerContext } from '@netlify/functions'
+
+// TODO: memoize this
+// TODO: fix any
+
+// eslint-disable-next-line no-new-func
+const getBlobStorage = new Function(`
+  const  { Blobs } = await import('@netlify/blobs')
+
+  return Blobs
+`)
 
 export const setBlobFiles = async ({ NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID }, filePaths: string[]) => {
-  const blobs = new Blobs({
+  const BlobStorage = await getBlobStorage()
+  const blobs = new BlobStorage({
     authentication: {
       apiURL: `https://${NETLIFY_API_HOST}`,
       token: NETLIFY_API_TOKEN,
@@ -14,10 +25,11 @@ export const setBlobFiles = async ({ NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_I
     siteID: SITE_ID,
   })
 
-  // const files = filePaths.map((filePath) => ({ key: filePath, path: filePath }))
+  const files = filePaths.map((filePath) => ({ key: filePath, path: filePath }))
 
-  // // setFile reads the file path and stores the content within the blob,
-  // // we set the key with the same file path so we can retrieve the file contents later using the path
+  // setFile reads the file path and stores the content within the blob,
+  // we set the key with the same file path so we can retrieve the file contents later using the path
+  console.dir(files)
   // await blobs.setFiles(files)
 
   await blobs.set('testing', 'set')
@@ -26,6 +38,7 @@ export const setBlobFiles = async ({ NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_I
 }
 
 // export const getBlobFile: Handler = async ({ headers, path }, context: HandlerContext) => {
+//   const Blobs = await getBlobStorage()
 //   const rawData = Buffer.from(context.clientContext.custom.blobs, 'base64')
 //   const clientData = JSON.parse(rawData.toString('ascii'))
 

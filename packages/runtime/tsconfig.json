@@ -7,9 +7,10 @@
     "include": [
         "src/**/*.ts",
         "src/**/*.js"
-, "src/templates/blobHandler.mts"    ],
+, "src/templates/blobHandler.ts",
+    ],
     "exclude": [
         "src/templates/edge/*",
         "src/templates/edge-shared/*"
-    ]
+    ],
 }
