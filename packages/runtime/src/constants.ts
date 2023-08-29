@@ -15,26 +15,26 @@ const hiddenPaths = () => {
   const paths = destr(process.env.NEXT_KEEP_METADATA_FILES)
     ? []
     : [
-      '/cache',
-      '/server',
-      '/serverless',
-      '/trace',
-      '/traces',
-      '/routes-manifest.json',
-      '/build-manifest.json',
-      '/prerender-manifest.json',
-      '/react-loadable-manifest.json',
-      '/BUILD_ID',
-      '/app-build-manifest.json',
-      '/app-path-routes-manifest.json',
-      '/export-marker.json',
-      '/images-manifest.json',
-      '/next-server.js.nft.json',
-      '/package.json',
-      '/prerender-manifest.js',
-      '/required-server-files.json',
-      '/static-manifest.json',
-    ]
+        '/cache',
+        '/server',
+        '/serverless',
+        '/trace',
+        '/traces',
+        '/routes-manifest.json',
+        '/build-manifest.json',
+        '/prerender-manifest.json',
+        '/react-loadable-manifest.json',
+        '/BUILD_ID',
+        '/app-build-manifest.json',
+        '/app-path-routes-manifest.json',
+        '/export-marker.json',
+        '/images-manifest.json',
+        '/next-server.js.nft.json',
+        '/package.json',
+        '/prerender-manifest.js',
+        '/required-server-files.json',
+        '/static-manifest.json',
+      ]
   return paths
 }
 

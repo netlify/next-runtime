@@ -350,9 +350,10 @@ export const generateRedirects = async ({
   if (middlewareMatches > 0) {
     console.log(
       yellowBright(outdent`
-        There ${middlewareMatches === 1
-          ? `is one statically-generated or ISR route that matches`
-          : `are ${middlewareMatches} statically-generated or ISR routes that match`
+        There ${
+          middlewareMatches === 1
+            ? `is one statically-generated or ISR route that matches`
+            : `are ${middlewareMatches} statically-generated or ISR routes that match`
         } a middleware function. Matched routes will always be served from the SSR function and will not use ISR or be served from the CDN.
         If this was not intended, ensure that your middleware only matches routes that you intend to use SSR.
       `),

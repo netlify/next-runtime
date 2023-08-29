@@ -53,19 +53,19 @@ export interface FunctionManifest {
   version: 1
   functions: Array<
     | {
-      function: string
-      name?: string
-      path: string
-      cache?: 'manual'
-      generator: string
-    }
+        function: string
+        name?: string
+        path: string
+        cache?: 'manual'
+        generator: string
+      }
     | {
-      function: string
-      name?: string
-      pattern: string
-      cache?: 'manual'
-      generator: string
-    }
+        function: string
+        name?: string
+        pattern: string
+        cache?: 'manual'
+        generator: string
+      }
   >
   layers?: Array<{ name: `https://${string}/mod.ts`; flag: string }>
   import_map?: string
