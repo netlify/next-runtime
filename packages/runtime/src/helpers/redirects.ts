@@ -211,7 +211,7 @@ export const generateDynamicRewrites = ({
   const dynamicRewrites: NetlifyConfig['redirects'] = []
   const dynamicRoutesThatMatchMiddleware: Array<string> = []
 
-  const dynamicR = async() => {
+  const dynamicR = async () => {
     const destr = await import('destr')
     dynamicRoutes.forEach((route) => {
       if (isApiRoute(route.page) || is404Route(route.page, i18n)) {

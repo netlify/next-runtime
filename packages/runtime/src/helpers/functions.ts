@@ -8,8 +8,6 @@ import { outdent } from 'outdent'
 import { join, relative, resolve, dirname, basename, extname } from 'pathe'
 import glob from 'tiny-glob'
 
-
-
 import {
   HANDLER_FUNCTION_NAME,
   ODB_FUNCTION_NAME,

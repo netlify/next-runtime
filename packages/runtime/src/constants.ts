@@ -9,31 +9,31 @@ export const ODB_FUNCTION_TITLE = 'Next.js ISR handler'
 export const API_FUNCTION_TITLE = 'Next.js API handler'
 export const IMAGE_FUNCTION_TITLE = 'next/image handler'
 
-const hiddenPaths = async() => {
+const hiddenPaths = async () => {
   const destr = await import('destr')
   const paths = destr.destr(process.env.NEXT_KEEP_METADATA_FILES)
-  ? []
-  : [
-      '/cache',
-      '/server',
-      '/serverless',
-      '/trace',
-      '/traces',
-      '/routes-manifest.json',
-      '/build-manifest.json',
-      '/prerender-manifest.json',
-      '/react-loadable-manifest.json',
-      '/BUILD_ID',
-      '/app-build-manifest.json',
-      '/app-path-routes-manifest.json',
-      '/export-marker.json',
-      '/images-manifest.json',
-      '/next-server.js.nft.json',
-      '/package.json',
-      '/prerender-manifest.js',
-      '/required-server-files.json',
-      '/static-manifest.json',
-    ]
+    ? []
+    : [
+        '/cache',
+        '/server',
+        '/serverless',
+        '/trace',
+        '/traces',
+        '/routes-manifest.json',
+        '/build-manifest.json',
+        '/prerender-manifest.json',
+        '/react-loadable-manifest.json',
+        '/BUILD_ID',
+        '/app-build-manifest.json',
+        '/app-path-routes-manifest.json',
+        '/export-marker.json',
+        '/images-manifest.json',
+        '/next-server.js.nft.json',
+        '/package.json',
+        '/prerender-manifest.js',
+        '/required-server-files.json',
+        '/static-manifest.json',
+      ]
   return paths
 }
 
