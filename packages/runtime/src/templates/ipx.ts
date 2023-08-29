@@ -7,7 +7,7 @@ import { basePath, domains, remotePatterns, responseHeaders } from './imageconfi
 
 export const handler: Handler = createIPXHandler({
   basePath,
-  // domains, commenting out for now
+  domains,
   remotePatterns,
   responseHeaders,
 }) as Handler

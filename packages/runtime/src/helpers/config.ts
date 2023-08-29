@@ -114,7 +114,7 @@ export const configureHandlerFunctions = async ({
   ignore: Array<string>
   apiLambdas: APILambda[]
   ssrLambdas: SSRLambda[]
-  splitApiRoutes: any
+  splitApiRoutes: boolean
 }) => {
   const config = await getRequiredServerFiles(publish)
   const files = config.files || []

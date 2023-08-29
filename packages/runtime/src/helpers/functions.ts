@@ -33,7 +33,6 @@ import { writeFunctionConfiguration } from './functionsMetaData'
 import { pack } from './pack'
 import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
-import { async } from 'node-stream-zip'
 
 export interface RouteConfig {
   functionName: string
