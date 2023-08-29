@@ -4,15 +4,39 @@ import { env } from 'node:process'
 // import type { Blobs } from '@netlify/blobs/dist/src/main'
 // import type { Handler, HandlerContext } from '@netlify/functions'
 
-// TODO: memoize this
-// TODO: fix any
+// TODO: put in utils
+type MemoizeCache = {
+  [key: string]: unknown
+}
 
-// eslint-disable-next-line no-new-func
-const getBlobStorage = new Function(`
-  const  { Blobs } = await import('@netlify/blobs')
+const memoize = <T extends (...args: unknown[]) => unknown>(fn: T): T => {
+  const cache: MemoizeCache = {}
+
+  return ((...args: Parameters<T>): ReturnType<T> => {
+    const key = JSON.stringify(args)
+
+    if (cache[key] !== undefined) {
+      return cache[key] as ReturnType<T>
+    }
+
+    const result = fn(...args)
+    cache[key] = result
+
+    return result as ReturnType<T>
+  }) as T
+}
+
+// TODO: fix any and get the BlobStorage type somehow in a non-ESM way
+const getBlobStorage = memoize(async () => {
+  // eslint-disable-next-line no-new-func
+  const blobFunction = new Function(`
+    return import('@netlify/blobs')
+`)
+
+  const { Blobs } = await blobFunction()
 
   return Blobs
-`)
+})
 
 export const setBlobFiles = async ({ NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID }, filePaths: string[]) => {
   const BlobStorage = await getBlobStorage()
