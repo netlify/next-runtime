@@ -32,9 +32,10 @@ export const setBlobFiles = async ({ NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_I
   console.dir(files)
   // await blobs.setFiles(files)
 
-  await blobs.set('testing', 'set')
-
-  console.log('SSR Files are now in the blob', { blobs })
+  console.log('storing test data in blob storage')
+  await blobs.set('test', 'this is test content')
+  const data = await blobs.get('test')
+  console.log('retrieving test data in blob storage', data)
 }
 
 // export const getBlobFile: Handler = async ({ headers, path }, context: HandlerContext) => {
