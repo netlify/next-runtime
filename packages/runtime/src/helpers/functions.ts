@@ -26,6 +26,7 @@ import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
+import { getBlobStorage } from './blobStorage'
 import { getRequiredServerFiles } from './config'
 import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
@@ -401,8 +402,17 @@ export const getSSRLambdas = async (publish: string, constants): Promise<SSRLamb
 
   const prerenderedContent = await getPrerenderedContent(publish)
   // TODO: This does not need to be a template, it can be a regular class that is imported.
-  const netliBlob = await import('../templates/blobHandler.js')
-  await netliBlob.setBlobFiles(constants, prerenderedContent)
+  const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
+  const netliBlob = await getBlobStorage({
+    apiHost: NETLIFY_API_HOST,
+    token: NETLIFY_API_TOKEN,
+    siteID: SITE_ID,
+    deployId: process.env.DEPLOY_ID,
+  })
+
+  const prerenderedFiles = prerenderedContent.map((filePath) => ({ key: filePath, path: filePath }))
+
+  await netliBlob.setFiles(constants, prerenderedFiles)
 
   return [
     {
