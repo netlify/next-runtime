@@ -15,14 +15,12 @@ const memoize = <T extends (...args: unknown[]) => unknown>(fn: T): T => {
   return ((...args: Parameters<T>): ReturnType<T> => {
     const key = JSON.stringify(args)
 
-    if (cache[key] !== undefined) {
-      return cache[key] as ReturnType<T>
+    if (cache[key] === undefined) {
+      const result = fn(...args)
+      cache[key] = result
     }
 
-    const result = fn(...args)
-    cache[key] = result
-
-    return result as ReturnType<T>
+    return cache[key] as ReturnType<T>
   }) as T
 }
 
