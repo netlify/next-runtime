@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 
 // eslint-disable-next-line import/no-extraneous-dependencies, @typescript-eslint/no-var-requires, n/no-extraneous-require
-const getBlobStorage = require('@netlify/plugin-nextjs/lib/helpers/blobStorage')
+const { getBlobStorage } = require('@netlify/plugin-nextjs/lib/helpers/blobStorage')
 
 module.exports = class CacheHandler {
   async get(key) {
