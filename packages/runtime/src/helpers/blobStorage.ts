@@ -2,7 +2,6 @@ import type { Blobs } from '@netlify/blobs/dist/src/main'
 
 import { memoize } from './memoize'
 
-// TODO: fix any and get the BlobStorage type somehow in a non-ESM way
 export const getBlobStorage = memoize(
   async ({
     apiHost,
