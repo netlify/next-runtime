@@ -412,7 +412,7 @@ export const getSSRLambdas = async (publish: string, constants): Promise<SSRLamb
 
   const prerenderedFiles = prerenderedContent.map((filePath) => ({ key: filePath, path: filePath }))
 
-  await netliBlob.setFiles(constants, prerenderedFiles)
+  await netliBlob.setFiles(prerenderedFiles)
 
   return [
     {

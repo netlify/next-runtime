@@ -1,3 +1,5 @@
+import type { Blobs } from '@netlify/blobs/dist/src/main'
+
 import { memoize } from './memoize'
 
 // TODO: fix any and get the BlobStorage type somehow in a non-ESM way
@@ -12,7 +14,7 @@ export const getBlobStorage = memoize(
     token: string
     siteID: string
     deployId: string
-  }) => {
+  }): Promise<Blobs> => {
     // eslint-disable-next-line no-new-func
     const blobFunction = new Function(`
     return import('@netlify/blobs')
@@ -28,6 +30,6 @@ export const getBlobStorage = memoize(
       siteID,
     })
 
-    return blobs
+    return blobs as Promise<Blobs>
   },
 )
