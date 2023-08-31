@@ -4,6 +4,8 @@
 const { getBlobStorage } = require('@netlify/plugin-nextjs/lib/helpers/blobStorage')
 
 module.exports = class CacheHandler {
+  // TODO: Look at Next.js implementation
+
   async get(key) {
     const cache = await getBlobStorage(/** TODO figure out how to pass in auth parameters */)
 
