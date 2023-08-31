@@ -1,4 +1,3 @@
-// TODO: put in utils
 type MemoizeCache = {
   [key: string]: unknown
 }
