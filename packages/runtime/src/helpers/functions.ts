@@ -67,6 +67,8 @@ export const generateFunctions = async (
   appDir: string,
   apiLambdas: APILambda[],
   ssrLambdas: SSRLambda[],
+  useCDNCacheControl: boolean,
+  // eslint-disable-next-line max-params
 ): Promise<void> => {
   const publish = resolve(PUBLISH_DIR)
   const functionsDir = resolve(INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC)
@@ -133,10 +135,11 @@ export const generateFunctions = async (
 
   const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
     const handlerSource = getHandler({
-      isODB,
+      isODB: useCDNCacheControl ? false : isODB,
       publishDir,
       appDir: relative(functionDir, appDir),
       nextServerModuleRelativeLocation,
+      useCDNCacheControl,
     })
     await ensureDir(join(functionsDir, functionName))
 
@@ -167,24 +170,31 @@ export const generateFunctions = async (
   }
 
   await writeHandler(HANDLER_FUNCTION_NAME, HANDLER_FUNCTION_TITLE, false)
-  await writeHandler(ODB_FUNCTION_NAME, ODB_FUNCTION_TITLE, true)
+  if (!useCDNCacheControl) {
+    await writeHandler(ODB_FUNCTION_NAME, ODB_FUNCTION_TITLE, true)
+  }
 }
 
 /**
  * Writes a file in each function directory that contains references to every page entrypoint.
  * This is just so that the nft bundler knows about them. We'll eventually do this better.
  */
-export const generatePagesResolver = async ({
-  INTERNAL_FUNCTIONS_SRC,
-  PUBLISH_DIR,
-  PACKAGE_PATH = '',
-  FUNCTIONS_SRC = join(PACKAGE_PATH, DEFAULT_FUNCTIONS_SRC),
-}: NetlifyPluginConstants): Promise<void> => {
+export const generatePagesResolver = async (
+  {
+    INTERNAL_FUNCTIONS_SRC,
+    PUBLISH_DIR,
+    PACKAGE_PATH = '',
+    FUNCTIONS_SRC = join(PACKAGE_PATH, DEFAULT_FUNCTIONS_SRC),
+  }: NetlifyPluginConstants,
+  useCDNCacheControl: boolean,
+): Promise<void> => {
   const functionsPath = INTERNAL_FUNCTIONS_SRC || FUNCTIONS_SRC
 
   const jsSource = await getResolverForPages(PUBLISH_DIR, PACKAGE_PATH)
 
-  await writeFile(join(functionsPath, ODB_FUNCTION_NAME, 'pages.js'), jsSource)
+  if (!useCDNCacheControl) {
+    await writeFile(join(functionsPath, ODB_FUNCTION_NAME, 'pages.js'), jsSource)
+  }
   await writeFile(join(functionsPath, HANDLER_FUNCTION_NAME, 'pages.js'), jsSource)
 }
 
@@ -391,7 +401,7 @@ const getSSRDependencies = async (publish: string): Promise<string[]> => {
   ]
 }
 
-export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
+export const getSSRLambdas = async (publish: string, useCDNCacheControl: boolean): Promise<SSRLambda[]> => {
   const commonDependencies = await getCommonDependencies(publish)
   const ssrRoutes = await getSSRRoutes(publish)
 
@@ -412,13 +422,19 @@ export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
       ],
       routes: nonOdbRoutes,
     },
-    {
-      functionName: ODB_FUNCTION_NAME,
-      functionTitle: ODB_FUNCTION_TITLE,
-      includedFiles: [...commonDependencies, ...ssrDependencies, ...odbRoutes.flatMap((route) => route.includedFiles)],
-      routes: odbRoutes,
-    },
-  ]
+    useCDNCacheControl
+      ? undefined
+      : {
+          functionName: ODB_FUNCTION_NAME,
+          functionTitle: ODB_FUNCTION_TITLE,
+          includedFiles: [
+            ...commonDependencies,
+            ...ssrDependencies,
+            ...odbRoutes.flatMap((route) => route.includedFiles),
+          ],
+          routes: odbRoutes,
+        },
+  ].filter(Boolean)
 }
 
 const getSSRRoutes = async (publish: string): Promise<RouteConfig[]> => {

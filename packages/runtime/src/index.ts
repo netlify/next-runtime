@@ -19,7 +19,7 @@ import {
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, removeMetadataFiles } from './helpers/files'
-import { bundleBasedOnNftFiles, splitApiRoutes } from './helpers/flags'
+import { bundleBasedOnNftFiles, splitApiRoutes, useCDNCacheControlEnabled } from './helpers/flags'
 import {
   generateFunctions,
   setupImageFunction,
@@ -83,6 +83,12 @@ const plugin: NetlifyPlugin = {
     if (shouldSkip()) {
       return
     }
+
+    const useCDNCacheControl = useCDNCacheControlEnabled(featureFlags)
+    if (useCDNCacheControl) {
+      console.log(`Using CDN Cache Control headers`)
+    }
+
     const { publish } = netlifyConfig.build
 
     checkNextSiteHasBuilt({ publish, failBuild })
@@ -173,10 +179,10 @@ const plugin: NetlifyPlugin = {
           extendedRoutes.map(packSingleFunction),
         )
 
-    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas(publish) : []
+    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas(publish, useCDNCacheControl) : []
 
-    await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
-    await generatePagesResolver(constants)
+    await generateFunctions(constants, appDir, apiLambdas, ssrLambdas, useCDNCacheControl)
+    await generatePagesResolver(constants, useCDNCacheControl)
 
     await configureHandlerFunctions({
       netlifyConfig,
@@ -185,6 +191,7 @@ const plugin: NetlifyPlugin = {
       apiLambdas,
       ssrLambdas,
       splitApiRoutes: splitApiRoutes(featureFlags, publish),
+      useCDNCacheControl,
     })
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
@@ -212,9 +219,10 @@ const plugin: NetlifyPlugin = {
       nextConfig: { basePath, i18n, trailingSlash, appDir },
       buildId,
       apiLambdas,
+      useCDNCacheControl,
     })
 
-    await writeEdgeFunctions({ constants, netlifyConfig, routesManifest })
+    await writeEdgeFunctions({ constants, netlifyConfig, routesManifest, useCDNCacheControl })
   },
 
   async onPostBuild({

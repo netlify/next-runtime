@@ -1,5 +1,10 @@
 export const allFlagsEnabled = Cypress.env('PLUGIN_ALL_FEATURE_FLAGS') === `enabled`
 
+// In current setup this is only enabled when all flags are enabled, but when doing conditional
+// assertions for CDN cache control specific behaviour we want semantically check for just that feature
+// and not everything else - so that's the reason for separate export
+export const CDNCacheControlEnabled = allFlagsEnabled
+
 /**
  * @param shouldExecute {boolean} - if truthy, `describe` will be executed, otherwise skipped
  * @returns {function} - describe or describe.skip

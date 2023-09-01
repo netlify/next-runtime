@@ -113,6 +113,7 @@ const generateStaticIsrRewrites = ({
   buildId,
   middleware,
   appPathRoutes,
+  useCDNCacheControl,
 }: {
   staticRouteEntries: Array<[string, SsgRoute]>
   basePath: string
@@ -120,6 +121,7 @@ const generateStaticIsrRewrites = ({
   buildId: string
   middleware: Array<string>
   appPathRoutes: Record<string, string>
+  useCDNCacheControl: boolean
 }): {
   staticRoutePaths: Set<string>
   staticIsrRoutesThatMatchMiddleware: Array<string>
@@ -153,7 +155,7 @@ const generateStaticIsrRewrites = ({
           route,
           dataRoute: isAppDir ? dataRoute : routeToDataRoute(route, buildId, i18n.defaultLocale),
           basePath,
-          to: ODB_FUNCTION_PATH,
+          to: useCDNCacheControl ? HANDLER_FUNCTION_PATH : ODB_FUNCTION_PATH,
           force: true,
         }),
       )
@@ -167,7 +169,7 @@ const generateStaticIsrRewrites = ({
         ...redirectsForNextRoute({
           route,
           basePath,
-          to: ODB_FUNCTION_PATH,
+          to: useCDNCacheControl ? HANDLER_FUNCTION_PATH : ODB_FUNCTION_PATH,
           force: true,
           buildId,
           dataRoute: isAppDir ? dataRoute : null,
@@ -196,6 +198,7 @@ export const generateDynamicRewrites = ({
   i18n,
   is404Isr,
   appPathRoutes,
+  useCDNCacheControl,
 }: {
   dynamicRoutes: RoutesManifest['dynamicRoutes']
   prerenderedDynamicRoutes: PrerenderManifest['dynamicRoutes']
@@ -205,6 +208,7 @@ export const generateDynamicRewrites = ({
   middleware: Array<string>
   is404Isr: boolean
   appPathRoutes?: Record<string, string>
+  useCDNCacheControl: boolean
 }): {
   dynamicRoutesThatMatchMiddleware: Array<string>
   dynamicRewrites: NetlifyConfig['redirects']
@@ -225,7 +229,7 @@ export const generateDynamicRewrites = ({
             route: route.page,
             buildId,
             basePath,
-            to: ODB_FUNCTION_PATH,
+            to: useCDNCacheControl ? HANDLER_FUNCTION_PATH : ODB_FUNCTION_PATH,
             i18n,
             dataRoute: prerenderedDynamicRoutes[route.page].dataRoute,
             withData: true,
@@ -239,7 +243,13 @@ export const generateDynamicRewrites = ({
         dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
       } else {
         dynamicRewrites.push(
-          ...redirectsForNextRoute({ route: route.page, buildId, basePath, to: ODB_FUNCTION_PATH, i18n }),
+          ...redirectsForNextRoute({
+            route: route.page,
+            buildId,
+            basePath,
+            to: useCDNCacheControl ? HANDLER_FUNCTION_PATH : ODB_FUNCTION_PATH,
+            i18n,
+          }),
         )
       }
     } else {
@@ -260,11 +270,13 @@ export const generateRedirects = async ({
   nextConfig: { i18n, basePath, trailingSlash, appDir },
   buildId,
   apiLambdas,
+  useCDNCacheControl,
 }: {
   netlifyConfig: NetlifyConfig
   nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash' | 'appDir'>
   buildId: string
   apiLambdas: APILambda[]
+  useCDNCacheControl: boolean
 }) => {
   const { dynamicRoutes: prerenderedDynamicRoutes, routes: prerenderedStaticRoutes }: PrerenderManifest =
     await readJSON(join(netlifyConfig.build.publish, 'prerender-manifest.json'))
@@ -306,6 +318,7 @@ export const generateRedirects = async ({
     buildId,
     middleware,
     appPathRoutes,
+    useCDNCacheControl,
   })
 
   routesThatMatchMiddleware.push(...staticIsrRoutesThatMatchMiddleware)
@@ -332,6 +345,7 @@ export const generateRedirects = async ({
     i18n,
     is404Isr,
     appPathRoutes,
+    useCDNCacheControl,
   })
   netlifyConfig.redirects.push(...dynamicRewrites)
   routesThatMatchMiddleware.push(...dynamicRoutesThatMatchMiddleware)

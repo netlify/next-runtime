@@ -1,3 +1,5 @@
+import { CDNCacheControlEnabled } from '../../utils/flags'
+
 /* eslint-disable max-lines-per-function */
 describe('Static Routing', () => {
   it('renders correct page via SSR on a static route', () => {
@@ -17,7 +19,11 @@ describe('Static Routing', () => {
   it('renders correct page via ODB on a static route', () => {
     cy.request({ url: '/getStaticProps/with-revalidate/', headers: { 'x-nf-debug-logging': '1' } }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+      if (CDNCacheControlEnabled) {
+        expect(res.headers).to.have.property('netlify-cdn-cache-control', 's-maxage=1, stale-while-revalidate')
+      } else {
+        expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+      }
       expect(res.body).to.contain('Dancing with the Stars')
     })
   })
@@ -64,8 +70,12 @@ describe('Dynamic Routing', () => {
   it('renders fallback page via ODB on a non-prerendered dynamic route with fallback: true', () => {
     cy.request({ url: '/getStaticProps/withFallback/3/', headers: { 'x-nf-debug-logging': '1' } }).then((res) => {
       expect(res.status).to.eq(200)
-      // expect 'odb' until https://github.com/netlify/pillar-runtime/issues/438 is fixed
-      expect(res.headers).to.have.property('x-nf-render-mode', 'odb')
+      if (CDNCacheControlEnabled) {
+        expect(res.headers).to.have.property('netlify-cdn-cache-control', 's-maxage=31536000, stale-while-revalidate')
+      } else {
+        // expect 'odb' until https://github.com/netlify/pillar-runtime/issues/438 is fixed
+        expect(res.headers).to.have.property('x-nf-render-mode', 'odb')
+      }
       // expect 'Bitten' until the above is fixed and we can test for fallback 'Loading...' message
       expect(res.body).to.contain('Bitten')
     })
@@ -83,7 +93,11 @@ describe('Dynamic Routing', () => {
     cy.request({ url: '/getStaticProps/withFallbackBlocking/3/', headers: { 'x-nf-debug-logging': '1' } }).then(
       (res) => {
         expect(res.status).to.eq(200)
-        expect(res.headers).to.have.property('x-nf-render-mode', 'odb')
+        if (CDNCacheControlEnabled) {
+          expect(res.headers).to.have.property('netlify-cdn-cache-control', 's-maxage=31536000, stale-while-revalidate')
+        } else {
+          expect(res.headers).to.have.property('x-nf-render-mode', 'odb')
+        }
         expect(res.body).to.contain('Bitten')
       },
     )
@@ -91,7 +105,11 @@ describe('Dynamic Routing', () => {
   it('renders correct page via ODB on a prerendered dynamic route with revalidate and fallback: false', () => {
     cy.request({ url: '/getStaticProps/withRevalidate/1/', headers: { 'x-nf-debug-logging': '1' } }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+      if (CDNCacheControlEnabled) {
+        expect(res.headers).to.have.property('netlify-cdn-cache-control', 's-maxage=60, stale-while-revalidate')
+      } else {
+        expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+      }
       expect(res.body).to.contain('Under the Dome')
     })
   })
@@ -110,7 +128,11 @@ describe('Dynamic Routing', () => {
     cy.request({ url: '/getStaticProps/withRevalidate/withFallback/1/', headers: { 'x-nf-debug-logging': '1' } }).then(
       (res) => {
         expect(res.status).to.eq(200)
-        expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+        if (CDNCacheControlEnabled) {
+          expect(res.headers).to.have.property('netlify-cdn-cache-control', 's-maxage=60, stale-while-revalidate')
+        } else {
+          expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+        }
         expect(res.body).to.contain('Under the Dome')
       },
     )
@@ -119,7 +141,11 @@ describe('Dynamic Routing', () => {
     cy.request({ url: '/getStaticProps/withRevalidate/withFallback/3/', headers: { 'x-nf-debug-logging': '1' } }).then(
       (res) => {
         expect(res.status).to.eq(200)
-        expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+        if (CDNCacheControlEnabled) {
+          expect(res.headers).to.have.property('netlify-cdn-cache-control', 's-maxage=60, stale-while-revalidate')
+        } else {
+          expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+        }
         // expect 'Bitten' until https://github.com/netlify/pillar-runtime/issues/438 is fixed
         expect(res.body).to.contain('Bitten')
       },
@@ -131,7 +157,11 @@ describe('Dynamic Routing', () => {
       headers: { 'x-nf-debug-logging': '1' },
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+      if (CDNCacheControlEnabled) {
+        expect(res.headers).to.have.property('netlify-cdn-cache-control', 's-maxage=60, stale-while-revalidate')
+      } else {
+        expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+      }
       expect(res.body).to.contain('Under the Dome')
     })
   })
@@ -141,7 +171,11 @@ describe('Dynamic Routing', () => {
       headers: { 'x-nf-debug-logging': '1' },
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+      if (CDNCacheControlEnabled) {
+        expect(res.headers).to.have.property('netlify-cdn-cache-control', 's-maxage=60, stale-while-revalidate')
+      } else {
+        expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
+      }
       expect(res.body).to.contain('Bitten')
     })
   })

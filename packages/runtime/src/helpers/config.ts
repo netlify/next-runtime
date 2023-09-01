@@ -109,6 +109,7 @@ export const configureHandlerFunctions = async ({
   apiLambdas,
   ssrLambdas,
   splitApiRoutes,
+  useCDNCacheControl,
 }: {
   netlifyConfig: NetlifyConfig
   publish: string
@@ -116,6 +117,7 @@ export const configureHandlerFunctions = async ({
   apiLambdas: APILambda[]
   ssrLambdas: SSRLambda[]
   splitApiRoutes: boolean
+  useCDNCacheControl: boolean
 }) => {
   const config = await getRequiredServerFiles(publish)
   const files = config.files || []
@@ -182,7 +184,9 @@ export const configureHandlerFunctions = async ({
 
   if (ssrLambdas.length === 0) {
     configureFunction(HANDLER_FUNCTION_NAME)
-    configureFunction(ODB_FUNCTION_NAME)
+    if (!useCDNCacheControl) {
+      configureFunction(ODB_FUNCTION_NAME)
+    }
   } else {
     ssrLambdas.forEach(configureLambda)
   }

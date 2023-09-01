@@ -278,26 +278,35 @@ export const generateRscDataEdgeManifest = async ({
   prerenderManifest,
   appPathRoutesManifest,
   packagePath = '',
+  useCDNCacheControl,
 }: {
   packagePath?: string
   prerenderManifest?: PrerenderManifest
   appPathRoutesManifest?: Record<string, string>
+  useCDNCacheControl: boolean
 }): Promise<FunctionManifest['functions']> => {
   const generator = await getPluginVersion()
   if (!prerenderManifest || !appPathRoutesManifest) {
     return []
   }
   const staticAppdirRoutes: Array<string> = []
+
   for (const [path, route] of Object.entries(prerenderManifest.routes)) {
-    if (isAppDirRoute(route.srcRoute, appPathRoutesManifest) && route.dataRoute) {
+    if (
+      isAppDirRoute(route.srcRoute, appPathRoutesManifest) &&
+      route.dataRoute &&
+      (!useCDNCacheControl || route.initialRevalidateSeconds === false)
+    ) {
       staticAppdirRoutes.push(path)
     }
   }
   const dynamicAppDirRoutes: Array<string> = []
 
-  for (const [path, route] of Object.entries(prerenderManifest.dynamicRoutes)) {
-    if (isAppDirRoute(path, appPathRoutesManifest) && route.dataRouteRegex) {
-      dynamicAppDirRoutes.push(route.routeRegex)
+  if (!useCDNCacheControl) {
+    for (const [path, route] of Object.entries(prerenderManifest.dynamicRoutes)) {
+      if (isAppDirRoute(path, appPathRoutesManifest) && route.dataRouteRegex) {
+        dynamicAppDirRoutes.push(route.routeRegex)
+      }
     }
   }
 
@@ -357,10 +366,12 @@ export const writeEdgeFunctions = async ({
   netlifyConfig,
   routesManifest,
   constants: { PACKAGE_PATH = '' },
+  useCDNCacheControl,
 }: {
   netlifyConfig: NetlifyConfig
   routesManifest: RoutesManifest
   constants: NetlifyPluginConstants
+  useCDNCacheControl: boolean
 }) => {
   const generator = await getPluginVersion()
 
@@ -392,6 +403,7 @@ export const writeEdgeFunctions = async ({
     packagePath: PACKAGE_PATH,
     prerenderManifest: await loadPrerenderManifest(netlifyConfig),
     appPathRoutesManifest: await loadAppPathRoutesManifest(netlifyConfig),
+    useCDNCacheControl,
   })
 
   manifest.functions.push(...rscFunctions)

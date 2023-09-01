@@ -39,11 +39,20 @@ type MakeHandlerParams = {
   NextServer: NextServerType
   staticManifest: Array<[string, string]>
   mode: 'ssr' | 'odb'
+  useCDNCacheControl: boolean
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 // eslint-disable-next-line max-lines-per-function
-const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mode = 'ssr' }: MakeHandlerParams) => {
+const makeHandler = ({
+  conf,
+  app,
+  pageRoot,
+  NextServer,
+  staticManifest = [],
+  mode = 'ssr',
+  useCDNCacheControl,
+}: MakeHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -160,32 +169,49 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     }
 
     // Sending SWR headers causes undefined behaviour with the Netlify CDN
-    const cacheHeader = multiValueHeaders['cache-control']?.[0]
+    const cacheControlHeader = multiValueHeaders['cache-control']?.[0]
 
-    if (cacheHeader?.includes('stale-while-revalidate')) {
-      if (requestMode === 'odb') {
-        const ttl = getMaxAge(cacheHeader)
-        // Long-expiry TTL is basically no TTL, so we'll skip it
-        if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
-          // ODBs currently have a minimum TTL of 60 seconds
-          result.ttl = Math.max(ttl, 60)
-        }
-        const ephemeralCodes = [301, 302, 307, 308]
-        if (ttl === ONE_YEAR_IN_SECONDS && ephemeralCodes.includes(result.statusCode)) {
-          // Only cache for 60s if default TTL provided
-          result.ttl = 60
+    if (useCDNCacheControl) {
+      if (cacheControlHeader?.includes('stale-while-revalidate')) {
+        multiValueHeaders[`Netlify-Cdn-Cache-Control`] = [cacheControlHeader]
+        multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
+
+        const vary = multiValueHeaders.vary?.[0] ?? ``
+        if (vary) {
+          multiValueHeaders[`x-nf-vary`] = [
+            `header=${vary
+              .split(`,`)
+              .map((untrimmedHeaderName) => untrimmedHeaderName.trim())
+              .join(`|`)}`,
+          ]
         }
       }
-      multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
-    }
+    } else {
+      if (cacheControlHeader?.includes('stale-while-revalidate')) {
+        if (requestMode === 'odb') {
+          const ttl = getMaxAge(cacheControlHeader)
+          // Long-expiry TTL is basically no TTL, so we'll skip it
+          if (ttl > 0 && ttl < ONE_YEAR_IN_SECONDS) {
+            // ODBs currently have a minimum TTL of 60 seconds
+            result.ttl = Math.max(ttl, 60)
+          }
+          const ephemeralCodes = [301, 302, 307, 308]
+          if (ttl === ONE_YEAR_IN_SECONDS && ephemeralCodes.includes(result.statusCode)) {
+            // Only cache for 60s if default TTL provided
+            result.ttl = 60
+          }
+        }
+        multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
+      }
 
-    // ISR 404s are not served with SWR headers so we need to set the TTL here
-    if (requestMode === 'odb' && result.statusCode === 404) {
-      result.ttl = 60
-    }
+      // ISR 404s are not served with SWR headers so we need to set the TTL here
+      if (requestMode === 'odb' && result.statusCode === 404) {
+        result.ttl = 60
+      }
 
-    if (result.ttl > 0) {
-      requestMode = `odb ttl=${result.ttl}`
+      if (result.ttl > 0) {
+        requestMode = `odb ttl=${result.ttl}`
+      }
     }
 
     multiValueHeaders['x-nf-render-mode'] = [requestMode]
@@ -205,6 +231,7 @@ export const getHandler = ({
   publishDir = '../../../.next',
   appDir = '../../..',
   nextServerModuleRelativeLocation,
+  useCDNCacheControl,
 }): string =>
   // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
   javascript/* javascript */ `
@@ -232,7 +259,11 @@ export const getHandler = ({
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb' }));`
-      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr' });`
+      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb', useCDNCacheControl: ${
+          useCDNCacheControl ? `true` : `false`
+        } }));`
+      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr', useCDNCacheControl: ${
+          useCDNCacheControl ? `true` : `false`
+        } });`
   }
 `
