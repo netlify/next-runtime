@@ -46,12 +46,6 @@ describe('generateRscDataEdgeManifest', () => {
         name: 'RSC data routing',
         path: '/',
       },
-      {
-        function: 'rsc-data',
-        generator: '@netlify/next-runtime@1.0.0',
-        name: 'RSC data routing',
-        path: '/index.rsc',
-      },
     ])
   })
 
@@ -98,12 +92,6 @@ describe('generateRscDataEdgeManifest', () => {
         generator: '@netlify/next-runtime@1.0.0',
         name: 'RSC data routing',
         pattern: '^/blog/([^/]+?)(?:/)?$',
-      },
-      {
-        function: 'rsc-data',
-        generator: '@netlify/next-runtime@1.0.0',
-        name: 'RSC data routing',
-        pattern: '^/blog/([^/]+?)\\.rsc$',
       },
     ])
   })
