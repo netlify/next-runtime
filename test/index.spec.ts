@@ -900,6 +900,12 @@ describe('onPostBuild', () => {
 
     expect(netlifyConfig.headers).toEqual([
       {
+        for: `*.rsc`,
+        values: {
+          'Content-Type': 'text/x-component',
+        },
+      },
+      {
         for: '/',
         values: {
           'x-custom-header': 'my custom header value',
@@ -999,6 +1005,12 @@ describe('onPostBuild', () => {
         for: '/',
         values: {
           'x-existing-header-in-configuration': 'existing header in configuration value',
+        },
+      },
+      {
+        for: `*.rsc`,
+        values: {
+          'Content-Type': 'text/x-component',
         },
       },
       {
@@ -1106,6 +1118,12 @@ describe('onPostBuild', () => {
         for: '/',
         values: {
           'x-existing-header-in-configuration': 'existing header in configuration value',
+        },
+      },
+      {
+        for: `*.rsc`,
+        values: {
+          'Content-Type': 'text/x-component',
         },
       },
     ])

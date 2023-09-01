@@ -290,14 +290,14 @@ export const generateRscDataEdgeManifest = async ({
   const staticAppdirRoutes: Array<string> = []
   for (const [path, route] of Object.entries(prerenderManifest.routes)) {
     if (isAppDirRoute(route.srcRoute, appPathRoutesManifest) && route.dataRoute) {
-      staticAppdirRoutes.push(path, route.dataRoute)
+      staticAppdirRoutes.push(path)
     }
   }
   const dynamicAppDirRoutes: Array<string> = []
 
   for (const [path, route] of Object.entries(prerenderManifest.dynamicRoutes)) {
     if (isAppDirRoute(path, appPathRoutesManifest) && route.dataRouteRegex) {
-      dynamicAppDirRoutes.push(route.routeRegex, route.dataRouteRegex)
+      dynamicAppDirRoutes.push(route.routeRegex)
     }
   }
 

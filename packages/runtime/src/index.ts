@@ -14,6 +14,7 @@ import {
   updateRequiredServerFiles,
   configureHandlerFunctions,
   generateCustomHeaders,
+  addContentTypeHeaderToStaticRSCAssets,
 } from './helpers/config'
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
@@ -250,6 +251,7 @@ const plugin: NetlifyPlugin = {
 
     const { basePath, appDir, experimental } = nextConfig
 
+    addContentTypeHeaderToStaticRSCAssets(headers)
     generateCustomHeaders(nextConfig, headers)
 
     warnForProblematicUserRewrites({ basePath, redirects })

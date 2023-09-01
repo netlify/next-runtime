@@ -218,6 +218,19 @@ const buildHeader = (buildHeaderParams: BuildHeaderParams) => {
 const sanitizePath = (path: string) => path.replace(/:[^*/]+\*$/, '*')
 
 /**
+ * Sets Content-type header for static RSC assets (text/x-component), so application/octet-stream is not used when serving them
+ * @param netlifyHeaders - Existing headers that are already configured in the Netlify configuration
+ */
+export const addContentTypeHeaderToStaticRSCAssets = (netlifyHeaders: NetlifyHeaders = []) => {
+  netlifyHeaders.push({
+    for: `*.rsc`,
+    values: {
+      'Content-Type': 'text/x-component',
+    },
+  })
+}
+
+/**
  * Persist Next.js custom headers to the Netlify configuration so the headers work with static files
  * See {@link https://nextjs.org/docs/api-reference/next.config.js/headers} for more information on custom
  * headers in Next.js
