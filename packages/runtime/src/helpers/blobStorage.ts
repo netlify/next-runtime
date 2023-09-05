@@ -28,6 +28,8 @@ export const getBlobStorage = async ({
       context: `deploy:${deployId}`,
       siteID,
     })
+
+    console.log('----> BLOBS', blobs)
   }
 
   return blobs
