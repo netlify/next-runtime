@@ -89,5 +89,6 @@ module.exports = {
   },
   experimental: {
     optimizeCss: false,
+    incrementalCacheHandlerPath: require.resolve('./cache-handler.js'),
   },
 }
