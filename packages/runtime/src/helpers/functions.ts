@@ -365,6 +365,18 @@ const changeExtension = (file: string, extension: string) => {
   return join(dirname(file), base + extension)
 }
 
+const getPrerenderedBlobStoreContent = async (publish: string) => {
+  const prerenderManifest: PrerenderManifest = await readJSON(join(publish, 'prerender-manifest.json'))
+  const keyValues = Object.entries(prerenderManifest.routes).flatMap(([route, ssgRoute]) => {
+    const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
+    const path = join(publish, 'server', routerTypeSubPath, ssgRoute.dataRoute.replace(/\..+?$/, '.html'))
+
+    return { route, path }
+  })
+
+  return keyValues
+}
+
 const getPrerenderedContent = async (publish: string): Promise<string[]> => {
   const prerenderManifest: PrerenderManifest = await readJSON(join(publish, 'prerender-manifest.json'))
 
@@ -392,29 +404,39 @@ const getPrerenderedContent = async (publish: string): Promise<string[]> => {
   ]
 }
 
-export const getSSRLambdas = async (publish: string, constants): Promise<SSRLambda[]> => {
+type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
+  NETLIFY_API_HOST?: string
+  NETLIFY_API_TOKEN?: string
+}
+
+export const getSSRLambdas = async ({ publish, constants, featureFlags }: { publish: string, constants: EnhancedNetlifyPluginConstants, featureFlags: Record<string, unknown> }): Promise<SSRLambda[]> => {
   const commonDependencies = await getCommonDependencies(publish)
   const ssrRoutes = await getSSRRoutes(publish)
 
   // TODO: for now, they're the same - but we should separate them
   const nonOdbRoutes = ssrRoutes
   const odbRoutes = ssrRoutes
-
-  const prerenderedContent = await getPrerenderedContent(publish)
-  // TODO: This does not need to be a template, it can be a regular class that is imported.
   const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
-  const netliBlob = await getBlobStorage({
-    apiHost: NETLIFY_API_HOST,
-    token: NETLIFY_API_TOKEN,
-    siteID: SITE_ID,
-    deployId: process.env.DEPLOY_ID,
-  })
 
-  // const prerenderedFiles = prerenderedContent.map((filePath) => ({ key: filePath, path: filePath }))
+  // This check could be improved
+  const isUsingBlobStorage = NETLIFY_API_TOKEN !== undefined;
 
-  // should give a 401
-  await netliBlob.set('test', 'test data')
-  // await netliBlob.setFiles(prerenderedFiles)
+  let prerenderedContent: Awaited<ReturnType<typeof getPrerenderedContent>>;
+
+  if (isUsingBlobStorage) {
+    const netliBlob = await getBlobStorage({
+      apiHost: NETLIFY_API_HOST,
+      token: NETLIFY_API_TOKEN,
+      siteID: SITE_ID,
+      deployId: process.env.DEPLOY_ID,
+    })
+
+    const prerenderedContentForBlobStorage = await getPrerenderedBlobStoreContent(publish)
+    const prerenderedCache = prerenderedContentForBlobStorage.map(({ route, path }) => ({ key: route, path }))
+    // TODO store in Netliblob
+  } else {
+    prerenderedContent = await getPrerenderedContent(publish)
+  }
 
   return [
     {
@@ -422,7 +444,8 @@ export const getSSRLambdas = async (publish: string, constants): Promise<SSRLamb
       functionTitle: HANDLER_FUNCTION_TITLE,
       includedFiles: [
         ...commonDependencies,
-        ...prerenderedContent,
+        // We only want prerendered content stored in the lambda if we aren't using blob srorage
+        ...(isUsingBlobStorage ? undefined : prerenderedContent),
         ...nonOdbRoutes.flatMap((route) => route.includedFiles),
       ],
       routes: nonOdbRoutes,
