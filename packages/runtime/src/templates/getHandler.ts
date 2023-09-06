@@ -173,17 +173,29 @@ const makeHandler = ({
 
     if (useCDNCacheControl) {
       if (cacheControlHeader?.includes('stale-while-revalidate')) {
-        multiValueHeaders[`Netlify-Cdn-Cache-Control`] = [cacheControlHeader]
+        multiValueHeaders[`netlify-cdn-cache-control`] = [cacheControlHeader]
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
 
         const vary = multiValueHeaders.vary?.[0] ?? ``
-        if (vary) {
-          multiValueHeaders[`x-nf-vary`] = [
-            `header=${vary
-              .split(`,`)
-              .map((untrimmedHeaderName) => untrimmedHeaderName.trim())
-              .join(`|`)}`,
-          ]
+
+        let NetlifyVaryHeader = ``
+
+        const headersToVary = vary.split(`,`).map((untrimmedHeaderName) => untrimmedHeaderName.trim())
+        if (headersToVary.length !== 0) {
+          NetlifyVaryHeader += `${NetlifyVaryHeader.length === 0 ? `` : `,`}header=${headersToVary.join(`|`)}`
+        }
+
+        if (conf.i18n.localeDetection !== false && conf.i18n.locales.length > 1) {
+          const logicalPath =
+            conf.basePath && event.path.startsWith(conf.basePath) ? event.path.slice(conf.basePath.length) : event.path
+
+          if (logicalPath === `/`) {
+            NetlifyVaryHeader += `${NetlifyVaryHeader.length === 0 ? `` : `,`}language=${conf.i18n.locales.join(`|`)}`
+          }
+        }
+
+        if (NetlifyVaryHeader.length !== 0) {
+          multiValueHeaders[`netlify-vary`] = [NetlifyVaryHeader]
         }
       }
     } else {
