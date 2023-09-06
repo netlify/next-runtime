@@ -469,7 +469,7 @@ export const getSSRLambdas = async ({
     NETLIFY_API_TOKEN !== undefined && process.env.DEPLOY_ID !== '0' && process.env.DEPLOY_ID !== undefined
 
   const prerenderManifest = await getPrerenderManifest(publish)
-  let prerenderedContent: Awaited<ReturnType<typeof getPrerenderedContent>>
+  let ssrDependencies: Awaited<ReturnType<typeof getPrerenderedContent>>
 
   if (isUsingBlobStorage) {
     const netliBlob = await getBlobStorage({
@@ -497,7 +497,8 @@ export const getSSRLambdas = async ({
     const blobData2 = await netliBlob.get(decodeURIComponent('/blog/nick/first-post'))
     console.dir(blobData2)
   } else {
-    prerenderedContent = getPrerenderedContent(prerenderManifest, publish)
+    // We only want prerendered content stored in the lambda if we aren't using blob srorage
+    ssrDependencies = getPrerenderedContent(prerenderManifest, publish)
   }
 
   return [
@@ -506,8 +507,7 @@ export const getSSRLambdas = async ({
       functionTitle: HANDLER_FUNCTION_TITLE,
       includedFiles: [
         ...commonDependencies,
-        // We only want prerendered content stored in the lambda if we aren't using blob srorage
-        ...(isUsingBlobStorage ? undefined : prerenderedContent),
+        ...ssrDependencies,
         ...nonOdbRoutes.flatMap((route) => route.includedFiles),
       ],
       routes: nonOdbRoutes,
@@ -515,8 +515,7 @@ export const getSSRLambdas = async ({
     {
       functionName: ODB_FUNCTION_NAME,
       functionTitle: ODB_FUNCTION_TITLE,
-      // SSR dependencies will no longer be part of the includedFiles since they will now be sent to the Blob
-      includedFiles: [...commonDependencies, ...odbRoutes.flatMap((route) => route.includedFiles)],
+      includedFiles: [...commonDependencies, ...ssrDependencies, ...odbRoutes.flatMap((route) => route.includedFiles)],
       routes: odbRoutes,
     },
   ]
