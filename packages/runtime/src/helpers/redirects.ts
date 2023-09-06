@@ -31,18 +31,24 @@ const generateLocaleRedirects = ({
   i18n,
   basePath,
   trailingSlash,
-}: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash'>): NetlifyConfig['redirects'] => {
+  useCDNCacheControl,
+}: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash'> & {
+  useCDNCacheControl: boolean
+}): NetlifyConfig['redirects'] => {
   const redirects: NetlifyConfig['redirects'] = []
-  // If the cookie is set, we need to redirect at the origin
-  redirects.push({
-    from: `${basePath}/`,
-    to: HANDLER_FUNCTION_PATH,
-    status: 200,
-    force: true,
-    conditions: {
-      Cookie: ['NEXT_LOCALE'],
-    },
-  })
+
+  if (!useCDNCacheControl) {
+    // If the cookie is set, we need to redirect at the origin
+    redirects.push({
+      from: `${basePath}/`,
+      to: HANDLER_FUNCTION_PATH,
+      status: 200,
+      force: true,
+      conditions: {
+        Cookie: ['NEXT_LOCALE'],
+      },
+    })
+  }
   i18n.locales.forEach((locale) => {
     if (locale === i18n.defaultLocale) {
       return
@@ -286,16 +292,19 @@ export const generateRedirects = async ({
   )
 
   if (i18n && i18n.localeDetection !== false) {
-    netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))
+    netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash, useCDNCacheControl }))
   }
 
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
     // API routes always need to be served from the regular function
     ...getApiRewrites(basePath, apiLambdas),
-    // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
-    ...(await getPreviewRewrites({ basePath, appDir })),
   )
+
+  if (!useCDNCacheControl) {
+    // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
+    netlifyConfig.redirects.push(...(await getPreviewRewrites({ basePath, appDir })))
+  }
 
   const middleware = await getMiddleware(netlifyConfig.build.publish)
 

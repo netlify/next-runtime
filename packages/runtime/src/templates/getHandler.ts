@@ -176,13 +176,18 @@ const makeHandler = ({
         multiValueHeaders[`netlify-cdn-cache-control`] = [cacheControlHeader]
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
 
-        const vary = multiValueHeaders.vary?.[0] ?? ``
+        const varyHeaderFromNextJS = multiValueHeaders.vary?.[0] ?? ``
 
-        let NetlifyVaryHeader = ``
+        const netlifyVaryBuilder = {
+          header: [] as string[],
+          language: [] as string[],
+          cookie: ['__prerender_bypass', '__next_preview_data'] as string[],
+        }
 
-        const headersToVary = vary.split(`,`).map((untrimmedHeaderName) => untrimmedHeaderName.trim())
-        if (headersToVary.length !== 0) {
-          NetlifyVaryHeader += `${NetlifyVaryHeader.length === 0 ? `` : `,`}header=${headersToVary.join(`|`)}`
+        if (varyHeaderFromNextJS.length !== 0) {
+          netlifyVaryBuilder.header.push(
+            ...varyHeaderFromNextJS.split(`,`).map((untrimmedHeaderName) => untrimmedHeaderName.trim()),
+          )
         }
 
         if (conf.i18n.localeDetection !== false && conf.i18n.locales.length > 1) {
@@ -190,8 +195,26 @@ const makeHandler = ({
             conf.basePath && event.path.startsWith(conf.basePath) ? event.path.slice(conf.basePath.length) : event.path
 
           if (logicalPath === `/`) {
-            NetlifyVaryHeader += `${NetlifyVaryHeader.length === 0 ? `` : `,`}language=${conf.i18n.locales.join(`|`)}`
+            netlifyVaryBuilder.language.push(...conf.i18n.locales)
+            netlifyVaryBuilder.cookie.push(`NEXT_LOCALE`)
           }
+        }
+
+        let NetlifyVaryHeader = ``
+        if (netlifyVaryBuilder.header.length !== 0) {
+          NetlifyVaryHeader += `header=${netlifyVaryBuilder.header.join(`|`)}`
+        }
+        if (netlifyVaryBuilder.language.length !== 0) {
+          if (NetlifyVaryHeader.length !== 0) {
+            NetlifyVaryHeader += `,`
+          }
+          NetlifyVaryHeader += `language=${netlifyVaryBuilder.language.join(`|`)}`
+        }
+        if (netlifyVaryBuilder.cookie.length !== 0) {
+          if (NetlifyVaryHeader.length !== 0) {
+            NetlifyVaryHeader += `,`
+          }
+          NetlifyVaryHeader += `cookie=${netlifyVaryBuilder.cookie.join(`|`)}`
         }
 
         if (NetlifyVaryHeader.length !== 0) {
