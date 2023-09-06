@@ -465,7 +465,8 @@ export const getSSRLambdas = async ({
   const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
 
   // This check could be improved via featureFlags exposed in the build for blob storage
-  const isUsingBlobStorage = NETLIFY_API_TOKEN !== undefined
+  const isUsingBlobStorage =
+    NETLIFY_API_TOKEN !== undefined && process.env.DEPLOY_ID !== '0' && process.env.DEPLOY_ID !== undefined
 
   const prerenderManifest = await getPrerenderManifest(publish)
   let prerenderedContent: Awaited<ReturnType<typeof getPrerenderedContent>>
