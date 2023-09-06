@@ -153,8 +153,9 @@ const plugin: NetlifyPlugin = {
       } else {
         // Using the deploy prime url in production leads to issues because the unique deploy ID is part of the generated URL
         // and will not match the expected URL in the callback URL of an OAuth application.
-        const nextAuthUrl = `${process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
-          }${basePath}`
+        const nextAuthUrl = `${
+          process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
+        }${basePath}`
 
         console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
         config.config.env.NEXTAUTH_URL = nextAuthUrl
@@ -168,9 +169,11 @@ const plugin: NetlifyPlugin = {
     const apiLambdas: APILambda[] = splitApiRoutes(featureFlags, publish)
       ? await getAPILambdas(publish, appDir, pageExtensions)
       : await getExtendedApiRouteConfigs(publish, appDir, pageExtensions).then((extendedRoutes) =>
-        extendedRoutes.map(packSingleFunction),
-      )
-    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, constants, featureFlags }) : []
+          extendedRoutes.map(packSingleFunction),
+        )
+    const ssrLambdas = bundleBasedOnNftFiles(featureFlags)
+      ? await getSSRLambdas({ publish, constants, featureFlags })
+      : []
     await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
     await generatePagesResolver(constants)
 
@@ -232,10 +235,11 @@ const plugin: NetlifyPlugin = {
     if (shouldSkip()) {
       status.show({
         title: 'Next Runtime did not run',
-        summary: `Next cache was stored, but all other functions were skipped because ${process.env.NETLIFY_NEXT_PLUGIN_SKIP
+        summary: `Next cache was stored, but all other functions were skipped because ${
+          process.env.NETLIFY_NEXT_PLUGIN_SKIP
             ? `NETLIFY_NEXT_PLUGIN_SKIP is set`
             : `NEXT_PLUGIN_FORCE_RUN is set to ${process.env.NEXT_PLUGIN_FORCE_RUN}`
-          }`,
+        }`,
       })
       return
     }

@@ -1,11 +1,15 @@
+import { cpus } from 'os'
+
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
-import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat } from 'fs-extra'
-import { PrerenderManifest } from 'next/dist/build'
+import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat, readFile } from 'fs-extra'
+import type { PrerenderManifest } from 'next/dist/build'
+import type { ResponseCacheValue } from 'next/dist/server/response-cache'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
+import pLimit from 'p-limit'
 import { join, relative, resolve, dirname, basename, extname } from 'pathe'
 import glob from 'tiny-glob'
 
@@ -365,51 +369,93 @@ const changeExtension = (file: string, extension: string) => {
   return join(dirname(file), base + extension)
 }
 
-const getPrerenderedBlobStoreContent = async (publish: string) => {
+const getPrerenderManifest = async (publish: string) => {
   const prerenderManifest: PrerenderManifest = await readJSON(join(publish, 'prerender-manifest.json'))
-  const keyValues = Object.entries(prerenderManifest.routes).flatMap(([route, ssgRoute]) => {
-    const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
-    const path = join(publish, 'server', routerTypeSubPath, ssgRoute.dataRoute.replace(/\..+?$/, '.html'))
 
-    return { route, path }
-  })
-
-  return keyValues
+  return prerenderManifest
 }
 
-const getPrerenderedContent = async (publish: string): Promise<string[]> => {
-  const prerenderManifest: PrerenderManifest = await readJSON(join(publish, 'prerender-manifest.json'))
+type CachedPageValue = Extract<ResponseCacheValue, { kind: 'PAGE' }> | { html: object | string }
+type PageCacheData = {
+  value: CachedPageValue
+  lastModified: number
+}
 
-  return [
-    ...Object.entries(prerenderManifest.routes).flatMap(([route, ssgRoute]) => {
-      if (ssgRoute.initialRevalidateSeconds === false) {
-        return []
+const getPrerenderedBlobStoreContent = async (
+  prerenderManifest: PrerenderManifest,
+  publish: string,
+): Promise<Array<{ key: string; data: PageCacheData }>> => {
+  const limit = pLimit(Math.max(2, cpus().length))
+
+  const readFilePromises = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
+    limit(async () => {
+      const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
+      const dataFilePath = join(publish, 'server', routerTypeSubPath, ssgRoute.dataRoute)
+      const pageData =
+        routerTypeSubPath === 'app'
+          ? await readFile(dataFilePath, 'utf8')
+          : JSON.parse(await readFile(join(publish, 'server', routerTypeSubPath, `${route}.json`), 'utf8'))
+
+      const htmlFilePath = join(publish, 'server', routerTypeSubPath, `${route}.html`)
+      const html = await readFile(htmlFilePath, 'utf8')
+
+      return {
+        key: route,
+        data: {
+          value: {
+            kind: 'PAGE' as const,
+            html,
+            pageData,
+          },
+          lastModified: Date.now(),
+        },
       }
-
-      if (ssgRoute.dataRoute.endsWith('.rsc')) {
-        return [
-          join(publish, 'server', 'app', ssgRoute.dataRoute),
-          join(publish, 'server', 'app', changeExtension(ssgRoute.dataRoute, '.html')),
-        ]
-      }
-
-      const trimmedPath = route === '/' ? 'index' : route.slice(1)
-      return [
-        join(publish, 'server', 'pages', `${trimmedPath}.html`),
-        join(publish, 'server', 'pages', `${trimmedPath}.json`),
-      ]
     }),
-    join(publish, '**', '*.html'),
-    join(publish, 'static-manifest.json'),
-  ]
+  )
+
+  const prerenderedContent = await Promise.all(readFilePromises)
+  return prerenderedContent
 }
+
+const getPrerenderedContent = (prerenderManifest: PrerenderManifest, publish: string): string[] => [
+  ...Object.entries(prerenderManifest.routes).flatMap(([route, ssgRoute]) => {
+    if (ssgRoute.initialRevalidateSeconds === false) {
+      return []
+    }
+
+    if (ssgRoute.dataRoute.endsWith('.rsc')) {
+      return [
+        join(publish, 'server', 'app', ssgRoute.dataRoute),
+        join(publish, 'server', 'app', changeExtension(ssgRoute.dataRoute, '.html')),
+      ]
+    }
+
+    const trimmedPath = route === '/' ? 'index' : route.slice(1)
+    return [
+      join(publish, 'server', 'pages', `${trimmedPath}.html`),
+      join(publish, 'server', 'pages', `${trimmedPath}.json`),
+    ]
+  }),
+  join(publish, '**', '*.html'),
+  join(publish, 'static-manifest.json'),
+]
 
 type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
   NETLIFY_API_HOST?: string
   NETLIFY_API_TOKEN?: string
 }
 
-export const getSSRLambdas = async ({ publish, constants, featureFlags }: { publish: string, constants: EnhancedNetlifyPluginConstants, featureFlags: Record<string, unknown> }): Promise<SSRLambda[]> => {
+// TODO: get a build feature flag set up for blob storage
+export const getSSRLambdas = async ({
+  publish,
+  constants,
+  featureFlags,
+}: {
+  publish: string
+  constants: EnhancedNetlifyPluginConstants
+  featureFlags: Record<string, unknown>
+}): Promise<SSRLambda[]> => {
+  console.dir(featureFlags)
   const commonDependencies = await getCommonDependencies(publish)
   const ssrRoutes = await getSSRRoutes(publish)
 
@@ -418,10 +464,11 @@ export const getSSRLambdas = async ({ publish, constants, featureFlags }: { publ
   const odbRoutes = ssrRoutes
   const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
 
-  // This check could be improved
-  const isUsingBlobStorage = NETLIFY_API_TOKEN !== undefined;
+  // This check could be improved via featureFlags exposed in the build for blob storage
+  const isUsingBlobStorage = NETLIFY_API_TOKEN !== undefined
 
-  let prerenderedContent: Awaited<ReturnType<typeof getPrerenderedContent>>;
+  const prerenderManifest = await getPrerenderManifest(publish)
+  let prerenderedContent: Awaited<ReturnType<typeof getPrerenderedContent>>
 
   if (isUsingBlobStorage) {
     const netliBlob = await getBlobStorage({
@@ -431,11 +478,25 @@ export const getSSRLambdas = async ({ publish, constants, featureFlags }: { publ
       deployId: process.env.DEPLOY_ID,
     })
 
-    const prerenderedContentForBlobStorage = await getPrerenderedBlobStoreContent(publish)
-    const prerenderedCache = prerenderedContentForBlobStorage.map(({ route, path }) => ({ key: route, path }))
-    // TODO store in Netliblob
+    const prerenderedContentForBlobStorage = await getPrerenderedBlobStoreContent(prerenderManifest, publish)
+
+    try {
+      for (const { key, data } of prerenderedContentForBlobStorage) {
+        // TODO: Shouldn't have to encode the key. This is a bug in the blob storage library potentially.
+        await netliBlob.set(encodeURIComponent(key), JSON.stringify(data))
+      }
+    } catch (error) {
+      console.error('Unable to store prerendered content in blob storage')
+      throw error
+    }
+
+    const blobData = await netliBlob.get('/blog/nick/first-post')
+    console.dir(blobData)
+
+    const blobData2 = await netliBlob.get(decodeURIComponent('/blog/nick/first-post'))
+    console.dir(blobData2)
   } else {
-    prerenderedContent = await getPrerenderedContent(publish)
+    prerenderedContent = getPrerenderedContent(prerenderManifest, publish)
   }
 
   return [
