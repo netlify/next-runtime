@@ -483,7 +483,6 @@ export const getSSRLambdas = async ({
 
     try {
       for (const { key, data } of prerenderedContentForBlobStorage) {
-        // TODO: Shouldn't have to encode the key. This is a bug in the blob storage library potentially.
         await netliBlob.set(key, JSON.stringify(data))
       }
     } catch (error) {
