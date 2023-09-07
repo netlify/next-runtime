@@ -481,8 +481,11 @@ export const getSSRLambdas = async ({
 
     const prerenderedContentForBlobStorage = await getPrerenderedBlobStoreContent(prerenderManifest, publish)
 
+    console.log('netliBlob', netliBlob)
+
     try {
       for (const { key, data } of prerenderedContentForBlobStorage) {
+        console.log('key/value', { key, data })
         await netliBlob.set(key, JSON.stringify(data))
       }
     } catch (error) {
