@@ -484,7 +484,7 @@ export const getSSRLambdas = async ({
     try {
       for (const { key, data } of prerenderedContentForBlobStorage) {
         // TODO: Shouldn't have to encode the key. This is a bug in the blob storage library potentially.
-        await netliBlob.set(encodeURIComponent(key), JSON.stringify(data))
+        await netliBlob.set(key, JSON.stringify(data))
       }
     } catch (error) {
       console.error('Unable to store prerendered content in blob storage')
@@ -493,9 +493,6 @@ export const getSSRLambdas = async ({
 
     const blobData = await netliBlob.get('/blog/nick/first-post')
     console.dir(blobData)
-
-    const blobData2 = await netliBlob.get(decodeURIComponent('/blog/nick/first-post'))
-    console.dir(blobData2)
   } else {
     // We only want prerendered content stored in the lambda if we aren't using blob srorage
     ssrDependencies = getPrerenderedContent(prerenderManifest, publish)
