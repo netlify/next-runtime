@@ -479,20 +479,17 @@ export const getSSRLambdas = async ({
       deployId: process.env.DEPLOY_ID,
     })
 
-    // const prerenderedContentForBlobStorage = await getPrerenderedBlobStoreContent(prerenderManifest, publish)
+    const prerenderedContentForBlobStorage = await getPrerenderedBlobStoreContent(prerenderManifest, publish)
 
-    console.log('netliBlob', netliBlob)
-    await netliBlob.set('/blog/nick/first-post', JSON.stringify({ html: 'hello world' }))
-
-    // try {
-    //   for (const { key, data } of prerenderedContentForBlobStorage) {
-    //     console.log('key/value', { key, data })
-    //     await netliBlob.set(key, JSON.stringify(data))
-    //   }
-    // } catch (error) {
-    //   console.error('Unable to store prerendered content in blob storage')
-    //   throw error
-    // }
+    try {
+      for (const { key, data } of prerenderedContentForBlobStorage) {
+        // TODO: Removing starting slash for now to prevent HTTP 405 error with blob storage endpoint
+        await netliBlob.set(key.slice(1), JSON.stringify(data))
+      }
+    } catch (error) {
+      console.error('Unable to store prerendered content in blob storage')
+      throw error
+    }
 
     const blobData = await netliBlob.get('/blog/nick/first-post')
     console.dir(blobData)
