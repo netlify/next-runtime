@@ -469,13 +469,14 @@ type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
 export const getSSRLambdas = async ({
   publish,
   constants,
+  // TODO: Remove this eslint exception once the blob storage feature flag is in place
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   featureFlags,
 }: {
   publish: string
   constants: EnhancedNetlifyPluginConstants
   featureFlags: Record<string, unknown>
 }): Promise<SSRLambda[]> => {
-  console.dir(featureFlags)
   const commonDependencies = await getCommonDependencies(publish)
   const ssrRoutes = await getSSRRoutes(publish)
 
