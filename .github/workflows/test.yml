@@ -13,6 +13,7 @@ concurrency:
 
 env:
   NEXT_SPLIT_API_ROUTES: true
+  NEXT_CDN_CACHE_CONTROL: true
 
 jobs:
   build:
