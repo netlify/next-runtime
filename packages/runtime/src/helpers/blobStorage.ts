@@ -1,6 +1,6 @@
-import type { Blobs } from '@netlify/blobs/dist/src/main'
+// import type { Blobs } from '@netlify/blobs/dist/src/main'
 
-let blobs: Promise<Blobs>
+let blobs
 
 export const getBlobStorage = async ({
   apiHost,
@@ -12,7 +12,7 @@ export const getBlobStorage = async ({
   token: string
   siteID: string
   deployId: string
-}): Promise<Blobs> => {
+}) => {
   // eslint-disable-next-line no-new-func
   const blobFunction = new Function(`
     return import('@netlify/blobs')
