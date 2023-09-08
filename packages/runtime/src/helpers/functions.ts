@@ -6,7 +6,6 @@ import chalk from 'chalk'
 import destr from 'destr'
 import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat, readFile } from 'fs-extra'
 import type { PrerenderManifest } from 'next/dist/build'
-import type { ResponseCacheValue } from 'next/dist/server/response-cache'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
 import pLimit from 'p-limit'
@@ -37,6 +36,8 @@ import { writeFunctionConfiguration } from './functionsMetaData'
 import { pack } from './pack'
 import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
+
+type Blobs = Awaited<ReturnType<typeof getBlobStorage>>
 
 export interface RouteConfig {
   functionName: string
@@ -375,19 +376,27 @@ const getPrerenderManifest = async (publish: string) => {
   return prerenderManifest
 }
 
-type CachedPageValue = Extract<ResponseCacheValue, { kind: 'PAGE' }> | { html: object | string }
-type PageCacheData = {
-  value: CachedPageValue
-  lastModified: number
-}
-
-const getPrerenderedBlobStoreContent = async (
-  prerenderManifest: PrerenderManifest,
-  publish: string,
-): Promise<Array<{ key: string; data: PageCacheData }>> => {
+/**
+ * Warms up the cache with prerendered content
+ *
+ * @param options
+ * @param options.netliBlob - the blob storage instance
+ * @param options.prerenderManifest - the prerender manifest
+ * @param options.publish - the publish directory
+ *
+ */
+const setPrerenderedBlobStoreContent = async ({
+  netliBlob,
+  prerenderManifest,
+  publish,
+}: {
+  netliBlob: Blobs
+  prerenderManifest: PrerenderManifest
+  publish: string
+}): Promise<void> => {
   const limit = pLimit(Math.max(2, cpus().length))
 
-  const readFilePromises = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
+  const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
     limit(async () => {
       const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
       const dataFilePath = join(publish, 'server', routerTypeSubPath, ssgRoute.dataRoute)
@@ -398,23 +407,22 @@ const getPrerenderedBlobStoreContent = async (
 
       const htmlFilePath = join(publish, 'server', routerTypeSubPath, `${route}.html`)
       const html = await readFile(htmlFilePath, 'utf8')
-
-      return {
-        key: route,
-        data: {
-          value: {
-            kind: 'PAGE' as const,
-            html,
-            pageData,
-          },
-          lastModified: Date.now(),
+      const data = {
+        value: {
+          kind: 'PAGE' as const,
+          html,
+          pageData,
         },
+        lastModified: Date.now(),
       }
+
+      // TODO: remove this log statement
+      console.log(`adding ${route} to blob storage`, data)
+      return netliBlob.setJSON(route.slice(1), data)
     }),
   )
 
-  const prerenderedContent = await Promise.all(readFilePromises)
-  return prerenderedContent
+  await Promise.all(blobCalls)
 }
 
 const getPrerenderedContent = (prerenderManifest: PrerenderManifest, publish: string): string[] => [
@@ -479,20 +487,13 @@ export const getSSRLambdas = async ({
       deployId: process.env.DEPLOY_ID,
     })
 
-    const prerenderedContentForBlobStorage = await getPrerenderedBlobStoreContent(prerenderManifest, publish)
-
     try {
-      for (const { key, data } of prerenderedContentForBlobStorage) {
-        // TODO: Removing starting slash for now to prevent HTTP 405 error with blob storage endpoint
-        await netliBlob.setJSON(key.slice(1), data)
-      }
+      await setPrerenderedBlobStoreContent({ netliBlob, prerenderManifest, publish })
     } catch (error) {
-      console.error('Unable to store prerendered content in blob storage')
+      console.error('Unable to store prerendered content in blob storage', error)
+
       throw error
     }
-
-    const blobData = await netliBlob.get('/blog/nick/first-post')
-    console.dir(blobData)
   } else {
     // We only want prerendered content stored in the lambda if we aren't using blob srorage
     ssrDependencies = getPrerenderedContent(prerenderManifest, publish)
