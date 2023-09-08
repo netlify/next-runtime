@@ -61,7 +61,7 @@ export const getNextConfig = async function getNextConfig({
       ...config,
       experimental: {
         ...config.experimental,
-        incrementalCacheHandlerPath: './incremental-cache.js'
+        incrementalCacheHandlerPath: join(publish, 'incremental-cache.js')
       }
     }
   })
