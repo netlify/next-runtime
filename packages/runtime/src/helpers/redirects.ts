@@ -212,46 +212,43 @@ export const generateDynamicRewrites = ({
   const dynamicRewrites: NetlifyConfig['redirects'] = []
   const dynamicRoutesThatMatchMiddleware: Array<string> = []
 
-  const dynamicR = () => {
-    dynamicRoutes.forEach((route) => {
-      if (isApiRoute(route.page) || is404Route(route.page, i18n)) {
-        return
-      }
-      if (route.page in prerenderedDynamicRoutes) {
-        if (matchesMiddleware(middleware, route.page)) {
-          dynamicRoutesThatMatchMiddleware.push(route.page)
-        } else if (isAppDirRoute(route.page, appPathRoutes)) {
-          dynamicRewrites.push(
-            ...redirectsForNextRoute({
-              route: route.page,
-              buildId,
-              basePath,
-              to: ODB_FUNCTION_PATH,
-              i18n,
-              dataRoute: prerenderedDynamicRoutes[route.page].dataRoute,
-              withData: true,
-            }),
-          )
-        } else if (
-          prerenderedDynamicRoutes[route.page].fallback === false &&
-          !is404Isr &&
-          !destr(process.env.LEGACY_FALLBACK_FALSE)
-        ) {
-          dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
-        } else {
-          dynamicRewrites.push(
-            ...redirectsForNextRoute({ route: route.page, buildId, basePath, to: ODB_FUNCTION_PATH, i18n }),
-          )
-        }
-      } else {
-        // If the route isn't prerendered, it's SSR
+  dynamicRoutes.forEach((route) => {
+    if (isApiRoute(route.page) || is404Route(route.page, i18n)) {
+      return
+    }
+    if (route.page in prerenderedDynamicRoutes) {
+      if (matchesMiddleware(middleware, route.page)) {
+        dynamicRoutesThatMatchMiddleware.push(route.page)
+      } else if (isAppDirRoute(route.page, appPathRoutes)) {
         dynamicRewrites.push(
-          ...redirectsForNextRoute({ route: route.page, buildId, basePath, to: HANDLER_FUNCTION_PATH, i18n }),
+          ...redirectsForNextRoute({
+            route: route.page,
+            buildId,
+            basePath,
+            to: ODB_FUNCTION_PATH,
+            i18n,
+            dataRoute: prerenderedDynamicRoutes[route.page].dataRoute,
+            withData: true,
+          }),
+        )
+      } else if (
+        prerenderedDynamicRoutes[route.page].fallback === false &&
+        !is404Isr &&
+        !destr(process.env.LEGACY_FALLBACK_FALSE)
+      ) {
+        dynamicRewrites.push(...redirectsForNext404Route({ route: route.page, buildId, basePath, i18n }))
+      } else {
+        dynamicRewrites.push(
+          ...redirectsForNextRoute({ route: route.page, buildId, basePath, to: ODB_FUNCTION_PATH, i18n }),
         )
       }
-    })
-  }
-  dynamicR()
+    } else {
+      // If the route isn't prerendered, it's SSR
+      dynamicRewrites.push(
+        ...redirectsForNextRoute({ route: route.page, buildId, basePath, to: HANDLER_FUNCTION_PATH, i18n }),
+      )
+    }
+  })
   return {
     dynamicRoutesThatMatchMiddleware,
     dynamicRewrites,
