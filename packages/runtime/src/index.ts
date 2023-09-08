@@ -6,7 +6,7 @@ import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
+import { HANDLER_FUNCTION_NAME } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
 import {
   getNextConfig,
@@ -254,7 +254,7 @@ const plugin: NetlifyPlugin = {
     }
 
     await checkForOldFunctions({ functions })
-    await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
+    await checkZipSize(join(FUNCTIONS_DIST, `${HANDLER_FUNCTION_NAME}.zip`))
     const nextConfig = await getNextConfig({ publish, failBuild })
 
     const { basePath, appDir, experimental } = nextConfig

@@ -84,9 +84,7 @@ beforeEach(async () => {
 
   netlifyConfig.redirects = []
   netlifyConfig.headers = []
-  for (const func of Object.values(netlifyConfig.functions)) {
-    func.included_files = []
-  }
+  netlifyConfig.functions = {} as NetlifyPluginOptions['netlifyConfig']['functions']
   await useFixture('serverless_next_config')
 })
 
@@ -351,33 +349,321 @@ describe('onBuild()', () => {
     expect(failBuild).toHaveBeenCalled()
   })
 
-  it('copy handlers to the internal functions directory', async () => {
-    await moveNextDist()
+  const excludesSharp = (includedFiles) => includedFiles.some((file) => file.startsWith('!') && file.includes('sharp'))
 
-    await nextRuntime.onBuild(defaultArgs)
+  describe(`NEXT_CDN_CACHE_CONTROL not enabled`, () => {
+    beforeAll(() => {
+      process.env.NEXT_CDN_CACHE_CONTROL = `false`
+    })
 
-    expect(existsSync(`.netlify/functions-internal/___netlify-handler/___netlify-handler.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/functions-internal/___netlify-handler/bridge.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/functions-internal/___netlify-handler/handlerUtils.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/___netlify-odb-handler.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/bridge.js`)).toBeTruthy()
-    expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
+    it('copy handlers to the internal functions directory', async () => {
+      await moveNextDist()
+
+      await nextRuntime.onBuild(defaultArgs)
+
+      expect(existsSync(`.netlify/functions-internal/___netlify-handler/___netlify-handler.js`)).toBeTruthy()
+      expect(existsSync(`.netlify/functions-internal/___netlify-handler/bridge.js`)).toBeTruthy()
+      expect(existsSync(`.netlify/functions-internal/___netlify-handler/handlerUtils.js`)).toBeTruthy()
+      expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/___netlify-odb-handler.js`)).toBeTruthy()
+      expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/bridge.js`)).toBeTruthy()
+      expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeTruthy()
+    })
+
+    it('when splitting API routes is disabled, it writes correct redirects to netlifyConfig', async () => {
+      const oldProcessEnv = { ...process.env }
+      process.env.NEXT_SPLIT_API_ROUTES = 'false'
+
+      await moveNextDist()
+
+      await nextRuntime.onBuild(defaultArgs)
+      // Not ideal, because it doesn't test precedence, but unfortunately the exact order seems to
+      // be non-deterministic, as it depends on filesystem globbing across platforms.
+      const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
+
+      expect(sorted).toMatchSnapshot()
+
+      process.env = oldProcessEnv
+    })
+
+    it('sets correct config', async () => {
+      await moveNextDist()
+
+      await nextRuntime.onBuild(defaultArgs)
+      const includes = [
+        '.env',
+        '.env.local',
+        '.env.production',
+        '.env.production.local',
+        './public/locales/**',
+        './next-i18next.config.js',
+        '.next/server/**',
+        '.next/serverless/**',
+        '.next/*.json',
+        '.next/BUILD_ID',
+        '.next/static/chunks/webpack-middleware*.js',
+        '!.next/server/**/*.js.nft.json',
+        '!.next/server/**/*.map',
+        '!**/node_modules/@next/swc*/**/*',
+        '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
+        `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
+        `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
+        '!node_modules/next/dist/compiled/webpack/bundle4.js',
+        '!node_modules/next/dist/compiled/webpack/bundle5.js',
+        '!node_modules/sharp/**/*',
+      ]
+      // Relative paths in Windows are different
+      if (os.platform() !== 'win32') {
+        expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files).toEqual(includes)
+        expect(netlifyConfig.functions[ODB_FUNCTION_NAME].included_files).toEqual(includes)
+      }
+      expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toEqual('nft')
+      expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toEqual('nft')
+    })
+
+    it("doesn't exclude sharp if manually included", async () => {
+      await moveNextDist()
+
+      const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME]
+
+      await nextRuntime.onBuild(defaultArgs)
+
+      // Should exclude by default
+      for (const func of functions) {
+        expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeTruthy()
+      }
+
+      // ...but if the user has added it, we shouldn't exclude it
+      for (const func of functions) {
+        netlifyConfig.functions[func].included_files = ['node_modules/sharp/**/*']
+      }
+
+      await nextRuntime.onBuild(defaultArgs)
+
+      for (const func of functions) {
+        expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+      }
+
+      // ...even if it's in a subdirectory
+      for (const func of functions) {
+        netlifyConfig.functions[func].included_files = ['subdirectory/node_modules/sharp/**/*']
+      }
+
+      await nextRuntime.onBuild(defaultArgs)
+
+      for (const func of functions) {
+        expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+      }
+    })
+
+    it('generates a file referencing all page sources', async () => {
+      await moveNextDist()
+      await nextRuntime.onBuild(defaultArgs)
+      const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
+      const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
+      expect(existsSync(handlerPagesFile)).toBeTruthy()
+      expect(existsSync(odbHandlerPagesFile)).toBeTruthy()
+
+      expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
+      expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
+    })
+
+    it('generates a file referencing all when publish dir is a subdirectory', async () => {
+      const dir = 'web/.next'
+      await moveNextDist(dir)
+
+      netlifyConfig.build.publish = path.resolve(dir)
+      const config = {
+        ...defaultArgs,
+        netlifyConfig,
+        constants: { ...constants, PUBLISH_DIR: dir },
+      }
+      await nextRuntime.onBuild(config)
+      const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
+      const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
+
+      expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
+      expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
+    })
+
+    it('generates entrypoints with correct references', async () => {
+      await moveNextDist()
+      await nextRuntime.onBuild(defaultArgs)
+
+      const handlerFile = path.join(
+        constants.INTERNAL_FUNCTIONS_SRC,
+        HANDLER_FUNCTION_NAME,
+        `${HANDLER_FUNCTION_NAME}.js`,
+      )
+      const odbHandlerFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, `${ODB_FUNCTION_NAME}.js`)
+      expect(existsSync(handlerFile)).toBeTruthy()
+      expect(existsSync(odbHandlerFile)).toBeTruthy()
+
+      expect(readFileSync(handlerFile, 'utf8')).toMatch(
+        `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'ssr', useCDNCacheControl: false })`,
+      )
+      expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(
+        `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'odb', useCDNCacheControl: false })`,
+      )
+      expect(readFileSync(handlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
+      expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
+    })
   })
 
-  it('when splitting API routes is disabled, it writes correct redirects to netlifyConfig', async () => {
-    const oldProcessEnv = { ...process.env }
-    process.env.NEXT_SPLIT_API_ROUTES = 'false'
+  describe(`NEXT_CDN_CACHE_CONTROL enabled`, () => {
+    beforeAll(() => {
+      process.env.NEXT_CDN_CACHE_CONTROL = `true`
+    })
+    afterAll(() => {
+      process.env.NEXT_CDN_CACHE_CONTROL = `false`
+    })
 
-    await moveNextDist()
+    it('copy handlers to the internal functions directory', async () => {
+      await moveNextDist()
 
-    await nextRuntime.onBuild(defaultArgs)
-    // Not ideal, because it doesn't test precedence, but unfortunately the exact order seems to
-    // be non-deterministic, as it depends on filesystem globbing across platforms.
-    const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
+      await nextRuntime.onBuild(defaultArgs)
 
-    expect(sorted).toMatchSnapshot()
+      expect(existsSync(`.netlify/functions-internal/___netlify-handler/___netlify-handler.js`)).toBeTruthy()
+      expect(existsSync(`.netlify/functions-internal/___netlify-handler/bridge.js`)).toBeTruthy()
+      expect(existsSync(`.netlify/functions-internal/___netlify-handler/handlerUtils.js`)).toBeTruthy()
+      expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/___netlify-odb-handler.js`)).toBeFalsy()
+      expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/bridge.js`)).toBeFalsy()
+      expect(existsSync(`.netlify/functions-internal/___netlify-odb-handler/handlerUtils.js`)).toBeFalsy()
+    })
 
-    process.env = oldProcessEnv
+    it('when splitting API routes is disabled, it writes correct redirects to netlifyConfig', async () => {
+      const oldProcessEnv = { ...process.env }
+      process.env.NEXT_SPLIT_API_ROUTES = 'false'
+
+      await moveNextDist()
+
+      await nextRuntime.onBuild(defaultArgs)
+      // Not ideal, because it doesn't test precedence, but unfortunately the exact order seems to
+      // be non-deterministic, as it depends on filesystem globbing across platforms.
+      const sorted = [...netlifyConfig.redirects].sort((a, b) => a.from.localeCompare(b.from))
+
+      expect(sorted).toMatchSnapshot()
+
+      process.env = oldProcessEnv
+    })
+
+    it('sets correct config', async () => {
+      await moveNextDist()
+      console.log({ funcList: defaultArgs.netlifyConfig.functions })
+      await nextRuntime.onBuild(defaultArgs)
+      const includes = [
+        '.env',
+        '.env.local',
+        '.env.production',
+        '.env.production.local',
+        './public/locales/**',
+        './next-i18next.config.js',
+        '.next/server/**',
+        '.next/serverless/**',
+        '.next/*.json',
+        '.next/BUILD_ID',
+        '.next/static/chunks/webpack-middleware*.js',
+        '!.next/server/**/*.js.nft.json',
+        '!.next/server/**/*.map',
+        '!**/node_modules/@next/swc*/**/*',
+        '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
+        `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
+        `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
+        '!node_modules/next/dist/compiled/webpack/bundle4.js',
+        '!node_modules/next/dist/compiled/webpack/bundle5.js',
+        '!node_modules/sharp/**/*',
+      ]
+
+      expect(netlifyConfig.functions[ODB_FUNCTION_NAME]).not.toBeDefined()
+
+      // Relative paths in Windows are different
+      if (os.platform() !== 'win32') {
+        expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files).toEqual(includes)
+      }
+      expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toEqual('nft')
+    })
+
+    it("doesn't exclude sharp if manually included", async () => {
+      await moveNextDist()
+
+      const functions = [HANDLER_FUNCTION_NAME]
+
+      await nextRuntime.onBuild(defaultArgs)
+
+      // Should exclude by default
+      for (const func of functions) {
+        expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeTruthy()
+      }
+
+      // ...but if the user has added it, we shouldn't exclude it
+      for (const func of functions) {
+        netlifyConfig.functions[func].included_files = ['node_modules/sharp/**/*']
+      }
+
+      await nextRuntime.onBuild(defaultArgs)
+
+      for (const func of functions) {
+        expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+      }
+
+      // ...even if it's in a subdirectory
+      for (const func of functions) {
+        netlifyConfig.functions[func].included_files = ['subdirectory/node_modules/sharp/**/*']
+      }
+
+      await nextRuntime.onBuild(defaultArgs)
+
+      for (const func of functions) {
+        expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
+      }
+    })
+
+    it('generates a file referencing all page sources', async () => {
+      await moveNextDist()
+      await nextRuntime.onBuild(defaultArgs)
+      const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
+      const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
+      expect(existsSync(handlerPagesFile)).toBeTruthy()
+      expect(existsSync(odbHandlerPagesFile)).toBeFalsy()
+
+      expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
+    })
+
+    it('generates a file referencing all when publish dir is a subdirectory', async () => {
+      const dir = 'web/.next'
+      await moveNextDist(dir)
+
+      netlifyConfig.build.publish = path.resolve(dir)
+      const config = {
+        ...defaultArgs,
+        netlifyConfig,
+        constants: { ...constants, PUBLISH_DIR: dir },
+      }
+      await nextRuntime.onBuild(config)
+      const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
+      const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
+
+      expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
+    })
+
+    it('generates entrypoints with correct references', async () => {
+      await moveNextDist()
+      await nextRuntime.onBuild(defaultArgs)
+
+      const handlerFile = path.join(
+        constants.INTERNAL_FUNCTIONS_SRC,
+        HANDLER_FUNCTION_NAME,
+        `${HANDLER_FUNCTION_NAME}.js`,
+      )
+      const odbHandlerFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, `${ODB_FUNCTION_NAME}.js`)
+      expect(existsSync(handlerFile)).toBeTruthy()
+      expect(existsSync(odbHandlerFile)).toBeFalsy()
+
+      expect(readFileSync(handlerFile, 'utf8')).toMatch(
+        `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'ssr', useCDNCacheControl: true })`,
+      )
+
+      expect(readFileSync(handlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
+    })
   })
 
   it('publish dir is/has next dist', async () => {
@@ -431,78 +717,6 @@ describe('onBuild()', () => {
     expect(existsSync(path.resolve(path.join('.next', 'server', 'pages', 'en', 'middle.html')))).toBeTruthy()
   })
 
-  it('sets correct config', async () => {
-    await moveNextDist()
-
-    await nextRuntime.onBuild(defaultArgs)
-    const includes = [
-      '.env',
-      '.env.local',
-      '.env.production',
-      '.env.production.local',
-      './public/locales/**',
-      './next-i18next.config.js',
-      '.next/server/**',
-      '.next/serverless/**',
-      '.next/*.json',
-      '.next/BUILD_ID',
-      '.next/static/chunks/webpack-middleware*.js',
-      '!.next/server/**/*.js.nft.json',
-      '!.next/server/**/*.map',
-      '!**/node_modules/@next/swc*/**/*',
-      '!../../node_modules/next/dist/compiled/@ampproject/toolbox-optimizer/**/*',
-      `!node_modules/next/dist/server/lib/squoosh/**/*.wasm`,
-      `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
-      '!node_modules/next/dist/compiled/webpack/bundle4.js',
-      '!node_modules/next/dist/compiled/webpack/bundle5.js',
-      '!node_modules/sharp/**/*',
-    ]
-    // Relative paths in Windows are different
-    if (os.platform() !== 'win32') {
-      expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].included_files).toEqual(includes)
-      expect(netlifyConfig.functions[ODB_FUNCTION_NAME].included_files).toEqual(includes)
-    }
-    expect(netlifyConfig.functions[HANDLER_FUNCTION_NAME].node_bundler).toEqual('nft')
-    expect(netlifyConfig.functions[ODB_FUNCTION_NAME].node_bundler).toEqual('nft')
-  })
-
-  const excludesSharp = (includedFiles) => includedFiles.some((file) => file.startsWith('!') && file.includes('sharp'))
-
-  it("doesn't exclude sharp if manually included", async () => {
-    await moveNextDist()
-
-    const functions = [HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME]
-
-    await nextRuntime.onBuild(defaultArgs)
-
-    // Should exclude by default
-    for (const func of functions) {
-      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeTruthy()
-    }
-
-    // ...but if the user has added it, we shouldn't exclude it
-    for (const func of functions) {
-      netlifyConfig.functions[func].included_files = ['node_modules/sharp/**/*']
-    }
-
-    await nextRuntime.onBuild(defaultArgs)
-
-    for (const func of functions) {
-      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
-    }
-
-    // ...even if it's in a subdirectory
-    for (const func of functions) {
-      netlifyConfig.functions[func].included_files = ['subdirectory/node_modules/sharp/**/*']
-    }
-
-    await nextRuntime.onBuild(defaultArgs)
-
-    for (const func of functions) {
-      expect(excludesSharp(netlifyConfig.functions[func].included_files)).toBeFalsy()
-    }
-  })
-
   it('generates a file referencing all API route sources', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -512,59 +726,6 @@ describe('onBuild()', () => {
       expect(existsSync(expected)).toBeTruthy()
       expect(normalizeChunkNames(readFileSync(expected, 'utf8'))).toMatchSnapshot(`for ${route}`)
     }
-  })
-
-  it('generates a file referencing all page sources', async () => {
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-    const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
-    const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
-    expect(existsSync(handlerPagesFile)).toBeTruthy()
-    expect(existsSync(odbHandlerPagesFile)).toBeTruthy()
-
-    expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
-    expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
-  })
-
-  it('generates a file referencing all when publish dir is a subdirectory', async () => {
-    const dir = 'web/.next'
-    await moveNextDist(dir)
-
-    netlifyConfig.build.publish = path.resolve(dir)
-    const config = {
-      ...defaultArgs,
-      netlifyConfig,
-      constants: { ...constants, PUBLISH_DIR: dir },
-    }
-    await nextRuntime.onBuild(config)
-    const handlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, HANDLER_FUNCTION_NAME, 'pages.js')
-    const odbHandlerPagesFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, 'pages.js')
-
-    expect(normalizeChunkNames(readFileSync(handlerPagesFile, 'utf8'))).toMatchSnapshot()
-    expect(normalizeChunkNames(readFileSync(odbHandlerPagesFile, 'utf8'))).toMatchSnapshot()
-  })
-
-  it('generates entrypoints with correct references', async () => {
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-
-    const handlerFile = path.join(
-      constants.INTERNAL_FUNCTIONS_SRC,
-      HANDLER_FUNCTION_NAME,
-      `${HANDLER_FUNCTION_NAME}.js`,
-    )
-    const odbHandlerFile = path.join(constants.INTERNAL_FUNCTIONS_SRC, ODB_FUNCTION_NAME, `${ODB_FUNCTION_NAME}.js`)
-    expect(existsSync(handlerFile)).toBeTruthy()
-    expect(existsSync(odbHandlerFile)).toBeTruthy()
-
-    expect(readFileSync(handlerFile, 'utf8')).toMatch(
-      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'ssr', useCDNCacheControl: false })`,
-    )
-    expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(
-      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'odb', useCDNCacheControl: false })`,
-    )
-    expect(readFileSync(handlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
-    expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
   })
 
   it('handles empty routesManifest.staticRoutes', async () => {
