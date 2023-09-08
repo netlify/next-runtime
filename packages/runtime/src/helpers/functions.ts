@@ -416,6 +416,9 @@ const setPrerenderedBlobStoreContent = async ({
         lastModified: Date.now(),
       }
 
+      // We need to remove the leading slash from the route so that the call to the blob storage
+      // does not generate a 405 error.
+      // It's currently under consideration to support this in the blob storage API.
       return netliBlob.setJSON(route.slice(1), data)
     }),
   )
