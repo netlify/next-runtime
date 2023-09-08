@@ -31,24 +31,18 @@ const generateLocaleRedirects = ({
   i18n,
   basePath,
   trailingSlash,
-  useCDNCacheControl,
-}: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash'> & {
-  useCDNCacheControl: boolean
-}): NetlifyConfig['redirects'] => {
+}: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash'>): NetlifyConfig['redirects'] => {
   const redirects: NetlifyConfig['redirects'] = []
-
-  if (!useCDNCacheControl) {
-    // If the cookie is set, we need to redirect at the origin
-    redirects.push({
-      from: `${basePath}/`,
-      to: HANDLER_FUNCTION_PATH,
-      status: 200,
-      force: true,
-      conditions: {
-        Cookie: ['NEXT_LOCALE'],
-      },
-    })
-  }
+  // If the cookie is set, we need to redirect at the origin
+  redirects.push({
+    from: `${basePath}/`,
+    to: HANDLER_FUNCTION_PATH,
+    status: 200,
+    force: true,
+    conditions: {
+      Cookie: ['NEXT_LOCALE'],
+    },
+  })
   i18n.locales.forEach((locale) => {
     if (locale === i18n.defaultLocale) {
       return
@@ -292,19 +286,16 @@ export const generateRedirects = async ({
   )
 
   if (i18n && i18n.localeDetection !== false) {
-    netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash, useCDNCacheControl }))
+    netlifyConfig.redirects.push(...generateLocaleRedirects({ i18n, basePath, trailingSlash }))
   }
 
   // This is only used in prod, so dev uses `next dev` directly
   netlifyConfig.redirects.push(
     // API routes always need to be served from the regular function
     ...getApiRewrites(basePath, apiLambdas),
-  )
-
-  if (!useCDNCacheControl) {
     // Preview mode gets forced to the function, to bypass pre-rendered pages, but static files need to be skipped
-    netlifyConfig.redirects.push(...(await getPreviewRewrites({ basePath, appDir })))
-  }
+    ...(await getPreviewRewrites({ basePath, appDir })),
+  )
 
   const middleware = await getMiddleware(netlifyConfig.build.publish)
 
