@@ -484,7 +484,7 @@ export const getSSRLambdas = async ({
     try {
       for (const { key, data } of prerenderedContentForBlobStorage) {
         // TODO: Removing starting slash for now to prevent HTTP 405 error with blob storage endpoint
-        await netliBlob.set(key.slice(1), JSON.stringify(data))
+        await netliBlob.setJSON(key.slice(1), data)
       }
     } catch (error) {
       console.error('Unable to store prerendered content in blob storage')
