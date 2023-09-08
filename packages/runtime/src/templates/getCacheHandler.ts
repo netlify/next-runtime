@@ -2,11 +2,11 @@ import { copyFile, writeFile } from 'fs-extra'
 import { outdent as javascript } from 'outdent'
 import { join } from 'path'
 
-export const generateCacheHandler = async (): Promise<void> => {
+export const generateCacheHandler = async (publish: string): Promise<void> => {
 
     const blobCache = getCacheHandler()
 
-    await writeFile(join('demos/default/.next', 'incremental-cache.js'), blobCache)
+    await writeFile(join(publish, 'incremental-cache.js'), blobCache)
     await copyFile(join(__dirname, '..', '..', 'lib', 'helpers', 'blobStorage.js'), join('.netlify', 'blobStorage.js'))
 }
 

@@ -165,7 +165,7 @@ const plugin: NetlifyPlugin = {
       }
     }
 
-    await generateCacheHandler()
+    await generateCacheHandler(publish)
 
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
