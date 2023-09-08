@@ -85,6 +85,19 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
       clientContext: { custom: customContext },
     } = context
 
+    globalThis.getBlobContext = {}
+    const rawData = Buffer.from(customContext.blobs, "base64");
+    const data = JSON.parse(rawData.toString("ascii")); 
+    
+    globalThis.getBlobContext = {
+      authentication: {
+        contextURL: data.url,
+        token: data.token,
+      },
+      context: `deploy:${event.headers["x-nf-deploy-id"]}`,
+      siteID: event.headers["x-nf-site-id"],
+    }
+
     if (bridge) {
       return bridge
     }

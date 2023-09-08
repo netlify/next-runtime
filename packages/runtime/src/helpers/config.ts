@@ -39,13 +39,32 @@ export const getNextConfig = async function getNextConfig({
   failBuild = defaultFailBuild,
 }): Promise<NextConfig> {
   try {
-    const { config, appDir, ignore }: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
+    const requiredServerFiles: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
+    const { config, appDir, ignore } = requiredServerFiles;
+
     if (!config) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       return failBuild('Error loading your Next config')
     }
 
+    if ('incrementalCacheHandlerPath' in config.experimental) {
+      console.warn(
+        "Your Next.js configuration has the experimental incrementalCacheHandlerPath option set. It will be overridden by Netlify's internal cache.",
+      )
+    }
+
+    // For more info, see https://nextjs.org/docs/app/api-reference/next-config-js/incrementalCacheHandlerPath
+    // ./cache-handler.js will be copied to the root or the .next build folder
+    
+    await writeJSON(join(publish, 'required-server-files.json'), { ...requiredServerFiles, config: {
+      ...config,
+      experimental: {
+        ...config.experimental,
+        incrementalCacheHandlerPath: './.netlify/incremental-cache.js'
+      }
+    }
+  })
     const routesManifest: RoutesManifest = await readJSON(join(publish, ROUTES_MANIFEST_FILE))
 
     // If you need access to other manifest files, you can add them here as well

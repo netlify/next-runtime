@@ -41,6 +41,7 @@ import {
   warnForProblematicUserRewrites,
   warnForRootRedirects,
 } from './helpers/verification'
+import { generateCacheHandler } from './templates/getCacheHandler'
 
 const plugin: NetlifyPlugin = {
   async onPreBuild({
@@ -164,6 +165,8 @@ const plugin: NetlifyPlugin = {
       }
     }
 
+    await generateCacheHandler()
+
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
     const apiLambdas: APILambda[] = splitApiRoutes(featureFlags, publish)
@@ -174,7 +177,6 @@ const plugin: NetlifyPlugin = {
     const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, constants }) : []
     await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
     await generatePagesResolver(constants)
-
     await configureHandlerFunctions({
       netlifyConfig,
       ignore,
