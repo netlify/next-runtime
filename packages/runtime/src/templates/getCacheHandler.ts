@@ -6,7 +6,7 @@ export const generateCacheHandler = async (): Promise<void> => {
 
     const blobCache = getCacheHandler()
 
-    await writeFile(join('.netlify', 'incremental-cache.js'), blobCache)
+    await writeFile(join('.next', 'incremental-cache.js'), blobCache)
     await copyFile(join(__dirname, '..', '..', 'lib', 'helpers', 'blobStorage.js'), join('.netlify', 'blobStorage.js'))
 }
 

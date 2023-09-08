@@ -61,7 +61,7 @@ export const getNextConfig = async function getNextConfig({
       ...config,
       experimental: {
         ...config.experimental,
-        incrementalCacheHandlerPath: './.netlify/incremental-cache.js'
+        incrementalCacheHandlerPath: './incremental-cache.js'
       }
     }
   })
