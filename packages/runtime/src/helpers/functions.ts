@@ -480,6 +480,7 @@ export const getSSRLambdas = async ({
   let ssrDependencies: Awaited<ReturnType<typeof getPrerenderedContent>>
 
   if (isUsingBlobStorage) {
+    ssrDependencies = []
     const netliBlob = await getBlobStorage({
       apiHost: NETLIFY_API_HOST,
       token: NETLIFY_API_TOKEN,
