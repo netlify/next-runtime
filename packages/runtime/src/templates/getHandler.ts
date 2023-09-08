@@ -5,7 +5,7 @@ import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
 
-import type { NextServerType } from './handlerUtils'
+import { type NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -40,6 +40,12 @@ type MakeHandlerParams = {
   staticManifest: Array<[string, string]>
   mode: 'ssr' | 'odb'
   useCDNCacheControl: boolean
+}
+
+export interface NetlifyVaryHeaderBuilder {
+  headers?: string[]
+  languages?: string[]
+  cookies?: string[]
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
@@ -126,6 +132,27 @@ const makeHandler = ({
     return bridge
   }
 
+  const generateNetlifyVaryHeaderValue = ({ headers, languages, cookies }: NetlifyVaryHeaderBuilder = {}): string => {
+    let NetlifyVaryHeader = ``
+    if (headers && headers.length !== 0) {
+      NetlifyVaryHeader += `header=${headers.join(`|`)}`
+    }
+    if (languages && languages.length !== 0) {
+      if (NetlifyVaryHeader.length !== 0) {
+        NetlifyVaryHeader += `,`
+      }
+      NetlifyVaryHeader += `language=${languages.join(`|`)}`
+    }
+    if (cookies && cookies.length !== 0) {
+      if (NetlifyVaryHeader.length !== 0) {
+        NetlifyVaryHeader += `,`
+      }
+      NetlifyVaryHeader += `cookie=${cookies.join(`|`)}`
+    }
+
+    return NetlifyVaryHeader
+  }
+
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     let requestMode: string = mode
     const prefetchResponse = getPrefetchResponse(event, mode)
@@ -176,16 +203,15 @@ const makeHandler = ({
         multiValueHeaders[`netlify-cdn-cache-control`] = [cacheControlHeader]
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
 
-        const varyHeaderFromNextJS = multiValueHeaders.vary?.[0] ?? ``
-
-        const netlifyVaryBuilder = {
-          header: [] as string[],
-          language: [] as string[],
-          cookie: ['__prerender_bypass', '__next_preview_data'] as string[],
+        const netlifyVaryBuilder: NetlifyVaryHeaderBuilder = {
+          headers: [],
+          languages: [],
+          cookies: ['__prerender_bypass', '__next_preview_data'],
         }
 
+        const varyHeaderFromNextJS = multiValueHeaders.vary?.[0] ?? ``
         if (varyHeaderFromNextJS.length !== 0) {
-          netlifyVaryBuilder.header.push(
+          netlifyVaryBuilder.headers.push(
             ...varyHeaderFromNextJS.split(`,`).map((untrimmedHeaderName) => untrimmedHeaderName.trim()),
           )
         }
@@ -195,28 +221,12 @@ const makeHandler = ({
             conf.basePath && event.path.startsWith(conf.basePath) ? event.path.slice(conf.basePath.length) : event.path
 
           if (logicalPath === `/`) {
-            netlifyVaryBuilder.language.push(...conf.i18n.locales)
-            netlifyVaryBuilder.cookie.push(`NEXT_LOCALE`)
+            netlifyVaryBuilder.languages.push(...conf.i18n.locales)
+            netlifyVaryBuilder.cookies.push(`NEXT_LOCALE`)
           }
         }
 
-        let NetlifyVaryHeader = ``
-        if (netlifyVaryBuilder.header.length !== 0) {
-          NetlifyVaryHeader += `header=${netlifyVaryBuilder.header.join(`|`)}`
-        }
-        if (netlifyVaryBuilder.language.length !== 0) {
-          if (NetlifyVaryHeader.length !== 0) {
-            NetlifyVaryHeader += `,`
-          }
-          NetlifyVaryHeader += `language=${netlifyVaryBuilder.language.join(`|`)}`
-        }
-        if (netlifyVaryBuilder.cookie.length !== 0) {
-          if (NetlifyVaryHeader.length !== 0) {
-            NetlifyVaryHeader += `,`
-          }
-          NetlifyVaryHeader += `cookie=${netlifyVaryBuilder.cookie.join(`|`)}`
-        }
-
+        const NetlifyVaryHeader = generateNetlifyVaryHeaderValue(netlifyVaryBuilder)
         if (NetlifyVaryHeader.length !== 0) {
           multiValueHeaders[`netlify-vary`] = [NetlifyVaryHeader]
         }
