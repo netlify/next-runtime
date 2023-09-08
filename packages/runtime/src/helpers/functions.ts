@@ -416,8 +416,6 @@ const setPrerenderedBlobStoreContent = async ({
         lastModified: Date.now(),
       }
 
-      // TODO: remove this log statement
-      console.log(`adding ${route} to blob storage`, data)
       return netliBlob.setJSON(route.slice(1), data)
     }),
   )
@@ -489,6 +487,7 @@ export const getSSRLambdas = async ({
     })
 
     try {
+      console.log('warming up the cache with prerendered content')
       await setPrerenderedBlobStoreContent({ netliBlob, prerenderManifest, publish })
     } catch (error) {
       console.error('Unable to store prerendered content in blob storage', error)
