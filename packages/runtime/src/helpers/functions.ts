@@ -394,12 +394,23 @@ const setPrerenderedBlobStoreContent = async ({
   prerenderManifest: PrerenderManifest
   publish: string
 }): Promise<void> => {
+  // *.rsc, *.json and *.html files can be found in the .next build artifacts folder,
+  //
+  // e.g. app router build artifacts from the default demo site
+  // demos/default/.next/server/app/blog/rob/second-post.html
+  // demos/default/.next/server/app/blog/rob/second-post.rsc
+  //
+  // e.g. pages router build artifacts from the default demo site
+  // demos/default/.next/server/pages/en/getStaticProps/1.html
+  // demos/default/.next/server/pages/en/getStaticProps/1.json
   const limit = pLimit(Math.max(2, cpus().length))
 
   const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
     limit(async () => {
       const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
       const dataFilePath = join(publish, 'server', routerTypeSubPath, ssgRoute.dataRoute)
+      // Page data for an app router page is an RSC serialized format, i.e. a string,
+      // or a JSON file for the pages router.
       const pageData =
         routerTypeSubPath === 'app'
           ? await readFile(dataFilePath, 'utf8')
