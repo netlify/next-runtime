@@ -41,7 +41,6 @@ import {
   warnForProblematicUserRewrites,
   warnForRootRedirects,
 } from './helpers/verification'
-import { generateCacheHandler } from './templates/getCacheHandler'
 
 const plugin: NetlifyPlugin = {
   async onPreBuild({
@@ -102,6 +101,7 @@ const plugin: NetlifyPlugin = {
     } = await getNextConfig({
       publish,
       failBuild,
+      INTERNAL_FUNCTIONS_SRC: constants.INTERNAL_FUNCTIONS_SRC,
     })
     await cleanupEdgeFunctions(constants)
 
@@ -165,8 +165,6 @@ const plugin: NetlifyPlugin = {
       }
     }
 
-    await generateCacheHandler(publish)
-
     const buildId = readFileSync(join(publish, 'BUILD_ID'), 'utf8').trim()
 
     const apiLambdas: APILambda[] = splitApiRoutes(featureFlags, publish)
@@ -228,7 +226,7 @@ const plugin: NetlifyPlugin = {
       functions,
       build: { failBuild },
     },
-    constants: { FUNCTIONS_DIST },
+    constants: { FUNCTIONS_DIST, INTERNAL_FUNCTIONS_SRC },
   }) {
     await saveCache({ cache, publish })
 
@@ -246,7 +244,7 @@ const plugin: NetlifyPlugin = {
 
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
-    const nextConfig = await getNextConfig({ publish, failBuild })
+    const nextConfig = await getNextConfig({ publish, failBuild, INTERNAL_FUNCTIONS_SRC })
 
     const { basePath, appDir, experimental } = nextConfig
 

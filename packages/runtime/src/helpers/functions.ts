@@ -25,6 +25,7 @@ import {
   LAMBDA_WARNING_SIZE,
 } from '../constants'
 import { getApiHandler } from '../templates/getApiHandler'
+import { generateCacheHandler } from '../templates/getCacheHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
@@ -174,6 +175,7 @@ export const generateFunctions = async (
 
   await writeHandler(HANDLER_FUNCTION_NAME, HANDLER_FUNCTION_TITLE, false)
   await writeHandler(ODB_FUNCTION_NAME, ODB_FUNCTION_TITLE, true)
+  await generateCacheHandler(functionsDir)
 }
 
 /**

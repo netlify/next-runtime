@@ -37,10 +37,11 @@ const defaultFailBuild = (message: string, { error }): never => {
 export const getNextConfig = async function getNextConfig({
   publish,
   failBuild = defaultFailBuild,
+  INTERNAL_FUNCTIONS_SRC,
 }): Promise<NextConfig> {
   try {
     const requiredServerFiles: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
-    const { config, appDir, ignore } = requiredServerFiles;
+    const { config, appDir, ignore } = requiredServerFiles
 
     if (!config) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -56,15 +57,17 @@ export const getNextConfig = async function getNextConfig({
 
     // For more info, see https://nextjs.org/docs/app/api-reference/next-config-js/incrementalCacheHandlerPath
     // ./cache-handler.js will be copied to the root or the .next build folder
-    
-    await writeJSON(join(publish, 'required-server-files.json'), { ...requiredServerFiles, config: {
-      ...config,
-      experimental: {
-        ...config.experimental,
-        incrementalCacheHandlerPath: join(publish, 'incremental-cache.js')
-      }
-    }
-  })
+
+    await writeJSON(join(publish, 'required-server-files.json'), {
+      ...requiredServerFiles,
+      config: {
+        ...config,
+        experimental: {
+          ...config.experimental,
+          incrementalCacheHandlerPath: join(INTERNAL_FUNCTIONS_SRC, '__incremental-cache', 'incremental-cache.js'),
+        },
+      },
+    })
     const routesManifest: RoutesManifest = await readJSON(join(publish, ROUTES_MANIFEST_FILE))
 
     // If you need access to other manifest files, you can add them here as well

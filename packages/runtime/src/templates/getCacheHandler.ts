@@ -1,19 +1,19 @@
-import { copyFile, writeFile } from 'fs-extra'
-import { outdent as javascript } from 'outdent'
 import { join } from 'path'
 
-export const generateCacheHandler = async (publish: string): Promise<void> => {
+import { copyFile, ensureDir, writeFile } from 'fs-extra'
+import { outdent as javascript } from 'outdent'
 
-    const blobCache = getCacheHandler()
+export const generateCacheHandler = async (functionsDir: string): Promise<void> => {
+  const blobCache = getCacheHandler()
+  await ensureDir(join(functionsDir, '__incremental-cache'))
 
-    await writeFile(join(publish, 'incremental-cache.js'), blobCache)
-    await copyFile(join(__dirname, '..', '..', 'lib', 'helpers', 'blobStorage.js'), join('.netlify', 'blobStorage.js'))
+  await writeFile(join(functionsDir, '__incremental-cache', 'incremental-cache.js'), blobCache)
+  await copyFile(join(__dirname, '..', '..', 'lib', 'helpers', 'blobStorage.js'), join('.netlify', 'blobStorage.js'))
 }
 
-
 const getCacheHandler = (): string =>
-    // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
-    javascript/* javascript */ `
+  // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
+  javascript/* javascript */ `
    
     const { getBlobStorage } = require('./blobStorage')
     const { auth } = require('./handlerUtils')
