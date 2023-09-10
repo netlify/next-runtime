@@ -8,7 +8,10 @@ export const generateCacheHandler = async (functionsDir: string): Promise<void> 
   await ensureDir(join(functionsDir, '__incremental-cache'))
 
   await writeFile(join(functionsDir, '__incremental-cache', 'incremental-cache.js'), blobCache)
-  await copyFile(join(__dirname, '..', '..', 'lib', 'helpers', 'blobStorage.js'), join('.netlify', 'blobStorage.js'))
+  await copyFile(
+    join(__dirname, '..', '..', 'lib', 'helpers', 'blobStorage.js'),
+    join(functionsDir, '__incremental-cache', 'blobStorage.js'),
+  )
 }
 
 const getCacheHandler = (): string =>

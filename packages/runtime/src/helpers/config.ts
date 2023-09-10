@@ -7,7 +7,6 @@ import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
 
 import { HANDLER_FUNCTION_NAME, IMAGE_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
-import { generateCacheHandler } from '../templates/getCacheHandler'
 
 import type { APILambda, SSRLambda } from './functions'
 import type { RoutesManifest } from './types'
@@ -56,8 +55,6 @@ export const getNextConfig = async function getNextConfig({
       )
     }
 
-    await generateCacheHandler(INTERNAL_FUNCTIONS_SRC)
-
     // For more info, see https://nextjs.org/docs/app/api-reference/next-config-js/incrementalCacheHandlerPath
     // ./cache-handler.js will be copied to the root or the .next build folder
 
@@ -67,7 +64,9 @@ export const getNextConfig = async function getNextConfig({
         ...config,
         experimental: {
           ...config.experimental,
-          incrementalCacheHandlerPath: join(INTERNAL_FUNCTIONS_SRC, '__incremental-cache', 'incremental-cache.js'),
+          incrementalCacheHandlerPath: require.resolve(
+            join(INTERNAL_FUNCTIONS_SRC, '__incremental-cache', 'incremental-cache.js'),
+          ),
         },
       },
     })
