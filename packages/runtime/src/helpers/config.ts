@@ -7,6 +7,7 @@ import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
 
 import { HANDLER_FUNCTION_NAME, IMAGE_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
+import { generateCacheHandler } from '../templates/getCacheHandler'
 
 import type { APILambda, SSRLambda } from './functions'
 import type { RoutesManifest } from './types'
@@ -54,6 +55,8 @@ export const getNextConfig = async function getNextConfig({
         "Your Next.js configuration has the experimental incrementalCacheHandlerPath option set. It will be overridden by Netlify's internal cache.",
       )
     }
+
+    await generateCacheHandler(INTERNAL_FUNCTIONS_SRC)
 
     // For more info, see https://nextjs.org/docs/app/api-reference/next-config-js/incrementalCacheHandlerPath
     // ./cache-handler.js will be copied to the root or the .next build folder
