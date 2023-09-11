@@ -469,8 +469,6 @@ type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
 export const getSSRLambdas = async ({
   publish,
   constants,
-  // TODO: Remove this eslint exception once the blob storage feature flag is in place
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   featureFlags,
 }: {
   publish: string
@@ -485,14 +483,20 @@ export const getSSRLambdas = async ({
   const odbRoutes = ssrRoutes
   const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
 
+  console.dir(featureFlags)
+
   // This check could be improved via featureFlags exposed in the build for blob storage
   const isUsingBlobStorage =
-    NETLIFY_API_TOKEN !== undefined && process.env.DEPLOY_ID !== '0' && process.env.DEPLOY_ID !== undefined
+    destr(featureFlags['netlify-server-netliblob']) &&
+    destr(featureFlags['proxy-inject-netliblob-token']) &&
+    process.env.DEPLOY_ID !== '0' &&
+    process.env.DEPLOY_ID !== undefined
 
   const prerenderManifest = await getPrerenderManifest(publish)
   let ssrDependencies: Awaited<ReturnType<typeof getPrerenderedContent>>
 
   if (isUsingBlobStorage) {
+    console.log('using blob storage')
     ssrDependencies = []
     const netliBlob = await getBlobStorage({
       apiHost: NETLIFY_API_HOST,
