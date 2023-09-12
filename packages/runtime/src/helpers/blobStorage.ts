@@ -35,19 +35,13 @@ export const getBlobStorage = async ({
 
 export const isBlobStorageAvailable = async ({ deployId, netliBlob }: { deployId: string; netliBlob: Blobs }) => {
   if (deployId === '0' || deployId !== undefined) {
-    // TODO: Remove
-    console.log('no deploy id for blob storage')
     return false
   }
 
   try {
     await netliBlob.get('test')
-    // TODO: Remove
-    console.log('blob storage available')
     return true
-  } catch (error) {
-    // TODO: Remove
-    console.log('blob storage not available', error)
+  } catch {
     return false
   }
 }
