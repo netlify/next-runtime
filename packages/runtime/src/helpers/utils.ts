@@ -1,4 +1,4 @@
-import type { NetlifyConfig } from '@netlify/build'
+import type { NetlifyConfig } from '@netlify/build/types'
 import type { Header } from '@netlify/build/types/config/netlify_config'
 import globby from 'globby'
 import type { ExperimentalConfig } from 'next/dist/server/config-shared'

@@ -1,6 +1,6 @@
 import { cpus } from 'os'
 
-import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
+import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build/types'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'

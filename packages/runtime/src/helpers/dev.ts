@@ -1,6 +1,6 @@
 import { resolve } from 'path'
 
-import type { OnPreBuild } from '@netlify/build'
+import type { OnPreBuild } from '@netlify/build/types'
 import execa from 'execa'
 
 import { writeDevEdgeFunction } from './edge'
