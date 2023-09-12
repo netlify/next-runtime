@@ -1,5 +1,6 @@
 import { cpus } from 'os'
 
+import { Blobs } from '@netlify/blobs/dist/src/main'
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build/types'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
@@ -37,8 +38,6 @@ import { writeFunctionConfiguration } from './functionsMetaData'
 import { pack } from './pack'
 import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
-
-type Blobs = Awaited<ReturnType<typeof getBlobStorage>>
 
 export interface RouteConfig {
   functionName: string
