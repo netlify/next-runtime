@@ -1,4 +1,4 @@
-// import type { Blobs } from '@netlify/blobs/dist/src/main'
+import type { Blobs } from '@netlify/blobs/dist/src/main'
 
 let blobs
 
