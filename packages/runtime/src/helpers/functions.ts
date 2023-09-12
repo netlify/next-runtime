@@ -29,7 +29,7 @@ import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
-import { getBlobStorage } from './blobStorage'
+import { getBlobStorage, isBlobStorageAvailable } from './blobStorage'
 import { getRequiredServerFiles } from './config'
 import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
@@ -469,11 +469,9 @@ type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
 export const getSSRLambdas = async ({
   publish,
   constants,
-  featureFlags,
 }: {
   publish: string
   constants: EnhancedNetlifyPluginConstants
-  featureFlags: Record<string, unknown>
 }): Promise<SSRLambda[]> => {
   const commonDependencies = await getCommonDependencies(publish)
   const ssrRoutes = await getSSRRoutes(publish)
@@ -483,27 +481,19 @@ export const getSSRLambdas = async ({
   const odbRoutes = ssrRoutes
   const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
 
-  console.dir(featureFlags)
-
-  // This check could be improved via featureFlags exposed in the build for blob storage
-  const isUsingBlobStorage =
-    destr(featureFlags['netlify-server-netliblob']) &&
-    destr(featureFlags['proxy-inject-netliblob-token']) &&
-    process.env.DEPLOY_ID !== '0' &&
-    process.env.DEPLOY_ID !== undefined
+  const netliBlob = await getBlobStorage({
+    apiHost: NETLIFY_API_HOST,
+    token: NETLIFY_API_TOKEN,
+    siteID: SITE_ID,
+    deployId: process.env.DEPLOY_ID,
+  })
 
   const prerenderManifest = await getPrerenderManifest(publish)
   let ssrDependencies: Awaited<ReturnType<typeof getPrerenderedContent>>
 
-  if (isUsingBlobStorage) {
+  if (await isBlobStorageAvailable({ deployId: process.env.DEPLOY_ID, netliBlob })) {
     console.log('using blob storage')
     ssrDependencies = []
-    const netliBlob = await getBlobStorage({
-      apiHost: NETLIFY_API_HOST,
-      token: NETLIFY_API_TOKEN,
-      siteID: SITE_ID,
-      deployId: process.env.DEPLOY_ID,
-    })
 
     try {
       console.log('warming up the cache with prerendered content')
