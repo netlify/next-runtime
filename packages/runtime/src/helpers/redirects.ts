@@ -1,4 +1,4 @@
-import type { NetlifyConfig } from '@netlify/build'
+import type { NetlifyConfig } from '@netlify/build/types'
 import { yellowBright } from 'chalk'
 import destr from 'destr'
 import { readJSON } from 'fs-extra'
