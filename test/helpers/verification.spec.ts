@@ -1,4 +1,4 @@
-import type { NetlifyPluginOptions, NetlifyPluginUtils } from '@netlify/build'
+import type { NetlifyPluginOptions, NetlifyPluginUtils } from '@netlify/build/types'
 import Chance from 'chance'
 import { outdent } from 'outdent'
 
