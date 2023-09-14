@@ -7,9 +7,11 @@ export const generateCacheHandler = async (publish: string): Promise<void> => {
   const blobCache = getCacheHandler()
 
   await writeFile(join(publish, 'netlify-incremental-cache.js'), blobCache)
+
   // node_modules is relative to the root of the project or monorepo
   await copyFile(
-    join('node_modules/@netlify/plugin-nextjs/lib/helpers', 'blobStorage.js'),
+    // eslint-disable-next-line n/no-extraneous-require
+    require.resolve('@netlify/plugin-nextjs/lib/helpers/blobStorage.js'),
     join(publish, 'blobStorage.js'),
   )
 }
