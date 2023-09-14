@@ -23,6 +23,8 @@ const getCacheHandler = (): string =>
     const { getBlobStorage } = require('./blobStorage')
     const blobAuthOptions = globalThis.blobContext
 
+    console.log('loaded incremental cache handler')
+
     module.exports = class CacheHandler {
         async get(key) {
           // getBlobStorage is memoized. See below for converstation about getBlobStorage
