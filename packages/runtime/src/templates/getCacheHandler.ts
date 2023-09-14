@@ -27,12 +27,14 @@ const getCacheHandler = (): string =>
         async get(key) {
           // getBlobStorage is memoized. See below for converstation about getBlobStorage
           const netliBlob = await getBlobStorage(blobAuthOptions)
+          console.dir({ netliBlob, blobAuthOptions })
 
           return await netliBlob.get(key)
         }
 
         async set(key, data) {
           const netliBlob = await getBlobStorage(blobAuthOptions)
+          console.dir({ netliBlob, blobAuthOptions })
 
           await netliBlob.set(key, {
             value: data,
