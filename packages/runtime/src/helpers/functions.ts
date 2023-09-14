@@ -26,12 +26,10 @@ import {
   LAMBDA_WARNING_SIZE,
 } from '../constants'
 import { getApiHandler } from '../templates/getApiHandler'
-import { generateCacheHandler } from '../templates/getCacheHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
-import { getBlobStorage, isBlobStorageAvailable } from './blobStorage'
 import { getRequiredServerFiles } from './config'
 import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
@@ -174,7 +172,6 @@ export const generateFunctions = async (
 
   await writeHandler(HANDLER_FUNCTION_NAME, HANDLER_FUNCTION_TITLE, false)
   await writeHandler(ODB_FUNCTION_NAME, ODB_FUNCTION_TITLE, true)
-  await generateCacheHandler(functionsDir)
 }
 
 /**
@@ -461,14 +458,12 @@ const getPrerenderedContent = (prerenderManifest: PrerenderManifest, publish: st
   join(publish, 'static-manifest.json'),
 ]
 
-
-
 // TODO: get a build feature flag set up for blob storage
 export const getSSRLambdas = async ({
   publish,
   netliBlob,
 }: {
-  publish: string,
+  publish: string
   netliBlob?: Blobs
 }): Promise<SSRLambda[]> => {
   const commonDependencies = await getCommonDependencies(publish)

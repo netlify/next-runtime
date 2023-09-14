@@ -43,13 +43,16 @@ import {
   warnForProblematicUserRewrites,
   warnForRootRedirects,
 } from './helpers/verification'
+import { generateCacheHandler } from './templates/getCacheHandler'
 
 type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
   NETLIFY_API_HOST?: string
   NETLIFY_API_TOKEN?: string
 }
 
-type EnhancedNetlifyPluginOptions = NetlifyPluginOptions & { constants: EnhancedNetlifyPluginConstants } & { featureFlags?: Record<string, unknown> }
+type EnhancedNetlifyPluginOptions = NetlifyPluginOptions & { constants: EnhancedNetlifyPluginConstants } & {
+  featureFlags?: Record<string, unknown>
+}
 
 const plugin: NetlifyPlugin = {
   async onPreBuild({
@@ -110,7 +113,6 @@ const plugin: NetlifyPlugin = {
     } = await getNextConfig({
       publish,
       failBuild,
-      INTERNAL_FUNCTIONS_SRC: constants.INTERNAL_FUNCTIONS_SRC,
     })
     await cleanupEdgeFunctions(constants)
 
@@ -163,8 +165,9 @@ const plugin: NetlifyPlugin = {
       } else {
         // Using the deploy prime url in production leads to issues because the unique deploy ID is part of the generated URL
         // and will not match the expected URL in the callback URL of an OAuth application.
-        const nextAuthUrl = `${process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
-          }${basePath}`
+        const nextAuthUrl = `${
+          process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
+        }${basePath}`
 
         console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
         config.config.env.NEXTAUTH_URL = nextAuthUrl
@@ -178,8 +181,8 @@ const plugin: NetlifyPlugin = {
     const apiLambdas: APILambda[] = splitApiRoutes(featureFlags, publish)
       ? await getAPILambdas(publish, appDir, pageExtensions)
       : await getExtendedApiRouteConfigs(publish, appDir, pageExtensions).then((extendedRoutes) =>
-        extendedRoutes.map(packSingleFunction),
-      )
+          extendedRoutes.map(packSingleFunction),
+        )
 
     const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
 
@@ -194,6 +197,9 @@ const plugin: NetlifyPlugin = {
 
     if (await isBlobStorageAvailable(testBlobStorage)) {
       netliBlob = testBlobStorage
+
+      // Blob storage is available, so we can generate the incremental cache handler
+      await generateCacheHandler(publish)
     }
 
     const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, netliBlob }) : []
@@ -250,24 +256,25 @@ const plugin: NetlifyPlugin = {
       functions,
       build: { failBuild },
     },
-    constants: { FUNCTIONS_DIST, INTERNAL_FUNCTIONS_SRC },
+    constants: { FUNCTIONS_DIST },
   }) {
     await saveCache({ cache, publish })
 
     if (shouldSkip()) {
       status.show({
         title: 'Next Runtime did not run',
-        summary: `Next cache was stored, but all other functions were skipped because ${process.env.NETLIFY_NEXT_PLUGIN_SKIP
-          ? `NETLIFY_NEXT_PLUGIN_SKIP is set`
-          : `NEXT_PLUGIN_FORCE_RUN is set to ${process.env.NEXT_PLUGIN_FORCE_RUN}`
-          }`,
+        summary: `Next cache was stored, but all other functions were skipped because ${
+          process.env.NETLIFY_NEXT_PLUGIN_SKIP
+            ? `NETLIFY_NEXT_PLUGIN_SKIP is set`
+            : `NEXT_PLUGIN_FORCE_RUN is set to ${process.env.NEXT_PLUGIN_FORCE_RUN}`
+        }`,
       })
       return
     }
 
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
-    const nextConfig = await getNextConfig({ publish, failBuild, INTERNAL_FUNCTIONS_SRC })
+    const nextConfig = await getNextConfig({ publish, failBuild })
 
     const { basePath, appDir, experimental } = nextConfig
 

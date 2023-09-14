@@ -33,11 +33,7 @@ export const getBlobStorage = async ({
   return blobs
 }
 
-export const isBlobStorageAvailable = async ({ deployId, netliBlob }: { deployId: string; netliBlob: Blobs }) => {
-  if (deployId === '0' || deployId === undefined) {
-    return false
-  }
-
+export const isBlobStorageAvailable = async (netliBlob: Blobs) => {
   try {
     await netliBlob.get('test')
     return true
