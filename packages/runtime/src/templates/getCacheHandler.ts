@@ -21,20 +21,18 @@ const getCacheHandler = (): string =>
   javascript/* javascript */ `
 
     const { getBlobStorage } = require('./blobStorage')
-    const { auth } = require('./handlerUtils')
-
-    const auth = globalThis.blobContext
+    const blobAuthOptions = globalThis.blobContext
 
     module.exports = class CacheHandler {
         async get(key) {
           // getBlobStorage is memoized. See below for converstation about getBlobStorage
-          const netliBlob = await getBlobStorage(auth)
+          const netliBlob = await getBlobStorage(blobAuthOptions)
 
           return await netliBlob.get(key)
         }
 
         async set(key, data) {
-          const netliBlob = await getBlobStorage(auth)
+          const netliBlob = await getBlobStorage(blobAuthOptions)
 
           await netliBlob.set(key, {
             value: data,
