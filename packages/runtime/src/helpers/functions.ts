@@ -461,18 +461,15 @@ const getPrerenderedContent = (prerenderManifest: PrerenderManifest, publish: st
   join(publish, 'static-manifest.json'),
 ]
 
-type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
-  NETLIFY_API_HOST?: string
-  NETLIFY_API_TOKEN?: string
-}
+
 
 // TODO: get a build feature flag set up for blob storage
 export const getSSRLambdas = async ({
   publish,
-  constants,
+  netliBlob,
 }: {
-  publish: string
-  constants: EnhancedNetlifyPluginConstants
+  publish: string,
+  netliBlob?: Blobs
 }): Promise<SSRLambda[]> => {
   const commonDependencies = await getCommonDependencies(publish)
   const ssrRoutes = await getSSRRoutes(publish)
@@ -480,19 +477,11 @@ export const getSSRLambdas = async ({
   // TODO: for now, they're the same - but we should separate them
   const nonOdbRoutes = ssrRoutes
   const odbRoutes = ssrRoutes
-  const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
-
-  const netliBlob = await getBlobStorage({
-    apiHost: NETLIFY_API_HOST,
-    token: NETLIFY_API_TOKEN,
-    siteID: SITE_ID,
-    deployId: process.env.DEPLOY_ID,
-  })
 
   const prerenderManifest = await getPrerenderManifest(publish)
   let ssrDependencies: Awaited<ReturnType<typeof getPrerenderedContent>>
 
-  if (await isBlobStorageAvailable({ deployId: process.env.DEPLOY_ID, netliBlob })) {
+  if (netliBlob) {
     console.log('using blob storage')
     ssrDependencies = []
 

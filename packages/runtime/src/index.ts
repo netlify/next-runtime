@@ -1,12 +1,14 @@
 import { join, relative } from 'path'
 
-import type { NetlifyPlugin, NetlifyPluginOptions } from '@netlify/build/types'
+import type { Blobs } from '@netlify/blobs/dist/src/main'
+import type { NetlifyPlugin, NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build/types'
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
+import { getBlobStorage, isBlobStorageAvailable } from './helpers/blobStorage'
 import { restoreCache, saveCache } from './helpers/cache'
 import {
   getNextConfig,
@@ -41,6 +43,13 @@ import {
   warnForProblematicUserRewrites,
   warnForRootRedirects,
 } from './helpers/verification'
+
+type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
+  NETLIFY_API_HOST?: string
+  NETLIFY_API_TOKEN?: string
+}
+
+type EnhancedNetlifyPluginOptions = NetlifyPluginOptions & { constants: EnhancedNetlifyPluginConstants } & { featureFlags?: Record<string, unknown> }
 
 const plugin: NetlifyPlugin = {
   async onPreBuild({
@@ -78,7 +87,7 @@ const plugin: NetlifyPlugin = {
       build: { failBuild },
     },
     featureFlags = {},
-  }: NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }) {
+  }: EnhancedNetlifyPluginOptions) {
     if (shouldSkip()) {
       return
     }
@@ -154,9 +163,8 @@ const plugin: NetlifyPlugin = {
       } else {
         // Using the deploy prime url in production leads to issues because the unique deploy ID is part of the generated URL
         // and will not match the expected URL in the callback URL of an OAuth application.
-        const nextAuthUrl = `${
-          process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
-        }${basePath}`
+        const nextAuthUrl = `${process.env.CONTEXT === 'production' ? process.env.URL : process.env.DEPLOY_PRIME_URL
+          }${basePath}`
 
         console.log(`NextAuth package detected, setting NEXTAUTH_URL environment variable to ${nextAuthUrl}`)
         config.config.env.NEXTAUTH_URL = nextAuthUrl
@@ -170,9 +178,25 @@ const plugin: NetlifyPlugin = {
     const apiLambdas: APILambda[] = splitApiRoutes(featureFlags, publish)
       ? await getAPILambdas(publish, appDir, pageExtensions)
       : await getExtendedApiRouteConfigs(publish, appDir, pageExtensions).then((extendedRoutes) =>
-          extendedRoutes.map(packSingleFunction),
-        )
-    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, constants }) : []
+        extendedRoutes.map(packSingleFunction),
+      )
+
+    const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
+
+    const testBlobStorage = await getBlobStorage({
+      apiHost: NETLIFY_API_HOST,
+      token: NETLIFY_API_TOKEN,
+      siteID: SITE_ID,
+      deployId: process.env.DEPLOY_ID,
+    })
+
+    let netliBlob: Blobs
+
+    if (await isBlobStorageAvailable(testBlobStorage)) {
+      netliBlob = testBlobStorage
+    }
+
+    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, netliBlob }) : []
     await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
     await generatePagesResolver(constants)
     await configureHandlerFunctions({
@@ -233,11 +257,10 @@ const plugin: NetlifyPlugin = {
     if (shouldSkip()) {
       status.show({
         title: 'Next Runtime did not run',
-        summary: `Next cache was stored, but all other functions were skipped because ${
-          process.env.NETLIFY_NEXT_PLUGIN_SKIP
-            ? `NETLIFY_NEXT_PLUGIN_SKIP is set`
-            : `NEXT_PLUGIN_FORCE_RUN is set to ${process.env.NEXT_PLUGIN_FORCE_RUN}`
-        }`,
+        summary: `Next cache was stored, but all other functions were skipped because ${process.env.NETLIFY_NEXT_PLUGIN_SKIP
+          ? `NETLIFY_NEXT_PLUGIN_SKIP is set`
+          : `NEXT_PLUGIN_FORCE_RUN is set to ${process.env.NEXT_PLUGIN_FORCE_RUN}`
+          }`,
       })
       return
     }
