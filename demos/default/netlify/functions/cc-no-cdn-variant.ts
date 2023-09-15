@@ -14,8 +14,8 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     statusCode: 200,
     headers: {
       'Content-Type': 'application/json',
-      'cache-control': 'max-age=10,stale-while-revalidate=60',
-      'netlify-vary': 'header=x-test-group',
+      'cache-control': 's-maxage=10,stale-while-revalidate=60',
+      // 'netlify-vary': 'header=x-test-group',
     },
     body: JSON.stringify(debugObject),
   }
