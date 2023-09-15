@@ -3,11 +3,11 @@ import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   // your server-side functionality
   const debugObject = {
-    netlifyRequestId: event.multiValueHeaders?.['x-nf-request-id']?.[0],
+    netlifyRequestId: event.multiValueHeaders?.['X-Nf-Request-Id']?.[0],
     awsRequestId: context.awsRequestId,
     headers: event.multiValueHeaders,
   }
-  console.log('debug', debugObject)
+  console.log('EXECUTED', debugObject.netlifyRequestId)
 
   return {
     statusCode: 200,
