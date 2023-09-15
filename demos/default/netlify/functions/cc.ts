@@ -5,9 +5,10 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   const debugObject = {
     netlifyRequestId: event.multiValueHeaders?.['X-Nf-Request-Id']?.[0],
     awsRequestId: context.awsRequestId,
+    time: new Date().toString(),
     headers: event.multiValueHeaders,
   }
-  console.log('EXECUTED', debugObject.netlifyRequestId)
+  console.log('EXECUTED', debugObject.netlifyRequestId, debugObject.time)
 
   return {
     statusCode: 200,
