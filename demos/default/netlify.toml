@@ -10,11 +10,14 @@ CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
 # set TERM variable for terminal output
 TERM = "xterm"
 NODE_VERSION = "16.15.1"
-NEXT_SPLIT_API_ROUTES = "true"
-NEXT_BUNDLE_BASED_ON_NFT_FILES = "true"
+NEXT_SPLIT_API_ROUTES = "false"
+NEXT_BUNDLE_BASED_ON_NFT_FILES = "false"
+
+
+NEXT_KEEP_METADATA_FILES = "true"
 
 # following flags are enabled on "All flags" variant of test site - uncomment those to easily run in that mode
-# NEXT_CDN_CACHE_CONTROL = "true"
+NEXT_CDN_CACHE_CONTROL = "true"
 
 [[headers]]
 for = "/_next/image/*"
@@ -32,3 +35,8 @@ package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
 package = "../plugin-wrapper"
+
+[[redirects]]
+from = "/_cc"
+to = "/.netlify/functions/cc"
+status = 200

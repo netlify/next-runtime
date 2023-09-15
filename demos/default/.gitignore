@@ -33,6 +33,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-netlify/functions
+#netlify/functions
 .netlify/functions
 .netlify/cache
