@@ -4,6 +4,6 @@ export default (req, res) => {
   res.json({ message: 'hello world :)' })
 }
 
-export const config = {
-  type: 'experimental-background',
-}
+// export const config = {
+//   type: 'experimental-background',
+// }
