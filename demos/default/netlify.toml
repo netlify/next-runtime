@@ -40,3 +40,8 @@ package = "../plugin-wrapper"
 from = "/_cc"
 to = "/.netlify/functions/cc"
 status = 200
+
+[[redirects]]
+from = "/_cc2"
+to = "/.netlify/functions/cc-no-cdn-variant"
+status = 200
