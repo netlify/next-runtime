@@ -196,10 +196,14 @@ const makeHandler = ({
     }
 
     // Sending SWR headers causes undefined behaviour with the Netlify CDN
-    const cacheControlHeader = multiValueHeaders['cache-control']?.[0]
+    let cacheControlHeader = multiValueHeaders['cache-control']?.[0]
 
     if (useCDNCacheControl) {
       if (cacheControlHeader?.includes('stale-while-revalidate')) {
+        if (!cacheControlHeader?.includes('stale-while-revalidate=')) {
+          // If no SWR time is set, we'll set it to 86400 seconds
+          cacheControlHeader = cacheControlHeader.replace('stale-while-revalidate', 'stale-while-revalidate=86400')
+        }
         multiValueHeaders[`netlify-cdn-cache-control`] = [cacheControlHeader]
         multiValueHeaders['cache-control'] = ['public, max-age=0, must-revalidate']
 
