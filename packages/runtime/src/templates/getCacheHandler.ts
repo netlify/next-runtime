@@ -1,18 +1,21 @@
 import { join } from 'path'
 
-import { copyFile, writeFile } from 'fs-extra'
+import { copyFile, ensureDir, writeFile } from 'fs-extra'
 import { outdent as javascript } from 'outdent'
 
-export const generateCacheHandler = async (publish: string): Promise<void> => {
+export const generateCacheHandler = async (functionsDir: string, functionName: string): Promise<void> => {
+  const incrementalHandlerDirectory = join(functionsDir, functionName)
+  await ensureDir(incrementalHandlerDirectory)
+
   const blobCache = getCacheHandler()
 
-  await writeFile(join(publish, 'netlify-incremental-cache.js'), blobCache)
+  await writeFile(join(incrementalHandlerDirectory, 'netlify-incremental-cache.js'), blobCache)
 
   // node_modules is relative to the root of the project or monorepo
   await copyFile(
     // eslint-disable-next-line n/no-extraneous-require
     require.resolve('@netlify/plugin-nextjs/lib/helpers/blobStorage.js'),
-    join(publish, 'blobStorage.js'),
+    join(incrementalHandlerDirectory, 'blobStorage.js'),
   )
 }
 

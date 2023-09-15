@@ -184,7 +184,7 @@ const plugin: NetlifyPlugin = {
           extendedRoutes.map(packSingleFunction),
         )
 
-    const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
+    const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID, INTERNAL_FUNCTIONS_SRC } = constants
 
     const testBlobStorage = await getBlobStorage({
       apiHost: NETLIFY_API_HOST,
@@ -199,7 +199,7 @@ const plugin: NetlifyPlugin = {
       netliBlob = testBlobStorage
 
       // Blob storage is available, so we can generate the incremental cache handler
-      await generateCacheHandler(publish)
+      await generateCacheHandler(INTERNAL_FUNCTIONS_SRC, 'incremental-cache-handler')
     }
 
     const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, netliBlob }) : []
@@ -256,7 +256,7 @@ const plugin: NetlifyPlugin = {
       functions,
       build: { failBuild },
     },
-    constants: { FUNCTIONS_DIST },
+    constants: { FUNCTIONS_DIST, INTERNAL_FUNCTIONS_SRC },
   }) {
     await saveCache({ cache, publish })
 
@@ -271,10 +271,15 @@ const plugin: NetlifyPlugin = {
       })
       return
     }
+    const incrementalCacheHandlerPath = join(
+      INTERNAL_FUNCTIONS_SRC,
+      'incremental-cache-handler',
+      'netlify-incremental-cache.js',
+    )
 
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
-    const nextConfig = await getNextConfig({ publish, failBuild })
+    const nextConfig = await getNextConfig({ publish, failBuild, incrementalCacheHandlerPath })
 
     const { basePath, appDir, experimental } = nextConfig
 

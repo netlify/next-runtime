@@ -34,9 +34,26 @@ const defaultFailBuild = (message: string, { error }): never => {
   throw new Error(`${message}\n${error && error.stack}`)
 }
 
+const addIncrementalCacheHandlerPath = (
+  incrementalCacheHandlerPath: string,
+  experimentalConfig: NextConfig['experimental'],
+) => {
+  // This check is needed for now because if blob storage isn't available, this file will not have been created
+  if (incrementalCacheHandlerPath !== undefined && existsSync(incrementalCacheHandlerPath)) {
+    experimentalConfig.incrementalCacheHandlerPath = incrementalCacheHandlerPath
+  }
+
+  return experimentalConfig
+}
+
 export const getNextConfig = async function getNextConfig({
   publish,
   failBuild = defaultFailBuild,
+  incrementalCacheHandlerPath,
+}: {
+  publish: string
+  failBuild?: (message: string, { error }) => never
+  incrementalCacheHandlerPath?: string
 }): Promise<NextConfig> {
   try {
     const requiredServerFiles: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
@@ -54,28 +71,13 @@ export const getNextConfig = async function getNextConfig({
       )
     }
 
-    const addIncrementalCacheHandlerPath = (
-      incrementalCacheHandlerPath: string,
-      experimentalConfig: typeof config['experimental'],
-    ) => {
-      // This check is needed for now because if blob storage isn't available, this file will not have been created
-      if (existsSync(incrementalCacheHandlerPath)) {
-        experimentalConfig.incrementalCacheHandlerPath = incrementalCacheHandlerPath
-      }
-
-      return experimentalConfig
-    }
-
     // For more info, see https://nextjs.org/docs/app/api-reference/next-config-js/incrementalCacheHandlerPath
     // ./cache-handler.js will be copied to the root or the .next build folder
     await writeJSON(join(publish, 'required-server-files.json'), {
       ...requiredServerFiles,
       config: {
         ...config,
-        experimental: addIncrementalCacheHandlerPath(
-          join(publish, 'netlify-incremental-cache.js'),
-          config.experimental,
-        ),
+        experimental: addIncrementalCacheHandlerPath(incrementalCacheHandlerPath, config.experimental),
       },
     })
     const routesManifest: RoutesManifest = await readJSON(join(publish, ROUTES_MANIFEST_FILE))
