@@ -193,6 +193,7 @@ const plugin: NetlifyPlugin = {
       deployId: process.env.DEPLOY_ID,
     })
 
+    console.log('get blob storage', { testBlobStorage, available: await isBlobStorageAvailable(testBlobStorage) })
     let netliBlob: Blobs
 
     if (await isBlobStorageAvailable(testBlobStorage)) {

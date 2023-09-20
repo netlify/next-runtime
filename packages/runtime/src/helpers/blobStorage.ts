@@ -1,6 +1,6 @@
-import type { Blobs } from '@netlify/blobs/dist/src/main'
+import { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 
-let blobs
+let blobs: IBlobs
 
 export const getBlobStorage = async ({
   apiHost,
@@ -33,7 +33,7 @@ export const getBlobStorage = async ({
   return blobs
 }
 
-export const isBlobStorageAvailable = async (netliBlob: Blobs) => {
+export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
   try {
     await netliBlob.get('test')
     return true

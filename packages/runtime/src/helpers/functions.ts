@@ -425,6 +425,7 @@ const setPrerenderedBlobStoreContent = async ({
         lastModified: Date.now(),
       }
 
+      // TODO: once implemented in blob storage API
       // We need to remove the leading slash from the route so that the call to the blob storage
       // does not generate a 405 error.
       // It's currently under consideration to support this in the blob storage API.

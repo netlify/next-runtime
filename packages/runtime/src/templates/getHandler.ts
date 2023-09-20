@@ -141,6 +141,8 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
     event.path = normalizePath(event)
 
+    console.log('!!! CALLING HANDLER', { path: event.path, requestMode })
+
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
