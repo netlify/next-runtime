@@ -403,6 +403,8 @@ const setPrerenderedBlobStoreContent = async ({
   // demos/default/.next/server/pages/en/getStaticProps/1.json
   const limit = pLimit(Math.max(2, cpus().length))
 
+  console.log({ prerenderManifest })
+
   const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
     limit(async () => {
       const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'

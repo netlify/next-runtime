@@ -191,6 +191,7 @@ const plugin: NetlifyPlugin = {
       token: NETLIFY_API_TOKEN,
       siteID: SITE_ID,
       deployId: process.env.DEPLOY_ID,
+      // deployId: '650ab98bdb1ae400086d5415',
     })
 
     console.log('get blob storage', { testBlobStorage, available: await isBlobStorageAvailable(testBlobStorage) })
