@@ -142,7 +142,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
       const { getBlobStorage, isBlobStorageAvailable } = require('./blobStorage')
 
       const netliBlob: Blobs = await getBlobStorage({
-        apiHost: data.url,
+        contextURL: data.url,
         token: data.token,
         siteID: event.headers['x-nf-site-id'],
         deployId: event.headers['x-nf-deploy-id'],

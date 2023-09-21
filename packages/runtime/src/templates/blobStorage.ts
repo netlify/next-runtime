@@ -5,19 +5,22 @@ import { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 import { Blobs } from '../blob'
 
 export const getBlobStorage = ({
+  contextURL,
   apiHost,
   token,
   siteID,
   deployId,
 }: {
-  apiHost: string
+  contextURL?: string
+  apiHost?: string
   token: string
   siteID: string
   deployId: string
 }) =>
   new Blobs({
     authentication: {
-      apiURL: apiHost.startsWith('http') ? apiHost : `https://${apiHost}`,
+      contextURL,
+      apiURL: `https://${apiHost}`,
       token,
     },
     context: `deploy:${deployId}`,
@@ -31,7 +34,10 @@ export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
     // if it throws it's not available.
     await netliBlob.get('any-key')
     return true
-  } catch {
+  } catch (error) {
+    console.log('BLOB error', error)
     return false
   }
 }
+
+export {}
