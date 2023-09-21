@@ -2,7 +2,11 @@
 
 import { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 
-import { Blobs } from '../blob'
+export type BlobISRPage = {
+  value: string
+  headers: Record<string, string>
+  lastModified: number
+}
 
 export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
   try {

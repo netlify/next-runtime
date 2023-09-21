@@ -190,8 +190,8 @@ const plugin: NetlifyPlugin = {
         apiURL: `https://${NETLIFY_API_HOST}`,
         token: NETLIFY_API_TOKEN,
       },
-      // deployId: '650ad12a75d42c0008daf623',
       context: `deploy:${process.env.DEPLOY_ID}`,
+      // context: `deploy:650c4da1c2e4f734db8855c2`,
       siteID: SITE_ID,
     } as any) as unknown as IBlobs
 
@@ -206,7 +206,7 @@ const plugin: NetlifyPlugin = {
       // await generateCacheHandler(INTERNAL_FUNCTIONS_SRC, 'incremental-cache-handler')
     }
 
-    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, netliBlob }) : []
+    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, netliBlob, i18n }) : []
     await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
     await generatePagesResolver(constants)
     await configureHandlerFunctions({

@@ -7,6 +7,7 @@ import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
 import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat, readFile } from 'fs-extra'
+import mime from 'mime-types'
 import type { PrerenderManifest } from 'next/dist/build'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
@@ -26,12 +27,13 @@ import {
   API_FUNCTION_NAME,
   LAMBDA_WARNING_SIZE,
 } from '../constants'
+import { BlobISRPage } from '../templates/blobStorage'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
-import { getRequiredServerFiles } from './config'
+import { getRequiredServerFiles, NextConfig } from './config'
 import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
 import { pack } from './pack'
@@ -398,7 +400,9 @@ const setPrerenderedBlobStoreContent = async ({
   netliBlob,
   prerenderManifest,
   publish,
+  i18n,
 }: {
+  i18n: NextConfig['i18n']
   netliBlob: Blobs
   prerenderManifest: PrerenderManifest
   publish: string
@@ -429,20 +433,36 @@ const setPrerenderedBlobStoreContent = async ({
 
         const htmlFilePath = join(publish, 'server', routerTypeSubPath, `${route}.html`)
         const html = await readFile(htmlFilePath, 'utf8')
-        const data = {
-          value: {
-            kind: 'PAGE' as const,
-            html,
-            pageData,
-          },
-          lastModified: Date.now(),
-        }
 
         // TODO: once implemented in blob storage API
         // We need to remove the leading slash from the route so that the call to the blob storage
         // does not generate a 405 error.
         // It's currently under consideration to support this in the blob storage API.
-        return netliBlob.setJSON(route.slice(1), data)
+        const pageRoute = route.slice(1).replace(new RegExp(`^${i18n.defaultLocale}/`), '')
+        const pageBlob: BlobISRPage = {
+          value: html,
+          headers: {
+            'content-type': 'text/html',
+          },
+          lastModified: Date.now(),
+        }
+        let dataRoute = ssgRoute.dataRoute.slice(1)
+        const dataBlob: BlobISRPage = {
+          value: pageData,
+          headers: {
+            'content-type': mime.lookup(dataFilePath),
+          },
+          lastModified: Date.now(),
+        }
+
+        // for the index route we have to replace it with the language as this is the url that will be requested
+        if (pageRoute === i18n.defaultLocale) {
+          dataRoute = dataRoute.replace(/index\.json$/, `${i18n.defaultLocale}.json`)
+        }
+
+        console.log('[SET KEY]:', pageRoute)
+        console.log('[SET KEY]:', ssgRoute.dataRoute, { ssgRoute })
+        return Promise.all([netliBlob.setJSON(pageRoute, pageBlob), netliBlob.setJSON(dataRoute, dataBlob)])
       } catch {
         // noop
         // gracefully fall back to not having it in the blob storage and the ISR ODB handler needs to let the
@@ -480,8 +500,10 @@ const getPrerenderedContent = (prerenderManifest: PrerenderManifest, publish: st
 // TODO: get a build feature flag set up for blob storage
 export const getSSRLambdas = async ({
   publish,
+  i18n,
   netliBlob,
 }: {
+  i18n: NextConfig['i18n']
   publish: string
   netliBlob?: Blobs
 }): Promise<SSRLambda[]> => {
@@ -501,14 +523,14 @@ export const getSSRLambdas = async ({
 
     try {
       console.log('warming up the cache with prerendered content')
-      await setPrerenderedBlobStoreContent({ netliBlob, prerenderManifest, publish })
+      await setPrerenderedBlobStoreContent({ netliBlob, prerenderManifest, publish, i18n })
     } catch (error) {
       console.error('Unable to store prerendered content in blob storage', error)
 
       throw error
     }
   } else {
-    // We only want prerendered content stored in the lambda if we aren't using blob srorage
+    // We only want prerendered content stored in the lambda if we aren't using blob storage
     ssrDependencies = getPrerenderedContent(prerenderManifest, publish)
   }
 

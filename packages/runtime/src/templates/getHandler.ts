@@ -1,4 +1,3 @@
-import type { Blobs } from '@netlify/blobs'
 import type { HandlerContext, HandlerEvent } from '@netlify/functions'
 import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
@@ -6,6 +5,7 @@ import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
 
+import type { BlobISRPage } from './blobStorage'
 import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
@@ -127,12 +127,13 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
     event.path = normalizePath(event)
 
-    // retrieve the data for the blob storage
-    const {
-      clientContext: { custom: customContext },
-    } = context
+    // only retrieve the prerendered data on misses from the odb
+    if (event.headers['x-nf-builder-cache'] === 'miss') {
+      // retrieve the data for the blob storage
+      const {
+        clientContext: { custom: customContext },
+      } = context
 
-    if (customContext.blobs) {
       // eslint-disable-next-line n/prefer-global/buffer
       const rawData = Buffer.from(customContext.blobs, 'base64')
       const data = JSON.parse(rawData.toString('ascii'))
@@ -148,7 +149,23 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         context: `deploy:${event.headers['x-nf-deploy-id']}`,
         siteID: event.headers['x-nf-site-id'],
       })
-      console.log('get blob storage', { netliBlob, available: await isBlobStorageAvailable(netliBlob) })
+
+      // clean up the leading and trailing slash to match the route from the prerender manifest
+      const key = event.path.slice(1).replace(/\/$/, '')
+      const ISRPage = (await netliBlob.get(key)) as BlobISRPage
+
+      if (ISRPage) {
+        console.log('YAY cache hit 🎉')
+        console.log(ISRPage)
+      } else {
+        console.log('missing blob key:', { key })
+      }
+
+      console.log('get blob storage', {
+        headers: event.headers,
+      })
+    } else {
+      console.log('No need to retrieve from the blob storage as it is cached')
     }
 
     // Next expects to be able to parse the query from the URL
@@ -167,6 +184,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
     const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
+    console.log({ result, headers })
     // Convert all headers to multiValueHeaders
 
     const multiValueHeaders = getMultiValueHeaders(headers)
