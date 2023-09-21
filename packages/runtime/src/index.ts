@@ -1,6 +1,6 @@
 import { join, relative } from 'path'
 
-import type { Blobs } from '@netlify/blobs/dist/src/main'
+import type { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 import type { NetlifyPlugin, NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build/types'
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
@@ -42,7 +42,7 @@ import {
   warnForProblematicUserRewrites,
   warnForRootRedirects,
 } from './helpers/verification'
-import { getBlobStorage, isBlobStorageAvailable } from './templates/blobStorage'
+import { Blobs, isBlobStorageAvailable } from './templates/blobStorage'
 
 type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
   NETLIFY_API_HOST?: string
@@ -185,16 +185,18 @@ const plugin: NetlifyPlugin = {
 
     const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID, INTERNAL_FUNCTIONS_SRC } = constants
 
-    const testBlobStorage = getBlobStorage({
-      apiHost: NETLIFY_API_HOST,
-      token: NETLIFY_API_TOKEN,
-      siteID: SITE_ID,
-      deployId: process.env.DEPLOY_ID,
+    const testBlobStorage = new Blobs({
+      authentication: {
+        apiURL: `https://${NETLIFY_API_HOST}`,
+        token: NETLIFY_API_TOKEN,
+      },
       // deployId: '650ad12a75d42c0008daf623',
-    })
+      context: `deploy:${process.env.DEPLOY_ID}`,
+      siteID: SITE_ID,
+    } as any) as unknown as IBlobs
 
     console.log('get blob storage', { testBlobStorage, available: await isBlobStorageAvailable(testBlobStorage) })
-    let netliBlob: Blobs
+    let netliBlob: IBlobs
 
     if (await isBlobStorageAvailable(testBlobStorage)) {
       netliBlob = testBlobStorage

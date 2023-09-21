@@ -139,13 +139,14 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
       // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { getBlobStorage, isBlobStorageAvailable } = require('./blobStorage')
-
-      const netliBlob: Blobs = await getBlobStorage({
-        contextURL: data.url,
-        token: data.token,
+      const { Blobs, isBlobStorageAvailable } = require('./blobStorage')
+      const netliBlob = new Blobs({
+        authentication: {
+          contextURL: data.url,
+          token: data.token,
+        },
+        context: `deploy:${event.headers['x-nf-deploy-id']}`,
         siteID: event.headers['x-nf-site-id'],
-        deployId: event.headers['x-nf-deploy-id'],
       })
       console.log('get blob storage', { netliBlob, available: await isBlobStorageAvailable(netliBlob) })
     }
