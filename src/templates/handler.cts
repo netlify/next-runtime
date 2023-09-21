@@ -91,13 +91,17 @@ const handleVary = (eventPath: string, headers: Record<string, string>) => {
 }
 
 const handleCacheControl = (headers: Record<string, string>) => {
+  if (headers['cache-control'] && !headers['cdn-cache-control'] && !headers['netlify-cdn-cache-control']) {
   headers['netlify-cdn-cache-control'] = headers['cache-control']
 
   const filteredCacheControlDirectives = removeSMaxAgeAndStaleWhileRevalidate(headers['cache-control'])
 
   // use default cache-control if no directives are left
   headers['cache-control'] =
-    filteredCacheControlDirectives.length === 0 ? 'public, max-age=0, must-revalidate' : filteredCacheControlDirectives
+      filteredCacheControlDirectives.length === 0
+        ? 'public, max-age=0, must-revalidate'
+        : filteredCacheControlDirectives
+  }
 }
 
 export const handler: Handler = async function (event: HandlerEvent, context: HandlerContext) {
@@ -134,9 +138,7 @@ export const handler: Handler = async function (event: HandlerEvent, context: Ha
   const response = { headers, statusCode: result.statusCode }
   console.log('Next server response:', JSON.stringify(response, null, 2))
 
-  if (headers['cache-control'] && !headers['cdn-cache-control'] && !headers['netlify-cdn-cache-control']) {
     handleCacheControl(headers)
-  }
   handleVary(event.path, headers)
   console.log(`Response headers after Netlify processing:`, JSON.stringify(headers, null, 2))
 
