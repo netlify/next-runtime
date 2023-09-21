@@ -1,4 +1,5 @@
-import { HandlerContext, HandlerEvent } from '@netlify/functions'
+import type { Blobs } from '@netlify/blobs'
+import type { HandlerContext, HandlerEvent } from '@netlify/functions'
 import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
 import { outdent as javascript } from 'outdent'
@@ -85,21 +86,6 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
       clientContext: { custom: customContext },
     } = context
 
-    if (customContext.blobs) {
-      // eslint-disable-next-line n/prefer-global/buffer
-      const rawData = Buffer.from(customContext.blobs, 'base64')
-      const data = JSON.parse(rawData.toString('ascii'))
-
-      globalThis.getBlobContext = {
-        authentication: {
-          contextURL: data.url,
-          token: data.token,
-        },
-        context: `deploy:${event.headers['x-nf-deploy-id']}`,
-        siteID: event.headers['x-nf-site-id'],
-      }
-    }
-
     if (bridge) {
       return bridge
     }
@@ -141,7 +127,28 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
     event.path = normalizePath(event)
 
-    console.log('!!! CALLING HANDLER', { path: event.path, requestMode })
+    // retrieve the data for the blob storage
+    const {
+      clientContext: { custom: customContext },
+    } = context
+
+    if (customContext.blobs) {
+      // eslint-disable-next-line n/prefer-global/buffer
+      const rawData = Buffer.from(customContext.blobs, 'base64')
+      const data = JSON.parse(rawData.toString('ascii'))
+
+      // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { getBlobStorage, isBlobStorageAvailable } = require('./blobStorage')
+
+      const netliBlob: Blobs = await getBlobStorage({
+        apiHost: data.url,
+        token: data.token,
+        siteID: event.headers['x-nf-site-id'],
+        deployId: event.headers['x-nf-deploy-id'],
+      })
+      console.log('get blob storage', { netliBlob, available: await isBlobStorageAvailable(netliBlob) })
+    }
 
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()

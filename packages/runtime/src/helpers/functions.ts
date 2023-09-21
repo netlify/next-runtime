@@ -161,6 +161,12 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
+    // need to copy the blob storage helper over to be available on request time
+    // the odb needs access to the blob storage
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'blobStorage.js'),
+      join(functionsDir, functionName, 'blobStorage.js'),
+    )
     await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
 
     const nfInternalFiles = await glob(join(functionsDir, functionName, '**'))
@@ -403,35 +409,40 @@ const setPrerenderedBlobStoreContent = async ({
   // demos/default/.next/server/pages/en/getStaticProps/1.json
   const limit = pLimit(Math.max(2, cpus().length))
 
-  console.log({ prerenderManifest })
-
   const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
     limit(async () => {
       const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
       const dataFilePath = join(publish, 'server', routerTypeSubPath, ssgRoute.dataRoute)
-      // Page data for an app router page is an RSC serialized format, i.e. a string,
-      // or a JSON file for the pages router.
-      const pageData =
-        routerTypeSubPath === 'app'
-          ? await readFile(dataFilePath, 'utf8')
-          : JSON.parse(await readFile(join(publish, 'server', routerTypeSubPath, `${route}.json`), 'utf8'))
 
-      const htmlFilePath = join(publish, 'server', routerTypeSubPath, `${route}.html`)
-      const html = await readFile(htmlFilePath, 'utf8')
-      const data = {
-        value: {
-          kind: 'PAGE' as const,
-          html,
-          pageData,
-        },
-        lastModified: Date.now(),
+      try {
+        // Page data for an app router page is an RSC serialized format, i.e. a string,
+        // or a JSON file for the pages router.
+        const pageData =
+          routerTypeSubPath === 'app'
+            ? await readFile(dataFilePath, 'utf8')
+            : JSON.parse(await readFile(join(publish, 'server', routerTypeSubPath, `${route}.json`), 'utf8'))
+
+        const htmlFilePath = join(publish, 'server', routerTypeSubPath, `${route}.html`)
+        const html = await readFile(htmlFilePath, 'utf8')
+        const data = {
+          value: {
+            kind: 'PAGE' as const,
+            html,
+            pageData,
+          },
+          lastModified: Date.now(),
+        }
+
+        // TODO: once implemented in blob storage API
+        // We need to remove the leading slash from the route so that the call to the blob storage
+        // does not generate a 405 error.
+        // It's currently under consideration to support this in the blob storage API.
+        return netliBlob.setJSON(route.slice(1), data)
+      } catch {
+        // noop
+        // gracefully fall back to not having it in the blob storage and the ISR ODB handler needs to let the
+        // request fall through to the next server to generate the page nothing we can serve then.
       }
-
-      // TODO: once implemented in blob storage API
-      // We need to remove the leading slash from the route so that the call to the blob storage
-      // does not generate a 405 error.
-      // It's currently under consideration to support this in the blob storage API.
-      return netliBlob.setJSON(route.slice(1), data)
     }),
   )
 

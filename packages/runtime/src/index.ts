@@ -8,7 +8,6 @@ import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
-import { getBlobStorage, isBlobStorageAvailable } from './helpers/blobStorage'
 import { restoreCache, saveCache } from './helpers/cache'
 import {
   getNextConfig,
@@ -43,7 +42,7 @@ import {
   warnForProblematicUserRewrites,
   warnForRootRedirects,
 } from './helpers/verification'
-import { generateCacheHandler } from './templates/getCacheHandler'
+import { getBlobStorage, isBlobStorageAvailable } from './templates/blobStorage'
 
 type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
   NETLIFY_API_HOST?: string
@@ -190,8 +189,8 @@ const plugin: NetlifyPlugin = {
       apiHost: NETLIFY_API_HOST,
       token: NETLIFY_API_TOKEN,
       siteID: SITE_ID,
-      deployId: process.env.DEPLOY_ID,
-      // deployId: '650ab98bdb1ae400086d5415',
+      // deployId: process.env.DEPLOY_ID,
+      deployId: '650ad12a75d42c0008daf623',
     })
 
     console.log('get blob storage', { testBlobStorage, available: await isBlobStorageAvailable(testBlobStorage) })
@@ -200,8 +199,9 @@ const plugin: NetlifyPlugin = {
     if (await isBlobStorageAvailable(testBlobStorage)) {
       netliBlob = testBlobStorage
 
+      // TODO: not needed
       // Blob storage is available, so we can generate the incremental cache handler
-      await generateCacheHandler(INTERNAL_FUNCTIONS_SRC, 'incremental-cache-handler')
+      // await generateCacheHandler(INTERNAL_FUNCTIONS_SRC, 'incremental-cache-handler')
     }
 
     const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, netliBlob }) : []

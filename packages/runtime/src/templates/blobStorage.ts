@@ -1,3 +1,5 @@
+// This file is used on request and build time
+
 import { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 
 let blobs: IBlobs
@@ -22,7 +24,7 @@ export const getBlobStorage = async ({
     const { Blobs } = await blobFunction()
     blobs = new Blobs({
       authentication: {
-        apiURL: `https://${apiHost}`,
+        apiURL: apiHost.startsWith('http') ? apiHost : `https://${apiHost}`,
         token,
       },
       context: `deploy:${deployId}`,
@@ -35,7 +37,9 @@ export const getBlobStorage = async ({
 
 export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
   try {
-    await netliBlob.get('test')
+    // request a key that is not present. If it returns `null` then the blob storage is available
+    // if it throws it's not available.
+    await netliBlob.get('any-key')
     return true
   } catch {
     return false
