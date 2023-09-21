@@ -1,5 +1,5 @@
 import type { NetlifyConfig } from '@netlify/build'
-import { copySync } from 'fs-extra/esm'
+import { copySync, pathExistsSync } from 'fs-extra/esm'
 
 import { FUNCTIONS_INTERNAL_DIR, FUNCTIONS_URL, __dirname } from './constants.js'
 
@@ -11,7 +11,10 @@ const moveServerFiles = (publishDir: string) => {
   // TODO: consider caching here to avoid copying on every build
   // TODO: consider basepaths and monorepos, etc.
   // TODO: ensure functions internal dir is empty
-  copySync(`${publishDir}/standalone/.next`, `${HANDLER_DIR}/.next`, { overwrite: true })
+  const isStandalone = pathExistsSync(`${publishDir}/standalone/.next`)
+  if(isStandalone) {
+    copySync(`${publishDir}/standalone/.next`, `${HANDLER_DIR}/.next`, { overwrite: true })
+  }
   copySync(`${__dirname}/../templates/handler.cjs`, `${HANDLER_DIR}/${HANDLER_NAME}.js`, { overwrite: true })
   copySync(`${__dirname}/../templates/bridge.cjs`, `${HANDLER_DIR}/bridge.js`, { overwrite: true })
 }

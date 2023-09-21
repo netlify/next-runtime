@@ -37,8 +37,10 @@
     "@netlify/blobs": "^1.6.0",
     "@netlify/build": "^29.20.6",
     "@netlify/functions": "^2.0.1",
+    "chalk": "^5.3.0",
     "fs-extra": "^11.1.1",
-    "next": "^13.4.16"
+    "next": "^13.4.16",
+    "outdent": "^0.8.0"
   },
   "devDependencies": {
     "@netlify/eslint-config-node": "^7.0.1",
