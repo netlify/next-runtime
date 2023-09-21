@@ -6,6 +6,6 @@ module.exports = {
   output: 'standalone',
   experimental: {
     ...original.experimental,
-    // incrementalCacheHandlerPath: require.resolve('./cache-handler.js'),
+    incrementalCacheHandlerPath: require.resolve('./cache-handler.js'),
   },
 }
