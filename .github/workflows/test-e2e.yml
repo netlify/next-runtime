@@ -34,7 +34,7 @@ jobs:
       - name: checkout next repo
         uses: actions/checkout@v3
         with:
-          repository: 'netlify/next'
+          repository: 'netlify/next.js'
           ref: ${{ env.NEXT_VERSION }}
 
       - name: install and build next
