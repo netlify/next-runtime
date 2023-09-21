@@ -2,9 +2,9 @@
 
 import { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 
-let blobs: IBlobs
+import { Blobs } from '../blob'
 
-export const getBlobStorage = async ({
+export const getBlobStorage = ({
   apiHost,
   token,
   siteID,
@@ -14,26 +14,16 @@ export const getBlobStorage = async ({
   token: string
   siteID: string
   deployId: string
-}) => {
-  // eslint-disable-next-line no-new-func
-  const blobFunction = new Function(`
-    return import('@netlify/blobs')
-`)
-
-  if (!blobs) {
-    const { Blobs } = await blobFunction()
-    blobs = new Blobs({
-      authentication: {
-        apiURL: apiHost.startsWith('http') ? apiHost : `https://${apiHost}`,
-        token,
-      },
-      context: `deploy:${deployId}`,
-      siteID,
-    })
-  }
-
-  return blobs
-}
+}) =>
+  new Blobs({
+    authentication: {
+      apiURL: apiHost.startsWith('http') ? apiHost : `https://${apiHost}`,
+      token,
+    },
+    context: `deploy:${deployId}`,
+    siteID,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any) as unknown as IBlobs
 
 export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
   try {

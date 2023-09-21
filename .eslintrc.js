@@ -93,4 +93,5 @@ module.exports = {
       },
     },
   ],
+  ignorePatterns: ['packages/runtime/src/blob.js'],
 }

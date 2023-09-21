@@ -2,6 +2,7 @@ import { cpus } from 'os'
 
 import { Blobs } from '@netlify/blobs/dist/src/main'
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build/types'
+import { build } from '@netlify/esbuild'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
@@ -163,10 +164,14 @@ export const generateFunctions = async (
     )
     // need to copy the blob storage helper over to be available on request time
     // the odb needs access to the blob storage
-    await copyFile(
-      join(__dirname, '..', '..', 'lib', 'templates', 'blobStorage.js'),
-      join(functionsDir, functionName, 'blobStorage.js'),
-    )
+    // we have to bundle it to not miss any files on the odb then
+    await build({
+      entryPoints: [join(__dirname, '..', '..', 'lib', 'templates', 'blobStorage.js')],
+      outfile: join(functionsDir, functionName, 'blobStorage.js'),
+      bundle: true,
+      platform: 'node',
+    })
+
     await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
 
     const nfInternalFiles = await glob(join(functionsDir, functionName, '**'))
