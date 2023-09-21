@@ -47,11 +47,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: 'netlify/next-runtime'
-          path: ${{ runtime-path }}
+          path: ${{ env.runtime-path }}
 
       - name: install and build runtime
         run: npm install && npm build
-        working-directory: ${{ runtime-path }}
+        working-directory: ${{ env.runtime-path }}
 
       - name: install netlify cli
         run: npm -g netlify-cli
