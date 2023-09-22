@@ -5,6 +5,7 @@ on:
 
 env:
   NODE_VERSION: 18.16.1
+  PNPM_VERSION: 8.7.1
   NEXT_VERSION: v13.5.0-netlify
   NEXT_REPO: netlify/next.js
   NEXT_TEST_MODE: deploy
@@ -23,12 +24,18 @@ jobs:
       matrix:
         group: [1, 2, 3, 4, 5]
     steps:
-      - uses: navikt/github-app-token-generator@v1
+      - name: get github token
+        uses: navikt/github-app-token-generator@v1
         id: get-token
         with:
           private-key: ${{ secrets.TOKENS_PRIVATE_KEY }}
           app-id: ${{ secrets.TOKENS_APP_ID }}
           repo: ${{ env.NEXT_REPO }}
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
       - name: setup node
         uses: actions/setup-node@v3
@@ -39,8 +46,8 @@ jobs:
             **/package-lock.json
             **/pnpm-lock.yaml
 
-      - name: enable pnpm/yarn support
-        run: corepack enable
+      # - name: enable yarn support
+      #   run: corepack enable yarn
 
       - name: checkout next repo
         uses: actions/checkout@v3
