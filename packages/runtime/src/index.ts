@@ -183,7 +183,7 @@ const plugin: NetlifyPlugin = {
           extendedRoutes.map(packSingleFunction),
         )
 
-    const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID, INTERNAL_FUNCTIONS_SRC } = constants
+    const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
 
     const testBlobStorage = new Blobs({
       authentication: {
@@ -195,16 +195,13 @@ const plugin: NetlifyPlugin = {
       siteID: SITE_ID,
     } as any) as unknown as IBlobs
 
-    console.log('get blob storage', { testBlobStorage, available: await isBlobStorageAvailable(testBlobStorage) })
-    let netliBlob: IBlobs
+    console.log('get blob storage', {
+      context: `deploy:${process.env.DEPLOY_ID}`,
+      testBlobStorage,
+      available: await isBlobStorageAvailable(testBlobStorage),
+    })
 
-    if (await isBlobStorageAvailable(testBlobStorage)) {
-      netliBlob = testBlobStorage
-
-      // TODO: not needed
-      // Blob storage is available, so we can generate the incremental cache handler
-      // await generateCacheHandler(INTERNAL_FUNCTIONS_SRC, 'incremental-cache-handler')
-    }
+    const netliBlob = (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
 
     const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, netliBlob, i18n }) : []
     await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
