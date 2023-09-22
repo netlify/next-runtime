@@ -461,22 +461,15 @@ const setPrerenderedBlobStoreContent = async ({
         }
 
         console.log('!!! ROUTE:', { route }, '\n')
-        try {
-          console.log('[SET KEY]:', pageRoute, getHashedKey(pageRoute))
-          await netliBlob.setJSON(getHashedKey(pageRoute), pageBlob)
-        } catch (error) {
-          console.log({ error, pageRoute, pageBlob, key: getHashedKey(pageRoute), route })
-        }
-        try {
-          console.log('[SET KEY]:', dataRoute, getHashedKey(dataRoute), { ssgRoute })
-          await netliBlob.setJSON(getHashedKey(dataRoute), dataBlob)
-        } catch (error) {
-          console.log({ error, dataRoute, dataBlob, key: getHashedKey(dataRoute), route })
-        }
+        console.log('[SET KEY]:', pageRoute, getHashedKey(pageRoute))
+        console.log('[SET KEY]:', dataRoute, getHashedKey(dataRoute), { ssgRoute })
 
-        // return Promise.all([
-        // ])
-      } catch {
+        return Promise.all([
+          await netliBlob.setJSON(getHashedKey(pageRoute), pageBlob),
+          await netliBlob.setJSON(getHashedKey(dataRoute), dataBlob),
+        ])
+      } catch (error) {
+        console.log(error)
         // noop
         // gracefully fall back to not having it in the blob storage and the ISR ODB handler needs to let the
         // request fall through to the next server to generate the page nothing we can serve then.
