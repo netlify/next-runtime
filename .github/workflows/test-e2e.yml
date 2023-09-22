@@ -32,6 +32,18 @@ jobs:
           app-id: ${{ secrets.TOKENS_APP_ID }}
           repo: ${{ env.NEXT_REPO }}
 
+      - name: checkout next repo
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ env.NEXT_REPO }}
+          token: ${{ steps.get-token.outputs.token }}
+          ref: ${{ env.NEXT_VERSION }}
+
+      - name: checkout runtime repo
+        uses: actions/checkout@v3
+        with:
+          path: packages/next-runtime
+
       - name: setup pnpm
         uses: pnpm/action-setup@v2
         with:
@@ -45,18 +57,6 @@ jobs:
 
       # - name: enable yarn support
       #   run: corepack enable yarn
-
-      - name: checkout next repo
-        uses: actions/checkout@v3
-        with:
-          repository: ${{ env.NEXT_REPO }}
-          token: ${{ steps.get-token.outputs.token }}
-          ref: ${{ env.NEXT_VERSION }}
-
-      - name: checkout runtime repo
-        uses: actions/checkout@v3
-        with:
-          path: packages/next-runtime
 
       - name: install
         run: pnpm install
