@@ -43,8 +43,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: |
-            **/package-lock.json
-            **/pnpm-lock.yaml
+            '**/package-lock.json'
+            '**/pnpm-lock.yaml'
 
       # - name: enable yarn support
       #   run: corepack enable yarn
