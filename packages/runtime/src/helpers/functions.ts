@@ -420,8 +420,6 @@ const setPrerenderedBlobStoreContent = async ({
 
   const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
     limit(async () => {
-      // add a trailing slash to match the routes from the getHandler
-      route = `${route}/`
       const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
       const dataFilePath = join(publish, 'server', routerTypeSubPath, ssgRoute.dataRoute)
 
@@ -440,7 +438,7 @@ const setPrerenderedBlobStoreContent = async ({
         // We need to remove the leading slash from the route so that the call to the blob storage
         // does not generate a 405 error.
         // It's currently under consideration to support this in the blob storage API.
-        const pageRoute = route.replace(new RegExp(`^/${i18n.defaultLocale}`), '')
+        const pageRoute = `${route}/`.replace(new RegExp(`^/${i18n.defaultLocale}`), '')
         const pageBlob: BlobISRPage = {
           value: html,
           headers: {
@@ -458,7 +456,7 @@ const setPrerenderedBlobStoreContent = async ({
         }
 
         // for the index route we have to replace it with the language as this is the url that will be requested
-        if (pageRoute === i18n.defaultLocale) {
+        if (pageRoute === `${i18n.defaultLocale}/`) {
           dataRoute = dataRoute.replace(/index\.json$/, `${i18n.defaultLocale}.json`)
         }
 
