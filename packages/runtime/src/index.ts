@@ -186,11 +186,10 @@ const plugin: NetlifyPlugin = {
       splitApiRoutes: splitApiRoutes(featureFlags, publish),
     })
 
-    await movePublicFiles({ appDir, outdir, publish, basePath })
-
-    if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
-      await moveStaticPages({ target, netlifyConfig, i18n, basePath })
-    }
+    await Promise.all([
+      movePublicFiles({ appDir, outdir, publish, basePath }),
+      !destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN) ? moveStaticPages({ target, netlifyConfig, i18n, basePath }) : Promise.resolve()
+    ])
 
     await generateStaticRedirects({
       netlifyConfig,
