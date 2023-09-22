@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 
 env:
+  NODE_ENV: production
   NODE_VERSION: 18.16.1
   PNPM_VERSION: 8.7.1
   NEXT_VERSION: v13.5.1-netlify
@@ -15,8 +16,40 @@ env:
   NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
 
 jobs:
+  build-runtime:
+    name: build runtime
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: cache-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            cache-${{ env.NODE_VERSION }}-
+
+      - name: install runtime
+        run: npm install
+      
+      - name: build runtime
+        run: npm run build
+
+      - name: upload runtime
+        uses: actions/upload-artifact@v3
+        with:
+          path: '**'
+    
   test-e2e:
     name: test e2e
+    needs: [build-runtime]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
@@ -26,7 +59,7 @@ jobs:
     steps:
       - name: get github token
         uses: navikt/github-app-token-generator@v1
-        id: get-token
+        id: token
         with:
           private-key: ${{ secrets.TOKENS_PRIVATE_KEY }}
           app-id: ${{ secrets.TOKENS_APP_ID }}
@@ -36,13 +69,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: ${{ env.NEXT_REPO }}
-          token: ${{ steps.get-token.outputs.token }}
+          token: ${{ steps.token.outputs.token }}
           ref: ${{ env.NEXT_VERSION }}
-
-      - name: checkout runtime repo
-        uses: actions/checkout@v3
-        with:
-          path: packages/next-runtime
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
@@ -55,20 +83,16 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
-      # - name: enable yarn support
-      #   run: corepack enable yarn
-
-      - name: install
-        run: pnpm install --no-frozen-lockfile
+      - name: install next
+        run: pnpm install
         
-      - name: build
+      - name: build next
         run: pnpm build
 
-      # - name: install playwright deps
-      #   run: pnpm playwright install-deps
-        
-      # - name: install chromium
-      #   run: pnpm playwright install chromium
+      - name: download next runtime
+        uses: actions/download-artifact@v3
+        with:
+          path: packages/next-runtime
 
       - name: add netlify cli
         run: pnpm add -g netlify-cli
