@@ -23,6 +23,12 @@ jobs:
     env:
       runtime-path: packages/runtime
     steps:
+      - uses: navikt/github-app-token-generator@a3831f44404199df32d8f39f7c0ad9bb8fa18b1c
+        id: get-token
+        with:
+          private-key: ${{ secrets.TOKENS_PRIVATE_KEY }}
+          app-id: ${{ secrets.TOKENS_APP_ID }}
+
       - name: setup node
         uses: actions/setup-node@v3
         with:
@@ -35,6 +41,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: 'netlify/next.js'
+          token: ${{ steps.get-token.outputs.token }}
           ref: ${{ env.NEXT_VERSION }}
 
       - name: install and build next
@@ -46,7 +53,6 @@ jobs:
       - name: checkout runtime repo
         uses: actions/checkout@v3
         with:
-          repository: 'netlify/next-runtime'
           path: ${{ env.runtime-path }}
 
       - name: install and build runtime
