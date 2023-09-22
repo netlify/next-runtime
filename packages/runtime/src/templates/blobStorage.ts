@@ -1,5 +1,7 @@
 // This file is used on request and build time
 
+import { Buffer } from 'buffer'
+
 import { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 
 export type BlobISRPage = {
@@ -19,5 +21,12 @@ export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
     return false
   }
 }
+
+/**
+ * Creates a hash of a string
+ * @param key the key we want to create a hash from
+ * @returns
+ */
+export const getHashedKey = (key: string): string => Buffer.from(key).toString('base64')
 
 export { Blobs } from '../blob'

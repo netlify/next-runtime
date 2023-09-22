@@ -140,7 +140,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
       // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { Blobs, isBlobStorageAvailable } = require('./blobStorage')
+      const { Blobs, getHashedKey } = require('./blobStorage')
       const netliBlob = new Blobs({
         authentication: {
           contextURL: data.url,
@@ -152,7 +152,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
       // clean up the leading and trailing slash to match the route from the prerender manifest
       const key = event.path.slice(1).replace(/\/$/, '')
-      const ISRPage = (await netliBlob.get(key)) as BlobISRPage
+      const ISRPage = (await netliBlob.get(getHashedKey(key))) as BlobISRPage
 
       if (ISRPage) {
         console.log('YAY cache hit 🎉')
@@ -160,6 +160,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
       } else {
         console.log('missing blob key:', {
           key,
+          hashedKey: getHashedKey(key),
           context: {
             authentication: {
               contextURL: data.url,

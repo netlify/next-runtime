@@ -27,7 +27,7 @@ import {
   API_FUNCTION_NAME,
   LAMBDA_WARNING_SIZE,
 } from '../constants'
-import { BlobISRPage } from '../templates/blobStorage'
+import { BlobISRPage, getHashedKey } from '../templates/blobStorage'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
@@ -460,9 +460,12 @@ const setPrerenderedBlobStoreContent = async ({
           dataRoute = dataRoute.replace(/index\.json$/, `${i18n.defaultLocale}.json`)
         }
 
-        console.log('[SET KEY]:', pageRoute)
-        console.log('[SET KEY]:', dataRoute, { ssgRoute })
-        return Promise.all([netliBlob.setJSON(pageRoute, pageBlob), netliBlob.setJSON(dataRoute, dataBlob)])
+        console.log('[SET KEY]:', pageRoute, getHashedKey(pageRoute))
+        console.log('[SET KEY]:', dataRoute, getHashedKey(pageRoute), { ssgRoute })
+        return Promise.all([
+          netliBlob.setJSON(getHashedKey(pageRoute), pageBlob),
+          netliBlob.setJSON(getHashedKey(dataRoute), dataBlob),
+        ])
       } catch {
         // noop
         // gracefully fall back to not having it in the blob storage and the ISR ODB handler needs to let the
