@@ -438,7 +438,7 @@ const setPrerenderedBlobStoreContent = async ({
         // We need to remove the leading slash from the route so that the call to the blob storage
         // does not generate a 405 error.
         // It's currently under consideration to support this in the blob storage API.
-        const pageRoute = route.replace(new RegExp(`^${i18n.defaultLocale}/`), '')
+        const pageRoute = route.replace(new RegExp(`^/${i18n.defaultLocale}`), '')
         const pageBlob: BlobISRPage = {
           value: html,
           headers: {
