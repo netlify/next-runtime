@@ -420,6 +420,8 @@ const setPrerenderedBlobStoreContent = async ({
 
   const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
     limit(async () => {
+      // add a trailing slash to match the routes from the getHandler
+      route = `${route}/`
       const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
       const dataFilePath = join(publish, 'server', routerTypeSubPath, ssgRoute.dataRoute)
 

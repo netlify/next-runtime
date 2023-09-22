@@ -152,8 +152,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         siteID: event.headers['x-nf-site-id'],
       })
 
-      // clean up the trailing slash to match the route from the prerender manifest
-      const key = event.path.replace(/\/$/, '')
+      const key = event.path
       const ISRPage = (await netliBlob.get(getHashedKey(key))) as BlobISRPage
 
       if (ISRPage) {
