@@ -24,6 +24,7 @@
     "fs-extra": "^10.0.0",
     "globby": "^11.0.4",
     "merge-stream": "^2.0.0",
+    "mime-types": "^2.1.35",
     "moize": "^6.1.0",
     "node-fetch": "^2.6.6",
     "node-stream-zip": "^1.15.0",

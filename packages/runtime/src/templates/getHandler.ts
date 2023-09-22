@@ -158,7 +158,17 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         console.log('YAY cache hit 🎉')
         console.log(ISRPage)
       } else {
-        console.log('missing blob key:', { key })
+        console.log('missing blob key:', {
+          key,
+          context: {
+            authentication: {
+              contextURL: data.url,
+              token: data.token,
+            },
+            context: `deploy:${event.headers['x-nf-deploy-id']}`,
+            siteID: event.headers['x-nf-site-id'],
+          },
+        })
       }
 
       console.log('get blob storage', {
@@ -184,7 +194,6 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
     const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
-    console.log({ result, headers })
     // Convert all headers to multiValueHeaders
 
     const multiValueHeaders = getMultiValueHeaders(headers)

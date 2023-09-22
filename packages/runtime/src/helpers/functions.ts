@@ -461,7 +461,7 @@ const setPrerenderedBlobStoreContent = async ({
         }
 
         console.log('[SET KEY]:', pageRoute)
-        console.log('[SET KEY]:', ssgRoute.dataRoute, { ssgRoute })
+        console.log('[SET KEY]:', dataRoute, { ssgRoute })
         return Promise.all([netliBlob.setJSON(pageRoute, pageBlob), netliBlob.setJSON(dataRoute, dataBlob)])
       } catch {
         // noop
