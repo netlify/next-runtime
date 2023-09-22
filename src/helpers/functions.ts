@@ -14,6 +14,7 @@ const moveServerFiles = (publishDir: string) => {
   copySync(`${publishDir}/standalone/.next`, `${HANDLER_DIR}/.next`, { overwrite: true })
   copySync(`${__dirname}/../templates/handler.cjs`, `${HANDLER_DIR}/${HANDLER_NAME}.js`, { overwrite: true })
   copySync(`${__dirname}/../templates/bridge.cjs`, `${HANDLER_DIR}/bridge.js`, { overwrite: true })
+  copySync(`${__dirname}/../templates/headers.cjs`, `${HANDLER_DIR}/headers.js`, { overwrite: true })
   copySync(`${__dirname}/../templates/cache-handler.cjs`, `${HANDLER_DIR}/cache-handler.js`, {
     overwrite: true,
   })

@@ -1,6 +1,7 @@
 import http from 'node:http'
 
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
+import type { NextConfigComplete } from 'next/dist/server/config-shared'
 // @ts-ignore
 import { getRequestHandlers } from 'next/dist/server/lib/start-server.js'
 
@@ -8,101 +9,16 @@ import { getRequestHandlers } from 'next/dist/server/lib/start-server.js'
 import requiredServerFiles from './.next/required-server-files.json'
 // @ts-ignore
 import { Bridge } from './bridge.js'
+import { getAutoDetectedLocales, handleCacheControl, handleVary } from './headers.cjs'
 
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
+
+const nextConfig = requiredServerFiles.config as NextConfigComplete
+const autoDetectedLocales = getAutoDetectedLocales(nextConfig)
 
 process.chdir(__dirname)
 
 let bridge: Bridge
-
-export interface NetlifyVaryHeaderBuilder {
-  headers: string[]
-  languages: string[]
-  cookies: string[]
-}
-
-const generateNetlifyVaryHeaderValue = ({ headers, languages, cookies }: NetlifyVaryHeaderBuilder): string => {
-  let NetlifyVaryHeader = ``
-  if (headers && headers.length !== 0) {
-    NetlifyVaryHeader += `header=${headers.join(`|`)}`
-  }
-  if (languages && languages.length !== 0) {
-    if (NetlifyVaryHeader.length !== 0) {
-      NetlifyVaryHeader += `,`
-    }
-    NetlifyVaryHeader += `language=${languages.join(`|`)}`
-  }
-  if (cookies && cookies.length !== 0) {
-    if (NetlifyVaryHeader.length !== 0) {
-      NetlifyVaryHeader += `,`
-    }
-    NetlifyVaryHeader += `cookie=${cookies.join(`|`)}`
-  }
-
-  return NetlifyVaryHeader
-}
-
-const getDirectives = (headerValue: string): string[] => headerValue.split(',').map((directive) => directive.trim())
-
-const removeSMaxAgeAndStaleWhileRevalidate = (headerValue: string): string =>
-  getDirectives(headerValue)
-    .filter((directive) => {
-      if (directive.startsWith('s-maxage')) {
-        return false
-      }
-      if (directive.startsWith('stale-while-revalidate')) {
-        return false
-      }
-      return true
-    })
-    .join(`,`)
-
-const handleVary = (eventPath: string, headers: Record<string, string>) => {
-  const netlifyVaryBuilder: NetlifyVaryHeaderBuilder = {
-    headers: [],
-    languages: [],
-    cookies: ['__prerender_bypass', '__next_preview_data'],
-  }
-
-  if (headers.vary.length !== 0) {
-    netlifyVaryBuilder.headers.push(...getDirectives(headers.vary))
-  }
-
-  if (
-    requiredServerFiles.config.i18n &&
-    requiredServerFiles.config.i18n.localeDetection !== false &&
-    requiredServerFiles.config.i18n.locales.length > 1
-  ) {
-    const logicalPath =
-      requiredServerFiles.config.basePath && eventPath.startsWith(requiredServerFiles.config.basePath)
-        ? eventPath.slice(requiredServerFiles.config.basePath.length)
-        : eventPath
-
-    if (logicalPath === `/`) {
-      netlifyVaryBuilder.languages.push(...requiredServerFiles.config.i18n.locales)
-      netlifyVaryBuilder.cookies.push(`NEXT_LOCALE`)
-    }
-  }
-
-  const NetlifyVaryHeader = generateNetlifyVaryHeaderValue(netlifyVaryBuilder)
-  if (NetlifyVaryHeader.length !== 0) {
-    headers[`netlify-vary`] = NetlifyVaryHeader
-  }
-}
-
-const handleCacheControl = (headers: Record<string, string>) => {
-  if (headers['cache-control'] && !headers['cdn-cache-control'] && !headers['netlify-cdn-cache-control']) {
-    headers['netlify-cdn-cache-control'] = headers['cache-control']
-
-    const filteredCacheControlDirectives = removeSMaxAgeAndStaleWhileRevalidate(headers['cache-control'])
-
-    // use default cache-control if no directives are left
-    headers['cache-control'] =
-      filteredCacheControlDirectives.length === 0
-        ? 'public, max-age=0, must-revalidate'
-        : filteredCacheControlDirectives
-  }
-}
 
 export const handler: Handler = async function (event: HandlerEvent, context: HandlerContext) {
   if (!bridge) {
@@ -139,7 +55,7 @@ export const handler: Handler = async function (event: HandlerEvent, context: Ha
   console.log('Next server response:', JSON.stringify(response, null, 2))
 
   handleCacheControl(headers)
-  handleVary(event.path, headers)
+  handleVary(headers, event.path, nextConfig.basePath, autoDetectedLocales)
   console.log(`Response headers after Netlify processing:`, JSON.stringify(headers, null, 2))
 
   return {
