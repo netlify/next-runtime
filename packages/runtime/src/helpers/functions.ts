@@ -460,17 +460,18 @@ const setPrerenderedBlobStoreContent = async ({
           dataRoute = dataRoute.replace(/index\.json$/, `${i18n.defaultLocale}.json`)
         }
 
+        console.log('!!! ROUTE:', { route }, '\n')
         try {
           console.log('[SET KEY]:', pageRoute, getHashedKey(pageRoute))
           await netliBlob.setJSON(getHashedKey(pageRoute), pageBlob)
         } catch (error) {
-          console.log({ error, pageRoute, pageBlob, key: getHashedKey(pageRoute) })
+          console.log({ error, pageRoute, pageBlob, key: getHashedKey(pageRoute), route })
         }
         try {
           console.log('[SET KEY]:', dataRoute, getHashedKey(dataRoute), { ssgRoute })
           await netliBlob.setJSON(getHashedKey(dataRoute), dataBlob)
         } catch (error) {
-          console.log({ error, dataRoute, dataBlob, key: getHashedKey(dataRoute) })
+          console.log({ error, dataRoute, dataBlob, key: getHashedKey(dataRoute), route })
         }
 
         // return Promise.all([
