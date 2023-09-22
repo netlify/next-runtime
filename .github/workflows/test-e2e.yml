@@ -5,7 +5,11 @@ on:
 
 env:
   NODE_VERSION: 18.16.1
+  NEXT_VERSION: v13.5.0-netlify
+  NEXT_REPO: netlify/next.js
+  NEXT_TEST_MODE: deploy
   TEST_CONCURRENCY: 8
+  NEXT_TELEMETRY_DISABLED: 1
   NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
   NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
 
@@ -18,38 +22,60 @@ jobs:
       fail-fast: false
       matrix:
         group: [1, 2, 3, 4, 5]
-    env:
-      runtime-path: packages/runtime
     steps:
-    - name: setup node
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ env.NODE_VERSION }}
+      - uses: navikt/github-app-token-generator@v1
+        id: get-token
+        with:
+          private-key: ${{ secrets.TOKENS_PRIVATE_KEY }}
+          app-id: ${{ secrets.TOKENS_APP_ID }}
+          repo: ${{ env.NEXT_REPO }}
 
-    - name: enable pnpm/yarn support
-      run: corepack enable
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: |
+            **/package-lock.json
+            **/pnpm-lock.yaml
 
-    - name: build next
-      uses: ./.github/workflows/build-next.yml
-      secrets: inherit
+      - name: enable pnpm/yarn support
+        run: corepack enable
 
-    - name: build runtime
-      uses: ./.github/workflows/build-runtime.yml
-      secrets: inherit
+      - name: checkout next repo
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ env.NEXT_REPO }}
+          token: ${{ steps.get-token.outputs.token }}
+          ref: ${{ env.NEXT_VERSION }}
 
-    # - name: install playwright
-    #   run: pnpm playwright install-deps && pnpm playwright install chromium
+      - name: checkout runtime repo
+        uses: actions/checkout@v3
+        with:
+          path: packages/next-runtime
 
-    - name: install netlify cli
-      run: pnpm add -g netlify-cli
+      - name: install
+        run: pnpm install
+        
+      - name: build
+        run: pnpm build
 
-    - name: run tests
-      run: NEXT_TEST_MODE=deploy node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
+      # - name: install playwright deps
+      #   run: pnpm playwright install-deps
+        
+      # - name: install chromium
+      #   run: pnpm playwright install chromium
+
+      - name: install netlify cli
+        run: pnpm add -g netlify-cli
+
+      - name: run tests
+        run: node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
 
   validate-tests:
     name: validate tests
     needs: [test-e2e]
     runs-on: ubuntu-latest
     steps:
-    - run: exit 1
-      if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
+      - run: exit 1
+        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
