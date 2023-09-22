@@ -460,12 +460,21 @@ const setPrerenderedBlobStoreContent = async ({
           dataRoute = dataRoute.replace(/index\.json$/, `${i18n.defaultLocale}.json`)
         }
 
-        console.log('[SET KEY]:', pageRoute, getHashedKey(pageRoute))
-        console.log('[SET KEY]:', dataRoute, getHashedKey(pageRoute), { ssgRoute })
-        return Promise.all([
-          netliBlob.setJSON(getHashedKey(pageRoute), pageBlob),
-          netliBlob.setJSON(getHashedKey(dataRoute), dataBlob),
-        ])
+        try {
+          console.log('[SET KEY]:', pageRoute, getHashedKey(pageRoute))
+          await netliBlob.setJSON(getHashedKey(pageRoute), pageBlob)
+        } catch (error) {
+          console.log({ error, pageRoute, pageBlob })
+        }
+        try {
+          console.log('[SET KEY]:', dataRoute, getHashedKey(pageRoute), { ssgRoute })
+          await netliBlob.setJSON(getHashedKey(dataRoute), dataBlob)
+        } catch (error) {
+          console.log({ error, dataRoute, dataBlob })
+        }
+
+        // return Promise.all([
+        // ])
       } catch {
         // noop
         // gracefully fall back to not having it in the blob storage and the ISR ODB handler needs to let the
