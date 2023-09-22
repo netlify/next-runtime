@@ -126,6 +126,8 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     }
 
     event.path = normalizePath(event)
+    // Next expects to be able to parse the query from the URL
+    const query = new URLSearchParams(event.queryStringParameters).toString()
 
     // only retrieve the prerendered data on misses from the odb
     if (event.headers['x-nf-builder-cache'] === 'miss') {
