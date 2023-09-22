@@ -150,37 +150,37 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         siteID: event.headers['x-nf-site-id'],
       })
 
-      // clean up the leading and trailing slash to match the route from the prerender manifest
-      const key = event.path.slice(1).replace(/\/$/, '')
+      // clean up the trailing slash to match the route from the prerender manifest
+      const key = event.path.replace(/\/$/, '')
       const ISRPage = (await netliBlob.get(getHashedKey(key))) as BlobISRPage
 
       if (ISRPage) {
-        console.log('YAY cache hit 🎉')
-        console.log(ISRPage)
-      } else {
-        console.log('missing blob key:', {
-          key,
-          hashedKey: getHashedKey(key),
-          context: {
-            authentication: {
-              contextURL: data.url,
-              token: data.token,
-            },
-            context: `deploy:${event.headers['x-nf-deploy-id']}`,
-            siteID: event.headers['x-nf-site-id'],
-          },
-        })
-      }
+        console.log('YAY cache hit 🎉', ISRPage)
 
-      console.log('get blob storage', {
-        headers: event.headers,
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { Buffer } = require('buffer')
+        return {
+          body: Buffer.from(ISRPage.value).toString('base64'),
+          headers: ISRPage.headers,
+          statusCode: 200,
+        }
+      }
+      console.log('missing blob key:', {
+        key,
+        hashedKey: getHashedKey(key),
+        context: {
+          authentication: {
+            contextURL: data.url,
+            token: data.token,
+          },
+          context: `deploy:${event.headers['x-nf-deploy-id']}`,
+          siteID: event.headers['x-nf-site-id'],
+        },
       })
     } else {
       console.log('No need to retrieve from the blob storage as it is cached')
     }
 
-    // Next expects to be able to parse the query from the URL
-    const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
 
     if (event.headers['accept-language'] && (mode === 'odb' || event.headers['x-next-just-first-accept-language'])) {
