@@ -1,0 +1,28 @@
+name: build next runtime
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        required: false
+        default: .
+        type: string
+
+jobs:
+  build-next:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.path }}
+    steps:
+    - name: checkout runtime repo
+      uses: actions/checkout@v3
+      with:
+        path: ${{ inputs.path }}
+
+    - name: install runtime
+      run: npm install
+
+    - name: build runtime
+      run: npm build

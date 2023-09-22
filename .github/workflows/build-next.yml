@@ -1,0 +1,33 @@
+name: build next.js
+
+on:
+  workflow_call:
+
+env:
+  NODE_VERSION: 18.16.1
+  NEXT_VERSION: v13.5.0-netlify
+  NEXT_REPO: netlify/next.js
+
+jobs:
+  build-next:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: navikt/github-app-token-generator@a3831f44404199df32d8f39f7c0ad9bb8fa18b1c
+      id: get-token
+      with:
+        private-key: ${{ secrets.TOKENS_PRIVATE_KEY }}
+        app-id: ${{ secrets.TOKENS_APP_ID }}
+        repo: ${{ env.NEXT_REPO }}
+
+    - name: checkout next repo
+      uses: actions/checkout@v3
+      with:
+        token: ${{ steps.get-token.outputs.token }}
+        repository: ${{ env.NEXT_REPO }}
+        ref: ${{ env.NEXT_VERSION }}
+
+    - name: install next
+      run: pnpm install
+
+    - name: build next
+      run: pnpm build
