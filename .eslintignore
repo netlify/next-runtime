@@ -6,6 +6,7 @@ packages/runtime/src/templates/edge
 packages/runtime/src/templates/edge-shared
 packages/runtime/lib
 packages/runtime/dist-types
+packages/runtime/src/blob.js
 jestSetup.js
 test/e2e
 test/fixtures/broken_next_config/next.config.js
