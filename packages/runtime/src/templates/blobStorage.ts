@@ -20,11 +20,4 @@ export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
   }
 }
 
-/**
- * Creates a hash of a string
- * @param key the key we want to create a hash from
- * @returns
- */
-export const getHashedKey = (key: string): string => encodeURIComponent(key)
-
 export { Blobs } from '../blob'

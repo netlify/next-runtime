@@ -27,7 +27,7 @@ import {
   API_FUNCTION_NAME,
   LAMBDA_WARNING_SIZE,
 } from '../constants'
-import { BlobISRPage, getHashedKey } from '../templates/blobStorage'
+import { BlobISRPage } from '../templates/blobStorage'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
@@ -461,13 +461,10 @@ const setPrerenderedBlobStoreContent = async ({
         }
 
         console.log('!!! ROUTE:', { route }, '\n')
-        console.log('[SET KEY]:', pageRoute, getHashedKey(pageRoute))
-        console.log('[SET KEY]:', dataRoute, getHashedKey(dataRoute), { ssgRoute })
+        console.log('[SET KEY]:', pageRoute)
+        console.log('[SET KEY]:', dataRoute, { ssgRoute })
 
-        return Promise.all([
-          await netliBlob.setJSON(getHashedKey(pageRoute), pageBlob),
-          await netliBlob.setJSON(getHashedKey(dataRoute), dataBlob),
-        ])
+        return Promise.all([await netliBlob.setJSON(pageRoute, pageBlob), await netliBlob.setJSON(dataRoute, dataBlob)])
       } catch (error) {
         console.log(error)
         // noop
