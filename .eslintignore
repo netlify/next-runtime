@@ -4,6 +4,7 @@ lib
 demos
 packages/runtime/src/templates/edge
 packages/runtime/src/templates/edge-shared
+packages/runtime/src/templates/vendor
 packages/runtime/lib
 packages/runtime/dist-types
 jestSetup.js

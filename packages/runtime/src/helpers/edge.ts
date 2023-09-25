@@ -356,7 +356,7 @@ export const getEdgeFunctionPatternForPage = ({
 export const writeEdgeFunctions = async ({
   netlifyConfig,
   routesManifest,
-  constants: { PACKAGE_PATH = '' },
+  constants: { PACKAGE_PATH = '', INTERNAL_EDGE_FUNCTIONS_SRC },
 }: {
   netlifyConfig: NetlifyConfig
   routesManifest: RoutesManifest
@@ -377,6 +377,11 @@ export const writeEdgeFunctions = async ({
   const nextConfigFile = await getRequiredServerFiles(publish)
   const nextConfig = nextConfigFile.config
   const usesAppDir = nextConfig.experimental?.appDir
+
+  await copy(getEdgeTemplatePath('../vendor'), join(edgeFunctionRoot, 'vendor'))
+  netlifyConfig.functions['*'] = {
+    deno_import_map: join(INTERNAL_EDGE_FUNCTIONS_SRC, 'vendor', 'import_map.json'),
+  }
 
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
