@@ -31,6 +31,9 @@ jobs:
         with:
           node-version: 16
           check-latest: true
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
       - name: NPM Install
         run: npm install
       - name: Linting
@@ -54,6 +57,9 @@ jobs:
         with:
           node-version: 16
           check-latest: true
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
       - name: NPM Install
         run: npm install
       - name: Install Next.js Canary

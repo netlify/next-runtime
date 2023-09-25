@@ -15,6 +15,9 @@ jobs:
           cache: 'npm'
           check-latest: true
           registry-url: 'https://registry.npmjs.org'
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
       - name: Install core dependencies
         run: npm ci --no-audit
       - name: Extract tag and version

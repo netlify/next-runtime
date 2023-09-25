@@ -13,9 +13,8 @@ jobs:
     steps:
       - name: Git Checkout Deno Module
         uses: actions/checkout@v3
-      - name: Use Deno Version ${{ matrix.deno-version }}
-        uses: denolib/setup-deno@v2
+      - uses: denoland/setup-deno@v1
         with:
-          deno-version: vx.x.x
+          deno-version: v1.x
       - name: Test Deno
         run: deno test packages/runtime/src/templates/edge-shared/
