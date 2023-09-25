@@ -1,6 +1,6 @@
 import type { NetlifyConfig } from '@netlify/build/types'
 import destr from 'destr'
-import { existsSync, readJSON, writeJSON } from 'fs-extra'
+import { readJSON, writeJSON } from 'fs-extra'
 import type { Header } from 'next/dist/lib/load-custom-routes'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'
 import { join, dirname, relative } from 'pathe'
@@ -34,30 +34,15 @@ const defaultFailBuild = (message: string, { error }): never => {
   throw new Error(`${message}\n${error && error.stack}`)
 }
 
-const addIncrementalCacheHandlerPath = (
-  incrementalCacheHandlerPath: string,
-  experimentalConfig: NextConfig['experimental'],
-) => {
-  // This check is needed for now because if blob storage isn't available, this file will not have been created
-  if (incrementalCacheHandlerPath !== undefined && existsSync(incrementalCacheHandlerPath)) {
-    experimentalConfig.incrementalCacheHandlerPath = incrementalCacheHandlerPath
-  }
-
-  return experimentalConfig
-}
-
 export const getNextConfig = async function getNextConfig({
   publish,
   failBuild = defaultFailBuild,
-  incrementalCacheHandlerPath,
 }: {
   publish: string
   failBuild?: (message: string, { error }) => never
-  incrementalCacheHandlerPath?: string
 }): Promise<NextConfig> {
   try {
-    const requiredServerFiles: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
-    const { config, appDir, ignore } = requiredServerFiles
+    const { config, appDir, ignore }: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
 
     if (!config) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -65,21 +50,6 @@ export const getNextConfig = async function getNextConfig({
       return failBuild('Error loading your Next config')
     }
 
-    if ('incrementalCacheHandlerPath' in config.experimental) {
-      console.warn(
-        "Your Next.js configuration has the experimental incrementalCacheHandlerPath option set. It will be overridden by Netlify's internal cache.",
-      )
-    }
-
-    // For more info, see https://nextjs.org/docs/app/api-reference/next-config-js/incrementalCacheHandlerPath
-    // ./cache-handler.js will be copied to the root or the .next build folder
-    await writeJSON(join(publish, 'required-server-files.json'), {
-      ...requiredServerFiles,
-      config: {
-        ...config,
-        experimental: addIncrementalCacheHandlerPath(incrementalCacheHandlerPath, config.experimental),
-      },
-    })
     const routesManifest: RoutesManifest = await readJSON(join(publish, ROUTES_MANIFEST_FILE))
 
     // If you need access to other manifest files, you can add them here as well

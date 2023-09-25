@@ -1,7 +1,5 @@
 // This file is used on request and build time
 
-import { Buffer } from 'buffer'
-
 import { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 
 export type BlobISRPage = {

@@ -193,6 +193,7 @@ const plugin: NetlifyPlugin = {
       context: `deploy:${process.env.DEPLOY_ID}`,
       // context: `deploy:650c4da1c2e4f734db8855c2`,
       siteID: SITE_ID,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any) as unknown as IBlobs
 
     console.log('get blob storage', {
@@ -206,6 +207,7 @@ const plugin: NetlifyPlugin = {
     const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, netliBlob, i18n }) : []
     await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
     await generatePagesResolver(constants)
+
     await configureHandlerFunctions({
       netlifyConfig,
       ignore,
@@ -257,7 +259,7 @@ const plugin: NetlifyPlugin = {
       functions,
       build: { failBuild },
     },
-    constants: { FUNCTIONS_DIST, INTERNAL_FUNCTIONS_SRC },
+    constants: { FUNCTIONS_DIST },
   }) {
     await saveCache({ cache, publish })
 
@@ -272,15 +274,10 @@ const plugin: NetlifyPlugin = {
       })
       return
     }
-    const incrementalCacheHandlerPath = join(
-      INTERNAL_FUNCTIONS_SRC,
-      'incremental-cache-handler',
-      'netlify-incremental-cache.js',
-    )
 
     await checkForOldFunctions({ functions })
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
-    const nextConfig = await getNextConfig({ publish, failBuild, incrementalCacheHandlerPath })
+    const nextConfig = await getNextConfig({ publish, failBuild })
 
     const { basePath, appDir, experimental } = nextConfig
 
