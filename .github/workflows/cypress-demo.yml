@@ -51,6 +51,10 @@ jobs:
         with:
           node-version: '16'
 
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
       - run: npm install
 
       - name: Cypress run
