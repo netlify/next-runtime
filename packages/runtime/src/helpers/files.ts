@@ -166,7 +166,7 @@ export const moveStaticPages = async ({
     const pagePath = filePath.split('/').slice(1).join('/')
     // Don't move ISR files, as they're used for the first request
     if (isrFiles.has(pagePath)) {
-      console.log(`blob-debug`, { pagePath, ...getSourceAndTargetPath(pagePath) })
+      console.log(`blob-debug`, { pagePath, ...getSourceAndTargetPath(filePath) })
       return
     }
     if (isDynamicRoute(pagePath)) {
