@@ -1,15 +1,21 @@
 import { existsSync } from 'node:fs'
 
-import { moveSync } from 'fs-extra/esm'
+import { copySync } from 'fs-extra/esm'
 
+import { NETLIFY_PUBLISH_DIR } from './constants.js'
+
+/**
+ * Ensure static assets get uploaded to the Netlify CDN
+ * @param publishDir The publish directory
+ */
 export const publishStaticAssets = (publishDir: string) => {
-  moveSync(publishDir, `${publishDir}.orig`)
+  // copy user's public folder to the new publish directory
   if (existsSync('public')) {
-    moveSync('public', publishDir)
+    copySync('public', NETLIFY_PUBLISH_DIR, { overwrite: true })
+  } else {
+    existsSync(NETLIFY_PUBLISH_DIR)
   }
-  moveSync(`${publishDir}.orig/static/`, `${publishDir}/_next/static`)
-}
 
-export const revertStaticAssets = (publishDir: string) => {
-  moveSync(`${publishDir}.orig`, publishDir, { overwrite: true })
+  // copy the Next.js static assets to the new publish directory
+  copySync(`${publishDir}/static/`, `${NETLIFY_PUBLISH_DIR}/_next/static`, { overwrite: true })
 }

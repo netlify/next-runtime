@@ -1,5 +1,5 @@
 // @ts-ignore
-import original from './.netlify/next.config.js'
+import original from './next.config.js.orig'
 
 module.exports = {
   ...original,
