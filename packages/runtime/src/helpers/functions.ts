@@ -474,13 +474,16 @@ const setPrerenderedBlobStoreContent = async ({
           dataRoute = dataRoute.replace(/index\.json$/, `${i18n.defaultLocale}.json`)
         }
 
+        const key1 = pageRoute.replace(/[^\da-zA-Z]/g, '')
+        const key2 = dataRoute.replace(/[^\da-zA-Z]/g, '')
+
         console.log('!!! ROUTE:', { route }, '\n')
-        console.log('[SET KEY]:', pageRoute)
-        console.log('[SET KEY]:', dataRoute, { ssgRoute })
+        console.log('[SET KEY]:', pageRoute, key1)
+        console.log('[SET KEY]:', dataRoute, key2, { ssgRoute })
 
         const promise = Promise.all([
           await netliBlob
-            .setJSON(pageRoute, pageBlob)
+            .setJSON(key1, pageBlob)
             // eslint-disable-next-line max-nested-callbacks
             .then((v) => {
               s += 1
@@ -493,7 +496,7 @@ const setPrerenderedBlobStoreContent = async ({
               throw error
             }),
           await netliBlob
-            .setJSON(dataRoute, dataBlob) // eslint-disable-next-line max-nested-callbacks
+            .setJSON(key2, dataBlob) // eslint-disable-next-line max-nested-callbacks
             .then((v) => {
               s += 1
               handledFiles.add(htmlFilePath)
