@@ -118,14 +118,22 @@ export const moveStaticPages = async ({
 
   let fileCount = 0
   const filesManifest: Record<string, string> = {}
-  const moveFile = async (file: string) => {
+  const getSourceAndTargetPath = (file: string): { targetPath: string; source: string } => {
+    const source = join(outputDir, file)
     // Strip the initial 'app' or 'pages' directory from the output path
     const pathname = file.split('/').slice(1).join('/')
     // .rsc data files go next to the html file
     const isData = file.endsWith('.json')
-    const source = join(outputDir, file)
     const targetFile = isData ? join(dataDir, pathname) : pathname
     const targetPath = basePath ? join(basePath, targetFile) : targetFile
+
+    return {
+      targetPath,
+      source,
+    }
+  }
+  const moveFile = async (file: string) => {
+    const { source, targetPath } = getSourceAndTargetPath(file)
 
     fileCount += 1
     filesManifest[file] = targetPath
@@ -158,6 +166,7 @@ export const moveStaticPages = async ({
     const pagePath = filePath.split('/').slice(1).join('/')
     // Don't move ISR files, as they're used for the first request
     if (isrFiles.has(pagePath)) {
+      console.log(`blob-debug`, { pagePath, ...getSourceAndTargetPath(pagePath) })
       return
     }
     if (isDynamicRoute(pagePath)) {
