@@ -166,7 +166,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key))) as BlobISRPage
 
         if (ISRPage) {
-          console.log('YAY cache hit 🎉', ISRPage)
+          console.log('YAY cache hit 🎉', { ISRPage })
 
           // eslint-disable-next-line @typescript-eslint/no-var-requires
           const { Buffer } = require('buffer')
