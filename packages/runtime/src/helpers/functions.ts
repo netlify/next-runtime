@@ -417,6 +417,10 @@ const setPrerenderedBlobStoreContent = async ({
   // demos/default/.next/server/pages/en/getStaticProps/1.html
   // demos/default/.next/server/pages/en/getStaticProps/1.json
   const limit = pLimit(Math.max(2, cpus().length))
+  const handledFiles = new Set<string>()
+
+  let s = 0
+  let f = 0
 
   const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
     limit(async () => {
@@ -426,10 +430,12 @@ const setPrerenderedBlobStoreContent = async ({
       try {
         // Page data for an app router page is an RSC serialized format, i.e. a string,
         // or a JSON file for the pages router.
+        const pageDataPath =
+          routerTypeSubPath === 'app' ? dataFilePath : join(publish, 'server', routerTypeSubPath, `${route}.json`)
         const pageData =
           routerTypeSubPath === 'app'
-            ? await readFile(dataFilePath, 'utf8')
-            : JSON.parse(await readFile(join(publish, 'server', routerTypeSubPath, `${route}.json`), 'utf8'))
+            ? await readFile(pageDataPath, 'utf8')
+            : JSON.parse(await readFile(pageDataPath, 'utf8'))
 
         const htmlFilePath = join(publish, 'server', routerTypeSubPath, `${route}.html`)
         const html = await readFile(htmlFilePath, 'utf8')
@@ -464,7 +470,35 @@ const setPrerenderedBlobStoreContent = async ({
         console.log('[SET KEY]:', pageRoute)
         console.log('[SET KEY]:', dataRoute, { ssgRoute })
 
-        return Promise.all([await netliBlob.setJSON(pageRoute, pageBlob), await netliBlob.setJSON(dataRoute, dataBlob)])
+        const promise = Promise.all([
+          await netliBlob
+            .setJSON(pageRoute, pageBlob)
+            // eslint-disable-next-line max-nested-callbacks
+            .then((v) => {
+              s += 1
+              handledFiles.add(pageDataPath)
+              return v
+            })
+            // eslint-disable-next-line max-nested-callbacks
+            .catch((error) => {
+              f += 1
+              throw error
+            }),
+          await netliBlob
+            .setJSON(dataRoute, dataBlob) // eslint-disable-next-line max-nested-callbacks
+            .then((v) => {
+              s += 1
+              handledFiles.add(htmlFilePath)
+              return v
+            })
+            // eslint-disable-next-line max-nested-callbacks
+            .catch((error) => {
+              f += 1
+              throw error
+            }),
+        ])
+
+        return promise
       } catch (error) {
         console.log(error)
         // noop
@@ -475,6 +509,12 @@ const setPrerenderedBlobStoreContent = async ({
   )
 
   await Promise.all(blobCalls)
+
+  console.log(`blobs set stats`, {
+    s,
+    f,
+    handledFiles,
+  })
 }
 
 const getPrerenderedContent = (prerenderManifest: PrerenderManifest, publish: string): string[] => [
