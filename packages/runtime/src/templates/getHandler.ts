@@ -118,6 +118,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     return bridge
   }
 
+  // eslint-disable-next-line max-lines-per-function
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     let requestMode: string = mode
     const prefetchResponse = getPrefetchResponse(event, mode)
@@ -130,7 +131,8 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     const query = new URLSearchParams(event.queryStringParameters).toString()
 
     // only retrieve the prerendered data on misses from the odb
-    if (event.headers['x-nf-builder-cache'] === 'miss') {
+    // if (event.headers['x-nf-builder-cache'] === 'miss') {
+    {
       // retrieve the data for the blob storage
       const {
         clientContext: { custom: customContext },
@@ -152,33 +154,42 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         siteID: event.headers['x-nf-site-id'],
       })
 
-      const key = event.path
-      const ISRPage = (await netliBlob.get(key)) as BlobISRPage
-
-      if (ISRPage) {
-        console.log('YAY cache hit 🎉', ISRPage)
-
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { Buffer } = require('buffer')
-        return {
-          body: Buffer.from(ISRPage.value).toString('base64'),
-          headers: ISRPage.headers,
-          statusCode: 200,
-        }
+      try {
+        const t = await netliBlob.get('piehtest')
+        console.log(`test get`, { t })
+      } catch (error) {
+        console.error(`test get`, error)
       }
-      console.log('missing blob key:', {
-        key,
-        context: {
-          authentication: {
-            contextURL: data.url,
-            token: data.token,
+
+      const key = event.path
+      if (event.headers['x-nf-builder-cache'] === 'miss') {
+        const ISRPage = (await netliBlob.get(key)) as BlobISRPage
+
+        if (ISRPage) {
+          console.log('YAY cache hit 🎉', ISRPage)
+
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const { Buffer } = require('buffer')
+          return {
+            body: Buffer.from(ISRPage.value).toString('base64'),
+            headers: ISRPage.headers,
+            statusCode: 200,
+          }
+        }
+        console.log('missing blob key:', {
+          key,
+          context: {
+            authentication: {
+              contextURL: data.url,
+              token: data.token,
+            },
+            context: `deploy:${event.headers['x-nf-deploy-id']}`,
+            siteID: event.headers['x-nf-site-id'],
           },
-          context: `deploy:${event.headers['x-nf-deploy-id']}`,
-          siteID: event.headers['x-nf-site-id'],
-        },
-      })
-    } else {
-      console.log('No need to retrieve from the blob storage as it is cached')
+        })
+      } else {
+        console.log('No need to retrieve from the blob storage as it is cached')
+      }
     }
 
     event.path = query ? `${event.path}?${query}` : event.path

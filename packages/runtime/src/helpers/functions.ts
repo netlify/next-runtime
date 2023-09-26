@@ -422,6 +422,14 @@ const setPrerenderedBlobStoreContent = async ({
   let s = 0
   let f = 0
 
+  try {
+    await netliBlob.setJSON('piehtest', 'wat')
+    s += 1
+  } catch (error) {
+    f += 1
+    console.error(error)
+  }
+
   const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
     limit(async () => {
       const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
