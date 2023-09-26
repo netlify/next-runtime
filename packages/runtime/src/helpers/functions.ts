@@ -396,6 +396,7 @@ const getPrerenderManifest = async (publish: string) => {
  * @param options.publish - the publish directory
  *
  */
+// eslint-disable-next-line max-lines-per-function
 const setPrerenderedBlobStoreContent = async ({
   netliBlob,
   prerenderManifest,
@@ -493,6 +494,10 @@ const setPrerenderedBlobStoreContent = async ({
             // eslint-disable-next-line max-nested-callbacks
             .catch((error) => {
               f += 1
+              console.log({
+                pageRoute,
+                key1,
+              })
               throw error
             }),
           await netliBlob
@@ -505,6 +510,10 @@ const setPrerenderedBlobStoreContent = async ({
             // eslint-disable-next-line max-nested-callbacks
             .catch((error) => {
               f += 1
+              console.log({
+                dataRoute,
+                key2,
+              })
               throw error
             }),
         ])
