@@ -1,4 +1,4 @@
-// This file is used on request and build time
+import { Buffer } from 'buffer'
 
 import { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 
@@ -19,5 +19,10 @@ export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
     return false
   }
 }
+
+/**
+ * @netlify/blobs ATM has some limitation to keys, so we need to normalize it for now (they will be resolved so we will be able to remove this code)
+ */
+export const getNormalizedBlobKey = (key: string): string => Buffer.from(key).toString('base64url')
 
 export { Blobs } from '../blob'

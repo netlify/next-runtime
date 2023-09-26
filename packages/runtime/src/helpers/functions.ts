@@ -27,7 +27,7 @@ import {
   API_FUNCTION_NAME,
   LAMBDA_WARNING_SIZE,
 } from '../constants'
-import { BlobISRPage } from '../templates/blobStorage'
+import { BlobISRPage, getNormalizedBlobKey } from '../templates/blobStorage'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
@@ -433,7 +433,7 @@ const setPrerenderedBlobStoreContent = async ({
   }
 
   try {
-    await netliBlob.setJSON('/slashtest', 'wat')
+    await netliBlob.setJSON(getNormalizedBlobKey('/slashtest'), 'wat')
     s += 1
     console.log(`blob test - '/slashtest' ok`)
   } catch (error) {
@@ -442,7 +442,7 @@ const setPrerenderedBlobStoreContent = async ({
   }
 
   try {
-    await netliBlob.setJSON('/ext.test', 'wat')
+    await netliBlob.setJSON(getNormalizedBlobKey('/ext.test'), 'wat')
     s += 1
     console.log(`blob test - '/ext.test' ok`)
   } catch (error) {
@@ -451,7 +451,7 @@ const setPrerenderedBlobStoreContent = async ({
   }
 
   try {
-    await netliBlob.setJSON('/kitchen.sink/', 'wat')
+    await netliBlob.setJSON(getNormalizedBlobKey('/kitchen.sink/'), 'wat')
     s += 1
     console.log(`blob test - '/kitchen.sink/' ok`)
   } catch (error) {
@@ -510,8 +510,8 @@ const setPrerenderedBlobStoreContent = async ({
           dataRoute = dataRoute.replace(/index\.json$/, `${i18n.defaultLocale}.json`)
         }
 
-        const key1 = pageRoute.replace(/[^\da-zA-Z]/g, '')
-        const key2 = dataRoute.replace(/[^\da-zA-Z]/g, '')
+        const key1 = getNormalizedBlobKey(pageRoute)
+        const key2 = getNormalizedBlobKey(dataRoute)
 
         console.log('!!! ROUTE:', { route }, '\n')
         console.log('[SET KEY]:', pageRoute, key1)

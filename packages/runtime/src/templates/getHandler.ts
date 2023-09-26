@@ -144,7 +144,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
       // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { Blobs } = require('./blobStorage')
+      const { Blobs, getNormalizedBlobKey } = require('./blobStorage')
       const netliBlob = new Blobs({
         authentication: {
           contextURL: data.url,
@@ -163,7 +163,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
       const key = event.path
       if (event.headers['x-nf-builder-cache'] === 'miss') {
-        const ISRPage = (await netliBlob.get(key)) as BlobISRPage
+        const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key))) as BlobISRPage
 
         if (ISRPage) {
           console.log('YAY cache hit 🎉', ISRPage)
