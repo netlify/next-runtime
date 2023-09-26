@@ -174,6 +174,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
             body: Buffer.from(ISRPage.value).toString('base64'),
             headers: ISRPage.headers,
             statusCode: 200,
+            isBase64Encoded: true,
           }
         }
         console.log('missing blob key:', {
