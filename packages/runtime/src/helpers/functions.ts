@@ -426,9 +426,37 @@ const setPrerenderedBlobStoreContent = async ({
   try {
     await netliBlob.setJSON('piehtest', 'wat')
     s += 1
+    console.log(`blob test - 'piehtest' ok`)
   } catch (error) {
     f += 1
-    console.error(error)
+    console.error('piehtest', error)
+  }
+
+  try {
+    await netliBlob.setJSON('/slashtest', 'wat')
+    s += 1
+    console.log(`blob test - '/slashtest' ok`)
+  } catch (error) {
+    f += 1
+    console.error('/slashtest', error)
+  }
+
+  try {
+    await netliBlob.setJSON('/ext.test', 'wat')
+    s += 1
+    console.log(`blob test - '/ext.test' ok`)
+  } catch (error) {
+    f += 1
+    console.error('/ext.test', error)
+  }
+
+  try {
+    await netliBlob.setJSON('/kitchen.sink/', 'wat')
+    s += 1
+    console.log(`blob test - '/kitchen.sink/' ok`)
+  } catch (error) {
+    f += 1
+    console.error('/kitchen.sink/', error)
   }
 
   const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
