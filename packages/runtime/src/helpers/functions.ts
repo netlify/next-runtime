@@ -459,6 +459,13 @@ const setPrerenderedBlobStoreContent = async ({
     console.error('/kitchen.sink/', error)
   }
 
+  try {
+    const blobModule = await readFile(`${__dirname}/../blob.js`, `utf-8`)
+    console.log({ blobModule })
+  } catch (error) {
+    console.error({ error })
+  }
+
   const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
     limit(async () => {
       const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
