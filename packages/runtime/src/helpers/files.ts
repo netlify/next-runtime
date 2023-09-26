@@ -97,7 +97,8 @@ export const moveStaticPages = async ({
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 
-  const isrFiles = new Set<string>()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isrFiles = new Map<string, any>()
 
   const shortRevalidateRoutes: Array<{ Route: string; Revalidate: number }> = []
 
@@ -107,9 +108,9 @@ export const moveStaticPages = async ({
 
     if (initialRevalidateSeconds) {
       // Find all files used by ISR routes
-      isrFiles.add(`${trimmedPath}.html`)
-      isrFiles.add(`${trimmedPath}.json`)
-      isrFiles.add(`${trimmedPath}.rsc`)
+      isrFiles.set(`${trimmedPath}.html`, { route, ssgRoute })
+      isrFiles.set(`${trimmedPath}.json`, { route, ssgRoute })
+      isrFiles.set(`${trimmedPath}.rsc`, { route, ssgRoute })
       if (initialRevalidateSeconds < MINIMUM_REVALIDATE_SECONDS) {
         shortRevalidateRoutes.push({ Route: route, Revalidate: initialRevalidateSeconds })
       }
@@ -166,7 +167,7 @@ export const moveStaticPages = async ({
     const pagePath = filePath.split('/').slice(1).join('/')
     // Don't move ISR files, as they're used for the first request
     if (isrFiles.has(pagePath)) {
-      console.log(`blob-debug`, { pagePath, ...getSourceAndTargetPath(filePath) })
+      console.log(`blob-debug`, { pagePath, ...getSourceAndTargetPath(filePath), ...isrFiles.get(pagePath) })
       return
     }
     if (isDynamicRoute(pagePath)) {
