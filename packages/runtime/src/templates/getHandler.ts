@@ -163,7 +163,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
 
       const key = event.path
       if (event.headers['x-nf-builder-cache'] === 'miss') {
-        const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key))) as BlobISRPage
+        const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key), { type: 'json' })) as BlobISRPage
 
         if (ISRPage) {
           console.log('YAY cache hit 🎉', { ISRPage })
