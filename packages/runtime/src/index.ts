@@ -248,7 +248,7 @@ const plugin: NetlifyPlugin = {
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
     const nextConfig = await getNextConfig({ publish, failBuild })
 
-    const { basePath, appDir, experimental } = nextConfig
+    const { basePath, appDir } = nextConfig
 
     generateCustomHeaders(nextConfig, headers)
 
@@ -260,12 +260,6 @@ const plugin: NetlifyPlugin = {
     // we have to do this after functions were bundled as bundling still
     // require those files, but we don't want to publish them
     await removeMetadataFiles(publish)
-
-    if (experimental?.appDir) {
-      console.log(
-        '🧪 Thank you for testing "appDir" support on Netlify. For known issues and to give feedback, visit https://ntl.fyi/next-13-feedback',
-      )
-    }
   },
 }
 // The types haven't been updated yet
