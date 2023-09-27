@@ -38,7 +38,7 @@ export interface MiddlewareMatcher {
 
 // This is the format after next@12.3.0
 interface EdgeFunctionDefinitionV2 {
-  env: string[]
+  env?: string[]
   files: string[]
   name: string
   page: string
@@ -376,7 +376,6 @@ export const writeEdgeFunctions = async ({
   const { publish } = netlifyConfig.build
   const nextConfigFile = await getRequiredServerFiles(publish)
   const nextConfig = nextConfigFile.config
-  const usesAppDir = nextConfig.experimental?.appDir
 
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
@@ -462,7 +461,7 @@ export const writeEdgeFunctions = async ({
         name: edgeFunctionDefinition.name,
         pattern,
         // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
-        cache: usesAppDir ? 'manual' : undefined,
+        cache: 'manual',
         generator,
       })
       // pages-dir page routes also have a data route. If there's a match, add an entry mapping that to the function too
@@ -472,7 +471,7 @@ export const writeEdgeFunctions = async ({
           function: functionName,
           name: edgeFunctionDefinition.name,
           pattern: dataRoute,
-          cache: usesAppDir ? 'manual' : undefined,
+          cache: 'manual',
           generator,
         })
       }
