@@ -1,4 +1,4 @@
-name: e2e tests
+name: run e2e tests
 
 on:
   workflow_dispatch:
@@ -15,43 +15,6 @@ env:
   NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
 
 jobs:
-  build-runtime:
-    name: build runtime
-    runs-on: ubuntu-latest
-    env:
-      NODE_ENV: development
-    steps:
-      - name: checkout repo
-        uses: actions/checkout@v3
-
-      - name: setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: cache-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            cache-${{ env.NODE_VERSION }}-
-
-      - name: install runtime
-        run: npm install
-      
-      - name: build runtime
-        run: npm run build
-
-      - name: zip runtime
-        run: zip -rq runtime.zip ./*
-
-      - name: upload runtime
-        uses: actions/upload-artifact@v3
-        with:
-          name: next-runtime
-          path: runtime.zip
-    
   test-e2e:
     name: test e2e
     needs: [build-runtime]
@@ -63,6 +26,7 @@ jobs:
         group: [1, 2, 3, 4, 5]
     env:
       NODE_ENV: production
+      runtime-path: packages/next-runtime
     steps:
       - name: get github token
         uses: navikt/github-app-token-generator@v1
@@ -78,6 +42,12 @@ jobs:
           repository: ${{ env.NEXT_REPO }}
           token: ${{ steps.token.outputs.token }}
           ref: ${{ env.NEXT_VERSION }}
+        
+      - name: setup turborepo cache
+        uses: actions/cache@v3
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ env.NEXT_VERSION }}
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
@@ -92,19 +62,20 @@ jobs:
 
       - name: install next
         run: pnpm install
-        
+            
       - name: build next
         run: pnpm build
 
-      - name: download runtime
-        uses: actions/download-artifact@v3
+      - name: checkout runtime
+        uses: actions/checkout@v3
         with:
-          name: next-runtime
-          path: packages/next-runtime
+          path: ${{ env.runtime-path }}
 
-      - name: unzip runtime
-        run: unzip -q runtime.zip && rm runtime.zip
-        working-directory: packages/next-runtime
+      - name: install runtime
+        run: pnpm install --filter ./${{ env.runtime-path }} --config.shared-workspace-lockfile=false
+
+      - name: build runtime
+        run: pnpm build --filter ./${{ env.runtime-path }}
 
       - name: add netlify cli
         run: pnpm add -g netlify-cli
