@@ -1,8 +1,9 @@
 import { cpus } from 'os'
 
+import type { Blobs } from '@netlify/blobs/dist/src/main'
 import type { NetlifyConfig } from '@netlify/build/types'
 import { yellowBright } from 'chalk'
-import { existsSync, readJson, move, copy, writeJson, ensureDir, readFileSync, remove } from 'fs-extra'
+import { existsSync, readJson, move, copy, writeJson, ensureDir, readFileSync, remove, readFile } from 'fs-extra'
 import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
@@ -11,6 +12,7 @@ import { join, resolve, dirname } from 'pathe'
 import slash from 'slash'
 
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER, HIDDEN_PATHS } from '../constants'
+import type { BlobISRPage } from '../templates/blobStorage'
 
 import { NextConfig } from './config'
 import { loadPrerenderManifest } from './edge'
@@ -77,11 +79,13 @@ export const moveStaticPages = async ({
   target,
   i18n,
   basePath,
+  netliBlob,
 }: {
   netlifyConfig: NetlifyConfig
   target: 'server' | 'serverless' | 'experimental-serverless-trace'
   i18n: NextConfig['i18n']
   basePath?: string
+  netliBlob?: Blobs
 }): Promise<void> => {
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'serverless' ? 'serverless' : 'server')
@@ -97,8 +101,7 @@ export const moveStaticPages = async ({
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isrFiles = new Map<string, any>()
+  const isrFiles = new Set<string>()
 
   const shortRevalidateRoutes: Array<{ Route: string; Revalidate: number }> = []
 
@@ -108,9 +111,9 @@ export const moveStaticPages = async ({
 
     if (initialRevalidateSeconds) {
       // Find all files used by ISR routes
-      isrFiles.set(`${trimmedPath}.html`, { route, ssgRoute })
-      isrFiles.set(`${trimmedPath}.json`, { route, ssgRoute })
-      isrFiles.set(`${trimmedPath}.rsc`, { route, ssgRoute })
+      isrFiles.add(`${trimmedPath}.html`)
+      isrFiles.add(`${trimmedPath}.json`)
+      isrFiles.add(`${trimmedPath}.rsc`)
       if (initialRevalidateSeconds < MINIMUM_REVALIDATE_SECONDS) {
         shortRevalidateRoutes.push({ Route: route, Revalidate: initialRevalidateSeconds })
       }
@@ -147,6 +150,30 @@ export const moveStaticPages = async ({
       console.warn('Error moving file', source, error)
     }
   }
+  const uploadFileToBlobStorageAndDelete = async (file: string) => {
+    const { source, targetPath } = getSourceAndTargetPath(file)
+
+    // targetPath doesn't have leading slash
+    let blobPath = `/${targetPath}`
+
+    // strip .html to match actual request path - other extensions are not stripped
+    // as requests paths will contain them
+    if (blobPath.endsWith(`.html`)) {
+      blobPath = blobPath.slice(0, -5)
+    }
+
+    console.log(`blob-debug`, { source, targetPath, blobPath })
+
+    const content = await readFile(source, 'utf8')
+
+    const blobValue: BlobISRPage = {
+      value: content,
+      headers: {},
+      lastModified: Date.now(),
+    }
+
+    await netliBlob.setJSON(blobPath, blobValue)
+  }
   // Move all static files, except nft manifests
   const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/*.js.nft.{html,json}'], {
     cwd: outputDir,
@@ -165,9 +192,14 @@ export const moveStaticPages = async ({
     const filePath = slash(rawPath)
     // Remove the initial 'app' or 'pages' directory from the output path
     const pagePath = filePath.split('/').slice(1).join('/')
-    // Don't move ISR files, as they're used for the first request
+
     if (isrFiles.has(pagePath)) {
-      console.log(`blob-debug`, { pagePath, ...getSourceAndTargetPath(filePath), ...isrFiles.get(pagePath) })
+      if (netliBlob) {
+        // if netliblob is enabled, we will move ISR assets to blob store and delete files after that
+        // to minimize the number of files needed in lambda
+        return limit(uploadFileToBlobStorageAndDelete, filePath)
+      }
+      // Don't move ISR files, as they're used for the first request
       return
     }
     if (isDynamicRoute(pagePath)) {

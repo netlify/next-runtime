@@ -183,27 +183,6 @@ const plugin: NetlifyPlugin = {
           extendedRoutes.map(packSingleFunction),
         )
 
-    const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
-
-    const testBlobStorage = new Blobs({
-      authentication: {
-        apiURL: `https://${NETLIFY_API_HOST}`,
-        token: NETLIFY_API_TOKEN,
-      },
-      context: `deploy:${process.env.DEPLOY_ID}`,
-      // context: `deploy:650c4da1c2e4f734db8855c2`,
-      siteID: SITE_ID,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any) as unknown as IBlobs
-
-    console.log('get blob storage', {
-      context: `deploy:${process.env.DEPLOY_ID}`,
-      testBlobStorage,
-      available: await isBlobStorageAvailable(testBlobStorage),
-    })
-
-    // const netliBlob = (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
-
     const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas(publish) : []
     await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
     await generatePagesResolver(constants)
@@ -220,7 +199,28 @@ const plugin: NetlifyPlugin = {
     await movePublicFiles({ appDir, outdir, publish, basePath })
 
     if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
-      await moveStaticPages({ target, netlifyConfig, i18n, basePath })
+      const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
+
+      const testBlobStorage = new Blobs({
+        authentication: {
+          apiURL: `https://${NETLIFY_API_HOST}`,
+          token: NETLIFY_API_TOKEN,
+        },
+        context: `deploy:${process.env.DEPLOY_ID}`,
+        // context: `deploy:650c4da1c2e4f734db8855c2`,
+        siteID: SITE_ID,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any) as unknown as IBlobs
+
+      console.log('get blob storage', {
+        context: `deploy:${process.env.DEPLOY_ID}`,
+        testBlobStorage,
+        available: await isBlobStorageAvailable(testBlobStorage),
+      })
+
+      const netliBlob = (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
+
+      await moveStaticPages({ target, netlifyConfig, i18n, basePath, netliBlob })
     }
 
     await generateStaticRedirects({
