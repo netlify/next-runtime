@@ -85,7 +85,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
     private async netlifyPrebundleReact(path: string, { basePath, trailingSlash }: NextConfig, parsedUrl) {
       const routesManifest = this.getRoutesManifest?.()
       const appPathsRoutes = this.getAppPathRoutes?.()
-      const routes = routesManifest && [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
+      const routes = routesManifest && [...routesManifest.dynamicRoutes]
       const matchedRoute = await getMatchedRoute(path, routes, parsedUrl, basePath, trailingSlash)
       const isAppRoute = appPathsRoutes && matchedRoute ? appPathsRoutes[matchedRoute.page] : false
 

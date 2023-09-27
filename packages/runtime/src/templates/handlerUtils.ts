@@ -276,7 +276,8 @@ export const localizeDataRoute = (dataRoute: string, localizedRoute: string): st
 
 export const getMatchedRoute = (
   paths: string,
-  routesManifest: Array<StaticRoute>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  routesManifest: any,
   parsedUrl: string,
   basePath: string,
   trailingSlash: boolean,
