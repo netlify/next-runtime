@@ -118,6 +118,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     return bridge
   }
 
+  // eslint-disable-next-line max-lines-per-function
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     let requestMode: string = mode
     const prefetchResponse = getPrefetchResponse(event, mode)
@@ -130,7 +131,8 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     const query = new URLSearchParams(event.queryStringParameters).toString()
 
     // only retrieve the prerendered data on misses from the odb
-    if (event.headers['x-nf-builder-cache'] === 'miss') {
+    // eslint-disable-next-line no-constant-condition
+    if (event.headers['x-nf-builder-cache'] === 'miss' || true) {
       // retrieve the data for the blob storage
       const {
         clientContext: { custom: customContext },
@@ -153,19 +155,32 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
           siteID: event.headers['x-nf-site-id'],
         })
 
+        {
+          let t1 = 'N/A'
+          let t2 = 'N/A'
+          try {
+            t1 = await netliBlob.get('test1', { type: 'json' })
+            t2 = await netliBlob.get('/test2', { type: 'json' })
+          } finally {
+            console.log(`blob tests`, { t1, t2 })
+          }
+        }
+
         const key = event.path
         const ISRPage = (await netliBlob.get(key, { type: 'json' })) as BlobISRPage
 
         if (ISRPage) {
           console.log('YAY cache hit 🎉', { ISRPage })
 
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          const { Buffer } = require('buffer')
-          return {
-            body: Buffer.from(ISRPage.value).toString('base64'),
-            headers: ISRPage.headers,
-            statusCode: 200,
-            isBase64Encoded: true,
+          if (event.headers['x-nf-builder-cache'] === 'miss') {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const { Buffer } = require('buffer')
+            return {
+              body: Buffer.from(ISRPage.value).toString('base64'),
+              headers: ISRPage.headers,
+              statusCode: 200,
+              isBase64Encoded: true,
+            }
           }
         }
         console.log('missing blob key:', {

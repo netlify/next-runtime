@@ -137,6 +137,12 @@ export const moveStaticPages = async ({
       source,
     }
   }
+  if (netliBlob) {
+    await netliBlob.setJSON('test1', 'ok')
+    await netliBlob.setJSON('/test2', 'ok')
+    console.log(`added test blob keys`)
+  }
+
   const moveFile = async (file: string) => {
     const { source, targetPath } = getSourceAndTargetPath(file)
 
