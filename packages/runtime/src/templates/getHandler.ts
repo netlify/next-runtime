@@ -118,7 +118,6 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     return bridge
   }
 
-  // eslint-disable-next-line max-lines-per-function
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     let requestMode: string = mode
     const prefetchResponse = getPrefetchResponse(event, mode)
@@ -131,38 +130,30 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     const query = new URLSearchParams(event.queryStringParameters).toString()
 
     // only retrieve the prerendered data on misses from the odb
-    // if (event.headers['x-nf-builder-cache'] === 'miss') {
-    {
+    if (event.headers['x-nf-builder-cache'] === 'miss') {
       // retrieve the data for the blob storage
       const {
         clientContext: { custom: customContext },
       } = context
 
-      // eslint-disable-next-line n/prefer-global/buffer
-      const rawData = Buffer.from(customContext.blobs, 'base64')
-      const data = JSON.parse(rawData.toString('ascii'))
+      if (customContext?.blobs) {
+        // eslint-disable-next-line n/prefer-global/buffer
+        const rawData = Buffer.from(customContext.blobs, 'base64')
+        const data = JSON.parse(rawData.toString('ascii'))
 
-      // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { Blobs, getNormalizedBlobKey } = require('./blobStorage')
-      const netliBlob = new Blobs({
-        authentication: {
-          contextURL: data.url,
-          token: data.token,
-        },
-        context: `deploy:${event.headers['x-nf-deploy-id']}`,
-        siteID: event.headers['x-nf-site-id'],
-      })
+        // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { Blobs, getNormalizedBlobKey } = require('./blobStorage')
+        const netliBlob = new Blobs({
+          authentication: {
+            contextURL: data.url,
+            token: data.token,
+          },
+          context: `deploy:${event.headers['x-nf-deploy-id']}`,
+          siteID: event.headers['x-nf-site-id'],
+        })
 
-      try {
-        const t = await netliBlob.get('piehtest')
-        console.log(`test get`, { t })
-      } catch (error) {
-        console.error(`test get`, error)
-      }
-
-      const key = event.path
-      if (event.headers['x-nf-builder-cache'] === 'miss') {
+        const key = event.path
         const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key), { type: 'json' })) as BlobISRPage
 
         if (ISRPage) {
@@ -189,8 +180,10 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
           },
         })
       } else {
-        console.log('No need to retrieve from the blob storage as it is cached')
+        console.log('Missing blobs in context')
       }
+    } else if (mode === 'odb') {
+      console.log('No need to retrieve from the blob storage as it is cached')
     }
 
     event.path = query ? `${event.path}?${query}` : event.path
