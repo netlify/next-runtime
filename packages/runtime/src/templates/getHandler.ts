@@ -182,8 +182,10 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
       } else {
         console.log('Missing blobs in context')
       }
-    } else if (mode === 'odb') {
-      console.log('No need to retrieve from the blob storage as it is cached')
+    } else if (mode === 'odb' && event.headers['x-nf-builder-cache']) {
+      console.log('No need to retrieve from the blob storage as it is cached', {
+        h: event.headers['x-nf-builder-cache'],
+      })
     }
 
     event.path = query ? `${event.path}?${query}` : event.path
