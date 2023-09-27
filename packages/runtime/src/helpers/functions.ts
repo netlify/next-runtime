@@ -1,16 +1,11 @@
-import { cpus } from 'os'
-
-import { Blobs } from '@netlify/blobs/dist/src/main'
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build/types'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
-import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat, readFile } from 'fs-extra'
-import mime from 'mime-types'
-import type { PrerenderManifest } from 'next/dist/build'
+import { copyFile, ensureDir, existsSync, readJSON, writeFile, writeJSON, stat } from 'fs-extra'
+import { PrerenderManifest } from 'next/dist/build'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
 import { outdent } from 'outdent'
-import pLimit from 'p-limit'
 import { join, relative, resolve, dirname, basename, extname } from 'pathe'
 import glob from 'tiny-glob'
 
@@ -26,13 +21,12 @@ import {
   API_FUNCTION_NAME,
   LAMBDA_WARNING_SIZE,
 } from '../constants'
-import { BlobISRPage } from '../templates/blobStorage'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
 
 import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
-import { getRequiredServerFiles, NextConfig } from './config'
+import { getRequiredServerFiles } from './config'
 import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
 import { writeFunctionConfiguration } from './functionsMetaData'
 import { pack } from './pack'
@@ -171,7 +165,6 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'blobStorage.js'),
       join(functionsDir, functionName, 'blobStorage.js'),
     )
-
     await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
 
     const nfInternalFiles = await glob(join(functionsDir, functionName, '**'))
@@ -379,142 +372,34 @@ const changeExtension = (file: string, extension: string) => {
   return join(dirname(file), base + extension)
 }
 
-const getPrerenderManifest = async (publish: string) => {
+const getSSRDependencies = async (publish: string): Promise<string[]> => {
   const prerenderManifest: PrerenderManifest = await readJSON(join(publish, 'prerender-manifest.json'))
 
-  return prerenderManifest
-}
-
-/**
- * Warms up the cache with prerendered content
- *
- * @param options
- * @param options.netliBlob - the blob storage instance
- * @param options.prerenderManifest - the prerender manifest
- * @param options.publish - the publish directory
- *
- */
-const setPrerenderedBlobStoreContent = async ({
-  netliBlob,
-  prerenderManifest,
-  publish,
-  i18n,
-}: {
-  i18n: NextConfig['i18n']
-  netliBlob: Blobs
-  prerenderManifest: PrerenderManifest
-  publish: string
-}): Promise<void> => {
-  // *.rsc, *.json and *.html files can be found in the .next build artifacts folder,
-  //
-  // e.g. app router build artifacts from the default demo site
-  // demos/default/.next/server/app/blog/rob/second-post.html
-  // demos/default/.next/server/app/blog/rob/second-post.rsc
-  //
-  // e.g. pages router build artifacts from the default demo site
-  // demos/default/.next/server/pages/en/getStaticProps/1.html
-  // demos/default/.next/server/pages/en/getStaticProps/1.json
-  const limit = pLimit(Math.max(2, cpus().length))
-
-  const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
-    limit(async () => {
-      const routerTypeSubPath = ssgRoute.dataRoute.endsWith('.rsc') ? 'app' : 'pages'
-      const dataFilePath = join(publish, 'server', routerTypeSubPath, ssgRoute.dataRoute)
-
-      try {
-        // Page data for an app router page is an RSC serialized format, i.e. a string,
-        // or a JSON file for the pages router.
-        const pageDataPath =
-          routerTypeSubPath === 'app' ? dataFilePath : join(publish, 'server', routerTypeSubPath, `${route}.json`)
-        const pageData =
-          routerTypeSubPath === 'app'
-            ? await readFile(pageDataPath, 'utf8')
-            : JSON.parse(await readFile(pageDataPath, 'utf8'))
-
-        const htmlFilePath = join(publish, 'server', routerTypeSubPath, `${route}.html`)
-        const html = await readFile(htmlFilePath, 'utf8')
-
-        // TODO: once implemented in blob storage API
-        // We need to remove the leading slash from the route so that the call to the blob storage
-        // does not generate a 405 error.
-        // It's currently under consideration to support this in the blob storage API.
-        const pageRoute = `${route}/`.replace(new RegExp(`^/${i18n.defaultLocale}`), '')
-        const pageBlob: BlobISRPage = {
-          value: html,
-          headers: {
-            'content-type': 'text/html',
-          },
-          lastModified: Date.now(),
-        }
-        let { dataRoute } = ssgRoute
-        const dataBlob: BlobISRPage = {
-          value: pageData,
-          headers: {
-            'content-type': mime.lookup(dataFilePath),
-          },
-          lastModified: Date.now(),
-        }
-
-        // for the index route we have to replace it with the language as this is the url that will be requested
-        if (pageRoute === `${i18n.defaultLocale}/`) {
-          dataRoute = dataRoute.replace(/index\.json$/, `${i18n.defaultLocale}.json`)
-        }
-
-        console.log('!!! ROUTE:', { route }, '\n')
-        console.log('[SET KEY]:', pageRoute)
-        console.log('[SET KEY]:', dataRoute, { ssgRoute })
-
-        const promise = Promise.all([
-          await netliBlob.setJSON(pageRoute, pageBlob),
-          await netliBlob.setJSON(dataRoute, dataBlob),
-        ])
-
-        return promise
-      } catch (error) {
-        console.log(error)
-        // noop
-        // gracefully fall back to not having it in the blob storage and the ISR ODB handler needs to let the
-        // request fall through to the next server to generate the page nothing we can serve then.
+  return [
+    ...Object.entries(prerenderManifest.routes).flatMap(([route, ssgRoute]) => {
+      if (ssgRoute.initialRevalidateSeconds === false) {
+        return []
       }
-    }),
-  )
 
-  await Promise.all(blobCalls)
+      if (ssgRoute.dataRoute.endsWith('.rsc')) {
+        return [
+          join(publish, 'server', 'app', ssgRoute.dataRoute),
+          join(publish, 'server', 'app', changeExtension(ssgRoute.dataRoute, '.html')),
+        ]
+      }
+
+      const trimmedPath = route === '/' ? 'index' : route.slice(1)
+      return [
+        join(publish, 'server', 'pages', `${trimmedPath}.html`),
+        join(publish, 'server', 'pages', `${trimmedPath}.json`),
+      ]
+    }),
+    join(publish, '**', '*.html'),
+    join(publish, 'static-manifest.json'),
+  ]
 }
 
-const getPrerenderedContent = (prerenderManifest: PrerenderManifest, publish: string): string[] => [
-  ...Object.entries(prerenderManifest.routes).flatMap(([route, ssgRoute]) => {
-    if (ssgRoute.initialRevalidateSeconds === false) {
-      return []
-    }
-
-    if (ssgRoute.dataRoute.endsWith('.rsc')) {
-      return [
-        join(publish, 'server', 'app', ssgRoute.dataRoute),
-        join(publish, 'server', 'app', changeExtension(ssgRoute.dataRoute, '.html')),
-      ]
-    }
-
-    const trimmedPath = route === '/' ? 'index' : route.slice(1)
-    return [
-      join(publish, 'server', 'pages', `${trimmedPath}.html`),
-      join(publish, 'server', 'pages', `${trimmedPath}.json`),
-    ]
-  }),
-  join(publish, '**', '*.html'),
-  join(publish, 'static-manifest.json'),
-]
-
-// TODO: get a build feature flag set up for blob storage
-export const getSSRLambdas = async ({
-  publish,
-  i18n,
-  netliBlob,
-}: {
-  i18n: NextConfig['i18n']
-  publish: string
-  netliBlob?: Blobs
-}): Promise<SSRLambda[]> => {
+export const getSSRLambdas = async (publish: string): Promise<SSRLambda[]> => {
   const commonDependencies = await getCommonDependencies(publish)
   const ssrRoutes = await getSSRRoutes(publish)
 
@@ -522,25 +407,7 @@ export const getSSRLambdas = async ({
   const nonOdbRoutes = ssrRoutes
   const odbRoutes = ssrRoutes
 
-  const prerenderManifest = await getPrerenderManifest(publish)
-  let ssrDependencies: Awaited<ReturnType<typeof getPrerenderedContent>>
-
-  if (netliBlob) {
-    console.log('using blob storage')
-    ssrDependencies = []
-
-    try {
-      console.log('warming up the cache with prerendered content')
-      await setPrerenderedBlobStoreContent({ netliBlob, prerenderManifest, publish, i18n })
-    } catch (error) {
-      console.error('Unable to store prerendered content in blob storage', error)
-
-      throw error
-    }
-  } else {
-    // We only want prerendered content stored in the lambda if we aren't using blob storage
-    ssrDependencies = getPrerenderedContent(prerenderManifest, publish)
-  }
+  const ssrDependencies = await getSSRDependencies(publish)
 
   return [
     {

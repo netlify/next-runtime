@@ -202,9 +202,9 @@ const plugin: NetlifyPlugin = {
       available: await isBlobStorageAvailable(testBlobStorage),
     })
 
-    const netliBlob = (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
+    // const netliBlob = (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
 
-    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas({ publish, netliBlob, i18n }) : []
+    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas(publish) : []
     await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
     await generatePagesResolver(constants)
 
