@@ -6,7 +6,7 @@ import { outdent as javascript } from 'outdent'
 import type { NextConfig } from '../helpers/config'
 
 import type { BlobISRPage } from './blobStorage'
-import type { NextServerType } from './handlerUtils'
+import { isLocalized, type NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -166,7 +166,15 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
           }
         }
 
-        const key = event.path
+        let key = event.path
+        if (conf.i18n) {
+          if (key.includes('/_next/data/')) {
+            // TBD
+          } else if (!isLocalized(key, conf.i18n)) {
+            key = `/${conf.i18n.defaultLocale}${key}`
+          }
+        }
+
         const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key), { type: 'json' })) as BlobISRPage
 
         if (ISRPage) {
