@@ -12,8 +12,6 @@ export const publishStaticAssets = (publishDir: string) => {
   // copy user's public folder to the new publish directory
   if (existsSync('public')) {
     copySync('public', NETLIFY_PUBLISH_DIR, { overwrite: true })
-  } else {
-    existsSync(NETLIFY_PUBLISH_DIR)
   }
 
   // copy the Next.js static assets to the new publish directory
