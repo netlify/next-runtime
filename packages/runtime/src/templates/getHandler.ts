@@ -6,7 +6,7 @@ import { outdent as javascript } from 'outdent'
 import type { NextConfig } from '../helpers/config'
 
 import type { BlobISRPage } from './blobStorage'
-import { isLocalized, type NextServerType } from './handlerUtils'
+import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
@@ -24,6 +24,7 @@ const {
   getMultiValueHeaders,
   getPrefetchResponse,
   normalizePath,
+  isLocalized,
 } = require('./handlerUtils')
 const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
@@ -302,7 +303,7 @@ export const getHandler = ({
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath, isLocalized } = require('./handlerUtils')
   const { overrideRequireHooks, applyRequireHooks } = require("./requireHooks")
   const { getNetlifyNextServer } = require("./server")
   const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
