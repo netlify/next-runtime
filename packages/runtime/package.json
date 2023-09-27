@@ -12,6 +12,7 @@
   ],
   "dependencies": {
     "@netlify/blobs": "^2.0.0",
+    "@netlify/esbuild": "0.14.39-1",
     "@netlify/functions": "^1.6.0",
     "@netlify/ipx": "^1.4.4",
     "@vercel/node-bridge": "^2.1.0",
@@ -39,7 +40,6 @@
   "devDependencies": {
     "@delucis/if-env": "^1.1.2",
     "@netlify/build": "^29.21.1",
-    "@netlify/esbuild": "0.14.39-1",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.4.1",
     "@types/merge-stream": "^1.1.2",
