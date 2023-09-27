@@ -4,7 +4,11 @@ const Header = dynamic(() => import(/* webpackChunkName: 'header' */ '../compone
 import { useRouter } from 'next/router'
 
 const Index = ({ shows, nodeEnv }) => {
-  const { locale } = useRouter()
+  const { locale, push } = useRouter()
+
+  if (typeof window !== `undefined`) {
+    window.__navigate = push
+  }
 
   return (
     <div>
