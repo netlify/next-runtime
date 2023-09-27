@@ -7,8 +7,8 @@ env:
   NODE_ENV: production
   NODE_VERSION: 18.16.1
   PNPM_VERSION: 8.7.1
-  NEXT_VERSION: v13.5.1-netlify
   NEXT_REPO: netlify/next.js
+  NEXT_VERSION: netlify-testing
   NEXT_TEST_MODE: deploy
   TEST_CONCURRENCY: 8
   NEXT_TELEMETRY_DISABLED: 1
