@@ -2,7 +2,6 @@ import { cpus } from 'os'
 
 import { Blobs } from '@netlify/blobs/dist/src/main'
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build/types'
-import { build } from '@netlify/esbuild'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import destr from 'destr'
@@ -27,7 +26,7 @@ import {
   API_FUNCTION_NAME,
   LAMBDA_WARNING_SIZE,
 } from '../constants'
-import { BlobISRPage, getNormalizedBlobKey } from '../templates/blobStorage'
+import { BlobISRPage } from '../templates/blobStorage'
 import { getApiHandler } from '../templates/getApiHandler'
 import { getHandler } from '../templates/getHandler'
 import { getResolverForPages, getResolverForSourceFiles } from '../templates/getPageResolver'
@@ -164,15 +163,14 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
-    // need to copy the blob storage helper over to be available on request time
-    // the odb needs access to the blob storage
-    // we have to bundle it to not miss any files on the odb then
-    await build({
-      entryPoints: [join(__dirname, '..', '..', 'lib', 'templates', 'blobStorage.js')],
-      outfile: join(functionsDir, functionName, 'blobStorage.js'),
-      bundle: true,
-      platform: 'node',
-    })
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'blob.js'),
+      join(functionsDir, functionName, 'blob.js'),
+    )
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'blobStorage.js'),
+      join(functionsDir, functionName, 'blobStorage.js'),
+    )
 
     await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
 
@@ -396,7 +394,6 @@ const getPrerenderManifest = async (publish: string) => {
  * @param options.publish - the publish directory
  *
  */
-// eslint-disable-next-line max-lines-per-function
 const setPrerenderedBlobStoreContent = async ({
   netliBlob,
   prerenderManifest,
@@ -418,53 +415,6 @@ const setPrerenderedBlobStoreContent = async ({
   // demos/default/.next/server/pages/en/getStaticProps/1.html
   // demos/default/.next/server/pages/en/getStaticProps/1.json
   const limit = pLimit(Math.max(2, cpus().length))
-  const handledFiles = new Set<string>()
-
-  let s = 0
-  let f = 0
-
-  try {
-    await netliBlob.setJSON('piehtest', 'wat')
-    s += 1
-    console.log(`blob test - 'piehtest' ok`)
-  } catch (error) {
-    f += 1
-    console.error('piehtest', error)
-  }
-
-  try {
-    await netliBlob.setJSON(getNormalizedBlobKey('/slashtest'), 'wat')
-    s += 1
-    console.log(`blob test - '/slashtest' ok`)
-  } catch (error) {
-    f += 1
-    console.error('/slashtest', error)
-  }
-
-  try {
-    await netliBlob.setJSON(getNormalizedBlobKey('/ext.test'), 'wat')
-    s += 1
-    console.log(`blob test - '/ext.test' ok`)
-  } catch (error) {
-    f += 1
-    console.error('/ext.test', error)
-  }
-
-  try {
-    await netliBlob.setJSON(getNormalizedBlobKey('/kitchen.sink/'), 'wat')
-    s += 1
-    console.log(`blob test - '/kitchen.sink/' ok`)
-  } catch (error) {
-    f += 1
-    console.error('/kitchen.sink/', error)
-  }
-
-  try {
-    const blobModule = await readFile(`${__dirname}/../blob.js`, `utf-8`)
-    console.log({ blobModule })
-  } catch (error) {
-    console.error({ error })
-  }
 
   const blobCalls = Object.entries(prerenderManifest.routes).map(([route, ssgRoute]) =>
     limit(async () => {
@@ -510,47 +460,13 @@ const setPrerenderedBlobStoreContent = async ({
           dataRoute = dataRoute.replace(/index\.json$/, `${i18n.defaultLocale}.json`)
         }
 
-        const key1 = getNormalizedBlobKey(pageRoute)
-        const key2 = getNormalizedBlobKey(dataRoute)
-
         console.log('!!! ROUTE:', { route }, '\n')
-        console.log('[SET KEY]:', pageRoute, key1)
-        console.log('[SET KEY]:', dataRoute, key2, { ssgRoute })
+        console.log('[SET KEY]:', pageRoute)
+        console.log('[SET KEY]:', dataRoute, { ssgRoute })
 
         const promise = Promise.all([
-          await netliBlob
-            .setJSON(key1, pageBlob)
-            // eslint-disable-next-line max-nested-callbacks
-            .then((v) => {
-              s += 1
-              handledFiles.add(pageDataPath)
-              return v
-            })
-            // eslint-disable-next-line max-nested-callbacks
-            .catch((error) => {
-              f += 1
-              console.log({
-                pageRoute,
-                key1,
-              })
-              throw error
-            }),
-          await netliBlob
-            .setJSON(key2, dataBlob) // eslint-disable-next-line max-nested-callbacks
-            .then((v) => {
-              s += 1
-              handledFiles.add(htmlFilePath)
-              return v
-            })
-            // eslint-disable-next-line max-nested-callbacks
-            .catch((error) => {
-              f += 1
-              console.log({
-                dataRoute,
-                key2,
-              })
-              throw error
-            }),
+          await netliBlob.setJSON(pageRoute, pageBlob),
+          await netliBlob.setJSON(dataRoute, dataBlob),
         ])
 
         return promise
@@ -564,12 +480,6 @@ const setPrerenderedBlobStoreContent = async ({
   )
 
   await Promise.all(blobCalls)
-
-  console.log(`blobs set stats`, {
-    s,
-    f,
-    handledFiles,
-  })
 }
 
 const getPrerenderedContent = (prerenderManifest: PrerenderManifest, publish: string): string[] => [

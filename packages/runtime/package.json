@@ -54,7 +54,7 @@
     "publish:install": "npm ci",
     "publish:test": "cd .. && npm ci && npm test",
     "clean": "rimraf lib dist-types",
-    "prebuild": "npx esbuild src/templates/netliblob.mts --bundle --format=cjs --platform=node --outfile=src/templates/blob.js && node hacks.mjs",
+    "prebuild": "npx esbuild src/templates/netliblob.mts --bundle --format=cjs --platform=node --outfile=src/templates/blob.js",
     "build": "tsc",
     "watch": "tsc --watch",
     "prepare": "npm run build"
