@@ -254,7 +254,7 @@ export const joinPaths = (...paths: string[]): string =>
   paths.reduce((a, b) => (a.endsWith('/') ? `${a}${b}` : `${a}/${b}`))
 
 // Check if a route has a locale prefix (including the root route)
-const isLocalized = (route: string, i18n: { defaultLocale: string; locales: string[] }): boolean =>
+export const isLocalized = (route: string, i18n: { defaultLocale: string; locales: string[] }): boolean =>
   i18n.locales.some((locale) => route === `/${locale}` || route.startsWith(`/${locale}/`))
 
 // Remove the locale prefix from a route (if any)
