@@ -1,12 +1,24 @@
+import type { NetlifyConfig } from '@netlify/build'
 import { copySync, moveSync } from 'fs-extra/esm'
 
-import { __dirname } from './constants.js'
+import { __dirname, NETLIFY_PUBLISH_DIR } from './constants.js'
 
-export const overrideNextJsConfig = () => {
-  copySync('next.config.js', '.netlify/next.config.js', { overwrite: true })
+/**
+ * Modify the user's next.config.js to use standalone mode
+ */
+export const modifyNextConfig = () => {
+  moveSync('next.config.js', 'next.config.js.orig')
   copySync(`${__dirname}/../templates/next.config.cjs`, 'next.config.js')
 }
 
-export const revertNextJsConfig = () => {
-  moveSync('.netlify/next.config.js', 'next.config.js', { overwrite: true })
+export const revertNextConfig = () => {
+  moveSync('next.config.js.orig', 'next.config.js', { overwrite: true })
+}
+
+/**
+ * Modify the user's netlify.toml to use our new publish directory
+ * @param config Netlify config
+ */
+export const modifyNetlifyConfig = (config: NetlifyConfig) => {
+  config.build.publish = NETLIFY_PUBLISH_DIR
 }

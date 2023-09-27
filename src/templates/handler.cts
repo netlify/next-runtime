@@ -2,12 +2,12 @@ import http from 'node:http'
 
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
 // @ts-ignore
+import { Bridge } from '@vercel/node-bridge/bridge'
+// @ts-ignore
 import { getRequestHandlers } from 'next/dist/server/lib/start-server.js'
 
 // @ts-ignore
 import requiredServerFiles from './.next/required-server-files.json'
-// @ts-ignore
-import { Bridge } from './bridge.js'
 
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
 
