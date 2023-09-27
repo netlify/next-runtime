@@ -12,7 +12,7 @@ import { join, resolve, dirname } from 'pathe'
 import slash from 'slash'
 
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER, HIDDEN_PATHS } from '../constants'
-import type { BlobISRPage } from '../templates/blobStorage'
+import { getNormalizedBlobKey, type BlobISRPage } from '../templates/blobStorage'
 
 import { NextConfig } from './config'
 import { loadPrerenderManifest } from './edge'
@@ -138,8 +138,8 @@ export const moveStaticPages = async ({
     }
   }
   if (netliBlob) {
-    await netliBlob.setJSON('test1', 'ok')
-    await netliBlob.setJSON('/test2', 'ok')
+    await netliBlob.setJSON(getNormalizedBlobKey('test1'), 'ok')
+    await netliBlob.setJSON(getNormalizedBlobKey('/test2'), 'ok')
     console.log(`added test blob keys`)
   }
 
@@ -181,7 +181,7 @@ export const moveStaticPages = async ({
 
     blobCount += 1
 
-    await netliBlob.setJSON(blobPath, blobValue)
+    await netliBlob.setJSON(getNormalizedBlobKey(blobPath), blobValue)
 
     await remove(source)
   }
