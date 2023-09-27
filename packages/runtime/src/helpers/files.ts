@@ -121,6 +121,7 @@ export const moveStaticPages = async ({
   })
 
   let fileCount = 0
+  let blobCount = 0
   const filesManifest: Record<string, string> = {}
   const getSourceAndTargetPath = (file: string): { targetPath: string; source: string } => {
     const source = join(outputDir, file)
@@ -172,7 +173,11 @@ export const moveStaticPages = async ({
       lastModified: Date.now(),
     }
 
+    blobCount += 1
+
     await netliBlob.setJSON(blobPath, blobValue)
+
+    await remove(source)
   }
   // Move all static files, except nft manifests
   const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/*.js.nft.{html,json}'], {
@@ -225,7 +230,10 @@ export const moveStaticPages = async ({
     return limit(moveFile, filePath)
   })
   await Promise.all(promises)
-  console.log(`Moved ${fileCount} files`)
+  console.log(`Moved ${fileCount} files to CDN`)
+  if (netliBlob) {
+    console.log(`Moved ${blobCount} files to Blob Storage`)
+  }
 
   if (matchedPages.size !== 0) {
     console.log(
