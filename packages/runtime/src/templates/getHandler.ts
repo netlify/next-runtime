@@ -178,7 +178,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key), { type: 'json' })) as BlobISRPage
 
         if (ISRPage) {
-          console.log('YAY cache hit 🎉', { ISRPage })
+          console.log('YAY cache hit 🎉', { key, path: event.path, ISRPage })
 
           if (event.headers['x-nf-builder-cache'] === 'miss') {
             // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -193,6 +193,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         }
         console.log('missing blob key:', {
           key,
+          path: event.path,
           context: {
             authentication: {
               contextURL: data.url,
