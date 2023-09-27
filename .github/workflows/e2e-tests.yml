@@ -43,10 +43,14 @@ jobs:
       - name: build runtime
         run: npm run build
 
+      - name: zip runtime
+        run: zip -rq runtime.zip ./*
+
       - name: upload runtime
         uses: actions/upload-artifact@v3
         with:
-          path: '**'
+          name: next-runtime
+          path: runtime.zip
     
   test-e2e:
     name: test e2e
@@ -92,10 +96,15 @@ jobs:
       - name: build next
         run: pnpm build
 
-      - name: download next runtime
+      - name: download runtime
         uses: actions/download-artifact@v3
         with:
+          name: next-runtime
           path: packages/next-runtime
+
+      - name: unzip runtime
+        run: unzip -q runtime.zip && rm runtime.zip
+        working-directory: packages/next-runtime
 
       - name: add netlify cli
         run: pnpm add -g netlify-cli
