@@ -1,10 +1,9 @@
-name: run e2e tests
+name: e2e tests
 
 on:
   workflow_dispatch:
 
 env:
-  NODE_ENV: production
   NODE_VERSION: 18.16.1
   PNPM_VERSION: 8.7.1
   NEXT_REPO: netlify/next.js
@@ -19,6 +18,8 @@ jobs:
   build-runtime:
     name: build runtime
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: development
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
@@ -56,6 +57,8 @@ jobs:
       fail-fast: false
       matrix:
         group: [1, 2, 3, 4, 5]
+    env:
+      NODE_ENV: production
     steps:
       - name: get github token
         uses: navikt/github-app-token-generator@v1
