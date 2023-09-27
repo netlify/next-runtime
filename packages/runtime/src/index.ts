@@ -220,7 +220,7 @@ const plugin: NetlifyPlugin = {
 
       const netliBlob = (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
 
-      await moveStaticPages({ target, netlifyConfig, i18n, basePath, netliBlob })
+      await moveStaticPages({ target, netlifyConfig, nextConfig: { basePath, i18n, trailingSlash }, netliBlob })
     }
 
     await generateStaticRedirects({

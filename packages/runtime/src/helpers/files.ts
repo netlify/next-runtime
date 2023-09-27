@@ -77,16 +77,15 @@ export const getMiddleware = async (publish: string): Promise<Array<string>> => 
 export const moveStaticPages = async ({
   netlifyConfig,
   target,
-  i18n,
-  basePath,
+  nextConfig,
   netliBlob,
 }: {
   netlifyConfig: NetlifyConfig
   target: 'server' | 'serverless' | 'experimental-serverless-trace'
-  i18n: NextConfig['i18n']
-  basePath?: string
+  nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash'>
   netliBlob?: Blobs
 }): Promise<void> => {
+  const { i18n, basePath, trailingSlash } = nextConfig
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'serverless' ? 'serverless' : 'server')
   const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
@@ -162,11 +161,18 @@ export const moveStaticPages = async ({
 
     // targetPath doesn't have leading slash
     let blobPath = `/${targetPath}`
+    let shouldApplyTrailingSlash = false
 
-    // strip .html to match actual request path - other extensions are not stripped
-    // as requests paths will contain them
     if (blobPath.endsWith(`.html`)) {
+      // strip .html to match actual request path - other extensions are not stripped
+      // as requests paths will contain them
       blobPath = blobPath.slice(0, -5)
+      // we need to set proper trailing slash for html asset keys
+      shouldApplyTrailingSlash = true
+    }
+
+    if (shouldApplyTrailingSlash && trailingSlash && !blobPath.endsWith('/')) {
+      blobPath = `${blobPath}/`
     }
 
     console.log(`blob-debug`, { source, targetPath, blobPath })
