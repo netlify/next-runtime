@@ -27,4 +27,4 @@ export const getNormalizedBlobKey = (key: string): string => key
 
 // Buffer.from(key).toString('base64url')
 
-export { Blobs } from '../blob'
+export { Blobs } from './blob'
