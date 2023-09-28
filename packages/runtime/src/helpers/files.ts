@@ -154,7 +154,8 @@ export const moveStaticPages = async ({
     }
   }
   const uploadFileToBlobStorageAndDelete = async (file: string) => {
-    const isrMeta = isrFiles.get(file)
+    const pagePath = file.split('/').slice(1).join('/')
+    const isrMeta = isrFiles.get(pagePath)
     if (!isrMeta) {
       return
     }
