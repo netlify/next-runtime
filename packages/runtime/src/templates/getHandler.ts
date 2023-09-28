@@ -164,17 +164,6 @@ const makeHandler = ({
           siteID: event.headers['x-nf-site-id'],
         })
 
-        {
-          let t1 = 'N/A'
-          let t2 = 'N/A'
-          try {
-            t1 = await netliBlob.get(getNormalizedBlobKey('test1'), { type: 'json' })
-            t2 = await netliBlob.get(getNormalizedBlobKey('/test2'), { type: 'json' })
-          } finally {
-            console.log(`blob tests`, { t1, t2 })
-          }
-        }
-
         let key = event.path
         const blobRewrite = blobManifest.get(key)
         if (blobRewrite) {
