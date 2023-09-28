@@ -153,8 +153,10 @@ const makeHandler = ({
         const data = JSON.parse(rawData.toString('ascii'))
 
         // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { Blobs, getNormalizedBlobKey } = require('./blobStorage') as typeof import('./blobStorage')
+        const { Blobs, getNormalizedBlobKey, getHeaderForType } =
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          require('./blobStorage') as typeof import('./blobStorage')
+
         const netliBlob = new Blobs({
           authentication: {
             contextURL: data.url,
@@ -181,9 +183,14 @@ const makeHandler = ({
             const { Buffer } = require('buffer')
             return {
               body: Buffer.from(ISRPage.value).toString('base64'),
-              headers: ISRPage.headers,
+              headers: {
+                'cache-control': 'public, max-age=0, must-revalidate',
+                'x-nf-render-mode': `odb ttl=${ISRPage.ttl}`,
+                ...getHeaderForType(ISRPage.type),
+              },
               statusCode: 200,
               isBase64Encoded: true,
+              ttl: ISRPage.ttl,
             }
           }
         }

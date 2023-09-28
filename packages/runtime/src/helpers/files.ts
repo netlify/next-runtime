@@ -100,7 +100,7 @@ export const moveStaticPages = async ({
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 
-  const isrFiles = new Set<string>()
+  const isrFiles = new Map<string, Pick<BlobISRPage, 'type' | 'ttl'>>()
 
   const shortRevalidateRoutes: Array<{ Route: string; Revalidate: number }> = []
 
@@ -109,10 +109,11 @@ export const moveStaticPages = async ({
     const trimmedPath = route === '/' ? 'index' : route.slice(1)
 
     if (initialRevalidateSeconds) {
+      const ttl = Math.max(MINIMUM_REVALIDATE_SECONDS, initialRevalidateSeconds)
       // Find all files used by ISR routes
-      isrFiles.add(`${trimmedPath}.html`)
-      isrFiles.add(`${trimmedPath}.json`)
-      isrFiles.add(`${trimmedPath}.rsc`)
+      isrFiles.set(`${trimmedPath}.html`, { ttl, type: 'html' })
+      isrFiles.set(`${trimmedPath}.json`, { ttl, type: 'json' })
+      isrFiles.set(`${trimmedPath}.rsc`, { ttl, type: 'rsc' })
       if (initialRevalidateSeconds < MINIMUM_REVALIDATE_SECONDS) {
         shortRevalidateRoutes.push({ Route: route, Revalidate: initialRevalidateSeconds })
       }
@@ -153,6 +154,11 @@ export const moveStaticPages = async ({
     }
   }
   const uploadFileToBlobStorageAndDelete = async (file: string) => {
+    const isrMeta = isrFiles.get(file)
+    if (!isrMeta) {
+      return
+    }
+
     // TODO: test with basepath, without i18n
     const { source, targetPath } = getSourceAndTargetPath(file)
 
@@ -178,7 +184,7 @@ export const moveStaticPages = async ({
 
     const blobValue: BlobISRPage = {
       value: content,
-      headers: {},
+      ...isrMeta,
       lastModified: Date.now(),
     }
 

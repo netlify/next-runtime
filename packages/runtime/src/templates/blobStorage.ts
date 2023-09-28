@@ -6,10 +6,13 @@ import { Blobs as untypedBlobs } from './blob'
 
 const Blobs = untypedBlobs as unknown as typeof IBlobs
 
+type AssetType = 'html' | 'json' | 'rsc'
+
 export type BlobISRPage = {
   value: string
-  headers: Record<string, string>
+  type: AssetType
   lastModified: number
+  ttl: number
 }
 
 export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
@@ -21,6 +24,25 @@ export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
   } catch (error) {
     console.log('BLOB error', error)
     return false
+  }
+}
+
+export const getHeaderForType = (type: AssetType): Record<string, string> => {
+  switch (type) {
+    case 'html':
+      return {
+        'content-type': 'text/html; charset=utf-8',
+      }
+    case 'json':
+      return {
+        'content-type': 'application/json; charset=utf-8',
+      }
+    case 'rsc':
+      return {
+        'content-type': 'text/x-component',
+      }
+    default:
+      return {}
   }
 }
 
