@@ -14,7 +14,7 @@
     "react": "latest",
     "react-dom": "latest",
     "sass": "latest",
-    "swr": "2.2.1"
+    "swr": "2.2.2"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "file:plugin-wrapper",
