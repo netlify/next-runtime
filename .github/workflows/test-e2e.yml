@@ -85,12 +85,12 @@ jobs:
           ls test/e2e/**/*.test.* > included_tests
           printf %s "${{ env.skipped-tests }}" > skipped_tests
           comm -23 included_tests skipped_tests > filtered_tests
-          echo "{\"enabledTests\":[\"$(printf %s "$(< filtered_tests)" | sed -z "s/\n/\",\"/g")\"]}" > json_tests
+          echo "{\"enabledTests\":[\"$(printf %s "$(< filtered_tests)" | sed -z "s/\n/\",\"/g")\"]}" > tests.json
 
       - name: run tests
         env:
           NODE_ENV: production
-          NEXT_EXTERNAL_TESTS_FILTERS: ./json_tests
+          NEXT_EXTERNAL_TESTS_FILTERS: ./tests.json
         run: node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
 
   validate-tests:
