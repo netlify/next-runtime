@@ -33,7 +33,7 @@ export const HIDDEN_PATHS = destr(process.env.NEXT_KEEP_METADATA_FILES)
       '/prerender-manifest.js',
       '/required-server-files.json',
       '/static-manifest.json',
-      '/blob-manifest.json',
+      '/blobs-manifest.json',
     ]
 
 export const ODB_FUNCTION_PATH = `/.netlify/builders/${ODB_FUNCTION_NAME}`
