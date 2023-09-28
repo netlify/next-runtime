@@ -44,15 +44,6 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           ref: ${{ env.NEXT_VERSION }}
 
-      - name: enable extended globbing
-        run: shopt -s extglob
-          
-      - name: set test filter
-        run: |
-          ls test/e2e/**/*.test.(js|ts|tsx) > included_tests
-          echo "${{ env.skip-tests }}" > skipped_tests
-          comm -23 included_tests skipped_tests
-
       - name: get next sha
         id: next-sha
         run: echo "SHA=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
@@ -62,6 +53,13 @@ jobs:
         with:
           path: .turbo
           key: turbo-${{ steps.next-sha.outputs.SHA }}
+          
+      - name: set test filter
+        shell: bash
+        run: |
+          ls test/e2e/**/*.test.(js|ts|tsx) > included_tests
+          echo "${{ env.skip-tests }}" > skipped_tests
+          comm -23 included_tests skipped_testsZZ
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
