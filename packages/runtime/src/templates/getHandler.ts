@@ -321,7 +321,7 @@ export const getHandler = ({
   } catch {}
   let blobManifest
   try {
-    blobManifest = new Map(require("${publishDir}/blob-manifest.json"))
+    blobManifest = new Map(require("${publishDir}/blobs-manifest.json"))
     console.log('loaded blob manifest', blobManifest)
   } catch (e){
     console.log('failed to load blob manifest', e)
