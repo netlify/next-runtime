@@ -74,7 +74,7 @@ jobs:
           path: ${{ env.runtime-path }}
 
       - name: install runtime
-        run: pnpm install --filter ./${{ env.runtime-path }} --config.shared-workspace-lockfile=false
+        run: pnpm install --filter ./${{ env.runtime-path }} --config.shared-workspace-lockfile=false --config.dedupe-peer-dependents=false
 
       - name: build runtime
         run: pnpm build --filter ./${{ env.runtime-path }}
