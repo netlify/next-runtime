@@ -25,6 +25,9 @@ jobs:
         group: [1, 2, 3, 4, 5]
     env:
       runtime-path: packages/next-runtime
+      skip-tests: |
+        test/e2e/app-dir/app-compilation/index.test.ts
+
     steps:
       - name: get github token
         uses: navikt/github-app-token-generator@v1
@@ -40,6 +43,9 @@ jobs:
           repository: ${{ env.NEXT_REPO }}
           token: ${{ steps.token.outputs.token }}
           ref: ${{ env.NEXT_VERSION }}
+
+      - name: test
+        run: comm -23 <(ls test/e2e/**/*.test.(js|ts|tsx)) <(echo "${{ env.skip-tests }}")
 
       - name: get next sha
         id: next-sha
