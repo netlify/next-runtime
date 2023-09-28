@@ -74,7 +74,8 @@ jobs:
         run: pnpm install --filter ./${{ env.runtime-path }} --config.shared-workspace-lockfile=false --config.dedupe-peer-dependents=false
 
       - name: build runtime
-        run: pnpm build --filter ./${{ env.runtime-path }}
+        run: pnpm build
+        working-directory: ${{ env.runtime-path }}
 
       - name: add netlify cli
         run: pnpm add -g netlify-cli
@@ -89,7 +90,7 @@ jobs:
       - name: run tests
         env:
           NODE_ENV: production
-          NEXT_EXTERNAL_TESTS_FILTERS: json_tests
+          NEXT_EXTERNAL_TESTS_FILTERS: ./json_tests
         run: node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
 
   validate-tests:
