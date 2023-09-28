@@ -59,7 +59,7 @@ jobs:
         run: |
           ls test/e2e/**/*.test.* > included_tests
           echo "${{ env.skipped-tests }}" > skipped_tests
-          echo "TESTS='$(comm -23 included_tests skipped_tests)'" >> "$GITHUB_OUTPUT"
+          echo "JSON=\"{enabledTests:[$(comm -23 included_tests skipped_tests | tr "\n" ",")]}\"" >> "$GITHUB_OUTPUT"
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
@@ -95,7 +95,7 @@ jobs:
       - name: run tests
         env:
           NODE_ENV: production
-          NEXT_EXTERNAL_TESTS_FILTERS: ${{ steps.test-filter.outputs.TESTS }}
+          NEXT_EXTERNAL_TESTS_FILTERS: ${{ steps.test-filter.outputs.JSON }}
         run: node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
 
   validate-tests:
