@@ -19,8 +19,8 @@ const setRequireHooks = (config: NextConfig) => {
   requireHooks.set(
     'default',
     new Map([
-      ['react', `react`],
-      ['react/jsx-runtime', `react/jsx-runtime`],
+      ['styled-jsx', 'styled-jsx'],
+      ['styled-jsx/style', 'styled-jsx/style'],
     ]),
   )
 
