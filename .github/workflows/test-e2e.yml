@@ -24,7 +24,6 @@ jobs:
       matrix:
         group: [1, 2, 3, 4, 5]
     env:
-      NODE_ENV: production
       runtime-path: packages/next-runtime
     steps:
       - name: get github token
@@ -41,12 +40,16 @@ jobs:
           repository: ${{ env.NEXT_REPO }}
           token: ${{ steps.token.outputs.token }}
           ref: ${{ env.NEXT_VERSION }}
+
+      - name: get next sha
+        id: next-sha
+        run: echo "SHA=git rev-parse --short HEAD" >> "$GITHUB_OUTPUT"
         
       - name: setup turborepo cache
         uses: actions/cache@v3
         with:
           path: .turbo
-          key: ${{ runner.os }}-turbo-${{ env.NEXT_VERSION }}
+          key: turbo-${{ steps.next-sha.outputs.SHA }}
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
@@ -80,7 +83,7 @@ jobs:
         run: pnpm add -g netlify-cli
 
       - name: run tests
-        run: node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
+        run: NODE_ENV=production node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
 
   validate-tests:
     name: validate tests
