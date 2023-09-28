@@ -11,7 +11,7 @@ env:
   NEXT_TEST_MODE: deploy
   TEST_CONCURRENCY: 8
   NEXT_TELEMETRY_DISABLED: 1
-  NETLIFY_AUTH_TOKEN: blah
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BOT_AUTH_TOKEN }}
   NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
 
 jobs:
@@ -24,7 +24,6 @@ jobs:
       matrix:
         group: [1, 2, 3, 4, 5]
     env:
-      runtime-path: packages/next-runtime
       skipped-tests: |
         test/e2e/app-dir/app-compilation/index.test.ts
         test/e2e/favicon-short-circuit/favicon-short-circuit.test.ts
@@ -44,10 +43,12 @@ jobs:
           repository: ${{ env.NEXT_REPO }}
           token: ${{ steps.token.outputs.token }}
           ref: ${{ env.NEXT_VERSION }}
+          path: next.js
 
-      - name: get next sha
-        id: next-sha
-        run: echo "SHA=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - name: checkout runtime
+        uses: actions/checkout@v3
+        with:
+          path: next-runtime-minimal
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
@@ -60,27 +61,16 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
-      - name: install next
-        run: pnpm install
-            
-      - name: build next
-        run: pnpm build
+      - name: install && build next.js
+        run: pnpm install && pnpm build
+        working-directory: next.js
 
-      - name: checkout runtime
-        uses: actions/checkout@v3
-        with:
-          path: ${{ env.runtime-path }}
-
-      - name: install runtime
-        run: npm install
-        working-directory: ${{ env.runtime-path }}
-
-      - name: build runtime
-        run: npm build
-        working-directory: ${{ env.runtime-path }}
+      - name: install && build runtime
+        run: npm install && npm run build
+        working-directory: next-runtime-minimal
 
       - name: add netlify cli
-        run: pnpm add -g netlify-cli
+        run: npm install -g netlify-cli
           
       - name: set test filter
         run: |
@@ -88,12 +78,14 @@ jobs:
           printf %s "${{ env.skipped-tests }}" > skipped_tests
           comm -23 included_tests skipped_tests > filtered_tests
           echo "{\"enabledTests\":[\"$(printf %s "$(< filtered_tests)" | sed -z "s/\n/\",\"/g")\"]}" > tests.json
+        working-directory: next.js
 
       - name: run tests
         env:
           NODE_ENV: production
           NEXT_EXTERNAL_TESTS_FILTERS: ./tests.json
         run: node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
+        working-directory: next.js
 
   validate-tests:
     name: validate tests
