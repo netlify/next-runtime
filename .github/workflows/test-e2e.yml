@@ -25,7 +25,7 @@ jobs:
         group: [1, 2, 3, 4, 5]
     env:
       runtime-path: packages/next-runtime
-      skip-tests: |
+      skipped-tests: |
         test/e2e/app-dir/app-compilation/index.test.ts
 
     steps:
@@ -58,8 +58,8 @@ jobs:
         id: test-filter
         run: |
           ls test/e2e/**/*.test.* > included_tests
-          echo "${{ env.skip-tests }}" > skipped_tests
-          echo "TESTS=$(comm -23 included_tests skipped_tests)" >> "$GITHUB_OUTPUT"
+          echo "${{ env.skipped-tests }}" > skipped_tests
+          echo "TESTS='$(comm -23 included_tests skipped_tests)'" >> "$GITHUB_OUTPUT"
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
