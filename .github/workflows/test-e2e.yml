@@ -55,11 +55,11 @@ jobs:
           key: turbo-${{ steps.next-sha.outputs.SHA }}
           
       - name: set test filter
-        id: test-filter
         run: |
           ls test/e2e/**/*.test.* > included_tests
-          echo "${{ env.skipped-tests }}" > skipped_tests
-          echo "JSON=\"{enabledTests:[$(comm -23 included_tests skipped_tests | tr "\n" ",")]}\"" >> "$GITHUB_OUTPUT"
+          printf %s "${{ env.skipped-tests }}" > skipped_tests
+          comm -23 included_tests skipped_tests > filtered_tests
+          echo "JSON={enabledTests:[\"$(printf %s "$(< filtered_tests)" | tr "\n" "\",\"")]}" > json_tests
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
@@ -95,7 +95,7 @@ jobs:
       - name: run tests
         env:
           NODE_ENV: production
-          NEXT_EXTERNAL_TESTS_FILTERS: ${{ steps.test-filter.outputs.JSON }}
+          NEXT_EXTERNAL_TESTS_FILTERS: json_tests
         run: node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
 
   validate-tests:
