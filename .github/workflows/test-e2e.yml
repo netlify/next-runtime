@@ -45,6 +45,7 @@ jobs:
           ref: ${{ env.NEXT_VERSION }}
 
       - name: test
+        shell: bash
         run: comm -23 <(ls test/e2e/**/*.test.(js|ts|tsx)) <(echo "${{ env.skip-tests }}")
 
       - name: get next sha
