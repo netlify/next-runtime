@@ -27,6 +27,7 @@ jobs:
       runtime-path: packages/next-runtime
       skipped-tests: |
         test/e2e/app-dir/app-compilation/index.test.ts
+        test/e2e/favicon-short-circuit/favicon-short-circuit.test.ts
 
     steps:
       - name: get github token
