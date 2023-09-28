@@ -24,7 +24,6 @@ const {
   getMultiValueHeaders,
   getPrefetchResponse,
   normalizePath,
-  isLocalized,
 } = require('./handlerUtils')
 const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
@@ -40,12 +39,21 @@ type MakeHandlerParams = {
   pageRoot: string
   NextServer: NextServerType
   staticManifest: Array<[string, string]>
+  blobManifest: Map<string, string>
   mode: 'ssr' | 'odb'
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 // eslint-disable-next-line max-lines-per-function
-const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mode = 'ssr' }: MakeHandlerParams) => {
+const makeHandler = ({
+  conf,
+  app,
+  pageRoot,
+  NextServer,
+  staticManifest = [],
+  blobManifest = new Map(),
+  mode = 'ssr',
+}: MakeHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -168,12 +176,10 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
         }
 
         let key = event.path
-        if (conf.i18n) {
-          if (key.includes('/_next/data/')) {
-            // TBD
-          } else if (!isLocalized(key, conf.i18n)) {
-            key = `/${conf.i18n.defaultLocale}${key}`
-          }
+        const blobRewrite = blobManifest.get(key)
+        if (blobRewrite) {
+          console.log('blob rewrite', { key, blobRewrite })
+          key = blobRewrite
         }
 
         const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key), { type: 'json' })) as BlobISRPage
@@ -313,11 +319,15 @@ export const getHandler = ({
   try {
     staticManifest = require("${publishDir}/static-manifest.json")
   } catch {}
+  let blobManifest
+  try {
+    blobManifest = new Map(require("${publishDir}/blob-manifest.json"))
+  } catch {}
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb' }));`
-      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr' });`
+      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, blobManifest, mode: 'odb' }));`
+      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, blobManifest, mode: 'ssr' });`
   }
 `

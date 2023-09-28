@@ -122,6 +122,7 @@ export const moveStaticPages = async ({
   let fileCount = 0
   let blobCount = 0
   const filesManifest: Record<string, string> = {}
+  const blobsManifest = new Map<string, string>()
   const getSourceAndTargetPath = (file: string): { targetPath: string; source: string } => {
     const source = join(outputDir, file)
     // Strip the initial 'app' or 'pages' directory from the output path
@@ -157,6 +158,7 @@ export const moveStaticPages = async ({
     }
   }
   const uploadFileToBlobStorageAndDelete = async (file: string) => {
+    // TODO: test with basepath, without i18n
     const { source, targetPath } = getSourceAndTargetPath(file)
 
     // targetPath doesn't have leading slash
@@ -175,7 +177,7 @@ export const moveStaticPages = async ({
       blobPath = `${blobPath}/`
     }
 
-    console.log(`blob-debug`, { source, targetPath, blobPath })
+    console.log(`blob-debug entry`, { source, targetPath, blobPath })
 
     const content = await readFile(source, 'utf8')
 
@@ -189,6 +191,11 @@ export const moveStaticPages = async ({
 
     await netliBlob.setJSON(getNormalizedBlobKey(blobPath), blobValue)
 
+    if (i18n?.defaultLocale && blobPath.startsWith(`/${i18n.defaultLocale}/`)) {
+      const blobPathWithoutLocale = blobPath.slice(i18n.defaultLocale.length + 1)
+      blobsManifest.set(blobPathWithoutLocale, blobPath)
+      console.log(`blob-debug alias`, { blobPathWithoutLocale, blobPath })
+    }
     await remove(source)
   }
   // Move all static files, except nft manifests
@@ -308,8 +315,9 @@ export const moveStaticPages = async ({
     }
   }
 
-  // Write the manifest for use in the serverless functions
+  // Write the manifests for use in the serverless functions
   await writeJson(join(netlifyConfig.build.publish, 'static-manifest.json'), Object.entries(filesManifest))
+  await writeJson(join(netlifyConfig.build.publish, 'blobs-manifest.json'), [...blobsManifest.entries()])
 
   if (i18n?.defaultLocale) {
     const rootPath = basePath ? join(netlifyConfig.build.publish, basePath) : netlifyConfig.build.publish

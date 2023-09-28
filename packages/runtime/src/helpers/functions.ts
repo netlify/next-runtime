@@ -396,6 +396,7 @@ const getSSRDependencies = async (publish: string): Promise<string[]> => {
     }),
     join(publish, '**', '*.html'),
     join(publish, 'static-manifest.json'),
+    join(publish, 'blob-manifest.json'),
   ]
 }
 
