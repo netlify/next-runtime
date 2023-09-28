@@ -57,6 +57,7 @@ jobs:
       - name: set test filter
         shell: bash
         run: |
+          shopt -s extglob
           ls test/e2e/**/*.test.(js|ts|tsx) > included_tests
           echo "${{ env.skip-tests }}" > skipped_tests
           comm -23 included_tests skipped_testsZZ
