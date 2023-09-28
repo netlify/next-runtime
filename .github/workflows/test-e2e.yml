@@ -43,7 +43,7 @@ jobs:
 
       - name: get next sha
         id: next-sha
-        run: echo "SHA=git rev-parse --short HEAD" >> "$GITHUB_OUTPUT"
+        run: echo "SHA=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
         
       - name: setup turborepo cache
         uses: actions/cache@v3
