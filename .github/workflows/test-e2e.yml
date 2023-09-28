@@ -47,20 +47,6 @@ jobs:
       - name: get next sha
         id: next-sha
         run: echo "SHA=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-        
-      - name: setup turborepo cache
-        uses: actions/cache@v3
-        with:
-          path: .turbo
-          key: turbo-${{ steps.next-sha.outputs.SHA }}
-          
-      - name: set test filter
-        run: |
-          ls test/e2e/**/*.test.* > included_tests
-          printf %s "${{ env.skipped-tests }}" > skipped_tests
-          comm -23 included_tests skipped_tests > filtered_tests
-          echo "{\"enabledTests\":[\"$(printf %s "$(< filtered_tests)" | sed -z "s/\n/\",\"/g")\"]}" > json_tests
-          cat json_tests
 
       - name: setup pnpm
         uses: pnpm/action-setup@v2
@@ -92,6 +78,13 @@ jobs:
 
       - name: add netlify cli
         run: pnpm add -g netlify-cli
+          
+      - name: set test filter
+        run: |
+          ls test/e2e/**/*.test.* > included_tests
+          printf %s "${{ env.skipped-tests }}" > skipped_tests
+          comm -23 included_tests skipped_tests > filtered_tests
+          echo "{\"enabledTests\":[\"$(printf %s "$(< filtered_tests)" | sed -z "s/\n/\",\"/g")\"]}" > json_tests
 
       - name: run tests
         env:
