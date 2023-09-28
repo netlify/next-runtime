@@ -59,7 +59,7 @@ jobs:
           ls test/e2e/**/*.test.* > included_tests
           printf %s "${{ env.skipped-tests }}" > skipped_tests
           comm -23 included_tests skipped_tests > filtered_tests
-          echo "{\"enabledTests\":[\"$(printf %s "$(< filtered_tests)" | sed 's/\n/","/g')\"]}" > json_tests
+          echo "{\"enabledTests\":[\"$(printf %s "$(< filtered_tests)" | sed "s/\n/\",\"/g")\"]}" > json_tests
           cat json_tests
 
       - name: setup pnpm
