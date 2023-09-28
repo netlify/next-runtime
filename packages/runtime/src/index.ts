@@ -1,6 +1,5 @@
 import { join, relative } from 'path'
 
-import type { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 import type { NetlifyPlugin, NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build/types'
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
@@ -207,10 +206,8 @@ const plugin: NetlifyPlugin = {
           token: NETLIFY_API_TOKEN,
         },
         context: `deploy:${process.env.DEPLOY_ID}`,
-        // context: `deploy:650c4da1c2e4f734db8855c2`,
         siteID: SITE_ID,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any) as unknown as IBlobs
+      })
 
       console.log('get blob storage', {
         context: `deploy:${process.env.DEPLOY_ID}`,

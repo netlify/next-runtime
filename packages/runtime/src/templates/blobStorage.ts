@@ -2,6 +2,10 @@ import { Buffer } from 'buffer'
 
 import { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
 
+import { Blobs as untypedBlobs } from './blob'
+
+const Blobs = untypedBlobs as unknown as typeof IBlobs
+
 export type BlobISRPage = {
   value: string
   headers: Record<string, string>
@@ -25,4 +29,4 @@ export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
  */
 export const getNormalizedBlobKey = (key: string): string => Buffer.from(key).toString('base64url')
 
-export { Blobs } from './blob'
+export { Blobs }

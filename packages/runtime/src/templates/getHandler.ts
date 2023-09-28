@@ -154,7 +154,7 @@ const makeHandler = ({
 
         // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { Blobs, getNormalizedBlobKey } = require('./blobStorage')
+        const { Blobs, getNormalizedBlobKey } = require('./blobStorage') as typeof import('./blobStorage')
         const netliBlob = new Blobs({
           authentication: {
             contextURL: data.url,
