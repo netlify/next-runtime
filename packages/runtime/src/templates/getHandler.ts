@@ -322,7 +322,10 @@ export const getHandler = ({
   let blobManifest
   try {
     blobManifest = new Map(require("${publishDir}/blob-manifest.json"))
-  } catch {}
+    console.log('loaded blob manifest', blobManifest)
+  } catch (e){
+    console.log('failed to load blob manifest', e)
+  }
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
