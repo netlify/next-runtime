@@ -44,9 +44,11 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           ref: ${{ env.NEXT_VERSION }}
 
-      - name: test
+      - name: enable extended globbing
+        run: shopt -s extglob
+          
+      - name: set test filter
         run: |
-          shopt -s extglob
           ls test/e2e/**/*.test.(js|ts|tsx) > included_tests
           echo "${{ env.skip-tests }}" > skipped_tests
           comm -23 included_tests skipped_tests
