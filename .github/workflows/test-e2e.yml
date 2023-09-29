@@ -72,7 +72,7 @@ jobs:
           path: ${{ steps.pnpm-store.outputs.PATH }}
           key: pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            pnpm-store-
 
       - name: get npm cache
         id: npm-cache
@@ -84,7 +84,7 @@ jobs:
           path: ${{ steps.npm-cache.outputs.PATH }}
           key: node-cache-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-cache-
+            node-cache-
 
       - name: install next.js
         run: pnpm install
