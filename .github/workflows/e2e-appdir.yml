@@ -16,6 +16,9 @@ jobs:
       test-files: ${{ steps['set-test-files'].outputs['test-files'] }}
     steps:
       - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
       - run: npm install
       - id: set-test-files
         name: Get test files
@@ -42,6 +45,9 @@ jobs:
         with:
           node-version: '16'
           cache: 'npm'
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
       - run: npm install
       - name: Install Netlify CLI
         run: npm install -g netlify-cli

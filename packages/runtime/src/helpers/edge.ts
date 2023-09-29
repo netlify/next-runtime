@@ -378,6 +378,7 @@ export const writeEdgeFunctions = async ({
   const nextConfig = nextConfigFile.config
   const usesAppDir = nextConfig.experimental?.appDir
 
+  await copy(getEdgeTemplatePath('../vendor'), join(edgeFunctionRoot, 'vendor'))
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
   await writeJSON(join(edgeFunctionRoot, 'edge-shared', 'nextConfig.json'), nextConfig)
   await copy(join(publish, 'prerender-manifest.json'), join(edgeFunctionRoot, 'edge-shared', 'prerender-manifest.json'))
