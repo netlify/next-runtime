@@ -2,6 +2,8 @@
 // it's a list of all external modules that we use,
 // and we vendor those into the `vendor/` directory
 // for consumption in other files.
+// Vendoring happens automatically as part of runtime `build` script.
+// You can trigger just vendoring without full package build by running `build:vendor` script.
 
 import 'https://deno.land/std@0.175.0/encoding/base64.ts'
 import 'https://deno.land/std@0.175.0/http/cookie.ts'
