@@ -61,16 +61,17 @@ export const getRscDataRouter = ({ routes: staticRoutes, dynamicRoutes }: Preren
   }
 
   return (request, context) => {
-    const debug = request.headers.has('x-next-debug-logging')
+    const debug = request.headers.has('x-next-debug-logging') || true
     const log = debug ? (...args: unknown[]) => console.log(...args) : noop
     const url = new URL(request.url)
     // If this is a static RSC request, rewrite to the data route
+    log('Is rsc request?', { url: request.url })
     if (request.headers.get('rsc') === '1') {
-      log('Is rsc request')
+      log('It is rsc request', { url: request.url })
       if (matchesRscRoute(url.pathname)) {
         request.headers.set('x-rsc-route', url.pathname)
         const target = rscifyPath(url.pathname)
-        log('Rewriting to', target)
+        log('Rewriting to', { url: request.url, target })
         return context.rewrite(target)
       }
     }
