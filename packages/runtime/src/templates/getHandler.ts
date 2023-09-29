@@ -135,7 +135,7 @@ const makeHandler = ({
     }
 
     // only retrieve the prerendered data on misses from the odb
-    if (event.headers['x-nf-builder-cache'] === 'miss') {
+    if (mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss') {
       // retrieve the data for the blob storage
       const {
         clientContext: { custom: customContext },
@@ -162,20 +162,21 @@ const makeHandler = ({
 
         let key = event.path
         if (key.endsWith('.rsc/')) {
-          console.log('blob path strip trailing slash for .rsc request', { key })
           // strip trailing slash from .rsc requests
           key = key.slice(0, -1)
         }
         const blobRewrite = blobManifest.get(key)
         if (blobRewrite) {
-          console.log('blob rewrite', { key, blobRewrite })
           key = blobRewrite
         }
 
         const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key), { type: 'json' })) as BlobISRPage
 
         if (ISRPage) {
-          console.log('YAY cache hit 🎉', { key, path: event.path, ISRPage })
+          requestMode = `odb ttl=${ISRPage.ttl}`
+          console.log(
+            `[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()}) (used Blob cache key: ${key})`,
+          )
 
           // eslint-disable-next-line @typescript-eslint/no-var-requires
           const { Buffer } = require('buffer')
@@ -183,7 +184,7 @@ const makeHandler = ({
             body: Buffer.from(ISRPage.value).toString('base64'),
             headers: {
               'cache-control': 'public, max-age=0, must-revalidate',
-              'x-nf-render-mode': `odb ttl=${ISRPage.ttl}`,
+              'x-nf-render-mode': requestMode,
               ...getHeaderForType(ISRPage.type),
             },
             statusCode: 200,
@@ -300,10 +301,7 @@ export const getHandler = ({
   let blobManifest
   try {
     blobManifest = new Map(require("${publishDir}/blobs-manifest.json"))
-    console.log('loaded blob manifest', blobManifest)
-  } catch (e){
-    console.log('failed to load blob manifest', e)
-  }
+  } catch {}
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
