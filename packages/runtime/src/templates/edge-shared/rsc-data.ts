@@ -65,7 +65,7 @@ export const getRscDataRouter = ({ routes: staticRoutes, dynamicRoutes }: Preren
     const log = debug ? (...args: unknown[]) => console.log(...args) : noop
     const url = new URL(request.url)
     // If this is a static RSC request, rewrite to the data route
-    log('Is rsc request?', { url: request.url })
+    log('Is rsc request?', { url: request.url, headers: request.headers })
     if (request.headers.get('rsc') === '1') {
       log('It is rsc request', { url: request.url })
       if (matchesRscRoute(url.pathname)) {
