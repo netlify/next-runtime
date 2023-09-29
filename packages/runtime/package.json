@@ -54,7 +54,7 @@
     "publish:test": "cd .. && npm ci && npm test",
     "clean": "rimraf lib dist-types",
     "build": "run-s build:*",
-    "build:vendor": "rimraf src/templates/vendor && deno vendor src/templates/vendor.ts --output=src/templates/vendor",
+    "build:vendor": "rimraf src/templates/vendor && deno vendor src/templates/vendor.ts --output=src/templates/vendor && patch src/templates/vendor/deno.land/x/html_rewriter@*/index.ts html_rewriter.patch",
     "build:tsc": "tsc",
     "watch": "tsc --watch",
     "prepare": "npm run build"
