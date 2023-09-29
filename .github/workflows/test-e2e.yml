@@ -9,6 +9,7 @@ env:
   NEXT_REPO: netlify/next.js
   NEXT_VERSION: netlify-testing
   NEXT_TEST_MODE: deploy
+  NEXT_E2E_TEST_TIMEOUT: 600000
   TEST_CONCURRENCY: 8
   NEXT_TELEMETRY_DISABLED: 1
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
