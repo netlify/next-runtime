@@ -53,7 +53,7 @@
     "publish:test": "cd .. && npm ci && npm test",
     "clean": "rimraf lib dist-types",
     "build": "run-s build:*",
-    "build:vendor": "rimraf src/templates/vendor && deno vendor src/templates/edge/shims.js src/templates/edge-shared/next-utils.ts https://deno.land/x/html_rewriter@v0.1.0-pre.17/index.ts --output=src/templates/vendor",
+    "build:vendor": "rimraf src/templates/vendor && deno vendor src/templates/edge/shims.js src/templates/edge-shared/next-utils.ts https://deno.land/x/html_rewriter@v0.1.0-pre.17/index.ts --output=src/templates/vendor && node fix-import-map.js",
     "build:tsc": "tsc",
     "watch": "tsc --watch",
     "prepare": "npm run build"
