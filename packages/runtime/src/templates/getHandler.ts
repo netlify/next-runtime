@@ -135,14 +135,6 @@ const makeHandler = ({
       return prefetchResponse
     }
 
-    console.log(`pre`, event)
-
-    event.path = normalizePath(event)
-    // Next expects to be able to parse the query from the URL
-    const query = new URLSearchParams(event.queryStringParameters).toString()
-    event.path = query ? `${event.path}?${query}` : event.path
-
-    console.log(`post`, event)
     // only retrieve the prerendered data on misses from the odb
     // eslint-disable-next-line no-constant-condition
     if (event.headers['x-nf-builder-cache'] === 'miss' || true) {
@@ -218,6 +210,15 @@ const makeHandler = ({
         h: event.headers['x-nf-builder-cache'],
       })
     }
+
+    console.log(`pre`, event)
+
+    event.path = normalizePath(event)
+    // Next expects to be able to parse the query from the URL
+    const query = new URLSearchParams(event.queryStringParameters).toString()
+    event.path = query ? `${event.path}?${query}` : event.path
+
+    console.log(`post`, event)
 
     if (event.headers['accept-language'] && (mode === 'odb' || event.headers['x-next-just-first-accept-language'])) {
       // keep just first language to match Netlify redirect limitation:
