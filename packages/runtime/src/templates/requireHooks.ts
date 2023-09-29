@@ -19,7 +19,7 @@ const setRequireHooks = (config: NextConfig) => {
   requireHooks.set(
     'default',
     new Map([
-      ['styled-jsx', 'styled-jsx'],
+      ['styled-jsx', 'styled-jsx/package.json'],
       ['styled-jsx/style', 'styled-jsx/style'],
     ]),
   )
@@ -111,8 +111,11 @@ export const applyRequireHooks = () => {
     const hookResolved = requestMap.get(request)
     if (hookResolved) request = hookResolved
     if (request.includes('styled-jsx')) console.log({ request })
-
-    return originalResolveFilename.call(mod, request, parent, isMain, options)
+    try {
+      return originalResolveFilename.call(mod, request, parent, isMain, options)
+    } catch {
+      throw new Error(`Could not resolve ${request} from requireHooks.ts`)
+    }
 
     // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
   }.bind(null, resolveFilename, requireHooks)
