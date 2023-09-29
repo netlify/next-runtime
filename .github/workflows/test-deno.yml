@@ -13,8 +13,14 @@ jobs:
     steps:
       - name: Git Checkout Deno Module
         uses: actions/checkout@v3
+      - name: Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
+      - name: Run Vendor
+        run: npm run build:vendor
       - name: Test Deno
         run: deno test packages/runtime/src/templates/edge-shared/
