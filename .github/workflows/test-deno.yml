@@ -21,6 +21,7 @@ jobs:
         with:
           deno-version: v1.x
       - name: Run Vendor
+        working-directory: ./packages/runtime
         run: npm run build:vendor
       - name: Test Deno
         run: deno test packages/runtime/src/templates/edge-shared/
