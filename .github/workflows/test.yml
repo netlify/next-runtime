@@ -40,6 +40,8 @@ jobs:
         run: npm run format:ci
       - name: Run tests against next@latest
         run: npm test
+      - name: Run Deno tests
+        run: npm run test:deno
   canary:
     name: Unit tests (Canary)
     runs-on: ${{ matrix.os }}
