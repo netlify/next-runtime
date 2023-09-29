@@ -67,7 +67,7 @@ export class NextDeployInstance extends NextInstance {
     console.log(`Deploying project at ${this.testDir}`)
 
     const deployTitle = process.env.GITHUB_SHA ? `${testName} - ${process.env.GITHUB_SHA}` : testName
-    const deployRes = await execa('ntl', ['deploy', '--build', '--message', deployTitle], {
+    const deployRes = await execa('ntl', ['deploy', '--build', '--json', '--message', deployTitle], {
       cwd: this.testDir,
       reject: false,
       env: {
