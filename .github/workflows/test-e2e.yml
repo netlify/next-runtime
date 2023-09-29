@@ -68,7 +68,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.pnpm-store.outputs.PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
@@ -80,7 +80,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.npm-cache.outputs.PATH }}
-          key: ${{ runner.os }}-node-cache-${{ hashFiles('**/package-lock.json') }}
+          key: node-cache-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-cache-
 
