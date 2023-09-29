@@ -2,6 +2,8 @@
   "deno.enablePaths": [
     "packages/runtime/src/templates/edge",
     "packages/runtime/src/templates/edge-shared",
+    "packages/runtime/src/templates/vendor", 
+    "packages/runtime/src/templates/vendor.ts", 
     "demos/middleware/.netlify/edge-functions",
     "demos/server-components/.netlify/edge-functions",
   ],

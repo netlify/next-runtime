@@ -31,12 +31,17 @@ jobs:
         with:
           node-version: 16
           check-latest: true
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
       - name: NPM Install
         run: npm install
       - name: Linting
         run: npm run format:ci
       - name: Run tests against next@latest
         run: npm test
+      - name: Run Deno tests
+        run: npm run test:deno
   canary:
     name: Unit tests (Canary)
     runs-on: ${{ matrix.os }}
@@ -54,6 +59,9 @@ jobs:
         with:
           node-version: 16
           check-latest: true
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
       - name: NPM Install
         run: npm install
       - name: Install Next.js Canary

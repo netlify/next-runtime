@@ -28,3 +28,4 @@ test/e2e
 packages/runtime/lib
 packages/runtime/dist-types
 packages/runtime/src/templates/blob.js
+packages/runtime/src/templates/vendor

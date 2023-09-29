@@ -24,6 +24,9 @@ jobs:
         with:
           node-version: 18
           check-latest: true
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
       - name: Install netlify-cli and npm
         run: npm install -g netlify-cli npm
       - name: NPM Install

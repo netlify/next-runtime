@@ -7,6 +7,7 @@
     "lib/**/*",
     "src/templates/edge/*",
     "src/templates/edge-shared/*",
+    "src/templates/vendor/*",
     "index.js",
     "manifest.yml"
   ],
@@ -53,8 +54,10 @@
     "publish:install": "npm ci",
     "publish:test": "cd .. && npm ci && npm test",
     "clean": "rimraf lib dist-types",
-    "prebuild": "npx esbuild src/templates/netliblob.mts --bundle --format=cjs --platform=node --outfile=src/templates/blob.js",
-    "build": "tsc",
+    "build": "run-s build:*",
+    "build:blob": "npx esbuild src/templates/netliblob.mts --bundle --format=cjs --platform=node --outfile=src/templates/blob.js",
+    "build:vendor": "rimraf src/templates/vendor && deno vendor src/templates/vendor.ts --output=src/templates/vendor && patch src/templates/vendor/deno.land/x/html_rewriter@v0.1.0-pre.17/index.ts html_rewriter.patch",
+    "build:tsc": "tsc",
     "watch": "tsc --watch",
     "prepare": "npm run build"
   },

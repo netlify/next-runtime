@@ -1,6 +1,6 @@
-import { NextRequest } from 'https://esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/request.js'
-import { NextResponse } from 'https://esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/response.js'
-import { fromFileUrl } from 'https://deno.land/std@0.151.0/path/mod.ts'
+import { NextRequest } from '../vendor/esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/request.js'
+import { NextResponse } from '../vendor/esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/response.js'
+import { fromFileUrl } from '../vendor/deno.land/std@0.175.0/path/mod.ts'
 import { buildResponse, isFunction } from '../edge-shared/utils.ts'
 
 globalThis.NFRequestContextMap ||= new Map()
