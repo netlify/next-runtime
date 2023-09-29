@@ -114,9 +114,6 @@ jobs:
           echo "{\"enabledTests\":[\"$(printf %s "$(< filtered_tests)" | sed -z "s/\n/\",\"/g")\"]}" > tests.json
         working-directory: ${{ env.next-path }}
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-      
       - name: run tests
         env:
           NODE_ENV: production
