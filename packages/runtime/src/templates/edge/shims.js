@@ -1,11 +1,11 @@
 // @ts-check
 // deno-lint-ignore-file prefer-const no-unused-vars
-import { decode as _base64Decode } from 'https://deno.land/std@0.175.0/encoding/base64.ts'
-import BufferCompat from 'https://deno.land/std@0.175.0/node/buffer.ts'
-import EventsCompat from 'https://deno.land/std@0.175.0/node/events.ts'
-import AsyncHooksCompat from 'https://deno.land/std@0.175.0/node/async_hooks.ts'
-import AssertCompat from 'https://deno.land/std@0.175.0/node/assert.ts'
-import UtilCompat from 'https://deno.land/std@0.175.0/node/util.ts'
+import { decode as _base64Decode } from '../vendor/deno.land/std@0.175.0/encoding/base64.ts'
+import BufferCompat from '../vendor/deno.land/std@0.175.0/node/buffer.ts'
+import EventsCompat from '../vendor/deno.land/std@0.175.0/node/events.ts'
+import AsyncHooksCompat from '../vendor/deno.land/std@0.175.0/node/async_hooks.ts'
+import AssertCompat from '../vendor/deno.land/std@0.175.0/node/assert.ts'
+import UtilCompat from '../vendor/deno.land/std@0.175.0/node/util.ts'
 
 /**
  * These are the shims, polyfills and other kludges to make Next.js work in standards-compliant runtime.
