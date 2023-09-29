@@ -127,7 +127,6 @@ const makeHandler = ({
     return bridge
   }
 
-  // eslint-disable-next-line max-lines-per-function
   return async function handler(event: HandlerEvent, context: HandlerContext) {
     let requestMode: string = mode
     const prefetchResponse = getPrefetchResponse(event, mode)
@@ -136,8 +135,7 @@ const makeHandler = ({
     }
 
     // only retrieve the prerendered data on misses from the odb
-    // eslint-disable-next-line no-constant-condition
-    if (event.headers['x-nf-builder-cache'] === 'miss' || true) {
+    if (event.headers['x-nf-builder-cache'] === 'miss') {
       // retrieve the data for the blob storage
       const {
         clientContext: { custom: customContext },
@@ -179,41 +177,21 @@ const makeHandler = ({
         if (ISRPage) {
           console.log('YAY cache hit 🎉', { key, path: event.path, ISRPage })
 
-          if (event.headers['x-nf-builder-cache'] === 'miss') {
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            const { Buffer } = require('buffer')
-            return {
-              body: Buffer.from(ISRPage.value).toString('base64'),
-              headers: {
-                'cache-control': 'public, max-age=0, must-revalidate',
-                'x-nf-render-mode': `odb ttl=${ISRPage.ttl}`,
-                ...getHeaderForType(ISRPage.type),
-              },
-              statusCode: 200,
-              isBase64Encoded: true,
-              ttl: ISRPage.ttl,
-            }
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const { Buffer } = require('buffer')
+          return {
+            body: Buffer.from(ISRPage.value).toString('base64'),
+            headers: {
+              'cache-control': 'public, max-age=0, must-revalidate',
+              'x-nf-render-mode': `odb ttl=${ISRPage.ttl}`,
+              ...getHeaderForType(ISRPage.type),
+            },
+            statusCode: 200,
+            isBase64Encoded: true,
+            ttl: ISRPage.ttl,
           }
         }
-        console.log('missing blob key:', {
-          key,
-          path: event.path,
-          context: {
-            authentication: {
-              contextURL: data.url,
-              token: data.token,
-            },
-            context: `deploy:${event.headers['x-nf-deploy-id']}`,
-            siteID: event.headers['x-nf-site-id'],
-          },
-        })
-      } else {
-        console.log('Missing blobs in context')
       }
-    } else if (mode === 'odb' && event.headers['x-nf-builder-cache']) {
-      console.log('No need to retrieve from the blob storage as it is cached', {
-        h: event.headers['x-nf-builder-cache'],
-      })
     }
 
     event.path = normalizePath(event)
