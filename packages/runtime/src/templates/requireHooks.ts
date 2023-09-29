@@ -101,16 +101,18 @@ const resolveRequireHooks = () => {
 export const applyRequireHooks = () => {
   // eslint-disable-next-line max-params, func-names
   ;(mod as any)._resolveFilename = function (
-    originalResolveFilename: typeof resolveFilename,
-    hooks: Map<string, Map<string, string>>,
+    originalResolveFilename: (request: string, parent: string, isMain: boolean, opts: any) => string,
+    requestMap: Map<string, string>,
     request: string,
-    parent: any,
+    parent: string,
     isMain: boolean,
     options: any,
   ) {
-    const reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REACT || 'default'
-    const resolvedRequest = hooks.get(reactMode)?.get(request) ?? request
-    return originalResolveFilename.call(mod, resolvedRequest, parent, isMain, options)
+    const hookResolved = requestMap.get(request)
+    if (hookResolved) request = hookResolved
+    if (request.includes('styled-jsx')) console.log({ request })
+
+    return originalResolveFilename.call(mod, request, parent, isMain, options)
 
     // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
   }.bind(null, resolveFilename, requireHooks)
