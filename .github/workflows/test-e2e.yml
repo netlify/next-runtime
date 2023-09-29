@@ -41,7 +41,7 @@ jobs:
           app-id: ${{ secrets.TOKENS_APP_ID }}
           repo: ${{ env.NEXT_REPO }}
 
-      - name: checkout next repo
+      - name: checkout next.js repo
         uses: actions/checkout@v3
         with:
           repository: ${{ env.NEXT_REPO }}
