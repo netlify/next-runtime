@@ -169,7 +169,11 @@ export const augmentFsModule = ({
 
             try {
               const cacheFile = path.join(cacheDir, filePath)
-              writeFileSync(cacheFile, blob)
+              if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && baseUrl) {
+                await promises.mkdir(path.dirname(cacheFile), { recursive: true })
+
+                writeFileSync(cacheFile, blob)
+              }
               const r = await readfileOrig(cacheFile, options)
               console.log(`read file`, { cacheFile, r })
               return r
