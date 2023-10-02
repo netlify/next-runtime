@@ -129,11 +129,11 @@ export const augmentFsModule = ({
 
       const { isFirstODBRequest, event, context } = requestAsyncLocalStorage.getStore()
       if (isFirstODBRequest && blobsManifest.has(filePath)) {
-        console.log(
-          `fs augment: handling first ODB request, checking blob store`,
-          event?.headers?.['x-nf-request-id'],
-          event.path,
-        )
+        console.log(`fs augment: handling first ODB request, checking blob store`, {
+          requestID: event?.headers?.['x-nf-request-id'],
+          path: event.path,
+          builderCache: event.headers['x-nf-builder-cache'],
+        })
         const {
           clientContext: { custom: customContext },
         } = context

@@ -213,7 +213,12 @@ const makeHandler = ({
 
     const requestID = event?.headers?.['x-nf-request-id']
     const isFirstODBRequest = mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss'
-    console.log(`getHandler start handling`, { requestID, isFirstODBRequest, path: event.path })
+    console.log(`getHandler start handling`, {
+      requestID,
+      isFirstODBRequest,
+      path: event.path,
+      builderCache: event.headers['x-nf-builder-cache'],
+    })
     const { headers, ...result } = await requestAsyncLocalStorage.run({ event, context, isFirstODBRequest }, () =>
       getBridge(event, context).launcher(event, context),
     )
