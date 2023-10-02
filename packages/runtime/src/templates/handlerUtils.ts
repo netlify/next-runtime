@@ -1,3 +1,5 @@
+// eslint-disable-next-line n/no-unsupported-features/node-builtins
+import { AsyncLocalStorage } from 'async_hooks'
 import fs, { createWriteStream, existsSync } from 'fs'
 import { ServerResponse } from 'http'
 import { tmpdir } from 'os'
@@ -5,7 +7,7 @@ import path from 'path'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 
-import { HandlerEvent, HandlerResponse } from '@netlify/functions'
+import { HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/functions'
 import { http, https } from 'follow-redirects'
 import NextNodeServer from 'next/dist/server/next-server'
 
@@ -86,11 +88,13 @@ export const getMultiValueHeaders = (
 export const augmentFsModule = ({
   promises,
   staticManifest,
+  blobsManifest,
   pageRoot,
   getBase,
 }: {
   promises: typeof fs.promises
   staticManifest: Array<[string, string]>
+  blobsManifest: Set<string>
   pageRoot: string
   getBase: () => string
 }) => {
@@ -109,6 +113,11 @@ export const augmentFsModule = ({
   // Grab the real fs.promises.readFile...
   const readfileOrig = promises.readFile
   const statsOrig = promises.stat
+
+  console.log(`augmentfsmodule`, {
+    pageRoot,
+    base: getBase(),
+  })
   // ...then monkey-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
     const baseUrl = getBase()
@@ -118,6 +127,15 @@ export const augmentFsModule = ({
       // We only want the part after `.next/server/`
       const filePath = file.slice(pageRoot.length + 1)
 
+      const t = requestAsyncLocalStorage.getStore()
+
+      if (blobsManifest.has(filePath)) {
+        console.log(`augmentfsmodule readFile is in blob store`, {
+          file,
+          filePath,
+          requestID: t?.event?.headers?.['x-nf-request-id'],
+        })
+      }
       // Is it in the CDN and not local?
       if (staticFiles.has(filePath) && !existsSync(file)) {
         // This name is safe to use, because it's one that was already created by Next
@@ -298,3 +316,9 @@ export const getMatchedRoute = (
       ).pathname,
     )
   })
+
+export const requestAsyncLocalStorage = new AsyncLocalStorage<{
+  event: HandlerEvent
+  context: HandlerContext
+  mode: 'odb' | 'ssr'
+}>()

@@ -5,7 +5,7 @@ import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
 
-import type { BlobISRPage } from './blobStorage'
+// import type { BlobISRPage } from './blobStorage'
 import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
@@ -24,7 +24,8 @@ const {
   getMultiValueHeaders,
   getPrefetchResponse,
   normalizePath,
-} = require('./handlerUtils')
+  requestAsyncLocalStorage,
+} = require('./handlerUtils') as typeof import('./handlerUtils')
 const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
@@ -39,7 +40,7 @@ type MakeHandlerParams = {
   pageRoot: string
   NextServer: NextServerType
   staticManifest: Array<[string, string]>
-  blobManifest: Map<string, string>
+  blobsManifest: Set<string>
   mode: 'ssr' | 'odb'
 }
 
@@ -51,7 +52,7 @@ const makeHandler = ({
   pageRoot,
   NextServer,
   staticManifest = [],
-  blobManifest = new Map(),
+  blobsManifest = new Set(),
   mode = 'ssr',
 }: MakeHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
@@ -85,7 +86,7 @@ const makeHandler = ({
   // Set during the request as it needs to get it from the request URL. Defaults to the URL env var
   let base = process.env.URL
 
-  augmentFsModule({ promises, staticManifest, pageRoot, getBase: () => base })
+  augmentFsModule({ promises, staticManifest, blobsManifest, pageRoot, getBase: () => base })
 
   // We memoize this because it can be shared between requests, but don't instantiate it until
   // the first request because we need the host and port.
@@ -135,65 +136,65 @@ const makeHandler = ({
     }
 
     // only retrieve the prerendered data on misses from the odb
-    if (mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss') {
-      // retrieve the data for the blob storage
-      const {
-        clientContext: { custom: customContext },
-      } = context
+    // if (mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss') {
+    //   // retrieve the data for the blob storage
+    //   const {
+    //     clientContext: { custom: customContext },
+    //   } = context
 
-      if (customContext?.blobs) {
-        // eslint-disable-next-line n/prefer-global/buffer
-        const rawData = Buffer.from(customContext.blobs, 'base64')
-        const data = JSON.parse(rawData.toString('ascii'))
+    //   if (customContext?.blobs) {
+    //     // eslint-disable-next-line n/prefer-global/buffer
+    //     const rawData = Buffer.from(customContext.blobs, 'base64')
+    //     const data = JSON.parse(rawData.toString('ascii'))
 
-        // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
-        const { Blobs, getNormalizedBlobKey, getHeaderForType } =
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          require('./blobStorage') as typeof import('./blobStorage')
+    //     // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
+    //     const { Blobs, getNormalizedBlobKey, getHeaderForType } =
+    //       // eslint-disable-next-line @typescript-eslint/no-var-requires
+    //       require('./blobStorage') as typeof import('./blobStorage')
 
-        const netliBlob = new Blobs({
-          authentication: {
-            contextURL: data.url,
-            token: data.token,
-          },
-          context: `deploy:${event.headers['x-nf-deploy-id']}`,
-          siteID: event.headers['x-nf-site-id'],
-        })
+    //     const netliBlob = new Blobs({
+    //       authentication: {
+    //         contextURL: data.url,
+    //         token: data.token,
+    //       },
+    //       context: `deploy:${event.headers['x-nf-deploy-id']}`,
+    //       siteID: event.headers['x-nf-site-id'],
+    //     })
 
-        let key = event.path
-        if (key.endsWith('.rsc/')) {
-          // strip trailing slash from .rsc requests
-          key = key.slice(0, -1)
-        }
-        const blobRewrite = blobManifest.get(key)
-        if (blobRewrite) {
-          key = blobRewrite
-        }
+    //     let key = event.path
+    //     if (key.endsWith('.rsc/')) {
+    //       // strip trailing slash from .rsc requests
+    //       key = key.slice(0, -1)
+    //     }
+    //     const blobRewrite = blobManifest.get(key)
+    //     if (blobRewrite) {
+    //       key = blobRewrite
+    //     }
 
-        const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key), { type: 'json' })) as BlobISRPage
+    //     const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key), { type: 'json' })) as BlobISRPage
 
-        if (ISRPage) {
-          requestMode = `odb ttl=${ISRPage.ttl}`
-          console.log(
-            `[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()}) (used Blob cache key: ${key})`,
-          )
+    //     if (ISRPage) {
+    //       requestMode = `odb ttl=${ISRPage.ttl}`
+    //       console.log(
+    //         `[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()}) (used Blob cache key: ${key})`,
+    //       )
 
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          const { Buffer } = require('buffer')
-          return {
-            body: Buffer.from(ISRPage.value).toString('base64'),
-            headers: {
-              'cache-control': 'public, max-age=0, must-revalidate',
-              'x-nf-render-mode': requestMode,
-              ...getHeaderForType(ISRPage.type),
-            },
-            statusCode: 200,
-            isBase64Encoded: true,
-            ttl: ISRPage.ttl,
-          }
-        }
-      }
-    }
+    //       // eslint-disable-next-line @typescript-eslint/no-var-requires
+    //       const { Buffer } = require('buffer')
+    //       return {
+    //         body: Buffer.from(ISRPage.value).toString('base64'),
+    //         headers: {
+    //           'cache-control': 'public, max-age=0, must-revalidate',
+    //           'x-nf-render-mode': requestMode,
+    //           ...getHeaderForType(ISRPage.type),
+    //         },
+    //         statusCode: 200,
+    //         isBase64Encoded: true,
+    //         ttl: ISRPage.ttl,
+    //       }
+    //     }
+    //   }
+    // }
 
     event.path = normalizePath(event)
     // Next expects to be able to parse the query from the URL
@@ -210,7 +211,12 @@ const makeHandler = ({
       event.headers['accept-language'] = event.headers['accept-language'].replace(/\s*,.*$/, '')
     }
 
-    const { headers, ...result } = await getBridge(event, context).launcher(event, context)
+    const requestID = event?.headers?.['x-nf-request-id']
+    console.log(`getHandler start handling`, requestID)
+    const { headers, ...result } = await requestAsyncLocalStorage.run({ event, context, mode }, () =>
+      getBridge(event, context).launcher(event, context),
+    )
+    console.log(`getHandler finish handling`, requestID)
 
     // Convert all headers to multiValueHeaders
 
@@ -288,7 +294,7 @@ export const getHandler = ({
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath, isLocalized } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath, requestAsyncLocalStorage } = require('./handlerUtils')
   const { overrideRequireHooks, applyRequireHooks } = require("./requireHooks")
   const { getNetlifyNextServer } = require("./server")
   const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
@@ -298,9 +304,10 @@ export const getHandler = ({
   try {
     staticManifest = require("${publishDir}/static-manifest.json")
   } catch {}
-  let blobManifest
+  let blobsManifest
   try {
-    blobManifest = new Map(require("${publishDir}/blobs-manifest.json"))
+    blobsManifest = new Set(require("${publishDir}/blobs-manifest.json"))
+    console.log({ blobsManifest})
   } catch {}
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));

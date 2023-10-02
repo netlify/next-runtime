@@ -85,7 +85,7 @@ export const moveStaticPages = async ({
   nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash'>
   netliBlob?: Blobs
 }): Promise<void> => {
-  const { i18n, basePath, trailingSlash } = nextConfig
+  const { i18n, basePath } = nextConfig
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'serverless' ? 'serverless' : 'server')
   const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
@@ -123,7 +123,8 @@ export const moveStaticPages = async ({
   let fileCount = 0
   let blobCount = 0
   const filesManifest: Record<string, string> = {}
-  const blobsManifest = new Map<string, string>()
+  const blobsManifest = new Set<string>()
+
   const getSourceAndTargetPath = (file: string): { targetPath: string; source: string } => {
     const source = join(outputDir, file)
     // Strip the initial 'app' or 'pages' directory from the output path
@@ -161,43 +162,46 @@ export const moveStaticPages = async ({
     }
 
     // TODO: test with basepath, without i18n
-    const { source, targetPath } = getSourceAndTargetPath(file)
+    const { source } = getSourceAndTargetPath(file)
 
-    // targetPath doesn't have leading slash
-    let blobPath = `/${targetPath}`
-    let shouldApplyTrailingSlash = false
+    console.log(`blob file`, { file, pagePath, isrMeta, source })
+    blobsManifest.add(file)
 
-    if (blobPath.endsWith(`.html`)) {
-      // strip .html to match actual request path - other extensions are not stripped
-      // as requests paths will contain them
-      blobPath = blobPath.slice(0, -5)
-      // we need to set proper trailing slash for html asset keys
-      shouldApplyTrailingSlash = true
-    }
+    // // targetPath doesn't have leading slash
+    // let blobPath = `/${targetPath}`
+    // let shouldApplyTrailingSlash = false
 
-    if (shouldApplyTrailingSlash && trailingSlash && !blobPath.endsWith('/')) {
-      blobPath = `${blobPath}/`
-    }
+    // if (blobPath.endsWith(`.html`)) {
+    //   // strip .html to match actual request path - other extensions are not stripped
+    //   // as requests paths will contain them
+    //   blobPath = blobPath.slice(0, -5)
+    //   // we need to set proper trailing slash for html asset keys
+    //   shouldApplyTrailingSlash = true
+    // }
 
-    console.log(`blob-debug entry`, { source, targetPath, blobPath })
+    // if (shouldApplyTrailingSlash && trailingSlash && !blobPath.endsWith('/')) {
+    //   blobPath = `${blobPath}/`
+    // }
+
+    // // console.log(`blob-debug entry`, { source, targetPath, blobPath })
 
     const content = await readFile(source, 'utf8')
 
-    const blobValue: BlobISRPage = {
-      value: content,
-      ...isrMeta,
-      lastModified: Date.now(),
-    }
+    // const blobValue: BlobISRPage = {
+    //   value: content,
+    //   ...isrMeta,
+    //   lastModified: Date.now(),
+    // }
 
     blobCount += 1
 
-    await netliBlob.setJSON(getNormalizedBlobKey(blobPath), blobValue)
+    await netliBlob.setJSON(getNormalizedBlobKey(file), content)
 
-    if (i18n?.defaultLocale && blobPath.startsWith(`/${i18n.defaultLocale}/`)) {
-      const blobPathWithoutLocale = blobPath.slice(i18n.defaultLocale.length + 1)
-      blobsManifest.set(blobPathWithoutLocale, blobPath)
-      console.log(`blob-debug alias`, { blobPathWithoutLocale, blobPath })
-    }
+    // if (i18n?.defaultLocale && blobPath.startsWith(`/${i18n.defaultLocale}/`)) {
+    //   const blobPathWithoutLocale = blobPath.slice(i18n.defaultLocale.length + 1)
+    //   // blobsManifest.set(blobPathWithoutLocale, blobPath)
+    //   console.log(`blob-debug alias`, { blobPathWithoutLocale, blobPath })
+    // }
     await remove(source)
   }
   // Move all static files, except nft manifests
