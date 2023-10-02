@@ -128,48 +128,52 @@ export const augmentFsModule = ({
       const filePath = file.slice(pageRoot.length + 1)
 
       const { isFirstODBRequest, event, context } = requestAsyncLocalStorage.getStore()
-      if (isFirstODBRequest && blobsManifest.has(filePath)) {
+      if (isFirstODBRequest) {
         console.log(`fs augment: handling first ODB request, checking blob store`, {
           requestID: event?.headers?.['x-nf-request-id'],
           path: event.path,
           builderCache: event.headers['x-nf-builder-cache'],
           deployID: event.headers['x-nf-deploy-id'],
         })
-        const {
-          clientContext: { custom: customContext },
-        } = context
+        if (blobsManifest.has(filePath)) {
+          const {
+            clientContext: { custom: customContext },
+          } = context
 
-        if (customContext?.blobs) {
-          // eslint-disable-next-line n/prefer-global/buffer
-          const rawData = Buffer.from(customContext.blobs, 'base64')
-          const data = JSON.parse(rawData.toString('ascii'))
+          if (customContext?.blobs) {
+            // eslint-disable-next-line n/prefer-global/buffer
+            const rawData = Buffer.from(customContext.blobs, 'base64')
+            const data = JSON.parse(rawData.toString('ascii'))
 
-          // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
-          const { Blobs, getNormalizedBlobKey } =
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            require('./blobStorage') as typeof import('./blobStorage')
+            // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
+            const { Blobs, getNormalizedBlobKey } =
+              // eslint-disable-next-line @typescript-eslint/no-var-requires
+              require('./blobStorage') as typeof import('./blobStorage')
 
-          const netliBlob = new Blobs({
-            authentication: {
-              contextURL: data.url,
-              token: data.token,
-            },
-            context: `deploy:${event.headers['x-nf-deploy-id']}`,
-            siteID: event.headers['x-nf-site-id'],
-          })
+            const netliBlob = new Blobs({
+              authentication: {
+                contextURL: data.url,
+                token: data.token,
+              },
+              context: `deploy:${event.headers['x-nf-deploy-id']}`,
+              siteID: event.headers['x-nf-site-id'],
+            })
 
-          const blobKey = getNormalizedBlobKey(filePath)
+            const blobKey = getNormalizedBlobKey(filePath)
 
-          const blob = await netliBlob.get(blobKey, { type: 'json' })
+            const blob = await netliBlob.get(blobKey, { type: 'json' })
 
-          console.log(`has netliblob`, { blob })
+            console.log(`has netliblob`, { blob })
 
-          const cacheFile = path.join(cacheDir, filePath)
-          writeFileSync(cacheFile, blob)
-          return readfileOrig(cacheFile, options)
+            const cacheFile = path.join(cacheDir, filePath)
+            writeFileSync(cacheFile, blob)
+            return readfileOrig(cacheFile, options)
+          }
+
+          console.log(`doesn't have netliblob`)
+        } else {
+          console.log(`doesn't have blob`, { filePath })
         }
-
-        console.log(`doesn't have netliblob`)
 
         // console.log(`augmentfsmodule readFile is in blob store`, {
         //   file,
