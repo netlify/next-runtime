@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 const Header = dynamic(() => import(/* webpackChunkName: 'header' */ '../components/Header'), { ssr: true })
 import { useRouter } from 'next/router'
 
-const Index = ({ shows, nodeEnv, time }) => {
+const Index = ({ shows, nodeEnv, timeTest }) => {
   const { locale } = useRouter()
 
   return (
@@ -13,7 +13,7 @@ const Index = ({ shows, nodeEnv, time }) => {
         alt="NextJS on Netlify Banner"
         className="self-center w-full max-h-80 max-w-5xl m-auto"
       />
-      <pre>{JSON.stringify({ time }, null, 2)}</pre>
+      <pre>{JSON.stringify({ timeTest }, null, 2)}</pre>
 
       <div>
         <Header />
@@ -198,14 +198,14 @@ export async function getStaticProps(context) {
   const res = await fetch(server)
   const data = await res.json()
 
-  const time = new Date().toTimeString()
+  const timeTest = new Date().toTimeString()
 
-  console.log(`index time: ${time}`)
+  console.log(`index timeTest: ${timeTest}`)
   return {
     props: {
       shows: data.slice(0, 5),
       nodeEnv: process.env.NODE_ENV || null,
-      time,
+      timeTest,
     },
     revalidate: 60,
   }

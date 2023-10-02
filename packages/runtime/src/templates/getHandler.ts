@@ -225,23 +225,29 @@ const makeHandler = ({
     console.log(
       `[grep] getHandler request start: path: ${event.path} origPath: ${origPath} BuilderCache ${event.headers['x-nf-builder-cache']} DeployID ${event.headers['x-nf-deploy-id']} RequestID ${requestID}`,
     )
+    event.headers['accept-encoding'] = ''
     const { headers, ...result } = await requestAsyncLocalStorage.run({ event, context, isFirstODBRequest }, () =>
       getBridge(event, context).launcher(event, context),
     )
 
     {
-      let { body, isBase64Encoded } = result
-      if (isBase64Encoded) {
+      let { body, encoding } = result
+
+      if (encoding === 'base64') {
         // eslint-disable-next-line n/prefer-global/buffer
-        body = Buffer.from(body, 'base64').toString('ascii')
+        body = Buffer.from(body, 'base64').toString('utf-8')
       }
 
-      const regex = /"time":\s*"(.*)"/gm
-      console.log(
-        `[grep] getHandler request end: path: ${event.path} origPath: ${origPath} BuilderCache ${
-          event.headers['x-nf-builder-cache']
-        } DeployID ${event.headers['x-nf-deploy-id']} RequestID ${requestID} Matches: ${body.matches(regex)}`,
-      )
+      const regex = /"timeTest":\s*"([^"]*)"/gm
+      try {
+        console.log(
+          `[grep] getHandler request end: path: ${event.path} origPath: ${origPath} BuilderCache ${
+            event.headers['x-nf-builder-cache']
+          } DeployID ${event.headers['x-nf-deploy-id']} RequestID ${requestID} Matches: ${body.match(regex)}`,
+        )
+      } catch (error) {
+        console.log(`[grep] error`, { encoding, type: typeof body, body, error })
+      }
     }
 
     // Convert all headers to multiValueHeaders
