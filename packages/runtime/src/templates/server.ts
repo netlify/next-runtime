@@ -75,14 +75,12 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         if (!headers.cookie?.includes('__prerender_bypass')) {
           const { isFirstODBRequest, event } = requestAsyncLocalStorage.getStore()
           // first odb request should NOT be revalidated
-          if (isFirstODBRequest) {
-            console.log(`server request handler: handling first ODB request, not revalidating`, {
-              requestID: event?.headers?.['x-nf-request-id'],
-              path: event.path,
-              builderCache: event.headers['x-nf-builder-cache'],
-              deployID: event.headers['x-nf-deploy-id'],
-            })
-          }
+          console.log(
+            `[grep] server should set revalidate: RequestID ${event?.headers?.['x-nf-request-id']} isFirstODBRequest: ${
+              isFirstODBRequest ? `true` : `false`
+            }`,
+          )
+
           if (!isFirstODBRequest) {
             // this header controls whether Next.js will revalidate the page
             // and needs to be set to the preview mode id to enable it

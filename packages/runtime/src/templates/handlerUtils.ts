@@ -130,13 +130,12 @@ export const augmentFsModule = ({
 
       const { isFirstODBRequest, event, context } = requestAsyncLocalStorage.getStore()
       if (isFirstODBRequest) {
-        console.log(`fs augment: handling first ODB request, checking blob store`, {
-          requestID: event?.headers?.['x-nf-request-id'],
-          path: event.path,
-          builderCache: event.headers['x-nf-builder-cache'],
-          deployID: event.headers['x-nf-deploy-id'],
-          filePath,
-        })
+        console.log(
+          `[grep] fs augment: RequestID ${event?.headers?.['x-nf-request-id']} isFirstODBRequest: ${
+            isFirstODBRequest ? `true` : `false`
+          } filePath: "${filePath}"`,
+        )
+
         if (blobsManifest.has(filePath)) {
           const {
             clientContext: { custom: customContext },
@@ -165,8 +164,6 @@ export const augmentFsModule = ({
 
             const blob = await netliBlob.get(blobKey, { type: 'json' })
 
-            console.log(`has netliblob`, { blob })
-
             try {
               const cacheFile = path.join(cacheDir, filePath)
               if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && baseUrl) {
@@ -175,24 +172,18 @@ export const augmentFsModule = ({
                 writeFileSync(cacheFile, blob)
               }
               const r = await readfileOrig(cacheFile, options)
-              console.log(`read file`, { cacheFile, r })
+              console.log(
+                `[grep] fs augment success: RequestID ${event?.headers?.['x-nf-request-id']} isFirstODBRequest: ${
+                  isFirstODBRequest ? `true` : `false`
+                } filePath: "${filePath}"`,
+              )
               return r
             } catch (error) {
               console.log(`error while blobbing`, error, { error })
               throw error
             }
           }
-
-          console.log(`doesn't have netliblob`)
-        } else {
-          console.log(`doesn't have blob`, { filePath })
         }
-
-        // console.log(`augmentfsmodule readFile is in blob store`, {
-        //   file,
-        //   filePath,
-        //   requestID: t?.event?.headers?.['x-nf-request-id'],
-        // })
       }
       // Is it in the CDN and not local?
       if (staticFiles.has(filePath) && !existsSync(file)) {

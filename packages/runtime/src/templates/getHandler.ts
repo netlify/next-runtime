@@ -214,21 +214,23 @@ const makeHandler = ({
     const requestID = event?.headers?.['x-nf-request-id']
     const isFirstODBRequest = mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss'
 
-    console.log(`getHandler start handling`, {
-      requestID,
-      isFirstODBRequest,
-      path: event.path,
-      builderCache: event.headers['x-nf-builder-cache'],
-      deployID: event.headers['x-nf-deploy-id'],
-    })
+    // console.log(`getHandler start handling`, {
+    //   requestID,
+    //   isFirstODBRequest,
+    //   path: event.path,
+    //   builderCache: event.headers['x-nf-builder-cache'],
+    //   deployID: event.headers['x-nf-deploy-id'],
+    // })
 
     console.log(
-      `[grep] request path: ${event.path} / ${origPath} / ${event.headers['x-nf-builder-cache']} / ${event.headers['x-nf-deploy-id']}`,
+      `[grep] getHandler request start: path: ${event.path} origPath: ${origPath} BuilderCache ${event.headers['x-nf-builder-cache']} DeployID ${event.headers['x-nf-deploy-id']} RequestID ${requestID}`,
     )
     const { headers, ...result } = await requestAsyncLocalStorage.run({ event, context, isFirstODBRequest }, () =>
       getBridge(event, context).launcher(event, context),
     )
-    console.log(`getHandler finish handling`, requestID)
+    console.log(
+      `[grep] getHandler request end: path: ${event.path} origPath: ${origPath} BuilderCache ${event.headers['x-nf-builder-cache']} DeployID ${event.headers['x-nf-deploy-id']} RequestID ${requestID}`,
+    )
 
     // Convert all headers to multiValueHeaders
 
