@@ -195,7 +195,7 @@ const makeHandler = ({
     //     }
     //   }
     // }
-
+    const origPath = event.path
     event.path = normalizePath(event)
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()
@@ -213,6 +213,7 @@ const makeHandler = ({
 
     const requestID = event?.headers?.['x-nf-request-id']
     const isFirstODBRequest = mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss'
+
     console.log(`getHandler start handling`, {
       requestID,
       isFirstODBRequest,
@@ -220,6 +221,10 @@ const makeHandler = ({
       builderCache: event.headers['x-nf-builder-cache'],
       deployID: event.headers['x-nf-deploy-id'],
     })
+
+    console.log(
+      `[grep] request path: ${event.path} / ${origPath} / ${event.headers['x-nf-builder-cache']} / ${event.headers['x-nf-deploy-id']}`,
+    )
     const { headers, ...result } = await requestAsyncLocalStorage.run({ event, context, isFirstODBRequest }, () =>
       getBridge(event, context).launcher(event, context),
     )
