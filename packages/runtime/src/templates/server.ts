@@ -79,6 +79,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
             console.log(
               `server request handler: handling first ODB request, not revalidating`,
               event?.headers?.['x-nf-request-id'],
+              event.path,
             )
           }
           if (!isFirstODBRequest) {
