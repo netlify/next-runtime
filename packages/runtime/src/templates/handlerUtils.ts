@@ -85,6 +85,7 @@ export const getMultiValueHeaders = (
 /**
  * Monkey-patch the fs module to download missing files from the CDN
  */
+// eslint-disable-next-line max-lines-per-function
 export const augmentFsModule = ({
   promises,
   staticManifest,
@@ -166,11 +167,16 @@ export const augmentFsModule = ({
 
             console.log(`has netliblob`, { blob })
 
-            const cacheFile = path.join(cacheDir, filePath)
-            writeFileSync(cacheFile, blob)
-            const r = await readfileOrig(cacheFile, options)
-            console.log(`read file`, { cacheFile, r })
-            return r
+            try {
+              const cacheFile = path.join(cacheDir, filePath)
+              writeFileSync(cacheFile, blob)
+              const r = await readfileOrig(cacheFile, options)
+              console.log(`read file`, { cacheFile, r })
+              return r
+            } catch (error) {
+              console.log(`error while blobbing`, error, { error })
+              throw error
+            }
           }
 
           console.log(`doesn't have netliblob`)
