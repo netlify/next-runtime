@@ -323,7 +323,7 @@ export const moveStaticPages = async ({
 
   // Write the manifests for use in the serverless functions
   await writeJson(join(netlifyConfig.build.publish, 'static-manifest.json'), Object.entries(filesManifest))
-  await writeJson(join(netlifyConfig.build.publish, 'blobs-manifest.json'), [...blobsManifest.entries()])
+  await writeJson(join(netlifyConfig.build.publish, 'blobs-manifest.json'), [...blobsManifest])
 
   if (i18n?.defaultLocale) {
     const rootPath = basePath ? join(netlifyConfig.build.publish, basePath) : netlifyConfig.build.publish
