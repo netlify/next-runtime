@@ -14,7 +14,6 @@ import {
   localizeDataRoute,
   unlocalizeRoute,
   getMatchedRoute,
-  requestAsyncLocalStorage,
 } from './handlerUtils'
 
 interface NetlifyConfig {
@@ -73,10 +72,11 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         // but ignore in preview mode (prerender_bypass is set to true in preview mode)
         // because otherwise revalidate will override preview mode
         if (!headers.cookie?.includes('__prerender_bypass')) {
-          const { isFirstODBRequest, event } = requestAsyncLocalStorage.getStore()
+          // const { event } = requestAsyncLocalStorage.getStore()
           // first odb request should NOT be revalidated
+          const isFirstODBRequest = headers['x-nf-builder-cache'] === 'miss'
           console.log(
-            `[grep] server should set revalidate: RequestID ${event?.headers?.['x-nf-request-id']} isFirstODBRequest: ${
+            `[grep] server should set revalidate: RequestID ${headers?.['x-nf-request-id']} isFirstODBRequest: ${
               isFirstODBRequest ? `true` : `false`
             }`,
           )

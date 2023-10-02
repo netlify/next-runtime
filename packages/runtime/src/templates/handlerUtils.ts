@@ -85,7 +85,7 @@ export const getMultiValueHeaders = (
 /**
  * Monkey-patch the fs module to download missing files from the CDN
  */
-// eslint-disable-next-line max-lines-per-function
+
 export const augmentFsModule = ({
   promises,
   staticManifest,
@@ -128,63 +128,55 @@ export const augmentFsModule = ({
       // We only want the part after `.next/server/`
       const filePath = file.slice(pageRoot.length + 1)
 
-      const { isFirstODBRequest, event, context } = requestAsyncLocalStorage.getStore()
-      if (isFirstODBRequest) {
-        console.log(
-          `[grep] fs augment: RequestID ${event?.headers?.['x-nf-request-id']} isFirstODBRequest: ${
-            isFirstODBRequest ? `true` : `false`
-          } filePath: "${filePath}"`,
-        )
+      const { event, context } = requestAsyncLocalStorage.getStore()
+      // if (isFirstODBRequest) {
+      console.log(`[grep] fs augment: filePath: "${filePath}"`)
 
-        if (blobsManifest.has(filePath)) {
-          const {
-            clientContext: { custom: customContext },
-          } = context
+      if (blobsManifest.has(filePath)) {
+        const {
+          clientContext: { custom: customContext },
+        } = context
 
-          if (customContext?.blobs) {
-            // eslint-disable-next-line n/prefer-global/buffer
-            const rawData = Buffer.from(customContext.blobs, 'base64')
-            const data = JSON.parse(rawData.toString('ascii'))
+        if (customContext?.blobs) {
+          // eslint-disable-next-line n/prefer-global/buffer
+          const rawData = Buffer.from(customContext.blobs, 'base64')
+          const data = JSON.parse(rawData.toString('ascii'))
 
-            // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
-            const { Blobs, getNormalizedBlobKey } =
-              // eslint-disable-next-line @typescript-eslint/no-var-requires
-              require('./blobStorage') as typeof import('./blobStorage')
+          // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
+          const { Blobs, getNormalizedBlobKey } =
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            require('./blobStorage') as typeof import('./blobStorage')
 
-            const netliBlob = new Blobs({
-              authentication: {
-                contextURL: data.url,
-                token: data.token,
-              },
-              context: `deploy:${event.headers['x-nf-deploy-id']}`,
-              siteID: event.headers['x-nf-site-id'],
-            })
+          const netliBlob = new Blobs({
+            authentication: {
+              contextURL: data.url,
+              token: data.token,
+            },
+            context: `deploy:${event.headers['x-nf-deploy-id']}`,
+            siteID: event.headers['x-nf-site-id'],
+          })
 
-            const blobKey = getNormalizedBlobKey(filePath)
+          const blobKey = getNormalizedBlobKey(filePath)
 
-            const blob = await netliBlob.get(blobKey, { type: 'json' })
+          const blob = await netliBlob.get(blobKey, { type: 'json' })
 
-            try {
-              const cacheFile = path.join(cacheDir, filePath)
-              if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && baseUrl) {
-                await promises.mkdir(path.dirname(cacheFile), { recursive: true })
+          try {
+            const cacheFile = path.join(cacheDir, filePath)
+            if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && baseUrl) {
+              await promises.mkdir(path.dirname(cacheFile), { recursive: true })
 
-                writeFileSync(cacheFile, blob)
-              }
-              const r = await readfileOrig(cacheFile, options)
-              console.log(
-                `[grep] fs augment success: RequestID ${event?.headers?.['x-nf-request-id']} isFirstODBRequest: ${
-                  isFirstODBRequest ? `true` : `false`
-                } filePath: "${filePath}"`,
-              )
-              return r
-            } catch (error) {
-              console.log(`error while blobbing`, error, { error })
-              throw error
+              writeFileSync(cacheFile, blob)
             }
+            const r = await readfileOrig(cacheFile, options)
+            console.log(`[grep] fs augment success: filePath: "${filePath}"`)
+            return r
+          } catch (error) {
+            console.log(`error while blobbing`, error, { error })
+            throw error
           }
         }
       }
+      // }
       // Is it in the CDN and not local?
       if (staticFiles.has(filePath) && !existsSync(file)) {
         // This name is safe to use, because it's one that was already created by Next
