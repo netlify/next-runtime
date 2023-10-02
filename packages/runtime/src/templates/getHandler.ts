@@ -212,8 +212,9 @@ const makeHandler = ({
     }
 
     const requestID = event?.headers?.['x-nf-request-id']
+    const isFirstODBRequest = mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss'
     console.log(`getHandler start handling`, requestID)
-    const { headers, ...result } = await requestAsyncLocalStorage.run({ event, context, mode }, () =>
+    const { headers, ...result } = await requestAsyncLocalStorage.run({ event, context, isFirstODBRequest }, () =>
       getBridge(event, context).launcher(event, context),
     )
     console.log(`getHandler finish handling`, requestID)
@@ -307,7 +308,6 @@ export const getHandler = ({
   let blobsManifest
   try {
     blobsManifest = new Set(require("${publishDir}/blobs-manifest.json"))
-    console.log({ blobsManifest})
   } catch {}
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));

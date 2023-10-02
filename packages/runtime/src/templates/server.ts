@@ -73,9 +73,8 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         // but ignore in preview mode (prerender_bypass is set to true in preview mode)
         // because otherwise revalidate will override preview mode
         if (!headers.cookie?.includes('__prerender_bypass')) {
-          const { mode, event } = requestAsyncLocalStorage.getStore()
+          const { isFirstODBRequest, event } = requestAsyncLocalStorage.getStore()
           // first odb request should NOT be revalidated
-          const isFirstODBRequest = mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss'
           if (isFirstODBRequest) {
             console.log(
               `server request handler: handling first ODB request, not revalidating`,
