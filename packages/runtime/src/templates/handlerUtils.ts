@@ -154,7 +154,7 @@ export const augmentFsModule = ({
 
           const blobKey = getNormalizedBlobKey(filePath)
 
-          const blob = await netliBlob.get(blobKey, { type: 'text' })
+          const blob = await netliBlob.get(blobKey, { type: 'json' })
 
           console.log(`has netliblob`, { blob })
 
