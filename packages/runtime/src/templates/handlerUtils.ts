@@ -134,6 +134,7 @@ export const augmentFsModule = ({
           path: event.path,
           builderCache: event.headers['x-nf-builder-cache'],
           deployID: event.headers['x-nf-deploy-id'],
+          filePath,
         })
         if (blobsManifest.has(filePath)) {
           const {
