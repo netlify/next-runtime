@@ -228,9 +228,21 @@ const makeHandler = ({
     const { headers, ...result } = await requestAsyncLocalStorage.run({ event, context, isFirstODBRequest }, () =>
       getBridge(event, context).launcher(event, context),
     )
-    console.log(
-      `[grep] getHandler request end: path: ${event.path} origPath: ${origPath} BuilderCache ${event.headers['x-nf-builder-cache']} DeployID ${event.headers['x-nf-deploy-id']} RequestID ${requestID}`,
-    )
+
+    {
+      let { body, isBase64Encoded } = result
+      if (isBase64Encoded) {
+        // eslint-disable-next-line n/prefer-global/buffer
+        body = Buffer.from(body, 'base64').toString('ascii')
+      }
+
+      const regex = /"time":\s*"(.*)"/gm
+      console.log(
+        `[grep] getHandler request end: path: ${event.path} origPath: ${origPath} BuilderCache ${
+          event.headers['x-nf-builder-cache']
+        } DeployID ${event.headers['x-nf-deploy-id']} RequestID ${requestID} Matches: ${body.matches(regex)}`,
+      )
+    }
 
     // Convert all headers to multiValueHeaders
 
