@@ -80,6 +80,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
               requestID: event?.headers?.['x-nf-request-id'],
               path: event.path,
               builderCache: event.headers['x-nf-builder-cache'],
+              deployID: event.headers['x-nf-deploy-id'],
             })
           }
           if (!isFirstODBRequest) {

@@ -218,6 +218,7 @@ const makeHandler = ({
       isFirstODBRequest,
       path: event.path,
       builderCache: event.headers['x-nf-builder-cache'],
+      deployID: event.headers['x-nf-deploy-id'],
     })
     const { headers, ...result } = await requestAsyncLocalStorage.run({ event, context, isFirstODBRequest }, () =>
       getBridge(event, context).launcher(event, context),
