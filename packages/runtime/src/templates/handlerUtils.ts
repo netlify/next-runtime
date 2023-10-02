@@ -168,7 +168,9 @@ export const augmentFsModule = ({
 
             const cacheFile = path.join(cacheDir, filePath)
             writeFileSync(cacheFile, blob)
-            return readfileOrig(cacheFile, options)
+            const r = await readfileOrig(cacheFile, options)
+            console.log(`read file`, { cacheFile, r })
+            return r
           }
 
           console.log(`doesn't have netliblob`)
