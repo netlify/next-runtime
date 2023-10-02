@@ -313,7 +313,7 @@ export const getHandler = ({
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, blobManifest, mode: 'odb' }));`
-      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, blobManifest, mode: 'ssr' });`
+      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, blobsManifest, mode: 'odb' }));`
+      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, blobsManifest, mode: 'ssr' });`
   }
 `
