@@ -10,6 +10,10 @@ const originalRequire = mod.prototype.require
 const resolveFilename = (mod as any)._resolveFilename
 const requireHooks = new Map<string, Map<string, string>>()
 
+const nextRequire = mod.createRequire(
+  require.resolve(`next`)
+)
+
 export const overrideRequireHooks = (config: NextConfig) => {
   setRequireHooks(config)
   resolveRequireHooks()
@@ -20,7 +24,7 @@ const setRequireHooks = (config: NextConfig) => {
       'default',
       new Map([
         ['styled-jsx', 'styled-jsx'],
-        ['styled-jsx/style', `styled-jsx/style`],
+        ['styled-jsx/style', nextRequire.resolve(`styled-jsx/style`)],
       ]),
     )
 
@@ -111,7 +115,6 @@ export const applyRequireHooks = () => {
     
     const hookResolved = requestMap.get('default')?.get(request)
     if (hookResolved) request = hookResolved
-
     return originalResolveFilename.call(mod, request, parent, isMain, options)
 
   // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
