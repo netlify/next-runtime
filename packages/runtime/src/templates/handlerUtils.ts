@@ -1,13 +1,21 @@
 // eslint-disable-next-line n/no-unsupported-features/node-builtins
 import { AsyncLocalStorage } from 'async_hooks'
-import fs, { createWriteStream, existsSync, writeFileSync } from 'fs'
+import fs, {
+  createWriteStream,
+  existsSync,
+  // writeFileSync
+} from 'fs'
 import { ServerResponse } from 'http'
 import { tmpdir } from 'os'
 import path from 'path'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 
-import { HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/functions'
+import {
+  HandlerEvent,
+  // HandlerContext,
+  HandlerResponse,
+} from '@netlify/functions'
 import { http, https } from 'follow-redirects'
 import NextNodeServer from 'next/dist/server/next-server'
 
@@ -89,7 +97,7 @@ export const getMultiValueHeaders = (
 export const augmentFsModule = ({
   promises,
   staticManifest,
-  blobsManifest,
+  // blobsManifest,
   pageRoot,
   getBase,
 }: {
@@ -128,54 +136,57 @@ export const augmentFsModule = ({
       // We only want the part after `.next/server/`
       const filePath = file.slice(pageRoot.length + 1)
 
-      const { event, context } = requestAsyncLocalStorage.getStore()
+      const {
+        requestID,
+        // event, context
+      } = requestAsyncLocalStorage.getStore()
       // if (isFirstODBRequest) {
-      console.log(`[grep] fs augment: filePath: "${filePath}"`)
+      console.log(`[grep] fs augment: filePath: "${filePath}" / REQUEST ID: "${requestID}"`)
 
-      if (blobsManifest.has(filePath)) {
-        const {
-          clientContext: { custom: customContext },
-        } = context
+      // if (blobsManifest.has(filePath)) {
+      //   const {
+      //     clientContext: { custom: customContext },
+      //   } = context
 
-        if (customContext?.blobs) {
-          // eslint-disable-next-line n/prefer-global/buffer
-          const rawData = Buffer.from(customContext.blobs, 'base64')
-          const data = JSON.parse(rawData.toString('ascii'))
+      //   if (customContext?.blobs) {
+      //     // eslint-disable-next-line n/prefer-global/buffer
+      //     const rawData = Buffer.from(customContext.blobs, 'base64')
+      //     const data = JSON.parse(rawData.toString('ascii'))
 
-          // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
-          const { Blobs, getNormalizedBlobKey } =
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            require('./blobStorage') as typeof import('./blobStorage')
+      //     // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
+      //     const { Blobs, getNormalizedBlobKey } =
+      //       // eslint-disable-next-line @typescript-eslint/no-var-requires
+      //       require('./blobStorage') as typeof import('./blobStorage')
 
-          const netliBlob = new Blobs({
-            authentication: {
-              contextURL: data.url,
-              token: data.token,
-            },
-            context: `deploy:${event.headers['x-nf-deploy-id']}`,
-            siteID: event.headers['x-nf-site-id'],
-          })
+      //     const netliBlob = new Blobs({
+      //       authentication: {
+      //         contextURL: data.url,
+      //         token: data.token,
+      //       },
+      //       context: `deploy:${event.headers['x-nf-deploy-id']}`,
+      //       siteID: event.headers['x-nf-site-id'],
+      //     })
 
-          const blobKey = getNormalizedBlobKey(filePath)
+      //     const blobKey = getNormalizedBlobKey(filePath)
 
-          const blob = await netliBlob.get(blobKey, { type: 'json' })
+      //     const blob = await netliBlob.get(blobKey, { type: 'json' })
 
-          try {
-            const cacheFile = path.join(cacheDir, filePath)
-            if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && baseUrl) {
-              await promises.mkdir(path.dirname(cacheFile), { recursive: true })
+      //     try {
+      //       const cacheFile = path.join(cacheDir, filePath)
+      //       if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && baseUrl) {
+      //         await promises.mkdir(path.dirname(cacheFile), { recursive: true })
 
-              writeFileSync(cacheFile, blob)
-            }
-            const r = await readfileOrig(cacheFile, options)
-            console.log(`[grep] fs augment success: filePath: "${filePath}"`)
-            return r
-          } catch (error) {
-            console.log(`error while blobbing`, error, { error })
-            throw error
-          }
-        }
-      }
+      //         writeFileSync(cacheFile, blob)
+      //       }
+      //       const r = await readfileOrig(cacheFile, options)
+      //       console.log(`[grep] fs augment success: filePath: "${filePath}"`)
+      //       return r
+      //     } catch (error) {
+      //       console.log(`error while blobbing`, error, { error })
+      //       throw error
+      //     }
+      //   }
+      // }
       // }
       // Is it in the CDN and not local?
       if (staticFiles.has(filePath) && !existsSync(file)) {
@@ -358,8 +369,10 @@ export const getMatchedRoute = (
     )
   })
 
-export const requestAsyncLocalStorage = new AsyncLocalStorage<{
-  event: HandlerEvent
-  context: HandlerContext
-  isFirstODBRequest: boolean
-}>()
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const requestAsyncLocalStorage = new AsyncLocalStorage<any>()
+// {
+//   // event: HandlerEvent
+//   // context: HandlerContext
+//   // isFirstODBRequest: boolean
+// }

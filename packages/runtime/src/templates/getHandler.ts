@@ -24,7 +24,7 @@ const {
   getMultiValueHeaders,
   getPrefetchResponse,
   normalizePath,
-  requestAsyncLocalStorage,
+  // requestAsyncLocalStorage,
 } = require('./handlerUtils') as typeof import('./handlerUtils')
 const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
@@ -212,7 +212,7 @@ const makeHandler = ({
     }
 
     const requestID = event?.headers?.['x-nf-request-id']
-    const isFirstODBRequest = mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss'
+    // const isFirstODBRequest = mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss'
 
     // console.log(`getHandler start handling`, {
     //   requestID,
@@ -226,9 +226,7 @@ const makeHandler = ({
       `[grep] getHandler request start: path: ${event.path} origPath: ${origPath} BuilderCache ${event.headers['x-nf-builder-cache']} DeployID ${event.headers['x-nf-deploy-id']} RequestID ${requestID}`,
     )
     event.headers['accept-encoding'] = ''
-    const { headers, ...result } = await requestAsyncLocalStorage.run({ event, context, isFirstODBRequest }, () =>
-      getBridge(event, context).launcher(event, context),
-    )
+    const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
     {
       let { body, encoding } = result

@@ -14,6 +14,7 @@ import {
   localizeDataRoute,
   unlocalizeRoute,
   getMatchedRoute,
+  requestAsyncLocalStorage,
 } from './handlerUtils'
 
 interface NetlifyConfig {
@@ -88,7 +89,12 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
           }
         }
 
-        return handler(req, res, parsedUrl)
+        return requestAsyncLocalStorage.run(
+          {
+            requestID: headers?.['x-nf-request-id'],
+          },
+          () => handler(req, res, parsedUrl),
+        )
       }
     }
 
