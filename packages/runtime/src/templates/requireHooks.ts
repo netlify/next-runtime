@@ -8,16 +8,18 @@ import mod from 'module'
 import type { NextConfig } from '../helpers/config'
 import { existsSync } from 'fs'
 import path from 'path'
+const originalRequire = mod.prototype.require
 const resolveFilename = (mod as any)._resolveFilename
 const requireHooks = new Map<string, Map<string, string>>()
 
-export const overrideRequireHooks = (config: NextConfig) => {
-  setRequireHooks(config)
+export const overrideRequireHooks = (config: NextConfig, dir) => {
+  setRequireHooks(config, dir)
   resolveRequireHooks()
 }
 
-const setRequireHooks = (config: NextConfig) => {
-
+const setRequireHooks = (config: NextConfig, dir) => {
+  const appDir = existsSync(path.join(dir,'.next', 'server', 'app-paths-manifest.json'))
+  if (appDir) {
     requireHooks.set(
       'default',
       new Map([
@@ -25,6 +27,7 @@ const setRequireHooks = (config: NextConfig) => {
         ['styled-jsx/style', 'styled-jsx/style'],
       ]),
     )
+  }
 
   // if (config.experimental.serverActions) {
   //   requireHooks.set(
@@ -78,10 +81,10 @@ const setRequireHooks = (config: NextConfig) => {
   // }
 }
 
-const resolveRequireHooks = () => {
   // we may have changed the working directory in the handler
   const opts = { paths: [process.cwd()] }
 
+const resolveRequireHooks = () => {
   // resolve require hooks with module paths
   requireHooks.forEach((mode) => {
     mode.forEach((path, hook) => {
@@ -111,8 +114,9 @@ export const applyRequireHooks = (dir) => {
     options: any,
   ) {
     
-    const AppDir = existsSync(path.join(dir,'.next', 'server', 'app-paths-manifest.json'))
-    const hooks = request === 'styled-jsx/style' && !AppDir || AppDir ? 'default' : ''
+    const appDir = existsSync(path.join(dir,'.next', 'server', 'app-paths-manifest.json'))
+
+    const hooks = appDir ? 'default' : ''
     const hookResolved = requestMap.get(hooks)?.get(request)
 
     if (hookResolved) request = hookResolved
@@ -121,5 +125,14 @@ export const applyRequireHooks = (dir) => {
 
   // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
   }.bind(null, resolveFilename, requireHooks)
+
+  ;(mod as any).prototype.require = function(request) {
+    const opts = { paths: [process.cwd()] }
+    // testing if we can use this to apply the styled-jsx/style.js to only pages using it
+    if(request === "styled-jsx/style") {
+        return originalRequire.call(this, `${opts.paths[0]}/node_modules/styled-jsx/style.js`);
+    }
+    return originalRequire.call(this, request);
+};
 }
 /* eslint-enable no-underscore-dangle, @typescript-eslint/no-explicit-any */
