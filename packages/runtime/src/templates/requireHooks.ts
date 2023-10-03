@@ -126,13 +126,13 @@ export const applyRequireHooks = (dir) => {
   // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
   }.bind(null, resolveFilename, requireHooks)
 
-  ;(mod as any).prototype.require = function(request) {
-    const opts = { paths: [process.cwd()] }
-    // testing if we can use this to apply the styled-jsx/style.js to only pages using it
-    if(request === "styled-jsx/style") {
-        return originalRequire.call(this, `${opts.paths[0]}/node_modules/styled-jsx/style.js`);
-    }
-    return originalRequire.call(this, request);
-};
+//   ;(mod as any).prototype.require = function(request) {
+//     const opts = { paths: [process.cwd()] }
+//     // testing if we can use this to apply the styled-jsx/style.js to only pages using it
+//     if(request === "styled-jsx/style") {
+//         return originalRequire.call(this, `${opts.paths[0]}/node_modules/styled-jsx/style.js`);
+//     }
+//     return originalRequire.call(this, request);
+// };
 }
 /* eslint-enable no-underscore-dangle, @typescript-eslint/no-explicit-any */
