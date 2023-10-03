@@ -8,11 +8,15 @@ import mod from 'module'
 import type { NextConfig } from '../helpers/config'
 import { existsSync } from 'fs'
 import path from 'path'
+import { hookPropertyMap } from 'next/dist/server/require-hook'
 const originalRequire = mod.prototype.require
 const resolveFilename = (mod as any)._resolveFilename
 const requireHooks = new Map<string, Map<string, string>>()
 
 export const overrideRequireHooks = (config: NextConfig, dir) => {
+  if( hookPropertyMap ){
+    hookPropertyMap.delete('styled-jsx/style')
+  }
   setRequireHooks(config, dir)
   resolveRequireHooks()
 }
