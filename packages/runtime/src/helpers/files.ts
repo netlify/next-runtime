@@ -12,7 +12,7 @@ import { join, resolve, dirname } from 'pathe'
 import slash from 'slash'
 
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER, HIDDEN_PATHS } from '../constants'
-import { getNormalizedBlobKey, type BlobISRPage } from '../templates/blobStorage'
+import { getNormalizedBlobKey } from '../templates/blobStorage'
 
 import { NextConfig } from './config'
 import { loadPrerenderManifest } from './edge'
@@ -100,7 +100,7 @@ export const moveStaticPages = async ({
     join(netlifyConfig.build.publish, 'routes-manifest.json'),
   )
 
-  const isrFiles = new Map<string, Pick<BlobISRPage, 'type' | 'ttl'>>()
+  const isrFiles = new Set<string>()
 
   const shortRevalidateRoutes: Array<{ Route: string; Revalidate: number }> = []
 
@@ -109,11 +109,10 @@ export const moveStaticPages = async ({
     const trimmedPath = route === '/' ? 'index' : route.slice(1)
 
     if (initialRevalidateSeconds) {
-      const ttl = Math.max(MINIMUM_REVALIDATE_SECONDS, initialRevalidateSeconds)
       // Find all files used by ISR routes
-      isrFiles.set(`${trimmedPath}.html`, { ttl, type: 'html' })
-      isrFiles.set(`${trimmedPath}.json`, { ttl, type: 'json' })
-      isrFiles.set(`${trimmedPath}.rsc`, { ttl, type: 'rsc' })
+      isrFiles.add(`${trimmedPath}.html`)
+      isrFiles.add(`${trimmedPath}.json`)
+      isrFiles.add(`${trimmedPath}.rsc`)
       if (initialRevalidateSeconds < MINIMUM_REVALIDATE_SECONDS) {
         shortRevalidateRoutes.push({ Route: route, Revalidate: initialRevalidateSeconds })
       }
@@ -155,53 +154,17 @@ export const moveStaticPages = async ({
     }
   }
   const uploadFileToBlobStorageAndDelete = async (file: string) => {
-    const pagePath = file.split('/').slice(1).join('/')
-    const isrMeta = isrFiles.get(pagePath)
-    if (!isrMeta) {
-      return
-    }
-
     // TODO: test with basepath, without i18n
     const { source } = getSourceAndTargetPath(file)
 
-    console.log(`blob file`, { file, pagePath, isrMeta, source })
+    console.log(`blob file`, { file, source })
     blobsManifest.add(file)
-
-    // // targetPath doesn't have leading slash
-    // let blobPath = `/${targetPath}`
-    // let shouldApplyTrailingSlash = false
-
-    // if (blobPath.endsWith(`.html`)) {
-    //   // strip .html to match actual request path - other extensions are not stripped
-    //   // as requests paths will contain them
-    //   blobPath = blobPath.slice(0, -5)
-    //   // we need to set proper trailing slash for html asset keys
-    //   shouldApplyTrailingSlash = true
-    // }
-
-    // if (shouldApplyTrailingSlash && trailingSlash && !blobPath.endsWith('/')) {
-    //   blobPath = `${blobPath}/`
-    // }
-
-    // // console.log(`blob-debug entry`, { source, targetPath, blobPath })
 
     const content = await readFile(source, 'utf8')
 
-    // const blobValue: BlobISRPage = {
-    //   value: content,
-    //   ...isrMeta,
-    //   lastModified: Date.now(),
-    // }
-
     blobCount += 1
 
-    await netliBlob.setJSON(getNormalizedBlobKey(file), content)
-
-    // if (i18n?.defaultLocale && blobPath.startsWith(`/${i18n.defaultLocale}/`)) {
-    //   const blobPathWithoutLocale = blobPath.slice(i18n.defaultLocale.length + 1)
-    //   // blobsManifest.set(blobPathWithoutLocale, blobPath)
-    //   console.log(`blob-debug alias`, { blobPathWithoutLocale, blobPath })
-    // }
+    await netliBlob.set(getNormalizedBlobKey(file), content)
     await remove(source)
   }
   // Move all static files, except nft manifests

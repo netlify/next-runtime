@@ -1,3 +1,5 @@
+import { Buffer } from 'buffer'
+
 import type { HandlerContext, HandlerEvent } from '@netlify/functions'
 import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
@@ -5,7 +7,7 @@ import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
 
-// import type { BlobISRPage } from './blobStorage'
+import { setBlobInit } from './blobStorage'
 import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
@@ -135,66 +137,6 @@ const makeHandler = ({
       return prefetchResponse
     }
 
-    // only retrieve the prerendered data on misses from the odb
-    // if (mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss') {
-    //   // retrieve the data for the blob storage
-    //   const {
-    //     clientContext: { custom: customContext },
-    //   } = context
-
-    //   if (customContext?.blobs) {
-    //     // eslint-disable-next-line n/prefer-global/buffer
-    //     const rawData = Buffer.from(customContext.blobs, 'base64')
-    //     const data = JSON.parse(rawData.toString('ascii'))
-
-    //     // this file will be magically here; It will be copied in the functions.ts file over to be available during request time
-    //     const { Blobs, getNormalizedBlobKey, getHeaderForType } =
-    //       // eslint-disable-next-line @typescript-eslint/no-var-requires
-    //       require('./blobStorage') as typeof import('./blobStorage')
-
-    //     const netliBlob = new Blobs({
-    //       authentication: {
-    //         contextURL: data.url,
-    //         token: data.token,
-    //       },
-    //       context: `deploy:${event.headers['x-nf-deploy-id']}`,
-    //       siteID: event.headers['x-nf-site-id'],
-    //     })
-
-    //     let key = event.path
-    //     if (key.endsWith('.rsc/')) {
-    //       // strip trailing slash from .rsc requests
-    //       key = key.slice(0, -1)
-    //     }
-    //     const blobRewrite = blobManifest.get(key)
-    //     if (blobRewrite) {
-    //       key = blobRewrite
-    //     }
-
-    //     const ISRPage = (await netliBlob.get(getNormalizedBlobKey(key), { type: 'json' })) as BlobISRPage
-
-    //     if (ISRPage) {
-    //       requestMode = `odb ttl=${ISRPage.ttl}`
-    //       console.log(
-    //         `[${event.httpMethod}] ${event.path} (${requestMode?.toUpperCase()}) (used Blob cache key: ${key})`,
-    //       )
-
-    //       // eslint-disable-next-line @typescript-eslint/no-var-requires
-    //       const { Buffer } = require('buffer')
-    //       return {
-    //         body: Buffer.from(ISRPage.value).toString('base64'),
-    //         headers: {
-    //           'cache-control': 'public, max-age=0, must-revalidate',
-    //           'x-nf-render-mode': requestMode,
-    //           ...getHeaderForType(ISRPage.type),
-    //         },
-    //         statusCode: 200,
-    //         isBase64Encoded: true,
-    //         ttl: ISRPage.ttl,
-    //       }
-    //     }
-    //   }
-    // }
     const origPath = event.path
     event.path = normalizePath(event)
     // Next expects to be able to parse the query from the URL
@@ -212,15 +154,19 @@ const makeHandler = ({
     }
 
     const requestID = event?.headers?.['x-nf-request-id']
-    // const isFirstODBRequest = mode === 'odb' && event.headers['x-nf-builder-cache'] === 'miss'
 
-    // console.log(`getHandler start handling`, {
-    //   requestID,
-    //   isFirstODBRequest,
-    //   path: event.path,
-    //   builderCache: event.headers['x-nf-builder-cache'],
-    //   deployID: event.headers['x-nf-deploy-id'],
-    // })
+    if (context?.clientContext?.custom?.blobs) {
+      const rawData = Buffer.from(context.clientContext.custom.blobs, 'base64')
+      const data = JSON.parse(rawData.toString('ascii'))
+      setBlobInit({
+        authentication: {
+          contextURL: data.url,
+          token: data.token,
+        },
+        context: `deploy:${event.headers['x-nf-deploy-id']}`,
+        siteID: event.headers['x-nf-site-id'],
+      })
+    }
 
     console.log(
       `[grep] getHandler request start: path: ${event.path} origPath: ${origPath} BuilderCache ${event.headers['x-nf-builder-cache']} DeployID ${event.headers['x-nf-deploy-id']} RequestID ${requestID}`,
@@ -232,7 +178,6 @@ const makeHandler = ({
       let { body, encoding } = result
 
       if (encoding === 'base64') {
-        // eslint-disable-next-line n/prefer-global/buffer
         body = Buffer.from(body, 'base64').toString('utf-8')
       }
 
