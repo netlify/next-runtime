@@ -1,22 +1,21 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 
-import { overrideNextJsConfig, revertNextJsConfig } from './helpers/config.js'
+import { modifyNetlifyConfig, modifyNextConfig, revertNextConfig } from './helpers/config.js'
 import { publishStaticAssets } from './helpers/files.js'
-import { createHandlerFunction } from './helpers/functions.js'
+import { createServerHandler } from './helpers/functions.js'
 
 type NetlifyPluginOptionsWithFlags = NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }
 
 export const onPreBuild = () => {
-  overrideNextJsConfig()
+  modifyNextConfig()
 }
 
 export const onBuild = ({ constants, netlifyConfig }: NetlifyPluginOptionsWithFlags) => {
-  createHandlerFunction(constants.PUBLISH_DIR, netlifyConfig)
   publishStaticAssets(constants.PUBLISH_DIR)
+  createServerHandler(constants.PUBLISH_DIR, netlifyConfig)
+  modifyNetlifyConfig(netlifyConfig)
 }
 
 export const onEnd = () => {
-  // TODO: call revertStaticAssets when we figure out
-  // why onEnd is called before the deploy finishes
-  revertNextJsConfig()
+  revertNextConfig()
 }

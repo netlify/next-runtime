@@ -1,38 +1,35 @@
-import type { NetlifyConfig } from '@netlify/build'
-import { copySync } from 'fs-extra/esm'
+import { NetlifyConfig } from '@netlify/build'
+import { copySync, emptyDirSync } from 'fs-extra/esm'
 
-import { FUNCTIONS_INTERNAL_DIR, FUNCTIONS_URL, __dirname } from './constants.js'
+import { SERVER_HANDLER_DIR, SERVER_HANDLER_NAME, SERVER_HANDLER_URL, __dirname } from './constants.js'
 
-const HANDLER_NAME = '___netlify-handler'
-const HANDLER_DIR = `${FUNCTIONS_INTERNAL_DIR}/${HANDLER_NAME}`
-const HANDLER_URL = `${FUNCTIONS_URL}/${HANDLER_NAME}`
+/**
+ * Create a Netlify function to run the Next.js server
+ * @param publishDir The publish directory
+ * @param config Netlify config
+ */
+export const createServerHandler = (publishDir: string, config: NetlifyConfig) => {
+  emptyDirSync(SERVER_HANDLER_DIR)
 
-const moveServerFiles = (publishDir: string) => {
-  // TODO: consider caching here to avoid copying on every build
-  // TODO: consider basepaths and monorepos, etc.
-  // TODO: ensure functions internal dir is empty
-  copySync(`${publishDir}/standalone/.next`, `${HANDLER_DIR}/.next`, { overwrite: true })
-  copySync(`${__dirname}/../templates/handler.cjs`, `${HANDLER_DIR}/${HANDLER_NAME}.js`, { overwrite: true })
-  copySync(`${__dirname}/../templates/bridge.cjs`, `${HANDLER_DIR}/bridge.js`, { overwrite: true })
-  copySync(`${__dirname}/../templates/headers.cjs`, `${HANDLER_DIR}/headers.js`, { overwrite: true })
-  copySync(`${__dirname}/../templates/cache-handler.cjs`, `${HANDLER_DIR}/cache-handler.js`, {
-    overwrite: true,
-  })
-}
+  copySync(`${__dirname}/../templates/server-handler.cjs`, `${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.js`)
+  copySync(`${__dirname}/../templates/headers.cjs`, `${SERVER_HANDLER_DIR}/headers.js`)
+  copySync(`${__dirname}/../templates/cache-handler.cjs`, `${SERVER_HANDLER_DIR}/cache-handler.js`)
+  copySync(
+    `${__dirname}/../../node_modules/@vercel/node-bridge`,
+    `${SERVER_HANDLER_DIR}/node_modules/@vercel/node-bridge`,
+  )
+  copySync(`${publishDir}/standalone/.next`, `${SERVER_HANDLER_DIR}/.next`)
+  copySync(`${publishDir}/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
 
-const configureHandlerFunction = (config: NetlifyConfig) => {
-  config.functions[HANDLER_NAME] ||= {}
-  config.functions[HANDLER_NAME].included_files ||= []
-  config.functions[HANDLER_NAME].included_files.push(`${HANDLER_DIR}/.next/**/*`)
-}
+  // all the following will be replaced by the upcoming server functions API
 
-const addCatchAllRedirect = (config: NetlifyConfig) => {
+  config.functions[SERVER_HANDLER_NAME] ||= {}
+  config.functions[SERVER_HANDLER_NAME].node_bundler = 'none'
+  config.functions[SERVER_HANDLER_NAME].included_files ||= []
+  config.functions[SERVER_HANDLER_NAME].included_files.push(`${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.js`)
+  config.functions[SERVER_HANDLER_NAME].included_files.push(`${SERVER_HANDLER_DIR}/.next/**/*`)
+  config.functions[SERVER_HANDLER_NAME].included_files.push(`${SERVER_HANDLER_DIR}/node_modules/**/*`)
+
   config.redirects ||= []
-  config.redirects.push({ from: `/*`, to: HANDLER_URL, status: 200 })
-}
-
-export const createHandlerFunction = (publishDir: string, config: NetlifyConfig) => {
-  moveServerFiles(publishDir)
-  configureHandlerFunction(config)
-  addCatchAllRedirect(config)
+  config.redirects.push({ from: `/*`, to: SERVER_HANDLER_URL, status: 200 })
 }
