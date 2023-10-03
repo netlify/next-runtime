@@ -6,32 +6,23 @@
 import mod from 'module'
 
 import type { NextConfig } from '../helpers/config'
-import { existsSync } from 'fs'
-import path from 'path'
-import { hookPropertyMap } from 'next/dist/server/require-hook'
 const originalRequire = mod.prototype.require
 const resolveFilename = (mod as any)._resolveFilename
 const requireHooks = new Map<string, Map<string, string>>()
 
-export const overrideRequireHooks = (config: NextConfig, dir) => {
-  if( hookPropertyMap ){
-    hookPropertyMap.delete('styled-jsx/style')
-  }
-  setRequireHooks(config, dir)
+export const overrideRequireHooks = (config: NextConfig) => {
+  setRequireHooks(config)
   resolveRequireHooks()
 }
 
-const setRequireHooks = (config: NextConfig, dir) => {
-  const appDir = existsSync(path.join(dir,'.next', 'server', 'app-paths-manifest.json'))
-  if (appDir) {
+const setRequireHooks = (config: NextConfig) => {
     requireHooks.set(
       'default',
       new Map([
         ['styled-jsx', 'styled-jsx'],
-        ['styled-jsx/style', 'styled-jsx/style'],
+        ['styled-jsx/style', `styled-jsx/style`],
       ]),
     )
-  }
 
   // if (config.experimental.serverActions) {
   //   requireHooks.set(
@@ -107,9 +98,9 @@ const resolveRequireHooks = () => {
   })
 }
 
-export const applyRequireHooks = (dir) => {
+export const applyRequireHooks = () => {
   // eslint-disable-next-line max-params, func-names
-  (mod as any)._resolveFilename = function (
+  ;(mod as any)._resolveFilename = function (
     originalResolveFilename: (request: string, parent: string, isMain: boolean, opts: any) => string,
     requestMap: Map<string, Map<string, string>>,
     request: string,
@@ -118,11 +109,7 @@ export const applyRequireHooks = (dir) => {
     options: any,
   ) {
     
-    const appDir = existsSync(path.join(dir,'.next', 'server', 'app-paths-manifest.json'))
-
-    const hooks = appDir ? 'default' : ''
-    const hookResolved = requestMap.get(hooks)?.get(request)
-
+    const hookResolved = requestMap.get('default')?.get(request)
     if (hookResolved) request = hookResolved
 
     return originalResolveFilename.call(mod, request, parent, isMain, options)
@@ -130,13 +117,14 @@ export const applyRequireHooks = (dir) => {
   // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
   }.bind(null, resolveFilename, requireHooks)
 
-//   ;(mod as any).prototype.require = function(request) {
-//     const opts = { paths: [process.cwd()] }
-//     // testing if we can use this to apply the styled-jsx/style.js to only pages using it
-//     if(request === "styled-jsx/style") {
-//         return originalRequire.call(this, `${opts.paths[0]}/node_modules/styled-jsx/style.js`);
-//     }
-//     return originalRequire.call(this, request);
-// };
+  ;(mod as any).prototype.require = function(request) {
+    const opts = { paths: [process.cwd()] }
+    // testing if we can use this to apply the styled-jsx/style.js to only pages using it
+    if(request === "styled-jsx/style") {
+        return originalRequire.call(this, `${opts.paths[0]}/node_modules/styled-jsx/style.js`);
+    }
+    return originalRequire.call(this, request);
+  };
 }
+
 /* eslint-enable no-underscore-dangle, @typescript-eslint/no-explicit-any */

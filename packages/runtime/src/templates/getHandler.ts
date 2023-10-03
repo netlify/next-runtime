@@ -58,9 +58,9 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
   } catch {}
 
   // Next 13.4 conditionally uses different React versions and we need to make sure we use the same one
-  overrideRequireHooks(conf, dir)
+  overrideRequireHooks(conf)
   const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
-  applyRequireHooks(dir)
+  applyRequireHooks()
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
