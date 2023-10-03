@@ -6,7 +6,8 @@
 import mod from 'module'
 
 import type { NextConfig } from '../helpers/config'
-
+import { existsSync } from 'fs'
+import path from 'path'
 const resolveFilename = (mod as any)._resolveFilename
 const requireHooks = new Map<string, Map<string, string>>()
 
@@ -16,64 +17,65 @@ export const overrideRequireHooks = (config: NextConfig) => {
 }
 
 const setRequireHooks = (config: NextConfig) => {
-  requireHooks.set(
-    'default',
-    new Map([
-      ['styled-jsx', 'styled-jsx/package.json'],
-      ['styled-jsx/style', 'styled-jsx/style'],
-    ]),
-  )
 
-  if (config.experimental.serverActions) {
     requireHooks.set(
-      'experimental',
+      'default',
       new Map([
-        ['react', `next/dist/compiled/react-experimental`],
-        ['react/jsx-runtime', `next/dist/compiled/react-experimental/jsx-runtime`],
-        ['react/jsx-dev-runtime', `next/dist/compiled/react-experimental/jsx-dev-runtime`],
-        ['react-dom', `next/dist/compiled/react-dom-experimental/server-rendering-stub`],
-        ['react-dom/client', `next/dist/compiled/react-dom-experimental/client`],
-        ['react-dom/server', `next/dist/compiled/react-dom-experimental/server`],
-        ['react-dom/server.browser', `next/dist/compiled/react-dom-experimental/server.browser`],
-        ['react-dom/server.edge', `next/dist/compiled/react-dom-experimental/server.edge`],
-        ['react-server-dom-webpack/client', `next/dist/compiled/react-server-dom-webpack-experimental/client`],
-        [
-          'react-server-dom-webpack/client.edge',
-          `next/dist/compiled/react-server-dom-webpack-experimental/client.edge`,
-        ],
-        [
-          'react-server-dom-webpack/server.edge',
-          `next/dist/compiled/react-server-dom-webpack-experimental/server.edge`,
-        ],
-        [
-          'react-server-dom-webpack/server.node',
-          `next/dist/compiled/react-server-dom-webpack-experimental/server.node`,
-        ],
         ['styled-jsx', 'styled-jsx'],
         ['styled-jsx/style', 'styled-jsx/style'],
       ]),
     )
-  } else {
-    requireHooks.set(
-      'next',
-      new Map([
-        ['react', `next/dist/compiled/react`],
-        ['react/jsx-runtime', `next/dist/compiled/react/jsx-runtime`],
-        ['react/jsx-dev-runtime', `next/dist/compiled/react/jsx-dev-runtime`],
-        ['react-dom', `next/dist/compiled/react-dom/server-rendering-stub`],
-        ['react-dom/client', `next/dist/compiled/react-dom/client`],
-        ['react-dom/server', `next/dist/compiled/react-dom/server`],
-        ['react-dom/server.browser', `next/dist/compiled/react-dom/server.browser`],
-        ['react-dom/server.edge', `next/dist/compiled/react-dom/server.edge`],
-        ['react-server-dom-webpack/client', `next/dist/compiled/react-server-dom-webpack/client`],
-        ['react-server-dom-webpack/client.edge', `next/dist/compiled/react-server-dom-webpack/client.edge`],
-        ['react-server-dom-webpack/server.edge', `next/dist/compiled/react-server-dom-webpack/server.edge`],
-        ['react-server-dom-webpack/server.node', `next/dist/compiled/react-server-dom-webpack/server.node`],
-        ['styled-jsx', 'styled-jsx'],
-        ['styled-jsx/style', 'styled-jsx/style'],
-      ]),
-    )
-  }
+
+  // if (config.experimental.serverActions) {
+  //   requireHooks.set(
+  //     'experimental',
+  //     new Map([
+  //       ['react', `next/dist/compiled/react-experimental`],
+  //       ['react/jsx-runtime', `next/dist/compiled/react-experimental/jsx-runtime`],
+  //       ['react/jsx-dev-runtime', `next/dist/compiled/react-experimental/jsx-dev-runtime`],
+  //       ['react-dom', `next/dist/compiled/react-dom-experimental/server-rendering-stub`],
+  //       ['react-dom/client', `next/dist/compiled/react-dom-experimental/client`],
+  //       ['react-dom/server', `next/dist/compiled/react-dom-experimental/server`],
+  //       ['react-dom/server.browser', `next/dist/compiled/react-dom-experimental/server.browser`],
+  //       ['react-dom/server.edge', `next/dist/compiled/react-dom-experimental/server.edge`],
+  //       ['react-server-dom-webpack/client', `next/dist/compiled/react-server-dom-webpack-experimental/client`],
+  //       [
+  //         'react-server-dom-webpack/client.edge',
+  //         `next/dist/compiled/react-server-dom-webpack-experimental/client.edge`,
+  //       ],
+  //       [
+  //         'react-server-dom-webpack/server.edge',
+  //         `next/dist/compiled/react-server-dom-webpack-experimental/server.edge`,
+  //       ],
+  //       [
+  //         'react-server-dom-webpack/server.node',
+  //         `next/dist/compiled/react-server-dom-webpack-experimental/server.node`,
+  //       ],
+  //       ['styled-jsx', 'styled-jsx'],
+  //       ['styled-jsx/style', 'styled-jsx/style'],
+  //     ]),
+  //   )
+  // } else {
+  //   requireHooks.set(
+  //     'next',
+  //     new Map([
+  //       ['react', `next/dist/compiled/react`],
+  //       ['react/jsx-runtime', `next/dist/compiled/react/jsx-runtime`],
+  //       ['react/jsx-dev-runtime', `next/dist/compiled/react/jsx-dev-runtime`],
+  //       ['react-dom', `next/dist/compiled/react-dom/server-rendering-stub`],
+  //       ['react-dom/client', `next/dist/compiled/react-dom/client`],
+  //       ['react-dom/server', `next/dist/compiled/react-dom/server`],
+  //       ['react-dom/server.browser', `next/dist/compiled/react-dom/server.browser`],
+  //       ['react-dom/server.edge', `next/dist/compiled/react-dom/server.edge`],
+  //       ['react-server-dom-webpack/client', `next/dist/compiled/react-server-dom-webpack/client`],
+  //       ['react-server-dom-webpack/client.edge', `next/dist/compiled/react-server-dom-webpack/client.edge`],
+  //       ['react-server-dom-webpack/server.edge', `next/dist/compiled/react-server-dom-webpack/server.edge`],
+  //       ['react-server-dom-webpack/server.node', `next/dist/compiled/react-server-dom-webpack/server.node`],
+  //       ['styled-jsx', 'styled-jsx'],
+  //       ['styled-jsx/style', 'styled-jsx/style'],
+  //     ]),
+  //   )
+  // }
 }
 
 const resolveRequireHooks = () => {
@@ -98,26 +100,26 @@ const resolveRequireHooks = () => {
   })
 }
 
-export const applyRequireHooks = () => {
+export const applyRequireHooks = (dir) => {
   // eslint-disable-next-line max-params, func-names
-  ;(mod as any)._resolveFilename = function (
+  (mod as any)._resolveFilename = function (
     originalResolveFilename: (request: string, parent: string, isMain: boolean, opts: any) => string,
-    requestMap: Map<string, string>,
+    requestMap: Map<string, Map<string, string>>,
     request: string,
     parent: string,
     isMain: boolean,
     options: any,
   ) {
-    const hookResolved = requestMap.get(request)
-    if (hookResolved) request = hookResolved
-    if (request.includes('styled-jsx')) console.log({ request })
-    try {
-      return originalResolveFilename.call(mod, request, parent, isMain, options)
-    } catch {
-      throw new Error(`Could not resolve ${request} from requireHooks.ts`)
-    }
+    
+    const AppDir = existsSync(path.join(dir,'.next', 'server', 'app-paths-manifest.json'))
+    const hooks = request === 'styled-jsx/style' && !AppDir || AppDir ? 'default' : ''
+    const hookResolved = requestMap.get(hooks)?.get(request)
 
-    // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
+    if (hookResolved) request = hookResolved
+
+    return originalResolveFilename.call(mod, request, parent, isMain, options)
+
+  // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
   }.bind(null, resolveFilename, requireHooks)
 }
 /* eslint-enable no-underscore-dangle, @typescript-eslint/no-explicit-any */
