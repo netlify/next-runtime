@@ -1,18 +1,23 @@
+import { createRequire } from 'module'
 import { IncomingMessage, ServerResponse } from 'node:http'
+import { fileURLToPath } from 'node:url'
 
 import type { Context } from '@netlify/functions'
-// @ts-ignore
-import { getRequestHandlers } from 'next/dist/server/lib/start-server.js'
 
-// @ts-ignore
-import requiredServerFiles from './.next/required-server-files.json'
+const require = createRequire(import.meta.url)
+const { getRequestHandlers } = require('next/dist/server/lib/start-server.js')
+
+// eslint-disable-next-line import/no-unresolved
+const requiredServerFiles = require('./.next/required-server-files.json')
 
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 process.chdir(__dirname)
 
 // eslint-disable-next-line import/no-anonymous-default-export, @typescript-eslint/no-unused-vars
-export default async (request: IncomingMessage, context: Context) => {
+export default async (request: Request, context: Context) => {
   // let Next.js initialize and create the request handler
   const [nextHandler] = await getRequestHandlers({
     port: 3000,
