@@ -9,7 +9,7 @@ import {
   unlocalizeRoute,
   localizeRoute,
   localizeDataRoute,
-  downloadFile,
+  downloadFileFromCDN,
 } from '../../packages/runtime/src/templates/handlerUtils'
 
 describe('normalizeRoute', () => {
@@ -99,7 +99,7 @@ describe('downloadFile', () => {
       'https://raw.githubusercontent.com/netlify/next-runtime/c2668af24a78eb69b33222913f44c1900a3bce23/manifest.yml'
     const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
     await ensureDir(path.dirname(tmpFile))
-    await downloadFile(url, tmpFile)
+    await downloadFileFromCDN(url, tmpFile)
     expect(existsSync(tmpFile)).toBeTruthy()
     expect(readFileSync(tmpFile, 'utf8')).toMatchInlineSnapshot(`
       "name: netlify-plugin-nextjs-experimental
@@ -112,7 +112,7 @@ describe('downloadFile', () => {
     const url = 'https://nonexistentdomain.example'
     const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
     await ensureDir(path.dirname(tmpFile))
-    await expect(downloadFile(url, tmpFile)).rejects.toThrowErrorMatchingInlineSnapshot(
+    await expect(downloadFileFromCDN(url, tmpFile)).rejects.toThrowErrorMatchingInlineSnapshot(
       `"getaddrinfo ENOTFOUND nonexistentdomain.example"`,
     )
   })
@@ -121,7 +121,7 @@ describe('downloadFile', () => {
     const url = 'https://example.com/nonexistentfile'
     const tmpFile = join(os.tmpdir(), 'next-test', 'downloadfile.txt')
     await ensureDir(path.dirname(tmpFile))
-    await expect(downloadFile(url, tmpFile)).rejects.toThrow(
+    await expect(downloadFileFromCDN(url, tmpFile)).rejects.toThrow(
       'Failed to download https://example.com/nonexistentfile: 404 Not Found',
     )
   })

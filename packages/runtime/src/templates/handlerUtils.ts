@@ -11,8 +11,6 @@ import NextNodeServer from 'next/dist/server/next-server'
 
 import type { StaticRoute } from '../helpers/types'
 
-import { getBlobInit } from './blobStorage'
-
 export type NextServerType = typeof NextNodeServer
 
 const streamPipeline = promisify(pipeline)
@@ -51,7 +49,7 @@ export const downloadFileFromCDN = async (url: string, destination: string): Pro
 const downloadFileFromBlobs = async (filePath: string, destination: string): Promise<void> => {
   console.log(`Downloading ${filePath} from Blobs Storage to ${destination}`)
 
-  const { Blobs, getNormalizedBlobKey } =
+  const { Blobs, getNormalizedBlobKey, getBlobInit } =
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('./blobStorage') as typeof import('./blobStorage')
 
