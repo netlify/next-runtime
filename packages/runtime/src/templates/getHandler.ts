@@ -5,7 +5,6 @@ import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
 
-import { setBlobInit } from './blobStorage'
 import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
@@ -19,6 +18,7 @@ const { URLSearchParams, URL } = require('url')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
 
+const { setBlobInit } = require('./blobStorage')
 const {
   augmentFsModule,
   getMaxAge,
@@ -268,6 +268,7 @@ export const getHandler = ({
   const { Server } = require("http");
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
+  const { setBlobInit } = require('./blobStorage')
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath, requestAsyncLocalStorage } = require('./handlerUtils')
   const { overrideRequireHooks, applyRequireHooks } = require("./requireHooks")
