@@ -42,6 +42,22 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       }
     }
 
+    protected getPrerenderManifest(): PrerenderManifest {
+      const manifest = super.getPrerenderManifest()
+
+      if (typeof manifest?.dynamicRoutes === 'object') {
+        // remove the fallback: true routes from the manifest
+        // because we don't want to prerender them
+        for (const route of Object.values(manifest.dynamicRoutes)) {
+          if (route.fallback !== null) {
+            route.fallback = null
+          }
+        }
+      }
+
+      return manifest
+    }
+
     public getRequestHandler(): NodeRequestHandler {
       const handler = super.getRequestHandler()
       return async (req, res, parsedUrl) => {
@@ -77,7 +93,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
           if (!isFirstODBRequest) {
             // this header controls whether Next.js will revalidate the page
             // and needs to be set to the preview mode id to enable it
-            headers['x-prerender-revalidate'] = this.renderOpts.previewProps.previewModeId
+            // headers['x-prerender-revalidate'] = this.renderOpts.previewProps.previewModeId
           }
         }
 
