@@ -139,8 +139,6 @@ export const augmentFsModule = ({
       // We only want the part after `.next/server/`
       const filePath = file.slice(pageRoot.length + 1)
 
-      console.log(`[grep] fs augment: filePath: "${filePath}"`)
-
       // Is it in the CDN or lambda and not local?
       if (!existsSync(file)) {
         const isStatic = staticFiles.has(filePath)

@@ -154,10 +154,8 @@ export const moveStaticPages = async ({
     }
   }
   const uploadFileToBlobStorageAndDelete = async (file: string) => {
-    // TODO: test with basepath, without i18n
     const { source } = getSourceAndTargetPath(file)
 
-    console.log(`blob file`, { file, source })
     blobsManifest.add(file)
 
     const content = await readFile(source, 'utf8')

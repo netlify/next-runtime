@@ -73,13 +73,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         // because otherwise revalidate will override preview mode
         if (!headers.cookie?.includes('__prerender_bypass')) {
           const isFirstODBRequest = headers['x-nf-builder-cache'] === 'miss'
-          console.log(
-            `[grep] server should set revalidate: RequestID ${headers?.['x-nf-request-id']} isFirstODBRequest: ${
-              isFirstODBRequest ? `true` : `false`
-            }`,
-          )
-
-          // first odb request should NOT be revalidated
+          // first ODB request should NOT be revalidated and instead it should try to serve cached version
           if (!isFirstODBRequest) {
             // this header controls whether Next.js will revalidate the page
             // and needs to be set to the preview mode id to enable it
