@@ -210,12 +210,6 @@ const plugin: NetlifyPlugin = {
         siteID: SITE_ID,
       })
 
-      console.log('get blob storage', {
-        context: `deploy:${process.env.DEPLOY_ID}`,
-        testBlobStorage,
-        available: await isBlobStorageAvailable(testBlobStorage),
-      })
-
       const netliBlob = (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
 
       await moveStaticPages({ target, netlifyConfig, nextConfig: { basePath, i18n }, netliBlob })

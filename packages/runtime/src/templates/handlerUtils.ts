@@ -23,7 +23,7 @@ const writeFilePromisified = promisify(writeFile)
  * files required at runtime to not be sent to the CDN.
  */
 export const downloadFileFromCDN = async (url: string, destination: string): Promise<void> => {
-  console.log(`Downloading ${url} to ${destination}`)
+  console.log(`Downloading ${url} from CDN to ${destination}`)
 
   const httpx = url.startsWith('https') ? https : http
 
@@ -49,6 +49,8 @@ export const downloadFileFromCDN = async (url: string, destination: string): Pro
 }
 
 const downloadFileFromBlobs = async (filePath: string, destination: string): Promise<void> => {
+  console.log(`Downloading ${filePath} from Blobs Storage to ${destination}`)
+
   const { Blobs, getNormalizedBlobKey } =
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('./blobStorage') as typeof import('./blobStorage')
@@ -100,7 +102,6 @@ export const getMultiValueHeaders = (
 /**
  * Monkey-patch the fs module to download missing files from the CDN
  */
-
 export const augmentFsModule = ({
   promises,
   staticManifest,
@@ -129,7 +130,6 @@ export const augmentFsModule = ({
   // Grab the real fs.promises.readFile...
   const readfileOrig = promises.readFile
   const statsOrig = promises.stat
-
   // ...then monkey-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
     const baseUrl = getBase()
@@ -283,7 +283,7 @@ export const joinPaths = (...paths: string[]): string =>
   paths.reduce((a, b) => (a.endsWith('/') ? `${a}${b}` : `${a}/${b}`))
 
 // Check if a route has a locale prefix (including the root route)
-export const isLocalized = (route: string, i18n: { defaultLocale: string; locales: string[] }): boolean =>
+const isLocalized = (route: string, i18n: { defaultLocale: string; locales: string[] }): boolean =>
   i18n.locales.some((locale) => route === `/${locale}` || route.startsWith(`/${locale}/`))
 
 // Remove the locale prefix from a route (if any)

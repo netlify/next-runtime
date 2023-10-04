@@ -125,7 +125,6 @@ export const checkZipSize = async (
   }
   const fileSize = await promises.stat(file).then(({ size }) => size)
   if (fileSize < warningSize) {
-    console.log(`function zip size is ${prettyBytes(fileSize)}.`)
     return
   }
   // We don't fail the build, because the actual hard max size is larger so it might still succeed
