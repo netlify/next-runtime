@@ -61,12 +61,13 @@ describe('Dynamic Routing', () => {
       expect(res.body).to.contain('Under the Dome')
     })
   })
-  it('renders fallback page via ODB on a non-prerendered dynamic route with fallback: true', () => {
+  it('does not render fallback page via ODB on a non-prerendered dynamic route with fallback: true', () => {
+    // unfortunately there is a problem with `fallback: true` in ODB context - the fallback would be cached indefinitely
+    // so visits to those pages would always render the fallback first and browser client would later re-render with correct
+    // content. As this is not ideal the `fallback: true` is treated as `fallback: blocking`.
     cy.request({ url: '/getStaticProps/withFallback/3/', headers: { 'x-nf-debug-logging': '1' } }).then((res) => {
       expect(res.status).to.eq(200)
-      // expect 'odb' until https://github.com/netlify/pillar-runtime/issues/438 is fixed
       expect(res.headers).to.have.property('x-nf-render-mode', 'odb')
-      // expect 'Bitten' until the above is fixed and we can test for fallback 'Loading...' message
       expect(res.body).to.contain('Bitten')
     })
   })
@@ -115,12 +116,14 @@ describe('Dynamic Routing', () => {
       },
     )
   })
-  it('renders fallback page via ODB on a non-prerendered dynamic route with revalidate and fallback: true', () => {
+  it('does not render fallback page via ODB on a non-prerendered dynamic route with revalidate and fallback: true', () => {
+    // unfortunately there is a problem with `fallback: true` in ODB context - the fallback would be cached indefinitely
+    // so visits to those pages would always render the fallback first and browser client would later re-render with correct
+    // content. As this is not ideal the `fallback: true` is treated as `fallback: blocking`.
     cy.request({ url: '/getStaticProps/withRevalidate/withFallback/3/', headers: { 'x-nf-debug-logging': '1' } }).then(
       (res) => {
         expect(res.status).to.eq(200)
         expect(res.headers).to.have.property('x-nf-render-mode', 'odb ttl=60')
-        // expect 'Bitten' until https://github.com/netlify/pillar-runtime/issues/438 is fixed
         expect(res.body).to.contain('Bitten')
       },
     )
