@@ -10,10 +10,6 @@ const originalRequire = mod.prototype.require
 const resolveFilename = (mod as any)._resolveFilename
 const requireHooks = new Map<string, Map<string, string>>()
 
-const nextRequire = mod.createRequire(
-  require.resolve(`next`)
-)
-
 export const overrideRequireHooks = (config: NextConfig) => {
   setRequireHooks(config)
   resolveRequireHooks()
@@ -24,7 +20,7 @@ const setRequireHooks = (config: NextConfig) => {
       'default',
       new Map([
         ['styled-jsx', 'styled-jsx'],
-        ['styled-jsx/style', nextRequire.resolve(`styled-jsx/style`)],
+        ['styled-jsx/style', `styled-jsx/style`],
       ]),
     )
 
