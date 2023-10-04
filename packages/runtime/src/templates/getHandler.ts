@@ -24,7 +24,7 @@ const {
   getPrefetchResponse,
   normalizePath,
 } = require('./handlerUtils')
-const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
+// const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
 
