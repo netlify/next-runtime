@@ -17,7 +17,7 @@ import { join } from 'pathe'
  *
  * Disabled by default. Can be overriden using the NEXT_SPLIT_API_ROUTES env var.
  */
-export const splitApiRoutes = (featureFlags: Record<string, unknown>, publish: string) => {
+export const splitApiRoutes = (featureFlags: Record<string, unknown>, publish: string): boolean => {
   const isEnabled = destr(process.env.NEXT_SPLIT_API_ROUTES) ?? featureFlags.next_split_api_routes ?? false
 
   if (isEnabled && !existsSync(join(publish, 'next-server.js.nft.json'))) {
@@ -30,7 +30,7 @@ export const splitApiRoutes = (featureFlags: Record<string, unknown>, publish: s
   return isEnabled
 }
 
-export const bundleBasedOnNftFiles = (featureFlags: Record<string, unknown>) => {
+export const bundleBasedOnNftFiles = (featureFlags: Record<string, unknown>): boolean => {
   const isEnabled =
     destr(process.env.NEXT_BUNDLE_BASED_ON_NFT_FILES) ?? featureFlags.next_bundle_based_on_nft_files ?? false
 

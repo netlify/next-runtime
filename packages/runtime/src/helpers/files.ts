@@ -82,7 +82,7 @@ export const moveStaticPages = async ({
 }: {
   netlifyConfig: NetlifyConfig
   target: 'server' | 'serverless' | 'experimental-serverless-trace'
-  nextConfig: Pick<NextConfig, 'i18n' | 'basePath' | 'trailingSlash'>
+  nextConfig: Pick<NextConfig, 'i18n' | 'basePath'>
   netliBlob?: Blobs
 }): Promise<void> => {
   const { i18n, basePath } = nextConfig

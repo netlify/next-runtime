@@ -283,7 +283,6 @@ export const getHandler = ({
   let blobsManifest
   try {
     blobsManifest = new Set(require("${publishDir}/blobs-manifest.json"))
-    console.log({ blobsManifest})
   } catch {}
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));

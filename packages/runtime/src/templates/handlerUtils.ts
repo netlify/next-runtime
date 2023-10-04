@@ -130,10 +130,6 @@ export const augmentFsModule = ({
   const readfileOrig = promises.readFile
   const statsOrig = promises.stat
 
-  console.log(`augmentfsmodule`, {
-    pageRoot,
-    base: getBase(),
-  })
   // ...then monkey-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
     const baseUrl = getBase()

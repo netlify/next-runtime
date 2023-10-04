@@ -43,7 +43,6 @@ export const getNextConfig = async function getNextConfig({
 }): Promise<NextConfig> {
   try {
     const { config, appDir, ignore }: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))
-
     if (!config) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -119,7 +118,7 @@ export const configureHandlerFunctions = async ({
   ignore: Array<string>
   apiLambdas: APILambda[]
   ssrLambdas: SSRLambda[]
-  splitApiRoutes: unknown
+  splitApiRoutes: boolean
 }) => {
   const config = await getRequiredServerFiles(publish)
   const files = config.files || []
