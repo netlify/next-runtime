@@ -18,15 +18,9 @@ const { URLSearchParams, URL } = require('url')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
 
-const { setBlobInit } = require('./blobStorage')
-const {
-  augmentFsModule,
-  getMaxAge,
-  getMultiValueHeaders,
-  getPrefetchResponse,
-  normalizePath,
-  // requestAsyncLocalStorage,
-} = require('./handlerUtils') as typeof import('./handlerUtils')
+const { setBlobInit } = require('./blobStorage') as typeof import('./blobStorage')
+const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } =
+  require('./handlerUtils') as typeof import('./handlerUtils')
 const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
@@ -138,6 +132,7 @@ const makeHandler = ({
 
     const origPath = event.path
     event.path = normalizePath(event)
+
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
@@ -270,7 +265,7 @@ export const getHandler = ({
   // We copy the file here rather than requiring from the node module
   const { setBlobInit } = require('./blobStorage')
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath, requestAsyncLocalStorage } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
   const { overrideRequireHooks, applyRequireHooks } = require("./requireHooks")
   const { getNetlifyNextServer } = require("./server")
   const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default

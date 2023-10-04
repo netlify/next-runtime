@@ -80,7 +80,6 @@ export class NextDeployInstance extends NextInstance {
     })
 
     if (deployRes.exitCode !== 0) {
-      console.log({ deployRes})
       throw new Error(`Failed to deploy project ${deployRes.stdout} ${deployRes.stderr} (${deployRes.exitCode})`)
     }
     try {
