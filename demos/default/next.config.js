@@ -41,7 +41,7 @@ module.exports = {
   },
   trailingSlash: true,
   // Configurable site features _to_ support:
-  // basePath: '/docs',
+  basePath: '/docs',
   // Rewrites allow you to map an incoming request path to a different destination path.
   async rewrites() {
     return {
