@@ -1,7 +1,5 @@
-// /* eslint-disable no-underscore-dangle, @typescript-eslint/no-explicit-any */
-
-// // This is a modified version of the require hooks from Next.js
-// // https://github.com/vercel/next.js/blob/b04c70573ac199a9bb3ea42201e0865e610d5b67/packages/next/src/server/require-hook.ts
+// This is a modified version of the require hooks from Next.js
+// https://github.com/vercel/next.js/blob/b04c70573ac199a9bb3ea42201e0865e610d5b67/packages/next/src/server/require-hook.ts
 
 // import mod from 'module'
 
@@ -10,10 +8,11 @@
 // const resolveFilename = (mod as any)._resolveFilename
 // const requireHooks = new Map<string, Map<string, string>>()
 
-// export const overrideRequireHooks = (config: NextConfig) => {
-//   setRequireHooks(config)
-//   resolveRequireHooks()
-// }
+export const overrideRequireHooks = () => {
+  console.log('commenting out overrideRequireHooks for now')
+  // setRequireHooks(config)
+  // resolveRequireHooks()
+}
 
 // const setRequireHooks = (config: NextConfig) => {
 //   requireHooks.set(
@@ -111,10 +110,10 @@
 //     options: any,
 //   ) {
 //     const reactMode = process.env.__NEXT_PRIVATE_PREBUNDLED_REACT || 'default'
+//     console.log({reactMode})
 //     const resolvedRequest = hooks.get(reactMode)?.get(request) ?? request
 //     return originalResolveFilename.call(mod, resolvedRequest, parent, isMain, options)
 
 //     // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
 //   }.bind(null, resolveFilename, requireHooks)
 // }
-/* eslint-enable no-underscore-dangle, @typescript-eslint/no-explicit-any */
