@@ -4,10 +4,10 @@ module.exports = {
   // Configurable site features we support:
   // distDir: 'build',
   generateBuildId: () => 'build-id',
-  i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'es', 'fr'],
-  },
+  // i18n: {
+  //   defaultLocale: 'en',
+  //   locales: ['en', 'es', 'fr'],
+  // },
   async headers() {
     return [
       {
