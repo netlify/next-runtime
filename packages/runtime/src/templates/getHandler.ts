@@ -1,5 +1,3 @@
-import { Buffer } from 'buffer'
-
 import type { HandlerContext, HandlerEvent } from '@netlify/functions'
 import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
@@ -12,6 +10,7 @@ import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
+const { Buffer } = require('buffer')
 const { promises } = require('fs')
 const { Server } = require('http')
 const path = require('path')
@@ -265,6 +264,7 @@ export const getHandler = ({
 
   process.env.NODE_ENV = 'production';
 
+  const { Buffer } = require('buffer')
   const { Server } = require("http");
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
