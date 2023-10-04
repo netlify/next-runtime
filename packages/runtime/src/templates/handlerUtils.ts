@@ -128,6 +128,11 @@ export const augmentFsModule = ({
   // Grab the real fs.promises.readFile...
   const readfileOrig = promises.readFile
   const statsOrig = promises.stat
+
+  const { getBlobInit } =
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('./blobStorage') as typeof import('./blobStorage')
+
   // ...then monkey-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
     const baseUrl = getBase()
@@ -137,8 +142,8 @@ export const augmentFsModule = ({
       // We only want the part after `.next/server/`
       const filePath = file.slice(pageRoot.length + 1)
 
-      // Is it in the CDN or lambda and not local?
       if (!existsSync(file)) {
+        // Is it in the CDN or Blobs Storage and not local?
         const isStatic = staticFiles.has(filePath)
         const isBlob = getBlobInit() ? blobsManifest.has(filePath) : false
         if (isStatic || isBlob) {
