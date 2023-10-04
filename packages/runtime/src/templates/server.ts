@@ -46,10 +46,16 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       const manifest = super.getPrerenderManifest()
 
       if (typeof manifest?.dynamicRoutes === 'object') {
-        // remove the fallback: true routes from the manifest
-        // because we don't want to prerender them
         for (const route of Object.values(manifest.dynamicRoutes)) {
-          if (route.fallback !== null) {
+          // 'fallback' property is:
+          //   - a string when fallback: true is used
+          //   - `null` when fallback: blocking is used
+          //   - `false` when fallback: false is used
+          // `fallback: true` is not working correctly with ODBs
+          // as we will cache fallback html forever, so
+          // we are treating those as `fallback: blocking`
+          // by editing the manifest
+          if (typeof route.fallback === 'string') {
             route.fallback = null
           }
         }
