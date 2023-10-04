@@ -117,4 +117,4 @@
 //     // We use `bind` here to avoid referencing outside variables to create potential memory leaks.
 //   }.bind(null, resolveFilename, requireHooks)
 // }
-// /* eslint-enable no-underscore-dangle, @typescript-eslint/no-explicit-any */
+/* eslint-enable no-underscore-dangle, @typescript-eslint/no-explicit-any */
