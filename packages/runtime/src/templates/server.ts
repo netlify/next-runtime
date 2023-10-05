@@ -99,7 +99,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
           if (!isFirstODBRequest) {
             // this header controls whether Next.js will revalidate the page
             // and needs to be set to the preview mode id to enable it
-            // headers['x-prerender-revalidate'] = this.renderOpts.previewProps.previewModeId
+            headers['x-prerender-revalidate'] = this.renderOpts.previewProps.previewModeId
           }
         }
 
