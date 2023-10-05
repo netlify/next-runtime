@@ -24,8 +24,9 @@ export const getFunctionNameForPage = (page: string, background = false) =>
     .replace(DYNAMIC_PARAMETER_REGEX, '_$1-PARAM')
     .replace(RESERVED_FILENAME, '_')}-${background ? 'background' : 'handler'}`
 
-type ExperimentalConfigWithLegacy = ExperimentalConfig & {
+export type ExperimentalConfigWithLegacy = ExperimentalConfig & {
   images?: Pick<ImageConfigComplete, 'remotePatterns'>
+  appDir?: boolean
 }
 
 export const toNetlifyRoute = (nextRoute: string): Array<string> => {

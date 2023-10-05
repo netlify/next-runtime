@@ -4,6 +4,7 @@ import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
+import { ExperimentalConfigWithLegacy } from '../helpers/utils'
 
 import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
@@ -57,10 +58,13 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     require.resolve('./pages.js')
   } catch {}
 
+  const { appDir }: ExperimentalConfigWithLegacy = conf.experimental
   // Next 13.4 conditionally uses different React versions and we need to make sure we use the same one
-  overrideRequireHooks(conf)
+  // With the release of 13.5 experimental.appDir is no longer used.
+  // we will need to check if appDir exists to run requireHooks for older versions
+  if (appDir) overrideRequireHooks(conf.experimental)
   const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
-  applyRequireHooks()
+  if (appDir) applyRequireHooks()
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
