@@ -1,3 +1,4 @@
+import { join } from 'path'
 // eslint-disable-next-line n/no-deprecated-api -- this is what Next.js uses as well
 import { parse } from 'url'
 
@@ -5,7 +6,6 @@ import { NextConfig } from 'next'
 import type { PrerenderManifest } from 'next/dist/build'
 import type { BaseNextResponse } from 'next/dist/server/base-http'
 import type { NodeRequestHandler, Options } from 'next/dist/server/next-server'
-import { join } from 'pathe'
 
 import {
   netlifyApiFetch,
