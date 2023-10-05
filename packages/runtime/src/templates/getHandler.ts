@@ -236,8 +236,8 @@ export const getHandler = ({
   const { Buffer } = require('buffer')
   const { Server } = require("http");
   const { promises } = require("fs");
-  // We copy the file here rather than requiring from the node module
   const { setBlobInit } = require('./blobStorage')
+  // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
   const { overrideRequireHooks, applyRequireHooks } = require("./requireHooks")
