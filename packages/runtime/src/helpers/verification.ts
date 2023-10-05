@@ -8,7 +8,7 @@ import { outdent } from 'outdent'
 import prettyBytes from 'pretty-bytes'
 import { satisfies } from 'semver'
 
-import { LAMBDA_MAX_SIZE, LAMBDA_WARNING_SIZE } from '../constants'
+import { BUNDLER, LAMBDA_MAX_SIZE, LAMBDA_WARNING_SIZE, USE_BLOB } from '../constants'
 
 import { isBundleSizeCheckDisabled } from './utils'
 
@@ -125,6 +125,7 @@ export const checkZipSize = async (
   }
   const fileSize = await promises.stat(file).then(({ size }) => size)
   if (fileSize < warningSize) {
+    console.log(`LAMBDA SIZE`, { file, fileSize, BUNDLER, USE_BLOB })
     return
   }
   // We don't fail the build, because the actual hard max size is larger so it might still succeed

@@ -1,6 +1,7 @@
 import destr from 'destr'
 import { existsSync } from 'fs-extra'
 import { join } from 'pathe'
+import { BUNDLER } from '../constants'
 
 /**
  * If this flag is enabled, we generate individual Lambda functions for API Routes.
@@ -18,6 +19,8 @@ import { join } from 'pathe'
  * Disabled by default. Can be overriden using the NEXT_SPLIT_API_ROUTES env var.
  */
 export const splitApiRoutes = (featureFlags: Record<string, unknown>, publish: string): boolean => {
+  return BUNDLER === `none`
+
   const isEnabled = destr(process.env.NEXT_SPLIT_API_ROUTES) ?? featureFlags.next_split_api_routes ?? false
 
   if (isEnabled && !existsSync(join(publish, 'next-server.js.nft.json'))) {
@@ -31,6 +34,8 @@ export const splitApiRoutes = (featureFlags: Record<string, unknown>, publish: s
 }
 
 export const bundleBasedOnNftFiles = (featureFlags: Record<string, unknown>): boolean => {
+  return BUNDLER === `none`
+
   const isEnabled =
     destr(process.env.NEXT_BUNDLE_BASED_ON_NFT_FILES) ?? featureFlags.next_bundle_based_on_nft_files ?? false
 

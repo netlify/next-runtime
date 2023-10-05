@@ -6,7 +6,7 @@ import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, USE_BLOB } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
 import {
   getNextConfig,
@@ -210,7 +210,7 @@ const plugin: NetlifyPlugin = {
         siteID: SITE_ID,
       })
 
-      const netliBlob = (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
+      const netliBlob = USE_BLOB && (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
 
       await moveStaticPages({ target, netlifyConfig, nextConfig: { basePath, i18n }, netliBlob })
     }
