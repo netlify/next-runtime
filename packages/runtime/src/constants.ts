@@ -52,4 +52,4 @@ export const DIVIDER = `
 ────────────────────────────────────────────────────────────────
 `
 export const BUNDLER = 'none'
-export const USE_BLOB = true
+export const USE_BLOB = false

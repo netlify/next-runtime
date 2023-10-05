@@ -1,6 +1,7 @@
 import destr from 'destr'
 import { existsSync } from 'fs-extra'
 import { join } from 'pathe'
+
 import { BUNDLER } from '../constants'
 
 /**
