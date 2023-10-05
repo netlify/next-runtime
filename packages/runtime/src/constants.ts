@@ -52,4 +52,4 @@ export const DIVIDER = `
 ────────────────────────────────────────────────────────────────
 `
 export const BUNDLER: 'none' | 'nft' = 'nft'
-export const USE_BLOB = false
+export const USE_BLOB = true
