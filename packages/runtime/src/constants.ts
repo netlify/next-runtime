@@ -51,5 +51,5 @@ export const LAMBDA_MAX_SIZE = 1024 * 1024 * 250
 export const DIVIDER = `
 ────────────────────────────────────────────────────────────────
 `
-export const BUNDLER = 'none'
+export const BUNDLER: 'none' | 'nft' = 'nft'
 export const USE_BLOB = false
