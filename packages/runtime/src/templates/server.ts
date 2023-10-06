@@ -1,3 +1,4 @@
+import { join } from 'path'
 // eslint-disable-next-line n/no-deprecated-api -- this is what Next.js uses as well
 import { parse } from 'url'
 
@@ -5,6 +6,8 @@ import { NextConfig } from 'next'
 import type { PrerenderManifest } from 'next/dist/build'
 import type { BaseNextResponse } from 'next/dist/server/base-http'
 import type { NodeRequestHandler, Options } from 'next/dist/server/next-server'
+
+import { ExperimentalConfigWithLegacy } from '../helpers/utils'
 
 import {
   netlifyApiFetch,
@@ -15,8 +18,6 @@ import {
   unlocalizeRoute,
   getMatchedRoute,
 } from './handlerUtils'
-import { join } from 'path'
-import { ExperimentalConfigWithLegacy } from '../helpers/utils'
 
 interface NetlifyConfig {
   revalidateToken?: string
@@ -96,7 +97,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       const routes = routesManifest && [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
       const matchedRoute = await getMatchedRoute(path, routes, parsedUrl, basePath, trailingSlash)
       const isAppRoute = appPathsRoutes && matchedRoute ? appPathsRoutes[matchedRoute.page] : false
-      
+
       if (isAppRoute) {
         // app routes should use prebundled React
         // eslint-disable-next-line no-underscore-dangle
