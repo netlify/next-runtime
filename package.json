@@ -142,6 +142,7 @@
     "demos/server-components",
     "demos/middleware",
     "demos/custom-routes",
-    "demos/next-with-edge-functions"
+    "demos/next-with-edge-functions",
+    "demos/next-i18next"
   ]
 }
