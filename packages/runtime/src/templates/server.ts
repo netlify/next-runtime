@@ -22,6 +22,9 @@ import {
 interface NetlifyConfig {
   revalidateToken?: string
 }
+interface NextConfigWithAppDir extends NextConfig {
+  experimental: ExperimentalConfigWithLegacy
+}
 
 // eslint-disable-next-line max-lines-per-function
 const getNetlifyNextServer = (NextServer: NextServerType) => {
@@ -61,8 +64,8 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         const { url, headers } = req
 
         // conditionally use the prebundled React module
-        const { appDir }: ExperimentalConfigWithLegacy = this.nextConfig.experimental
-        if (appDir) this.netlifyPrebundleReact(url, this.nextConfig, parsedUrl)
+        const { experimental }: NextConfigWithAppDir = this.nextConfig
+        if (experimental?.appDir) this.netlifyPrebundleReact(url, this.nextConfig, parsedUrl)
 
         // intercept on-demand revalidation requests and handle with the Netlify API
         if (headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {
