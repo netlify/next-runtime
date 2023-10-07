@@ -10,6 +10,7 @@
     ],
     "exclude": [
         "src/templates/edge/*",
-        "src/templates/edge-shared/*"
+        "src/templates/edge-shared/*",
+        "src/templates/vendor/*"
     ]
 }

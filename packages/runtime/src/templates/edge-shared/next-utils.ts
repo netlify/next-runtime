@@ -7,10 +7,10 @@
  */
 
 // Deno imports
-import type { Key } from 'https://deno.land/x/path_to_regexp@v6.2.1/index.ts'
+import type { Key } from '../vendor/deno.land/x/path_to_regexp@v6.2.1/index.ts'
 
-import { compile, pathToRegexp } from 'https://deno.land/x/path_to_regexp@v6.2.1/index.ts'
-import { getCookies } from 'https://deno.land/std@0.148.0/http/cookie.ts'
+import { compile, pathToRegexp } from '../vendor/deno.land/x/path_to_regexp@v6.2.1/index.ts'
+import { getCookies } from '../vendor/deno.land/std@0.175.0/http/cookie.ts'
 
 // Inlined/re-implemented types
 

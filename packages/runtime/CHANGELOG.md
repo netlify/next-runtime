@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.40.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.40.1...plugin-nextjs-v4.40.2) (2023-10-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @netlify/ipx to ^1.4.4 ([#2279](https://github.com/netlify/next-runtime/issues/2279)) ([49e1974](https://github.com/netlify/next-runtime/commit/49e1974c3a82ec006a67621ce1b924ca1ed6dce7))
+* **deps:** update dependency @netlify/ipx to ^1.4.5 ([#2311](https://github.com/netlify/next-runtime/issues/2311)) ([d1e5a8e](https://github.com/netlify/next-runtime/commit/d1e5a8e977fc1724ca30f8366e114a41f72120cc))
+* vendor deno dependencies ([#2302](https://github.com/netlify/next-runtime/issues/2302)) ([a8d06ab](https://github.com/netlify/next-runtime/commit/a8d06abe28cf1797f165c2615ef790e783e5d5c6))
+
 ## [4.40.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.40.0...plugin-nextjs-v4.40.1) (2023-08-21)
 
 
