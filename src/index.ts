@@ -10,7 +10,7 @@ export const onPreBuild = () => {
   modifyNextConfig()
 }
 
-export const onBuild = ({ constants, netlifyConfig }: NetlifyPluginOptionsWithFlags) => {
+export const onBuild = async ({ constants, netlifyConfig }: NetlifyPluginOptionsWithFlags) => {
   publishStaticAssets(constants.PUBLISH_DIR)
   createServerHandler(constants.PUBLISH_DIR, netlifyConfig)
   modifyNetlifyConfig(netlifyConfig)
