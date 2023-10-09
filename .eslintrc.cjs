@@ -19,7 +19,7 @@ module.exports = {
   overrides: [
     ...overrides,
     {
-      files: ['src/templates/**/*'],
+      files: ['src/templates/*'],
       rules: {
         '@typescript-eslint/no-var-requires': 'off',
         '@typescript-eslint/ban-ts-comment': 'off',
