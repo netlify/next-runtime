@@ -8,6 +8,7 @@ import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
 import { handleCacheControl, handleVary } from '../helpers/headers.js'
 
+// use require to stop NFT from trying to trace these dependencies
 const require = createRequire(import.meta.url)
 
 /* these dependencies are generated during the build */
@@ -15,14 +16,15 @@ const require = createRequire(import.meta.url)
 const { getRequestHandlers } = require('next/dist/server/lib/start-server.js')
 const requiredServerFiles = require('../../.next/required-server-files.json')
 
+// read Next config from the build output
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
-
 const nextConfig = requiredServerFiles.config as NextConfigComplete
 
+// run the server in the root directory
 const __dirname = fileURLToPath(new URL('../..', import.meta.url))
-
 process.chdir(__dirname)
 
+// memoize the node bridge instance
 let bridge: Bridge
 
 export const handler: Handler = async function (event: HandlerEvent, context: HandlerContext) {
