@@ -39,14 +39,14 @@
     "@netlify/functions": "^2.0.1",
     "@vercel/nft": "^0.24.2",
     "@vercel/node-bridge": "^3.1.14",
-    "fs-extra": "^11.1.1",
-    "next": "^13.4.16"
+    "fs-extra": "^11.1.1"
   },
   "devDependencies": {
     "@netlify/eslint-config-node": "^7.0.1",
     "@types/fs-extra": "^11.0.1",
     "@types/mock-fs": "^4.13.1",
     "mock-fs": "^5.2.0",
+    "next": "^13.5.4",
     "typescript": "^5.1.6",
     "vitest": "^0.34.2"
   }
