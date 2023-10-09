@@ -1,23 +1,28 @@
 import http from 'node:http'
+import { createRequire } from 'node:module'
+import { fileURLToPath } from 'node:url'
 
-import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
-// @ts-ignore
-import { Bridge } from '@vercel/node-bridge/bridge'
-// @ts-ignore
-import { getRequestHandlers } from 'next/dist/server/lib/start-server.js'
+import type { Handler, HandlerContext, HandlerEvent } from '@netlify/functions'
+import '@vercel/node-bridge/bridge.js'
 
-// @ts-ignore
-import requiredServerFiles from './.next/required-server-files.json'
+const require = createRequire(import.meta.url)
+
+const { Bridge } = require('@vercel/node-bridge/bridge.js')
+const { getRequestHandlers } = require('next/dist/server/lib/start-server.js')
+
+const requiredServerFiles = require('./.next/required-server-files.json')
 
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
 
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+
 process.chdir(__dirname)
 
-let bridge: Bridge
+let bridge: typeof Bridge
 
 export const handler: Handler = async function (event: HandlerEvent, context: HandlerContext) {
   if (!bridge) {
-    // let Next.js initialize and create the request handler
+    // initialize Next.js and create the request handler
     const [nextHandler] = await getRequestHandlers({
       port: 3000,
       hostname: 'localhost',

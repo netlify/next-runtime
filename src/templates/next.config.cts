@@ -1,5 +1,7 @@
-// @ts-ignore
-import original from './next.config.js.orig'
+/**
+ * Netlify generated code
+ */
+const original = require('./.netlify/temp/next.config.js')
 
 module.exports = {
   ...original,
