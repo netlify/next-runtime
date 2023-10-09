@@ -1,5 +1,6 @@
 import { NetlifyConfig } from '@netlify/build'
-import { copySync, emptyDirSync } from 'fs-extra/esm'
+import { nodeFileTrace } from '@vercel/nft'
+import { copySync, emptyDirSync, readJsonSync, writeJSONSync } from 'fs-extra/esm'
 
 import { HANDLER_DIR, HANDLER_NAME, HANDLER_URL, __dirname } from './constants.js'
 
@@ -8,22 +9,36 @@ import { HANDLER_DIR, HANDLER_NAME, HANDLER_URL, __dirname } from './constants.j
  * @param publishDir The publish directory
  * @param config Netlify config
  */
-export const createHandlerFunction = (publishDir: string, config: NetlifyConfig) => {
+export const createHandlerFunction = async (publishDir: string, config: NetlifyConfig) => {
   emptyDirSync(HANDLER_DIR)
 
-  copySync(`${__dirname}/../templates/handler.js`, `${HANDLER_DIR}/${HANDLER_NAME}.mjs`)
-  copySync(`${__dirname}/../../node_modules/@vercel/node-bridge`, `${HANDLER_DIR}/node_modules/@vercel/node-bridge`)
+  const pluginDir = `${__dirname}../..`
+  const pluginPkg = readJsonSync(`${pluginDir}/package.json`)
+
+  const metadata = {
+    config: {
+      name: 'Next.js Server Handler',
+      generator: `${pluginPkg.name}@${pluginPkg.version}`,
+      nodeBundler: 'none',
+      includedFiles: [`${HANDLER_DIR}/${HANDLER_NAME}.*`, `${HANDLER_DIR}/.next/**`, `${HANDLER_DIR}/node_modules/**`],
+    },
+    version: 1,
+  }
+
+  const { fileList } = await nodeFileTrace([`${pluginDir}/dist/templates/handler.js`], {
+    base: pluginDir,
+  })
+  const [handler, ...dependencies] = [...fileList]
+
+  dependencies.forEach((path) => {
+    copySync(`${pluginDir}/${path}`, `${HANDLER_DIR}/${path}`)
+  })
+
   copySync(`${publishDir}/standalone/.next`, `${HANDLER_DIR}/.next`)
   copySync(`${publishDir}/standalone/node_modules`, `${HANDLER_DIR}/node_modules`)
 
-  // all the following will be replaced by the upcoming serverless functions API
-
-  config.functions[HANDLER_NAME] ||= {}
-  config.functions[HANDLER_NAME].node_bundler = 'none'
-  config.functions[HANDLER_NAME].included_files ||= []
-  config.functions[HANDLER_NAME].included_files.push(`${HANDLER_DIR}/${HANDLER_NAME}.mjs`)
-  config.functions[HANDLER_NAME].included_files.push(`${HANDLER_DIR}/.next/**/*`)
-  config.functions[HANDLER_NAME].included_files.push(`${HANDLER_DIR}/node_modules/**/*`)
+  copySync(`${pluginDir}/${handler}`, `${HANDLER_DIR}/${HANDLER_NAME}.mjs`)
+  writeJSONSync(`${HANDLER_DIR}/${HANDLER_NAME}.json`, metadata, { spaces: 2 })
 
   config.redirects ||= []
   config.redirects.push({ from: `/*`, to: HANDLER_URL, status: 200 })
