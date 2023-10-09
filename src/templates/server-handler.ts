@@ -3,26 +3,31 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
 import type { Handler, HandlerContext, HandlerEvent } from '@netlify/functions'
-import '@vercel/node-bridge/bridge.js'
+import { Bridge } from '@vercel/node-bridge/bridge.js'
+import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
+
+import { getAutoDetectedLocales, handleCacheControl, handleVary } from '../helpers/headers.js'
 
 const require = createRequire(import.meta.url)
 
-const { Bridge } = require('@vercel/node-bridge/bridge.js')
 const { getRequestHandlers } = require('next/dist/server/lib/start-server.js')
 
-const requiredServerFiles = require('./.next/required-server-files.json')
+const requiredServerFiles = require('../../.next/required-server-files.json')
 
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
+const nextConfig = requiredServerFiles.config as NextConfigComplete
+const autoDetectedLocales = getAutoDetectedLocales(nextConfig)
+
+const __dirname = fileURLToPath(new URL('../..', import.meta.url))
 
 process.chdir(__dirname)
 
-let bridge: typeof Bridge
+let bridge: Bridge
 
 export const handler: Handler = async function (event: HandlerEvent, context: HandlerContext) {
   if (!bridge) {
-    // initialize Next.js and create the request handler
+    // let Next.js initialize and create the request handler
     const [nextHandler] = await getRequestHandlers({
       port: 3000,
       hostname: 'localhost',
@@ -53,6 +58,9 @@ export const handler: Handler = async function (event: HandlerEvent, context: Ha
   // log the response from Next.js
   const response = { headers, statusCode: result.statusCode }
   console.log('Next server response:', JSON.stringify(response, null, 2))
+
+  handleCacheControl(headers)
+  handleVary(headers, event.path, nextConfig.basePath, autoDetectedLocales)
 
   return {
     ...result,

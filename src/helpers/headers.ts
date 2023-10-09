@@ -1,4 +1,4 @@
-import type { NextConfigComplete } from 'next/dist/server/config-shared'
+import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
 export interface NetlifyVaryHeaderBuilder {
   headers: string[]
