@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 export const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export const NETLIFY_PUBLISH_DIR = '.netlify/publish'
+export const NETLIFY_TEMP_DIR = '.netlify/temp'
 
 export const FUNCTIONS_INTERNAL_DIR = '.netlify/functions-internal'
 export const FUNCTIONS_URL = '/.netlify/functions'
