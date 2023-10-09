@@ -6,18 +6,18 @@ import type { Handler, HandlerContext, HandlerEvent } from '@netlify/functions'
 import { Bridge } from '@vercel/node-bridge/bridge.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
-import { getAutoDetectedLocales, handleCacheControl, handleVary } from '../helpers/headers.js'
+import { handleCacheControl, handleVary } from '../helpers/headers.js'
 
 const require = createRequire(import.meta.url)
 
+/* these dependencies are generated during the build */
+// eslint-disable-next-line import/order
 const { getRequestHandlers } = require('next/dist/server/lib/start-server.js')
-
 const requiredServerFiles = require('../../.next/required-server-files.json')
 
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
 
 const nextConfig = requiredServerFiles.config as NextConfigComplete
-const autoDetectedLocales = getAutoDetectedLocales(nextConfig)
 
 const __dirname = fileURLToPath(new URL('../..', import.meta.url))
 
@@ -60,7 +60,7 @@ export const handler: Handler = async function (event: HandlerEvent, context: Ha
   console.log('Next server response:', JSON.stringify(response, null, 2))
 
   handleCacheControl(headers)
-  handleVary(headers, event.path, nextConfig.basePath, autoDetectedLocales)
+  handleVary(headers, event, nextConfig)
 
   return {
     ...result,

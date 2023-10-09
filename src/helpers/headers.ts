@@ -1,3 +1,4 @@
+import type { HandlerEvent } from '@netlify/functions'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
 export interface NetlifyVaryHeaderBuilder {
@@ -42,12 +43,7 @@ const removeSMaxAgeAndStaleWhileRevalidate = (headerValue: string): string =>
     })
     .join(`,`)
 
-export const handleVary = (
-  headers: Record<string, string>,
-  eventPath: string,
-  basePath: string,
-  autoDetectedLocales: string[],
-) => {
+export const handleVary = (headers: Record<string, string>, event: HandlerEvent, nextConfig: NextConfigComplete) => {
   const netlifyVaryBuilder: NetlifyVaryHeaderBuilder = {
     headers: [],
     languages: [],
@@ -58,8 +54,13 @@ export const handleVary = (
     netlifyVaryBuilder.headers.push(...getDirectives(headers.vary))
   }
 
+  const autoDetectedLocales = getAutoDetectedLocales(nextConfig)
+
   if (autoDetectedLocales.length > 1) {
-    const logicalPath = basePath && eventPath.startsWith(basePath) ? eventPath.slice(basePath.length) : eventPath
+    const logicalPath =
+      nextConfig.basePath && event.path.startsWith(nextConfig.basePath)
+        ? event.path.slice(nextConfig.basePath.length)
+        : event.path
 
     if (logicalPath === `/`) {
       netlifyVaryBuilder.languages.push(...autoDetectedLocales)
