@@ -559,10 +559,10 @@ describe('onBuild()', () => {
     expect(existsSync(odbHandlerFile)).toBeTruthy()
 
     expect(readFileSync(handlerFile, 'utf8')).toMatch(
-      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'ssr' })`,
+      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'ssr', useHooks: false})`,
     )
     expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(
-      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'odb' })`,
+      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'odb', useHooks: false})`,
     )
     expect(readFileSync(handlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
     expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
