@@ -40,11 +40,20 @@ type MakeHandlerParams = {
   NextServer: NextServerType
   staticManifest: Array<[string, string]>
   mode: 'ssr' | 'odb'
+  useHooks: boolean
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 // eslint-disable-next-line max-lines-per-function
-const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mode = 'ssr' }: MakeHandlerParams) => {
+const makeHandler = ({
+  conf,
+  app,
+  pageRoot,
+  NextServer,
+  staticManifest = [],
+  mode = 'ssr',
+  useHooks,
+}: MakeHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -62,14 +71,9 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
   // Next 13.4 conditionally uses different React versions and we need to make sure we use the same one
   // With the release of 13.5 experimental.appDir is no longer used.
   // we will need to check if appDir is set and Next version before running requireHooks
-  // const runRequireHooks = async (hook) =>
-  //   await nextVersionNum()
-  //     .then((version) => (appDir && version ? hook : null))
-  //     .catch(() => ({}))
-
-  if (appDir) overrideRequireHooks(conf.experimental)
+  if (appDir && useHooks) overrideRequireHooks(conf.experimental)
   const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
-  if (appDir) applyRequireHooks()
+  if (appDir && useHooks) applyRequireHooks()
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
@@ -214,6 +218,7 @@ export const getHandler = ({
   publishDir = '../../../.next',
   appDir = '../../..',
   nextServerModuleRelativeLocation,
+  useHooks,
 }): string =>
   // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
   javascript/* javascript */ `
@@ -241,7 +246,7 @@ export const getHandler = ({
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb'}));`
-      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr'});`
+      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb', useHooks: ${useHooks}}));`
+      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr', useHooks: ${useHooks}});`
   }
 `
