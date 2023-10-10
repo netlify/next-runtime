@@ -17,6 +17,7 @@ const path = require('path')
 const { URLSearchParams, URL } = require('url')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
+const { satisfies } = require('semver')
 
 const {
   augmentFsModule,
@@ -64,7 +65,7 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
   // With the release of 13.5 experimental.appDir is no longer used.
   // we will need to check if appDir is set and Next version before running requireHooks
   const runRequireHooks = async (hook) =>
-    await nextVersionNum()
+    await nextVersionNum(satisfies)
       .then((version) => (appDir && version ? hook : null))
       .catch(() => ({}))
 
@@ -226,6 +227,7 @@ export const getHandler = ({
 
   const { Server } = require("http");
   const { promises } = require("fs");
+  const { satisfies } = require('semver')
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath, nextVersionNum } = require('./handlerUtils')
