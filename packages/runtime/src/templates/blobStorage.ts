@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer'
 
-import { Blobs as IBlobs } from '@netlify/blobs/dist/src/main'
+import { Blobs as IBlobs } from '@netlify/blobs'
 
 import { Blobs as untypedBlobs } from './blob'
 

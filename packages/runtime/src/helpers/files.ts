@@ -1,6 +1,6 @@
 import { cpus } from 'os'
 
-import type { Blobs } from '@netlify/blobs/dist/src/main'
+import type { Blobs } from '@netlify/blobs'
 import type { NetlifyConfig } from '@netlify/build/types'
 import { yellowBright } from 'chalk'
 import { existsSync, readJson, move, copy, writeJson, ensureDir, readFileSync, remove, readFile } from 'fs-extra'
