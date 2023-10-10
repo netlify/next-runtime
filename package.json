@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/netlify/next-runtime-minimal#readme",
   "dependencies": {
+    "@fastly/http-compute-js": "^1.1.0",
     "@netlify/blobs": "^1.6.0",
     "@netlify/build": "^29.20.6",
     "@netlify/functions": "^2.0.1",

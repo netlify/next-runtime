@@ -27,6 +27,7 @@ module.exports = {
         'eslint-comments/no-unlimited-disable': 'off',
         'import/no-unresolved': 'off',
         'import/no-unassigned-import': 'off',
+        'import/no-anonymous-default-export': 'off',
         'n/no-missing-require': 'off',
         'n/no-missing-import': 'off',
       },
