@@ -7,7 +7,6 @@ import { promisify } from 'util'
 
 import { HandlerEvent, HandlerResponse } from '@netlify/functions'
 import { http, https } from 'follow-redirects'
-import { readJSON } from 'fs-extra'
 import NextNodeServer from 'next/dist/server/next-server'
 import { satisfies } from 'semver'
 
@@ -284,16 +283,17 @@ export const resolveModuleRoot = (moduleName) => {
   }
 }
 // Had to copy nextPluginVersion logic from functionsMetaData for it to work within server.ts and getHandler.ts
-const nextPluginVersion = async (module: string) => {
-  const moduleRoot = resolveModuleRoot(module)
+const nextPluginVersion = async () => {
+  const moduleRoot = resolveModuleRoot('next')
   if (!existsSync(moduleRoot)) {
     return
   }
-  const packagePlugin = await readJSON(join(moduleRoot, 'package.json'))
+  const packagePath = join(moduleRoot, 'package.json')
+  const packagePlugin = await fs.promises.readFile(packagePath, 'utf-8').then((contents) => JSON.parse(contents))
   return packagePlugin?.version
 }
 
-export const nextVersionNum = async () => satisfies(await nextPluginVersion('next'), '13.3.3 - 13.4.9')
+export const nextVersionNum = async () => satisfies(await nextPluginVersion(), '13.3.3 - 13.4.9')
 
 export const getMatchedRoute = (
   paths: string,
