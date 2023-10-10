@@ -36,3 +36,10 @@ export const bundleBasedOnNftFiles = (featureFlags: Record<string, unknown>): bo
 
   return isEnabled
 }
+
+export const useBlobsForISRAssets = (featureFlags: Record<string, unknown>): boolean => {
+  const isEnabled =
+    destr(process.env.NEXT_USE_BLOBS_FOR_ISR) ?? featureFlags['next-runtime-use-blobs-for-isr-assets'] ?? false
+
+  return isEnabled
+}

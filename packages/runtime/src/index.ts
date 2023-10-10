@@ -18,7 +18,7 @@ import {
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, removeMetadataFiles } from './helpers/files'
-import { bundleBasedOnNftFiles, splitApiRoutes } from './helpers/flags'
+import { bundleBasedOnNftFiles, splitApiRoutes, useBlobsForISRAssets } from './helpers/flags'
 import {
   generateFunctions,
   setupImageFunction,
@@ -199,18 +199,22 @@ const plugin: NetlifyPlugin = {
     await movePublicFiles({ appDir, outdir, publish, basePath })
 
     if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
+      const useBlobs = useBlobsForISRAssets(featureFlags)
+
       const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
 
-      const testBlobStorage = new Blobs({
-        authentication: {
-          apiURL: `https://${NETLIFY_API_HOST}`,
-          token: NETLIFY_API_TOKEN,
-        },
-        context: `deploy:${process.env.DEPLOY_ID}`,
-        siteID: SITE_ID,
-      })
+      const testBlobStorage = useBlobs
+        ? new Blobs({
+            authentication: {
+              apiURL: `https://${NETLIFY_API_HOST}`,
+              token: NETLIFY_API_TOKEN,
+            },
+            context: `deploy:${process.env.DEPLOY_ID}`,
+            siteID: SITE_ID,
+          })
+        : undefined
 
-      const netliBlob = (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
+      const netliBlob = testBlobStorage && (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
 
       await moveStaticPages({ target, netlifyConfig, nextConfig: { basePath, i18n }, netliBlob })
     }
