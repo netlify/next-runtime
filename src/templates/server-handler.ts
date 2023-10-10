@@ -1,12 +1,7 @@
-import http from 'node:http'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
-import type { Handler, HandlerContext, HandlerEvent } from '@netlify/functions'
-import { Bridge } from '@vercel/node-bridge/bridge.js'
-import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
-
-import { handleCacheControl, handleVary } from '../helpers/headers.js'
+import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
 
 // use require to stop NFT from trying to trace these dependencies
 const require = createRequire(import.meta.url)
@@ -23,55 +18,34 @@ requiredServerFiles.config.experimental = {
 
 // read Next config from the build output
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
-const nextConfig = requiredServerFiles.config as NextConfigComplete
 
 // run the server in the root directory
 const __dirname = fileURLToPath(new URL('../..', import.meta.url))
 process.chdir(__dirname)
 
-// memoize the node bridge instance
-let bridge: Bridge
+export default async (request: Request) => {
+  // let Next.js initialize and create the request handler
+  const [nextHandler] = await getRequestHandlers({
+    port: 3000,
+    hostname: 'localhost',
+    dir: __dirname,
+    isDev: false,
+  })
 
-export const handler: Handler = async function (event: HandlerEvent, context: HandlerContext) {
-  if (!bridge) {
-    // let Next.js initialize and create the request handler
-    const [nextHandler] = await getRequestHandlers({
-      port: 3000,
-      hostname: 'localhost',
-      dir: __dirname,
-      isDev: false,
-    })
+  const { req, res } = toReqRes(request)
 
-    // create a standard HTTP server that will receive
-    // requests from the bridge and send them to Next.js
-    const server = http.createServer(async (req, res) => {
-      try {
-        console.log('Next server request:', req.url)
-        await nextHandler(req, res)
-      } catch (error) {
-        console.error(error)
-        res.statusCode = 500
-        res.end('Internal Server Error')
-      }
-    })
-
-    bridge = new Bridge(server)
-    bridge.listen()
+  try {
+    console.log('Next server request:', req.url)
+    await nextHandler(req, res)
+  } catch (error) {
+    console.error(error)
+    res.statusCode = 500
+    res.end('Internal Server Error')
   }
-
-  // pass the AWS lambda event and context to the bridge
-  const { headers, ...result } = await bridge.launcher(event, context)
 
   // log the response from Next.js
-  const response = { headers, statusCode: result.statusCode }
+  const response = { headers: res.getHeaders(), statusCode: res.statusCode }
   console.log('Next server response:', JSON.stringify(response, null, 2))
 
-  handleCacheControl(headers)
-  handleVary(headers, event, nextConfig)
-
-  return {
-    ...result,
-    headers,
-    isBase64Encoded: result.encoding === 'base64',
-  }
+  return await toComputeResponse(res)
 }
