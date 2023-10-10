@@ -8,6 +8,7 @@ import { promisify } from 'util'
 import { HandlerEvent, HandlerResponse } from '@netlify/functions'
 import { http, https } from 'follow-redirects'
 import NextNodeServer from 'next/dist/server/next-server'
+import { satisfies } from 'semver'
 
 import type { StaticRoute } from '../helpers/types'
 
@@ -292,7 +293,7 @@ const nextPluginVersion = async () => {
   return packagePlugin?.version
 }
 
-export const nextVersionNum = async (satisfies) => satisfies(await nextPluginVersion(), '13.3.3 - 13.4.9')
+export const nextVersionNum = async (sem?) => (sem ?? satisfies)(await nextPluginVersion(), '13.3.3 - 13.4.9')
 
 export const getMatchedRoute = (
   paths: string,

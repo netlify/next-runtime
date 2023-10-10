@@ -6,7 +6,6 @@ import { NextConfig } from 'next'
 import type { PrerenderManifest } from 'next/dist/build'
 import type { BaseNextResponse } from 'next/dist/server/base-http'
 import type { NodeRequestHandler, Options } from 'next/dist/server/next-server'
-import { satisfies } from 'semver'
 
 import { ExperimentalConfigWithLegacy } from '../helpers/utils'
 
@@ -68,7 +67,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         // conditionally use the prebundled React module
         // PrebundledReact should only apply when appDir is set it falls between the specified Next versions
         const { experimental }: NextConfigWithAppDir = this.nextConfig
-        const version = await nextVersionNum(satisfies)
+        const version = await nextVersionNum()
         if (experimental?.appDir && version) this.netlifyPrebundleReact(url, this.nextConfig, parsedUrl)
 
         // intercept on-demand revalidation requests and handle with the Netlify API
