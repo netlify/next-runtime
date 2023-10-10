@@ -1,5 +1,6 @@
 import { existsSync, readJSON, writeFile } from 'fs-extra'
 import { join } from 'pathe'
+import { satisfies } from 'semver'
 
 import { NEXT_PLUGIN, NEXT_PLUGIN_NAME } from '../constants'
 
@@ -17,8 +18,8 @@ const getNextRuntimeVersion = async (packageJsonPath: string, useNodeModulesPath
 
 const PLUGIN_PACKAGE_PATH = '.netlify/plugins/package.json'
 
-const nextPluginVersion = async () => {
-  const moduleRoot = resolveModuleRoot(NEXT_PLUGIN)
+const nextPluginVersion = async (module?: string) => {
+  const moduleRoot = resolveModuleRoot(module || NEXT_PLUGIN)
   const nodeModulesPath = moduleRoot ? join(moduleRoot, 'package.json') : null
 
   return (
@@ -30,6 +31,8 @@ const nextPluginVersion = async () => {
 }
 
 export const getPluginVersion = async () => `${NEXT_PLUGIN_NAME}@${await nextPluginVersion()}`
+
+export const nextVersionNum = async () => satisfies(await nextPluginVersion('next'), '13.3.3 - 13.4.9')
 
 // The information needed to create a function configuration file
 export interface FunctionInfo {

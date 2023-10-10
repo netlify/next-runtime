@@ -28,7 +28,7 @@ import { getResolverForPages, getResolverForSourceFiles } from '../templates/get
 import { ApiConfig, extractConfigFromFile, isEdgeConfig } from './analysis'
 import { getRequiredServerFiles } from './config'
 import { getDependenciesOfFile, getServerFile, getSourceFileForPage } from './files'
-import { writeFunctionConfiguration } from './functionsMetaData'
+import { writeFunctionConfiguration, nextVersionNum } from './functionsMetaData'
 import { pack } from './pack'
 import { ApiRouteType } from './types'
 import { getFunctionNameForPage } from './utils'
@@ -132,11 +132,13 @@ export const generateFunctions = async (
   }
 
   const writeHandler = async (functionName: string, functionTitle: string, isODB: boolean) => {
+    const useHooks = await nextVersionNum()
     const handlerSource = getHandler({
       isODB,
       publishDir,
       appDir: relative(functionDir, appDir),
       nextServerModuleRelativeLocation,
+      useHooks,
     })
     await ensureDir(join(functionsDir, functionName))
 

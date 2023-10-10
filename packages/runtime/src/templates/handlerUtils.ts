@@ -1,14 +1,13 @@
 import fs, { createWriteStream, existsSync } from 'fs'
 import { ServerResponse } from 'http'
 import { tmpdir } from 'os'
-import path, { dirname, join, relative } from 'path'
+import path from 'path'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 
 import { HandlerEvent, HandlerResponse } from '@netlify/functions'
 import { http, https } from 'follow-redirects'
 import NextNodeServer from 'next/dist/server/next-server'
-import { satisfies } from 'semver'
 
 import type { StaticRoute } from '../helpers/types'
 
@@ -274,26 +273,6 @@ export const localizeDataRoute = (dataRoute: string, localizedRoute: string): st
     .replace(new RegExp(`/_next/data/(.+?)/(${locale}/)?`), `/_next/data/$1/${locale}/`)
     .replace(/\/index\.json$/, '.json')
 }
-
-export const resolveModuleRoot = (moduleName) => {
-  try {
-    return dirname(relative(process.cwd(), require.resolve(`${moduleName}/package.json`, { paths: [process.cwd()] })))
-  } catch {
-    return null
-  }
-}
-// Had to copy nextPluginVersion logic from functionsMetaData for it to work within server.ts and getHandler.ts
-const nextPluginVersion = async () => {
-  const moduleRoot = resolveModuleRoot('next')
-  if (!existsSync(moduleRoot)) {
-    return
-  }
-  const packagePath = join(moduleRoot, 'package.json')
-  const packagePlugin = await fs.promises.readFile(packagePath, 'utf-8').then((contents) => JSON.parse(contents))
-  return packagePlugin?.version
-}
-
-export const nextVersionNum = async (sem?) => (sem ?? satisfies)(await nextPluginVersion(), '13.3.3 - 13.4.9')
 
 export const getMatchedRoute = (
   paths: string,
