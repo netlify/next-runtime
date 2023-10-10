@@ -1,5 +1,3 @@
-import mod from 'module'
-
 import type { NetlifyConfig } from '@netlify/build/types'
 import destr from 'destr'
 import { readJSON, writeJSON } from 'fs-extra'
@@ -75,9 +73,9 @@ export const updateRequiredServerFiles = async (publish: string, modifiedConfig:
   await writeJSON(configFile, modifiedConfig)
 }
 
-export const resolveModuleRoot = (moduleName) => {
+export const resolveModuleRoot = (moduleName, paths = [process.cwd()]) => {
   try {
-    return dirname(relative(process.cwd(), require.resolve(`${moduleName}/package.json`, { paths: [process.cwd()] })))
+    return dirname(relative(process.cwd(), require.resolve(`${moduleName}/package.json`, { paths })))
   } catch {
     return null
   }
@@ -164,18 +162,16 @@ export const configureHandlerFunctions = async ({
         `!${nextRoot}/dist/compiled/webpack/bundle4.js`,
         `!${nextRoot}/dist/compiled/webpack/bundle5.js`,
       )
-    }
 
-    try {
       // on Next 13.5+ there is no longer statically analyzable import to styled-jsx/style
       // so lambda fails to bundle it. Next require hooks actually try to resolve it
       // and fail if it is not bundled, so we forcefully add it to lambda.
-
-      // eslint-disable-next-line n/no-unsupported-features/node-builtins
-      const nextRequire = mod.createRequire(require.resolve(`next`))
-      const styledJsxPath = nextRequire.resolve(`styled-jsx/style`)
-      netlifyConfig.functions[functionName].included_files.push(styledJsxPath)
-    } catch {}
+      const styledJsxRoot = resolveModuleRoot('styled-jsx', [join(process.cwd(), nextRoot)])
+      if (styledJsxRoot) {
+        const styledJsxStyleModulePath = join(styledJsxRoot, 'style.js')
+        netlifyConfig.functions[functionName].included_files.push(styledJsxStyleModulePath)
+      }
+    }
 
     excludedModules.forEach((moduleName) => {
       const moduleRoot = resolveModuleRoot(moduleName)
