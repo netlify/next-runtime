@@ -1,24 +1,21 @@
-import { createRequire } from 'node:module'
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
 
-// use require to stop NFT from trying to trace these dependencies
-const require = createRequire(import.meta.url)
-
-/* these dependencies are generated during the build */
-// eslint-disable-next-line import/order
-const { getRequestHandlers } = require('next/dist/server/lib/start-server.js')
-const requiredServerFiles = require('../../.next/required-server-files.json')
+// these dependencies are generated during the build
+const requiredServerFiles = JSON.parse(await readFile('./.next/required-server-files.json', 'utf-8'))
 
 // read Next config from the build output
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
 
 // run the server in the root directory
-const __dirname = fileURLToPath(new URL('../..', import.meta.url))
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 process.chdir(__dirname)
 
 export default async (request: Request) => {
+  const { getRequestHandlers } = await import('next/dist/server/lib/start-server.js')
+
   // let Next.js initialize and create the request handler
   const [nextHandler] = await getRequestHandlers({
     port: 3000,
