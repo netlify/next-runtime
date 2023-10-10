@@ -24,6 +24,7 @@ const {
   getMultiValueHeaders,
   getPrefetchResponse,
   normalizePath,
+  nextVersionNum,
 } = require('./handlerUtils')
 const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
@@ -61,10 +62,15 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
   const { appDir }: ExperimentalConfigWithLegacy = conf.experimental
   // Next 13.4 conditionally uses different React versions and we need to make sure we use the same one
   // With the release of 13.5 experimental.appDir is no longer used.
-  // we will need to check if appDir exists to run requireHooks for older versions
-  if (appDir) overrideRequireHooks(conf.experimental)
+  // we will need to check if appDir is set and Next version before running requireHooks
+  const runRequireHooks = async (hook) =>
+    await nextVersionNum()
+      .then((version) => (appDir && version ? hook : null))
+      .catch(() => ({}))
+
+  runRequireHooks(overrideRequireHooks(conf.experimental))
   const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
-  if (appDir) applyRequireHooks()
+  runRequireHooks(applyRequireHooks())
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
@@ -222,7 +228,7 @@ export const getHandler = ({
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath, nextVersionNum } = require('./handlerUtils')
   const { overrideRequireHooks, applyRequireHooks } = require("./requireHooks")
   const { getNetlifyNextServer } = require("./server")
   const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
