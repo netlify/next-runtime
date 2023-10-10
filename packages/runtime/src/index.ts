@@ -60,7 +60,12 @@ const plugin: NetlifyPlugin = {
       build: { failBuild },
       cache,
     },
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    featureFlags,
   }) {
+    console.log(`onPreBuild`, { featureFlags })
+
     const { publish } = netlifyConfig.build
     if (shouldSkip()) {
       await restoreCache({ cache, publish })
@@ -89,6 +94,7 @@ const plugin: NetlifyPlugin = {
     },
     featureFlags = {},
   }: EnhancedNetlifyPluginOptions) {
+    console.log(`onBuild`, { featureFlags })
     if (shouldSkip()) {
       return
     }
