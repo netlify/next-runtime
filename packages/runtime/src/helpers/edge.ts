@@ -462,7 +462,6 @@ export const writeEdgeFunctions = async ({
         function: functionName,
         name: edgeFunctionDefinition.name,
         pattern,
-        // cache: "manual" is currently experimental, so we restrict it to sites that use experimental appDir
         cache: 'manual',
         generator,
       })

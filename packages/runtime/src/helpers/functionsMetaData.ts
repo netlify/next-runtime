@@ -32,7 +32,7 @@ const nextPluginVersion = async (module?: string) => {
 
 export const getPluginVersion = async () => `${NEXT_PLUGIN_NAME}@${await nextPluginVersion()}`
 
-export const nextVersionNum = async () => satisfies(await nextPluginVersion('next'), '13.3.3 - 13.4.9')
+export const useRequireHooks = async () => satisfies(await nextPluginVersion('next'), '13.3.3 - 13.4.9')
 
 // The information needed to create a function configuration file
 export interface FunctionInfo {

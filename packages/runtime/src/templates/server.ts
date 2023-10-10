@@ -1,4 +1,3 @@
-import { join } from 'path'
 // eslint-disable-next-line n/no-deprecated-api -- this is what Next.js uses as well
 import { parse } from 'url'
 
@@ -36,16 +35,11 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       return this.nextConfig.experimental?.serverActions ? 'experimental' : 'next'
     }
 
-    protected getManifest(manifest: string) {
-      // eslint-disable-next-line import/no-dynamic-require
-      return require(join(this.distDir, manifest))
-    }
-
     public constructor(options: Options, netlifyConfig: NetlifyConfig) {
       super(options)
       this.netlifyConfig = netlifyConfig
       // copy the prerender manifest so it doesn't get mutated by Next.js
-      const manifest = this.getPrerenderManifest() || this.getManifest('prerender-manifest.json')
+      const manifest = this.getPrerenderManifest()
       this.netlifyPrerenderManifest = {
         ...manifest,
         routes: { ...manifest.routes },
@@ -96,7 +90,7 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
 
     // doing what they do in https://github.com/vercel/vercel/blob/1663db7ca34d3dd99b57994f801fb30b72fbd2f3/packages/next/src/server-build.ts#L576-L580
     private async netlifyPrebundleReact(path: string, { basePath, trailingSlash }: NextConfig, parsedUrl) {
-      const routesManifest = this.getRoutesManifest?.() || this.getManifest('routes-manifest.json')
+      const routesManifest = this.getRoutesManifest?.()
       const appPathsRoutes = this.getAppPathRoutes?.()
       const routes = routesManifest && [...routesManifest.staticRoutes, ...routesManifest.dynamicRoutes]
       const matchedRoute = await getMatchedRoute(path, routes, parsedUrl, basePath, trailingSlash)
