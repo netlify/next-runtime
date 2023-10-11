@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 
-export const __dirname = fileURLToPath(new URL('.', import.meta.url))
+export const MODULE_DIR = fileURLToPath(new URL('.', import.meta.url))
 
 export const NETLIFY_PUBLISH_DIR = '.netlify/publish'
 export const NETLIFY_TEMP_DIR = '.netlify/temp'
