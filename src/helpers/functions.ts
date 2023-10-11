@@ -62,12 +62,14 @@ export const createServerHandler = async (publishDir: string, config: NetlifyCon
   })
 
   // TODO: remove when Netlify Functions v2 fixes the default exports bug
+  // https://github.com/netlify/pod-dev-foundations/issues/599
   writeFileSync(
     `${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.mjs`,
     `import handler from './${SERVER_HANDLER_NAME}-actual.mjs';export default (request) => handler(request);`,
   )
 
-  // TODO: move to inline config when Netlify Functions v2 fixes the config bug
+  // TODO: remove this when we can use inline config
+  // https://github.com/netlify/next-runtime-minimal/issues/13
   config.redirects ||= []
   config.redirects.push({ from: `/*`, to: SERVER_HANDLER_URL, status: 200 })
 }
