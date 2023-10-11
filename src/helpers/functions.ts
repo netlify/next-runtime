@@ -31,10 +31,13 @@ export const createServerHandler = async (publishDir: string, config: NetlifyCon
 }
 
 const copyServerHandlerDependencies = async (pluginDir: string) => {
-  const { fileList } = await nodeFileTrace([`${pluginDir}/dist/templates/server-handler.js`], {
-    base: pluginDir,
-    ignore: ['package.json'],
-  })
+  const { fileList } = await nodeFileTrace(
+    [`${pluginDir}/dist/templates/server-handler.js`, `${pluginDir}/dist/templates/cache-handler.cjs`],
+    {
+      base: pluginDir,
+      ignore: ['package.json'],
+    },
+  )
 
   fileList.forEach((path) => {
     copySync(`${pluginDir}/${path}`, `${SERVER_HANDLER_DIR}/${path}`)

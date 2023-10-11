@@ -16,6 +16,11 @@ const require = createRequire(import.meta.url)
 const { getRequestHandlers } = require('next/dist/server/lib/start-server.js')
 const requiredServerFiles = require('../../.next/required-server-files.json')
 
+requiredServerFiles.config.experimental = {
+  ...requiredServerFiles.config.experimental,
+  incrementalCacheHandlerPath: '../dist/templates/cache-handler.cjs',
+}
+
 // read Next config from the build output
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
 const nextConfig = requiredServerFiles.config as NextConfigComplete
