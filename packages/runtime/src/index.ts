@@ -6,7 +6,7 @@ import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
 
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
+import { HANDLER_FUNCTION_NAME } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
 import {
   getNextConfig,
@@ -14,11 +14,12 @@ import {
   updateRequiredServerFiles,
   configureHandlerFunctions,
   generateCustomHeaders,
+  addContentTypeHeaderToStaticRSCAssets,
 } from './helpers/config'
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, removeMetadataFiles } from './helpers/files'
-import { bundleBasedOnNftFiles, splitApiRoutes } from './helpers/flags'
+import { bundleBasedOnNftFiles, splitApiRoutes, useCDNCacheControlEnabled } from './helpers/flags'
 import {
   generateFunctions,
   setupImageFunction,
@@ -82,6 +83,12 @@ const plugin: NetlifyPlugin = {
     if (shouldSkip()) {
       return
     }
+
+    const useCDNCacheControl = useCDNCacheControlEnabled(featureFlags)
+    if (useCDNCacheControl) {
+      console.log(`Using CDN Cache Control headers`)
+    }
+
     const { publish } = netlifyConfig.build
 
     checkNextSiteHasBuilt({ publish, failBuild })
@@ -172,10 +179,10 @@ const plugin: NetlifyPlugin = {
           extendedRoutes.map(packSingleFunction),
         )
 
-    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas(publish) : []
+    const ssrLambdas = bundleBasedOnNftFiles(featureFlags) ? await getSSRLambdas(publish, useCDNCacheControl) : []
 
-    await generateFunctions(constants, appDir, apiLambdas, ssrLambdas)
-    await generatePagesResolver(constants)
+    await generateFunctions(constants, appDir, apiLambdas, ssrLambdas, useCDNCacheControl)
+    await generatePagesResolver(constants, useCDNCacheControl)
 
     await configureHandlerFunctions({
       netlifyConfig,
@@ -184,6 +191,7 @@ const plugin: NetlifyPlugin = {
       apiLambdas,
       ssrLambdas,
       splitApiRoutes: splitApiRoutes(featureFlags, publish),
+      useCDNCacheControl,
     })
 
     await movePublicFiles({ appDir, outdir, publish, basePath })
@@ -211,9 +219,10 @@ const plugin: NetlifyPlugin = {
       nextConfig: { basePath, i18n, trailingSlash, appDir },
       buildId,
       apiLambdas,
+      useCDNCacheControl,
     })
 
-    await writeEdgeFunctions({ constants, netlifyConfig, routesManifest })
+    await writeEdgeFunctions({ constants, netlifyConfig, routesManifest, useCDNCacheControl })
   },
 
   async onPostBuild({
@@ -245,11 +254,12 @@ const plugin: NetlifyPlugin = {
     }
 
     await checkForOldFunctions({ functions })
-    await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
+    await checkZipSize(join(FUNCTIONS_DIST, `${HANDLER_FUNCTION_NAME}.zip`))
     const nextConfig = await getNextConfig({ publish, failBuild })
 
     const { basePath, appDir, experimental } = nextConfig
 
+    addContentTypeHeaderToStaticRSCAssets(headers)
     generateCustomHeaders(nextConfig, headers)
 
     warnForProblematicUserRewrites({ basePath, redirects })

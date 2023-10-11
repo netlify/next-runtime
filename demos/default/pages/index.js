@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 const Header = dynamic(() => import(/* webpackChunkName: 'header' */ '../components/Header'), { ssr: true })
 import { useRouter } from 'next/router'
 
-const Index = ({ shows, nodeEnv }) => {
+const Index = ({ shows, nodeEnv, time }) => {
   const { locale } = useRouter()
 
   return (
@@ -20,6 +20,8 @@ const Index = ({ shows, nodeEnv }) => {
         <p>This is a demo of a NextJS application with Incremental Static Regeneration (ISR).</p>
 
         <h2>Incremental Static Regeneration</h2>
+
+        <pre>{time}</pre>
 
         <p>
           This page is rendered by an On-Demand Builder (ODB) function. It fetches a random list of five TV shows from
@@ -201,6 +203,7 @@ export async function getStaticProps(context) {
     props: {
       shows: data.slice(0, 5),
       nodeEnv: process.env.NODE_ENV || null,
+      time: new Date().toString(),
     },
     revalidate: 60,
   }

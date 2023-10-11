@@ -13,6 +13,9 @@ NODE_VERSION = "16.15.1"
 NEXT_SPLIT_API_ROUTES = "true"
 NEXT_BUNDLE_BASED_ON_NFT_FILES = "true"
 
+# following flags are enabled on "All flags" variant of test site - uncomment those to easily run in that mode
+# NEXT_CDN_CACHE_CONTROL = "true"
+
 [[headers]]
 for = "/_next/image/*"
 

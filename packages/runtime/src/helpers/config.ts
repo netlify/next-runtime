@@ -109,6 +109,7 @@ export const configureHandlerFunctions = async ({
   apiLambdas,
   ssrLambdas,
   splitApiRoutes,
+  useCDNCacheControl,
 }: {
   netlifyConfig: NetlifyConfig
   publish: string
@@ -116,6 +117,7 @@ export const configureHandlerFunctions = async ({
   apiLambdas: APILambda[]
   ssrLambdas: SSRLambda[]
   splitApiRoutes: boolean
+  useCDNCacheControl: boolean
 }) => {
   const config = await getRequiredServerFiles(publish)
   const files = config.files || []
@@ -182,7 +184,9 @@ export const configureHandlerFunctions = async ({
 
   if (ssrLambdas.length === 0) {
     configureFunction(HANDLER_FUNCTION_NAME)
-    configureFunction(ODB_FUNCTION_NAME)
+    if (!useCDNCacheControl) {
+      configureFunction(ODB_FUNCTION_NAME)
+    }
   } else {
     ssrLambdas.forEach(configureLambda)
   }
@@ -216,6 +220,19 @@ const buildHeader = (buildHeaderParams: BuildHeaderParams) => {
 // Replace the pattern :path* at the end of a path with * since it's a named splat which the Netlify
 // configuration does not support.
 const sanitizePath = (path: string) => path.replace(/:[^*/]+\*$/, '*')
+
+/**
+ * Sets Content-type header for static RSC assets (text/x-component), so application/octet-stream is not used when serving them
+ * @param netlifyHeaders - Existing headers that are already configured in the Netlify configuration
+ */
+export const addContentTypeHeaderToStaticRSCAssets = (netlifyHeaders: NetlifyHeaders = []) => {
+  netlifyHeaders.push({
+    for: `*.rsc`,
+    values: {
+      'Content-Type': 'text/x-component',
+    },
+  })
+}
 
 /**
  * Persist Next.js custom headers to the Netlify configuration so the headers work with static files

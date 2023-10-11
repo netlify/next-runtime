@@ -36,3 +36,9 @@ export const bundleBasedOnNftFiles = (featureFlags: Record<string, unknown>): bo
 
   return isEnabled
 }
+
+export const useCDNCacheControlEnabled = (featureFlags: Record<string, unknown>): boolean => {
+  const isEnabled = destr(process.env.NEXT_CDN_CACHE_CONTROL) ?? featureFlags['next-use-cdn-cache-control'] ?? false
+
+  return isEnabled
+}
