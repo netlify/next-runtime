@@ -38,8 +38,6 @@
     "@netlify/blobs": "^1.6.0",
     "@netlify/build": "^29.20.6",
     "@netlify/functions": "^2.0.1",
-    "@vercel/nft": "^0.24.2",
-    "@vercel/node-bridge": "^3.1.14",
     "esbuild": "^0.19.4",
     "fs-extra": "^11.1.1"
   },
