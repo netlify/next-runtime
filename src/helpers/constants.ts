@@ -8,6 +8,6 @@ export const NETLIFY_TEMP_DIR = '.netlify/temp'
 export const FUNCTIONS_INTERNAL_DIR = '.netlify/functions-internal'
 export const FUNCTIONS_URL = '/.netlify/functions'
 
-export const HANDLER_NAME = '___netlify-handler'
-export const HANDLER_DIR = `${FUNCTIONS_INTERNAL_DIR}/${HANDLER_NAME}`
-export const HANDLER_URL = `${FUNCTIONS_URL}/${HANDLER_NAME}`
+export const SERVER_HANDLER_NAME = '___netlify-server-handler'
+export const SERVER_HANDLER_DIR = `${FUNCTIONS_INTERNAL_DIR}/${SERVER_HANDLER_NAME}`
+export const SERVER_HANDLER_URL = `${FUNCTIONS_URL}/${SERVER_HANDLER_NAME}`
