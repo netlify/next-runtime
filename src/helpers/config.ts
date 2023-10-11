@@ -32,5 +32,6 @@ export const revertNextConfig = () => {
  */
 export const modifyNetlifyConfig = (config: NetlifyConfig) => {
   // TODO: once onEnd is fixed, we can remove this
+  // https://github.com/netlify/cli/issues/6050
   config.build.publish = NETLIFY_PUBLISH_DIR
 }
