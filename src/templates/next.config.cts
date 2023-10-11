@@ -8,6 +8,6 @@ module.exports = {
   output: 'standalone',
   experimental: {
     ...original.experimental,
-    incrementalCacheHandlerPath: require.resolve('./.netlify/temp/cache-handler.js'),
+    // incrementalCacheHandlerPath: require.resolve('./.netlify/temp/cache-handler.js'),
   },
 }
