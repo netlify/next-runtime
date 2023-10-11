@@ -3,20 +3,21 @@ import { fileURLToPath } from 'node:url'
 
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
 
-// these dependencies are generated during the build
+import { SERVER_HANDLER_NAME } from '../../helpers/constants.js'
+
+const dir = fileURLToPath(new URL('.', import.meta.url))
+
+// json config generated at build time
 const requiredServerFiles = JSON.parse(await readFile('./.next/required-server-files.json', 'utf-8'))
 
+// set the path to the cache handler
 requiredServerFiles.config.experimental = {
   ...requiredServerFiles.config.experimental,
-  incrementalCacheHandlerPath: '../dist/templates/cache-handler.cjs',
+  incrementalCacheHandlerPath: `${dir}/${SERVER_HANDLER_NAME}-cache.js`,
 }
 
-// read Next config from the build output
+// set config from the build output
 process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(requiredServerFiles.config)
-
-// run the server in the root directory
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
-process.chdir(__dirname)
 
 export default async (request: Request) => {
   const { getRequestHandlers } = await import('next/dist/server/lib/start-server.js')
@@ -25,7 +26,7 @@ export default async (request: Request) => {
   const [nextHandler] = await getRequestHandlers({
     port: 3000,
     hostname: 'localhost',
-    dir: __dirname,
+    dir,
     isDev: false,
   })
 

@@ -6,8 +6,8 @@ import { createServerHandler, createCacheHandler } from './helpers/functions.js'
 
 type NetlifyPluginOptionsWithFlags = NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }
 
-export const onPreBuild = () => {
-  createCacheHandler()
+export const onPreBuild = async () => {
+  await createCacheHandler()
   modifyNextConfig()
 }
 

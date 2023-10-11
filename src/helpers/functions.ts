@@ -9,7 +9,7 @@ import {
   SERVER_HANDLER_DIR,
   SERVER_HANDLER_NAME,
   SERVER_HANDLER_URL,
-  MODULE_DIR,
+  PLUGIN_DIR,
 } from './constants.js'
 
 /**
@@ -18,9 +18,6 @@ import {
  * @param config Netlify config
  */
 export const createServerHandler = async (publishDir: string, config: NetlifyConfig) => {
-  const pluginDir = `${MODULE_DIR}../..`
-  const pluginPkg = readJsonSync(`${pluginDir}/package.json`)
-
   // clear the server handler directory
   emptyDirSync(SERVER_HANDLER_DIR)
 
@@ -28,23 +25,34 @@ export const createServerHandler = async (publishDir: string, config: NetlifyCon
   copySync(`${publishDir}/standalone/.next`, `${SERVER_HANDLER_DIR}/.next`)
   copySync(`${publishDir}/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
 
+  const pkg = readJsonSync(`${PLUGIN_DIR}/package.json`)
+
   // create the server handler metadata file
-  const metadata = {
+  writeJSONSync(`${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.json`, {
     config: {
       name: 'Next.js Server Handler',
-      generator: `${pluginPkg.name}@${pluginPkg.version}`,
+      generator: `${pkg.name}@${pkg.version}`,
       nodeBundler: 'none',
       // TODO: remove the final include when Netlify Functions v2 fixes the default exports bug
-      includedFiles: ['.next/**', 'node_modules/**', `${SERVER_HANDLER_NAME}-actual.mjs`],
+      includedFiles: ['.next/**', 'node_modules/**', `${SERVER_HANDLER_NAME}*`],
       includedFilesBasePath: SERVER_HANDLER_DIR,
     },
     version: 1,
-  }
-  writeJSONSync(`${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.json`, metadata)
+  })
 
-  // bundle the server handler to a single file
+  // bundle the cache handler
   await build({
-    entryPoints: [`${pluginDir}/dist/templates/server-handler.mjs`],
+    entryPoints: [`${PLUGIN_DIR}/dist/templates/run/cache-handler.js`],
+    bundle: true,
+    platform: 'node',
+    target: ['node18'],
+    format: 'cjs',
+    outfile: `${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}-cache.js`,
+  })
+
+  // bundle the server handler
+  await build({
+    entryPoints: [`${PLUGIN_DIR}/dist/templates/run/server-handler.js`],
     bundle: true,
     platform: 'node',
     target: ['node18'],
@@ -64,6 +72,13 @@ export const createServerHandler = async (publishDir: string, config: NetlifyCon
   config.redirects.push({ from: `/*`, to: SERVER_HANDLER_URL, status: 200 })
 }
 
-export const createCacheHandler = () => {
-  copySync(`${MODULE_DIR}/../templates/cache-handler.cjs`, `${NETLIFY_TEMP_DIR}/cache-handler.js`)
+export const createCacheHandler = async () => {
+  await build({
+    entryPoints: [`${PLUGIN_DIR}/dist/templates/build/cache-handler.js`],
+    bundle: true,
+    platform: 'node',
+    target: ['node18'],
+    format: 'cjs',
+    outfile: `${NETLIFY_TEMP_DIR}/cache-handler.js`,
+  })
 }

@@ -15,7 +15,7 @@ export const modifyNextConfig = () => {
   // TODO: find a better way to do this because there's a ton of different ways
   // to configure next.config.js and the user could be using any of them
   moveSync('next.config.js', `${NETLIFY_TEMP_DIR}/next.config.js`)
-  copySync(`${MODULE_DIR}/../templates/next.config.cjs`, 'next.config.js')
+  copySync(`${MODULE_DIR}/../templates/build/next.config.cjs`, 'next.config.js')
 }
 
 export const revertNextConfig = () => {
