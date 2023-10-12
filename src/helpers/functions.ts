@@ -42,7 +42,7 @@ export const createServerHandler = async (publishDir: string, config: NetlifyCon
 
   // bundle the cache handler
   await build({
-    entryPoints: [`${PLUGIN_DIR}/dist/templates/run/cache-handler.js`],
+    entryPoints: [`${PLUGIN_DIR}/dist/templates/cache-handler.js`],
     bundle: true,
     platform: 'node',
     target: ['node18'],
@@ -52,7 +52,7 @@ export const createServerHandler = async (publishDir: string, config: NetlifyCon
 
   // bundle the server handler
   await build({
-    entryPoints: [`${PLUGIN_DIR}/dist/templates/run/server-handler.js`],
+    entryPoints: [`${PLUGIN_DIR}/dist/templates/server-handler.js`],
     bundle: true,
     platform: 'node',
     target: ['node18'],
@@ -76,7 +76,7 @@ export const createServerHandler = async (publishDir: string, config: NetlifyCon
 
 export const createCacheHandler = async () => {
   await build({
-    entryPoints: [`${PLUGIN_DIR}/dist/templates/build/cache-handler.js`],
+    entryPoints: [`${PLUGIN_DIR}/dist/templates/cache-handler.js`],
     bundle: true,
     platform: 'node',
     target: ['node18'],

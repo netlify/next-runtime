@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
 
-import { SERVER_HANDLER_NAME } from '../../helpers/constants.js'
+import { SERVER_HANDLER_NAME } from '../helpers/constants.js'
 
 const dir = fileURLToPath(new URL('.', import.meta.url))
 
