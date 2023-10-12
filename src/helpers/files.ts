@@ -1,27 +1,16 @@
 import { existsSync } from 'node:fs'
 
-import { copySync, moveSync } from 'fs-extra/esm'
+import { copySync } from 'fs-extra/esm'
 
-import { PUBLISH_STAGING_DIR } from './constants.js'
+import { NETLIFY_PUBLISH_DIR } from './constants.js'
 
-const stageStaticAssets = (publishDir: string) => {
-  // TODO: consider caching here to avoid copying on every build
-  if (existsSync('public')) {
-    copySync('public', PUBLISH_STAGING_DIR, { overwrite: true })
-  }
-  copySync(`${publishDir}/static/`, `${PUBLISH_STAGING_DIR}/_next/static`, { overwrite: true })
-}
-
-const promoteStaticAssets = (publishDir: string) => {
-  moveSync(publishDir, '.netlify/.next', { overwrite: true })
-  moveSync(PUBLISH_STAGING_DIR, publishDir, { overwrite: true })
-}
-
+/**
+ * Ensure static assets get uploaded to the Netlify CDN
+ * @param publishDir The publish directory
+ */
 export const publishStaticAssets = (publishDir: string) => {
-  stageStaticAssets(publishDir)
-  promoteStaticAssets(publishDir)
-}
-
-export const revertStaticAssets = (publishDir: string) => {
-  moveSync('.netlify/.next', publishDir, { overwrite: true })
+  if (existsSync('public')) {
+    copySync('public', NETLIFY_PUBLISH_DIR, { overwrite: true })
+  }
+  copySync(`${publishDir}/static/`, `${NETLIFY_PUBLISH_DIR}/_next/static`, { overwrite: true })
 }

@@ -1,9 +1,9 @@
 import type { NetlifyPluginOptions, NetlifyPluginConstants } from '@netlify/build'
 
-import { getBlobStorage, isBlobStorageAvailable } from './helpers/blob-store.js'
-import { overrideNextJsConfig, revertNextJsConfig } from './helpers/config.js'
+import { getBlobStorage, isBlobStorageAvailable } from './helpers/blobs.js'
+import { modifyNetlifyConfig, modifyNextConfig, revertNextConfig } from './helpers/config.js'
 import { publishStaticAssets } from './helpers/files.js'
-import { createHandlerFunction } from './helpers/functions.js'
+import { createServerHandler, createCacheHandler } from './helpers/functions.js'
 import { checkNextSiteHasBuilt } from './helpers/verification.js'
 
 type NetlifyPluginOptionsWithFlags = NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }
@@ -17,18 +17,22 @@ type EnhancedNetlifyPluginOptions = NetlifyPluginOptions & { constants: Enhanced
   featureFlags?: Record<string, unknown>
 }
 
-export const onPreBuild = () => {
-  overrideNextJsConfig()
+export const onPreBuild = async () => {
+  await createCacheHandler()
+  modifyNextConfig()
 }
 
+
 export const onBuild = async ({ constants, netlifyConfig, utils: {build: { failBuild }
-}, }: EnhancedNetlifyPluginOptions) => {
+}}: EnhancedNetlifyPluginOptions) => {
   const { publish } = netlifyConfig.build
   // Need to check if site was built before we can proceed
   checkNextSiteHasBuilt({ publish, failBuild })
 
-  createHandlerFunction(constants.PUBLISH_DIR, netlifyConfig)
   publishStaticAssets(constants.PUBLISH_DIR)
+  await createServerHandler(constants.PUBLISH_DIR, netlifyConfig)
+  modifyNetlifyConfig(netlifyConfig)
+
   const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
   // Just the initial tests for the blob will remove in the future
   const testBlobStorage = await getBlobStorage({
@@ -39,11 +43,8 @@ export const onBuild = async ({ constants, netlifyConfig, utils: {build: { failB
     deployId: process.env.DEPLOY_ID,
   })
   console.log('get blob storage', { available: await isBlobStorageAvailable(testBlobStorage) })
-
 }
 
-export const onPostBuild = () => {
-  // TODO: call revertStaticAssets when we figure out
-  // why onEnd is called before the deploy finishes
-  revertNextJsConfig()
+export const onEnd = () => {
+  revertNextConfig()
 }
