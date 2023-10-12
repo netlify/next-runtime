@@ -160,10 +160,6 @@ export const generateFunctions = async (
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
     await copyFile(
-      join(__dirname, '..', '..', 'lib', 'templates', 'blob.js'),
-      join(functionsDir, functionName, 'blob.js'),
-    )
-    await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'blobStorage.js'),
       join(functionsDir, functionName, 'blobStorage.js'),
     )
