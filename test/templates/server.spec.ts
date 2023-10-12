@@ -296,7 +296,7 @@ describe('the netlify next server', () => {
     await requestHandler(new NodeNextRequest(mockReq), new NodeNextResponse(mockRes))
 
     // eslint-disable-next-line no-underscore-dangle
-    expect(process.env.__NEXT_PRIVATE_PREBUNDLED_REACT).toBe('')
+    expect(process.env.__NEXT_PRIVATE_PREBUNDLED_REACT).toBeFalsy()
   })
 
   it('resolves the prebundled react version for app routes', async () => {

@@ -455,6 +455,7 @@ describe('onBuild()', () => {
       `!node_modules/next/dist/next-server/server/lib/squoosh/**/*.wasm`,
       '!node_modules/next/dist/compiled/webpack/bundle4.js',
       '!node_modules/next/dist/compiled/webpack/bundle5.js',
+      'node_modules/styled-jsx/style.js',
       '!node_modules/sharp/**/*',
     ]
     // Relative paths in Windows are different
@@ -558,10 +559,10 @@ describe('onBuild()', () => {
     expect(existsSync(odbHandlerFile)).toBeTruthy()
 
     expect(readFileSync(handlerFile, 'utf8')).toMatch(
-      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'ssr' })`,
+      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'ssr', useHooks: false})`,
     )
     expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(
-      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'odb' })`,
+      `({ conf: config, app: "../../..", pageRoot, NextServer, staticManifest, mode: 'odb', useHooks: false})`,
     )
     expect(readFileSync(handlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
     expect(readFileSync(odbHandlerFile, 'utf8')).toMatch(`require("../../../.next/required-server-files.json")`)
