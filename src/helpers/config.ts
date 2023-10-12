@@ -16,7 +16,7 @@ export const modifyNextConfig = () => {
   // to configure next.config.js and the user could be using any of them
   // https://github.com/netlify/next-runtime-minimal/issues/12
   moveSync('next.config.js', `${NETLIFY_TEMP_DIR}/next.config.js`)
-  copySync(`${MODULE_DIR}/../templates/build/next.config.cjs`, 'next.config.js')
+  copySync(`${MODULE_DIR}/../templates/build/next-config.cjs`, 'next.config.js')
 }
 
 export const revertNextConfig = () => {
