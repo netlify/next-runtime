@@ -6,6 +6,8 @@ import type { PrerenderManifest } from 'next/dist/build'
 import type { BaseNextResponse } from 'next/dist/server/base-http'
 import type { NodeRequestHandler, Options } from 'next/dist/server/next-server'
 
+import { ExperimentalConfigWithLegacy } from '../helpers/utils'
+
 import {
   netlifyApiFetch,
   NextServerType,
@@ -18,6 +20,9 @@ import {
 
 interface NetlifyConfig {
   revalidateToken?: string
+}
+interface NextConfigWithAppDir extends NextConfig {
+  experimental: ExperimentalConfigWithLegacy
 }
 
 // eslint-disable-next-line max-lines-per-function
@@ -75,7 +80,9 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         const { url, headers } = req
 
         // conditionally use the prebundled React module
-        this.netlifyPrebundleReact(url, this.nextConfig, parsedUrl)
+        // PrebundledReact should only apply when appDir is set it falls between the specified Next versions
+        const { experimental }: NextConfigWithAppDir = this.nextConfig
+        if (experimental?.appDir) this.netlifyPrebundleReact(url, this.nextConfig, parsedUrl)
 
         // intercept on-demand revalidation requests and handle with the Netlify API
         if (headers['x-prerender-revalidate'] && this.netlifyConfig.revalidateToken) {

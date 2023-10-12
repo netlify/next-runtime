@@ -1,7 +1,7 @@
 import path, { dirname } from 'path'
 
 import cpy from 'cpy'
-import { writeJSON, existsSync, ensureDir, readJson, copy } from 'fs-extra'
+import { writeJSON, writeFile, existsSync, ensureDir, readJson, copy } from 'fs-extra'
 import { dir as getTmpDir } from 'tmp-promise'
 
 const FIXTURES_DIR = `${__dirname}/fixtures`
@@ -26,7 +26,7 @@ const rewriteAppDir = async function (dir = '.next') {
 
 // Move .next from sample project to current directory
 export const moveNextDist = async function (dir = '.next', copyMods = false) {
-  await (copyMods ? copyModules(['next', 'sharp']) : stubModules(['next', 'sharp']))
+  await (copyMods ? copyModules(['next', 'sharp', 'styled-jsx']) : stubModules(['next', 'sharp', 'styled-jsx']))
   await ensureDir(dirname(dir))
   await copy(path.join(SAMPLE_PROJECT_DIR, '.next'), path.join(process.cwd(), dir))
 
@@ -53,6 +53,9 @@ export const stubModules = async function (modules) {
     const dir = path.join(process.cwd(), 'node_modules', mod)
     await ensureDir(dir)
     await writeJSON(path.join(dir, 'package.json'), { name: mod })
+    if (mod === `styled-jsx`) {
+      await writeFile('style.js', '')
+    }
   }
 }
 

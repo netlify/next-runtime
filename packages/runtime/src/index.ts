@@ -31,7 +31,13 @@ import {
   getSSRLambdas,
 } from './helpers/functions'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
-import { shouldSkip, isNextAuthInstalled, getCustomImageResponseHeaders, getRemotePatterns } from './helpers/utils'
+import {
+  shouldSkip,
+  isNextAuthInstalled,
+  getCustomImageResponseHeaders,
+  getRemotePatterns,
+  ExperimentalConfigWithLegacy,
+} from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
@@ -275,7 +281,11 @@ const plugin: NetlifyPlugin = {
     await checkZipSize(join(FUNCTIONS_DIST, `${ODB_FUNCTION_NAME}.zip`))
     const nextConfig = await getNextConfig({ publish, failBuild })
 
-    const { basePath, appDir, experimental } = nextConfig
+    const {
+      basePath,
+      appDir,
+      experimental,
+    }: { basePath: string; appDir?: string; experimental: ExperimentalConfigWithLegacy } = nextConfig
 
     generateCustomHeaders(nextConfig, headers)
 
