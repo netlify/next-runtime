@@ -160,10 +160,6 @@ export const generateFunctions = async (
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
     await copyFile(
-      join(__dirname, '..', '..', 'lib', 'templates', 'blob.js'),
-      join(functionsDir, functionName, 'blob.js'),
-    )
-    await copyFile(
       join(__dirname, '..', '..', 'lib', 'templates', 'blobStorage.js'),
       join(functionsDir, functionName, 'blobStorage.js'),
     )
@@ -341,6 +337,8 @@ export const getCommonDependencies = async (publish: string) => {
 
     // using package.json because otherwise, we'd find some /dist/... path
     traceNPMPackage('@netlify/functions/package.json', publish),
+    traceNPMPackage('@netlify/blobs/package.json', publish),
+
     traceNPMPackage('is-promise', publish),
   ])
 

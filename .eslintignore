@@ -8,7 +8,6 @@ packages/runtime/src/templates/vendor
 packages/runtime/src/templates/vendor.ts
 packages/runtime/lib
 packages/runtime/dist-types
-packages/runtime/src/templates/blob.js
 jestSetup.js
 test/e2e
 test/fixtures/broken_next_config/next.config.js

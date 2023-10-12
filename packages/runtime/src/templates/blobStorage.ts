@@ -1,12 +1,8 @@
 import { Buffer } from 'buffer'
 
-import { Blobs as IBlobs } from '@netlify/blobs'
+import { Blobs } from '@netlify/blobs'
 
-import { Blobs as untypedBlobs } from './blob'
-
-const Blobs = untypedBlobs as unknown as typeof IBlobs
-
-export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
+export const isBlobStorageAvailable = async (netliBlob: Blobs) => {
   try {
     // request a key that is not present. If it returns `null` then the blob storage is available
     // if it throws it's not available.
@@ -30,4 +26,5 @@ export const getBlobInit = (): BlobsInit => blobInit
  */
 export const getNormalizedBlobKey = (key: string): string => Buffer.from(key).toString('base64url')
 
+// eslint-disable-next-line unicorn/prefer-export-from -- we are both using and re-exporting Blobs here for simplicity of importing Blobs and our helpers from same module
 export { Blobs }

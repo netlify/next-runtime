@@ -12,8 +12,8 @@
     "manifest.yml"
   ],
   "dependencies": {
-    "@netlify/blobs": "2.0.0",
-    "@netlify/esbuild": "0.14.39-1",
+    "@netlify/blobs": "^2.2.0",
+    "@netlify/esbuild": "0.14.39",
     "@netlify/functions": "^1.6.0",
     "@netlify/ipx": "^1.4.5",
     "@vercel/node-bridge": "^2.1.0",
@@ -55,7 +55,6 @@
     "publish:test": "cd .. && npm ci && npm test",
     "clean": "rimraf lib dist-types",
     "build": "run-s build:*",
-    "build:blob": "node blob-cjs-build.mjs",
     "build:vendor": "rimraf src/templates/vendor && deno vendor src/templates/vendor.ts --output=src/templates/vendor && patch src/templates/vendor/deno.land/x/html_rewriter@v0.1.0-pre.17/index.ts html_rewriter.patch",
     "build:tsc": "tsc",
     "watch": "tsc --watch",
