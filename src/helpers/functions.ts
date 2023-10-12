@@ -1,7 +1,7 @@
 import { writeFileSync } from 'fs'
 
 import { NetlifyConfig } from '@netlify/build'
-import { nodeFileTrace } from '@vercel/nft'
+import { build } from 'esbuild'
 import { copySync, emptyDirSync, readJsonSync, writeJSONSync } from 'fs-extra/esm'
 
 import {
@@ -9,7 +9,7 @@ import {
   SERVER_HANDLER_DIR,
   SERVER_HANDLER_NAME,
   SERVER_HANDLER_URL,
-  __dirname,
+  PLUGIN_DIR,
 } from './constants.js'
 
 /**
@@ -18,57 +18,69 @@ import {
  * @param config Netlify config
  */
 export const createServerHandler = async (publishDir: string, config: NetlifyConfig) => {
-  const pluginDir = `${__dirname}../..`
-  const pluginPkg = readJsonSync(`${pluginDir}/package.json`)
-
+  // clear the server handler directory
   emptyDirSync(SERVER_HANDLER_DIR)
-  await copyServerHandlerDependencies(pluginDir)
-  copyNextJsDependencies(publishDir)
-  writeServerHandlerFiles(pluginPkg)
 
+  // copy the next.js standalone build output to the server handler directory
+  copySync(`${publishDir}/standalone/.next`, `${SERVER_HANDLER_DIR}/.next`)
+  copySync(`${publishDir}/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
+
+  const pkg = readJsonSync(`${PLUGIN_DIR}/package.json`)
+
+  // create the server handler metadata file
+  writeJSONSync(`${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.json`, {
+    config: {
+      name: 'Next.js Server Handler',
+      generator: `${pkg.name}@${pkg.version}`,
+      nodeBundler: 'none',
+      // TODO: remove the final include when Netlify Functions v2 fixes the default exports bug
+      includedFiles: ['.next/**', 'node_modules/**', `${SERVER_HANDLER_NAME}*`],
+      includedFilesBasePath: SERVER_HANDLER_DIR,
+    },
+    version: 1,
+  })
+
+  // bundle the cache handler
+  await build({
+    entryPoints: [`${PLUGIN_DIR}/dist/templates/run/cache-handler.js`],
+    bundle: true,
+    platform: 'node',
+    target: ['node18'],
+    format: 'cjs',
+    outfile: `${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}-cache.js`,
+  })
+
+  // bundle the server handler
+  await build({
+    entryPoints: [`${PLUGIN_DIR}/dist/templates/run/server-handler.js`],
+    bundle: true,
+    platform: 'node',
+    target: ['node18'],
+    format: 'esm',
+    external: ['next'],
+    outfile: `${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}-actual.mjs`,
+  })
+
+  // TODO: remove when Netlify Functions v2 fixes the default exports bug
+  // https://github.com/netlify/pod-dev-foundations/issues/599
+  writeFileSync(
+    `${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.mjs`,
+    `import handler from './${SERVER_HANDLER_NAME}-actual.mjs';export default (request) => handler(request);`,
+  )
+
+  // TODO: remove this when we can use inline config
+  // https://github.com/netlify/next-runtime-minimal/issues/13
   config.redirects ||= []
   config.redirects.push({ from: `/*`, to: SERVER_HANDLER_URL, status: 200 })
 }
 
-const copyServerHandlerDependencies = async (pluginDir: string) => {
-  const { fileList } = await nodeFileTrace(
-    [`${pluginDir}/dist/templates/server-handler.js`, `${pluginDir}/dist/templates/cache-handler.cjs`],
-    {
-      base: pluginDir,
-      ignore: ['package.json'],
-    },
-  )
-
-  fileList.forEach((path) => {
-    copySync(`${pluginDir}/${path}`, `${SERVER_HANDLER_DIR}/${path}`)
+export const createCacheHandler = async () => {
+  await build({
+    entryPoints: [`${PLUGIN_DIR}/dist/templates/build/cache-handler.js`],
+    bundle: true,
+    platform: 'node',
+    target: ['node18'],
+    format: 'cjs',
+    outfile: `${NETLIFY_TEMP_DIR}/cache-handler.js`,
   })
-}
-
-const copyNextJsDependencies = (publishDir: string) => {
-  copySync(`${publishDir}/standalone/.next`, `${SERVER_HANDLER_DIR}/.next`)
-  copySync(`${publishDir}/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
-}
-
-const writeServerHandlerFiles = (pluginPkg: { name: string; version: string }) => {
-  const metadata = {
-    config: {
-      name: 'Next.js Server Handler',
-      generator: `${pluginPkg.name}@${pluginPkg.version}`,
-      nodeBundler: 'none',
-      includedFiles: [`${SERVER_HANDLER_NAME}.*`, `dist/**`, `.next/**`, `node_modules/**`, `package.json`],
-      includedFilesBasePath: SERVER_HANDLER_DIR,
-    },
-    version: 1,
-  }
-
-  writeJSONSync(`${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.json`, metadata)
-  writeJSONSync(`${SERVER_HANDLER_DIR}/package.json`, { type: 'module' })
-  writeFileSync(
-    `${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.js`,
-    `export { handler } from './dist/templates/server-handler.js'`,
-  )
-}
-
-export const createCacheHandler = () => {
-  copySync(`${__dirname}/../templates/cache-handler.cjs`, `${NETLIFY_TEMP_DIR}/cache-handler.js`)
 }

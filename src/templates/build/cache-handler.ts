@@ -1,4 +1,4 @@
-module.exports = class CacheHandler {
+export default class CacheHandler {
   options: any
   cache: Map<string, any>
 
