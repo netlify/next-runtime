@@ -1,11 +1,18 @@
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export const MODULE_DIR = fileURLToPath(new URL('.', import.meta.url))
-export const PLUGIN_DIR = resolve(`${MODULE_DIR}../..`)
+let dir
+try {
+  dir = __dirname
+} catch {
+  dir = fileURLToPath(new URL('.', import.meta.url))
+}
 
-export const NETLIFY_PUBLISH_DIR = '.netlify/publish'
-export const NETLIFY_TEMP_DIR = '.netlify/temp'
+export const MODULE_DIR = dir
+export const PLUGIN_DIR = resolve(`${MODULE_DIR}../..`)
+export const RUNTIME_DIR = resolve(`${MODULE_DIR}../..`)
+
+export const NEXT_BUILD_DIR = '.netlify/.next'
 
 export const FUNCTIONS_INTERNAL_DIR = '.netlify/functions-internal'
 export const FUNCTIONS_URL = '/.netlify/functions'

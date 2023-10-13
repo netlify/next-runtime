@@ -1,16 +1,23 @@
 import { existsSync } from 'node:fs'
 
-import { copySync } from 'fs-extra/esm'
+import { NetlifyPluginConstants } from '@netlify/build'
+import { copySync, moveSync } from 'fs-extra/esm'
 
-import { NETLIFY_PUBLISH_DIR } from './constants.js'
+import { NEXT_BUILD_DIR } from './constants.js'
 
 /**
- * Ensure static assets get uploaded to the Netlify CDN
- * @param publishDir The publish directory
+ * Move the Next.js build output to a temporary directory
  */
-export const publishStaticAssets = (publishDir: string) => {
+export const moveBuildOutput = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
+  moveSync(PUBLISH_DIR, NEXT_BUILD_DIR, { overwrite: true })
+}
+
+/**
+ * Move static assets so they are uploaded to the Netlify CDN
+ */
+export const moveStaticAssets = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
   if (existsSync('public')) {
-    copySync('public', NETLIFY_PUBLISH_DIR, { overwrite: true })
+    copySync('public', PUBLISH_DIR)
   }
-  copySync(`${publishDir}/static/`, `${NETLIFY_PUBLISH_DIR}/_next/static`, { overwrite: true })
+  copySync(`${NEXT_BUILD_DIR}/static/`, `${PUBLISH_DIR}/_next/static`)
 }

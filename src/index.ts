@@ -1,22 +1,17 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 
-import { modifyNetlifyConfig, modifyNextConfig, revertNextConfig } from './helpers/config.js'
-import { publishStaticAssets } from './helpers/files.js'
-import { createServerHandler, createCacheHandler } from './helpers/functions.js'
+import { setBuildConfig } from './helpers/config.js'
+import { moveStaticAssets, moveBuildOutput } from './helpers/files.js'
+import { createServerHandler } from './helpers/functions.js'
 
 type NetlifyPluginOptionsWithFlags = NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }
 
-export const onPreBuild = async () => {
-  await createCacheHandler()
-  modifyNextConfig()
+export const onPreBuild = () => {
+  setBuildConfig()
 }
 
-export const onBuild = async ({ constants, netlifyConfig }: NetlifyPluginOptionsWithFlags) => {
-  publishStaticAssets(constants.PUBLISH_DIR)
-  await createServerHandler(constants.PUBLISH_DIR, netlifyConfig)
-  modifyNetlifyConfig(netlifyConfig)
-}
-
-export const onEnd = () => {
-  revertNextConfig()
+export const onBuild = async ({ constants }: NetlifyPluginOptionsWithFlags) => {
+  moveBuildOutput(constants)
+  moveStaticAssets(constants)
+  await createServerHandler()
 }
