@@ -8,8 +8,8 @@ let nextHandler: WorkerRequestHandler
 export default async (request: Request) => {
   if (!nextHandler) {
     // set the server config
-    const { setRuntimeConfig } = await import('../helpers/config.js')
-    await setRuntimeConfig()
+    const { setRequestConfig } = await import('../helpers/config.js')
+    await setRequestConfig()
 
     // let Next.js initialize and create the request handler
     const { getRequestHandlers } = await import('next/dist/server/lib/start-server.js')

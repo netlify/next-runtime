@@ -13,10 +13,10 @@ const pkg = readJsonSync(`${PLUGIN_DIR}/package.json`)
  * @param config Netlify config
  */
 export const createServerHandler = async () => {
-  // clear the server handler directory
+  // clear the handler directory
   emptyDirSync(SERVER_HANDLER_DIR)
 
-  // trace the server handler dependencies
+  // trace the handler dependencies
   const { fileList } = await nodeFileTrace(
     [`${PLUGIN_DIR}/dist/templates/server-handler.js`, `${PLUGIN_DIR}/dist/templates/cache-handler.cjs`],
     { base: PLUGIN_DIR, ignore: ['package.json', 'node_modules/next/**'] },
@@ -27,11 +27,11 @@ export const createServerHandler = async () => {
     copySync(`${PLUGIN_DIR}/${path}`, `${SERVER_HANDLER_DIR}/${path}`)
   })
 
-  // copy the next.js standalone build output to the server handler directory
+  // copy the next.js standalone build output to the handler directory
   copySync(`${NEXT_BUILD_DIR}/standalone/.next`, `${SERVER_HANDLER_DIR}/.next`)
   copySync(`${NEXT_BUILD_DIR}/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
 
-  // create the server handler metadata file
+  // create the handler metadata file
   writeJSONSync(`${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.json`, {
     config: {
       name: 'Next.js Server Handler',
@@ -43,8 +43,10 @@ export const createServerHandler = async () => {
     version: 1,
   })
 
+  // config ESM
   writeFileSync(`${SERVER_HANDLER_DIR}/package.json`, JSON.stringify({ type: 'module' }))
 
+  // write the root handler file
   writeFileSync(
     `${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.js`,
     `import handler from './dist/templates/server-handler.js';export default handler;export const config = { path: '/*' }`,

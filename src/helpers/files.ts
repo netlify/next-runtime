@@ -6,9 +6,9 @@ import { copySync, moveSync } from 'fs-extra/esm'
 import { NEXT_BUILD_DIR } from './constants.js'
 
 /**
- * Stash the Next.js build output in a temporary directory
+ * Move the Next.js build output to a temporary directory
  */
-export const stashBuildOutput = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
+export const moveBuildOutput = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
   moveSync(PUBLISH_DIR, NEXT_BUILD_DIR, { overwrite: true })
 }
 

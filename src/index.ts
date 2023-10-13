@@ -1,17 +1,17 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 
-import { setBuildtimeConfig } from './helpers/config.js'
-import { moveStaticAssets, stashBuildOutput } from './helpers/files.js'
+import { setBuildConfig } from './helpers/config.js'
+import { moveStaticAssets, moveBuildOutput } from './helpers/files.js'
 import { createServerHandler } from './helpers/functions.js'
 
 type NetlifyPluginOptionsWithFlags = NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }
 
 export const onPreBuild = () => {
-  setBuildtimeConfig()
+  setBuildConfig()
 }
 
 export const onBuild = async ({ constants }: NetlifyPluginOptionsWithFlags) => {
-  stashBuildOutput(constants)
+  moveBuildOutput(constants)
   moveStaticAssets(constants)
   await createServerHandler()
 }
