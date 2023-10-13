@@ -338,6 +338,8 @@ export const getCommonDependencies = async (publish: string) => {
     // using package.json because otherwise, we'd find some /dist/... path
     traceNPMPackage('@netlify/functions/package.json', publish),
     traceNPMPackage('is-promise', publish),
+
+    traceNPMPackage('@netlify/blobs', publish),
   ])
 
   return deps.flat(1)
