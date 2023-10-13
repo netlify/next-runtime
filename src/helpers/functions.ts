@@ -4,7 +4,6 @@ import { nodeFileTrace } from '@vercel/nft'
 import { copySync, emptyDirSync, readJsonSync, writeJSONSync } from 'fs-extra/esm'
 
 import { NEXT_BUILD_DIR, SERVER_HANDLER_DIR, SERVER_HANDLER_NAME, PLUGIN_DIR } from './constants.js'
-import { write } from 'fs-extra'
 
 const pkg = readJsonSync(`${PLUGIN_DIR}/package.json`)
 
@@ -48,6 +47,6 @@ export const createServerHandler = async () => {
 
   writeFileSync(
     `${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.js`,
-    `import handler from './dist/templates/server-handler.js';export default (request) => handler;export const config = { path: '/*' }`,
+    `import handler from './dist/templates/server-handler.js';export default handler;export const config = { path: '/*' }`,
   )
 }
