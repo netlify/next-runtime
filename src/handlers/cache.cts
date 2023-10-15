@@ -1,3 +1,8 @@
+/**
+ * Netlify Cache Handler
+ * (CJS format because Next.js doesn't support ESM yet)
+ */
+
 export default class CacheHandler {
   options: any
   cache: Map<string, any>

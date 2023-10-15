@@ -6,16 +6,16 @@ import { copySync, moveSync } from 'fs-extra/esm'
 import { BUILD_DIR } from './constants.js'
 
 /**
- * Move the Next.js build output to a temporary directory
+ * Move the Next.js build output from the publish dir to a temp dir
  */
-export const moveBuildOutput = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
+export const stashBuildOutput = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
   moveSync(PUBLISH_DIR, BUILD_DIR, { overwrite: true })
 }
 
 /**
- * Move static assets so they are uploaded to the Netlify CDN
+ * Move static assets to the publish dir so they upload to the CDN
  */
-export const moveStaticAssets = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
+export const publishStaticAssets = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
   if (existsSync('public')) {
     copySync('public', PUBLISH_DIR)
   }

@@ -9,8 +9,6 @@ const pkg = readJsonSync(`${PLUGIN_DIR}/package.json`)
 
 /**
  * Create a Netlify function to run the Next.js server
- * @param publishDir The publish directory
- * @param config Netlify config
  */
 export const createServerHandler = async () => {
   // clear the handler directory
@@ -43,7 +41,7 @@ export const createServerHandler = async () => {
     version: 1,
   })
 
-  // config ESM
+  // configure ESM
   writeFileSync(`${SERVER_HANDLER_DIR}/package.json`, JSON.stringify({ type: 'module' }))
 
   // write the root handler file
