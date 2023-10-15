@@ -1,7 +1,7 @@
 import { writeFile } from 'fs/promises'
 
 import { nodeFileTrace } from '@vercel/nft'
-import { copy, emptyDir, ensureDir, readJson, writeJSON } from 'fs-extra/esm'
+import { copy, emptyDir, readJson, writeJSON } from 'fs-extra/esm'
 
 import { BUILD_DIR, SERVER_HANDLER_DIR, SERVER_HANDLER_NAME, PLUGIN_DIR } from './constants.js'
 
@@ -13,7 +13,6 @@ const pkg = await readJson(`${PLUGIN_DIR}/package.json`)
 export const createServerHandler = async () => {
   // reset the handler directory
   await emptyDir(SERVER_HANDLER_DIR)
-  await ensureDir(`${SERVER_HANDLER_DIR}/node_modules`)
 
   // trace the handler dependencies
   const { fileList } = await nodeFileTrace(
@@ -21,8 +20,8 @@ export const createServerHandler = async () => {
     { base: PLUGIN_DIR, ignore: ['package.json', 'node_modules/next/**'] },
   )
 
+  // copy the handler dependencies
   await Promise.all(
-    // copy the handler dependencies
     [...fileList].map((path) => copy(`${PLUGIN_DIR}/${path}`, `${SERVER_HANDLER_DIR}/${path}`)),
   )
 
