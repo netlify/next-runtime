@@ -6,11 +6,12 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
+    'arrow-body-style': 'off',
     'no-param-reassign': ['error', { props: false }],
     'no-underscore-dangle': 'off',
+    'no-magic-numbers': 'off',
     'n/no-sync': 'off',
     'n/prefer-global/process': 'off',
-    'no-magic-numbers': 'off',
     'unicorn/numeric-separators-style': 'off',
     'unicorn/filename-case': ['error', { case: 'kebabCase' }],
     'import/no-namespace': 'off',
