@@ -3,13 +3,13 @@ import { existsSync } from 'node:fs'
 import { NetlifyPluginConstants } from '@netlify/build'
 import { copySync, moveSync } from 'fs-extra/esm'
 
-import { NEXT_BUILD_DIR } from './constants.js'
+import { BUILD_DIR } from './constants.js'
 
 /**
  * Move the Next.js build output to a temporary directory
  */
 export const moveBuildOutput = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
-  moveSync(PUBLISH_DIR, NEXT_BUILD_DIR, { overwrite: true })
+  moveSync(PUBLISH_DIR, BUILD_DIR, { overwrite: true })
 }
 
 /**
@@ -19,5 +19,5 @@ export const moveStaticAssets = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
   if (existsSync('public')) {
     copySync('public', PUBLISH_DIR)
   }
-  copySync(`${NEXT_BUILD_DIR}/static/`, `${PUBLISH_DIR}/_next/static`)
+  copySync(`${BUILD_DIR}/static/`, `${PUBLISH_DIR}/_next/static`)
 }

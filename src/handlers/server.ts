@@ -1,7 +1,7 @@
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
-import { RUNTIME_DIR } from '../helpers/constants.js'
+import { TASK_DIR } from '../helpers/constants.js'
 
 let nextHandler: WorkerRequestHandler
 
@@ -16,7 +16,7 @@ export default async (request: Request) => {
     ;[nextHandler] = await getRequestHandlers({
       port: 3000,
       hostname: 'localhost',
-      dir: RUNTIME_DIR,
+      dir: TASK_DIR,
       isDev: false,
     })
   }

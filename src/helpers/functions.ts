@@ -3,7 +3,7 @@ import { writeFileSync } from 'fs'
 import { nodeFileTrace } from '@vercel/nft'
 import { copySync, emptyDirSync, readJsonSync, writeJSONSync } from 'fs-extra/esm'
 
-import { NEXT_BUILD_DIR, SERVER_HANDLER_DIR, SERVER_HANDLER_NAME, PLUGIN_DIR } from './constants.js'
+import { BUILD_DIR, SERVER_HANDLER_DIR, SERVER_HANDLER_NAME, PLUGIN_DIR } from './constants.js'
 
 const pkg = readJsonSync(`${PLUGIN_DIR}/package.json`)
 
@@ -18,7 +18,7 @@ export const createServerHandler = async () => {
 
   // trace the handler dependencies
   const { fileList } = await nodeFileTrace(
-    [`${PLUGIN_DIR}/dist/templates/server-handler.js`, `${PLUGIN_DIR}/dist/templates/cache-handler.cjs`],
+    [`${PLUGIN_DIR}/dist/handlers/server.js`, `${PLUGIN_DIR}/dist/handlers/cache.cjs`],
     { base: PLUGIN_DIR, ignore: ['package.json', 'node_modules/next/**'] },
   )
 
@@ -28,8 +28,8 @@ export const createServerHandler = async () => {
   })
 
   // copy the next.js standalone build output to the handler directory
-  copySync(`${NEXT_BUILD_DIR}/standalone/.next`, `${SERVER_HANDLER_DIR}/.next`)
-  copySync(`${NEXT_BUILD_DIR}/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
+  copySync(`${BUILD_DIR}/standalone/.next`, `${SERVER_HANDLER_DIR}/.next`)
+  copySync(`${BUILD_DIR}/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
 
   // create the handler metadata file
   writeJSONSync(`${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.json`, {
@@ -49,6 +49,6 @@ export const createServerHandler = async () => {
   // write the root handler file
   writeFileSync(
     `${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.js`,
-    `import handler from './dist/templates/server-handler.js';export default handler;export const config = { path: '/*' }`,
+    `import handler from './dist/handlers/server.js';export default handler;export const config = {path:'/*'}`,
   )
 }
