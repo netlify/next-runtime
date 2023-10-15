@@ -57,3 +57,10 @@ export const createServerHandler = async () => {
     `import handler from './dist/handlers/server.js';export default handler;export const config = {path:'/*'}`,
   )
 }
+
+/**
+ * Create a Netlify edge function to run the Next.js server
+ */
+export const createEdgeHandler = async () => {
+  // TODO: implement
+}

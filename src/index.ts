@@ -1,8 +1,8 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 
 import { setBuildConfig } from './helpers/config.js'
-import { stashBuildOutput, publishStaticAssets, storePrerenderedContent } from './helpers/files.js'
-import { createServerHandler } from './helpers/functions.js'
+import { publishStaticAssets, stashBuildOutput, storePrerenderedContent } from './helpers/files.js'
+import { createEdgeHandler, createServerHandler } from './helpers/functions.js'
 
 type NetlifyPluginOptionsWithFlags = NetlifyPluginOptions & {
   featureFlags?: Record<string, unknown>
@@ -19,5 +19,6 @@ export const onBuild = async ({ constants }: NetlifyPluginOptionsWithFlags) => {
     publishStaticAssets(constants),
     storePrerenderedContent(),
     createServerHandler(),
+    createEdgeHandler(),
   ])
 }
