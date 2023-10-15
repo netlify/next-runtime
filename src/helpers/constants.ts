@@ -7,9 +7,8 @@ export const TASK_DIR = process.cwd()
 
 export const BUILD_DIR = `${TASK_DIR}/.netlify/.next`
 
-export const FUNCTIONS_INTERNAL_DIR = `${TASK_DIR}/.netlify/functions-internal`
-export const FUNCTIONS_URL = '/.netlify/functions'
+export const FUNCTIONS_DIR = `${TASK_DIR}/.netlify/functions-internal`
+export const EDGE_FUNCTIONS_DIR = `${TASK_DIR}/.netlify/edge-functions`
 
 export const SERVER_HANDLER_NAME = '___netlify-server-handler'
-export const SERVER_HANDLER_DIR = `${FUNCTIONS_INTERNAL_DIR}/${SERVER_HANDLER_NAME}`
-export const SERVER_HANDLER_URL = `${FUNCTIONS_URL}/${SERVER_HANDLER_NAME}`
+export const SERVER_HANDLER_DIR = `${FUNCTIONS_DIR}/${SERVER_HANDLER_NAME}`
