@@ -10,7 +10,6 @@ module.exports = {
     'no-param-reassign': ['error', { props: false }],
     'no-underscore-dangle': 'off',
     'no-magic-numbers': 'off',
-    'n/no-sync': 'off',
     'n/prefer-global/process': 'off',
     'unicorn/numeric-separators-style': 'off',
     'unicorn/filename-case': ['error', { case: 'kebabCase' }],
