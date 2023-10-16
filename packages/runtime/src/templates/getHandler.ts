@@ -4,6 +4,7 @@ import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 import { outdent as javascript } from 'outdent'
 
 import type { NextConfig } from '../helpers/config'
+import { ExperimentalConfigWithLegacy } from '../helpers/utils'
 
 import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
@@ -39,11 +40,20 @@ type MakeHandlerParams = {
   NextServer: NextServerType
   staticManifest: Array<[string, string]>
   mode: 'ssr' | 'odb'
+  useHooks: boolean
 }
 
 // We return a function and then call `toString()` on it to serialise it as the launcher function
 // eslint-disable-next-line max-lines-per-function
-const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mode = 'ssr' }: MakeHandlerParams) => {
+const makeHandler = ({
+  conf,
+  app,
+  pageRoot,
+  NextServer,
+  staticManifest = [],
+  mode = 'ssr',
+  useHooks,
+}: MakeHandlerParams) => {
   // Change working directory into the site root, unless using Nx, which moves the
   // dist directory and handles this itself
   const dir = path.resolve(__dirname, app)
@@ -57,10 +67,13 @@ const makeHandler = ({ conf, app, pageRoot, NextServer, staticManifest = [], mod
     require.resolve('./pages.js')
   } catch {}
 
+  const { appDir }: ExperimentalConfigWithLegacy = conf.experimental
   // Next 13.4 conditionally uses different React versions and we need to make sure we use the same one
-  overrideRequireHooks(conf)
+  // With the release of 13.5 experimental.appDir is no longer used.
+  // we will need to check if appDir is set and Next version before running requireHooks
+  if (appDir && useHooks) overrideRequireHooks(conf.experimental)
   const NetlifyNextServer: NetlifyNextServerType = getNetlifyNextServer(NextServer)
-  applyRequireHooks()
+  if (appDir && useHooks) applyRequireHooks()
 
   const ONE_YEAR_IN_SECONDS = 31536000
 
@@ -205,6 +218,7 @@ export const getHandler = ({
   publishDir = '../../../.next',
   appDir = '../../..',
   nextServerModuleRelativeLocation,
+  useHooks,
 }): string =>
   // This is a string, but if you have the right editor plugin it should format as js (e.g. bierner.comment-tagged-templates in VS Code)
   javascript/* javascript */ `
@@ -218,7 +232,7 @@ export const getHandler = ({
   const { promises } = require("fs");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
-  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } = require('./handlerUtils')
+  const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath, nextVersionNum } = require('./handlerUtils')
   const { overrideRequireHooks, applyRequireHooks } = require("./requireHooks")
   const { getNetlifyNextServer } = require("./server")
   const NextServer = require(${JSON.stringify(nextServerModuleRelativeLocation)}).default
@@ -232,7 +246,7 @@ export const getHandler = ({
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb' }));`
-      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr' });`
+      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb', useHooks: ${useHooks}}));`
+      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr', useHooks: ${useHooks}});`
   }
 `

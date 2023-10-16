@@ -5,17 +5,17 @@
 
 import mod from 'module'
 
-import type { NextConfig } from '../helpers/config'
+import type { ExperimentalConfigWithLegacy } from '../helpers/utils'
 
 const resolveFilename = (mod as any)._resolveFilename
 const requireHooks = new Map<string, Map<string, string>>()
 
-export const overrideRequireHooks = (config: NextConfig) => {
-  setRequireHooks(config)
+export const overrideRequireHooks = (experimental: ExperimentalConfigWithLegacy) => {
+  setRequireHooks(experimental)
   resolveRequireHooks()
 }
 
-const setRequireHooks = (config: NextConfig) => {
+const setRequireHooks = (experimental: ExperimentalConfigWithLegacy) => {
   requireHooks.set(
     'default',
     new Map([
@@ -24,8 +24,8 @@ const setRequireHooks = (config: NextConfig) => {
     ]),
   )
 
-  if (config.experimental.appDir) {
-    if (config.experimental.serverActions) {
+  if (experimental.appDir) {
+    if (experimental.serverActions) {
       requireHooks.set(
         'experimental',
         new Map([
