@@ -36,5 +36,5 @@ export default async (request: Request) => {
   const response = { headers: res.getHeaders(), statusCode: res.statusCode }
   console.log('Next server response:', JSON.stringify(response, null, 2))
 
-  return await toComputeResponse(res)
+  return toComputeResponse(res)
 }
