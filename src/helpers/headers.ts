@@ -1,3 +1,5 @@
+import type { OutgoingHttpHeaders } from 'http'
+
 import type { HandlerEvent } from '@netlify/functions'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
@@ -7,7 +9,11 @@ export interface NetlifyVaryHeaderBuilder {
   cookies: string[]
 }
 
-const generateNetlifyVaryHeaderValue = ({ headers, languages, cookies }: NetlifyVaryHeaderBuilder): string => {
+const generateNetlifyVaryHeaderValue = ({
+  headers,
+  languages,
+  cookies,
+}: NetlifyVaryHeaderBuilder): string => {
   let NetlifyVaryHeader = ``
   if (headers && headers.length !== 0) {
     NetlifyVaryHeader += `header=${headers.join(`|`)}`
@@ -28,9 +34,10 @@ const generateNetlifyVaryHeaderValue = ({ headers, languages, cookies }: Netlify
   return NetlifyVaryHeader
 }
 
-const getDirectives = (headerValue: string): string[] => headerValue.split(',').map((directive) => directive.trim())
+const getDirectives = (headerValue: string): string[] =>
+  headerValue.split(',').map((directive) => directive.trim())
 
-const removeSMaxAgeAndStaleWhileRevalidate = (headerValue: string): string =>
+const removeSMaxAgeAndSWR = (headerValue: string): string =>
   getDirectives(headerValue)
     .filter((directive) => {
       if (directive.startsWith('s-maxage')) {
@@ -43,7 +50,11 @@ const removeSMaxAgeAndStaleWhileRevalidate = (headerValue: string): string =>
     })
     .join(`,`)
 
-export const handleVary = (headers: Record<string, string>, event: HandlerEvent, nextConfig: NextConfigComplete) => {
+export const getVaryHeaders = (
+  headers: Record<string, string>,
+  event: HandlerEvent,
+  nextConfig: NextConfigComplete,
+) => {
   const netlifyVaryBuilder: NetlifyVaryHeaderBuilder = {
     headers: [],
     languages: [],
@@ -74,19 +85,20 @@ export const handleVary = (headers: Record<string, string>, event: HandlerEvent,
   }
 }
 
-export const handleCacheControl = (headers: Record<string, string>) => {
-  if (headers['cache-control'] && !headers['cdn-cache-control'] && !headers['netlify-cdn-cache-control']) {
-    headers['netlify-cdn-cache-control'] = headers['cache-control']
-
-    const filteredCacheControlDirectives = removeSMaxAgeAndStaleWhileRevalidate(headers['cache-control'])
-
-    // use default cache-control if no directives are left
-    headers['cache-control'] =
-      filteredCacheControlDirectives.length === 0
-        ? 'public, max-age=0, must-revalidate'
-        : filteredCacheControlDirectives
-  }
-}
+/**
+ * Ensure stale-while-revalidate and s-maxage don't leak to the client, but
+ * assume the user knows what they are doing if CDN-Cache-Control is set
+ */
+export const getCacheControlHeaders = (headers: OutgoingHttpHeaders) =>
+  headers['cache-control'] && !headers['cdn-cache-control'] && !headers['netlify-cdn-cache-control']
+    ? [
+        ['netlify-cdn-cache-control', headers['cache-control']],
+        [
+          'cache-control',
+          removeSMaxAgeAndSWR(headers['cache-control']) ?? 'public, max-age=0, must-revalidate',
+        ],
+      ]
+    : []
 
 export const getAutoDetectedLocales = (config: NextConfigComplete): Array<string> => {
   if (config.i18n && config.i18n.localeDetection !== false && config.i18n.locales.length > 1) {
