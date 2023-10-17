@@ -1,6 +1,6 @@
 import { join, relative } from 'path'
 
-import type { NetlifyPlugin, NetlifyPluginOptions } from '@netlify/build/types'
+import type { NetlifyPlugin, NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build/types'
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
@@ -18,7 +18,7 @@ import {
 import { onPreDev } from './helpers/dev'
 import { writeEdgeFunctions, loadMiddlewareManifest, cleanupEdgeFunctions } from './helpers/edge'
 import { moveStaticPages, movePublicFiles, removeMetadataFiles } from './helpers/files'
-import { bundleBasedOnNftFiles, splitApiRoutes } from './helpers/flags'
+import { bundleBasedOnNftFiles, splitApiRoutes, useBlobsForISRAssets } from './helpers/flags'
 import {
   generateFunctions,
   setupImageFunction,
@@ -47,6 +47,16 @@ import {
   warnForProblematicUserRewrites,
   warnForRootRedirects,
 } from './helpers/verification'
+import { Blobs, isBlobStorageAvailable } from './templates/blobStorage'
+
+type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
+  NETLIFY_API_HOST?: string
+  NETLIFY_API_TOKEN?: string
+}
+
+type EnhancedNetlifyPluginOptions = NetlifyPluginOptions & { constants: EnhancedNetlifyPluginConstants } & {
+  featureFlags?: Record<string, unknown>
+}
 
 const plugin: NetlifyPlugin = {
   async onPreBuild({
@@ -84,7 +94,7 @@ const plugin: NetlifyPlugin = {
       build: { failBuild },
     },
     featureFlags = {},
-  }: NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }) {
+  }: EnhancedNetlifyPluginOptions) {
     if (shouldSkip()) {
       return
     }
@@ -195,7 +205,24 @@ const plugin: NetlifyPlugin = {
     await movePublicFiles({ appDir, outdir, publish, basePath })
 
     if (!destr(process.env.SERVE_STATIC_FILES_FROM_ORIGIN)) {
-      await moveStaticPages({ target, netlifyConfig, i18n, basePath })
+      const useBlobs = useBlobsForISRAssets(featureFlags)
+
+      const { NETLIFY_API_HOST, NETLIFY_API_TOKEN, SITE_ID } = constants
+
+      const testBlobStorage = useBlobs
+        ? new Blobs({
+            authentication: {
+              apiURL: `https://${NETLIFY_API_HOST}`,
+              token: NETLIFY_API_TOKEN,
+            },
+            context: `deploy:${process.env.DEPLOY_ID}`,
+            siteID: SITE_ID,
+          })
+        : undefined
+
+      const netliBlob = testBlobStorage && (await isBlobStorageAvailable(testBlobStorage)) ? testBlobStorage : undefined
+
+      await moveStaticPages({ target, netlifyConfig, nextConfig: { basePath, i18n }, netliBlob })
     }
 
     await generateStaticRedirects({

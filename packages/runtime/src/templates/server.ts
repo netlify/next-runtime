@@ -47,6 +47,28 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
       }
     }
 
+    protected getPrerenderManifest(): PrerenderManifest {
+      const manifest = super.getPrerenderManifest()
+
+      if (typeof manifest?.dynamicRoutes === 'object') {
+        for (const route of Object.values(manifest.dynamicRoutes)) {
+          // 'fallback' property is:
+          //   - a string when fallback: true is used
+          //   - `null` when fallback: blocking is used
+          //   - `false` when fallback: false is used
+          // `fallback: true` is not working correctly with ODBs
+          // as we will cache fallback html forever, so
+          // we are treating those as `fallback: blocking`
+          // by editing the manifest
+          if (typeof route.fallback === 'string') {
+            route.fallback = null
+          }
+        }
+      }
+
+      return manifest
+    }
+
     public getRequestHandler(): NodeRequestHandler {
       const handler = super.getRequestHandler()
       return async (req, res, parsedUrl) => {
@@ -79,9 +101,13 @@ const getNetlifyNextServer = (NextServer: NextServerType) => {
         // but ignore in preview mode (prerender_bypass is set to true in preview mode)
         // because otherwise revalidate will override preview mode
         if (!headers.cookie?.includes('__prerender_bypass')) {
-          // this header controls whether Next.js will revalidate the page
-          // and needs to be set to the preview mode id to enable it
-          headers['x-prerender-revalidate'] = this.renderOpts.previewProps.previewModeId
+          const isFirstODBRequest = headers['x-nf-builder-cache'] === 'miss'
+          // first ODB request should NOT be revalidated and instead it should try to serve cached version
+          if (!isFirstODBRequest) {
+            // this header controls whether Next.js will revalidate the page
+            // and needs to be set to the preview mode id to enable it
+            headers['x-prerender-revalidate'] = this.renderOpts.previewProps.previewModeId
+          }
         }
 
         return handler(req, res, parsedUrl)

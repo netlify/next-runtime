@@ -159,6 +159,10 @@ export const generateFunctions = async (
       join(__dirname, '..', '..', 'lib', 'templates', 'handlerUtils.js'),
       join(functionsDir, functionName, 'handlerUtils.js'),
     )
+    await copyFile(
+      join(__dirname, '..', '..', 'lib', 'templates', 'blobStorage.js'),
+      join(functionsDir, functionName, 'blobStorage.js'),
+    )
     await writeFunctionConfiguration({ functionName, functionTitle, functionsDir })
 
     const nfInternalFiles = await glob(join(functionsDir, functionName, '**'))
@@ -333,6 +337,8 @@ export const getCommonDependencies = async (publish: string) => {
 
     // using package.json because otherwise, we'd find some /dist/... path
     traceNPMPackage('@netlify/functions/package.json', publish),
+    traceNPMPackage('@netlify/blobs/package.json', publish),
+
     traceNPMPackage('is-promise', publish),
   ])
 
@@ -390,6 +396,7 @@ const getSSRDependencies = async (publish: string): Promise<string[]> => {
     }),
     join(publish, '**', '*.html'),
     join(publish, 'static-manifest.json'),
+    join(publish, 'blobs-manifest.json'),
   ]
 }
 

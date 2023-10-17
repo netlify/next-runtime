@@ -1,4 +1,4 @@
-import fs, { createWriteStream, existsSync } from 'fs'
+import fs, { createWriteStream, existsSync, writeFile } from 'fs'
 import { ServerResponse } from 'http'
 import { tmpdir } from 'os'
 import path from 'path'
@@ -14,13 +14,14 @@ import type { StaticRoute } from '../helpers/types'
 export type NextServerType = typeof NextNodeServer
 
 const streamPipeline = promisify(pipeline)
+const writeFilePromisified = promisify(writeFile)
 
 /**
  * Downloads a file from the CDN to the local aliased filesystem. This is a fallback, because in most cases we'd expect
  * files required at runtime to not be sent to the CDN.
  */
-export const downloadFile = async (url: string, destination: string): Promise<void> => {
-  console.log(`Downloading ${url} to ${destination}`)
+export const downloadFileFromCDN = async (url: string, destination: string): Promise<void> => {
+  console.log(`Downloading ${url} from CDN to ${destination}`)
 
   const httpx = url.startsWith('https') ? https : http
 
@@ -43,6 +44,22 @@ export const downloadFile = async (url: string, destination: string): Promise<vo
       reject(error)
     })
   })
+}
+
+const downloadFileFromBlobs = async (filePath: string, destination: string): Promise<void> => {
+  console.log(`Downloading ${filePath} from Blobs Storage to ${destination}`)
+
+  const { Blobs, getNormalizedBlobKey, getBlobInit } =
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('./blobStorage') as typeof import('./blobStorage')
+
+  const netliBlob = new Blobs(getBlobInit())
+
+  const blobKey = getNormalizedBlobKey(filePath)
+
+  const fileContent = await netliBlob.get(blobKey, { type: 'text' })
+
+  await writeFilePromisified(destination, fileContent)
 }
 
 /**
@@ -86,11 +103,13 @@ export const getMultiValueHeaders = (
 export const augmentFsModule = ({
   promises,
   staticManifest,
+  blobsManifest,
   pageRoot,
   getBase,
 }: {
   promises: typeof fs.promises
   staticManifest: Array<[string, string]>
+  blobsManifest: Set<string>
   pageRoot: string
   getBase: () => string
 }) => {
@@ -109,6 +128,11 @@ export const augmentFsModule = ({
   // Grab the real fs.promises.readFile...
   const readfileOrig = promises.readFile
   const statsOrig = promises.stat
+
+  const { getBlobInit } =
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('./blobStorage') as typeof import('./blobStorage')
+
   // ...then monkey-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
     const baseUrl = getBase()
@@ -118,31 +142,37 @@ export const augmentFsModule = ({
       // We only want the part after `.next/server/`
       const filePath = file.slice(pageRoot.length + 1)
 
-      // Is it in the CDN and not local?
-      if (staticFiles.has(filePath) && !existsSync(file)) {
-        // This name is safe to use, because it's one that was already created by Next
-        const cacheFile = path.join(cacheDir, filePath)
-        const url = `${baseUrl}/${staticFiles.get(filePath)}`
+      if (!existsSync(file)) {
+        // Is it in the CDN or Blobs Storage and not local?
+        const isStatic = staticFiles.has(filePath)
+        const isBlob = getBlobInit() ? blobsManifest.has(filePath) : false
+        if (isStatic || isBlob) {
+          // This name is safe to use, because it's one that was already created by Next
+          const cacheFile = path.join(cacheDir, filePath)
+          const url = `${baseUrl}/${staticFiles.get(filePath)}`
 
-        // If it's already downloading we can wait for it to finish
-        if (downloadPromises.has(url)) {
-          await downloadPromises.get(url)
-        }
-        // Have we already cached it? We download every time if running locally to avoid staleness
-        if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && baseUrl) {
-          await promises.mkdir(path.dirname(cacheFile), { recursive: true })
-
-          try {
-            // Append the path to our host and we can load it like a regular page
-            const downloadPromise = downloadFile(url, cacheFile)
-            downloadPromises.set(url, downloadPromise)
-            await downloadPromise
-          } finally {
-            downloadPromises.delete(url)
+          // If it's already downloading we can wait for it to finish
+          if (downloadPromises.has(url)) {
+            await downloadPromises.get(url)
           }
+          // Have we already cached it? We download every time if running locally to avoid staleness
+          if ((!existsSync(cacheFile) || process.env.NETLIFY_DEV) && baseUrl) {
+            await promises.mkdir(path.dirname(cacheFile), { recursive: true })
+
+            try {
+              // Append the path to our host and we can load it like a regular page
+              const downloadPromise = isStatic
+                ? downloadFileFromCDN(url, cacheFile)
+                : downloadFileFromBlobs(filePath, cacheFile)
+              downloadPromises.set(url, downloadPromise)
+              await downloadPromise
+            } finally {
+              downloadPromises.delete(url)
+            }
+          }
+          // Return the cache file
+          return readfileOrig(cacheFile, options)
         }
-        // Return the cache file
-        return readfileOrig(cacheFile, options)
       }
     }
 

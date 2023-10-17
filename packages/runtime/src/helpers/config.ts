@@ -37,6 +37,9 @@ const defaultFailBuild = (message: string, { error }): never => {
 export const getNextConfig = async function getNextConfig({
   publish,
   failBuild = defaultFailBuild,
+}: {
+  publish: string
+  failBuild?: (message: string, { error }) => never
 }): Promise<NextConfig> {
   try {
     const { config, appDir, ignore }: RequiredServerFiles = await readJSON(join(publish, 'required-server-files.json'))

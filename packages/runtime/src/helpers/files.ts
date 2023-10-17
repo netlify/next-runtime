@@ -1,8 +1,9 @@
 import { cpus } from 'os'
 
+import type { Blobs } from '@netlify/blobs'
 import type { NetlifyConfig } from '@netlify/build/types'
 import { yellowBright } from 'chalk'
-import { existsSync, readJson, move, copy, writeJson, ensureDir, readFileSync, remove } from 'fs-extra'
+import { existsSync, readJson, move, copy, writeJson, ensureDir, readFileSync, remove, readFile } from 'fs-extra'
 import globby from 'globby'
 import { PrerenderManifest } from 'next/dist/build'
 import { outdent } from 'outdent'
@@ -11,6 +12,7 @@ import { join, resolve, dirname } from 'pathe'
 import slash from 'slash'
 
 import { MINIMUM_REVALIDATE_SECONDS, DIVIDER, HIDDEN_PATHS } from '../constants'
+import { getNormalizedBlobKey } from '../templates/blobStorage'
 
 import { NextConfig } from './config'
 import { loadPrerenderManifest } from './edge'
@@ -75,14 +77,15 @@ export const getMiddleware = async (publish: string): Promise<Array<string>> => 
 export const moveStaticPages = async ({
   netlifyConfig,
   target,
-  i18n,
-  basePath,
+  nextConfig,
+  netliBlob,
 }: {
   netlifyConfig: NetlifyConfig
   target: 'server' | 'serverless' | 'experimental-serverless-trace'
-  i18n: NextConfig['i18n']
-  basePath?: string
+  nextConfig: Pick<NextConfig, 'i18n' | 'basePath'>
+  netliBlob?: Blobs
 }): Promise<void> => {
+  const { i18n, basePath } = nextConfig
   console.log('Moving static page files to serve from CDN...')
   const outputDir = join(netlifyConfig.build.publish, target === 'serverless' ? 'serverless' : 'server')
   const buildId = readFileSync(join(netlifyConfig.build.publish, 'BUILD_ID'), 'utf8').trim()
@@ -117,15 +120,27 @@ export const moveStaticPages = async ({
   })
 
   let fileCount = 0
+  let blobCount = 0
   const filesManifest: Record<string, string> = {}
-  const moveFile = async (file: string) => {
+  const blobsManifest = new Set<string>()
+
+  const getSourceAndTargetPath = (file: string): { targetPath: string; source: string } => {
+    const source = join(outputDir, file)
     // Strip the initial 'app' or 'pages' directory from the output path
     const pathname = file.split('/').slice(1).join('/')
     // .rsc data files go next to the html file
     const isData = file.endsWith('.json')
-    const source = join(outputDir, file)
     const targetFile = isData ? join(dataDir, pathname) : pathname
     const targetPath = basePath ? join(basePath, targetFile) : targetFile
+
+    return {
+      targetPath,
+      source,
+    }
+  }
+
+  const moveFile = async (file: string) => {
+    const { source, targetPath } = getSourceAndTargetPath(file)
 
     fileCount += 1
     filesManifest[file] = targetPath
@@ -137,6 +152,18 @@ export const moveStaticPages = async ({
     } catch (error) {
       console.warn('Error moving file', source, error)
     }
+  }
+  const uploadFileToBlobStorageAndDelete = async (file: string) => {
+    const { source } = getSourceAndTargetPath(file)
+
+    blobsManifest.add(file)
+
+    const content = await readFile(source, 'utf8')
+
+    blobCount += 1
+
+    await netliBlob.set(getNormalizedBlobKey(file), content)
+    await remove(source)
   }
   // Move all static files, except nft manifests
   const pages = await globby(['{app,pages}/**/*.{html,json,rsc}', '!**/*.js.nft.{html,json}'], {
@@ -156,8 +183,14 @@ export const moveStaticPages = async ({
     const filePath = slash(rawPath)
     // Remove the initial 'app' or 'pages' directory from the output path
     const pagePath = filePath.split('/').slice(1).join('/')
-    // Don't move ISR files, as they're used for the first request
+
     if (isrFiles.has(pagePath)) {
+      if (netliBlob) {
+        // if netliblob is enabled, we will move ISR assets to blob store and delete files after that
+        // to minimize the number of files needed in lambda
+        return limit(uploadFileToBlobStorageAndDelete, filePath)
+      }
+      // Don't move ISR files, as they're used for the first request
       return
     }
     if (isDynamicRoute(pagePath)) {
@@ -183,7 +216,10 @@ export const moveStaticPages = async ({
     return limit(moveFile, filePath)
   })
   await Promise.all(promises)
-  console.log(`Moved ${fileCount} files`)
+  console.log(`Moved ${fileCount} files to CDN`)
+  if (netliBlob) {
+    console.log(`Moved ${blobCount} files to Blob Storage`)
+  }
 
   if (matchedPages.size !== 0) {
     console.log(
@@ -246,8 +282,9 @@ export const moveStaticPages = async ({
     }
   }
 
-  // Write the manifest for use in the serverless functions
+  // Write the manifests for use in the serverless functions
   await writeJson(join(netlifyConfig.build.publish, 'static-manifest.json'), Object.entries(filesManifest))
+  await writeJson(join(netlifyConfig.build.publish, 'blobs-manifest.json'), [...blobsManifest])
 
   if (i18n?.defaultLocale) {
     const rootPath = basePath ? join(netlifyConfig.build.publish, basePath) : netlifyConfig.build.publish

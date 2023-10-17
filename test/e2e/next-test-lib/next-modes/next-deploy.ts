@@ -75,6 +75,7 @@ export class NextDeployInstance extends NextInstance {
         NODE_ENV: 'production',
         DISABLE_IPX: platform() === 'linux' ? undefined : '1',
         NEXT_KEEP_METADATA_FILES: 'true',
+        NODE_OPTIONS: `--require ${require.resolve('../fetch-polyfill.js')}`
       },
     })
 

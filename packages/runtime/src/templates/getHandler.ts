@@ -1,4 +1,4 @@
-import { HandlerContext, HandlerEvent } from '@netlify/functions'
+import type { HandlerContext, HandlerEvent } from '@netlify/functions'
 import type { Bridge as NodeBridge } from '@vercel/node-bridge/bridge'
 // Aliasing like this means the editor may be able to syntax-highlight the string
 import { outdent as javascript } from 'outdent'
@@ -10,6 +10,7 @@ import type { NextServerType } from './handlerUtils'
 import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
+const { Buffer } = require('buffer')
 const { promises } = require('fs')
 const { Server } = require('http')
 const path = require('path')
@@ -18,13 +19,9 @@ const { URLSearchParams, URL } = require('url')
 
 const { Bridge } = require('@vercel/node-bridge/bridge')
 
-const {
-  augmentFsModule,
-  getMaxAge,
-  getMultiValueHeaders,
-  getPrefetchResponse,
-  normalizePath,
-} = require('./handlerUtils')
+const { setBlobInit } = require('./blobStorage') as typeof import('./blobStorage')
+const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath } =
+  require('./handlerUtils') as typeof import('./handlerUtils')
 const { overrideRequireHooks, applyRequireHooks } = require('./requireHooks')
 const { getNetlifyNextServer } = require('./server')
 /* eslint-enable @typescript-eslint/no-var-requires */
@@ -39,6 +36,7 @@ type MakeHandlerParams = {
   pageRoot: string
   NextServer: NextServerType
   staticManifest: Array<[string, string]>
+  blobsManifest: Set<string>
   mode: 'ssr' | 'odb'
   useHooks: boolean
 }
@@ -51,6 +49,7 @@ const makeHandler = ({
   pageRoot,
   NextServer,
   staticManifest = [],
+  blobsManifest = new Set(),
   mode = 'ssr',
   useHooks,
 }: MakeHandlerParams) => {
@@ -88,7 +87,7 @@ const makeHandler = ({
   // Set during the request as it needs to get it from the request URL. Defaults to the URL env var
   let base = process.env.URL
 
-  augmentFsModule({ promises, staticManifest, pageRoot, getBase: () => base })
+  augmentFsModule({ promises, staticManifest, blobsManifest, pageRoot, getBase: () => base })
 
   // We memoize this because it can be shared between requests, but don't instantiate it until
   // the first request because we need the host and port.
@@ -151,6 +150,19 @@ const makeHandler = ({
       // because it matches on every language listed: https://github.com/vercel/next.js/blob/5d9597879c46b383d595d6f7b37fd373325b7544/test/unit/accept-headers.test.ts
       // 'x-next-just-first-accept-language' header is escape hatch to be able to hit this code for tests (both automated and manual)
       event.headers['accept-language'] = event.headers['accept-language'].replace(/\s*,.*$/, '')
+    }
+
+    if (context?.clientContext?.custom?.blobs) {
+      const rawData = Buffer.from(context.clientContext.custom.blobs, 'base64')
+      const data = JSON.parse(rawData.toString('ascii'))
+      setBlobInit({
+        authentication: {
+          contextURL: data.url,
+          token: data.token,
+        },
+        context: `deploy:${event.headers['x-nf-deploy-id']}`,
+        siteID: event.headers['x-nf-site-id'],
+      })
     }
 
     const { headers, ...result } = await getBridge(event, context).launcher(event, context)
@@ -228,8 +240,10 @@ export const getHandler = ({
 
   process.env.NODE_ENV = 'production';
 
+  const { Buffer } = require('buffer')
   const { Server } = require("http");
   const { promises } = require("fs");
+  const { setBlobInit } = require('./blobStorage')
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");
   const { augmentFsModule, getMaxAge, getMultiValueHeaders, getPrefetchResponse, normalizePath, nextVersionNum } = require('./handlerUtils')
@@ -242,11 +256,15 @@ export const getHandler = ({
   try {
     staticManifest = require("${publishDir}/static-manifest.json")
   } catch {}
+  let blobsManifest
+  try {
+    blobsManifest = new Set(require("${publishDir}/blobs-manifest.json"))
+  } catch {}
   const path = require("path");
   const pageRoot = path.resolve(path.join(__dirname, "${publishDir}", "server"));
   exports.handler = ${
     isODB
-      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'odb', useHooks: ${useHooks}}));`
-      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, mode: 'ssr', useHooks: ${useHooks}});`
+      ? `builder((${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, blobsManifest, mode: 'odb', useHooks: ${useHooks}}));`
+      : `(${makeHandler.toString()})({ conf: config, app: "${appDir}", pageRoot, NextServer, staticManifest, blobsManifest, mode: 'ssr', useHooks: ${useHooks}});`
   }
 `
