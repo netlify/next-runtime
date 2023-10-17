@@ -35,7 +35,7 @@
   "homepage": "https://github.com/netlify/next-runtime-minimal#readme",
   "dependencies": {
     "@fastly/http-compute-js": "github:orinokai/http-compute-js",
-    "@netlify/blobs": "^1.6.0",
+    "@netlify/blobs": "^2.2.0",
     "@netlify/build": "^29.20.6",
     "@netlify/functions": "^2.0.1",
     "@vercel/nft": "^0.24.3",
