@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.41.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.40.2...plugin-nextjs-v4.41.0) (2023-10-17)
+
+
+### Features
+
+* add blob storage ([#2287](https://github.com/netlify/next-runtime/issues/2287)) ([5da5a8c](https://github.com/netlify/next-runtime/commit/5da5a8c625f22edb9fda1b13473a5a5f8d7e0428))
+
+
+### Bug Fixes
+
+* improve support for new requireHooks update ([#2313](https://github.com/netlify/next-runtime/issues/2313)) ([e354b73](https://github.com/netlify/next-runtime/commit/e354b73ac2c06f8a45d22cba008d8df5dbd341a9))
+
 ## [4.40.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.40.1...plugin-nextjs-v4.40.2) (2023-10-02)
 
 
