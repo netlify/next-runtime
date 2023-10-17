@@ -1,6 +1,5 @@
 import type { OutgoingHttpHeaders } from 'http'
 
-import type { HandlerEvent } from '@netlify/functions'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
 export interface NetlifyVaryHeaderBuilder {
@@ -51,9 +50,10 @@ const removeSMaxAgeAndSWR = (headerValue: string): string =>
     .join(`,`)
 
 export const getVaryHeaders = (
-  headers: Record<string, string>,
-  event: HandlerEvent,
-  nextConfig: NextConfigComplete,
+  headers: OutgoingHttpHeaders,
+  url: string | undefined,
+  basePath: NextConfigComplete['basePath'],
+  i18n: NextConfigComplete['i18n'],
 ) => {
   const netlifyVaryBuilder: NetlifyVaryHeaderBuilder = {
     headers: [],
@@ -61,20 +61,18 @@ export const getVaryHeaders = (
     cookies: ['__prerender_bypass', '__next_preview_data'],
   }
 
-  if (headers.vary.length !== 0) {
+  if (headers.vary) {
     netlifyVaryBuilder.headers.push(...getDirectives(headers.vary))
   }
 
-  const autoDetectedLocales = getAutoDetectedLocales(nextConfig)
+  const path = new URL(url ?? '/').pathname
+  const locales = i18n && i18n.localeDetection !== false ? i18n.locales : []
 
-  if (autoDetectedLocales.length > 1) {
-    const logicalPath =
-      nextConfig.basePath && event.path.startsWith(nextConfig.basePath)
-        ? event.path.slice(nextConfig.basePath.length)
-        : event.path
+  if (locales.length > 1) {
+    const logicalPath = basePath && path.startsWith(basePath) ? path.slice(basePath.length) : path
 
     if (logicalPath === `/`) {
-      netlifyVaryBuilder.languages.push(...autoDetectedLocales)
+      netlifyVaryBuilder.languages.push(...locales)
       netlifyVaryBuilder.cookies.push(`NEXT_LOCALE`)
     }
   }
@@ -99,11 +97,3 @@ export const getCacheControlHeaders = (headers: OutgoingHttpHeaders) =>
         ],
       ]
     : []
-
-export const getAutoDetectedLocales = (config: NextConfigComplete): Array<string> => {
-  if (config.i18n && config.i18n.localeDetection !== false && config.i18n.locales.length > 1) {
-    return config.i18n.locales
-  }
-
-  return []
-}
