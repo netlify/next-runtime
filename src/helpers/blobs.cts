@@ -1,20 +1,17 @@
-// eslint-disable-next-line n/no-missing-import
-import { Blobs } from '@netlify/blobs'
+import { getStore } from '@netlify/blobs'
 
-type BlobsInit = ConstructorParameters<typeof Blobs>[0]
-let blobsInit: BlobsInit;
-
-// eslint-disable-next-line max-params
-export const netliBlob = ( token: string, context: string, siteID: string, contextURL?: string, apiURL?: string ) => {
-  blobsInit = {authentication: ({apiURL, token} || {contextURL, token}), context, siteID}
-  return new Blobs(blobsInit)
+export const netliBlob = (token: string, deployID: string, siteID: string, apiURL?: string ) => {
+  return getStore({
+    deployID,
+    siteID,
+    token,
+    apiURL
+  })
 }
 
-export const getBlobInit = () => blobsInit
-
-export const isBlobStorageAvailable = async (blob: Blobs) => {
+export const isBlobStorageAvailable = async (blob) => {
   try {
-    await blob.get('test')
+    await blob.get('test-blob')
     return true
   } catch {
     return false
