@@ -1,16 +1,43 @@
-import { existsSync } from 'node:fs'
+import { NetlifyPluginConstants } from '@netlify/build'
+import { copy, move, remove } from 'fs-extra/esm'
+import { globby } from 'globby'
 
-import { copySync } from 'fs-extra/esm'
-
-import { NETLIFY_PUBLISH_DIR } from './constants.js'
+import { BUILD_DIR } from './constants.js'
 
 /**
- * Ensure static assets get uploaded to the Netlify CDN
- * @param publishDir The publish directory
+ * Move the Next.js build output from the publish dir to a temp dir
  */
-export const publishStaticAssets = (publishDir: string) => {
-  if (existsSync('public')) {
-    copySync('public', NETLIFY_PUBLISH_DIR, { overwrite: true })
-  }
-  copySync(`${publishDir}/static/`, `${NETLIFY_PUBLISH_DIR}/_next/static`, { overwrite: true })
+export const stashBuildOutput = async ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
+  await move(PUBLISH_DIR, BUILD_DIR, { overwrite: true })
+
+  // remove prerendered content from the standalone build (it's also in the main build dir)
+  await Promise.all(
+    getPrerenderedContent(`${BUILD_DIR}/standalone/`).map((filename: string) => remove(filename)),
+  )
+}
+
+/**
+ * Glob for prerendered content in the build output
+ */
+const getPrerenderedContent = (cwd: string): string[] => {
+  // TODO: test this
+  // return globby('**/*.+(html|json|rsc|body|meta)', { cwd, extglob: true })
+  return []
+}
+
+/**
+ * Upload prerendered content from the main build dir to the blob store
+ */
+export const storePrerenderedContent = () => {
+  // TODO: implement
+}
+
+/**
+ * Move static assets to the publish dir so they are uploaded to the CDN
+ */
+export const publishStaticAssets = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
+  return Promise.all([
+    copy('public', PUBLISH_DIR),
+    copy(`${BUILD_DIR}/static/`, `${PUBLISH_DIR}/_next/static`),
+  ])
 }

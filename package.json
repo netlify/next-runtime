@@ -34,14 +34,13 @@
   },
   "homepage": "https://github.com/netlify/next-runtime-minimal#readme",
   "dependencies": {
-    "@fastly/http-compute-js": "^1.1.0",
+    "@fastly/http-compute-js": "github:orinokai/http-compute-js",
     "@netlify/blobs": "^1.6.0",
     "@netlify/build": "^29.20.6",
     "@netlify/functions": "^2.0.1",
-    "chalk": "^5.3.0",
+    "@vercel/nft": "^0.24.3",
     "fs-extra": "^11.1.1",
-    "outdent": "^0.8.0",
-    "esbuild": "^0.19.4"
+    "globby": "^13.2.2"
   },
   "devDependencies": {
     "@netlify/eslint-config-node": "^7.0.1",
