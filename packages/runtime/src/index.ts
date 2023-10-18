@@ -5,6 +5,7 @@ import { bold, redBright } from 'chalk'
 import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'
 import { outdent } from 'outdent'
+import { satisfies } from 'semver'
 
 import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from './constants'
 import { restoreCache, saveCache } from './helpers/cache'
@@ -30,6 +31,7 @@ import {
   APILambda,
   getSSRLambdas,
 } from './helpers/functions'
+import { nextPluginVersion } from './helpers/functionsMetaData'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
 import {
   shouldSkip,
@@ -78,6 +80,12 @@ const plugin: NetlifyPlugin = {
     }
     checkForRootPublish({ publish, failBuild })
     verifyNetlifyBuildVersion({ failBuild, ...constants })
+
+    const nextVersion = await nextPluginVersion('next')
+    if (!satisfies(nextVersion, '< 13.5')) {
+      failBuild('NextJS 13.5 and newer is not yet supported.')
+      return
+    }
 
     await restoreCache({ cache, publish })
 
