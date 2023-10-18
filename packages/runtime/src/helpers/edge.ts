@@ -260,10 +260,12 @@ export const writeDevEdgeFunction = async ({
       },
     ],
     version: 1,
+    import_map: 'vendor/import_map.json',
   }
   const edgeFunctionRoot = resolve(INTERNAL_EDGE_FUNCTIONS_SRC)
   await emptyDir(edgeFunctionRoot)
   await writeJson(join(edgeFunctionRoot, 'manifest.json'), manifest)
+  await copy(getEdgeTemplatePath('../vendor'), join(edgeFunctionRoot, 'vendor'))
   await copy(getEdgeTemplatePath('../edge-shared'), join(edgeFunctionRoot, 'edge-shared'))
 
   const edgeFunctionDir = join(edgeFunctionRoot, 'next-dev')
