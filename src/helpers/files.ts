@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { existsSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { resolve, join } from 'node:path'
 import { cpus } from 'os'
 
 import { NetlifyPluginConstants } from '@netlify/build'
@@ -52,14 +52,14 @@ export const storePrerenderedContent = async ({ NETLIFY_API_TOKEN, SITE_ID }:
     const blob = netliBlob(NETLIFY_API_TOKEN, deployID, SITE_ID)
     // todo: Check out setFiles within Blobs.js to see how to upload files to blob storage
     const limit = pLimit(Math.max(2, cpus().length))
+    console.log(
+      outdent`
+        Uploading Files to Blob Storage...
+      `)
 
     const uploadFilesToBlob = async (key: string, file: string) => {
       try{
-        console.log(
-          outdent`
-            Uploading Files to Blob Storage...
-          `)
-        const content = await readFile(file, 'utf8')
+        const content = await readFile(join(BUILD_DIR, file), 'utf8')
         await blob.set(getNormalizedBlobKey(key), content)
       }catch(error){
         console.error(error)
