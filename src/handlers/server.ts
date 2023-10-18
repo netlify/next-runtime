@@ -3,7 +3,7 @@ import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
 import { TASK_DIR } from '../helpers/constants.js'
-import { getCacheControlHeaders, getVaryHeaders } from '../helpers/headers.js'
+import { setCacheControlHeaders, setVaryHeaders } from '../helpers/headers.js'
 
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete
 
@@ -35,15 +35,12 @@ export default async (request: Request) => {
     res.end('Internal Server Error')
   }
 
-  const headers = res.getHeaders()
-  new Map([
-    ...getCacheControlHeaders(headers),
-    ...getVaryHeaders(headers, req.url, nextConfig.basePath, nextConfig.i18n),
-  ]).forEach(res.setHeader)
-
   // log the response from Next.js
-  const response = { headers, statusCode: res.statusCode }
+  const response = { headers: res.getHeaders(), statusCode: res.statusCode }
   console.log('Next server response:', JSON.stringify(response, null, 2))
+
+  setCacheControlHeaders(res)
+  setVaryHeaders(res, req, nextConfig)
 
   return toComputeResponse(res)
 }
