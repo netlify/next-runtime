@@ -2,7 +2,7 @@ import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
-import { TASK_DIR } from '../helpers/constants.js'
+import { RUN_DIR } from '../helpers/constants.js'
 import { setCacheControlHeaders, setVaryHeaders } from '../helpers/headers.js'
 
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete
@@ -19,7 +19,7 @@ export default async (request: Request) => {
     ;[nextHandler] = await getRequestHandlers({
       port: 3000,
       hostname: 'localhost',
-      dir: TASK_DIR,
+      dir: RUN_DIR,
       isDev: false,
     })
   }
