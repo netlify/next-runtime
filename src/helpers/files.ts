@@ -8,11 +8,13 @@ import { BUILD_DIR } from './constants.js'
  * Move the Next.js build output from the publish dir to a temp dir
  */
 export const stashBuildOutput = async ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
-  await move(PUBLISH_DIR, BUILD_DIR, { overwrite: true })
+  await move(PUBLISH_DIR, `${BUILD_DIR}/.next`, { overwrite: true })
 
   // remove prerendered content from the standalone build (it's also in the main build dir)
   await Promise.all(
-    getPrerenderedContent(`${BUILD_DIR}/standalone/`).map((filename: string) => remove(filename)),
+    getPrerenderedContent(`${BUILD_DIR}/.next/standalone/`).map((filename: string) =>
+      remove(filename),
+    ),
   )
 }
 
@@ -38,6 +40,6 @@ export const storePrerenderedContent = () => {
 export const publishStaticAssets = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
   return Promise.all([
     copy('public', PUBLISH_DIR),
-    copy(`${BUILD_DIR}/static/`, `${PUBLISH_DIR}/_next/static`),
+    copy(`${BUILD_DIR}/.next/static/`, `${PUBLISH_DIR}/_next/static`),
   ])
 }

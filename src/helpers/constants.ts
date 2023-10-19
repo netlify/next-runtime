@@ -5,7 +5,7 @@ export const MODULE_DIR = fileURLToPath(new URL('.', import.meta.url))
 export const PLUGIN_DIR = resolve(`${MODULE_DIR}../..`)
 export const WORKING_DIR = process.cwd()
 
-export const BUILD_DIR = `${WORKING_DIR}/.netlify/.next`
+export const BUILD_DIR = `${WORKING_DIR}/.netlify`
 export const RUN_DIR = WORKING_DIR
 
 export const SERVER_FUNCTIONS_DIR = `${WORKING_DIR}/.netlify/functions-internal`
