@@ -9,14 +9,14 @@ import { outdent } from 'outdent'
 import pLimit from 'p-limit'
 
 import { getNormalizedBlobKey, netliBlob } from './blobs/blobs.cjs'
-import { removeFileDir, formatPageData } from './blobs/cacheFormat.js'
-import { BUILD_DIR, STANDALONE_BUILD_DIR } from './constants.js'
+import { removeFileDir, formatBlobContent } from './blobs/cacheFormat.js'
+import { NEXT_DIR, STANDALONE_BUILD_DIR } from './constants.js'
 
 /**
  * Move the Next.js build output from the publish dir to a temp dir
  */
 export const stashBuildOutput = async ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
-  await move(PUBLISH_DIR, `${BUILD_DIR}/.next`, { overwrite: true })
+  await move(PUBLISH_DIR, `${NEXT_DIR}`, { overwrite: true })
 
   // remove prerendered content from the standalone build (it's also in the main build dir)
   const prerenderedContent = await getPrerenderedContent(STANDALONE_BUILD_DIR)
@@ -42,7 +42,8 @@ const getPrerenderedContent = async (cwd: string): Promise<string[]> => {
  */
 export const storePrerenderedContent = async ({ NETLIFY_API_TOKEN, SITE_ID }:
   { 
-    NETLIFY_API_TOKEN: string, SITE_ID: string
+    NETLIFY_API_TOKEN: string, 
+    SITE_ID: string
   }) => {
     const deployID = `${process.env.DEPLOY_ID}`
     const blob = netliBlob(NETLIFY_API_TOKEN, deployID, SITE_ID)
@@ -55,8 +56,7 @@ export const storePrerenderedContent = async ({ NETLIFY_API_TOKEN, SITE_ID }:
 
     const uploadFilesToBlob = async (pathName: string, file: string) => {
       const key = path.basename(pathName, path.extname(pathName))
-      const content =  await formatPageData(pathName, key, file)
-      console.log(content)
+      const content = await formatBlobContent(pathName, key, file)
       try{
         await blob.setJSON(getNormalizedBlobKey(key), content)
       }catch(error){
@@ -65,22 +65,28 @@ export const storePrerenderedContent = async ({ NETLIFY_API_TOKEN, SITE_ID }:
     }
 
     // todo: test it on demo with pages dir
-    const prerenderedContent = await getPrerenderedContent(BUILD_DIR)
-
-    prerenderedContent.map((rawPath) => {
+    // eslint-disable-next-line unicorn/no-await-expression-member
+    (await getPrerenderedContent(NEXT_DIR)).map((rawPath: string) => {
       const cacheFile = rawPath.startsWith('cache')
-      const hasHtml = Boolean(rawPath.endsWith('.html'))
-
-      // Removing app, page, and cache/fetch-cache from file path
       const pathKey = removeFileDir(rawPath, (cacheFile ? 2 : 1))
-      const errorPages = pathKey.includes('404') || pathKey.includes('500')
-      
-      // Checking for blob access before uploading
-      if( hasHtml && !errorPages ){
+      const files = findCacheFiles(pathKey, rawPath)
+
+      if(files){
         return limit(uploadFilesToBlob, pathKey, rawPath)
       }
     })
 } 
+
+const findCacheFiles = (pathKey: string, rawPath: string) => {
+  const errorPages = pathKey.includes('404') || pathKey.includes('500')
+  const isFetchCache = rawPath.startsWith('cache/fetch-cache')
+  const isRoute = rawPath.endsWith('.body')
+  const hasHtml = rawPath.endsWith('.html')
+
+  if (hasHtml && !errorPages || isFetchCache || isRoute){
+    return true
+  }
+}
 
 /**
  * Move static assets to the publish dir so they are uploaded to the CDN
@@ -88,6 +94,6 @@ export const storePrerenderedContent = async ({ NETLIFY_API_TOKEN, SITE_ID }:
 export const publishStaticAssets = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
   return Promise.all([
     copy('public', PUBLISH_DIR),
-    copy(`${BUILD_DIR}/.next/static/`, `${PUBLISH_DIR}/_next/static`),
+    copy(`${NEXT_DIR}/static/`, `${PUBLISH_DIR}/_next/static`),
   ])
 }

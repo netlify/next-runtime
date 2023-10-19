@@ -7,9 +7,10 @@ export const WORKING_DIR = process.cwd()
 
 export const BUILD_DIR = `${WORKING_DIR}/.netlify`
 export const RUN_DIR = WORKING_DIR
-export const SERVER_DIR = `${BUILD_DIR}/server`
-export const STANDALONE_BUILD_DIR = `${BUILD_DIR}/standalone`
-export const FETCH_CACHE_DIR = `${BUILD_DIR}/cache/fetch-cache`
+export const NEXT_DIR = `${BUILD_DIR}/.next`
+export const SERVER_DIR = `${NEXT_DIR}/server`
+export const STANDALONE_BUILD_DIR = `${NEXT_DIR}/standalone`
+export const FETCH_CACHE_DIR = `${NEXT_DIR}/cache/fetch-cache`
 
 export const SERVER_FUNCTIONS_DIR = `${WORKING_DIR}/.netlify/functions-internal`
 export const SERVER_HANDLER_NAME = '___netlify-server-handler'
