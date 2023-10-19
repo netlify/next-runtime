@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.41.1](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.41.0...plugin-nextjs-v4.41.1) (2023-10-19)
+
+
+### Bug Fixes
+
+* copy `vendor` over for local dev ([#2341](https://github.com/netlify/next-runtime/issues/2341)) ([e43fcf2](https://github.com/netlify/next-runtime/commit/e43fcf28f2e75219ff607ac347f2254982b3365f))
+
 ## [4.41.0](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.40.2...plugin-nextjs-v4.41.0) (2023-10-17)
 
 
