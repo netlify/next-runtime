@@ -3,7 +3,13 @@ import { writeFile } from 'fs/promises'
 import { nodeFileTrace } from '@vercel/nft'
 import { copy, emptyDir, readJson, writeJSON } from 'fs-extra/esm'
 
-import { BUILD_DIR, SERVER_HANDLER_DIR, SERVER_HANDLER_NAME, PLUGIN_DIR } from './constants.js'
+import {
+  BUILD_DIR,
+  EDGE_HANDLER_DIR,
+  PLUGIN_DIR,
+  SERVER_HANDLER_DIR,
+  SERVER_HANDLER_NAME,
+} from './constants.js'
 
 const pkg = await readJson(`${PLUGIN_DIR}/package.json`)
 
@@ -26,8 +32,8 @@ export const createServerHandler = async () => {
   )
 
   // copy the next.js standalone build output to the handler directory
-  await copy(`${BUILD_DIR}/standalone/.next`, `${SERVER_HANDLER_DIR}/.next`)
-  await copy(`${BUILD_DIR}/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
+  await copy(`${BUILD_DIR}/.next/standalone/.next`, `${SERVER_HANDLER_DIR}/.next`)
+  await copy(`${BUILD_DIR}/.next/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
 
   // create the handler metadata file
   await writeJSON(`${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.json`, {
@@ -61,5 +67,6 @@ export const createServerHandler = async () => {
  * Create a Netlify edge function to run the Next.js server
  */
 export const createEdgeHandler = async () => {
-  // TODO: implement
+  // reset the handler directory
+  await emptyDir(EDGE_HANDLER_DIR)
 }

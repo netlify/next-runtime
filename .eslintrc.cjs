@@ -21,6 +21,7 @@ module.exports = {
     {
       files: ['src/handlers/**'],
       rules: {
+        'max-statements': ['error', 30],
         'import/no-anonymous-default-export': 'off',
       },
     },
