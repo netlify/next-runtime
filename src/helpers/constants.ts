@@ -6,9 +6,9 @@ export const PLUGIN_DIR = resolve(`${MODULE_DIR}../..`)
 export const TASK_DIR = process.cwd()
 
 export const BUILD_DIR = `${TASK_DIR}/.netlify/.next`
-export const SERVER_APP_DIR = `${BUILD_DIR}/server/app`
+export const SERVER_DIR = `${BUILD_DIR}/server`
 export const STANDALONE_BUILD_DIR = `${BUILD_DIR}/standalone`
-export const STANDALONE_APP_DIR = `${STANDALONE_BUILD_DIR}/.next/server/app`
+export const FETCH_CACHE_DIR = `${BUILD_DIR}/cache/fetch-cache`
 
 export const FUNCTIONS_DIR = `${TASK_DIR}/.netlify/functions-internal`
 export const EDGE_FUNCTIONS_DIR = `${TASK_DIR}/.netlify/edge-functions`

@@ -1,21 +1,17 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { existsSync } from 'node:fs'
-import { resolve, join } from 'node:path'
 import { cpus } from 'os'
+import path from 'path'
 
 import { NetlifyPluginConstants } from '@netlify/build'
-import type { NetlifyConfig } from '@netlify/build'
-import pkg from 'fs-extra'
-import { copy, move, remove, readJSON } from 'fs-extra/esm'
+import { copy, move, remove } from 'fs-extra/esm'
 import { globby } from 'globby'
 import { outdent } from 'outdent'
 import pLimit from 'p-limit'
 
-import { netliBlob, getNormalizedBlobKey } from './blobs.cjs'
+import { getNormalizedBlobKey, netliBlob } from './blobs/blobs.cjs'
+import { removeFileDir, formatPageData } from './blobs/cacheFormat.js'
 import { BUILD_DIR, STANDALONE_BUILD_DIR } from './constants.js'
 
-// readfile not available in esm version of fs-extra
-const { readFile } = pkg
 /**
  * Move the Next.js build output from the publish dir to a temp dir
  */
@@ -57,10 +53,12 @@ export const storePrerenderedContent = async ({ NETLIFY_API_TOKEN, SITE_ID }:
         Uploading Files to Blob Storage...
       `)
 
-    const uploadFilesToBlob = async (key: string, file: string) => {
+    const uploadFilesToBlob = async (pathName: string, file: string) => {
+      const key = path.basename(pathName, path.extname(pathName))
+      const content =  await formatPageData(pathName, key, file)
+      console.log(content)
       try{
-        const content = await readFile(join(BUILD_DIR, file), 'utf8')
-        await blob.set(getNormalizedBlobKey(key), content)
+        await blob.setJSON(getNormalizedBlobKey(key), content)
       }catch(error){
         console.error(error)
       }
@@ -71,24 +69,18 @@ export const storePrerenderedContent = async ({ NETLIFY_API_TOKEN, SITE_ID }:
 
     prerenderedContent.map((rawPath) => {
       const cacheFile = rawPath.startsWith('cache')
+      const hasHtml = Boolean(rawPath.endsWith('.html'))
+
       // Removing app, page, and cache/fetch-cache from file path
       const pathKey = removeFileDir(rawPath, (cacheFile ? 2 : 1))
+      const errorPages = pathKey.includes('404') || pathKey.includes('500')
+      
       // Checking for blob access before uploading
-      if( blob ){
+      if( hasHtml && !errorPages ){
         return limit(uploadFilesToBlob, pathKey, rawPath)
       }
     })
-}
-
-const removeFileDir = (file: string, num: number) => {
-  return file.split('/').slice(num).join('/')
-}
-
-const maybeLoadJson = <T>(path: string): Promise<T> | null => existsSync(path) ? readJSON(path) : null
-
-// use this to load any manifest file by passing in name and/or dir if needed 
-export const loadManifest = (netlifyConfig: NetlifyConfig, manifest: string, dir?: string): any => 
-  maybeLoadJson(resolve(netlifyConfig.build.publish, dir ?? '', manifest))
+} 
 
 /**
  * Move static assets to the publish dir so they are uploaded to the CDN
