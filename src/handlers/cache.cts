@@ -2,13 +2,9 @@ import { getStore } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
 import type { CacheHandler, CacheHandlerContext } from 'next/dist/server/lib/incremental-cache/index.js'
 
-type TagsManifest = {
-  version: 1
-  items: { [tag: string]: { revalidatedAt: number } }
-}
+type TagManifest = { revalidatedAt: number }
 
-let tagsManifest: TagsManifest | undefined
-const tagsManifestPath = '_netlify/tags-manifest.json'
+const tagsManifestPath = '_netlify-cache/tags'
 const blobStore = getStore('TODO')
 
 /**
@@ -17,11 +13,11 @@ const blobStore = getStore('TODO')
  */
 export default class NetlifyCacheHandler implements CacheHandler {
   options: CacheHandlerContext
+  revalidatedTags: string[]
 
   constructor(options: CacheHandlerContext) {
     this.options = options
-
-    this.loadTagsManifest()
+    this.revalidatedTags = options.revalidatedTags
   }
 
   // eslint-disable-next-line require-await, class-methods-use-this
@@ -39,31 +35,29 @@ export default class NetlifyCacheHandler implements CacheHandler {
   public async revalidateTag(tag: string) {
     console.log('NetlifyCacheHandler.revalidateTag', tag)
 
-    await this.loadTagsManifest()
-    if (!tagsManifest) {
-      return
+    const data: TagManifest = {
+      revalidatedAt: Date.now()
     }
 
-    const data = tagsManifest.items[tag] || {}
-    data.revalidatedAt = Date.now()
-    tagsManifest.items[tag] = data
-
     try {
-      blobStore.setJSON(tagsManifestPath, tagsManifest)
+      blobStore.setJSON(this.tagManifestPath(tag), data)
     } catch (error: any) {
-      console.warn('Failed to update tags manifest.', error)
+      console.warn(`Failed to update tag manifest for ${tag}`, error)
     }
     
     purgeCache({ tags: [tag] })
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  private async loadTagsManifest() {
+  private async loadTagManifest(tag: string) {
     try {
-      tagsManifest = await blobStore.get(tagsManifestPath, {type: 'json'})
+      return await blobStore.get(this.tagManifestPath(tag), {type: 'json'})
     } catch (error: any) {
-      console.warn('Failed to fetch tags manifest.', error)
-      tagsManifest = { version: 1, items: {} }
+      console.warn(`Failed to fetch tag manifest for ${tag}`, error)
     }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  private tagManifestPath(tag: string) {
+    return [tagsManifestPath, tag].join('/')
   }
 }
