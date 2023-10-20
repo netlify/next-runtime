@@ -1,11 +1,8 @@
 /* eslint-disable n/prefer-global/buffer */
-/* eslint-disable max-statements */
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
-import { HandlerEvent, type Handler, HandlerContext } from "@netlify/functions"
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
-import { netliBlob } from '../helpers/blobs/blobs.cjs'
 import { RUN_DIR } from '../helpers/constants.js'
 import { setCacheControlHeaders, setVaryHeaders } from '../helpers/headers.js'
 
@@ -48,12 +45,3 @@ export default async (request: Request) => {
 
   return toComputeResponse(res)
 }
-// Commenting out for now 
-// export const handler: Handler = (event: HandlerEvent, context: HandlerContext): any => {
-//   if (context?.clientContext?.custom?.blobs) {
-//     const rawData = Buffer.from(context.clientContext.custom.blobs, 'base64')
-//     const data = JSON.parse(rawData.toString('ascii'))
-    
-//     netliBlob(data.token, `deploy:${event.headers['x-nf-deploy-id']}`, `${event.headers['x-nf-site-id']}`, data.url)
-//   }
-// }

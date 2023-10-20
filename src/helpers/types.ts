@@ -1,3 +1,5 @@
+import type { OutgoingHttpHeaders } from 'http'
+
 import type { NetlifyPluginOptions, NetlifyPluginConstants } from '@netlify/build'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
@@ -20,4 +22,9 @@ export interface RequiredServerFiles {
   appDir?: string
   files?: string[]
   ignore?: string[]
+}
+
+export interface MetaFile {
+  status?: number
+  headers?: OutgoingHttpHeaders
 }
