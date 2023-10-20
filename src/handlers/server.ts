@@ -4,7 +4,7 @@ import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
 import { RUN_DIR } from '../helpers/constants.js'
-import { setCacheControlHeaders, setVaryHeaders } from '../helpers/headers.js'
+import { setCacheControlHeaders, setCacheTagsHeaders, setVaryHeaders } from '../helpers/headers.js'
 
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete
 
@@ -30,6 +30,7 @@ export default async (request: Request) => {
   res.prependListener('_headersSent', (event: HeadersSentEvent) => {
     const headers = new Headers(event.headers)
     setCacheControlHeaders(headers)
+    setCacheTagsHeaders(headers)
     setVaryHeaders(headers, request, nextConfig)
     event.headers = Object.fromEntries(headers.entries())
     console.log('Modified response headers:', JSON.stringify(event.headers, null, 2))

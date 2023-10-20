@@ -85,3 +85,7 @@ export const setCacheControlHeaders = (headers: Headers) => {
     headers.set('netlify-cdn-cache-control', cacheControl)
   }
 }
+
+export const setCacheTagsHeaders = (headers: Headers) => {
+  // TODO: implement
+}
