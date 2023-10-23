@@ -1,10 +1,11 @@
 /* eslint-disable n/prefer-global/buffer */
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
+import type { HeadersSentEvent } from '@fastly/http-compute-js/dist/http-compute-js/http-outgoing.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
 import { RUN_DIR } from '../helpers/constants.js'
-import { setCacheControlHeaders, setVaryHeaders } from '../helpers/headers.js'
+import { setCacheControlHeaders, setCacheTagsHeaders, setVaryHeaders } from '../helpers/headers.js'
 
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete
 
@@ -27,6 +28,15 @@ export default async (request: Request) => {
 
   const { req, res } = toReqRes(request)
 
+  res.prependListener('_headersSent', (event: HeadersSentEvent) => {
+    const headers = new Headers(event.headers)
+    setCacheControlHeaders(headers)
+    setCacheTagsHeaders(headers)
+    setVaryHeaders(headers, request, nextConfig)
+    event.headers = Object.fromEntries(headers.entries())
+    console.log('Modified response headers:', JSON.stringify(event.headers, null, 2))
+  })
+
   try {
     console.log('Next server request:', req.url)
     await nextHandler(req, res)
@@ -39,9 +49,6 @@ export default async (request: Request) => {
   // log the response from Next.js
   const response = { headers: res.getHeaders(), statusCode: res.statusCode }
   console.log('Next server response:', JSON.stringify(response, null, 2))
-
-  setCacheControlHeaders(res)
-  setVaryHeaders(res, req, nextConfig)
 
   return toComputeResponse(res)
 }
