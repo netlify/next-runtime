@@ -40,7 +40,10 @@
     "@netlify/functions": "^2.0.1",
     "@vercel/nft": "^0.24.3",
     "fs-extra": "^11.1.1",
-    "globby": "^13.2.2"
+    "globby": "^13.2.2",
+    "os": "^0.1.2",
+    "outdent": "^0.8.0",
+    "p-limit": "^4.0.0"
   },
   "devDependencies": {
     "@netlify/eslint-config-node": "^7.0.1",

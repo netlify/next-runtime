@@ -1,3 +1,4 @@
+/* eslint-disable n/prefer-global/buffer */
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
 import type { HeadersSentEvent } from '@fastly/http-compute-js/dist/http-compute-js/http-outgoing.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'

@@ -1,38 +1,10 @@
-import { Blobs } from '@netlify/blobs'
-import type { Blobs as IBlobs } from '@netlify/blobs'
+import { getStore } from '@netlify/blobs'
 
-let blobs: IBlobs
-
-export const getBlobStorage = ({
-  apiHost,
-  token,
-  siteID,
-  deployId,
-}: {
-  apiHost: string | undefined
-  token: string | undefined
-  siteID: string
-  deployId: string | undefined
-}) => {
-  if (!blobs && apiHost && token && siteID && deployId) {
-    blobs = new Blobs({
-      authentication: {
-        apiURL: `https://${apiHost}`,
-        token,
-      },
-      context: `deploy:${deployId}`,
-      siteID,
-    })
+export const netliBlob = (token: string, deployID: string, siteID: string, apiURL?: string) => {
+  const storeAuth = { deployID, siteID, token, apiURL }
+  // apiURL uses default on build so we only preserve context if apiURL is set within handler function
+  if (apiURL) {
+    process.env.NETLIFY_BLOBS_CONTEXT = btoa(JSON.stringify(storeAuth))
   }
-
-  return blobs
-}
-
-export const isBlobStorageAvailable = async (netliBlob: IBlobs) => {
-  try {
-    await netliBlob.get('test')
-    return true
-  } catch {
-    return false
-  }
+  return getStore(storeAuth)
 }
