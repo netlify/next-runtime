@@ -11,7 +11,7 @@ export const buildCacheValue = (path: string, ext: string) => {
 
   switch (true) {
     case isRoute:
-      return buileRouteCacheValue(path)
+      return buildRouteCacheValue(path)
     case isPage:
       return buildPageCacheValue(path, false)
     case isApp:
@@ -55,7 +55,7 @@ const buildFetchCacheValue = async (path: string) => {
   }
 }
 
-const buileRouteCacheValue = async (path: string) => {
+const buildRouteCacheValue = async (path: string) => {
   try {
     const data = await readFile(`${BUILD_DIR}/.next/${path}.body`, 'utf8')
     const meta = await JSON.parse(await readFile(`${BUILD_DIR}/.next/${path}.meta`, 'utf8'))
