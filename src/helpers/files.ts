@@ -1,12 +1,12 @@
 import { cpus } from 'os'
 import path from 'path'
 
+import { getDeployStore } from '@netlify/blobs'
 import { NetlifyPluginConstants } from '@netlify/build'
 import { copy, move, remove } from 'fs-extra/esm'
 import { globby } from 'globby'
 import pLimit from 'p-limit'
 
-import { netliBlob } from './blobs.js'
 import { buildCacheValue } from './cache.js'
 import { BUILD_DIR } from './constants.js'
 
@@ -45,18 +45,28 @@ const getPrerenderedContent = async (cwd: string, get = true): Promise<string[]>
  */
 export const storePrerenderedContent = async ({
   NETLIFY_API_TOKEN,
+  NETLIFY_API_HOST,
   SITE_ID,
-}: {
-  NETLIFY_API_TOKEN: string
-  SITE_ID: string
-}) => {
-  const deployID = `${process.env.DEPLOY_ID}`
-  const blob = netliBlob(NETLIFY_API_TOKEN, deployID, SITE_ID)
+}: NetlifyPluginConstants & { NETLIFY_API_TOKEN: string; NETLIFY_API_HOST: string }) => {
+  if (!process.env.DEPLOY_ID) {
+    // TODO: maybe change to logging
+    throw new Error(
+      'Could not initizlize the Blob storage as the `DEPLOY_ID` environment variable is missing!',
+    )
+  }
+
+  const blob = getDeployStore({
+    deployID: process.env.DEPLOY_ID,
+    siteID: SITE_ID,
+    token: NETLIFY_API_TOKEN,
+    apiURL: `https://${NETLIFY_API_HOST}`,
+  })
+
   // todo: Check out setFiles within Blobs.js to see how to upload files to blob storage
   const limit = pLimit(Math.max(2, cpus().length))
 
   const prerenderedContent = await getPrerenderedContent(`${BUILD_DIR}/.next`)
-  return Promise.all(
+  return await Promise.all(
     prerenderedContent.map(async (rawPath: string) => {
       // TODO: test this with files that have a double extension
       const ext = path.extname(rawPath)

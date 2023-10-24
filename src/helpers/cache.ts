@@ -24,26 +24,31 @@ export const buildCacheValue = (path: string, ext: string) => {
 }
 
 const buildPageCacheValue = async (path: string, appDir: boolean) => {
-  const pageData = appDir
-    ? await readFile(`${BUILD_DIR}/.next/${path}.rsc`, 'utf8')
-    : JSON.parse(await readFile(`${BUILD_DIR}/.next/${path}.json`, 'utf8'))
-  let meta: MetaFile = {}
+  try {
+    const pageData = appDir
+      ? await readFile(`${BUILD_DIR}/.next/${path}.rsc`, 'utf8')
+      : JSON.parse(await readFile(`${BUILD_DIR}/.next/${path}.json`, 'utf8'))
+    let meta: MetaFile = {}
 
-  if (appDir) {
-    try {
-      meta = await JSON.parse(await readFile(`${BUILD_DIR}/.next/${path}.meta`, 'utf8'))
-    } catch {}
-  }
+    if (appDir) {
+      // eslint-disable-next-line max-depth
+      try {
+        meta = await JSON.parse(await readFile(`${BUILD_DIR}/.next/${path}.meta`, 'utf8'))
+      } catch {}
+    }
 
-  return {
-    lastModified: Date.now(),
-    value: {
-      kind: 'PAGE',
-      html: await readFile(`${BUILD_DIR}/.next/${path}.html`, 'utf8'),
-      pageData,
-      headers: meta.headers,
-      status: meta.status,
-    },
+    return {
+      lastModified: Date.now(),
+      value: {
+        kind: 'PAGE',
+        html: await readFile(`${BUILD_DIR}/.next/${path}.html`, 'utf8'),
+        pageData,
+        headers: meta.headers,
+        status: meta.status,
+      },
+    }
+  } catch (error) {
+    console.log(error)
   }
 }
 
