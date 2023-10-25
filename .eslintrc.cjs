@@ -25,5 +25,12 @@ module.exports = {
         'import/no-anonymous-default-export': 'off',
       },
     },
+    {
+      files: ['src/**/*.test.*'],
+      rules: {
+        'max-statements': off,
+        'max-lines-per-function': off,
+      },
+    },
   ],
 }
