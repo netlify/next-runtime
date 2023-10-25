@@ -16,7 +16,8 @@
     "build": "tsc",
     "build:debug": "tsc --sourceMap",
     "build:watch": "tsc --watch",
-    "test": "jest"
+    "test": "vitest",
+    "test:ci": "vitest run --reporter=default"
   },
   "repository": {
     "type": "git",

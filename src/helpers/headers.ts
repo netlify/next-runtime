@@ -39,7 +39,7 @@ const removeHeaderValues = (header: string, values: string[]): string => {
 export const setVaryHeaders = (
   headers: Headers,
   request: Request,
-  { basePath, i18n }: NextConfigComplete,
+  { basePath, i18n }: Pick<NextConfigComplete, 'basePath' | 'i18n'>,
 ) => {
   const netlifyVaryValues: NetlifyVaryValues = {
     headers: [],
@@ -55,12 +55,9 @@ export const setVaryHeaders = (
   const path = new URL(request.url).pathname
   const locales = i18n && i18n.localeDetection !== false ? i18n.locales : []
 
-  if (locales.length > 1) {
-    const logicalPath = basePath && path.startsWith(basePath) ? path.slice(basePath.length) : path
-    if (logicalPath === `/`) {
-      netlifyVaryValues.languages.push(...locales)
-      netlifyVaryValues.cookies.push(`NEXT_LOCALE`)
-    }
+  if (locales.length > 1 && (path === '/' || path === basePath)) {
+    netlifyVaryValues.languages.push(...locales)
+    netlifyVaryValues.cookies.push(`NEXT_LOCALE`)
   }
 
   headers.set(`netlify-vary`, generateNetlifyVaryValues(netlifyVaryValues))
