@@ -1,53 +1,77 @@
 import { cpus } from 'os'
-import path from 'path'
+import { parse, ParsedPath } from 'path'
 
 import { getDeployStore } from '@netlify/blobs'
 import { NetlifyPluginConstants } from '@netlify/build'
-import { copy, move, remove } from 'fs-extra/esm'
+import { copy, move, mkdirp } from 'fs-extra/esm'
 import { globby } from 'globby'
 import pLimit from 'p-limit'
 
 import { buildCacheValue } from './cache.js'
 import { BUILD_DIR } from './constants.js'
+import { EnhancedNetlifyPluginConstants } from './types.js'
+
+type ContentPath = ParsedPath & {
+  relative: string
+  absolute: string
+  publish: string
+}
 
 /**
  * Move the Next.js build output from the publish dir to a temp dir
  */
-export const stashBuildOutput = async ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
-  await move(PUBLISH_DIR, `${BUILD_DIR}/.next`, { overwrite: true })
-
-  // remove prerendered content from the standalone build (it's also in the main build dir)
-  const prerenderedContent = await getPrerenderedContent(`${BUILD_DIR}/.next/standalone`, false)
-  await Promise.all(
-    prerenderedContent.map((file: string) => remove(`${BUILD_DIR}/.next/standalone/${file}`)),
-  ).catch((error) => console.error(error))
+export const stashBuildOutput = async ({ PUBLISH_DIR }: NetlifyPluginConstants): Promise<void> => {
+  return move(PUBLISH_DIR, `${BUILD_DIR}/.next`, { overwrite: true })
 }
 
 /**
- * Glob for prerendered content in the build output
+ * Glob the build output for static page content we can upload to the CDN
  */
-const getPrerenderedContent = async (cwd: string, get = true): Promise<string[]> => {
-  // TODO: test this
-  return await globby(
-    get
-      ? [`cache/fetch-cache/*`, `server/+(app|pages)/**/*.+(html|body)`]
-      : [
-          `cache/fetch-cache/*`,
-          `server/+(app|pages)/**/*.+(html|json|rsc|body|meta)`,
-          `!server/**/*.js.nft.{html,json}`,
-        ],
-    { cwd, extglob: true },
-  )
+const getStaticContent = async (cwd: string): Promise<ContentPath[]> => {
+  const content = await globby([`server/pages/**/*.+(html|json)`], {
+    cwd,
+    extglob: true,
+  })
+  return content
+    .map((path) => parsePath(path, cwd))
+    .filter((path) => filterStatic(path, content, 'keep'))
 }
 
 /**
- * Upload prerendered content from the main build dir to the blob store
+ * Glob the build output for prerendered content we can upload to the blob store
+ */
+const getPrerenderedContent = async (cwd: string): Promise<ContentPath[]> => {
+  const content = await globby(
+    [`cache/fetch-cache/*`, `server/+(app|pages)/**/*.+(html|body|json)`],
+    {
+      cwd,
+      extglob: true,
+    },
+  )
+  return content
+    .map((path) => parsePath(path, cwd))
+    .filter((path) => filterStatic(path, content, 'omit'))
+}
+
+/**
+ * Glob the build output for JS content we can bundle with the server handler
+ */
+export const getServerContent = async (cwd: string): Promise<ContentPath[]> => {
+  const content = await globby([`**`, `!server/+(app|pages)/**/*.+(html|body|json|rsc|meta)`], {
+    cwd,
+    extglob: true,
+  })
+  return content.map((path) => parsePath(path, cwd))
+}
+
+/**
+ * Upload prerendered content to the blob store and remove it from the bundle
  */
 export const storePrerenderedContent = async ({
   NETLIFY_API_TOKEN,
   NETLIFY_API_HOST,
   SITE_ID,
-}: NetlifyPluginConstants & { NETLIFY_API_TOKEN: string; NETLIFY_API_HOST: string }) => {
+}: EnhancedNetlifyPluginConstants): Promise<void[]> => {
   if (!process.env.DEPLOY_ID) {
     // TODO: maybe change to logging
     throw new Error(
@@ -61,28 +85,52 @@ export const storePrerenderedContent = async ({
     token: NETLIFY_API_TOKEN,
     apiURL: `https://${NETLIFY_API_HOST}`,
   })
-
-  // todo: Check out setFiles within Blobs.js to see how to upload files to blob storage
   const limit = pLimit(Math.max(2, cpus().length))
 
-  const prerenderedContent = await getPrerenderedContent(`${BUILD_DIR}/.next`)
+  const content = await getPrerenderedContent(`${BUILD_DIR}/.next/standalone/.next`)
   return await Promise.all(
-    prerenderedContent.map(async (rawPath: string) => {
-      // TODO: test this with files that have a double extension
-      const ext = path.extname(rawPath)
-      const key = rawPath.replace(ext, '')
-      const value = await buildCacheValue(key, ext)
+    content.map((path: ContentPath) => {
+      const { dir, name, ext } = path
+      const key = `${dir}/${name}`
+      const value = buildCacheValue(key, ext)
       return limit(() => blob.setJSON(key, value))
     }),
   )
 }
 
 /**
- * Move static assets to the publish dir so they are uploaded to the CDN
+ * Move static content to the publish dir so it is uploaded to the CDN
  */
-export const publishStaticAssets = ({ PUBLISH_DIR }: NetlifyPluginConstants) => {
-  return Promise.all([
+export const publishStaticContent = async ({
+  PUBLISH_DIR,
+}: NetlifyPluginConstants): Promise<void[]> => {
+  const content = await getStaticContent(`${BUILD_DIR}/.next/standalone/.next`)
+  return await Promise.all([
+    mkdirp(PUBLISH_DIR),
     copy('public', PUBLISH_DIR),
     copy(`${BUILD_DIR}/.next/static/`, `${PUBLISH_DIR}/_next/static`),
+    ...content.map((path: ContentPath) => copy(path.absolute, `${PUBLISH_DIR}/${path.publish}`)),
   ])
 }
+
+/**
+ * Keep or remove static content based on whether it has a corresponding JSON file
+ */
+const filterStatic = (
+  { dir, name, ext }: ContentPath,
+  content: string[],
+  type: 'keep' | 'omit',
+): boolean =>
+  type === 'keep'
+    ? dir.startsWith('server/pages') && !content.includes(`${dir}/${name}.json`)
+    : ext !== '.json' &&
+      (!dir.startsWith('server/pages') || content.includes(`${dir}/${name}.json`))
+/**
+ * Parse a file path into an object with file path variants
+ */
+const parsePath = (path: string, cwd: string): ContentPath => ({
+  ...parse(path),
+  relative: path,
+  absolute: `${cwd}/${path}`,
+  publish: path.replace(/^server\/(app|pages)\//, ''),
+})

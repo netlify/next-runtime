@@ -3,15 +3,18 @@ import type { OutgoingHttpHeaders } from 'http'
 import type { NetlifyPluginOptions, NetlifyPluginConstants } from '@netlify/build'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
+type NetlifyPluginOptionsWithFlags = NetlifyPluginOptions & {
+  featureFlags?: Record<string, unknown>
+}
 
-type NetlifyPluginOptionsWithFlags = NetlifyPluginOptions & { featureFlags?: Record<string, unknown> }
-
-type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
+export type EnhancedNetlifyPluginConstants = NetlifyPluginConstants & {
   NETLIFY_API_HOST: string
   NETLIFY_API_TOKEN: string
 }
 
-export type EnhancedNetlifyPluginOptions = NetlifyPluginOptions & { constants: EnhancedNetlifyPluginConstants } & {
+export type EnhancedNetlifyPluginOptions = NetlifyPluginOptions & {
+  constants: EnhancedNetlifyPluginConstants
+} & {
   featureFlags?: Record<string, unknown>
 }
 
