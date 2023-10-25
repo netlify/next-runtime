@@ -39,6 +39,10 @@ export const createServerHandler = async () => {
   )
   await copy(`${BUILD_DIR}/.next/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
 
+  // TODO: @robs checkout why this is needed but in my simple integration test the `.next` folder is missing
+
+  await copy(`${BUILD_DIR}/.next`, `${SERVER_HANDLER_DIR}/.next`)
+
   // create the handler metadata file
   await writeJSON(`${SERVER_HANDLER_DIR}/${SERVER_HANDLER_NAME}.json`, {
     config: {

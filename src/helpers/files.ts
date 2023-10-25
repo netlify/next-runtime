@@ -104,13 +104,19 @@ export const storePrerenderedContent = async ({
 export const publishStaticContent = async ({
   PUBLISH_DIR,
 }: NetlifyPluginConstants): Promise<void[]> => {
-  const content = await getStaticContent(`${BUILD_DIR}/.next/standalone/.next`)
-  return await Promise.all([
-    mkdirp(PUBLISH_DIR),
-    copy('public', PUBLISH_DIR),
-    copy(`${BUILD_DIR}/.next/static/`, `${PUBLISH_DIR}/_next/static`),
-    ...content.map((path: ContentPath) => copy(path.absolute, `${PUBLISH_DIR}/${path.publish}`)),
-  ])
+  try {
+    const content = await getStaticContent(`${BUILD_DIR}/.next/standalone/.next`)
+    return await Promise.all([
+      mkdirp(PUBLISH_DIR),
+      copy('public', PUBLISH_DIR),
+      copy(`${BUILD_DIR}/.next/static/`, `${PUBLISH_DIR}/_next/static`),
+      ...content.map((path: ContentPath) => copy(path.absolute, `${PUBLISH_DIR}/${path.publish}`)),
+    ])
+  } catch {
+    // TODO: rob the public dir must not exist on a simple minimal app
+    // noop
+  }
+  return []
 }
 
 /**

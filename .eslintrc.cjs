@@ -15,6 +15,7 @@ module.exports = {
     'unicorn/filename-case': ['error', { case: 'kebabCase' }],
     'import/no-namespace': 'off',
     'import/extensions': 'off',
+    'max-depth': 'off',
   },
   overrides: [
     ...overrides,

@@ -8,10 +8,11 @@ describe('headers', () => {
   })
 
   describe('setVaryHeaders', () => {
-    const defaultConfig: Partial<NextConfigComplete> = {
+    const defaultConfig = {
       basePath: '',
       i18n: null,
-    }
+    } satisfies Partial<NextConfigComplete>
+
     const defaultUrl = 'https://example.com'
 
     describe('should set "netlify-vary" header', () => {
@@ -54,7 +55,7 @@ describe('headers', () => {
             locales: ['en', 'de'],
             defaultLocale: 'default',
           },
-        }
+        } satisfies Partial<NextConfigComplete>
         vi.spyOn(headers, 'set')
 
         setVaryHeaders(headers, request, config)

@@ -1,11 +1,14 @@
-import { getStore } from '@netlify/blobs'
+import { getDeployStore } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
-import type { CacheHandler, CacheHandlerContext } from 'next/dist/server/lib/incremental-cache/index.js'
+import type {
+  CacheHandler,
+  CacheHandlerContext,
+} from 'next/dist/server/lib/incremental-cache/index.js'
 
 type TagManifest = { revalidatedAt: number }
 
 const tagsManifestPath = '_netlify-cache/tags'
-const blobStore = getStore('TODO')
+const blobStore = getDeployStore()
 
 /**
  * Netlify Cache Handler
@@ -28,15 +31,20 @@ export default class NetlifyCacheHandler implements CacheHandler {
 
   // eslint-disable-next-line require-await, class-methods-use-this
   public async set(key: string, data: any, ctx: any) {
-    console.log('NetlifyCacheHandler.set', key, JSON.stringify(data, null, 2), JSON.stringify(ctx, null, 2))
+    console.log(
+      'NetlifyCacheHandler.set',
+      key,
+      JSON.stringify(data, null, 2),
+      JSON.stringify(ctx, null, 2),
+    )
   }
 
-  // eslint-disable-next-line class-methods-use-this, require-await
+  // eslint-disable-next-line require-await
   public async revalidateTag(tag: string) {
     console.log('NetlifyCacheHandler.revalidateTag', tag)
 
     const data: TagManifest = {
-      revalidatedAt: Date.now()
+      revalidatedAt: Date.now(),
     }
 
     try {
@@ -44,13 +52,13 @@ export default class NetlifyCacheHandler implements CacheHandler {
     } catch (error: any) {
       console.warn(`Failed to update tag manifest for ${tag}`, error)
     }
-    
+
     purgeCache({ tags: [tag] })
   }
 
   private async loadTagManifest(tag: string) {
     try {
-      return await blobStore.get(this.tagManifestPath(tag), {type: 'json'})
+      return await blobStore.get(this.tagManifestPath(tag), { type: 'json' })
     } catch (error: any) {
       console.warn(`Failed to fetch tag manifest for ${tag}`, error)
     }
