@@ -1,14 +1,14 @@
+import { NetlifyPluginOptions } from '@netlify/build'
 import { setBuildConfig } from './helpers/config.js'
 import { publishStaticContent, stashBuildOutput, storePrerenderedContent } from './helpers/files.js'
 import { createEdgeHandler, createServerHandler } from './helpers/functions.js'
-import { EnhancedNetlifyPluginOptions } from './helpers/types.js'
 
-export const onPreBuild = () => {
+export const onPreBuild = ({ constants, utils }: NetlifyPluginOptions) => {
   setBuildConfig()
 }
 
-export const onBuild = async ({ constants }: EnhancedNetlifyPluginOptions) => {
-  await stashBuildOutput(constants)
+export const onBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
+  await stashBuildOutput(constants, utils)
 
   return Promise.all([
     publishStaticContent(constants),

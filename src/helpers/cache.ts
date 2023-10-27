@@ -1,77 +1,74 @@
+import type { OutgoingHttpHeaders } from 'http'
 import { readFile } from 'node:fs/promises'
 
-import { BUILD_DIR } from './constants.js'
-import type { MetaFile } from './types.js'
+import type { PrerenderedContentEntry } from './files.js'
 
-export const buildCacheValue = (path: string, ext: string) => {
-  const isRoute = ext === '.body'
-  const isPage = path.startsWith('server/pages') && ext === '.html'
-  const isApp = path.startsWith('server/app') && ext === '.html'
-  const isFetchCache = path.startsWith('cache/fetch-cache')
-
-  switch (true) {
-    case isRoute:
-      return buildRouteCacheValue(path)
-    case isPage:
-      return buildPageCacheValue(path, false)
-    case isApp:
-      return buildPageCacheValue(path, true)
-    case isFetchCache:
-      return buildFetchCacheValue(path)
-    default:
-      return {}
+export const buildCacheValue = (paths: PrerenderedContentEntry) => {
+  // app dir
+  if (paths.data && paths.meta) {
+    return buildPageCacheValue(paths, true)
+  }
+  // pages dir
+  if (paths.data) {
+    return buildPageCacheValue(paths, false)
+  }
+  // route handlers
+  if (paths.meta) {
+    return buildRouteCacheValue(paths)
+  }
+  // fetch cache
+  if (!paths.data && !paths.meta) {
+    return buildFetchCacheValue(paths)
   }
 }
 
-const buildPageCacheValue = async (path: string, appDir: boolean) => {
-  try {
-    const pageData = appDir
-      ? await readFile(`${BUILD_DIR}/.next/${path}.rsc`, 'utf8')
-      : JSON.parse(await readFile(`${BUILD_DIR}/.next/${path}.json`, 'utf8'))
-    let meta: MetaFile = {}
+const buildPageCacheValue = async (paths: PrerenderedContentEntry, appDir: boolean) => {
+  const body = await readFile(paths.body, 'utf8')
+  const data = await readFile(paths.data as string, 'utf8')
 
-    if (appDir) {
-      // eslint-disable-next-line max-depth
-      try {
-        meta = await JSON.parse(await readFile(`${BUILD_DIR}/.next/${path}.meta`, 'utf8'))
-      } catch {}
-    }
-
-    return {
-      lastModified: Date.now(),
-      value: {
-        kind: 'PAGE',
-        html: await readFile(`${BUILD_DIR}/.next/${path}.html`, 'utf8'),
-        pageData,
-        headers: meta.headers,
-        status: meta.status,
-      },
-    }
-  } catch (error) {
-    console.log(error)
+  let meta
+  if (appDir) {
+    try {
+      meta = JSON.parse(await readFile(paths.meta as string, 'utf8'))
+    } catch {}
   }
-}
 
-const buildFetchCacheValue = async (path: string) => {
-  const parsedData = JSON.parse(await readFile(`${BUILD_DIR}/.next/${path}`, 'utf8'))
   return {
     lastModified: Date.now(),
-    value: parsedData,
+    value: {
+      kind: 'PAGE',
+      html: body,
+      pageData: appDir ? data : JSON.parse(data),
+      headers: meta?.headers,
+      status: meta?.status,
+    },
   }
 }
 
-const buildRouteCacheValue = async (path: string) => {
+const buildRouteCacheValue = async (paths: PrerenderedContentEntry) => {
+  const body = await readFile(paths.body, 'utf8')
+
+  let meta
   try {
-    const data = await readFile(`${BUILD_DIR}/.next/${path}.body`, 'utf8')
-    const meta = await JSON.parse(await readFile(`${BUILD_DIR}/.next/${path}.meta`, 'utf8'))
-    return {
-      lastModified: Date.now(),
-      value: {
-        kind: 'ROUTE',
-        body: data,
-        headers: meta.headers,
-        status: meta.status,
-      },
-    }
+    meta = JSON.parse(await readFile(paths.meta as string, 'utf8'))
   } catch {}
+
+  return {
+    lastModified: Date.now(),
+    value: {
+      kind: 'ROUTE',
+      body,
+      headers: meta?.headers,
+      status: meta?.status,
+    },
+  }
+}
+
+const buildFetchCacheValue = async (paths: PrerenderedContentEntry) => {
+  const body = JSON.parse(await readFile(paths.body, 'utf8'))
+
+  return {
+    lastModified: Date.now(),
+    value: body,
+  }
 }

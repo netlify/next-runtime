@@ -10,7 +10,7 @@ import {
   SERVER_HANDLER_DIR,
   SERVER_HANDLER_NAME,
 } from './constants.js'
-import { getServerContent } from './files.js'
+import { findServerContent } from './files.js'
 
 const pkg = await readJson(`${PLUGIN_DIR}/package.json`)
 
@@ -33,9 +33,9 @@ export const createServerHandler = async () => {
   )
 
   // copy the next.js standalone build output to the handler directory
-  const content = await getServerContent(`${BUILD_DIR}/.next/standalone/.next`)
+  const content = await findServerContent(`${BUILD_DIR}/.next/standalone/.next`)
   await Promise.all(
-    content.map((path) => copy(path.absolute, `${SERVER_HANDLER_DIR}/.next/${path.relative}`)),
+    content.map((paths) => copy(paths.absolute, `${SERVER_HANDLER_DIR}/.next/${paths.handler}`)),
   )
   await copy(`${BUILD_DIR}/.next/standalone/node_modules`, `${SERVER_HANDLER_DIR}/node_modules`)
 
