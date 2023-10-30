@@ -6,9 +6,11 @@ import { beforeEach, expect, test, vi } from 'vitest'
 import {
   BLOB_TOKEN,
   createFixture,
-  runPluginAndExecute,
+  runPlugin,
+  invokeFunction,
   type FixtureTestContext,
 } from '../utils/fixture.js'
+import { load } from 'cheerio'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -31,9 +33,12 @@ beforeEach<FixtureTestContext>(async (ctx) => {
 
 test<FixtureTestContext>('Test that the simple next app is working', async (ctx) => {
   await createFixture('simple-next-app', ctx)
-  const { statusCode } = await runPluginAndExecute(ctx)
+  await runPlugin(ctx)
+  const home = await invokeFunction(ctx)
+  expect(home.statusCode).toBe(200)
+  expect(load(home.body)('h1').text()).toBe('Home')
 
-  expect(statusCode).toBe(200)
-
-  await ctx.cleanup?.()
+  const other = await invokeFunction(ctx, { url: 'other' })
+  expect(other.statusCode).toBe(200)
+  expect(load(other.body)('h1').text()).toBe('Other')
 })

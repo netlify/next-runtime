@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url'
 import { vi } from 'vitest'
 import { streamToString } from './stream-to-string.js'
 import type { NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build'
+import { SERVER_HANDLER_NAME } from '../../src/build/constants.js'
 
 export interface FixtureTestContext extends TestContext {
   cwd: string
@@ -19,6 +20,7 @@ export interface FixtureTestContext extends TestContext {
   deployID: string
   blobStoreHost: string
   blobStore: BlobsServer
+  functionDist: string
   cleanup?: () => Promise<void>
 }
 
@@ -57,35 +59,16 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
 }
 
 /**
- * This method does basically three main parts that can be configured:
+ * This method does basically two main parts
  * 1. Running the `onBuild` plugin with a set of defined constants
  * 2. Bundling the function up to an actual lambda function embedding the Netlify local parts
- * 3. Executing the function with the provided parameters
- * @param ctx
- * @param options
+ * @param ctx The testing context
+ * @param constants The build plugin constants that are passed down by `@netlify/build` to the plugin
  */
-export async function runPluginAndExecute(
+export async function runPlugin(
   ctx: FixtureTestContext,
-  options: {
-    /**
-     * The http method that is used for the invocation
-     * @default 'GET'
-     */
-    httpMethod?: string
-    /**
-     * The relative path that should be requested
-     * @default '/'
-     */
-    url?: string
-    /** The headers used for the invocation*/
-    headers?: Record<string, string>
-    /** The body that is used for the invocation */
-    body?: unknown
-    /** Additional constants or overrides that are used for the plugin execution */
-    constants?: Partial<NetlifyPluginConstants>
-  } = {},
+  constants: Partial<NetlifyPluginConstants> = {},
 ) {
-  const { constants, httpMethod, headers, body, url } = options
   const { onBuild } = await import('../../src/index.js')
   await onBuild({
     constants: {
@@ -108,25 +91,51 @@ export async function runPluginAndExecute(
 
   // We need to do a dynamic import as we mock the `process.cwd()` inside the createFixture function
   // If we import it before calling that it will resolve to the actual process working directory instead of the mocked one
-  const { SERVER_FUNCTIONS_DIR, SERVER_HANDLER_NAME } = await import(
-    '../../src/helpers/constants.js'
-  )
+  const { SERVER_FUNCTIONS_DIR } = await import('../../src/build/constants.js')
 
-  const distFolder = join(ctx.cwd, 'function-dist')
+  // create zip location in a new temp folder to avoid leaking node_modules through nodes resolve algorithm
+  // that always looks up a parent directory for node_modules
+  ctx.functionDist = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-dist'))
   // bundle the function to get the bootstrap layer and all the important parts
-  await zipFunctions(SERVER_FUNCTIONS_DIR, distFolder, {
+  await zipFunctions(SERVER_FUNCTIONS_DIR, ctx.functionDist, {
     basePath: ctx.cwd,
-    manifest: join(distFolder, 'manifest.json'),
+    manifest: join(ctx.functionDist, 'manifest.json'),
     repositoryRoot: ctx.cwd,
     configFileDirectories: [SERVER_FUNCTIONS_DIR],
     internalSrcFolder: SERVER_FUNCTIONS_DIR,
     archiveFormat: 'none',
   })
+}
 
+/**
+ * Execute the function with the provided parameters
+ * @param ctx
+ * @param options
+ */
+export async function invokeFunction(
+  ctx: FixtureTestContext,
+  options: {
+    /**
+     * The http method that is used for the invocation
+     * @default 'GET'
+     */
+    httpMethod?: string
+    /**
+     * The relative path that should be requested
+     * @default '/'
+     */
+    url?: string
+    /** The headers used for the invocation*/
+    headers?: Record<string, string>
+    /** The body that is used for the invocation */
+    body?: unknown
+  } = {},
+) {
+  const { httpMethod, headers, body, url } = options
   // now for the execution set the process working directory to the dist entry point
-  vi.spyOn(process, 'cwd').mockReturnValue(join(distFolder, SERVER_HANDLER_NAME))
+  vi.spyOn(process, 'cwd').mockReturnValue(join(ctx.functionDist, SERVER_HANDLER_NAME))
   const { handler } = await import(
-    join(distFolder, SERVER_HANDLER_NAME, '___netlify-entry-point.mjs')
+    join(ctx.functionDist, SERVER_HANDLER_NAME, '___netlify-entry-point.mjs')
   )
 
   // The environment variables available during execution
@@ -140,7 +149,6 @@ export async function runPluginAndExecute(
       }),
     ).toString('base64'),
   }
-
   const response = (await execute({
     event: {
       headers: headers || {},

@@ -4,9 +4,6 @@
   "description": "Run Next.js seamlessly on Netlify",
   "main": "./dist/index.js",
   "type": "module",
-  "workspaces": [
-    "tests/fixtures/*"
-  ],
   "files": [
     "lib/**/*",
     "index.js",
@@ -16,6 +13,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
+    "postinstall": "node tests/prepare.mjs",
     "build": "tsc",
     "build:debug": "tsc --sourceMap",
     "build:watch": "tsc --watch",
@@ -56,6 +54,7 @@
     "@types/fs-extra": "^11.0.1",
     "@types/mock-fs": "^4.13.1",
     "@types/uuid": "^9.0.6",
+    "cheerio": "^1.0.0-rc.12",
     "execa": "^8.0.1",
     "get-port": "^7.0.0",
     "lambda-local": "^2.1.2",
