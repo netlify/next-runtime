@@ -1,22 +1,15 @@
+import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import { readFile } from 'node:fs/promises'
-
-import { NextConfigComplete } from 'next/dist/server/config-shared.js'
-
-import { RUN_DIR } from './constants.js'
-
-/**
- * Enable Next.js standalone mode at build time
- */
-export const setBuildConfig = () => {
-  process.env.NEXT_PRIVATE_STANDALONE = 'true'
-}
+import { PLUGIN_DIR, RUN_DIR } from './constants.js'
 
 /**
  * Get Next.js config from the build output
  */
 export const getRunConfig = async () => {
   // get config from the build output
-  return JSON.parse(await readFile(`${RUN_DIR}/.next/required-server-files.json`, 'utf-8')).config
+  const file = await readFile(`${RUN_DIR}/.next/required-server-files.json`, 'utf-8')
+  const json = JSON.parse(file)
+  return json.config
 }
 
 /**
@@ -26,7 +19,7 @@ export const setRunConfig = (config: NextConfigComplete) => {
   // set the path to the cache handler
   config.experimental = {
     ...config.experimental,
-    incrementalCacheHandlerPath: `${RUN_DIR}/dist/handlers/cache.cjs`,
+    incrementalCacheHandlerPath: `${PLUGIN_DIR}/dist/run/handlers/cache.cjs`,
   }
 
   // set config

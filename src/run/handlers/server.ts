@@ -1,18 +1,16 @@
-/* eslint-disable n/prefer-global/buffer */
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
-import type { HeadersSentEvent } from '@fastly/http-compute-js/dist/http-compute-js/http-outgoing.js'
+import { HeadersSentEvent } from '@fastly/http-compute-js/dist/http-compute-js/http-outgoing.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
-
-import { RUN_DIR } from '../helpers/constants.js'
-import { setCacheControlHeaders, setCacheTagsHeaders, setVaryHeaders } from '../helpers/headers.js'
+import { RUN_DIR } from '../constants.js'
+import { setCacheControlHeaders, setCacheTagsHeaders, setVaryHeaders } from '../headers.js'
 
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete
 
 export default async (request: Request) => {
   if (!nextHandler) {
     // set the server config
-    const { getRunConfig, setRunConfig } = await import('../helpers/config.js')
+    const { getRunConfig, setRunConfig } = await import('../config.js')
     nextConfig = await getRunConfig()
     setRunConfig(nextConfig)
 

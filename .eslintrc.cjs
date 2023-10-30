@@ -20,7 +20,7 @@ module.exports = {
   overrides: [
     ...overrides,
     {
-      files: ['src/handlers/**'],
+      files: ['src/run/handlers/**'],
       rules: {
         'max-statements': ['error', 30],
         'import/no-anonymous-default-export': 'off',
