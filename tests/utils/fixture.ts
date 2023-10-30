@@ -10,7 +10,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { vi } from 'vitest'
-import { EnhancedNetlifyPluginOptions } from '../../src/helpers/types.js'
+import { streamToString } from './stream-to-string.js'
+import type { NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build'
 
 export interface FixtureTestContext extends TestContext {
   cwd: string
@@ -71,15 +72,20 @@ export async function runPluginAndExecute(
      * @default 'GET'
      */
     httpMethod?: string
+    /**
+     * The relative path that should be requested
+     * @default '/'
+     */
+    url?: string
     /** The headers used for the invocation*/
     headers?: Record<string, string>
     /** The body that is used for the invocation */
     body?: unknown
     /** Additional constants or overrides that are used for the plugin execution */
-    constants?: Partial<EnhancedNetlifyPluginOptions>
+    constants?: Partial<NetlifyPluginConstants>
   } = {},
-): Promise<LambdaResponse> {
-  const { constants, httpMethod, headers, body } = options
+) {
+  const { constants, httpMethod, headers, body, url } = options
   const { onBuild } = await import('../../src/index.js')
   await onBuild({
     constants: {
@@ -98,7 +104,7 @@ export async function runPluginAndExecute(
       // INTERNAL_FUNCTIONS_SRC: '.netlify/functions-internal',
       // INTERNAL_EDGE_FUNCTIONS_SRC: '.netlify/edge-functions',
     },
-  } as EnhancedNetlifyPluginOptions)
+  } as unknown as NetlifyPluginOptions)
 
   // We need to do a dynamic import as we mock the `process.cwd()` inside the createFixture function
   // If we import it before calling that it will resolve to the actual process working directory instead of the mocked one
@@ -135,15 +141,20 @@ export async function runPluginAndExecute(
     ).toString('base64'),
   }
 
-  const response = await execute({
+  const response = (await execute({
     event: {
       headers: headers || {},
       httpMethod: httpMethod || 'GET',
-      rawUrl: 'https://example.netlify',
+      rawUrl: new URL(url || '/', 'https://example.netlify').href,
     },
     environment,
     lambdaFunc: { handler },
-  })
+  })) as LambdaResponse
 
-  return response as LambdaResponse
+  return {
+    statusCode: response.statusCode,
+    body: await streamToString(response.body),
+    headers: response.headers,
+    isBase64Encoded: response.isBase64Encoded,
+  }
 }

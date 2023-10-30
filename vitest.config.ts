@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   root: '.',
   test: {
+    globals: true,
     restoreMocks: true,
     clearMocks: true,
     mockReset: true,
