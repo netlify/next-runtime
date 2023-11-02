@@ -1,10 +1,10 @@
 import getPort from 'get-port'
 import { BLOB_TOKEN, type FixtureTestContext } from './fixture'
 
-import { cp, mkdtemp, rm } from 'node:fs/promises'
+import { BlobsServer, getDeployStore } from '@netlify/blobs'
+import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { BlobsServer, getDeployStore } from '@netlify/blobs'
 
 /**
  * Generates a 24char deploy ID (this is validated in the blob storage so we cant use a uuidv4)
@@ -38,12 +38,12 @@ export const createBlobContext = (ctx: FixtureTestContext) =>
 export const startMockBlobStore = async (ctx: FixtureTestContext) => {
   const port = await getPort()
   // create new blob store server
-  ctx.blobStore = new BlobsServer({
+  ctx.blobServer = new BlobsServer({
     port,
     token: BLOB_TOKEN,
     directory: await mkdtemp(join(tmpdir(), 'netlify-next-runtime-blob-')),
   })
-  await ctx.blobStore.start()
+  await ctx.blobServer.start()
   ctx.blobStoreHost = `localhost:${port}`
 }
 
@@ -51,13 +51,15 @@ export const startMockBlobStore = async (ctx: FixtureTestContext) => {
  * Retrieves an array of blob store entries
  */
 export const getBlobEntries = async (ctx: FixtureTestContext) => {
-  const store = getDeployStore({
-    apiURL: `http://${ctx.blobStoreHost}`,
-    deployID: ctx.deployID,
-    siteID: ctx.siteID,
-    token: BLOB_TOKEN,
-  })
+  ctx.blobStore = ctx.blobStore
+    ? ctx.blobStore
+    : getDeployStore({
+        apiURL: `http://${ctx.blobStoreHost}`,
+        deployID: ctx.deployID,
+        siteID: ctx.siteID,
+        token: BLOB_TOKEN,
+      })
 
-  const { blobs } = await store.list()
+  const { blobs } = await ctx.blobStore.list()
   return blobs
 }

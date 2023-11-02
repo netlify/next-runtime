@@ -32,7 +32,7 @@ export default async (request: Request) => {
     setCacheTagsHeaders(headers)
     setVaryHeaders(headers, request, nextConfig)
     event.headers = Object.fromEntries(headers.entries())
-    console.log('Modified response headers:', JSON.stringify(event.headers, null, 2))
+    // console.log('Modified response headers:', JSON.stringify(event.headers, null, 2))
   })
 
   try {
@@ -46,7 +46,7 @@ export default async (request: Request) => {
 
   // log the response from Next.js
   const response = { headers: res.getHeaders(), statusCode: res.statusCode }
-  console.log('Next server response:', JSON.stringify(response, null, 2))
+  // console.log('Next server response:', JSON.stringify(response, null, 2))
 
   return toComputeResponse(res)
 }

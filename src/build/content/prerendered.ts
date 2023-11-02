@@ -2,6 +2,7 @@ import { getDeployStore } from '@netlify/blobs'
 import { NetlifyPluginConstants } from '@netlify/build'
 import { globby } from 'globby'
 import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { cpus } from 'os'
 import pLimit from 'p-limit'
 import { parse, ParsedPath } from 'path'
@@ -79,7 +80,7 @@ const buildPrerenderedContentEntries = async (cwd: string): Promise<Promise<Cach
     })
     .map(async (path: ParsedPath): Promise<CacheEntry> => {
       const { dir, name, ext } = path
-      const key = `${dir}/${name}`
+      const key = join(dir, name)
       let value
 
       if (isPage(path, paths)) {

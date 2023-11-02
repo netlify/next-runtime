@@ -3,6 +3,7 @@
 //
 import { getDeployStore } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
+import { readFileSync } from 'node:fs'
 import type {
   CacheHandler,
   CacheHandlerContext,
@@ -16,6 +17,16 @@ type TagManifest = { revalidatedAt: number }
 
 const tagsManifestPath = '_netlify-cache/tags'
 const blobStore = getDeployStore()
+
+// load the prerender manifest
+const prerenderManifest = JSON.parse(
+  readFileSync(join(process.cwd(), '.next/prerender-manifest.json'), 'utf-8'),
+)
+
+/** Converts a cache key pathname to a route */
+function toRoute(pathname: string): string {
+  return pathname.replace(/\/$/, '').replace(/\/index$/, '') || '/'
+}
 
 export default class NetlifyCacheHandler implements CacheHandler {
   options: CacheHandlerContext
@@ -31,15 +42,31 @@ export default class NetlifyCacheHandler implements CacheHandler {
 
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
     const [cacheKey, ctx = {}] = args
-    console.log(`[NetlifyCacheHandler.get]: ${cacheKey}`)
+    console.debug(`[NetlifyCacheHandler.get]: ${cacheKey}`)
     const blob = await this.getBlobKey(cacheKey, ctx.fetchCache)
 
-    switch (blob?.value?.kind) {
+    if (!blob) {
+      return null
+    }
+
+    const revalidateAfter = this.calculateRevalidate(cacheKey, blob.lastModified)
+    // first check if there is a tag manifest
+    // if not => stale check with revalidateAfter
+    // yes => check with manifest
+    const isStale = revalidateAfter !== false && revalidateAfter < Date.now()
+    console.debug(`!!! CHACHE KEY: ${cacheKey} - is stale: `, {
+      isStale,
+      revalidateAfter,
+    })
+    if (isStale) {
+      return null
+    }
+
+    switch (blob.value.kind) {
       // TODO:
       // case 'ROUTE':
       // case 'FETCH':
       case 'PAGE':
-        // TODO: determine if the page is stale based on the blob.lastModified Date.now()
         return {
           lastModified: blob.lastModified,
           value: {
@@ -51,20 +78,37 @@ export default class NetlifyCacheHandler implements CacheHandler {
           },
         }
 
-      default:
-        console.log('TODO: implmenet', blob)
+      // default:
+      // console.log('TODO: implmenet', blob)
     }
     return null
   }
 
-  // eslint-disable-next-line require-await, class-methods-use-this
   async set(...args: Parameters<IncrementalCache['set']>) {
     const [key, data, ctx] = args
-    console.log('NetlifyCacheHandler.set', key)
+    console.debug(`[NetlifyCacheHandler.set]: ${key}`)
+    let cacheKey: string | null = null
+    switch (data?.kind) {
+      case 'FETCH':
+        cacheKey = join('cache/fetch-cache', key)
+        break
+      case 'PAGE':
+        cacheKey = join('server/app', key)
+        break
+      default:
+        console.debug(`TODO: implement NetlifyCacheHandler.set for ${key}`, { data, ctx })
+    }
+
+    if (cacheKey) {
+      await blobStore.setJSON(cacheKey, {
+        lastModified: Date.now(),
+        value: data,
+      })
+    }
   }
 
   async revalidateTag(tag: string) {
-    console.log('NetlifyCacheHandler.revalidateTag', tag)
+    console.debug('NetlifyCacheHandler.revalidateTag', tag)
 
     const data: TagManifest = {
       revalidatedAt: Date.now(),
@@ -137,5 +181,26 @@ export default class NetlifyCacheHandler implements CacheHandler {
     // }
 
     return cacheEntry || null
+  }
+
+  /**
+   * Retrieves the milliseconds since midnight, January 1, 1970 when it should revalidate for a path.
+   */
+  private calculateRevalidate(pathname: string, fromTime: number, dev?: boolean): number | false {
+    // in development we don't have a prerender-manifest
+    // and default to always revalidating to allow easier debugging
+    if (dev) return Date.now() - 1_000
+
+    // if an entry isn't present in routes we fallback to a default
+    const { initialRevalidateSeconds } = prerenderManifest.routes[toRoute(pathname)] || {
+      initialRevalidateSeconds: 0,
+    }
+    // the initialRevalidate can be either set to false or to a number (representing the seconds)
+    const revalidateAfter: number | false =
+      typeof initialRevalidateSeconds === 'number'
+        ? initialRevalidateSeconds * 1_000 + fromTime
+        : initialRevalidateSeconds
+
+    return revalidateAfter
   }
 }

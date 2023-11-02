@@ -1,4 +1,4 @@
-import { BlobsServer } from '@netlify/blobs'
+import { BlobsServer, type getStore } from '@netlify/blobs'
 import { TestContext, assert, expect, vi } from 'vitest'
 
 import type {
@@ -22,7 +22,8 @@ export interface FixtureTestContext extends TestContext {
   siteID: string
   deployID: string
   blobStoreHost: string
-  blobStore: BlobsServer
+  blobServer: BlobsServer
+  blobStore: ReturnType<typeof getStore>
   functionDist: string
   cleanup?: () => Promise<void>
 }
