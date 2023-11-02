@@ -16,6 +16,7 @@ env:
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
   NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
   NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
+  NEXT_TEST_CONTINUE_ON_ERROR: 1
 
 jobs:
   test-e2e:
@@ -59,7 +60,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       - name: setup pnpm/yarn
         run: corepack enable
 
@@ -105,7 +106,7 @@ jobs:
 
       - name: add netlify cli
         run: npm install -g netlify-cli
-          
+
       - name: set test filter
         run: |
           ls test/e2e/**/*.test.* > included_tests
@@ -127,4 +128,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: exit 1
-        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')) }}
+        if:
+          ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result,
+          'skipped') || contains(needs.*.result, 'cancelled')) }}
