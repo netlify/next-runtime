@@ -1,5 +1,7 @@
 import { NetlifyPluginConstants, NetlifyPluginUtils } from '@netlify/build'
-import { ensureDir, move, pathExists } from 'fs-extra/esm'
+import { existsSync } from 'node:fs'
+import { mkdir, rename, rm } from 'node:fs/promises'
+import { join } from 'node:path'
 import { BUILD_DIR } from './constants.js'
 
 /**
@@ -9,15 +11,32 @@ export const moveBuildOutput = async (
   { PUBLISH_DIR }: NetlifyPluginConstants,
   utils: NetlifyPluginUtils,
 ): Promise<void> => {
-  if (!(await pathExists(PUBLISH_DIR))) {
+  if (!existsSync(PUBLISH_DIR)) {
     utils.build.failBuild(
       'Your publish directory does not exist. Please check your netlify.toml file.',
     )
   }
 
-  // move the build output to a temp dir
-  await move(PUBLISH_DIR, `${BUILD_DIR}/.next`, { overwrite: true })
+  const tempDir = join(BUILD_DIR, '.next')
 
-  // recreate the publish dir so we can move the static content back
-  await ensureDir(PUBLISH_DIR)
+  try {
+    // cleanup any existing directory
+    await rm(tempDir, { force: true, recursive: true })
+    await mkdir(tempDir, { recursive: true })
+    // move the build output to a temp dir
+    await rename(PUBLISH_DIR, tempDir)
+  } catch (error) {
+    if (error instanceof Error) {
+      utils.build.failBuild(`Error moving the build output to the temp directory`, { error })
+    }
+  }
+
+  try {
+    // recreate the publish dir so we can move the static content back
+    await mkdir(PUBLISH_DIR, { recursive: true })
+  } catch (error) {
+    if (error instanceof Error) {
+      utils.build.failBuild(`Error recreating publish directory`, { error })
+    }
+  }
 }

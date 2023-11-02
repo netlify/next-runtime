@@ -1,4 +1,4 @@
-import { emptyDir } from 'fs-extra/esm'
+import { mkdir, rm } from 'node:fs/promises'
 import { EDGE_HANDLER_DIR } from '../constants.js'
 
 /**
@@ -6,5 +6,6 @@ import { EDGE_HANDLER_DIR } from '../constants.js'
  */
 export const createEdgeHandler = async () => {
   // reset the handler directory
-  await emptyDir(EDGE_HANDLER_DIR)
+  await rm(EDGE_HANDLER_DIR, { recursive: true, force: true })
+  await mkdir(EDGE_HANDLER_DIR, { recursive: true })
 }

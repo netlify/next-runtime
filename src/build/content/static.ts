@@ -1,27 +1,64 @@
 import { NetlifyPluginConstants } from '@netlify/build'
-import { copy, pathExists } from 'fs-extra/esm'
 import { globby } from 'globby'
-import { ParsedPath, parse } from 'node:path'
+import { existsSync } from 'node:fs'
+import { copyFile, cp, mkdir } from 'node:fs/promises'
+import { ParsedPath, dirname, join, parse } from 'node:path'
 import { BUILD_DIR, WORKING_DIR } from '../constants.js'
 
 /**
  * Copy static pages (HTML without associated JSON data)
  */
-const copyStaticPages = async (src: string, dest: string): Promise<Promise<void>[]> => {
+const copyStaticPages = async (src: string, dest: string): Promise<void> => {
   const paths = await globby([`server/pages/**/*.+(html|json)`], {
     cwd: src,
     extglob: true,
   })
 
-  return (
+  await Promise.all(
     paths
       .map(parse)
       // keep only static files that do not have JSON data
       .filter(({ dir, name }: ParsedPath) => !paths.includes(`${dir}/${name}.json`))
-      .map(({ dir, base }: ParsedPath) =>
-        copy(`${src}/${dir}/${base}`, `${dest}/${dir.replace(/^server\/(app|pages)/, '')}/${base}`),
-      )
+      .map(async ({ dir, base }: ParsedPath) => {
+        const srcPath = join(src, dir, base)
+        const destPath = join(dest, dir.replace(/^server\/(app|pages)/, ''), base)
+
+        await mkdir(dirname(destPath), { recursive: true })
+        await copyFile(srcPath, destPath)
+      }),
   )
+}
+
+/**
+ * Copies static assets
+ */
+const copyStaticAssets = async ({
+  PUBLISH_DIR,
+}: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>): Promise<void> => {
+  try {
+    const src = join(BUILD_DIR, '.next/static')
+    const dist = join(PUBLISH_DIR, '_next/static')
+    await mkdir(dist, { recursive: true })
+    cp(src, dist, { recursive: true, force: true })
+  } catch (error) {
+    throw new Error(`Failed to copy static assets: ${error}`)
+  }
+}
+
+/**
+ * Copies the public folder over
+ */
+const copyPublicAssets = async ({
+  PUBLISH_DIR,
+}: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>): Promise<void> => {
+  const src = join(WORKING_DIR, 'public')
+  const dist = join(PUBLISH_DIR, 'public')
+  if (!existsSync(src)) {
+    return
+  }
+
+  await mkdir(dist, { recursive: true })
+  await cp(src, dist)
 }
 
 /**
@@ -29,11 +66,8 @@ const copyStaticPages = async (src: string, dest: string): Promise<Promise<void>
  */
 export const copyStaticContent = async ({ PUBLISH_DIR }: NetlifyPluginConstants): Promise<void> => {
   await Promise.all([
-    // static pages
-    Promise.all(await copyStaticPages(`${BUILD_DIR}/.next`, PUBLISH_DIR)),
-    // static assets
-    copy(`${BUILD_DIR}/.next/static/`, `${PUBLISH_DIR}/_next/static`),
-    // public assets
-    (await pathExists(`${WORKING_DIR}/public/`)) && copy(`${WORKING_DIR}/public/`, PUBLISH_DIR),
+    copyStaticPages(`${BUILD_DIR}/.next`, PUBLISH_DIR),
+    copyStaticAssets({ PUBLISH_DIR }),
+    copyPublicAssets({ PUBLISH_DIR }),
   ])
 }

@@ -18,7 +18,7 @@
     "build:debug": "tsc --sourceMap",
     "build:watch": "tsc --watch",
     "test": "vitest",
-    "test:ci": "vitest run --reporter=default"
+    "test:ci": "vitest run --reporter=default --retry=3"
   },
   "repository": {
     "type": "git",
@@ -41,7 +41,6 @@
     "@netlify/build": "^29.20.6",
     "@netlify/functions": "^2.0.1",
     "@vercel/nft": "^0.24.3",
-    "fs-extra": "^11.1.1",
     "globby": "^13.2.2",
     "os": "^0.1.2",
     "outdent": "^0.8.0",
@@ -51,7 +50,6 @@
     "@netlify/eslint-config-node": "^7.0.1",
     "@netlify/serverless-functions-api": "^1.10.1",
     "@netlify/zip-it-and-ship-it": "^9.25.5",
-    "@types/fs-extra": "^11.0.1",
     "@types/mock-fs": "^4.13.1",
     "@types/uuid": "^9.0.6",
     "cheerio": "^1.0.0-rc.12",

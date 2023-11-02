@@ -1,6 +1,11 @@
 import { BlobsServer } from '@netlify/blobs'
-import { TestContext } from 'vitest'
+import { TestContext, assert, expect, vi } from 'vitest'
 
+import type {
+  NetlifyPluginConstants,
+  NetlifyPluginOptions,
+  NetlifyPluginUtils,
+} from '@netlify/build'
 import type { LambdaResponse } from '@netlify/serverless-functions-api/dist/lambda/response.js'
 import { zipFunctions } from '@netlify/zip-it-and-ship-it'
 import { execaCommand } from 'execa'
@@ -9,11 +14,8 @@ import { cp, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { vi } from 'vitest'
-import { streamToString } from './stream-to-string.js'
-import type { NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build'
 import { SERVER_HANDLER_NAME } from '../../src/build/constants.js'
-import { createBlobContext } from './helpers.js'
+import { streamToString } from './stream-to-string.js'
 
 export interface FixtureTestContext extends TestContext {
   cwd: string
@@ -88,6 +90,19 @@ export async function runPlugin(
       // INTERNAL_FUNCTIONS_SRC: '.netlify/functions-internal',
       // INTERNAL_EDGE_FUNCTIONS_SRC: '.netlify/edge-functions',
     },
+    utils: {
+      build: {
+        failBuild: (message, options) => {
+          assert.fail(`${message}: ${options?.error || ''}`)
+        },
+        failPlugin: (message, options) => {
+          assert.fail(`${message}: ${options?.error || ''}`)
+        },
+        cancelBuild: (message, options) => {
+          assert.fail(`${message}: ${options?.error || ''}`)
+        },
+      },
+    } as NetlifyPluginUtils,
   } as unknown as NetlifyPluginOptions)
 
   // We need to do a dynamic import as we mock the `process.cwd()` inside the createFixture function

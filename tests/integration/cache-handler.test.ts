@@ -52,7 +52,9 @@ test<FixtureTestContext>(
   'should have two pages with fetch pre rendered and revalidated',
   async (ctx) => {
     await createFixture('revalidate-fetch', ctx)
+    console.time('runPlugin')
     await runPlugin(ctx)
+    console.timeEnd('runPlugin')
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
     expect(blobEntries).toEqual([
