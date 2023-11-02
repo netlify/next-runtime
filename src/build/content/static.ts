@@ -30,7 +30,7 @@ const copyStaticPages = async (src: string, dest: string): Promise<Promise<void>
 export const copyStaticContent = async ({ PUBLISH_DIR }: NetlifyPluginConstants): Promise<void> => {
   await Promise.all([
     // static pages
-    Promise.all(await copyStaticPages(`${BUILD_DIR}/.next/standalone/.next`, PUBLISH_DIR)),
+    Promise.all(await copyStaticPages(`${BUILD_DIR}/.next`, PUBLISH_DIR)),
     // static assets
     copy(`${BUILD_DIR}/.next/static/`, `${PUBLISH_DIR}/_next/static`),
     // public assets

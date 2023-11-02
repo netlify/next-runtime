@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 
 const fixturesDir = fileURLToPath(new URL(`./fixtures`, import.meta.url))
 
-console.log('Preparing fixtures:')
+console.log('Preparing test fixtures:')
 await Promise.all(
   readdirSync(fixturesDir).map(async (fixture) => {
     console.log(`◆ Preparing fixture: ${fixture}`)

@@ -13,6 +13,7 @@ import { vi } from 'vitest'
 import { streamToString } from './stream-to-string.js'
 import type { NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build'
 import { SERVER_HANDLER_NAME } from '../../src/build/constants.js'
+import { createBlobContext } from './helpers.js'
 
 export interface FixtureTestContext extends TestContext {
   cwd: string

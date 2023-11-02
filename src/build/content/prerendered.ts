@@ -7,12 +7,14 @@ import pLimit from 'p-limit'
 import { parse, ParsedPath } from 'path'
 import { BUILD_DIR } from '../constants.js'
 
-type CacheEntry = {
+export type CacheEntry = {
   key: string
-  value: {
-    lastModified: number
-    value: PageCacheValue | RouteCacheValue | FetchCacheValue
-  }
+  value: CacheEntryValue
+}
+
+export type CacheEntryValue = {
+  lastModified: number
+  value: PageCacheValue | RouteCacheValue | FetchCacheValue
 }
 
 type PageCacheValue = {
@@ -142,7 +144,7 @@ export const uploadPrerenderedContent = async ({
 
   // read prerendered content and build JSON key/values for the blob store
   const entries = await Promise.allSettled(
-    await buildPrerenderedContentEntries(`${BUILD_DIR}/.next/standalone/.next`),
+    await buildPrerenderedContentEntries(`${BUILD_DIR}/.next`),
   )
   entries.forEach((result) => {
     if (result.status === 'rejected') {
