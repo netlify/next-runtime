@@ -2,13 +2,13 @@ import { NetlifyPluginConstants, NetlifyPluginUtils } from '@netlify/build'
 import { existsSync } from 'node:fs'
 import { mkdir, rename, rm } from 'node:fs/promises'
 import { join } from 'node:path'
-import { BUILD_DIR } from './constants.js'
+import { REL_BUILD_DIR } from './constants.js'
 
 /**
  * Move the Next.js build output from the publish dir to a temp dir
  */
 export const moveBuildOutput = async (
-  { PUBLISH_DIR }: NetlifyPluginConstants,
+  { PUBLISH_DIR }: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>,
   utils: NetlifyPluginUtils,
 ): Promise<void> => {
   if (!existsSync(PUBLISH_DIR)) {
@@ -17,7 +17,7 @@ export const moveBuildOutput = async (
     )
   }
 
-  const tempDir = join(BUILD_DIR, '.next')
+  const tempDir = join(process.cwd(), REL_BUILD_DIR, '.next')
 
   try {
     // cleanup any existing directory

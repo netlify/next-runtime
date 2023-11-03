@@ -1,5 +1,5 @@
 import { NetlifyPluginOptions } from '@netlify/build'
-import { moveBuildOutput } from './build/cache.js'
+import { moveBuildOutput } from './build/move-build-output.js'
 import { setBuildConfig } from './build/config.js'
 import { uploadPrerenderedContent } from './build/content/prerendered.js'
 import { copyStaticContent } from './build/content/static.js'

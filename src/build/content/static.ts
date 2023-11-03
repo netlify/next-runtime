@@ -3,7 +3,7 @@ import { globby } from 'globby'
 import { existsSync } from 'node:fs'
 import { copyFile, cp, mkdir } from 'node:fs/promises'
 import { ParsedPath, dirname, join, parse } from 'node:path'
-import { BUILD_DIR, WORKING_DIR } from '../constants.js'
+import { REL_BUILD_DIR, WORKING_DIR } from '../constants.js'
 
 /**
  * Copy static pages (HTML without associated JSON data)
@@ -36,7 +36,7 @@ const copyStaticAssets = async ({
   PUBLISH_DIR,
 }: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>): Promise<void> => {
   try {
-    const src = join(BUILD_DIR, '.next/static')
+    const src = join(process.cwd(), REL_BUILD_DIR, '.next/static')
     const dist = join(PUBLISH_DIR, '_next/static')
     await mkdir(dist, { recursive: true })
     cp(src, dist, { recursive: true, force: true })
@@ -66,7 +66,7 @@ const copyPublicAssets = async ({
  */
 export const copyStaticContent = async ({ PUBLISH_DIR }: NetlifyPluginConstants): Promise<void> => {
   await Promise.all([
-    copyStaticPages(`${BUILD_DIR}/.next`, PUBLISH_DIR),
+    copyStaticPages(join(process.cwd(), REL_BUILD_DIR, '.next'), PUBLISH_DIR),
     copyStaticAssets({ PUBLISH_DIR }),
     copyPublicAssets({ PUBLISH_DIR }),
   ])

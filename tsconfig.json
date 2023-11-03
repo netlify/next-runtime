@@ -3,10 +3,11 @@
     "target": "es2021",
     "module": "node16",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "src",
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"]
+  "include": ["src/**/*"],
+  "exclude": ["tests/**/*", "src/**/*.test.ts"]
 }

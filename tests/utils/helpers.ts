@@ -1,10 +1,12 @@
 import getPort from 'get-port'
-import { BLOB_TOKEN, type FixtureTestContext } from './fixture'
+import { BLOB_TOKEN, type FixtureTestContext } from './fixture.js'
 
 import { BlobsServer, getDeployStore } from '@netlify/blobs'
+import type { NetlifyPluginUtils } from '@netlify/build'
 import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { assert } from 'vitest'
 
 /**
  * Generates a 24char deploy ID (this is validated in the blob storage so we cant use a uuidv4)
@@ -63,3 +65,18 @@ export const getBlobEntries = async (ctx: FixtureTestContext) => {
   const { blobs } = await ctx.blobStore.list()
   return blobs
 }
+
+/**
+ * Fake build utils that are passed to a build plugin execution
+ */
+export const mockBuildUtils = {
+  failBuild: (message: string, options: { error?: Error }) => {
+    assert.fail(`${message}: ${options?.error || ''}`)
+  },
+  failPlugin: (message: string, options: { error?: Error }) => {
+    assert.fail(`${message}: ${options?.error || ''}`)
+  },
+  cancelBuild: (message: string, options: { error?: Error }) => {
+    assert.fail(`${message}: ${options?.error || ''}`)
+  },
+} as unknown as NetlifyPluginUtils

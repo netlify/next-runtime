@@ -1,6 +1,6 @@
 import { nodeFileTrace } from '@vercel/nft'
 import { writeFile, rm, mkdir, cp } from 'fs/promises'
-import { BUILD_DIR, PLUGIN_DIR, SERVER_HANDLER_DIR, SERVER_HANDLER_NAME } from '../constants.js'
+import { REL_BUILD_DIR, PLUGIN_DIR, SERVER_HANDLER_DIR, SERVER_HANDLER_NAME } from '../constants.js'
 import { copyServerContent } from '../content/server.js'
 import { join } from 'node:path'
 import { readFileSync } from 'fs'
@@ -33,11 +33,11 @@ export const createServerHandler = async () => {
 
   // copy the next.js standalone build output to the handler directory
   await copyServerContent(
-    join(BUILD_DIR, '.next/standalone/.next'),
+    join(process.cwd(), REL_BUILD_DIR, '.next/standalone/.next'),
     join(SERVER_HANDLER_DIR, '.next'),
   )
   await cp(
-    join(BUILD_DIR, '.next/standalone/node_modules'),
+    join(process.cwd(), REL_BUILD_DIR, '.next/standalone/node_modules'),
     join(SERVER_HANDLER_DIR, 'node_modules'),
     { recursive: true },
   )
