@@ -6,7 +6,7 @@ import type { NetlifyPluginUtils } from '@netlify/build'
 import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { assert } from 'vitest'
+import { assert, vi } from 'vitest'
 
 /**
  * Generates a 24char deploy ID (this is validated in the blob storage so we cant use a uuidv4)
@@ -47,6 +47,14 @@ export const startMockBlobStore = async (ctx: FixtureTestContext) => {
   })
   await ctx.blobServer.start()
   ctx.blobStoreHost = `localhost:${port}`
+  vi.stubEnv('NETLIFY_BLOBS_CONTEXT', createBlobContext(ctx))
+
+  ctx.blobStore = getDeployStore({
+    apiURL: `http://${ctx.blobStoreHost}`,
+    deployID: ctx.deployID,
+    siteID: ctx.siteID,
+    token: BLOB_TOKEN,
+  })
 }
 
 /**

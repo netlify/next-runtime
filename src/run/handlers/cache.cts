@@ -64,16 +64,24 @@ export default class NetlifyCacheHandler implements CacheHandler {
 
     switch (blob.value.kind) {
       // TODO:
-      // case 'ROUTE':
       // case 'FETCH':
+      case 'ROUTE':
+        return {
+          value: {
+            body: Buffer.from(blob.value.body),
+            kind: blob.value.kind,
+            status: blob.value.status,
+            headers: blob.value.headers,
+          },
+        }
       case 'PAGE':
         return {
           lastModified: blob.lastModified,
           value: blob.value,
         }
 
-      // default:
-      // console.log('TODO: implmenet', blob)
+      default:
+        console.log('TODO: implement NetlifyCacheHandler.get', blob)
     }
     return null
   }
@@ -83,6 +91,9 @@ export default class NetlifyCacheHandler implements CacheHandler {
     console.debug(`[NetlifyCacheHandler.set]: ${key}`)
     let cacheKey: string | null = null
     switch (data?.kind) {
+      case 'ROUTE':
+        cacheKey = join('server/app', key)
+        break
       case 'FETCH':
         cacheKey = join('cache/fetch-cache', key)
         break

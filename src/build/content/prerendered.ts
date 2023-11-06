@@ -29,8 +29,8 @@ type PageCacheValue = {
 type RouteCacheValue = {
   kind: 'ROUTE'
   body: string
-  headers?: { [k: string]: string }
-  status?: number
+  headers: { [k: string]: string }
+  status: number
 }
 
 type FetchCacheValue = {
