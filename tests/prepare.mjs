@@ -13,7 +13,7 @@ await Promise.all(
   readdirSync(fixturesDir).map(async (fixture) => {
     console.log(`◆ Preparing fixture: ${fixture}`)
     await rm(join(fixturesDir, fixture, '.next'), { recursive: true, force: true })
-    return execaCommand(`npm install --no-audit --progress=false`, {
+    return execaCommand(`npm install --no-audit --progress=false --prefer-offline`, {
       cwd: join(fixturesDir, fixture),
     })
   }),

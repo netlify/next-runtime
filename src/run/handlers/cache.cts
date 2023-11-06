@@ -15,7 +15,7 @@ import type { CacheEntryValue } from '../../build/content/prerendered.js'
 
 type TagManifest = { revalidatedAt: number }
 
-const tagsManifestPath = '_netlify-cache/tags'
+const tagsManifestPath = '.netlfiy/cache/tags'
 const blobStore = getDeployStore()
 
 // load the prerender manifest
@@ -69,13 +69,7 @@ export default class NetlifyCacheHandler implements CacheHandler {
       case 'PAGE':
         return {
           lastModified: blob.lastModified,
-          value: {
-            kind: 'PAGE',
-            html: blob.value.html,
-            pageData: blob.value.pageData,
-            headers: blob.value.headers,
-            status: blob.value.status,
-          },
+          value: blob.value,
         }
 
       // default:
@@ -93,7 +87,8 @@ export default class NetlifyCacheHandler implements CacheHandler {
         cacheKey = join('cache/fetch-cache', key)
         break
       case 'PAGE':
-        cacheKey = join('server/app', key)
+        cacheKey =
+          typeof data.pageData === 'string' ? join('server/app', key) : join('server/pages', key)
         break
       default:
         console.debug(`TODO: implement NetlifyCacheHandler.set for ${key}`, { data, ctx })
@@ -168,7 +163,7 @@ export default class NetlifyCacheHandler implements CacheHandler {
     ])
 
     // just get the first item out of it that is defined (either the pageRoute or the appRoute)
-    const [cacheEntry] = values.filter(({ value }) => !!value)
+    const [cacheEntry] = values.filter((keys) => keys && !!keys.value)
 
     // TODO: set the cache tags based on the tag manifest once we have that
     // if (cacheEntry) {
