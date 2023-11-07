@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { cpus } from 'os'
 import pLimit from 'p-limit'
 import { parse, ParsedPath } from 'path'
-import { REL_BUILD_DIR } from '../constants.js'
+import { BUILD_DIR } from '../constants.js'
 
 export type CacheEntry = {
   key: string
@@ -145,7 +145,7 @@ export const uploadPrerenderedContent = async ({
 
   // read prerendered content and build JSON key/values for the blob store
   const entries = await Promise.allSettled(
-    await buildPrerenderedContentEntries(join(process.cwd(), REL_BUILD_DIR, '.next')),
+    await buildPrerenderedContentEntries(join(process.cwd(), BUILD_DIR, '.next')),
   )
   entries.forEach((result) => {
     if (result.status === 'rejected') {

@@ -14,7 +14,7 @@ import { cp, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { SERVER_HANDLER_NAME } from '../../src/build/constants.js'
+import { SERVER_FUNCTIONS_DIR, SERVER_HANDLER_NAME } from '../../src/build/constants.js'
 import { streamToString } from './stream-to-string.js'
 
 export interface FixtureTestContext extends TestContext {
@@ -106,20 +106,18 @@ export async function runPlugin(
     } as NetlifyPluginUtils,
   } as unknown as NetlifyPluginOptions)
 
-  // We need to do a dynamic import as we mock the `process.cwd()` inside the createFixture function
-  // If we import it before calling that it will resolve to the actual process working directory instead of the mocked one
-  const { SERVER_FUNCTIONS_DIR } = await import('../../src/build/constants.js')
+  const internalSrcFolder = join(ctx.cwd, SERVER_FUNCTIONS_DIR)
 
   // create zip location in a new temp folder to avoid leaking node_modules through nodes resolve algorithm
   // that always looks up a parent directory for node_modules
   ctx.functionDist = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-dist'))
   // bundle the function to get the bootstrap layer and all the important parts
-  await zipFunctions(SERVER_FUNCTIONS_DIR, ctx.functionDist, {
+  await zipFunctions([internalSrcFolder], ctx.functionDist, {
     basePath: ctx.cwd,
     manifest: join(ctx.functionDist, 'manifest.json'),
     repositoryRoot: ctx.cwd,
-    configFileDirectories: [SERVER_FUNCTIONS_DIR],
-    internalSrcFolder: SERVER_FUNCTIONS_DIR,
+    configFileDirectories: [internalSrcFolder],
+    internalSrcFolder,
     archiveFormat: 'none',
   })
 }

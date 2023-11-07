@@ -1,4 +1,5 @@
 import { mkdir, rm } from 'node:fs/promises'
+import { join } from 'node:path'
 import { EDGE_HANDLER_DIR } from '../constants.js'
 
 /**
@@ -6,6 +7,6 @@ import { EDGE_HANDLER_DIR } from '../constants.js'
  */
 export const createEdgeHandler = async () => {
   // reset the handler directory
-  await rm(EDGE_HANDLER_DIR, { recursive: true, force: true })
-  await mkdir(EDGE_HANDLER_DIR, { recursive: true })
+  await rm(join(process.cwd(), EDGE_HANDLER_DIR), { recursive: true, force: true })
+  await mkdir(join(process.cwd(), EDGE_HANDLER_DIR), { recursive: true })
 }
