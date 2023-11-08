@@ -19,7 +19,7 @@ export async function getStaticProps(context) {
       show: data,
       time: new Date().toISOString(),
     },
-    revalidate: 2, // In seconds
+    revalidate: 3, // In seconds
   }
 }
 

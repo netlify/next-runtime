@@ -1,11 +1,12 @@
-const revalidateSeconds = 3
+const revalidateSeconds = +process.env.REVALIDATE_SECONDS || 3
+const API_BASE = process.env.API_BASE || 'https://api.tvmaze.com/shows/'
 
 export async function generateStaticParams() {
   return [{ id: '1' }, { id: '2' }]
 }
 
 async function getData(params) {
-  const res = await fetch(`https://api.tvmaze.com/shows/${params.id}`, {
+  const res = await fetch(new URL(params.id, API_BASE).href, {
     next: { revalidate: revalidateSeconds },
   })
   return res.json()
@@ -21,9 +22,9 @@ export default async function Page({ params }) {
       <p>Revalidating every {revalidateSeconds} seconds</p>
       <dl>
         <dt>Show</dt>
-        <dd>{data.name}</dd>
+        <dd data-testid="name">{data.name}</dd>
         <dt>Param</dt>
-        <dd>{params.id}</dd>
+        <dd data-testid="id">{params.id}</dd>
         <dt>Time</dt>
         <dd data-testid="date-now">{Date.now()}</dd>
       </dl>

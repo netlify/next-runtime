@@ -111,7 +111,7 @@ const buildPrerenderedContentEntries = async (cwd: string): Promise<Promise<Cach
       if (isFetch(path)) {
         value = {
           kind: 'FETCH',
-          data: JSON.parse(await readFile(`${cwd}/${key}`, 'utf-8')),
+          ...JSON.parse(await readFile(`${cwd}/${key}`, 'utf-8')),
         } satisfies FetchCacheValue
       }
 

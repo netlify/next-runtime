@@ -45,28 +45,35 @@ export default class NetlifyCacheHandler implements CacheHandler {
     console.debug(`[NetlifyCacheHandler.get]: ${cacheKey}`)
     const blob = await this.getBlobKey(cacheKey, ctx.fetchCache)
 
+    // if blob is null then we don't have a cache entry
     if (!blob) {
       return null
     }
 
-    const revalidateAfter = this.calculateRevalidate(cacheKey, blob.lastModified)
+    const revalidateAfter = this.calculateRevalidate(cacheKey, blob.lastModified, ctx)
     // first check if there is a tag manifest
     // if not => stale check with revalidateAfter
     // yes => check with manifest
     const isStale = revalidateAfter !== false && revalidateAfter < Date.now()
-    console.debug(`!!! CHACHE KEY: ${cacheKey} - is stale: `, {
-      isStale,
-      revalidateAfter,
-    })
+    console.debug(`!!! CHACHE KEY: ${cacheKey} - is stale: `, { isStale })
     if (isStale) {
       return null
     }
 
     switch (blob.value.kind) {
-      // TODO:
-      // case 'FETCH':
+      case 'FETCH':
+        return {
+          lastModified: blob.lastModified,
+          value: {
+            kind: blob.value.kind,
+            data: blob.value.data,
+            revalidate: ctx.revalidate || 1,
+          },
+        }
+
       case 'ROUTE':
         return {
+          lastModified: blob.lastModified,
           value: {
             body: Buffer.from(blob.value.body),
             kind: blob.value.kind,
@@ -79,11 +86,7 @@ export default class NetlifyCacheHandler implements CacheHandler {
           lastModified: blob.lastModified,
           value: blob.value,
         }
-
-      default:
-        console.log('TODO: implement NetlifyCacheHandler.get', blob)
     }
-    return null
   }
 
   async set(...args: Parameters<IncrementalCache['set']>) {
@@ -192,10 +195,19 @@ export default class NetlifyCacheHandler implements CacheHandler {
   /**
    * Retrieves the milliseconds since midnight, January 1, 1970 when it should revalidate for a path.
    */
-  private calculateRevalidate(pathname: string, fromTime: number, dev?: boolean): number | false {
+  private calculateRevalidate(
+    pathname: string,
+    fromTime: number,
+    ctx: Parameters<CacheHandler['get']>[1],
+    dev?: boolean,
+  ): number | false {
     // in development we don't have a prerender-manifest
     // and default to always revalidating to allow easier debugging
     if (dev) return Date.now() - 1_000
+
+    if (ctx?.revalidate && typeof ctx.revalidate === 'number') {
+      return fromTime + ctx.revalidate * 1_000
+    }
 
     // if an entry isn't present in routes we fallback to a default
     const { initialRevalidateSeconds } = prerenderManifest.routes[toRoute(pathname)] || {

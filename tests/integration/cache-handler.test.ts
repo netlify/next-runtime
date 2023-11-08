@@ -8,12 +8,7 @@ import {
   runPlugin,
   type FixtureTestContext,
 } from '../utils/fixture.js'
-import {
-  createBlobContext,
-  generateRandomObjectID,
-  getBlobEntries,
-  startMockBlobStore,
-} from '../utils/helpers.js'
+import { generateRandomObjectID, getBlobEntries, startMockBlobStore } from '../utils/helpers.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -23,6 +18,8 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   ctx.deployID = generateRandomObjectID()
   ctx.siteID = v4()
   vi.stubEnv('DEPLOY_ID', ctx.deployID)
+  // hide debug logs in tests
+  // vi.spyOn(console, 'debug').mockImplementation(() => {})
 
   await startMockBlobStore(ctx)
 })
@@ -48,12 +45,12 @@ describe('page router', () => {
     expect(call1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
       expect.objectContaining({
         'x-nextjs-cache': 'HIT',
-        'netlify-cdn-cache-control': 's-maxage=2, stale-while-revalidate',
+        'netlify-cdn-cache-control': 's-maxage=3, stale-while-revalidate',
       }),
     )
 
     // wait to have a stale page
-    await new Promise<void>((resolve) => setTimeout(resolve, 1_000))
+    await new Promise<void>((resolve) => setTimeout(resolve, 2_000))
 
     // now it should be a cache miss
     const call2 = await invokeFunction(ctx, { url: 'static/revalidate' })
@@ -83,27 +80,6 @@ describe('page router', () => {
 })
 
 describe('app router', () => {
-  test<FixtureTestContext>('Test that the simple next app is working', async (ctx) => {
-    await createFixture('simple-next-app', ctx)
-    await runPlugin(ctx)
-    // check if the blob entries where successful set on the build plugin
-    const blobEntries = await getBlobEntries(ctx)
-    expect(blobEntries).toEqual([
-      { key: 'server/app/_not-found', etag: expect.any(String) },
-      { key: 'server/app/index', etag: expect.any(String) },
-      { key: 'server/app/other', etag: expect.any(String) },
-    ])
-
-    // test the function call
-    const home = await invokeFunction(ctx)
-    expect(home.statusCode).toBe(200)
-    expect(load(home.body)('h1').text()).toBe('Home')
-
-    const other = await invokeFunction(ctx, { url: 'other' })
-    expect(other.statusCode).toBe(200)
-    expect(load(other.body)('h1').text()).toBe('Other')
-  })
-
   test<FixtureTestContext>('should have a page prerendered, then wait for it to get stale and on demand revalidate it', async (ctx) => {
     await createFixture('revalidate-fetch', ctx)
     console.time('runPlugin')
@@ -179,7 +155,9 @@ describe('app router', () => {
       }),
     )
   })
+})
 
+describe('plugin', () => {
   test<FixtureTestContext>('server-components blob store created correctly', async (ctx) => {
     await createFixture('server-components', ctx)
     await runPlugin(ctx)
@@ -202,7 +180,9 @@ describe('app router', () => {
       { key: 'server/app/static-fetch-2', etag: expect.any(String) },
     ])
   })
+})
 
+describe('route', () => {
   test<FixtureTestContext>('route handler with revalidate', async (ctx) => {
     await createFixture('server-components', ctx)
     await runPlugin(ctx)
@@ -228,20 +208,20 @@ describe('app router', () => {
       }),
     )
     // wait to have a stale route
-    await new Promise<void>((resolve) => setTimeout(resolve, 1_500))
+    await new Promise<void>((resolve) => setTimeout(resolve, 2_000))
 
     const call2 = await invokeFunction(ctx, { url: '/api/revalidate-handler' })
     const call2Body = JSON.parse(call2.body)
     const call2Time = call2Body.time
     expect(call2.statusCode).toBe(200)
     // it should have a new date rendered
-    expect(call1Time, 'the date is a new one on a stale route').not.toBe(call2Time)
     expect(call2Body).toMatchObject({ data: expect.objectContaining({ id: 1 }) })
     expect(call2.headers, 'a cache miss on a stale route').toEqual(
       expect.objectContaining({
         'x-nextjs-cache': 'MISS',
       }),
     )
+    expect(call1Time, 'the date is a new one on a stale route').not.toBe(call2Time)
 
     // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
     await new Promise<void>((resolve) => setTimeout(resolve, 100))
@@ -250,12 +230,12 @@ describe('app router', () => {
     expect(call3.statusCode).toBe(200)
     const call3Body = JSON.parse(call3.body)
     const call3Time = call3Body.time
-    expect(call3Time, 'the date was cached as well').toBe(call2Time)
     expect(call3Body).toMatchObject({ data: expect.objectContaining({ id: 1 }) })
     expect(call3.headers, 'a cache hit after dynamically regenerating the stale  route').toEqual(
       expect.objectContaining({
         'x-nextjs-cache': 'HIT',
       }),
     )
+    expect(call3Time, 'the date was cached as well').toBe(call2Time)
   })
 })

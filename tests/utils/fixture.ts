@@ -144,9 +144,11 @@ export async function invokeFunction(
     headers?: Record<string, string>
     /** The body that is used for the invocation */
     body?: unknown
+    /** Environment variables that should be set during the invocation */
+    env?: Record<string, string | number>
   } = {},
 ) {
-  const { httpMethod, headers, body, url } = options
+  const { httpMethod, headers, body, url, env } = options
   // now for the execution set the process working directory to the dist entry point
   vi.spyOn(process, 'cwd').mockReturnValue(join(ctx.functionDist, SERVER_HANDLER_NAME))
   const { handler } = await import(
@@ -163,6 +165,7 @@ export async function invokeFunction(
         deployID: ctx.deployID,
       }),
     ).toString('base64'),
+    ...(env || {}),
   }
   const response = (await execute({
     event: {
@@ -171,7 +174,9 @@ export async function invokeFunction(
       rawUrl: new URL(url || '/', 'https://example.netlify').href,
     },
     environment,
+    envdestroy: true,
     lambdaFunc: { handler },
+    timeoutMs: 4_000,
   })) as LambdaResponse
 
   return {
