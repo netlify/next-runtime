@@ -2,6 +2,8 @@ name: run e2e tests
 
 on:
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 env:
   NODE_VERSION: 18.16.1
@@ -10,6 +12,7 @@ env:
   NEXT_VERSION: netlify-testing
   NEXT_TEST_MODE: deploy
   NEXT_E2E_TEST_TIMEOUT: 600000
+  NEXT_TEST_JOB: true
   TEST_CONCURRENCY: 8
   NEXT_TELEMETRY_DISABLED: 1
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -20,6 +23,7 @@ env:
 
 jobs:
   test-e2e:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}
     name: test e2e
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -35,6 +39,8 @@ jobs:
         test/e2e/favicon-short-circuit/favicon-short-circuit.test.ts
 
     steps:
+      - name: 'Setup jq'
+        uses: dcarbone/install-jq-action@v2.1.0
       - name: get github token
         uses: navikt/github-app-token-generator@v1
         id: token
@@ -44,7 +50,7 @@ jobs:
           repo: ${{ env.NEXT_REPO }}
 
       - name: checkout next.js repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ env.NEXT_REPO }}
           token: ${{ steps.token.outputs.token }}
@@ -52,12 +58,12 @@ jobs:
           path: ${{ env.next-path }}
 
       - name: checkout runtime repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: ${{ env.runtime-path }}
 
       - name: setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -97,7 +103,7 @@ jobs:
         working-directory: ${{ env.next-path }}
 
       - name: install runtime
-        run: npm install
+        run: npm install --ignore-scripts
         working-directory: ${{ env.runtime-path }}
 
       - name: build runtime
@@ -121,13 +127,20 @@ jobs:
           NEXT_EXTERNAL_TESTS_FILTERS: ./tests.json
         run: node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
         working-directory: ${{ env.next-path }}
-
-  validate-tests:
-    name: validate tests
-    needs: [test-e2e]
-    runs-on: ubuntu-latest
-    steps:
-      - run: exit 1
-        if:
-          ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result,
-          'skipped') || contains(needs.*.result, 'cancelled')) }}
+      - name: Test results
+        working-directory: ${{ env.next-path }}
+        run: |
+          for file in `ls test/e2e/**/*.results.json`; do
+            test_name=$(echo $file | sed -e 's/test\/e2e\/\(.*\/.*\).results.json/\1/')
+            echo "<details>" >> $GITHUB_STEP_SUMMARY
+            echo "<summary>:x: Test failed: <code>${test_name}</code></summary>" >> $GITHUB_STEP_SUMMARY
+            echo "<pre><code>" >> $GITHUB_STEP_SUMMARY
+            cat $file | jq -r '.testResults[].message'>> $GITHUB_STEP_SUMMARY
+            echo "</code></pre>" >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+            failed=true
+          done
+          if [ "$failed" = true ] ; then
+            echo "Failed tests. Please see action summary for details."
+            exit 1
+          fi
