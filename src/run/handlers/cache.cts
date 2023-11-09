@@ -9,6 +9,7 @@ import type {
   CacheHandlerContext,
   IncrementalCache,
 } from 'next/dist/server/lib/incremental-cache/index.js'
+import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 import { join } from 'node:path/posix'
 // @ts-expect-error This is a type only import
 import type { CacheEntryValue } from '../../build/content/prerendered.js'
@@ -51,12 +52,11 @@ export default class NetlifyCacheHandler implements CacheHandler {
     }
 
     const revalidateAfter = this.calculateRevalidate(cacheKey, blob.lastModified, ctx)
-    // first check if there is a tag manifest
-    // if not => stale check with revalidateAfter
-    // yes => check with manifest
     const isStale = revalidateAfter !== false && revalidateAfter < Date.now()
-    console.debug(`!!! CHACHE KEY: ${cacheKey} - is stale: `, { isStale })
-    if (isStale) {
+    const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.softTags)
+    console.debug(`!!! CHACHE KEY: ${cacheKey} - is stale: `, { isStale, staleByTags })
+
+    if (staleByTags || isStale) {
       return null
     }
 
@@ -116,20 +116,23 @@ export default class NetlifyCacheHandler implements CacheHandler {
     }
   }
 
-  async revalidateTag(tag: string) {
-    console.debug('NetlifyCacheHandler.revalidateTag', tag)
+  async revalidateTag(tag: string, ...args: any) {
+    console.debug('NetlifyCacheHandler.revalidateTag', tag, args)
 
     const data: TagManifest = {
       revalidatedAt: Date.now(),
     }
 
     try {
+      console.log('set cache tag for ', { tag: this.tagManifestPath(tag), data })
       await blobStore.setJSON(this.tagManifestPath(tag), data)
     } catch (error) {
       console.warn(`Failed to update tag manifest for ${tag}`, error)
     }
 
-    purgeCache({ tags: [tag] })
+    purgeCache({ tags: [tag] }).catch(() => {
+      // noop
+    })
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -190,6 +193,45 @@ export default class NetlifyCacheHandler implements CacheHandler {
     // }
 
     return cacheEntry || null
+  }
+
+  /**
+   * Checks if a page is stale through on demand revalidated tags
+   */
+  private async checkCacheEntryStaleByTags(cacheEntry: CacheEntryValue, softTags: string[] = []) {
+    const tags =
+      'headers' in cacheEntry.value
+        ? cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER]?.split(',') || []
+        : []
+
+    const cacheTags = [...tags, ...softTags]
+    const allManifests = await Promise.all(
+      cacheTags.map(async (tag) => {
+        const key = this.tagManifestPath(tag)
+        const res = await blobStore
+          .get(key, { type: 'json' })
+          .then((value) => ({ [key]: value }))
+          .catch(console.error)
+        return res || { [key]: null }
+      }),
+    )
+
+    const tagsManifest = Object.assign({}, ...allManifests) as Record<
+      string,
+      null | { revalidatedAt: number }
+    >
+
+    const isStale = cacheTags.some((tag) => {
+      // TODO: test for this case
+      if (this.revalidatedTags.includes(tag)) {
+        return true
+      }
+
+      const { revalidatedAt } = tagsManifest[this.tagManifestPath(tag)] || {}
+      return revalidatedAt && revalidatedAt >= (cacheEntry.lastModified || Date.now())
+    })
+
+    return isStale
   }
 
   /**

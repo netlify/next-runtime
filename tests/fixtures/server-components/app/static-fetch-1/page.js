@@ -10,12 +10,12 @@ export default async function Page() {
 
   return (
     <>
-      <h1>Hello, Statically Rendered Server Component</h1>
+      <h1>Hello, Static Fetch 1</h1>
       <dl>
         <dt>Quote</dt>
         <dd>{data[0].quote}</dd>
         <dt>Time</dt>
-        <dd>{Date.now()}</dd>
+        <dd data-testid="date-now">{new Date().toISOString()}</dd>
       </dl>
     </>
   )

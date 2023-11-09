@@ -17,7 +17,9 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   // set for each test a new deployID and siteID
   ctx.deployID = generateRandomObjectID()
   ctx.siteID = v4()
+  vi.stubEnv('SITE_ID', ctx.siteID)
   vi.stubEnv('DEPLOY_ID', ctx.deployID)
+  vi.stubEnv('NETLIFY_PURGE_API_TOKEN', 'fake-token')
   // hide debug logs in tests
   // vi.spyOn(console, 'debug').mockImplementation(() => {})
 
@@ -163,21 +165,19 @@ describe('plugin', () => {
     await runPlugin(ctx)
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
-    expect(blobEntries).toEqual([
-      {
-        key: 'cache/fetch-cache/460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
-        etag: expect.any(String),
-      },
-      {
-        key: 'cache/fetch-cache/ac26c54e17c3018c17bfe5ae6adc0e6d37dbfaf28445c1f767ff267144264ac9',
-        etag: expect.any(String),
-      },
-      { key: 'server/app/_not-found', etag: expect.any(String) },
-      { key: 'server/app/api/revalidate-handler', etag: expect.any(String) },
-      { key: 'server/app/index', etag: expect.any(String) },
-      { key: 'server/app/revalidate-fetch', etag: expect.any(String) },
-      { key: 'server/app/static-fetch-1', etag: expect.any(String) },
-      { key: 'server/app/static-fetch-2', etag: expect.any(String) },
+    expect(blobEntries.map((entry) => entry.key)).toEqual([
+      'cache/fetch-cache/460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
+      'cache/fetch-cache/ac26c54e17c3018c17bfe5ae6adc0e6d37dbfaf28445c1f767ff267144264ac9',
+      'cache/fetch-cache/ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
+      'server/app/_not-found',
+      'server/app/api/revalidate-handler',
+      'server/app/index',
+      'server/app/revalidate-fetch',
+      'server/app/static-fetch/1',
+      'server/app/static-fetch/2',
+      'server/app/static-fetch-1',
+      'server/app/static-fetch-2',
+      'server/app/static-fetch-3',
     ])
   })
 })

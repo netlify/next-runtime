@@ -10,7 +10,7 @@ export default async function Page() {
 
   return (
     <>
-      <h1>Hello, Static Fetch 2</h1>
+      <h1>Hello, Static Fetch 3</h1>
       <dl>
         <dt>Quote</dt>
         <dd>{data[0].quote}</dd>

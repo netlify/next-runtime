@@ -24,6 +24,7 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   // set for each test a new deployID and siteID
   ctx.deployID = generateRandomObjectID()
   ctx.siteID = v4()
+  vi.stubEnv('SITE_ID', ctx.siteID)
   vi.stubEnv('DEPLOY_ID', ctx.deployID)
   // hide debug logs in tests
   // vi.spyOn(console, 'debug').mockImplementation(() => {})
