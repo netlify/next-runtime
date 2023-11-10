@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import { platform } from 'node:os'
 import { join } from 'node:path'
 

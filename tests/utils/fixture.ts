@@ -1,5 +1,5 @@
 import { BlobsServer, type getStore } from '@netlify/blobs'
-import { TestContext, assert, expect, vi } from 'vitest'
+import { TestContext, assert, vi } from 'vitest'
 
 import type {
   NetlifyPluginConstants,
@@ -10,9 +10,9 @@ import type { LambdaResponse } from '@netlify/serverless-functions-api/dist/lamb
 import { zipFunctions } from '@netlify/zip-it-and-ship-it'
 import { execaCommand } from 'execa'
 import { execute } from 'lambda-local'
-import { cp, mkdtemp, rm } from 'node:fs/promises'
+import { cp, mkdtemp, rm, mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { SERVER_FUNCTIONS_DIR, SERVER_HANDLER_NAME } from '../../src/build/constants.js'
 import { streamToString } from './stream-to-string.js'
@@ -57,6 +57,32 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
     ])
   } catch (error) {
     throw new Error(`could not prepare the fixture: ${fixture}. ${error}`)
+  }
+
+  return { cwd: ctx.cwd }
+}
+
+export const createFsFixture = async (fixture: Record<string, string>, ctx: FixtureTestContext) => {
+  ctx.cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
+  vi.spyOn(process, 'cwd').mockReturnValue(ctx.cwd)
+  ctx.cleanup = async () => {
+    try {
+      await rm(ctx.cwd, { recursive: true, force: true })
+    } catch {
+      // noop
+    }
+  }
+
+  try {
+    await Promise.all(
+      Object.entries(fixture).map(async ([key, value]) => {
+        const filepath = join(ctx.cwd, key)
+        await mkdir(dirname(filepath), { recursive: true })
+        await writeFile(filepath, value, 'utf-8')
+      }),
+    )
+  } catch (error) {
+    throw new Error(`could not prepare the fixture from json ${error}`)
   }
 
   return { cwd: ctx.cwd }

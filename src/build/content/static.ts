@@ -39,7 +39,7 @@ const copyStaticAssets = async ({
     const src = join(process.cwd(), BUILD_DIR, '.next/static')
     const dist = join(PUBLISH_DIR, '_next/static')
     await mkdir(dist, { recursive: true })
-    cp(src, dist, { recursive: true, force: true })
+    await cp(src, dist, { recursive: true, force: true })
   } catch (error) {
     throw new Error(`Failed to copy static assets: ${error}`)
   }
@@ -64,7 +64,9 @@ const copyPublicAssets = async ({
 /**
  * Move static content to the publish dir so it is uploaded to the CDN
  */
-export const copyStaticContent = async ({ PUBLISH_DIR }: NetlifyPluginConstants): Promise<void> => {
+export const copyStaticContent = async ({
+  PUBLISH_DIR,
+}: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>): Promise<void> => {
   await Promise.all([
     copyStaticPages(join(process.cwd(), BUILD_DIR, '.next'), PUBLISH_DIR),
     copyStaticAssets({ PUBLISH_DIR }),
