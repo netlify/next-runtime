@@ -17,7 +17,7 @@ import type { CacheEntryValue } from '../../build/content/prerendered.js'
 type TagManifest = { revalidatedAt: number }
 
 const tagsManifestPath = '.netlfiy/cache/tags'
-const blobStore = getDeployStore()
+export const blobStore = getDeployStore()
 
 // load the prerender manifest
 const prerenderManifest = JSON.parse(

@@ -32,11 +32,10 @@ describe('page router', () => {
     await runPlugin(ctx)
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
-    expect(blobEntries).toEqual([
-      {
-        key: 'server/pages/static/revalidate',
-        etag: expect.any(String),
-      },
+    expect(blobEntries.map(({ key }) => key).sort()).toEqual([
+      'server/pages/404.html',
+      'server/pages/500.html',
+      'server/pages/static/revalidate',
     ])
 
     // test the function call
@@ -89,19 +88,15 @@ describe('app router', () => {
     console.timeEnd('runPlugin')
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
-    expect(blobEntries).toEqual([
-      {
-        key: 'cache/fetch-cache/460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
-        etag: expect.any(String),
-      },
-      {
-        key: 'cache/fetch-cache/ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
-        etag: expect.any(String),
-      },
-      { key: 'server/app/_not-found', etag: expect.any(String) },
-      { key: 'server/app/index', etag: expect.any(String) },
-      { key: 'server/app/posts/1', etag: expect.any(String) },
-      { key: 'server/app/posts/2', etag: expect.any(String) },
+    expect(blobEntries.map(({ key }) => key).sort()).toEqual([
+      'cache/fetch-cache/460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
+      'cache/fetch-cache/ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
+      'server/app/_not-found',
+      'server/app/index',
+      'server/app/posts/1',
+      'server/app/posts/2',
+      'server/pages/404.html',
+      'server/pages/500.html',
     ])
 
     // test the function call
@@ -178,6 +173,8 @@ describe('plugin', () => {
       'server/app/static-fetch-1',
       'server/app/static-fetch-2',
       'server/app/static-fetch-3',
+      'server/pages/404.html',
+      'server/pages/500.html',
     ])
   })
 })

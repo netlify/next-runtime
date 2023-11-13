@@ -41,6 +41,7 @@
     "@netlify/build": "^29.20.6",
     "@netlify/functions": "^2.0.1",
     "@vercel/nft": "^0.24.3",
+    "fs-monkey": "^1.0.5",
     "globby": "^13.2.2",
     "os": "^0.1.2",
     "outdent": "^0.8.0",
@@ -58,6 +59,7 @@
     "memfs": "^4.6.0",
     "next": "^13.5.4",
     "typescript": "^5.1.6",
+    "unionfs": "^4.5.1",
     "uuid": "^9.0.1",
     "vitest": "^0.34.6"
   }

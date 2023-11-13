@@ -1,14 +1,18 @@
+import { getDeployStore } from '@netlify/blobs'
 import { NetlifyPluginConstants } from '@netlify/build'
 import { globby } from 'globby'
 import { existsSync } from 'node:fs'
-import { copyFile, cp, mkdir } from 'node:fs/promises'
-import { ParsedPath, dirname, join, parse } from 'node:path'
+import { cp, mkdir, readFile } from 'node:fs/promises'
+import { ParsedPath, join, parse } from 'node:path'
 import { BUILD_DIR } from '../constants.js'
 
 /**
  * Copy static pages (HTML without associated JSON data)
  */
-const copyStaticPages = async (src: string, dest: string): Promise<void> => {
+const copyStaticPages = async (
+  blob: ReturnType<typeof getDeployStore>,
+  src: string,
+): Promise<void> => {
   const paths = await globby([`server/pages/**/*.+(html|json)`], {
     cwd: src,
     extglob: true,
@@ -20,11 +24,9 @@ const copyStaticPages = async (src: string, dest: string): Promise<void> => {
       // keep only static files that do not have JSON data
       .filter(({ dir, name }: ParsedPath) => !paths.includes(`${dir}/${name}.json`))
       .map(async ({ dir, base }: ParsedPath) => {
-        const srcPath = join(src, dir, base)
-        const destPath = join(dest, dir.replace(/^server\/(app|pages)/, ''), base)
-
-        await mkdir(dirname(destPath), { recursive: true })
-        await copyFile(srcPath, destPath)
+        const relPath = join(dir, base)
+        const srcPath = join(src, relPath)
+        await blob.set(relPath, await readFile(srcPath, 'utf-8'))
       }),
   )
 }
@@ -64,10 +66,13 @@ const copyPublicAssets = async ({
 /**
  * Move static content to the publish dir so it is uploaded to the CDN
  */
-export const copyStaticContent = async ({
-  PUBLISH_DIR,
-}: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>): Promise<void> => {
-  await copyPublicAssets({ PUBLISH_DIR })
-  await copyStaticAssets({ PUBLISH_DIR })
-  await copyStaticPages(join(process.cwd(), BUILD_DIR, '.next'), PUBLISH_DIR)
+export const copyStaticContent = async (
+  { PUBLISH_DIR }: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>,
+  blob: ReturnType<typeof getDeployStore>,
+): Promise<void> => {
+  await Promise.all([
+    copyStaticPages(blob, join(process.cwd(), BUILD_DIR, '.next')),
+    copyStaticAssets({ PUBLISH_DIR }),
+    copyPublicAssets({ PUBLISH_DIR }),
+  ])
 }

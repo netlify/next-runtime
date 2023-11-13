@@ -90,6 +90,8 @@ test<FixtureTestContext>('if the fetch call is cached correctly', async (ctx) =>
       'server/app/_not-found',
       'server/app/index',
       'server/app/posts/2',
+      'server/pages/404.html',
+      'server/pages/500.html',
     ].sort(),
   )
   const post1 = await invokeFunction(ctx, {

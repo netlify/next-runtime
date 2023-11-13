@@ -20,6 +20,7 @@ export const createServerHandler = async () => {
     [
       join(PLUGIN_DIR, 'dist/run/handlers/server.js'),
       join(PLUGIN_DIR, 'dist/run/handlers/cache.cjs'),
+      join(PLUGIN_DIR, 'dist/run/handlers/next.cjs'),
     ],
     { base: PLUGIN_DIR, ignore: ['package.json', 'node_modules/next/**'] },
   )

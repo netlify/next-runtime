@@ -1,7 +1,8 @@
 import { platform } from 'node:os'
+import fs from 'node:fs'
 import { join } from 'node:path'
 
-import { vol } from 'memfs'
+import { Volume } from 'memfs'
 import { vi } from 'vitest'
 
 export const osHomeDir = platform() === 'win32' ? 'C:\\Users\\test-user' : '/home/test-user'
@@ -13,7 +14,8 @@ export const osHomeDir = platform() === 'win32' ? 'C:\\Users\\test-user' : '/hom
  * @returns The cwd where all files are placed in
  */
 export const mockFileSystem = (fileSystem: Record<string, string>, folder = 'test') => {
-  vol.fromJSON(
+  ;(fs as any).reset?.()
+  const vol = Volume.fromJSON(
     Object.entries(fileSystem).reduce(
       (prev, [key, value]) => ({
         ...prev,
@@ -22,8 +24,12 @@ export const mockFileSystem = (fileSystem: Record<string, string>, folder = 'tes
       {},
     ),
   )
+  // in this case we don't want to have the actual underlying fs so we clear them
+  // we only have the fs from the volume now.
+  ;(fs as any).fss = []
+  ;(fs as any).use?.(vol)
 
   const cwd = folder ? join(osHomeDir, folder) : process.cwd()
   vi.spyOn(process, 'cwd').mockReturnValue(cwd)
-  return cwd
+  return { cwd, vol }
 }
