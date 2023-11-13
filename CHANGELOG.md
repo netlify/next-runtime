@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.0-alpha.2](https://github.com/netlify/next-runtime-minimal/compare/v5.0.0-alpha.1...v5.0.0-alpha.2) (2023-11-13)
+
+
+### Bug Fixes
+
+* don't prepare tests on postinstall ([#61](https://github.com/netlify/next-runtime-minimal/issues/61)) ([a095a4c](https://github.com/netlify/next-runtime-minimal/commit/a095a4c008cab3f3a6ab2f9645f2974bedf4a753))
+
 ## [5.0.0-alpha.1](https://github.com/netlify/next-runtime-minimal/compare/v5.0.0-alpha.0...v5.0.0-alpha.1) (2023-11-13)
 
 
