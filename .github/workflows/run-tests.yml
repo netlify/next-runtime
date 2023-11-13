@@ -19,7 +19,9 @@ jobs:
 
       - name: 'Install dependencies'
         run: npm ci
-      - name: 'build'
+      - name: 'Build'
         run: npm run build
+      - name: 'Prepare Fixtures'
+        run: npm run pretest
       - name: 'Test'
         run: npm run test:ci -- --shard=${{ matrix.shard }}
