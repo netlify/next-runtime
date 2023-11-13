@@ -52,13 +52,13 @@ const copyPublicAssets = async ({
   PUBLISH_DIR,
 }: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>): Promise<void> => {
   const src = join(process.cwd(), 'public')
-  const dist = join(PUBLISH_DIR, 'public')
+  const dist = PUBLISH_DIR
   if (!existsSync(src)) {
     return
   }
 
   await mkdir(dist, { recursive: true })
-  await cp(src, dist)
+  await cp(src, dist, { recursive: true, force: true })
 }
 
 /**
@@ -67,9 +67,7 @@ const copyPublicAssets = async ({
 export const copyStaticContent = async ({
   PUBLISH_DIR,
 }: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>): Promise<void> => {
-  await Promise.all([
-    copyStaticPages(join(process.cwd(), BUILD_DIR, '.next'), PUBLISH_DIR),
-    copyStaticAssets({ PUBLISH_DIR }),
-    copyPublicAssets({ PUBLISH_DIR }),
-  ])
+  await copyPublicAssets({ PUBLISH_DIR })
+  await copyStaticAssets({ PUBLISH_DIR })
+  await copyStaticPages(join(process.cwd(), BUILD_DIR, '.next'), PUBLISH_DIR)
 }

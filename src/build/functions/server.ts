@@ -1,9 +1,9 @@
 import { nodeFileTrace } from '@vercel/nft'
-import { writeFile, rm, mkdir, cp } from 'fs/promises'
+import { readFileSync } from 'fs'
+import { cp, mkdir, rm, writeFile } from 'fs/promises'
+import { join } from 'node:path'
 import { BUILD_DIR, PLUGIN_DIR, SERVER_HANDLER_DIR, SERVER_HANDLER_NAME } from '../constants.js'
 import { copyServerContent } from '../content/server.js'
-import { join } from 'node:path'
-import { readFileSync } from 'fs'
 
 const pkg = JSON.parse(readFileSync(join(PLUGIN_DIR, 'package.json'), 'utf-8'))
 
@@ -75,6 +75,6 @@ export const createServerHandler = async () => {
   // write the root handler file
   await writeFile(
     join(process.cwd(), SERVER_HANDLER_DIR, `${SERVER_HANDLER_NAME}.js`),
-    `import handler from './dist/run/handlers/server.js';export default handler;export const config = {path:'/*'}`,
+    `import handler from './dist/run/handlers/server.js';export default handler`,
   )
 }

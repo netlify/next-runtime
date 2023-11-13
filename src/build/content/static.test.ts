@@ -1,9 +1,9 @@
-import { vol, fs } from 'memfs'
-import { expect, test, vi, afterEach } from 'vitest'
+import { fs, vol } from 'memfs'
 import { join } from 'node:path'
+import { afterEach, expect, test, vi } from 'vitest'
+import { fsCpHelper, mockFileSystem } from '../../../tests/index.js'
 import { BUILD_DIR } from '../constants.js'
 import { copyStaticContent } from './static.js'
-import { mockFileSystem, fsCpHelper } from '../../../tests/index.js'
 
 vi.mock('node:fs', () => fs)
 vi.mock('node:fs/promises', () => {
@@ -59,10 +59,7 @@ test('should copy files from the public directory to the publish directory', asy
 
   const filenamesInVolume = Object.keys(vol.toJSON())
   expect(filenamesInVolume).toEqual(
-    expect.arrayContaining([
-      `${PUBLISH_DIR}/public/fake-image.svg`,
-      `${PUBLISH_DIR}/public/another-asset.json`,
-    ]),
+    expect.arrayContaining([`${PUBLISH_DIR}/fake-image.svg`, `${PUBLISH_DIR}/another-asset.json`]),
   )
 })
 
