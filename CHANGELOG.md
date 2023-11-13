@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.0.0-alpha.1](https://github.com/netlify/next-runtime-minimal/compare/v5.0.0-alpha.0...v5.0.0-alpha.1) (2023-11-13)
+
+
+### Bug Fixes
+
+* requesting page router static assets ([#58](https://github.com/netlify/next-runtime-minimal/issues/58)) ([c893ad1](https://github.com/netlify/next-runtime-minimal/commit/c893ad17e31ce3912a20f8a22d476c2937a81a99))
+
+
+### Miscellaneous Chores
+
+* release 5.0.0-alpha.0 ([aaf9085](https://github.com/netlify/next-runtime-minimal/commit/aaf9085a71280c5f9f0a2c45c8f01f7723015baf))
+* release 5.0.0-alpha.1 ([f968b62](https://github.com/netlify/next-runtime-minimal/commit/f968b620ac8af22c04eab5c57d30fdbcf255b990))
+
 ## [5.0.0-alpha.0](https://github.com/netlify/next-runtime-minimal/compare/v5.0.0-alpha.0...v5.0.0-alpha.0) (2023-11-13)
 
 
