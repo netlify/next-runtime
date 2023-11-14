@@ -1,18 +1,18 @@
 {
   "name": "@netlify/next-runtime",
-  "version": "5.0.0-alpha.2",
+  "version": "5.0.0-alpha.5",
   "description": "Run Next.js seamlessly on Netlify",
   "main": "./dist/index.js",
   "type": "module",
   "files": [
-    "dist/**/*",
-    "index.js",
+    "dist",
     "manifest.yml"
   ],
   "engines": {
     "node": ">=16.0.0"
   },
   "scripts": {
+    "prepack": "npm run build",
     "pretest": "node tests/prepare.mjs",
     "build": "tsc",
     "build:debug": "tsc --sourceMap",
