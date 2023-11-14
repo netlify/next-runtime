@@ -22,15 +22,17 @@ export const createServerHandler = async () => {
       join(PLUGIN_DIR, 'dist/run/handlers/cache.cjs'),
       join(PLUGIN_DIR, 'dist/run/handlers/next.cjs'),
     ],
-    { base: PLUGIN_DIR, ignore: ['package.json', 'node_modules/next/**'] },
+    { ignore: ['package.json', 'node_modules/next/**'] },
   )
 
   // copy the handler dependencies
   await Promise.all(
     [...fileList].map((path) =>
-      cp(join(PLUGIN_DIR, path), join(process.cwd(), SERVER_HANDLER_DIR, path), {
-        recursive: true,
-      }),
+      cp(
+        path,
+        join(process.cwd(), SERVER_HANDLER_DIR, path.replace(`node_modules/${pkg.name}/`, '')),
+        { recursive: true },
+      ),
     ),
   )
 
