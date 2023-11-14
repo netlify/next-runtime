@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "type": "module",
   "files": [
-    "lib/**/*",
+    "dist/**/*",
     "index.js",
     "manifest.yml"
   ],
