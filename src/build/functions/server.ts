@@ -1,19 +1,24 @@
+import { NetlifyPluginOptions } from '@netlify/build'
 import { nodeFileTrace } from '@vercel/nft'
-import { readFileSync } from 'fs'
-import { cp, mkdir, rm, writeFile } from 'fs/promises'
-import { join } from 'node:path'
-import { BUILD_DIR, PLUGIN_DIR, SERVER_HANDLER_DIR, SERVER_HANDLER_NAME } from '../constants.js'
-import { copyServerContent } from '../content/server.js'
-
-const pkg = JSON.parse(readFileSync(join(PLUGIN_DIR, 'package.json'), 'utf-8'))
+import { mkdir, rm, symlink, writeFile } from 'fs/promises'
+import { dirname, join, resolve } from 'node:path'
+import {
+  PLUGIN_DIR,
+  PLUGIN_NAME,
+  PLUGIN_VERSION,
+  SERVER_HANDLER_DIR,
+  SERVER_HANDLER_NAME,
+} from '../constants.js'
+import { linkServerContent, linkServerDependencies } from '../content/server.js'
 
 /**
  * Create a Netlify function to run the Next.js server
  */
-export const createServerHandler = async () => {
+export const createServerHandler = async ({
+  constants: { PUBLISH_DIR },
+}: Pick<NetlifyPluginOptions, 'constants'>) => {
   // reset the handler directory
-  await rm(join(process.cwd(), SERVER_HANDLER_DIR), { force: true, recursive: true })
-  await mkdir(join(process.cwd(), SERVER_HANDLER_DIR), { recursive: true })
+  await rm(resolve(SERVER_HANDLER_DIR), { recursive: true, force: true })
 
   // trace the handler dependencies
   const { fileList } = await nodeFileTrace(
@@ -22,38 +27,34 @@ export const createServerHandler = async () => {
       join(PLUGIN_DIR, 'dist/run/handlers/cache.cjs'),
       join(PLUGIN_DIR, 'dist/run/handlers/next.cjs'),
     ],
-    { ignore: ['package.json', 'node_modules/next/**'] },
+    { base: PLUGIN_DIR, ignore: ['package.json', 'node_modules/next/**'] },
   )
 
   // copy the handler dependencies
   await Promise.all(
-    [...fileList].map((path) =>
-      cp(
-        path,
-        join(process.cwd(), SERVER_HANDLER_DIR, path.replace(`node_modules/${pkg.name}/`, '')),
-        { recursive: true },
-      ),
-    ),
+    [...fileList].map(async (path) => {
+      await mkdir(resolve(SERVER_HANDLER_DIR, dirname(path)), { recursive: true })
+      await symlink(resolve(PLUGIN_DIR, path), resolve(SERVER_HANDLER_DIR, path))
+    }),
   )
 
   // copy the next.js standalone build output to the handler directory
-  await copyServerContent(
-    join(process.cwd(), BUILD_DIR, '.next/standalone/.next'),
-    join(process.cwd(), SERVER_HANDLER_DIR, '.next'),
+  await linkServerContent(
+    resolve(PUBLISH_DIR, 'standalone/.next'),
+    resolve(SERVER_HANDLER_DIR, '.next'),
   )
-  await cp(
-    join(process.cwd(), BUILD_DIR, '.next/standalone/node_modules'),
-    join(process.cwd(), SERVER_HANDLER_DIR, 'node_modules'),
-    { recursive: true },
+  await linkServerDependencies(
+    resolve(PUBLISH_DIR, 'standalone/node_modules'),
+    resolve(SERVER_HANDLER_DIR, 'node_modules'),
   )
 
   // create the handler metadata file
   await writeFile(
-    join(process.cwd(), SERVER_HANDLER_DIR, `${SERVER_HANDLER_NAME}.json`),
+    resolve(SERVER_HANDLER_DIR, `${SERVER_HANDLER_NAME}.json`),
     JSON.stringify({
       config: {
         name: 'Next.js Server Handler',
-        generator: `${pkg.name}@${pkg.version}`,
+        generator: `${PLUGIN_NAME}@${PLUGIN_VERSION}`,
         nodeBundler: 'none',
         includedFiles: [
           `${SERVER_HANDLER_NAME}*`,
@@ -62,7 +63,7 @@ export const createServerHandler = async () => {
           '.next/**',
           'node_modules/**',
         ],
-        includedFilesBasePath: join(process.cwd(), SERVER_HANDLER_DIR),
+        includedFilesBasePath: resolve(SERVER_HANDLER_DIR),
       },
       version: 1,
     }),
@@ -70,14 +71,11 @@ export const createServerHandler = async () => {
   )
 
   // configure ESM
-  await writeFile(
-    join(process.cwd(), SERVER_HANDLER_DIR, 'package.json'),
-    JSON.stringify({ type: 'module' }),
-  )
+  await writeFile(resolve(SERVER_HANDLER_DIR, 'package.json'), JSON.stringify({ type: 'module' }))
 
   // write the root handler file
   await writeFile(
-    join(process.cwd(), SERVER_HANDLER_DIR, `${SERVER_HANDLER_NAME}.js`),
+    resolve(SERVER_HANDLER_DIR, `${SERVER_HANDLER_NAME}.js`),
     `import handler from './dist/run/handlers/server.js';export default handler`,
   )
 }

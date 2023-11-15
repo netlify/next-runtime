@@ -1,18 +1,14 @@
 import { BlobsServer, type getStore } from '@netlify/blobs'
 import { TestContext, assert, vi } from 'vitest'
 
-import type {
-  NetlifyPluginConstants,
-  NetlifyPluginOptions,
-  NetlifyPluginUtils,
-} from '@netlify/build'
+import type { NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build'
 import type { LambdaResponse } from '@netlify/serverless-functions-api/dist/lambda/response.js'
 import { zipFunctions } from '@netlify/zip-it-and-ship-it'
 import { execaCommand } from 'execa'
 import { execute } from 'lambda-local'
-import { cp, mkdtemp, rm, mkdir, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join, dirname } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { SERVER_FUNCTIONS_DIR, SERVER_HANDLER_NAME } from '../../src/build/constants.js'
 import { streamToString } from './stream-to-string.js'
@@ -129,7 +125,10 @@ export async function runPlugin(
           assert.fail(`${message}: ${options?.error || ''}`)
         },
       },
-    } as NetlifyPluginUtils,
+      cache: {
+        save: vi.fn(),
+      },
+    },
   } as unknown as NetlifyPluginOptions)
 
   const internalSrcFolder = join(ctx.cwd, SERVER_FUNCTIONS_DIR)

@@ -51,7 +51,7 @@ describe('page router', () => {
     )
 
     // wait to have a stale page
-    await new Promise<void>((resolve) => setTimeout(resolve, 2_000))
+    await new Promise<void>((resolve) => setTimeout(resolve, 3_000))
 
     // now it should be a cache miss
     const call2 = await invokeFunction(ctx, { url: 'static/revalidate' })

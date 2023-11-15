@@ -1,92 +1,142 @@
-import { type getDeployStore } from '@netlify/blobs'
-import { join } from 'node:path'
-import { beforeEach, expect, test, vi } from 'vitest'
+import type { NetlifyPluginOptions } from '@netlify/build'
+import glob from 'fast-glob'
+import { Mock, afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { mockFileSystem } from '../../../tests/index.js'
-import { BUILD_DIR } from '../constants.js'
-import { copyStaticContent } from './static.js'
+import { FixtureTestContext, createFsFixture } from '../../../tests/utils/fixture.js'
+import { getBlobStore } from '../blob.js'
+import { STATIC_DIR } from '../constants.js'
+import { linkStaticAssets, uploadStaticContent } from './static.js'
 
-vi.mock('node:fs', async () => {
-  const unionFs: any = (await import('unionfs')).default
-  const fs = await vi.importActual<typeof import('fs')>('node:fs')
-  unionFs.reset = () => {
-    unionFs.fss = [fs]
-  }
-  const united = unionFs.use(fs)
-  return { default: united, ...united }
+afterEach(() => {
+  vi.restoreAllMocks()
 })
 
-vi.mock('node:fs/promises', async () => {
-  const fs = await import('node:fs')
-  const { fsCpHelper, rmHelper } = await import('../../../tests/utils/fs-helper.js')
-  return {
-    ...fs.promises,
-    rm: rmHelper,
-    cp: fsCpHelper,
-  }
-})
+vi.mock('../blob.js', () => ({
+  getBlobStore: vi.fn(),
+}))
 
-let fakeBlob: ReturnType<typeof getDeployStore>
-
+let mockBlobSet = vi.fn()
 beforeEach(() => {
-  fakeBlob = {
-    set: vi.fn(),
-  } as unknown as ReturnType<typeof getDeployStore>
+  ;(getBlobStore as Mock).mockReturnValue({
+    set: mockBlobSet,
+  })
 })
 
-test('should copy the static assets from the build to the publish directory', async () => {
-  const { cwd, vol } = mockFileSystem({
-    [`${BUILD_DIR}/.next/static/test.js`]: '',
-    [`${BUILD_DIR}/.next/static/sub-dir/test2.js`]: '',
+test('should clear the static directory contents', async () => {
+  const PUBLISH_DIR = '.next'
+
+  const { vol } = mockFileSystem({
+    [`${STATIC_DIR}/remove-me.js`]: '',
   })
 
-  const PUBLISH_DIR = join(cwd, 'publish')
-  await copyStaticContent({ PUBLISH_DIR }, fakeBlob)
+  await linkStaticAssets({
+    constants: { PUBLISH_DIR },
+  } as Pick<NetlifyPluginOptions, 'constants'>)
 
-  expect(fakeBlob.set).toHaveBeenCalledTimes(0)
   expect(Object.keys(vol.toJSON())).toEqual(
+    expect.not.arrayContaining([`${STATIC_DIR}/remove-me.js`]),
+  )
+})
+
+test<FixtureTestContext>('should link static content from the publish directory to the static directory', async (ctx) => {
+  const PUBLISH_DIR = '.next'
+
+  const { cwd } = await createFsFixture(
+    {
+      [`${PUBLISH_DIR}/static/test.js`]: '',
+      [`${PUBLISH_DIR}/static/sub-dir/test2.js`]: '',
+    },
+    ctx,
+  )
+
+  await linkStaticAssets({
+    constants: { PUBLISH_DIR },
+  } as Pick<NetlifyPluginOptions, 'constants'>)
+
+  const files = await glob('**/*', { cwd, dot: true })
+
+  expect(files).toEqual(
     expect.arrayContaining([
-      `${PUBLISH_DIR}/_next/static/test.js`,
-      `${PUBLISH_DIR}/_next/static/sub-dir/test2.js`,
+      `${PUBLISH_DIR}/static/test.js`,
+      `${PUBLISH_DIR}/static/sub-dir/test2.js`,
+      `${STATIC_DIR}/_next/static/test.js`,
+      `${STATIC_DIR}/_next/static/sub-dir/test2.js`,
     ]),
   )
 })
 
-test('should throw expected error if no static assets directory exists', async () => {
-  const { cwd } = mockFileSystem({})
+test<FixtureTestContext>('should link static content from the public directory to the static directory', async (ctx) => {
+  const PUBLISH_DIR = '.next'
 
-  const PUBLISH_DIR = join(cwd, 'publish')
-  const staticDirectory = join(cwd, '.netlify/.next/static')
+  const { cwd } = await createFsFixture(
+    {
+      'public/fake-image.svg': '',
+      'public/another-asset.json': '',
+    },
+    ctx,
+  )
 
-  await expect(copyStaticContent({ PUBLISH_DIR }, fakeBlob)).rejects.toThrowError(
-    `Failed to copy static assets: Error: ENOENT: no such file or directory, readdir '${staticDirectory}'`,
+  await linkStaticAssets({
+    constants: { PUBLISH_DIR },
+  } as Pick<NetlifyPluginOptions, 'constants'>)
+
+  const files = await glob('**/*', { cwd, dot: true })
+
+  expect(files).toEqual(
+    expect.arrayContaining([
+      'public/another-asset.json',
+      'public/fake-image.svg',
+      `${STATIC_DIR}/another-asset.json`,
+      `${STATIC_DIR}/fake-image.svg`,
+    ]),
   )
 })
 
-test('should copy files from the public directory to the publish directory', async () => {
-  const { cwd, vol } = mockFileSystem({
-    [`${BUILD_DIR}/.next/static/test.js`]: '',
-    'public/fake-image.svg': '',
-    'public/another-asset.json': '',
-  })
+test<FixtureTestContext>('should copy the static pages to the publish directory if the routes do not exist in the prerender-manifest', async (ctx) => {
+  const PUBLISH_DIR = '.next'
 
-  const PUBLISH_DIR = join(cwd, 'publish')
-  await copyStaticContent({ PUBLISH_DIR }, fakeBlob)
-
-  expect(Object.keys(vol.toJSON())).toEqual(
-    expect.arrayContaining([`${PUBLISH_DIR}/fake-image.svg`, `${PUBLISH_DIR}/another-asset.json`]),
+  const { cwd } = await createFsFixture(
+    {
+      [`${PUBLISH_DIR}/prerender-manifest.json`]: JSON.stringify({
+        routes: {},
+      }),
+      [`${PUBLISH_DIR}/static/test.js`]: '',
+      [`${PUBLISH_DIR}/server/pages/test.html`]: 'test-1',
+      [`${PUBLISH_DIR}/server/pages/test2.html`]: 'test-2',
+    },
+    ctx,
   )
+
+  await uploadStaticContent({
+    constants: { PUBLISH_DIR },
+  } as Pick<NetlifyPluginOptions, 'constants'>)
+
+  expect(mockBlobSet).toHaveBeenCalledTimes(2)
+  expect(mockBlobSet).toHaveBeenCalledWith('server/pages/test.html', 'test-1')
+  expect(mockBlobSet).toHaveBeenCalledWith('server/pages/test2.html', 'test-2')
 })
 
-test('should not copy files if the public directory does not exist', async () => {
-  const { cwd, vol } = mockFileSystem({
-    [`${BUILD_DIR}/.next/static/test.js`]: '',
-  })
+test<FixtureTestContext>('should not copy the static pages to the publish directory if the routes exist in the prerender-manifest', async (ctx) => {
+  const PUBLISH_DIR = '.next'
 
-  const PUBLISH_DIR = join(cwd, 'publish')
-  await expect(copyStaticContent({ PUBLISH_DIR }, fakeBlob)).resolves.toBeUndefined()
+  const { cwd } = await createFsFixture(
+    {
+      [`${PUBLISH_DIR}/prerender-manifest.json`]: JSON.stringify({
+        routes: {
+          '/test': {},
+          '/test2': {},
+        },
+      }),
+      [`${PUBLISH_DIR}/static/test.js`]: '',
+      [`${PUBLISH_DIR}/server/pages/test.html`]: '',
+      [`${PUBLISH_DIR}/server/pages/test2.html`]: '',
+    },
+    ctx,
+  )
 
-  expect(vol.toJSON()).toEqual({
-    [join(cwd, `${BUILD_DIR}/.next/static/test.js`)]: '',
-    [`${PUBLISH_DIR}/_next/static/test.js`]: '',
-  })
+  await uploadStaticContent({
+    constants: { PUBLISH_DIR },
+  } as Pick<NetlifyPluginOptions, 'constants'>)
+
+  expect(mockBlobSet).not.toHaveBeenCalled()
 })

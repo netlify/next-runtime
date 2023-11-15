@@ -1,78 +1,60 @@
-import { getDeployStore } from '@netlify/blobs'
-import { NetlifyPluginConstants } from '@netlify/build'
-import { globby } from 'globby'
-import { existsSync } from 'node:fs'
-import { cp, mkdir, readFile } from 'node:fs/promises'
-import { ParsedPath, join, parse } from 'node:path'
-import { BUILD_DIR } from '../constants.js'
+import type { NetlifyPluginOptions } from '@netlify/build'
+import glob from 'fast-glob'
+import type { PrerenderManifest } from 'next/dist/build/index.js'
+import { readFile, rm } from 'node:fs/promises'
+import { basename, dirname, resolve } from 'node:path'
+import { join as joinPosix } from 'node:path/posix'
+import { getBlobStore } from '../blob.js'
+import { getPrerenderManifest } from '../config.js'
+import { STATIC_DIR } from '../constants.js'
+import { linkdir } from '../files.js'
 
-/**
- * Copy static pages (HTML without associated JSON data)
- */
-const copyStaticPages = async (
-  blob: ReturnType<typeof getDeployStore>,
-  src: string,
-): Promise<void> => {
-  const paths = await globby([`server/pages/**/*.+(html|json)`], {
-    cwd: src,
-    extglob: true,
+export const uploadStaticContent = async ({
+  constants: { PUBLISH_DIR, NETLIFY_API_TOKEN, NETLIFY_API_HOST, SITE_ID },
+}: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
+  const dir = 'server/pages'
+  const paths = await glob(['**/*.html'], {
+    cwd: resolve(PUBLISH_DIR, dir),
   })
 
-  await Promise.all(
-    paths
-      .map(parse)
-      // keep only static files that do not have JSON data
-      .filter(({ dir, name }: ParsedPath) => !paths.includes(`${dir}/${name}.json`))
-      .map(async ({ dir, base }: ParsedPath) => {
-        const relPath = join(dir, base)
-        const srcPath = join(src, relPath)
-        await blob.set(relPath, await readFile(srcPath, 'utf-8'))
-      }),
-  )
-}
-
-/**
- * Copies static assets
- */
-const copyStaticAssets = async ({
-  PUBLISH_DIR,
-}: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>): Promise<void> => {
+  let manifest: PrerenderManifest
+  let blob: ReturnType<typeof getBlobStore>
   try {
-    const src = join(process.cwd(), BUILD_DIR, '.next/static')
-    const dist = join(PUBLISH_DIR, '_next/static')
-    await mkdir(dist, { recursive: true })
-    await cp(src, dist, { recursive: true, force: true })
-  } catch (error) {
-    throw new Error(`Failed to copy static assets: ${error}`)
-  }
-}
-
-/**
- * Copies the public folder over
- */
-const copyPublicAssets = async ({
-  PUBLISH_DIR,
-}: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>): Promise<void> => {
-  const src = join(process.cwd(), 'public')
-  const dist = PUBLISH_DIR
-  if (!existsSync(src)) {
+    manifest = await getPrerenderManifest({ PUBLISH_DIR })
+    blob = getBlobStore({ NETLIFY_API_TOKEN, NETLIFY_API_HOST, SITE_ID })
+  } catch (error: any) {
+    console.error(`Unable to upload static content: ${error.message}`)
     return
   }
 
-  await mkdir(dist, { recursive: true })
-  await cp(src, dist, { recursive: true, force: true })
+  const uploads = await Promise.allSettled(
+    paths
+      .filter((path) => {
+        const route = '/' + joinPosix(dirname(path), basename(path, '.html'))
+        return !Object.keys(manifest.routes).includes(route)
+      })
+      .map(async (path) => {
+        console.log(`Uploading static content: ${path}`)
+        await blob.set(
+          joinPosix(dir, path),
+          await readFile(resolve(PUBLISH_DIR, dir, path), 'utf-8'),
+        )
+      }),
+  )
+  uploads.forEach((upload, index) => {
+    if (upload.status === 'rejected') {
+      console.error(`Unable to store static content: ${upload.reason.message}`)
+    }
+  })
 }
 
 /**
  * Move static content to the publish dir so it is uploaded to the CDN
  */
-export const copyStaticContent = async (
-  { PUBLISH_DIR }: Pick<NetlifyPluginConstants, 'PUBLISH_DIR'>,
-  blob: ReturnType<typeof getDeployStore>,
-): Promise<void> => {
-  await Promise.all([
-    copyStaticPages(blob, join(process.cwd(), BUILD_DIR, '.next')),
-    copyStaticAssets({ PUBLISH_DIR }),
-    copyPublicAssets({ PUBLISH_DIR }),
-  ])
+export const linkStaticAssets = async ({
+  constants: { PUBLISH_DIR },
+}: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
+  await rm(resolve(STATIC_DIR), { recursive: true, force: true })
+  await linkdir(resolve(PUBLISH_DIR, 'static'), resolve(STATIC_DIR, '_next/static'))
+  await linkdir(resolve('public'), resolve(STATIC_DIR))
 }
