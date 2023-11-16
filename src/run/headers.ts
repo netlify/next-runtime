@@ -7,7 +7,7 @@ interface NetlifyVaryValues {
 }
 
 const generateNetlifyVaryValues = ({ headers, languages, cookies }: NetlifyVaryValues): string => {
-  const values = []
+  const values: string[] = []
   if (headers.length !== 0) {
     values.push(`header=${headers.join(`|`)}`)
   }

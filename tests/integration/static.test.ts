@@ -24,7 +24,7 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   await startMockBlobStore(ctx)
 })
 
-test.skip<FixtureTestContext>('requesting a non existing page route that needs to be fetched from the CDN', async (ctx) => {
+test<FixtureTestContext>('requesting a non existing page route that needs to be fetched from the CDN', async (ctx) => {
   await createFixture('page-router', ctx)
   await runPlugin(ctx)
 
