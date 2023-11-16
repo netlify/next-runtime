@@ -14,10 +14,9 @@ export default async (request: Request) => {
     nextConfig = await getRunConfig()
     setRunConfig(nextConfig)
 
-    const { default: getMockedRequestHandlers } = await import('./next.cjs')
+    const { getRequestHandlers } = await import('next/dist/server/lib/start-server.js')
 
-    // @ts-expect-error
-    ;[nextHandler] = await getMockedRequestHandlers({
+    ;[nextHandler] = await getRequestHandlers({
       port: 3000,
       hostname: 'localhost',
       dir: RUN_DIR,

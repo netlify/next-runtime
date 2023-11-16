@@ -8,7 +8,7 @@ import { patchFs } from 'fs-monkey'
 
 type FS = typeof import('fs')
 
-export default async (...args: Parameters<typeof getRequestHandlers>) => {
+export async function getMockedRequestHandlers(...args: Parameters<typeof getRequestHandlers>) {
   const { blobStore } = await import('./cache.cjs')
 
   async function readFileFallbackBlobStore(...args: Parameters<FS['promises']['readFile']>) {
