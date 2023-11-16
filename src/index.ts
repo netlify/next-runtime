@@ -2,7 +2,7 @@ import type { NetlifyPluginOptions } from '@netlify/build'
 import { restoreBuildCache, saveBuildCache } from './build/cache.js'
 import { setBuildConfig, setDeployConfig } from './build/config.js'
 import { uploadPrerenderedContent } from './build/content/prerendered.js'
-import { linkStaticAssets, uploadStaticContent } from './build/content/static.js'
+import { copyStaticAssets, uploadStaticContent } from './build/content/static.js'
 import { createServerHandler } from './build/functions/server.js'
 
 export const onPreBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
@@ -14,7 +14,7 @@ export const onBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
   await saveBuildCache({ constants, utils })
 
   return Promise.all([
-    linkStaticAssets({ constants }),
+    copyStaticAssets({ constants }),
     uploadStaticContent({ constants }),
     uploadPrerenderedContent({ constants }),
     createServerHandler({ constants }),

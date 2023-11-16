@@ -5,7 +5,7 @@ import { mockFileSystem } from '../../../tests/index.js'
 import { FixtureTestContext, createFsFixture } from '../../../tests/utils/fixture.js'
 import { getBlobStore } from '../blob.js'
 import { STATIC_DIR } from '../constants.js'
-import { linkStaticAssets, uploadStaticContent } from './static.js'
+import { copyStaticAssets, uploadStaticContent } from './static.js'
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -29,7 +29,7 @@ test('should clear the static directory contents', async () => {
     [`${STATIC_DIR}/remove-me.js`]: '',
   })
 
-  await linkStaticAssets({
+  await copyStaticAssets({
     constants: { PUBLISH_DIR },
   } as Pick<NetlifyPluginOptions, 'constants'>)
 
@@ -49,7 +49,7 @@ test<FixtureTestContext>('should link static content from the publish directory 
     ctx,
   )
 
-  await linkStaticAssets({
+  await copyStaticAssets({
     constants: { PUBLISH_DIR },
   } as Pick<NetlifyPluginOptions, 'constants'>)
 
@@ -76,7 +76,7 @@ test<FixtureTestContext>('should link static content from the public directory t
     ctx,
   )
 
-  await linkStaticAssets({
+  await copyStaticAssets({
     constants: { PUBLISH_DIR },
   } as Pick<NetlifyPluginOptions, 'constants'>)
 

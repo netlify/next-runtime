@@ -1,7 +1,7 @@
 import { NetlifyPluginOptions } from '@netlify/build'
 import { nodeFileTrace } from '@vercel/nft'
-import { mkdir, rm, symlink, writeFile } from 'fs/promises'
-import { dirname, join, resolve } from 'node:path'
+import { cp, rm, writeFile } from 'fs/promises'
+import { join, resolve } from 'node:path'
 import {
   PLUGIN_DIR,
   PLUGIN_NAME,
@@ -9,7 +9,7 @@ import {
   SERVER_HANDLER_DIR,
   SERVER_HANDLER_NAME,
 } from '../constants.js'
-import { linkServerContent, linkServerDependencies } from '../content/server.js'
+import { copyServerContent, copyServerDependencies } from '../content/server.js'
 
 /**
  * Create a Netlify function to run the Next.js server
@@ -33,17 +33,16 @@ export const createServerHandler = async ({
   // copy the handler dependencies
   await Promise.all(
     [...fileList].map(async (path) => {
-      await mkdir(resolve(SERVER_HANDLER_DIR, dirname(path)), { recursive: true })
-      await symlink(resolve(PLUGIN_DIR, path), resolve(SERVER_HANDLER_DIR, path))
+      await cp(resolve(PLUGIN_DIR, path), resolve(SERVER_HANDLER_DIR, path), { recursive: true })
     }),
   )
 
   // copy the next.js standalone build output to the handler directory
-  await linkServerContent(
+  await copyServerContent(
     resolve(PUBLISH_DIR, 'standalone/.next'),
     resolve(SERVER_HANDLER_DIR, '.next'),
   )
-  await linkServerDependencies(
+  await copyServerDependencies(
     resolve(PUBLISH_DIR, 'standalone/node_modules'),
     resolve(SERVER_HANDLER_DIR, 'node_modules'),
   )

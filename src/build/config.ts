@@ -2,7 +2,7 @@ import type { NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/buil
 import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { STATIC_DIR } from './constants.js'
+import { SERVER_HANDLER_NAME, STATIC_DIR } from './constants.js'
 
 export const getPrerenderManifest = async ({
   PUBLISH_DIR,
@@ -22,7 +22,7 @@ export const setDeployConfig = ({ netlifyConfig }: Pick<NetlifyPluginOptions, 'n
   netlifyConfig.redirects ||= []
   netlifyConfig.redirects.push({
     from: '/*',
-    to: '/.netlify/functions/___netlify-server-handler',
+    to: `/.netlify/functions/${SERVER_HANDLER_NAME}`,
     status: 200,
   })
 }

@@ -1,19 +1,19 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
 import type { PrerenderManifest } from 'next/dist/build/index.js'
-import { readFile, rm } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import { cp, readFile, rm } from 'node:fs/promises'
 import { basename, dirname, resolve } from 'node:path'
 import { join as joinPosix } from 'node:path/posix'
 import { getBlobStore } from '../blob.js'
 import { getPrerenderManifest } from '../config.js'
 import { STATIC_DIR } from '../constants.js'
-import { linkdir } from '../files.js'
 
 export const uploadStaticContent = async ({
   constants: { PUBLISH_DIR, NETLIFY_API_TOKEN, NETLIFY_API_HOST, SITE_ID },
 }: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
   const dir = 'server/pages'
-  const paths = await glob(['**/*.html'], {
+  const paths = await glob('**/*.html', {
     cwd: resolve(PUBLISH_DIR, dir),
   })
 
@@ -34,7 +34,6 @@ export const uploadStaticContent = async ({
         return !Object.keys(manifest.routes).includes(route)
       })
       .map(async (path) => {
-        console.log(`Uploading static content: ${path}`)
         await blob.set(
           joinPosix(dir, path),
           await readFile(resolve(PUBLISH_DIR, dir, path), 'utf-8'),
@@ -51,10 +50,16 @@ export const uploadStaticContent = async ({
 /**
  * Move static content to the publish dir so it is uploaded to the CDN
  */
-export const linkStaticAssets = async ({
+export const copyStaticAssets = async ({
   constants: { PUBLISH_DIR },
 }: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
   await rm(resolve(STATIC_DIR), { recursive: true, force: true })
-  await linkdir(resolve(PUBLISH_DIR, 'static'), resolve(STATIC_DIR, '_next/static'))
-  await linkdir(resolve('public'), resolve(STATIC_DIR))
+  if (existsSync(resolve('public'))) {
+    await cp(resolve('public'), resolve(STATIC_DIR), { recursive: true })
+  }
+  if (existsSync(resolve(PUBLISH_DIR, 'static'))) {
+    await cp(resolve(PUBLISH_DIR, 'static'), resolve(STATIC_DIR, '_next/static'), {
+      recursive: true,
+    })
+  }
 }
