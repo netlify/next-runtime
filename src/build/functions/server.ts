@@ -1,7 +1,7 @@
 import { NetlifyPluginOptions } from '@netlify/build'
 import { nodeFileTrace } from '@vercel/nft'
 import { cp, rm, writeFile } from 'fs/promises'
-import { join, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import {
   PLUGIN_DIR,
   PLUGIN_NAME,
@@ -27,13 +27,27 @@ export const createServerHandler = async ({
       join(PLUGIN_DIR, 'dist/run/handlers/cache.cjs'),
       join(PLUGIN_DIR, 'dist/run/handlers/next.cjs'),
     ],
-    { base: PLUGIN_DIR, ignore: ['package.json', 'node_modules/next/**'] },
+    // base in this case is the directory where it should stop looking up.
+    // by setting this to `/` we get absolute paths and don't have to worry about wrongly chaining it
+    {
+      base: '/',
+      ignore: ['**/node_modules/next/**'],
+    },
   )
 
   // copy the handler dependencies
   await Promise.all(
     [...fileList].map(async (path) => {
-      await cp(resolve(PLUGIN_DIR, path), resolve(SERVER_HANDLER_DIR, path), { recursive: true })
+      // we have to use a fake cwd that points to the actual repository root. On the deployed version this will be the build directory
+      // As in the integration tests the node_modules are not located in the tmp directory
+      const cwd = process.env.NETLIFY_FAKE_TEST_CWD || process.cwd()
+      const absPath = `/${path}`
+      // if the file that got traced is inside the plugin directory resolve it with the plugin directory
+      // if it is a node_module resolve it with the process working directory.
+      const relPath = relative(path.includes(PLUGIN_NAME) ? PLUGIN_DIR : cwd, absPath)
+      await cp(absPath, resolve(SERVER_HANDLER_DIR, relPath), {
+        recursive: true,
+      })
     }),
   )
 

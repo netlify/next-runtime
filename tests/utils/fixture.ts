@@ -95,6 +95,11 @@ export async function runPlugin(
   ctx: FixtureTestContext,
   constants: Partial<NetlifyPluginConstants> = {},
 ) {
+  // this is needed as the node_modules of the runtime are not copied over to the temp directory
+  // so in this case we use the NETLIFY_FAKE_TEST_CWD || process.cwd() that will fallback to the actual cwd on production
+  const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
+  vi.stubEnv('NETLIFY_FAKE_TEST_CWD', repoRoot)
+
   const { onBuild } = await import('../../src/index.js')
   await onBuild({
     constants: {
