@@ -18,7 +18,9 @@
     "build:debug": "tsc --sourceMap",
     "build:watch": "tsc --watch",
     "test": "vitest",
-    "test:ci": "vitest run --reporter=default --retry=3"
+    "test:ci": "vitest run --reporter=default --retry=3",
+    "e2e": "playwright test",
+    "e2e:ci": "playwright test"
   },
   "repository": {
     "type": "git",
@@ -41,8 +43,8 @@
     "@netlify/build": "^29.20.6",
     "@netlify/functions": "^2.0.1",
     "@vercel/nft": "^0.24.3",
-    "fs-monkey": "^1.0.5",
     "fast-glob": "^3.3.2",
+    "fs-monkey": "^1.0.5",
     "os": "^0.1.2",
     "outdent": "^0.8.0",
     "p-limit": "^4.0.0"
@@ -51,6 +53,8 @@
     "@netlify/eslint-config-node": "^7.0.1",
     "@netlify/serverless-functions-api": "^1.10.1",
     "@netlify/zip-it-and-ship-it": "^9.25.5",
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.9.2",
     "@types/uuid": "^9.0.6",
     "cheerio": "^1.0.0-rc.12",
     "execa": "^8.0.1",

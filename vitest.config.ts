@@ -47,6 +47,7 @@ class Sequencer extends BaseSequencer {
 export default defineConfig({
   root: '.',
   test: {
+    include: ['{tests/integration,src}/**/*.test.ts'],
     globals: true,
     restoreMocks: true,
     clearMocks: true,
