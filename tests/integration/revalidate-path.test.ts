@@ -65,7 +65,6 @@ test<FixtureTestContext>('should revalidate a route by path', async (ctx) => {
   const entries = await getBlobEntries(ctx)
   expect(await ctx.blobStore.get('.netlfiy/cache/tags/_N_T_/static-fetch/[id]/page')).not.toBeNull()
 
-  console.log(entries)
   const [post2, post2Route2] = await Promise.all([
     invokeFunction(ctx, { url: '/static-fetch/1' }),
     invokeFunction(ctx, { url: '/static-fetch/2' }),

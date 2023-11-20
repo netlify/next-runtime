@@ -19,7 +19,7 @@ export type CacheEntryValue = {
   value: PageCacheValue | RouteCacheValue | FetchCacheValue
 }
 
-type PageCacheValue = {
+export type PageCacheValue = {
   kind: 'PAGE'
   html: string
   pageData: string

@@ -51,3 +51,22 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
   expect(notFound.statusCode).toBe(404)
   expect(load(notFound.body)('h1').text()).toBe('404')
 })
+
+test<FixtureTestContext>('Should add cache-tags to prerendered app pages', async (ctx) => {
+  await createFixture('simple-next-app', ctx)
+  await runPlugin(ctx)
+
+  const staticFetch1 = await invokeFunction(ctx, { url: '/other' })
+
+  expect(staticFetch1.headers?.['cache-tag']).toBe(
+    '_N_T_/layout,_N_T_/other/layout,_N_T_/other/page,_N_T_/other',
+  )
+})
+
+test<FixtureTestContext>('index should be normalized within the cacheHandler and have cache-tags', async (ctx) => {
+  await createFixture('simple-next-app', ctx)
+  await runPlugin(ctx)
+  const index = await invokeFunction(ctx, { url: '/' })
+  expect(index.statusCode).toBe(200)
+  expect(index.headers?.['cache-tag']).toBe('_N_T_/layout,_N_T_/page,_N_T_/')
+})

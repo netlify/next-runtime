@@ -1,6 +1,7 @@
 import { expect, test, describe, vi, afterEach } from 'vitest'
 import { setCacheControlHeaders, setVaryHeaders, setCacheTagsHeaders } from './headers.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
+import { PageCacheValue } from '../build/content/prerendered.js'
 
 describe('headers', () => {
   afterEach(() => {
@@ -243,8 +244,59 @@ describe('headers', () => {
   })
 
   describe('setCacheTagsHeaders', () => {
-    test('TODO: function is not yet implemented', () => {
-      expect(setCacheTagsHeaders(new Headers())).toBeUndefined()
+    const appValue = {
+      kind: 'PAGE',
+      html: '<!DOCTYPE html><html lang="en">',
+      pageData: 'Data from rsc file',
+      headers: { 'x-next-cache-tags': '_N_T_/layout,_N_T_/page,_N_T_/' },
+      status: 200,
+    } satisfies PageCacheValue
+
+    const pageValue = {
+      kind: 'PAGE',
+      html: '<!DOCTYPE html><html lang="en">',
+      pageData: { pageProps: { foo: 'bar' } },
+      status: 200,
+    } satisfies PageCacheValue | { pageData: Object }
+
+    test('Should set cache-tag header for app routes using tag in headers[x-next-cache-tags] from cache value', () => {
+      const cacheEntry = {
+        lastModified: 1699843226944,
+        value: appValue,
+      }
+
+      const headers = new Headers()
+      vi.spyOn(headers, 'set')
+      setCacheTagsHeaders(new Request('https://example.com/index'), headers, cacheEntry)
+
+      expect(headers.set).toHaveBeenNthCalledWith(1, 'cache-tag', '_N_T_/layout,_N_T_/page,_N_T_/')
+    })
+
+    test('Should set cache-tag header for page routes using pathname as the tag', () => {
+      const cacheEntry: any = {
+        lastModified: 1699843226944,
+        value: pageValue,
+      }
+
+      const headers = new Headers()
+      vi.spyOn(headers, 'set')
+      setCacheTagsHeaders(new Request('https://example.com/index'), headers, cacheEntry)
+
+      expect(headers.set).toHaveBeenNthCalledWith(1, 'cache-tag', '/index')
+    })
+
+    test('Should not return any cache-tags if data is null', () => {
+      const cacheEntry: any = {
+        lastModified: 1699843226944,
+        value: null,
+      }
+
+      const headers = new Headers()
+      vi.spyOn(headers, 'set')
+
+      expect(
+        setCacheTagsHeaders(new Request('https://example.com/index'), headers, cacheEntry),
+      ).toBeUndefined()
     })
   })
 })

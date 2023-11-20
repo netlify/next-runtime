@@ -13,6 +13,7 @@ import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 import { join } from 'node:path/posix'
 // @ts-expect-error This is a type only import
 import type { CacheEntryValue } from '../../build/content/prerendered.js'
+import type { PrerenderManifest } from 'next/dist/build/index.js'
 
 type TagManifest = { revalidatedAt: number }
 
@@ -29,7 +30,28 @@ function toRoute(pathname: string): string {
   return pathname.replace(/\/$/, '').replace(/\/index$/, '') || '/'
 }
 
-export default class NetlifyCacheHandler implements CacheHandler {
+// borrowed from https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/page-path/normalize-page-path.ts#L14
+function ensureLeadingSlash(path: string): string {
+  return path.startsWith('/') ? path : `/${path}`
+}
+
+function isDynamicRoute(path: string): void | boolean {
+  const dynamicRoutes: PrerenderManifest['dynamicRoutes'] = prerenderManifest.dynamicRoutes
+  Object.values(dynamicRoutes).find((route) => {
+    return new RegExp(route.routeRegex).test(path)
+  })
+}
+
+function normalizePath(path: string): string {
+  // If there is a page that is '/index' the first statement ensures that it will be '/index/index'
+  return /^\/index(\/|$)/.test(path) && !isDynamicRoute(path)
+    ? `/index${path}`
+    : path === '/'
+    ? '/index'
+    : ensureLeadingSlash(path)
+}
+
+module.exports = class NetlifyCacheHandler implements CacheHandler {
   options: CacheHandlerContext
   revalidatedTags: string[]
   /** Indicates if the application is using the new appDir */
@@ -156,8 +178,10 @@ export default class NetlifyCacheHandler implements CacheHandler {
         isAppPath: boolean
       } & CacheEntryValue)
   > {
-    const appKey = join('server/app', key)
-    const pagesKey = join('server/pages', key)
+    const normalizedKey = normalizePath(key)
+    // Want to avoid normalizaing if '/index' is being passed as a key.
+    const appKey = join('server/app', key === '/index' ? key : normalizedKey)
+    const pagesKey = join('server/pages', key === '/index' ? key : normalizedKey)
     const fetchKey = join('cache/fetch-cache', key)
 
     if (fetch) {
@@ -223,7 +247,7 @@ export default class NetlifyCacheHandler implements CacheHandler {
 
     const isStale = cacheTags.some((tag) => {
       // TODO: test for this case
-      if (this.revalidatedTags.includes(tag)) {
+      if (tag && this.revalidatedTags?.includes(tag)) {
         return true
       }
 

@@ -35,11 +35,12 @@ describe('page router', () => {
     expect(blobEntries.map(({ key }) => key).sort()).toEqual([
       'server/pages/404.html',
       'server/pages/500.html',
-      'server/pages/static/revalidate',
+      'server/pages/static/revalidate-automatic',
+      'server/pages/static/revalidate-manual',
     ])
 
     // test the function call
-    const call1 = await invokeFunction(ctx, { url: 'static/revalidate' })
+    const call1 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
     const call1Date = load(call1.body)('[data-testid="date-now"]').text()
     expect(call1.statusCode).toBe(200)
     expect(load(call1.body)('h1').text()).toBe('Show #71')
@@ -54,7 +55,7 @@ describe('page router', () => {
     await new Promise<void>((resolve) => setTimeout(resolve, 3_000))
 
     // now it should be a cache miss
-    const call2 = await invokeFunction(ctx, { url: 'static/revalidate' })
+    const call2 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
     const call2Date = load(call2.body)('[data-testid="date-now"]').text()
     expect(call2.statusCode).toBe(200)
     expect(call2.headers, 'a cache miss on a stale page').toEqual(
@@ -68,7 +69,7 @@ describe('page router', () => {
     await new Promise<void>((resolve) => setTimeout(resolve, 100))
 
     // now the page should be in cache again and we should get a cache hit
-    const call3 = await invokeFunction(ctx, { url: 'static/revalidate' })
+    const call3 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
     const call3Date = load(call3.body)('[data-testid="date-now"]').text()
     expect(call2Date, 'the date was not cached').toBe(call3Date)
     expect(call3.statusCode).toBe(200)
@@ -205,7 +206,7 @@ describe('route', () => {
       }),
     )
     // wait to have a stale route
-    await new Promise<void>((resolve) => setTimeout(resolve, 2_000))
+    await new Promise<void>((resolve) => setTimeout(resolve, 3_000))
 
     const call2 = await invokeFunction(ctx, { url: '/api/revalidate-handler' })
     const call2Body = JSON.parse(call2.body)

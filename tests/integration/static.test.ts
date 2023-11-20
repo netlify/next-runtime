@@ -1,7 +1,7 @@
 import { load } from 'cheerio'
 import { getLogger } from 'lambda-local'
 import { v4 } from 'uuid'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, expect, test, vi } from 'vitest'
 import {
   createFixture,
   invokeFunction,
@@ -32,7 +32,8 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
   expect(entries.map(({ key }) => key).sort()).toEqual([
     'server/pages/404.html',
     'server/pages/500.html',
-    'server/pages/static/revalidate',
+    'server/pages/static/revalidate-automatic',
+    'server/pages/static/revalidate-manual',
   ])
 
   // test that it should request the 404.html file

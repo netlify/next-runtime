@@ -1,4 +1,5 @@
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
+import type { PageCacheEntry } from './handlers/server.js'
 
 interface NetlifyVaryValues {
   headers: string[]
@@ -83,6 +84,23 @@ export const setCacheControlHeaders = (headers: Headers) => {
   }
 }
 
-export const setCacheTagsHeaders = (headers: Headers) => {
-  // TODO: implement
+export const setCacheTagsHeaders = (
+  request: Request,
+  headers: Headers,
+  cacheEntry: PageCacheEntry | undefined | null,
+) => {
+  const pageData = cacheEntry?.value?.pageData
+  const cacheHeaders = cacheEntry?.value?.headers
+  const path = new URL(request.url).pathname
+
+  // Page Data for app chould be a string, Pages should be an obj
+  if (pageData && typeof pageData === 'string' && cacheHeaders?.['x-next-cache-tags']) {
+    console.debug('Cache values for app routes:', cacheHeaders['x-next-cache-tags'])
+    headers.set('cache-tag', cacheHeaders['x-next-cache-tags'])
+  }
+
+  if (pageData && typeof pageData === 'object') {
+    console.debug('Cache values for Page routes', cacheEntry)
+    headers.set('cache-tag', path)
+  }
 }

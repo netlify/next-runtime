@@ -39,7 +39,7 @@
   "homepage": "https://github.com/netlify/next-runtime-minimal#readme",
   "dependencies": {
     "@fastly/http-compute-js": "1.1.1",
-    "@netlify/blobs": "^4.0.0",
+    "@netlify/blobs": "^4.1.0",
     "@netlify/build": "^29.20.6",
     "@netlify/functions": "^2.0.1",
     "@vercel/nft": "^0.24.3",
@@ -61,6 +61,7 @@
     "get-port": "^7.0.0",
     "lambda-local": "^2.1.2",
     "memfs": "^4.6.0",
+    "msw": "^2.0.7",
     "next": "^13.5.4",
     "typescript": "^5.1.6",
     "unionfs": "^4.5.1",
