@@ -17,7 +17,7 @@ import type { PrerenderManifest } from 'next/dist/build/index.js'
 
 type TagManifest = { revalidatedAt: number }
 
-const tagsManifestPath = '.netlfiy/cache/tags'
+const tagsManifestPath = '.netlify/cache/tags'
 export const blobStore = getDeployStore()
 
 // load the prerender manifest
