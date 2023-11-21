@@ -19,30 +19,15 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.URL,
-
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
-
   timeout: 10 * 60 * 1000,
-
   /* Configure projects for major browsers */
   projects: [
-    // {
-    //   name: 'setup',
-    //   testMatch: /global\.setup\.ts/,
-    // },
     {
       name: 'chromium',
-      // dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 })

@@ -1,7 +1,7 @@
 import { execaCommand } from 'execa'
 import fg from 'fast-glob'
 import { exec } from 'node:child_process'
-import { copyFile, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -12,9 +12,8 @@ import pLimit from 'p-limit'
 const SITE_ID = 'ee859ce9-44a7-46be-830b-ead85e445e53'
 
 export interface DeployResult {
-  site_name: string
-  deploy_id: string
-  deploy_url: string
+  deployID: string
+  url: string
   logs: string
 }
 
@@ -25,14 +24,22 @@ export interface DeployResult {
 export const createE2EFixture = async (fixture: string) => {
   const cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
   let deployID: string
-  const _cleanup = () => cleanup(cwd, deployID)
+  let logs: string
+  const _cleanup = (failure: boolean = false) => {
+    if (failure) {
+      console.log(logs)
+    }
+    // on failures we don't delete the deploy
+    return cleanup(cwd, failure === true ? undefined : deployID)
+  }
   try {
     const [packageName] = await Promise.all([buildAndPackRuntime(cwd), copyFixture(fixture, cwd)])
     await installRuntime(packageName, cwd)
     const result = await deploySite(cwd)
-    console.log(`🌍 Deployed Site is live under: ${result.deploy_url}`)
-    deployID = result.deploy_id
-    return { cwd, cleanup: _cleanup, deployID: result.deploy_id, url: result.deploy_url }
+    console.log(`🌍 Deployed Site is live under: ${result.url}`)
+    deployID = result.deployID
+    logs = result.logs
+    return { cwd, cleanup: _cleanup, deployID: result.deployID, url: result.url }
   } catch (error) {
     await _cleanup()
     throw error
@@ -92,10 +99,18 @@ async function installRuntime(packageName: string, cwd: string): Promise<void> {
 
 async function deploySite(cwd: string): Promise<DeployResult> {
   console.log(`🚀  Building and Deploying Site...`)
-  const cmd = `ntl deploy --build --site ${SITE_ID} --json`
-  const { stdout } = await execaCommand(cmd, { cwd })
+  const outputFile = 'deploy-output.txt'
+  const cmd = `ntl deploy --build --site ${SITE_ID}`
 
-  return JSON.parse(stdout)
+  await execaCommand(cmd, { cwd, all: true }).pipeAll?.(join(cwd, outputFile))
+  const output = await readFile(join(cwd, outputFile), 'utf-8')
+
+  const [url] = new RegExp(/https:.+runtime-testing\.netlify\.app/gm).exec(output) || []
+  if (!url) {
+    throw new Error('Could not extract the URL from the build logs')
+  }
+  const [deployID] = new URL(url).host.split('--')
+  return { url, deployID, logs: output }
 }
 
 async function deleteDeploy(deploy_id?: string): Promise<void> {

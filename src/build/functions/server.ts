@@ -1,7 +1,7 @@
 import { NetlifyPluginOptions } from '@netlify/build'
 import { nodeFileTrace } from '@vercel/nft'
 import { cp, rm, writeFile } from 'fs/promises'
-import { join, relative, resolve } from 'node:path'
+import { basename, join, relative, resolve } from 'node:path'
 import {
   PLUGIN_DIR,
   PLUGIN_NAME,
@@ -35,14 +35,21 @@ export const createServerHandler = async ({
     },
   )
 
+  // if the parent directory of the plugin directory is not a @netlify folder we are consuming
+  // the runtime from source and not over node_modules
+  // this can be for example in the `netlify.toml` specified as the following
+  //   [[plugins]]
+  //   package = "../next-runtime-minimal"
+  // in this case we use the PLUGIN_DIR for calculating the relative path
+  const isRunFromSource = basename(join(PLUGIN_DIR, '..')) !== '@netlify'
+  const cwd = isRunFromSource ? PLUGIN_DIR : process.cwd()
+
   // copy the handler dependencies
   await Promise.all(
     [...fileList].map(async (path) => {
-      // we have to use a fake cwd that points to the actual repository root. On the deployed version this will be the build directory
-      // As in the integration tests the node_modules are not located in the tmp directory
-      const cwd = process.env.NETLIFY_FAKE_TEST_CWD || process.cwd()
       const absPath = `/${path}`
-      // if the file that got traced is inside the plugin directory resolve it with the plugin directory
+      // if the file that got traced is inside the plugin directory (like `dist/run/handlers/server.js`)
+      // resolve it with the plugin directory like `<abs-path>/node_modules/@netlify/next-runtime`
       // if it is a node_module resolve it with the process working directory.
       const relPath = relative(path.includes(PLUGIN_NAME) ? PLUGIN_DIR : cwd, absPath)
       await cp(absPath, resolve(SERVER_HANDLER_DIR, relPath), {

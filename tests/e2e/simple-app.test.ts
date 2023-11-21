@@ -8,8 +8,8 @@ test.describe('simple-next-app', () => {
     ctx = await createE2EFixture('simple-next-app')
   })
 
-  test.afterAll(async () => {
-    await ctx?.cleanup?.()
+  test.afterAll(async ({}, testInfo) => {
+    await ctx?.cleanup?.(!!testInfo.errors.length)
   })
 
   test('Renders the Home page correctly', async ({ page }) => {

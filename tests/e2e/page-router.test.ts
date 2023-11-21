@@ -8,8 +8,8 @@ test.describe('page-router', () => {
     ctx = await createE2EFixture('page-router')
   })
 
-  test.afterAll(async () => {
-    await ctx?.cleanup?.()
+  test.afterAll(async ({}, testInfo) => {
+    await ctx?.cleanup?.(!!testInfo.errors.length)
   })
 
   // NOT working yet as blob storage upload ins not working with the CLI
