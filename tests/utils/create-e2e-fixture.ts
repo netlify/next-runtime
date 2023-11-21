@@ -9,7 +9,7 @@ import { cpus } from 'os'
 import pLimit from 'p-limit'
 
 // This is the netlify testing application
-const SITE_ID = 'ee859ce9-44a7-46be-830b-ead85e445e53'
+export const SITE_ID = 'ee859ce9-44a7-46be-830b-ead85e445e53'
 
 export interface DeployResult {
   deployID: string
@@ -113,7 +113,7 @@ async function deploySite(cwd: string): Promise<DeployResult> {
   return { url, deployID, logs: output }
 }
 
-async function deleteDeploy(deploy_id?: string): Promise<void> {
+export async function deleteDeploy(deploy_id?: string): Promise<void> {
   if (deploy_id) {
     console.log(`♻️  Delete Deploy ${deploy_id}...`)
     const cmd = `ntl api deleteDeploy --data='{"deploy_id":"${deploy_id}"}'`

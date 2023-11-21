@@ -19,3 +19,40 @@ How to add new integration test scenarios to the application:
 > Currently the tests require a built version of the `dist/run/handlers/cache.cjs` so you need to
 > run `npm run build` before executing the integration tests. In addition, the integration tests
 > need to be prepared before first use. You can do this by running `npm run pretest`.
+
+### E2E testing
+
+> **Prerequisite**
+>
+> Needs the `netlify-cli` installed and being logged in having access to Netlify Testing
+> Organization
+
+The e2e tests can be invoked with `npm run e2e` and perform a full e2e test. This means they do the
+following:
+
+1. Building the next-runtime (just running `npm run build` in the repository)
+2. Creating a temp directory and copying the provided fixture over to the directory.
+3. Packing the runtime with `npm pack` to the temp directory.
+4. Installing the runtime from the created zip artifact of `npm pack` (this is like installing a
+   node_module from the registry)
+5. Creating a `netlify.toml` inside the temp directory of the fixture and adding the runtime as a
+   plugin.
+6. Running `netlify deploy --build` invoking the runtime. This will use the
+   [next-runtime-testing](https://app.netlify.com/sites/next-runtime-testing/overview) as site to
+   deploy to.
+7. Using the `deployId` and `url` of the deployed site to run some
+   [playwright](https://playwright.dev/) tests against, asserting the correctness of the runtime.
+8. After the tests where run successfully, it will delete the deployment again and clean everything
+   up. In case of a failure, the deploy won't be cleaned up to leave it for troubleshooting
+   purposes.
+
+#### cleanup old deploys
+
+To cleanup old and dangling deploys from failed builds you can run the following script:
+
+```bash
+npx tsx ./tools/e2e/cleanup-deploys.ts
+```
+
+This will cleanup all created deploys on the
+[next-runtime-testing](https://app.netlify.com/sites/next-runtime-testing/overview) site.
