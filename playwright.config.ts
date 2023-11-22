@@ -21,6 +21,10 @@ export default defineConfig({
     baseURL: process.env.URL,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    extraHTTPHeaders: {
+      /* Add debug logging for netlify cache headers */
+      'x-nf-debug-logging': '1',
+    },
   },
   timeout: 10 * 60 * 1000,
   /* Configure projects for major browsers */

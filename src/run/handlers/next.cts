@@ -1,5 +1,6 @@
 import { join, relative } from 'path'
 import fs from 'fs/promises'
+import { getDeployStore } from '@netlify/blobs'
 
 import type { getRequestHandlers } from 'next/dist/server/lib/start-server.js'
 
@@ -9,7 +10,7 @@ import { patchFs } from 'fs-monkey'
 type FS = typeof import('fs')
 
 export async function getMockedRequestHandlers(...args: Parameters<typeof getRequestHandlers>) {
-  const { blobStore } = await import('./cache.cjs')
+  const store = getDeployStore()
   const ofs = { ...fs }
 
   async function readFileFallbackBlobStore(...args: Parameters<FS['promises']['readFile']>) {
@@ -22,7 +23,7 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
       // only try to get .html files from the blob store
       if (typeof path === 'string' && path.endsWith('.html')) {
         const blobKey = relative(join(process.cwd(), '.next'), path)
-        const file = await blobStore.get(blobKey)
+        const file = await store.get(blobKey)
         if (file !== null) {
           return file
         }

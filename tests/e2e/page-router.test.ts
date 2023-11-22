@@ -12,30 +12,51 @@ test.describe('page-router', () => {
     await ctx?.cleanup?.(!!testInfo.errors.length)
   })
 
-  // NOT working yet as blob storage upload ins not working with the CLI
+  // The cache purge does not work :(
   test.skip('Static revalidate works correctly', async ({ page }) => {
-    const response1 = await page.goto(new URL('static/revalidate', ctx.url).href)
+    const response1 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
     const headers1 = response1?.headers() || {}
     expect(response1?.status()).toBe(200)
     expect(headers1['x-nextjs-cache']).toBe('HIT')
-    expect(headers1['netlify-cdn-cache-control']).toBe('s-maxage=3, stale-while-revalidate')
 
+    const date1 = await page.textContent('[data-testid="date-now"]')
     const h1 = await page.textContent('h1')
     expect(h1).toBe('Show #71')
 
-    const date1 = await page.textContent('[data-testid="date-now"]')
-
-    // wait to have a stale page
-    page.waitForTimeout(3_000)
-
-    const response2 = await page.goto(new URL('static/revalidate', ctx.url).href)
-    const headers2 = response1?.headers() || {}
+    const response2 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+    const headers2 = response2?.headers() || {}
     expect(response2?.status()).toBe(200)
-    expect(response1?.status()).toBe(200)
-    expect(headers2['x-nextjs-cache']).toBe('MISS')
+    expect(headers2['x-nextjs-cache']).toBe('HIT')
 
+    // the page is cached
     const date2 = await page.textContent('[data-testid="date-now"]')
+    expect(date2).toBe(date1)
 
-    expect(date1).not.toBe(date2)
+    const revalidate = await page.goto(new URL('/api/revalidate', ctx.url).href)
+    expect(revalidate?.status()).toBe(200)
+
+    // wait a bit until the page got regenerated
+    await page.waitForTimeout(100)
+
+    // now after the revalidation it should have a different date
+    const response3 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+    const headers3 = response3?.headers() || {}
+    expect(response3?.status()).toBe(200)
+    expect(headers3['x-nextjs-cache']).toBe('HIT')
+
+    // the page has now an updated date
+    const date3 = await page.textContent('[data-testid="date-now"]')
+    expect(date3).not.toBe(date2)
+  })
+
+  // Only works locally with the patched CLI that have blob support enable once this is released
+  test.skip('requesting a non existing page route that needs to be fetched from the blob store like 404.html', async ({
+    page,
+  }) => {
+    const response = await page.goto(new URL('non-exisitng', ctx.url).href)
+    const headers = response?.headers() || {}
+    expect(response?.status()).toBe(404)
+
+    expect(await page.textContent('h1')).toBe('404')
   })
 })

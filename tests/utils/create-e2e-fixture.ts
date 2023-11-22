@@ -27,6 +27,7 @@ export const createE2EFixture = async (fixture: string) => {
   let logs: string
   const _cleanup = (failure: boolean = false) => {
     if (failure) {
+      console.log('\n\n\n🪵  Deploy Logs:')
       console.log(logs)
     }
     // on failures we don't delete the deploy

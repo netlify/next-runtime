@@ -152,8 +152,9 @@ module.exports = class NetlifyCacheHandler implements CacheHandler {
       console.warn(`Failed to update tag manifest for ${tag}`, error)
     }
 
-    purgeCache({ tags: [tag] }).catch(() => {
-      // noop
+    purgeCache({ tags: [tag] }).catch((error) => {
+      // TODO: add reporting here
+      console.error(`[NetlifyCacheHandler]: Purging the cache for tag ${tag} failed`, error)
     })
   }
 
