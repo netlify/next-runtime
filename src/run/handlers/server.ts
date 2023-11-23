@@ -47,6 +47,9 @@ export default async (request: Request) => {
     // console.log('Modified response headers:', JSON.stringify(event.headers, null, 2))
   })
 
+  // temporary workaround for https://linear.app/netlify/issue/ADN-111/
+  delete req.headers['accept-encoding']
+
   try {
     // console.log('Next server request:', req.url)
     await nextHandler(req, resProxy)
