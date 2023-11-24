@@ -11,9 +11,9 @@ env:
   NEXT_REPO: netlify/next.js
   NEXT_VERSION: 13.5.1
   NEXT_TEST_MODE: deploy
-  NEXT_E2E_TEST_TIMEOUT: 600000
   NEXT_TEST_JOB: true
   TEST_CONCURRENCY: 8
+  NEXT_E2E_TEST_TIMEOUT: 600000
   NEXT_TELEMETRY_DISABLED: 1
   NEXT_SKIP_NATIVE_POSTINSTALL: 1
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -29,11 +29,11 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}
     name: test e2e
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        group: [1, 2, 3, 4, 5]
+        group: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
       next-path: next.js
       runtime-path: next-runtime-minimal
@@ -106,7 +106,7 @@ jobs:
         working-directory: ${{ env.next-path }}
 
       - name: install swc
-        run: pnpm add @next/swc-linux-x64-gnu@${{ env.NEXT_VERSION }}
+        run: pnpm add --workspace-root @next/swc-linux-x64-gnu@${{ env.NEXT_VERSION }}
         working-directory: ${{ env.next-path }}
 
       - name: install runtime
@@ -120,6 +120,10 @@ jobs:
       - name: add netlify cli
         run: npm install -g netlify-cli
 
+      - name: install playwright
+        run: npx playwright install
+        working-directory: ${{ env.next-path }}
+
       - name: set test filter
         run: |
           ls test/e2e/**/*.test.* > included_tests
@@ -132,22 +136,61 @@ jobs:
         env:
           NODE_ENV: production
           NEXT_EXTERNAL_TESTS_FILTERS: ./tests.json
-        run: node run-tests.js -g ${{ matrix.group }}/5 -c ${TEST_CONCURRENCY} --type e2e
+        run: node run-tests.js -g ${{ matrix.group }}/8 -c ${TEST_CONCURRENCY} --type e2e
         working-directory: ${{ env.next-path }}
+
       - name: Test results
         working-directory: ${{ env.next-path }}
         run: |
           for file in `ls test/e2e/**/*.results.json`; do
             test_name=$(echo $file | sed -e 's/test\/e2e\/\(.*\/.*\).results.json/\1/')
-            echo "<details>" >> $GITHUB_STEP_SUMMARY
-            echo "<summary>:x: Test failed: <code>${test_name}</code></summary>" >> $GITHUB_STEP_SUMMARY
-            echo "<pre><code>" >> $GITHUB_STEP_SUMMARY
-            cat $file | jq -r '.testResults[].message'>> $GITHUB_STEP_SUMMARY
-            echo "</code></pre>" >> $GITHUB_STEP_SUMMARY
-            echo "</details>" >> $GITHUB_STEP_SUMMARY
-            failed=true
+
+            success=$(jq -r '.success' $file)
+            if [ "$success" = "true" ] ; then
+              test_result=":white_check_mark:"
+            else
+              test_result=":x:"
+            fi
+
+            passed=$(jq -r '.numPassedTests' $file)
+            passed_total=$((passed_total + passed))
+            failed=$(jq -r '.numFailedTests' $file)
+            failed_total=$((failed_total + failed))
+            pending=$(jq -r '.numPendingTests' $file)
+            pending_total=$((pending_total + pending))
+            total=$(jq -r '.numTotalTests' $file)
+            total_total=$((total_total + total))
+
+            message=$(jq -r '.testResults[].message' $file)
+                        
+            echo "<details>" >> test_summary
+            echo "<summary>${test_result} <code>${test_name}</code></summary>" >> test_summary
+            echo "<h4>Results</h4>" >> test_summary
+            echo "<div>Passing tests: ${passed}</div>" >> test_summary
+            echo "<div>Failing tests: ${failed}</div>" >> test_summary
+            echo "<div>Pending tests: ${pending}</div>" >> test_summary
+            echo "<div>Total tests: ${total}</div>" >> test_summary
+
+            if [ -n "${message}" ] ; then
+              echo "<h4>Details</h4>" >> test_summary
+              echo "<pre><code>" >> test_summary
+              echo $message >> test_summary
+              echo "</code></pre>" >> test_summary
+            fi
+
+            echo "</details>" >> test_summary
           done
-          if [ "$failed" = true ] ; then
+
+          echo "<h3>Results</h3>" >> $GITHUB_STEP_SUMMARY
+          echo "<div>Passing tests: ${passed_total}</div>" >> $GITHUB_STEP_SUMMARY
+          echo "<div>Failing tests: ${failed_total}</div>" >> $GITHUB_STEP_SUMMARY
+          echo "<div>Pending tests: ${pending_total}</div>" >> $GITHUB_STEP_SUMMARY
+          echo "<div>Total tests: ${total_total}</div>" >> $GITHUB_STEP_SUMMARY
+
+          echo "<h3>Details</h3>" >> $GITHUB_STEP_SUMMARY
+          cat test_summary >> $GITHUB_STEP_SUMMARY
+
+          if [ "$failed_total" -gt 0 ] ; then
             echo "Failed tests. Please see action summary for details."
             exit 1
           fi
