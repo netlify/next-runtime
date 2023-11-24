@@ -9,7 +9,7 @@ env:
   NODE_VERSION: 18.16.1
   PNPM_VERSION: 8.7.1
   NEXT_REPO: netlify/next.js
-  NEXT_VERSION: netlify-testing
+  NEXT_VERSION: 13.5.1
   NEXT_TEST_MODE: deploy
   NEXT_E2E_TEST_TIMEOUT: 600000
   NEXT_TEST_JOB: true
@@ -24,7 +24,9 @@ env:
 
 jobs:
   test-e2e:
-    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}
+    if:
+      ${{ github.event_name == 'workflow_dispatch' ||
+      contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}
     name: test e2e
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -55,7 +57,7 @@ jobs:
         with:
           repository: ${{ env.NEXT_REPO }}
           token: ${{ steps.token.outputs.token }}
-          ref: ${{ env.NEXT_VERSION }}
+          ref: netlify-testing-${{ env.NEXT_VERSION }}
           path: ${{ env.next-path }}
 
       - name: checkout runtime repo
@@ -101,6 +103,10 @@ jobs:
 
       - name: build next.js
         run: pnpm build
+        working-directory: ${{ env.next-path }}
+
+      - name: install swc
+        run: pnpm add @next/swc-linux-x64-gnu@${{ env.NEXT_VERSION }}
         working-directory: ${{ env.next-path }}
 
       - name: install runtime
