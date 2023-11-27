@@ -41,7 +41,7 @@
     "@fastly/http-compute-js": "1.1.1",
     "@netlify/blobs": "^4.2.0",
     "@netlify/build": "^29.20.6",
-    "@netlify/functions": "^2.0.1",
+    "@netlify/functions": "^2.4.0",
     "@vercel/nft": "^0.24.3",
     "fast-glob": "^3.3.2",
     "fs-monkey": "^1.0.5",
