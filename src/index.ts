@@ -1,17 +1,23 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 import { restoreBuildCache, saveBuildCache } from './build/cache.js'
-import { setBuildConfig, setDeployConfig } from './build/config.js'
+import { setBuildConfig, setPreBuildConfig } from './build/config.js'
 import { uploadPrerenderedContent } from './build/content/prerendered.js'
-import { copyStaticAssets, uploadStaticContent } from './build/content/static.js'
+import {
+  copyStaticAssets,
+  publishStaticDir,
+  unpublishStaticDir,
+  uploadStaticContent,
+} from './build/content/static.js'
 import { createServerHandler } from './build/functions/server.js'
 
 export const onPreBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
   await restoreBuildCache({ constants, utils })
-  setBuildConfig()
+  setPreBuildConfig()
 }
 
-export const onBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
+export const onBuild = async ({ constants, utils, netlifyConfig }: NetlifyPluginOptions) => {
   await saveBuildCache({ constants, utils })
+  setBuildConfig({ netlifyConfig })
 
   return Promise.all([
     copyStaticAssets({ constants }),
@@ -22,6 +28,10 @@ export const onBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
   ])
 }
 
-export const onPostBuild = ({ netlifyConfig }: NetlifyPluginOptions) => {
-  setDeployConfig({ netlifyConfig })
+export const onPostBuild = async ({ constants }: NetlifyPluginOptions) => {
+  await publishStaticDir({ constants })
+}
+
+export const onEnd = async ({ constants }: NetlifyPluginOptions) => {
+  await unpublishStaticDir({ constants })
 }

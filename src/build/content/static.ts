@@ -2,12 +2,12 @@ import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
 import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { existsSync } from 'node:fs'
-import { cp, readFile, rm } from 'node:fs/promises'
+import { cp, mkdir, readFile, rename, rm } from 'node:fs/promises'
 import { basename, dirname, resolve } from 'node:path'
 import { join as joinPosix } from 'node:path/posix'
 import { getBlobStore } from '../blob.js'
 import { getPrerenderManifest } from '../config.js'
-import { STATIC_DIR } from '../constants.js'
+import { STATIC_DIR, TEMP_DIR } from '../constants.js'
 
 export const uploadStaticContent = async ({
   constants: { PUBLISH_DIR, NETLIFY_API_TOKEN, NETLIFY_API_HOST, SITE_ID },
@@ -62,4 +62,19 @@ export const copyStaticAssets = async ({
       recursive: true,
     })
   }
+}
+
+export const publishStaticDir = async ({
+  constants: { PUBLISH_DIR },
+}: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
+  await mkdir(resolve(TEMP_DIR, 'publish'), { recursive: true })
+  await rename(resolve(PUBLISH_DIR), resolve(TEMP_DIR, 'publish'))
+  await rename(resolve(STATIC_DIR), resolve(PUBLISH_DIR))
+}
+
+export const unpublishStaticDir = async ({
+  constants: { PUBLISH_DIR },
+}: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
+  await rename(resolve(PUBLISH_DIR), resolve(STATIC_DIR))
+  await rename(resolve(TEMP_DIR, 'publish'), resolve(PUBLISH_DIR))
 }
