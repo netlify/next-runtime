@@ -1,5 +1,34 @@
 # Changelog
 
+## [5.0.0-alpha.25](https://github.com/netlify/next-runtime-minimal/compare/v5.0.0-alpha.2...v5.0.0-alpha.25) (2023-11-27)
+
+
+### Features
+
+* cache tags & on-demand Revalidation for pages ([#50](https://github.com/netlify/next-runtime-minimal/issues/50)) ([a6f3ce2](https://github.com/netlify/next-runtime-minimal/commit/a6f3ce2652889fca5236c26b88d72932bf2315a6))
+* symlink for speed and to avoid clobbering user files ([#56](https://github.com/netlify/next-runtime-minimal/issues/56)) ([2576f81](https://github.com/netlify/next-runtime-minimal/commit/2576f8108184bc982950627b7667de7f5a202718))
+
+
+### Bug Fixes
+
+* disable downloading canary swc binaries ([#81](https://github.com/netlify/next-runtime-minimal/issues/81)) ([8f3799c](https://github.com/netlify/next-runtime-minimal/commit/8f3799c2c534db9defb18ad82ae669781b289223))
+* fix patching the fs by doing a shallow clone of fs/promises module to avoid infinite loop ([#73](https://github.com/netlify/next-runtime-minimal/issues/73)) ([80b5ea9](https://github.com/netlify/next-runtime-minimal/commit/80b5ea9d1f47d9bccb0eec421846e2e2ee3b0f7f))
+* fixes a module interop issue ([#67](https://github.com/netlify/next-runtime-minimal/issues/67)) ([57b8678](https://github.com/netlify/next-runtime-minimal/commit/57b8678349dd6a3348837b8ac28dd04f659d9a7f))
+* fixes an issue where the nft tracing was not picking up the runtime node_modules ([#74](https://github.com/netlify/next-runtime-minimal/issues/74)) ([fe68c74](https://github.com/netlify/next-runtime-minimal/commit/fe68c744e71aed11290ec636f0b41bb72e83f835))
+* fixes an issue where the static pages could not be retrieved from the blob store ([#79](https://github.com/netlify/next-runtime-minimal/issues/79)) ([e18de13](https://github.com/netlify/next-runtime-minimal/commit/e18de1375ba4b60eaa562aed29a679764b25843e))
+* fixes the package structure ([#66](https://github.com/netlify/next-runtime-minimal/issues/66)) ([b10dad6](https://github.com/netlify/next-runtime-minimal/commit/b10dad61c09179ba879f15ba0a2878564beb1054))
+* handle dependency paths for packaged module ([a81658c](https://github.com/netlify/next-runtime-minimal/commit/a81658c75e4a5914c96dacba1fd6c0a557259e09))
+* resolution issue ([#72](https://github.com/netlify/next-runtime-minimal/issues/72)) ([f56c28c](https://github.com/netlify/next-runtime-minimal/commit/f56c28c86b3d5f98240a9bd018251b3e900c1beb))
+* resolving the paths correctly when the next-runtime is used from source ([#77](https://github.com/netlify/next-runtime-minimal/issues/77)) ([fcd57d1](https://github.com/netlify/next-runtime-minimal/commit/fcd57d1495034566763d769ab6576aed5307ec85))
+* revert symlinks to cp due to CLI issues ([#70](https://github.com/netlify/next-runtime-minimal/issues/70)) ([85a50d4](https://github.com/netlify/next-runtime-minimal/commit/85a50d46cc87306642acefc677bc48bfafeb142d))
+* temporary workaround for CDN compression bug ([#80](https://github.com/netlify/next-runtime-minimal/issues/80)) ([6b9fa33](https://github.com/netlify/next-runtime-minimal/commit/6b9fa3374fe3995f036560321a232a77ff4d858e))
+* Update included files within package.json ([#63](https://github.com/netlify/next-runtime-minimal/issues/63)) ([ec7c681](https://github.com/netlify/next-runtime-minimal/commit/ec7c681c0d825ed38db80f8370fc86011db2ab2a))
+
+
+### Miscellaneous Chores
+
+* release 5.0.0-alpha.25 ([7088065](https://github.com/netlify/next-runtime-minimal/commit/708806592b3d60da4b7433575293914d5a87596c))
+
 ## [5.0.0-alpha.2](https://github.com/netlify/next-runtime-minimal/compare/v5.0.0-alpha.1...v5.0.0-alpha.2) (2023-11-13)
 
 
