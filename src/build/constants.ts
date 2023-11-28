@@ -11,6 +11,7 @@ export const PLUGIN_NAME = pkg.name
 export const PLUGIN_VERSION = pkg.version
 
 export const STATIC_DIR = '.netlify/static'
+export const TEMP_DIR = '.netlify/temp'
 
 export const SERVER_FUNCTIONS_DIR = '.netlify/functions-internal'
 export const SERVER_HANDLER_NAME = '_netlify-server-handler'

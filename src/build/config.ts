@@ -2,7 +2,7 @@ import type { NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/buil
 import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { SERVER_HANDLER_NAME, STATIC_DIR } from './constants.js'
+import { SERVER_HANDLER_NAME } from './constants.js'
 
 export const getPrerenderManifest = async ({
   PUBLISH_DIR,
@@ -13,12 +13,13 @@ export const getPrerenderManifest = async ({
 /**
  * Enable Next.js standalone mode at build time
  */
-export const setBuildConfig = () => {
+export const setPreBuildConfig = () => {
   process.env.NEXT_PRIVATE_STANDALONE = 'true'
 }
 
-export const setDeployConfig = ({ netlifyConfig }: Pick<NetlifyPluginOptions, 'netlifyConfig'>) => {
-  netlifyConfig.build.publish = STATIC_DIR
+export const setPostBuildConfig = ({
+  netlifyConfig,
+}: Pick<NetlifyPluginOptions, 'netlifyConfig'>) => {
   netlifyConfig.redirects ||= []
   netlifyConfig.redirects.push({
     from: '/*',
