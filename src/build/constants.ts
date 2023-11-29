@@ -14,9 +14,9 @@ export const STATIC_DIR = '.netlify/static'
 export const TEMP_DIR = '.netlify/temp'
 
 export const SERVER_FUNCTIONS_DIR = '.netlify/functions-internal'
-export const SERVER_HANDLER_NAME = '_netlify-server-handler'
+export const SERVER_HANDLER_NAME = '___netlify-server-handler'
 export const SERVER_HANDLER_DIR = join(SERVER_FUNCTIONS_DIR, SERVER_HANDLER_NAME)
 
 export const EDGE_FUNCTIONS_DIR = '.netlify/edge-functions'
-export const EDGE_HANDLER_NAME = '_netlify-edge-handler'
+export const EDGE_HANDLER_NAME = '___netlify-edge-handler'
 export const EDGE_HANDLER_DIR = join(EDGE_FUNCTIONS_DIR, EDGE_HANDLER_NAME)

@@ -12,14 +12,14 @@ import { createServerHandler } from './build/functions/server.js'
 import { createEdgeHandlers } from './build/functions/edge.js'
 
 export const onPreBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
-  setPreBuildConfig()
   await restoreBuildCache({ constants, utils })
+  setPreBuildConfig()
 }
 
 export const onBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
   await saveBuildCache({ constants, utils })
 
-  return Promise.all([
+  await Promise.all([
     copyStaticAssets({ constants }),
     uploadStaticContent({ constants }),
     uploadPrerenderedContent({ constants }),
@@ -29,8 +29,8 @@ export const onBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
 }
 
 export const onPostBuild = async ({ constants, netlifyConfig }: NetlifyPluginOptions) => {
-  setPostBuildConfig({ netlifyConfig })
   await publishStaticDir({ constants })
+  setPostBuildConfig({ netlifyConfig })
 }
 
 export const onEnd = async ({ constants }: NetlifyPluginOptions) => {

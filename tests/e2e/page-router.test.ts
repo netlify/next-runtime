@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { createE2EFixture } from '../utils/create-e2e-fixture.js'
 
 let ctx: Awaited<ReturnType<typeof createE2EFixture>>

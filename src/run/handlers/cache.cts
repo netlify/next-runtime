@@ -3,17 +3,18 @@
 //
 import { getDeployStore } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
-import { readFileSync } from 'node:fs'
+import type { PrerenderManifest } from 'next/dist/build/index.js'
+
+import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 import type {
   CacheHandler,
   CacheHandlerContext,
   IncrementalCache,
 } from 'next/dist/server/lib/incremental-cache/index.js'
-import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path/posix'
 // @ts-expect-error This is a type only import
 import type { CacheEntryValue } from '../../build/content/prerendered.js'
-import type { PrerenderManifest } from 'next/dist/build/index.js'
 
 type TagManifest = { revalidatedAt: number }
 
@@ -21,34 +22,13 @@ const tagsManifestPath = '.netlify/cache/tags'
 export const blobStore = getDeployStore()
 
 // load the prerender manifest
-const prerenderManifest = JSON.parse(
+const prerenderManifest: PrerenderManifest = JSON.parse(
   readFileSync(join(process.cwd(), '.next/prerender-manifest.json'), 'utf-8'),
 )
 
 /** Converts a cache key pathname to a route */
 function toRoute(pathname: string): string {
   return pathname.replace(/\/$/, '').replace(/\/index$/, '') || '/'
-}
-
-// borrowed from https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/page-path/normalize-page-path.ts#L14
-function ensureLeadingSlash(path: string): string {
-  return path.startsWith('/') ? path : `/${path}`
-}
-
-function isDynamicRoute(path: string): void | boolean {
-  const dynamicRoutes: PrerenderManifest['dynamicRoutes'] = prerenderManifest.dynamicRoutes
-  Object.values(dynamicRoutes).find((route) => {
-    return new RegExp(route.routeRegex).test(path)
-  })
-}
-
-function normalizePath(path: string): string {
-  // If there is a page that is '/index' the first statement ensures that it will be '/index/index'
-  return /^\/index(\/|$)/.test(path) && !isDynamicRoute(path)
-    ? `/index${path}`
-    : path === '/'
-    ? '/index'
-    : ensureLeadingSlash(path)
 }
 
 module.exports = class NetlifyCacheHandler implements CacheHandler {
@@ -66,7 +46,7 @@ module.exports = class NetlifyCacheHandler implements CacheHandler {
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
     const [cacheKey, ctx = {}] = args
     console.debug(`[NetlifyCacheHandler.get]: ${cacheKey}`)
-    const blob = await this.getBlobKey(cacheKey, ctx.fetchCache)
+    const blob = await this.getBlobByKey(cacheKey, ctx.fetchCache)
 
     // if blob is null then we don't have a cache entry
     if (!blob) {
@@ -169,7 +149,7 @@ module.exports = class NetlifyCacheHandler implements CacheHandler {
    * @param fetch If it is a FETCH request or not
    * @returns the parsed data from the cache or null if not
    */
-  private async getBlobKey(
+  private async getBlobByKey(
     key: string,
     fetch?: boolean,
   ): Promise<
@@ -179,10 +159,8 @@ module.exports = class NetlifyCacheHandler implements CacheHandler {
         isAppPath: boolean
       } & CacheEntryValue)
   > {
-    const normalizedKey = normalizePath(key)
-    // Want to avoid normalizaing if '/index' is being passed as a key.
-    const appKey = join('server/app', key === '/index' ? key : normalizedKey)
-    const pagesKey = join('server/pages', key === '/index' ? key : normalizedKey)
+    const appKey = join('server/app', key)
+    const pagesKey = join('server/pages', key)
     const fetchKey = join('cache/fetch-cache', key)
 
     if (fetch) {
@@ -248,7 +226,7 @@ module.exports = class NetlifyCacheHandler implements CacheHandler {
 
     const isStale = cacheTags.some((tag) => {
       // TODO: test for this case
-      if (tag && this.revalidatedTags?.includes(tag)) {
+      if (this.revalidatedTags?.includes(tag)) {
         return true
       }
 

@@ -10,7 +10,7 @@ export const nextResponseProxy = (res: ServerResponse) => {
         return async function newRevalidate(...args: any[]) {
           try {
             console.debug('Purging cache for:', [args[0]])
-            await purgeCache({ tags: [args[0]] })
+            await purgeCache({ tags: [`_N_T_${args[0]}`] })
           } catch (err) {
             throw new Error(
               `An internal error occurred while trying to purge cache for ${args[0]}}`,

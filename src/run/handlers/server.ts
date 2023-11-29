@@ -2,18 +2,11 @@ import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
 import { HeadersSentEvent } from '@fastly/http-compute-js/dist/http-compute-js/http-outgoing.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path/posix'
-import { CacheEntryValue, PageCacheValue } from '../../build/content/prerendered.js'
-import { RUN_DIR } from '../constants.js'
+import { TagsManifest, getTagsManifest } from '../config.js'
 import { setCacheControlHeaders, setCacheTagsHeaders, setVaryHeaders } from '../headers.js'
 import { nextResponseProxy } from '../revalidate.js'
 
-export type PageCacheEntry = CacheEntryValue & { value: PageCacheValue }
-
-let nextHandler: WorkerRequestHandler,
-  nextConfig: NextConfigComplete,
-  cacheEntry: PageCacheEntry | undefined | null
+let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete, tagsManifest: TagsManifest
 
 export default async (request: Request) => {
   if (!nextHandler) {
@@ -21,15 +14,13 @@ export default async (request: Request) => {
     const { getRunConfig, setRunConfig } = await import('../config.js')
     nextConfig = await getRunConfig()
     setRunConfig(nextConfig)
-
-    cacheEntry = await getCacheEntry(request)
+    tagsManifest = await getTagsManifest()
 
     const { getMockedRequestHandlers } = await import('./next.cjs')
-
     ;[nextHandler] = await getMockedRequestHandlers({
       port: 3000,
       hostname: 'localhost',
-      dir: RUN_DIR,
+      dir: process.cwd(),
       isDev: false,
     })
   }
@@ -41,7 +32,7 @@ export default async (request: Request) => {
   resProxy.prependListener('_headersSent', (event: HeadersSentEvent) => {
     const headers = new Headers(event.headers)
     setCacheControlHeaders(headers)
-    setCacheTagsHeaders(request, headers, cacheEntry)
+    setCacheTagsHeaders(headers, request, tagsManifest)
     setVaryHeaders(headers, request, nextConfig)
     event.headers = Object.fromEntries(headers.entries())
     // console.log('Modified response headers:', JSON.stringify(event.headers, null, 2))
@@ -67,26 +58,4 @@ export default async (request: Request) => {
   // console.log('Next server response:', JSON.stringify(response, null, 2))
 
   return toComputeResponse(resProxy)
-}
-
-const prerenderManifest = JSON.parse(
-  readFileSync(join(process.cwd(), '.next/prerender-manifest.json'), 'utf-8'),
-)
-
-const getCacheEntry = async (request: Request) => {
-  // dynamically importing to avoid calling NetlifyCacheHandler beforhand
-  // @ts-expect-error
-  const NetlifyCacheHandler = await import('../../../dist/run/handlers/cache.cjs')
-  // Have to assign NetlifyCacheHandler.default to new variable to prevent error: `X is not a constructor`
-  const CacheHandler = NetlifyCacheHandler.default
-  const cache = new CacheHandler({
-    _appDir: true,
-    revalidateTags: [],
-    _requestHandler: {},
-  })
-  const path = new URL(request.url).pathname
-  // Checking if route is in prerender manifest before retrieving pageData from Blob
-  if (prerenderManifest.routes[path]) {
-    return await cache.get(path, { type: 'json' })
-  }
 }

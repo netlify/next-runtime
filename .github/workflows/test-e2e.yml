@@ -1,4 +1,4 @@
-name: run e2e tests
+name: Run next.js tests
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ env:
   NEXT_TEST_CONTINUE_ON_ERROR: 1
 
 jobs:
-  test-e2e:
+  e2e:
     if:
       ${{ github.event_name == 'workflow_dispatch' ||
       contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}

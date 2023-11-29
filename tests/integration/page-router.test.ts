@@ -59,7 +59,7 @@ test<FixtureTestContext>('Should add pathname to cache-tags for pages route', as
 
   const staticFetch1 = await invokeFunction(ctx, { url: '/static/revalidate-manual' })
 
-  expect(staticFetch1.headers?.['cache-tag']).toBe('/static/revalidate-manual')
+  expect(staticFetch1.headers?.['cache-tag']).toBe('_N_T_/static/revalidate-manual')
 })
 
 test<FixtureTestContext>('Should revalidate path with On-demand Revalidation', async (ctx) => {

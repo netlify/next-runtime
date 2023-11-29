@@ -1,25 +1,18 @@
 import { NetlifyPluginOptions } from '@netlify/build'
 import { nodeFileTrace } from '@vercel/nft'
-import { cp, rm, writeFile } from 'fs/promises'
+import { cp, mkdir, rm, writeFile } from 'fs/promises'
 import { basename, join, relative, resolve } from 'node:path'
 import {
   PLUGIN_DIR,
   PLUGIN_NAME,
   PLUGIN_VERSION,
+  SERVER_FUNCTIONS_DIR,
   SERVER_HANDLER_DIR,
   SERVER_HANDLER_NAME,
 } from '../constants.js'
-import { copyServerContent, copyServerDependencies } from '../content/server.js'
+import { copyNextDependencies, copyNextServerCode, writeTagsManifest } from '../content/server.js'
 
-/**
- * Create a Netlify function to run the Next.js server
- */
-export const createServerHandler = async ({
-  constants: { PUBLISH_DIR },
-}: Pick<NetlifyPluginOptions, 'constants'>) => {
-  // reset the handler directory
-  await rm(resolve(SERVER_HANDLER_DIR), { recursive: true, force: true })
-
+const copyHandlerDependencies = async () => {
   // trace the handler dependencies
   const { fileList } = await nodeFileTrace(
     [
@@ -52,24 +45,13 @@ export const createServerHandler = async ({
       // resolve it with the plugin directory like `<abs-path>/node_modules/@netlify/next-runtime`
       // if it is a node_module resolve it with the process working directory.
       const relPath = relative(path.includes(PLUGIN_NAME) ? PLUGIN_DIR : cwd, absPath)
-      await cp(absPath, resolve(SERVER_HANDLER_DIR, relPath), {
-        recursive: true,
-      })
+      await cp(absPath, resolve(SERVER_HANDLER_DIR, relPath), { recursive: true })
     }),
   )
+}
 
-  // copy the next.js standalone build output to the handler directory
-  await copyServerContent(
-    resolve(PUBLISH_DIR, 'standalone/.next'),
-    resolve(SERVER_HANDLER_DIR, '.next'),
-  )
-  await copyServerDependencies(
-    resolve(PUBLISH_DIR, 'standalone/node_modules'),
-    resolve(SERVER_HANDLER_DIR, 'node_modules'),
-  )
-
-  // create the handler metadata file
-  await writeFile(
+const writeHandlerManifest = () => {
+  return writeFile(
     resolve(SERVER_HANDLER_DIR, `${SERVER_HANDLER_NAME}.json`),
     JSON.stringify({
       config: {
@@ -81,6 +63,7 @@ export const createServerHandler = async ({
           'package.json',
           'dist/**',
           '.next/**',
+          '.netlify/**',
           'node_modules/**',
         ],
         includedFilesBasePath: resolve(SERVER_HANDLER_DIR),
@@ -89,13 +72,35 @@ export const createServerHandler = async ({
     }),
     'utf-8',
   )
+}
 
-  // configure ESM
+const writePackageMetadata = async () => {
   await writeFile(resolve(SERVER_HANDLER_DIR, 'package.json'), JSON.stringify({ type: 'module' }))
+}
 
-  // write the root handler file
+const writeHandlerFile = async () => {
   await writeFile(
     resolve(SERVER_HANDLER_DIR, `${SERVER_HANDLER_NAME}.js`),
     `import handler from './dist/run/handlers/server.js';export default handler`,
   )
+}
+
+/**
+ * Create a Netlify function to run the Next.js server
+ */
+export const createServerHandler = async ({
+  constants,
+}: Pick<NetlifyPluginOptions, 'constants'>) => {
+  await rm(resolve(SERVER_FUNCTIONS_DIR), { recursive: true, force: true })
+  await mkdir(resolve(SERVER_HANDLER_DIR, '.netlify'), { recursive: true })
+
+  await Promise.all([
+    copyNextServerCode({ constants }),
+    copyNextDependencies({ constants }),
+    writeTagsManifest({ constants }),
+    copyHandlerDependencies(),
+    writeHandlerManifest(),
+    writePackageMetadata(),
+    writeHandlerFile(),
+  ])
 }
