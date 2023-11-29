@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        shard: [1/3, 2/3, 3/3]
+        shard: [1/5, 2/5, 3/5, 4/5, 5/5]
     steps:
       - uses: actions/checkout@v4
       - name: 'Install Node'
@@ -59,6 +59,11 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
+      - name: Install Deno
+        uses: denoland/setup-deno@v1
+        with:
+          # Should match the `DENO_VERSION_RANGE` from https://github.com/netlify/edge-bundler/blob/e55f825bd985d3c92e21d1b765d71e70d5628fba/node/bridge.ts#L17
+          deno-version: v1.37.0
       - name: 'Install dependencies'
         run: npm ci
       - name: 'Build'

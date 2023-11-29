@@ -1,0 +1,4 @@
+{
+  "deno.enablePaths": ["tools/deno", "edge-runtime"],
+  "deno.unstable": true
+}

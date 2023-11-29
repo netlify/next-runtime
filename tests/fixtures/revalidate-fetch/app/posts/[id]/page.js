@@ -1,4 +1,4 @@
-const revalidateSeconds = +process.env.REVALIDATE_SECONDS || 3
+const revalidateSeconds = +process.env.REVALIDATE_SECONDS || 5
 const API_BASE = process.env.API_BASE || 'https://api.tvmaze.com/shows/'
 
 export async function generateStaticParams() {

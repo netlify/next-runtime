@@ -1,6 +1,17 @@
+import { relative } from 'node:path'
 import { defineConfig } from 'vitest/config'
 import { W } from 'vitest/dist/reporters-5f784f42'
 import { BaseSequencer } from 'vitest/node'
+
+/**
+ * Tests that might influence others and should run on an isolated executor (shard)
+ * Needs to be relative paths to the repository root.
+ */
+const RUN_ISOLATED = new Set([
+  'tests/integration/fetch-handler.test.ts',
+  'tests/integration/revalidate-path.test.ts',
+  'tests/integration/cache-handler.test.ts',
+])
 
 class Sequencer extends BaseSequencer {
   async shard(projects: W[]): Promise<W[]> {
@@ -9,38 +20,40 @@ class Sequencer extends BaseSequencer {
     } = this.ctx
 
     if (count === 1) {
-      console.log('No test sharding configured please specify with --shard 1/3')
+      console.log('[Sequencer]: No test sharding configured please specify with --shard 1/3')
       return projects
     }
-    console.log(`Sharding configured to run on ${index}/${count}`)
 
-    // Find the index of the project to run on a single executor
-    const specialTestIndex = projects.findIndex((project) =>
-      project[1].endsWith('tests/integration/fetch-handler.test.ts'),
+    console.log(`[Sequencer]: Sharding configured to run on ${index}/${count}`)
+    if (RUN_ISOLATED.size + 1 > count) {
+      throw new Error(
+        `[Sequencer]: The number of special tests + 1 for the remaining tests (${RUN_ISOLATED.size}) is larger than the node count (${count})
+Increasing the node count of the sharding to --shard 1/${RUN_ISOLATED.size}`,
+      )
+    }
+
+    const specialTests = projects.filter((project) =>
+      RUN_ISOLATED.has(relative(process.cwd(), project[1])),
+    )
+    const regularTests = projects.filter(
+      (project) => !RUN_ISOLATED.has(relative(process.cwd(), project[1])),
     )
 
-    if (specialTestIndex === -1) {
-      throw new Error('Could not find special test to run on single executor!')
+    // Allocate the first nodes for special tests
+    if (index <= RUN_ISOLATED.size) {
+      return [specialTests[index - 1]]
     }
 
-    // If this is the first shard, run only the special test
-    if (index === 1) {
-      console.log(`Running tests: \n  - ${projects[specialTestIndex][1]}\n\n`)
-      return [projects[specialTestIndex]]
+    // Distribute remaining tests on the remaining nodes
+    if (index > RUN_ISOLATED.size && index <= count) {
+      const remainingNodes = count - RUN_ISOLATED.size
+      const bucketSize = Math.ceil(regularTests.length / remainingNodes)
+      const startIndex = (index - RUN_ISOLATED.size - 1) * bucketSize
+      const endIndex = startIndex + bucketSize
+      return regularTests.slice(startIndex, endIndex)
     }
 
-    // Remove the special test from the array
-    const filteredProjects = projects.filter((_, i) => i !== specialTestIndex)
-
-    // Calculate the range of tests to run on this shard
-    const testsPerShard = Math.ceil(filteredProjects.length / (count - 1))
-    const start = testsPerShard * (index - 2)
-    const end = start + testsPerShard
-
-    // Return the subset of tests for this shard
-    const sliced = filteredProjects.slice(start, end)
-    console.log(`Running tests: \n  - `, sliced.map((test) => test[1]).join('  - '), '\n\n')
-    return sliced
+    return projects
   }
 }
 

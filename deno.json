@@ -1,0 +1,7 @@
+{
+  "lint": {
+    "files": {
+      "include": ["edge-runtime/middleware.ts"]
+    }
+  }
+}

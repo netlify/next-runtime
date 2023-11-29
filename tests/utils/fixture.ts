@@ -1,17 +1,27 @@
 import { BlobsServer, type getStore } from '@netlify/blobs'
-import { TestContext, assert, vi } from 'vitest'
+import { TestContext, assert, expect, vi } from 'vitest'
 
 import type { NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build'
+import { bundle, serve } from '@netlify/edge-bundler'
 import type { LambdaResponse } from '@netlify/serverless-functions-api/dist/lambda/response.js'
 import { zipFunctions } from '@netlify/zip-it-and-ship-it'
 import { execaCommand } from 'execa'
+import getPort from 'get-port'
 import { execute } from 'lambda-local'
+import { existsSync } from 'node:fs'
 import { cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { SERVER_FUNCTIONS_DIR, SERVER_HANDLER_NAME } from '../../src/build/constants.js'
+import {
+  EDGE_FUNCTIONS_DIR,
+  EDGE_HANDLER_NAME,
+  SERVER_FUNCTIONS_DIR,
+  SERVER_HANDLER_NAME,
+} from '../../src/build/constants.js'
 import { streamToString } from './stream-to-string.js'
+import { inspect } from 'node:util'
+import { v4 } from 'uuid'
 
 export interface FixtureTestContext extends TestContext {
   cwd: string
@@ -21,10 +31,15 @@ export interface FixtureTestContext extends TestContext {
   blobServer: BlobsServer
   blobStore: ReturnType<typeof getStore>
   functionDist: string
+  edgeFunctionPort: number
   cleanup?: () => Promise<void>
 }
 
 export const BLOB_TOKEN = 'secret-token'
+
+const bootstrapURL = 'https://edge.netlify.com/bootstrap/index-combined.ts'
+const actualCwd = await vi.importActual<typeof import('process')>('process').then((p) => p.cwd())
+const eszipHelper = join(actualCwd, 'tools/deno/eszip.ts')
 
 /**
  * Copies a fixture to a temp folder on the system and runs the tests inside.
@@ -133,18 +148,69 @@ export async function runPlugin(
 
   const internalSrcFolder = join(ctx.cwd, SERVER_FUNCTIONS_DIR)
 
-  // create zip location in a new temp folder to avoid leaking node_modules through nodes resolve algorithm
-  // that always looks up a parent directory for node_modules
-  ctx.functionDist = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-dist'))
-  // bundle the function to get the bootstrap layer and all the important parts
-  await zipFunctions([internalSrcFolder], ctx.functionDist, {
-    basePath: ctx.cwd,
-    manifest: join(ctx.functionDist, 'manifest.json'),
-    repositoryRoot: ctx.cwd,
-    configFileDirectories: [internalSrcFolder],
-    internalSrcFolder,
-    archiveFormat: 'none',
-  })
+  const bundleFunctions = async () => {
+    if (!existsSync(internalSrcFolder)) {
+      return
+    }
+    // create zip location in a new temp folder to avoid leaking node_modules through nodes resolve algorithm
+    // that always looks up a parent directory for node_modules
+    ctx.functionDist = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-dist'))
+    // bundle the function to get the bootstrap layer and all the important parts
+    await zipFunctions([internalSrcFolder], ctx.functionDist, {
+      basePath: ctx.cwd,
+      manifest: join(ctx.functionDist, 'manifest.json'),
+      repositoryRoot: ctx.cwd,
+      configFileDirectories: [internalSrcFolder],
+      internalSrcFolder,
+      archiveFormat: 'none',
+    })
+  }
+
+  const bundleEdgeFunctions = async () => {
+    const dist = join(ctx.cwd, '.netlify', 'edge-functions-bundled')
+    const edgeSource = join(ctx.cwd, EDGE_FUNCTIONS_DIR)
+
+    if (!existsSync(edgeSource)) {
+      return
+    }
+
+    const result = await bundle([edgeSource], dist, [], {
+      bootstrapURL,
+      internalSrcFolder: edgeSource,
+      importMapPaths: [],
+      basePath: ctx.cwd,
+      configPath: join(edgeSource, 'manifest.json'),
+    })
+    const { asset } = result.manifest.bundles[0]
+    const cmd = `deno run --allow-read --allow-write --allow-net --allow-env ${eszipHelper} extract ./${asset} .`
+    await execaCommand(cmd, { cwd: dist })
+
+    // start the edge functions server:
+    const servePath = join(ctx.cwd, '.netlify', 'edge-functions-serve')
+    ctx.edgeFunctionPort = await getPort()
+    const server = await serve({
+      basePath: ctx.cwd,
+      bootstrapURL,
+      port: ctx.edgeFunctionPort,
+      importMapPaths: [],
+      servePath: servePath,
+      // debug: true,
+      userLogger: console.log,
+      featureFlags: {
+        edge_functions_npm_modules: true,
+      },
+    })
+
+    const { success, features } = await server(
+      result.functions.map((fn) => ({
+        name: fn.name,
+        path: join(dist, 'source/root', relative(ctx.cwd, fn.path)),
+      })),
+    )
+    expect(success).toBe(true)
+  }
+
+  await Promise.all([bundleEdgeFunctions(), bundleFunctions()])
 }
 
 /**
@@ -210,4 +276,30 @@ export async function invokeFunction(
     headers: response.headers,
     isBase64Encoded: response.isBase64Encoded,
   }
+}
+
+export async function invokeEdgeFunction(
+  ctx: FixtureTestContext,
+  options: {
+    /** Array of functions to invoke */
+    functions?: string[]
+  } = {},
+): Promise<Response> {
+  const functionsToInvoke = options.functions || [EDGE_HANDLER_NAME]
+  return await fetch(`http://0.0.0.0:${ctx.edgeFunctionPort}/`, {
+    // Checkout the stargate headers: https://github.com/netlify/stargate/blob/dc8adfb6e91fa0a2fb00c0cba06e4e2f9e5d4e4d/proxy/deno/edge.go#L1142-L1170
+    headers: {
+      'x-nf-edge-functions': functionsToInvoke.join(','),
+      'x-nf-deploy-id': ctx.deployID,
+      'X-NF-Site-Info': Buffer.from(
+        JSON.stringify({ id: ctx.siteID, name: 'Test Site', url: 'https://example.com' }),
+      ).toString('base64'),
+      'x-nf-blobs-info': Buffer.from(
+        JSON.stringify({ url: `http://${ctx.blobStoreHost}`, token: BLOB_TOKEN }),
+      ).toString('base64'),
+      'x-NF-passthrough': 'passthrough',
+      // 'x-NF-passthrough-host': 'passthrough', // TODO: add lambda local url
+      'X-NF-Request-ID': v4(),
+    },
+  })
 }

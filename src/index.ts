@@ -9,6 +9,7 @@ import {
   uploadStaticContent,
 } from './build/content/static.js'
 import { createServerHandler } from './build/functions/server.js'
+import { createEdgeHandlers } from './build/functions/edge.js'
 
 export const onPreBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
   setPreBuildConfig()
@@ -23,7 +24,7 @@ export const onBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
     uploadStaticContent({ constants }),
     uploadPrerenderedContent({ constants }),
     createServerHandler({ constants }),
-    // createEdgeHandler(),
+    createEdgeHandlers(),
   ])
 }
 

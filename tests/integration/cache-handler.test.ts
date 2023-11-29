@@ -29,7 +29,9 @@ beforeEach<FixtureTestContext>(async (ctx) => {
 describe('page router', () => {
   test<FixtureTestContext>('page router with static revalidate', async (ctx) => {
     await createFixture('page-router', ctx)
+    console.time('runPlugin')
     await runPlugin(ctx)
+    console.timeEnd('runPlugin')
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
     expect(blobEntries.map(({ key }) => key).sort()).toEqual([
@@ -47,7 +49,7 @@ describe('page router', () => {
     expect(call1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
       expect.objectContaining({
         'x-nextjs-cache': 'HIT',
-        'netlify-cdn-cache-control': 's-maxage=3, stale-while-revalidate',
+        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate',
       }),
     )
 
@@ -108,7 +110,7 @@ describe('app router', () => {
     expect(post1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
       expect.objectContaining({
         'x-nextjs-cache': 'HIT',
-        'netlify-cdn-cache-control': 's-maxage=3, stale-while-revalidate',
+        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate',
       }),
     )
 
@@ -124,7 +126,7 @@ describe('app router', () => {
     )
 
     // wait to have a stale page
-    await new Promise<void>((resolve) => setTimeout(resolve, 2_000))
+    await new Promise<void>((resolve) => setTimeout(resolve, 5_000))
     // after the dynamic call of `posts/3` it should be in cache, not this is after the timout as the cache set happens async
     expect(await ctx.blobStore.get('server/app/posts/3')).not.toBeNull()
 
@@ -206,7 +208,7 @@ describe('route', () => {
       }),
     )
     // wait to have a stale route
-    await new Promise<void>((resolve) => setTimeout(resolve, 3_000))
+    await new Promise<void>((resolve) => setTimeout(resolve, 7_000))
 
     const call2 = await invokeFunction(ctx, { url: '/api/revalidate-handler' })
     const call2Body = JSON.parse(call2.body)

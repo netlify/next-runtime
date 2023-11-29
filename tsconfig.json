@@ -10,5 +10,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"],
-  "exclude": ["tests/**/*", "src/**/*.test.ts"]
+  "exclude": ["tests/**/*", "src/**/*.test.ts", "edge-runtime/**"]
 }
