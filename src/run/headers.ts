@@ -25,12 +25,18 @@ const getHeaderValueArray = (header: string): string[] => {
   return header.split(',').map((value) => value.trim())
 }
 
-const removeHeaderValues = (header: string, values: string[]): string => {
+const omitHeaderValues = (header: string, values: string[]): string => {
   const headerValues = getHeaderValueArray(header)
   const filteredValues = headerValues.filter(
     (value) => !values.some((val) => value.startsWith(val)),
   )
   return filteredValues.join(', ')
+}
+
+const mapHeaderValues = (header: string, callback: (value: string) => string): string => {
+  const headerValues = getHeaderValueArray(header)
+  const mappedValues = headerValues.map(callback)
+  return mappedValues.join(', ')
 }
 
 /**
@@ -75,12 +81,16 @@ export const setCacheControlHeaders = (headers: Headers) => {
     !headers.has('cdn-cache-control') &&
     !headers.has('netlify-cdn-cache-control')
   ) {
-    const clientCacheControl = removeHeaderValues(cacheControl, [
+    const privateCacheControl = omitHeaderValues(cacheControl, [
       's-maxage',
       'stale-while-revalidate',
     ])
-    headers.set('cache-control', clientCacheControl || 'public, max-age=0, must-revalidate')
-    headers.set('netlify-cdn-cache-control', cacheControl)
+    const sharedCacheControl = mapHeaderValues(cacheControl, (value) =>
+      value === 'stale-while-revalidate' ? 'stale-while-revalidate=31536000' : value,
+    )
+
+    headers.set('cache-control', privateCacheControl || 'public, max-age=0, must-revalidate')
+    headers.set('netlify-cdn-cache-control', sharedCacheControl)
   }
 }
 

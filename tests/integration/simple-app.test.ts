@@ -70,3 +70,10 @@ test<FixtureTestContext>('index should be normalized within the cacheHandler and
   expect(index.statusCode).toBe(200)
   expect(index.headers?.['cache-tag']).toBe('_N_T_/layout,_N_T_/page,_N_T_/')
 })
+
+test<FixtureTestContext>('stale-while-revalidate headers should be normalized to include delta-seconds', async (ctx) => {
+  await createFixture('simple-next-app', ctx)
+  await runPlugin(ctx)
+  const index = await invokeFunction(ctx, { url: '/' })
+  expect(index.headers?.['netlify-cdn-cache-control']).toContain('stale-while-revalidate=31536000')
+})

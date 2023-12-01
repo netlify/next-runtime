@@ -45,13 +45,13 @@ test<FixtureTestContext>('should revalidate a route by path', async (ctx) => {
   expect(post1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
     expect.objectContaining({
       'x-nextjs-cache': 'HIT',
-      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate',
+      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
     }),
   )
   expect(post1Route2.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
     expect.objectContaining({
       'x-nextjs-cache': 'HIT',
-      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate',
+      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
     }),
   )
 
@@ -76,13 +76,13 @@ test<FixtureTestContext>('should revalidate a route by path', async (ctx) => {
   expect(post2.headers, 'a cache miss on the on demand revalidated path /1').toEqual(
     expect.objectContaining({
       'x-nextjs-cache': 'MISS',
-      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate',
+      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
     }),
   )
   expect(post2Route2.headers, 'a cache miss on the on demand revalidated path /2').toEqual(
     expect.objectContaining({
       'x-nextjs-cache': 'MISS',
-      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate',
+      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
     }),
   )
   expect(post2Date).not.toBe(post1Date)

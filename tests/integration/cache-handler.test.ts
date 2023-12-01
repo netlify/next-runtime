@@ -49,7 +49,7 @@ describe('page router', () => {
     expect(call1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
       expect.objectContaining({
         'x-nextjs-cache': 'HIT',
-        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate',
+        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
       }),
     )
 
@@ -110,7 +110,7 @@ describe('app router', () => {
     expect(post1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
       expect.objectContaining({
         'x-nextjs-cache': 'HIT',
-        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate',
+        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
       }),
     )
 
