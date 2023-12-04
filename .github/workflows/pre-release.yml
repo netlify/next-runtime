@@ -44,6 +44,8 @@ jobs:
           --allow-same-version
       - name: Push changes
         run: git push --follow-tags
+      - name: build
+        run: npm run build
       - name: Run npm publish
         run: npm publish --tag=${{ steps.extract.outputs.tag }}
         env:

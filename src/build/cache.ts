@@ -1,4 +1,4 @@
-import { NetlifyPluginOptions } from '@netlify/build'
+import type { NetlifyPluginOptions } from '@netlify/build'
 import { resolve } from 'node:path'
 
 export const saveBuildCache = async ({

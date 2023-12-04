@@ -1,4 +1,4 @@
-import { NetlifyPluginOptions } from '@netlify/build'
+import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
 import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { readFile } from 'node:fs/promises'

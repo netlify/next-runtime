@@ -17,11 +17,18 @@ export interface DeployResult {
   logs: string
 }
 
+type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun'
+
 /**
  * Copies a fixture to a temp folder on the system and runs the tests inside.
  * @param fixture name of the folder inside the fixtures folder
  */
-export const createE2EFixture = async (fixture: string) => {
+export const createE2EFixture = async (
+  fixture: string,
+  config: {
+    packageManger?: PackageManager
+  } = {},
+) => {
   const cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
   let deployID: string
   let logs: string
@@ -35,7 +42,7 @@ export const createE2EFixture = async (fixture: string) => {
   }
   try {
     const [packageName] = await Promise.all([buildAndPackRuntime(cwd), copyFixture(fixture, cwd)])
-    await installRuntime(packageName, cwd)
+    await installRuntime(packageName, cwd, config.packageManger || 'npm')
     const result = await deploySite(cwd)
     console.log(`🌍 Deployed Site is live under: ${result.url}`)
     deployID = result.deployID
@@ -74,7 +81,10 @@ async function copyFixture(fixtureName: string, dest: string): Promise<void> {
 /** Creates a tarball of the packed npm package at the provided destination */
 async function buildAndPackRuntime(dest: string): Promise<string> {
   console.log(`📦  Creating tarball with 'npm pack'...`)
-  const { stdout } = await execaCommand(`npm pack --json --pack-destination ${dest}`)
+  const { stdout } = await execaCommand(
+    // for the e2e tests we don't need to clean up the package.json. That just creates issues with concurrency
+    `npm pack --json --ignore-scripts --pack-destination ${dest}`,
+  )
   const [{ filename, name }] = JSON.parse(stdout)
 
   await writeFile(
@@ -91,11 +101,31 @@ package = "${name}"
   return filename
 }
 
-async function installRuntime(packageName: string, cwd: string): Promise<void> {
+async function installRuntime(
+  packageName: string,
+  cwd: string,
+  packageManger: PackageManager,
+): Promise<void> {
   console.log(`⚙️   Installing runtime ${packageName}...`)
-  await execaCommand(`npm install --ignore-scripts --no-audit --progress=false ${packageName}`, {
-    cwd,
-  })
+  let command: string = `npm install --ignore-scripts --no-audit --progress=false ${packageName}`
+
+  switch (packageManger) {
+    case 'yarn':
+      command = `yarn add file:./${packageName} --ignore-scripts --no-progress`
+      break
+    case 'pnpm':
+      command = `pnpm add file:./${packageName} --ignore-scripts --reporter=silent`
+      break
+    case 'bun':
+      command = `bun install ./${packageName}`
+      break
+  }
+
+  if (packageManger !== 'npm') {
+    await rm(join(cwd, 'package-lock.json'), { force: true })
+  }
+
+  await execaCommand(command, { cwd })
 }
 
 async function deploySite(cwd: string): Promise<DeployResult> {

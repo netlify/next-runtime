@@ -9,7 +9,7 @@ import { execaCommand } from 'execa'
 import getPort from 'get-port'
 import { execute } from 'lambda-local'
 import { existsSync } from 'node:fs'
-import { cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -22,6 +22,7 @@ import {
 import { streamToString } from './stream-to-string.js'
 import { inspect } from 'node:util'
 import { v4 } from 'uuid'
+import { glob } from 'fast-glob'
 
 export interface FixtureTestContext extends TestContext {
   cwd: string
@@ -41,6 +42,15 @@ const bootstrapURL = 'https://edge.netlify.com/bootstrap/index-combined.ts'
 const actualCwd = await vi.importActual<typeof import('process')>('process').then((p) => p.cwd())
 const eszipHelper = join(actualCwd, 'tools/deno/eszip.ts')
 
+function installDependencies(cwd: string) {
+  if (existsSync(join(cwd, 'pnpm-lock.yaml'))) {
+    return execaCommand('pnpm install --ignore-scripts --reporter=silent', {
+      cwd,
+    })
+  }
+  return execaCommand('npm install --ignore-scripts --no-audit --progress=false', { cwd })
+}
+
 /**
  * Copies a fixture to a temp folder on the system and runs the tests inside.
  * @param fixture name of the folder inside the fixtures folder
@@ -58,14 +68,17 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
 
   try {
     const src = fileURLToPath(new URL(`../fixtures/${fixture}`, import.meta.url))
-    await cp(join(src, 'package.json'), join(ctx.cwd, 'package.json'), { recursive: true })
-    await Promise.all([
-      cp(join(src, '.next'), join(ctx.cwd, '.next'), { recursive: true }),
-      execaCommand('npm install --ignore-scripts --no-audit --progress=false', {
-        cwd: ctx.cwd,
-        stdio: 'inherit',
-      }),
-    ])
+    const files = await glob('**/*', {
+      cwd: src,
+      dot: true,
+      ignore: ['node_modules'],
+    })
+
+    await Promise.all(
+      files.map((file) => cp(join(src, file), join(ctx.cwd, file), { recursive: true })),
+    )
+
+    await installDependencies(ctx.cwd)
   } catch (error) {
     throw new Error(`could not prepare the fixture: ${fixture}. ${error}`)
   }
@@ -270,10 +283,18 @@ export async function invokeFunction(
     timeoutMs: 4_000,
   })) as LambdaResponse
 
+  const responseHeaders = Object.entries(response.multiValueHeaders || {}).reduce(
+    (prev, [key, value]) => ({
+      ...prev,
+      [key]: value.length === 1 ? `${value}` : value.join(', '),
+    }),
+    response.headers || {},
+  )
+
   return {
     statusCode: response.statusCode,
     body: await streamToString(response.body),
-    headers: response.headers,
+    headers: responseHeaders,
     isBase64Encoded: response.isBase64Encoded,
   }
 }

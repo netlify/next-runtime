@@ -81,10 +81,6 @@ async function main() {
   const args = Deno.args
   const [subcmd, filename, ...rest] = args
 
-  if (subcmd === 'help') {
-    return console.log('TODO')
-  }
-
   switch (subcmd) {
     case 'build':
     case 'b': {

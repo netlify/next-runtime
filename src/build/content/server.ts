@@ -1,6 +1,7 @@
-import { NetlifyPluginOptions } from '@netlify/build'
+import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
-import { cp, readFile, writeFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import { cp, mkdir, readFile, readdir, readlink, symlink, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { getPrerenderManifest } from '../config.js'
 import { SERVER_HANDLER_DIR } from '../constants.js'
@@ -26,22 +27,55 @@ export const copyNextServerCode = async ({
   )
 }
 
+/**
+ * Recreates the missing symlinks from the source node_modules inside the destination node_modules
+ * @param src The source node_modules directory where the node_modules are located with the correct symlinks
+ * @param dest The destination node_modules directory where the node_modules are located in where the symlinks are missing
+ * @returns
+ */
+async function recreateNodeModuleSymlinks(src: string, dest: string, org?: string): Promise<void> {
+  const dirents = await readdir(join(src, org || ''), { withFileTypes: true })
+
+  await Promise.all(
+    dirents.map(async (dirent) => {
+      // in case of a node_module starting with an @ it is an organization scoped dependency and we have to go
+      // one level deeper as those directories are symlinked
+      if (dirent.name.startsWith('@')) {
+        return recreateNodeModuleSymlinks(src, dest, dirent.name)
+      }
+
+      // if it is a symlink we have to recreate it in the destination node_modules if it is not existing.
+      if (dirent.isSymbolicLink()) {
+        const symlinkSrc = join(dest, org || '', dirent.name)
+        // the location where the symlink points to
+        const symlinkTarget = await readlink(join(src, org || '', dirent.name))
+        const symlinkDest = join(dest, org || '', symlinkTarget)
+        // only copy over symlinks that are traced through the nft bundle
+        // and don't exist in the destination node_modules
+        if (existsSync(symlinkDest) && !existsSync(symlinkSrc)) {
+          if (org) {
+            // if it is an organization folder let's create the folder first
+            await mkdir(join(dest, org), { recursive: true })
+          }
+          await symlink(symlinkDest, symlinkSrc)
+        }
+      }
+    }),
+  )
+}
+
 export const copyNextDependencies = async ({
   constants: { PUBLISH_DIR },
 }: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
   const src = resolve(PUBLISH_DIR, 'standalone/node_modules')
   const dest = resolve(SERVER_HANDLER_DIR, 'node_modules')
 
-  const paths = await glob([`**`], {
-    cwd: src,
-    extglob: true,
-  })
+  await cp(src, dest, { recursive: true })
 
-  await Promise.all(
-    paths.map(async (path: string) => {
-      await cp(join(src, path), join(dest, path), { recursive: true })
-    }),
-  )
+  // use the node_modules tree from the process.cwd() and not the one from the standalone output
+  // as the standalone node_modules are already wrongly assembled by Next.js.
+  // see: https://github.com/vercel/next.js/issues/50072
+  await recreateNodeModuleSymlinks(resolve('node_modules'), dest)
 }
 
 export const writeTagsManifest = async ({

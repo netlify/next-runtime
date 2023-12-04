@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: CI=1 npm ci
         if: ${{ steps.release.outputs.release_created }}
+      - name: Build
+        run: npm run build
+        if: ${{ steps.release.outputs.release_created }}
       - run: npm publish
         if: ${{ steps.release.outputs.release_created }}
         env:

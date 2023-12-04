@@ -14,6 +14,9 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
+      - uses: oven-sh/setup-bun@v1
+      - name: Setup PNPM
+        uses: ./.github/actions/pnpm
       - name: 'Install dependencies'
         run: npm ci
       - name: 'Netlify Login'
@@ -59,6 +62,8 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
+      - name: Setup PNPM
+        uses: ./.github/actions/pnpm
       - name: Install Deno
         uses: denoland/setup-deno@v1
         with:

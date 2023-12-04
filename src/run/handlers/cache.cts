@@ -13,7 +13,6 @@ import type {
 } from 'next/dist/server/lib/incremental-cache/index.js'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path/posix'
-// @ts-expect-error This is a type only import
 import type { CacheEntryValue } from '../../build/content/prerendered.js'
 
 type TagManifest = { revalidatedAt: number }
@@ -31,7 +30,7 @@ function toRoute(pathname: string): string {
   return pathname.replace(/\/$/, '').replace(/\/index$/, '') || '/'
 }
 
-module.exports = class NetlifyCacheHandler implements CacheHandler {
+export class NetlifyCacheHandler implements CacheHandler {
   options: CacheHandlerContext
   revalidatedTags: string[]
   /** Indicates if the application is using the new appDir */
@@ -267,3 +266,5 @@ module.exports = class NetlifyCacheHandler implements CacheHandler {
     return revalidateAfter
   }
 }
+
+export default NetlifyCacheHandler

@@ -1,6 +1,6 @@
 {
   "name": "@netlify/next-runtime",
-  "version": "5.0.0-alpha.25",
+  "version": "5.0.0-alpha.26",
   "description": "Run Next.js seamlessly on Netlify",
   "main": "./dist/index.js",
   "type": "module",
@@ -10,14 +10,14 @@
     "manifest.yml"
   ],
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
-    "prepack": "npm run build",
+    "prepack": "clean-package",
+    "postpack": "clean-package restore",
     "pretest": "node tests/prepare.mjs",
-    "build": "tsc",
-    "build:debug": "tsc --sourceMap",
-    "build:watch": "tsc --watch",
+    "build": "node ./tools/build.js",
+    "build:watch": "node ./tools/build.js --watch",
     "test": "vitest",
     "test:ci": "vitest run --reporter=default --retry=3",
     "e2e": "playwright test",
@@ -38,36 +38,45 @@
     "url": "https://github.com/netlify/next-runtime-minimal/issues"
   },
   "homepage": "https://github.com/netlify/next-runtime-minimal#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "@fastly/http-compute-js": "1.1.1",
     "@netlify/blobs": "^6.3.1",
-    "@netlify/build": "^29.20.6",
-    "@netlify/functions": "^2.4.0",
-    "@vercel/nft": "^0.24.3",
-    "fast-glob": "^3.3.2",
-    "fs-monkey": "^1.0.5",
-    "os": "^0.1.2",
-    "outdent": "^0.8.0",
-    "p-limit": "^4.0.0"
-  },
-  "devDependencies": {
+    "@netlify/build": "^29.29.4",
     "@netlify/edge-functions": "^2.2.0",
     "@netlify/eslint-config-node": "^7.0.1",
+    "@netlify/functions": "^2.4.0",
     "@netlify/serverless-functions-api": "^1.10.1",
-    "@netlify/zip-it-and-ship-it": "^9.25.5",
+    "@netlify/zip-it-and-ship-it": "^9.28.1",
     "@playwright/test": "^1.40.0",
     "@types/node": "^20.9.2",
     "@types/uuid": "^9.0.6",
+    "@vercel/nft": "^0.24.3",
     "cheerio": "^1.0.0-rc.12",
+    "clean-package": "^2.2.0",
+    "esbuild": "^0.19.8",
     "execa": "^8.0.1",
+    "fast-glob": "^3.3.2",
+    "fs-monkey": "^1.0.5",
     "get-port": "^7.0.0",
     "lambda-local": "^2.1.2",
     "memfs": "^4.6.0",
     "msw": "^2.0.7",
     "next": "^13.5.4",
+    "os": "^0.1.2",
+    "outdent": "^0.8.0",
+    "p-limit": "^4.0.0",
     "typescript": "^5.1.6",
     "unionfs": "^4.5.1",
     "uuid": "^9.0.1",
     "vitest": "^0.34.6"
+  },
+  "clean-package": {
+    "indent": 2,
+    "remove": [
+      "dependencies",
+      "devDependencies",
+      "scripts"
+    ]
   }
 }
