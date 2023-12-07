@@ -3,6 +3,9 @@ import { createE2EFixture } from '../utils/create-e2e-fixture.js'
 
 let ctx: Awaited<ReturnType<typeof createE2EFixture>>
 
+// those tests have different fixtures and can run in parallel
+test.describe.configure({ mode: 'parallel' })
+
 test.describe('[Yarn] Package manager', () => {
   test.describe('simple-next-app', () => {
     test.beforeAll(async () => {

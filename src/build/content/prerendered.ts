@@ -1,13 +1,10 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
-import type { PrerenderManifest } from 'next/dist/build/index.js'
-import { readFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { basename, dirname, extname, resolve } from 'node:path'
 import { join as joinPosix } from 'node:path/posix'
-import { cpus } from 'os'
-import pLimit from 'p-limit'
-import { getBlobStore } from '../blob.js'
 import { getPrerenderManifest } from '../config.js'
+import { BLOB_DIR } from '../constants.js'
 
 export type CacheEntry = {
   key: string
@@ -124,44 +121,31 @@ const buildPrerenderedContentEntries = async (
  * Upload prerendered content to the blob store and remove it from the bundle
  */
 export const uploadPrerenderedContent = async ({
-  constants: { PUBLISH_DIR, NETLIFY_API_TOKEN, NETLIFY_API_HOST, SITE_ID },
-}: Pick<NetlifyPluginOptions, 'constants'>) => {
-  // limit concurrent uploads to 2x the number of CPUs
-  const limit = pLimit(Math.max(2, cpus().length))
-
-  // read prerendered content and build JSON key/values for the blob store
-  let manifest: PrerenderManifest
-  let blob: ReturnType<typeof getBlobStore>
+  constants: { PUBLISH_DIR },
+  utils,
+}: Pick<NetlifyPluginOptions, 'constants' | 'utils'>) => {
   try {
-    manifest = await getPrerenderManifest({ PUBLISH_DIR })
-    blob = getBlobStore({ NETLIFY_API_TOKEN, NETLIFY_API_HOST, SITE_ID })
-  } catch (error: any) {
-    console.error(`Unable to upload prerendered content: ${error.message}`)
-    return
-  }
-  const entries = await Promise.allSettled(
-    await buildPrerenderedContentEntries(PUBLISH_DIR, Object.keys(manifest.routes)),
-  )
-  entries.forEach((result) => {
-    if (result.status === 'rejected') {
-      console.error(`Unable to read prerendered content: ${result.reason.message}`)
-    }
-  })
+    // read prerendered content and build JSON key/values for the blob store
+    const manifest = await getPrerenderManifest({ PUBLISH_DIR })
+    const entries = await Promise.all(
+      await buildPrerenderedContentEntries(PUBLISH_DIR, Object.keys(manifest.routes)),
+    )
 
-  // upload JSON content data to the blob store
-  const uploads = await Promise.allSettled(
-    entries
-      .filter((entry) => entry.status === 'fulfilled' && entry.value.value.value !== undefined)
-      .map((entry: PromiseSettledResult<CacheEntry>) => {
-        const result = entry as PromiseFulfilledResult<CacheEntry>
-        const { key, value } = result.value
-        return limit(() => blob.setJSON(key, value))
-      }),
-  )
-  uploads.forEach((upload, index) => {
-    if (upload.status === 'rejected') {
-      const result = entries[index] as PromiseFulfilledResult<CacheEntry>
-      console.error(`Unable to store ${result.value?.key}: ${upload.reason.message}`)
-    }
-  })
+    // movce JSON content to the blob store directory for upload
+    await Promise.all(
+      entries
+        .filter((entry) => entry.value.value !== undefined)
+        .map(async (entry) => {
+          const dest = resolve(BLOB_DIR, entry.key)
+          await mkdir(dirname(dest), { recursive: true })
+          await writeFile(resolve(BLOB_DIR, entry.key), JSON.stringify(entry.value), 'utf-8')
+        }),
+    )
+  } catch (error) {
+    utils.build.failBuild(
+      'Failed assembling prerendered content for upload',
+      error instanceof Error ? { error } : {},
+    )
+    throw error
+  }
 }

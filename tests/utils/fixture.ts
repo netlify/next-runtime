@@ -1,7 +1,11 @@
 import { BlobsServer, type getStore } from '@netlify/blobs'
 import { TestContext, assert, expect, vi } from 'vitest'
 
-import type { NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build'
+import {
+  runCoreSteps,
+  type NetlifyPluginConstants,
+  type NetlifyPluginOptions,
+} from '@netlify/build'
 import { bundle, serve } from '@netlify/edge-bundler'
 import type { LambdaResponse } from '@netlify/serverless-functions-api/dist/lambda/response.js'
 import { zipFunctions } from '@netlify/zip-it-and-ship-it'
@@ -9,11 +13,12 @@ import { execaCommand } from 'execa'
 import getPort from 'get-port'
 import { execute } from 'lambda-local'
 import { existsSync } from 'node:fs'
-import { cp, mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join, relative } from 'node:path'
+import { basename, dirname, join, parse, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
+  BLOB_DIR,
   EDGE_FUNCTIONS_DIR,
   EDGE_HANDLER_NAME,
   SERVER_FUNCTIONS_DIR,
@@ -223,7 +228,27 @@ export async function runPlugin(
     expect(success).toBe(true)
   }
 
-  await Promise.all([bundleEdgeFunctions(), bundleFunctions()])
+  await Promise.all([bundleEdgeFunctions(), bundleFunctions(), uploadBlobs(ctx)])
+}
+
+export async function uploadBlobs(ctx: FixtureTestContext) {
+  const blobsDir = resolve(ctx.cwd, BLOB_DIR)
+  const files = await glob('**/*', {
+    dot: true,
+    cwd: blobsDir,
+  })
+
+  const keys = files.filter((file) => !basename(file).startsWith('$'))
+  await Promise.all(
+    keys.map(async (key) => {
+      const { dir, base } = parse(key)
+      const metaFile = join(blobsDir, dir, `$${base}.json`)
+      const metadata = await readFile(metaFile, 'utf-8')
+        .then((meta) => JSON.parse(meta))
+        .catch(() => ({}))
+      await ctx.blobStore.set(key, await readFile(join(blobsDir, key), 'utf-8'), { metadata })
+    }),
+  )
 }
 
 /**

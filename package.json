@@ -1,6 +1,6 @@
 {
   "name": "@netlify/next-runtime",
-  "version": "5.0.0-alpha.26",
+  "version": "5.0.0-alpha.27",
   "description": "Run Next.js seamlessly on Netlify",
   "main": "./dist/index.js",
   "type": "module",
@@ -42,7 +42,7 @@
   "devDependencies": {
     "@fastly/http-compute-js": "1.1.1",
     "@netlify/blobs": "^6.3.1",
-    "@netlify/build": "^29.29.4",
+    "@netlify/build": "^29.31.0",
     "@netlify/edge-functions": "^2.2.0",
     "@netlify/eslint-config-node": "^7.0.1",
     "@netlify/functions": "^2.4.0",

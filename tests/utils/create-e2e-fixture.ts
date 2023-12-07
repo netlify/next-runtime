@@ -33,12 +33,12 @@ export const createE2EFixture = async (
   let deployID: string
   let logs: string
   const _cleanup = (failure: boolean = false) => {
-    if (failure) {
-      console.log('\n\n\n🪵  Deploy Logs:')
-      console.log(logs)
+    if (!failure) {
+      return cleanup(cwd, deployID)
     }
+    console.log('\n\n\n🪵  Deploy Logs:')
+    console.log(logs)
     // on failures we don't delete the deploy
-    return cleanup(cwd, failure === true ? undefined : deployID)
   }
   try {
     const [packageName] = await Promise.all([buildAndPackRuntime(cwd), copyFixture(fixture, cwd)])
