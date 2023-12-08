@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.41.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.41.2...plugin-nextjs-v4.41.3) (2023-12-08)
+
+
+### Bug Fixes
+
+* check type before using string-only method ([#2393](https://github.com/netlify/next-runtime/issues/2393)) ([06f0e0c](https://github.com/netlify/next-runtime/commit/06f0e0c4b10e76e667e4461b2b5a04604e2588b9))
+
 ## [4.41.2](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.41.1...plugin-nextjs-v4.41.2) (2023-11-15)
 
 
