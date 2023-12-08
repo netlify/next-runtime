@@ -137,7 +137,8 @@ export const augmentFsModule = ({
   promises.readFile = (async (file, options) => {
     console.log({
       file,
-      type: typeof file
+      type: typeof file,
+      nodeVersion: process.versions.node
     })
     const baseUrl = getBase()
 
