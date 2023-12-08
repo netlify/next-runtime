@@ -135,15 +135,12 @@ export const augmentFsModule = ({
 
   // ...then monkey-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
-    console.log({
-      file,
-      type: typeof file,
-      nodeVersion: process.versions.node
-    })
-    const baseUrl = getBase()
-
-    // We only care about page files
-    if (file.startsWith(pageRoot)) {
+    // file argument can be a string, URL, etc - Next.js cache reading uses a string
+    // and that's only thing we really want to handle here, so we just do type checking
+    // instead of trying to handle all possible type before checking weather read
+    // is about page files.
+    if (typeof file === 'string' && file.startsWith(pageRoot)) {
+      const baseUrl = getBase()
       // We only want the part after `.next/server/`
       const filePath = file.slice(pageRoot.length + 1)
 
