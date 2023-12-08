@@ -34,8 +34,6 @@ beforeAll(async () => {
 
   return new Promise<void>(async (resolve, reject) => {
     try {
-      execa(`find`, [`node_modules/@netlify/plugin-nextjs`], { cwd: siteDestDir, stdio: `inherit` })
-
       // run
       let isServeRunning = true
       const serveProcess = execa('netlify', ['serve', `-p`, `8888`], { cwd: siteDestDir, stdio: `inherit` })
