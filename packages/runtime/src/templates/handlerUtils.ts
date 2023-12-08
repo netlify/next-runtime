@@ -135,6 +135,10 @@ export const augmentFsModule = ({
 
   // ...then monkey-patch it to see if it's requesting a CDN file
   promises.readFile = (async (file, options) => {
+    console.log({
+      file,
+      type: typeof file
+    })
     const baseUrl = getBase()
 
     // We only care about page files
