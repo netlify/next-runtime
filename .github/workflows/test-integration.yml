@@ -28,7 +28,7 @@ jobs:
         with:
           deno-version: v1.x
       - name: Install netlify-cli and npm
-        run: npm install -g netlify-cli@17.9.0 npm
+        run: npm install -g netlify-cli npm
       - name: NPM Install
         run: npm install
       - name: Run integration tests
