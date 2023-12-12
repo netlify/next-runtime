@@ -1,16 +1,11 @@
-import type {
-  NetlifyPluginConstants,
-  NetlifyPluginOptions,
-  NetlifyPluginUtils,
-} from '@netlify/build'
+import type { NetlifyPluginConstants, NetlifyPluginUtils } from '@netlify/build'
 import glob from 'fast-glob'
-import { Mock, afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { join } from 'path'
+import { expect, test, vi } from 'vitest'
 import { mockFileSystem } from '../../../tests/index.js'
 import { FixtureTestContext, createFsFixture } from '../../../tests/utils/fixture.js'
 import { BLOB_DIR, STATIC_DIR } from '../constants.js'
-import { copyStaticAssets, uploadStaticContent } from './static.js'
-import * as fs from 'fs'
-import { join } from 'path'
+import { copyStaticAssets, copyStaticContent } from './static.js'
 
 const utils = {
   build: { failBuild: vi.fn() },
@@ -25,6 +20,7 @@ test('should clear the static directory contents', async () => {
 
   await copyStaticAssets({
     constants: { PUBLISH_DIR } as NetlifyPluginConstants,
+    utils,
   })
 
   expect(Object.keys(vol.toJSON())).toEqual(
@@ -45,6 +41,7 @@ test<FixtureTestContext>('should link static content from the publish directory 
 
   await copyStaticAssets({
     constants: { PUBLISH_DIR } as NetlifyPluginConstants,
+    utils,
   })
 
   const files = await glob('**/*', { cwd, dot: true })
@@ -72,6 +69,7 @@ test<FixtureTestContext>('should link static content from the public directory t
 
   await copyStaticAssets({
     constants: { PUBLISH_DIR } as NetlifyPluginConstants,
+    utils,
   })
 
   const files = await glob('**/*', { cwd, dot: true })
@@ -85,21 +83,18 @@ test<FixtureTestContext>('should link static content from the public directory t
   )
 })
 
-test<FixtureTestContext>('should copy the static pages to the publish directory if the routes do not exist in the prerender-manifest', async (ctx) => {
+test<FixtureTestContext>('should copy the static pages to the publish directory if there are no corresponding JSON files', async (ctx) => {
   const PUBLISH_DIR = '.next'
   const { cwd } = await createFsFixture(
     {
-      [`${PUBLISH_DIR}/prerender-manifest.json`]: JSON.stringify({
-        routes: {},
-      }),
-      [`${PUBLISH_DIR}/static/test.js`]: '',
-      [`${PUBLISH_DIR}/server/pages/test.html`]: 'test-1',
-      [`${PUBLISH_DIR}/server/pages/test2.html`]: 'test-2',
+      [`${PUBLISH_DIR}/server/pages/test.html`]: '',
+      [`${PUBLISH_DIR}/server/pages/test2.html`]: '',
+      [`${PUBLISH_DIR}/server/pages/test3.json`]: '',
     },
     ctx,
   )
 
-  await uploadStaticContent({
+  await copyStaticContent({
     constants: { PUBLISH_DIR } as NetlifyPluginConstants,
     utils,
   })
@@ -110,25 +105,20 @@ test<FixtureTestContext>('should copy the static pages to the publish directory 
   ])
 })
 
-test<FixtureTestContext>('should not copy the static pages to the publish directory if the routes exist in the prerender-manifest', async (ctx) => {
+test<FixtureTestContext>('should not copy the static pages to the publish directory if there are corresponding JSON files', async (ctx) => {
   const PUBLISH_DIR = '.next'
 
   const { cwd } = await createFsFixture(
     {
-      [`${PUBLISH_DIR}/prerender-manifest.json`]: JSON.stringify({
-        routes: {
-          '/test': {},
-          '/test2': {},
-        },
-      }),
-      [`${PUBLISH_DIR}/static/test.js`]: '',
       [`${PUBLISH_DIR}/server/pages/test.html`]: '',
+      [`${PUBLISH_DIR}/server/pages/test.json`]: '',
       [`${PUBLISH_DIR}/server/pages/test2.html`]: '',
+      [`${PUBLISH_DIR}/server/pages/test2.json`]: '',
     },
     ctx,
   )
 
-  await uploadStaticContent({
+  await copyStaticContent({
     constants: { PUBLISH_DIR } as NetlifyPluginConstants,
     utils,
   })

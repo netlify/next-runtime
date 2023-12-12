@@ -1,3 +1,4 @@
+import type { NetlifyPluginOptions } from '@netlify/build'
 import type { EdgeFunctionDefinition as NextDefinition } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, relative, resolve } from 'node:path'
@@ -116,10 +117,12 @@ const writeEdgeManifest = async (manifest: NetlifyManifest) => {
   await writeFile(resolve(EDGE_FUNCTIONS_DIR, 'manifest.json'), JSON.stringify(manifest, null, 2))
 }
 
-export const createEdgeHandlers = async () => {
+export const createEdgeHandlers = async ({
+  constants,
+}: Pick<NetlifyPluginOptions, 'constants'>) => {
   await rm(EDGE_FUNCTIONS_DIR, { recursive: true, force: true })
 
-  const nextManifest = await getMiddlewareManifest()
+  const nextManifest = await getMiddlewareManifest(constants)
   const nextDefinitions = [
     ...Object.values(nextManifest.middleware),
     // ...Object.values(nextManifest.functions)

@@ -1,20 +1,17 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
+import { existsSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { basename, dirname, extname, resolve } from 'node:path'
-import { join as joinPosix } from 'node:path/posix'
+import { dirname, resolve } from 'node:path'
 import { getPrerenderManifest } from '../config.js'
 import { BLOB_DIR } from '../constants.js'
 
 export type CacheEntry = {
-  key: string
-  value: CacheEntryValue
+  lastModified: number
+  value: CacheValue
 }
 
-export type CacheEntryValue = {
-  lastModified: number
-  value: PageCacheValue | RouteCacheValue | FetchCacheValue
-}
+type CacheValue = PageCacheValue | RouteCacheValue | FetchCacheValue
 
 export type PageCacheValue = {
   kind: 'PAGE'
@@ -42,110 +39,121 @@ type FetchCacheValue = {
   }
 }
 
-// static prerendered pages content with JSON data
-const isPage = (key: string, routes: string[]) => {
-  return key.startsWith('server/pages') && routes.includes(key.replace(/^server\/pages/, ''))
+const writeCacheEntry = async (key: string, value: CacheValue) => {
+  await mkdir(dirname(resolve(BLOB_DIR, key)), { recursive: true })
+  await writeFile(
+    resolve(BLOB_DIR, key),
+    JSON.stringify({ lastModified: Date.now(), value } satisfies CacheEntry),
+    'utf-8',
+  )
 }
-// static prerendered app content with RSC data
-const isApp = (path: string) => {
-  return path.startsWith('server/app') && extname(path) === '.html'
-}
-// static prerendered app route handler
-const isRoute = (path: string) => {
-  return path.startsWith('server/app') && extname(path) === '.body'
-}
-// fetch cache data (excluding tags manifest)
-const isFetch = (path: string) => {
-  return path.startsWith('cache/fetch-cache') && extname(path) === ''
-}
+
+const urlPathToFilePath = (path: string) => (path === '/' ? '/index' : path)
+
+const buildPagesCacheValue = async (path: string): Promise<PageCacheValue> => ({
+  kind: 'PAGE',
+  html: await readFile(resolve(`${path}.html`), 'utf-8'),
+  pageData: JSON.parse(await readFile(resolve(`${path}.json`), 'utf-8')),
+})
+
+const buildAppCacheValue = async (path: string): Promise<PageCacheValue> => ({
+  kind: 'PAGE',
+  html: await readFile(resolve(`${path}.html`), 'utf-8'),
+  pageData: await readFile(resolve(`${path}.rsc`), 'utf-8'),
+  ...JSON.parse(await readFile(resolve(`${path}.meta`), 'utf-8')),
+})
+
+const buildRouteCacheValue = async (path: string): Promise<RouteCacheValue> => ({
+  kind: 'ROUTE',
+  body: await readFile(resolve(`${path}.body`), 'utf-8'),
+  ...JSON.parse(await readFile(resolve(`${path}.meta`), 'utf-8')),
+})
+
+const buildFetchCacheValue = async (path: string): Promise<FetchCacheValue> => ({
+  kind: 'FETCH',
+  ...JSON.parse(await readFile(resolve(path), 'utf-8')),
+})
 
 /**
- * Transform content file paths into cache entries for the blob store
+ * Upload prerendered content to the blob store
  */
-const buildPrerenderedContentEntries = async (
-  src: string,
-  routes: string[],
-): Promise<Promise<CacheEntry>[]> => {
-  const paths = await glob([`cache/fetch-cache/*`, `server/+(app|pages)/**/*.+(html|body)`], {
-    cwd: resolve(src),
-    extglob: true,
-  })
-
-  return paths.map(async (path: string): Promise<CacheEntry> => {
-    const key = joinPosix(dirname(path), basename(path, extname(path)))
-    let value
-
-    if (isPage(key, routes)) {
-      value = {
-        kind: 'PAGE',
-        html: await readFile(resolve(src, `${key}.html`), 'utf-8'),
-        pageData: JSON.parse(await readFile(resolve(src, `${key}.json`), 'utf-8')),
-      } satisfies PageCacheValue
-    }
-
-    if (isApp(path)) {
-      value = {
-        kind: 'PAGE',
-        html: await readFile(resolve(src, `${key}.html`), 'utf-8'),
-        pageData: await readFile(resolve(src, `${key}.rsc`), 'utf-8'),
-        ...JSON.parse(await readFile(resolve(src, `${key}.meta`), 'utf-8')),
-      } satisfies PageCacheValue
-    }
-
-    if (isRoute(path)) {
-      value = {
-        kind: 'ROUTE',
-        body: await readFile(resolve(src, `${key}.body`), 'utf-8'),
-        ...JSON.parse(await readFile(resolve(src, `${key}.meta`), 'utf-8')),
-      } satisfies RouteCacheValue
-    }
-
-    if (isFetch(path)) {
-      value = {
-        kind: 'FETCH',
-        ...JSON.parse(await readFile(resolve(src, key), 'utf-8')),
-      } satisfies FetchCacheValue
-    }
-
-    return {
-      key,
-      value: {
-        lastModified: Date.now(),
-        value,
-      },
-    }
-  })
-}
-
-/**
- * Upload prerendered content to the blob store and remove it from the bundle
- */
-export const uploadPrerenderedContent = async ({
+export const copyPrerenderedContent = async ({
   constants: { PUBLISH_DIR },
-  utils,
+  utils: {
+    build: { failBuild },
+  },
 }: Pick<NetlifyPluginOptions, 'constants' | 'utils'>) => {
   try {
     // read prerendered content and build JSON key/values for the blob store
     const manifest = await getPrerenderManifest({ PUBLISH_DIR })
-    const entries = await Promise.all(
-      await buildPrerenderedContentEntries(PUBLISH_DIR, Object.keys(manifest.routes)),
+    const routes = Object.entries(manifest.routes)
+    const notFoundRoute = 'server/app/_not-found'
+
+    await Promise.all(
+      routes.map(async ([path, route]) => {
+        let key, value
+
+        switch (true) {
+          case route.dataRoute?.endsWith('.json'):
+            key = `server/pages/${urlPathToFilePath(path)}`
+            value = await buildPagesCacheValue(resolve(PUBLISH_DIR, key))
+            break
+
+          case route.dataRoute?.endsWith('.rsc'):
+            key = `server/app/${urlPathToFilePath(path)}`
+            value = await buildAppCacheValue(resolve(PUBLISH_DIR, key))
+            break
+
+          case route.dataRoute === null:
+            key = `server/app/${urlPathToFilePath(path)}`
+            value = await buildRouteCacheValue(resolve(PUBLISH_DIR, key))
+            break
+
+          default:
+            throw new Error(`Unrecognized prerendered content: ${path}`)
+        }
+
+        await writeCacheEntry(key, value)
+      }),
     )
 
-    // movce JSON content to the blob store directory for upload
-    await Promise.all(
-      entries
-        .filter((entry) => entry.value.value !== undefined)
-        .map(async (entry) => {
-          const dest = resolve(BLOB_DIR, entry.key)
-          await mkdir(dirname(dest), { recursive: true })
-          await writeFile(resolve(BLOB_DIR, entry.key), JSON.stringify(entry.value), 'utf-8')
-        }),
-    )
+    // app router 404 pages are not in the prerender manifest
+    // so we need to check for them manually
+    if (existsSync(resolve(PUBLISH_DIR, `${notFoundRoute}.html`))) {
+      await writeCacheEntry(
+        notFoundRoute,
+        await buildAppCacheValue(resolve(PUBLISH_DIR, notFoundRoute)),
+      )
+    }
   } catch (error) {
-    utils.build.failBuild(
+    failBuild(
       'Failed assembling prerendered content for upload',
       error instanceof Error ? { error } : {},
     )
-    throw error
+  }
+}
+
+/**
+ * Upload fetch content to the blob store
+ */
+export const copyFetchContent = async ({
+  constants: { PUBLISH_DIR },
+  utils: {
+    build: { failBuild },
+  },
+}: Pick<NetlifyPluginOptions, 'constants' | 'utils'>) => {
+  try {
+    const paths = await glob([`cache/fetch-cache/!(*.*)`], {
+      cwd: resolve(PUBLISH_DIR),
+      extglob: true,
+    })
+
+    await Promise.all(
+      paths.map(async (key) => {
+        await writeCacheEntry(key, await buildFetchCacheValue(resolve(PUBLISH_DIR, key)))
+      }),
+    )
+  } catch (error) {
+    failBuild('Failed assembling fetch content for upload', error instanceof Error ? { error } : {})
   }
 }

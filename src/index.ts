@@ -1,36 +1,38 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 import { restoreBuildCache, saveBuildCache } from './build/cache.js'
-import { setPostBuildConfig, setPreBuildConfig } from './build/config.js'
-import { uploadPrerenderedContent } from './build/content/prerendered.js'
+import { setPostBuildConfig, setPreBuildConfig, verifyBuildConfig } from './build/config.js'
+import { copyFetchContent, copyPrerenderedContent } from './build/content/prerendered.js'
 import {
   copyStaticAssets,
+  copyStaticContent,
   publishStaticDir,
   unpublishStaticDir,
-  uploadStaticContent,
 } from './build/content/static.js'
-import { createServerHandler } from './build/functions/server.js'
 import { createEdgeHandlers } from './build/functions/edge.js'
+import { createServerHandler } from './build/functions/server.js'
 
 export const onPreBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
-  await restoreBuildCache({ constants, utils })
   setPreBuildConfig()
+  await restoreBuildCache({ constants, utils })
 }
 
 export const onBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
+  verifyBuildConfig({ constants, utils })
   await saveBuildCache({ constants, utils })
 
   await Promise.all([
-    copyStaticAssets({ constants }),
-    uploadStaticContent({ constants }),
-    uploadPrerenderedContent({ constants }),
+    copyStaticAssets({ constants, utils }),
+    copyStaticContent({ constants, utils }),
+    copyPrerenderedContent({ constants, utils }),
+    copyFetchContent({ constants, utils }),
     createServerHandler({ constants }),
-    createEdgeHandlers(),
+    createEdgeHandlers({ constants }),
   ])
 }
 
-export const onPostBuild = async ({ constants, netlifyConfig }: NetlifyPluginOptions) => {
-  await publishStaticDir({ constants })
+export const onPostBuild = async ({ constants, utils, netlifyConfig }: NetlifyPluginOptions) => {
   setPostBuildConfig({ netlifyConfig })
+  await publishStaticDir({ constants, utils })
 }
 
 export const onEnd = async ({ constants }: NetlifyPluginOptions) => {

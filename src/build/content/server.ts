@@ -12,17 +12,17 @@ import { SERVER_HANDLER_DIR } from '../constants.js'
 export const copyNextServerCode = async ({
   constants: { PUBLISH_DIR },
 }: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
-  const src = resolve(PUBLISH_DIR, 'standalone/.next')
-  const dest = resolve(SERVER_HANDLER_DIR, '.next')
+  const srcDir = resolve(PUBLISH_DIR, 'standalone/.next')
+  const destDir = resolve(SERVER_HANDLER_DIR, '.next')
 
   const paths = await glob([`*`, `server/*`, `server/chunks/*`, `server/+(app|pages)/**/*.js`], {
-    cwd: src,
+    cwd: srcDir,
     extglob: true,
   })
 
   await Promise.all(
     paths.map(async (path: string) => {
-      await cp(join(src, path), join(dest, path), { recursive: true })
+      await cp(join(srcDir, path), join(destDir, path), { recursive: true })
     }),
   )
 }
@@ -67,15 +67,15 @@ async function recreateNodeModuleSymlinks(src: string, dest: string, org?: strin
 export const copyNextDependencies = async ({
   constants: { PUBLISH_DIR },
 }: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
-  const src = resolve(PUBLISH_DIR, 'standalone/node_modules')
-  const dest = resolve(SERVER_HANDLER_DIR, 'node_modules')
+  const srcDir = resolve(PUBLISH_DIR, 'standalone/node_modules')
+  const destDir = resolve(SERVER_HANDLER_DIR, 'node_modules')
 
-  await cp(src, dest, { recursive: true })
+  await cp(srcDir, destDir, { recursive: true })
 
   // use the node_modules tree from the process.cwd() and not the one from the standalone output
   // as the standalone node_modules are already wrongly assembled by Next.js.
   // see: https://github.com/vercel/next.js/issues/50072
-  await recreateNodeModuleSymlinks(resolve('node_modules'), dest)
+  await recreateNodeModuleSymlinks(resolve('node_modules'), destDir)
 }
 
 export const writeTagsManifest = async ({
