@@ -2,6 +2,7 @@ name: Run next.js tests
 
 on:
   workflow_dispatch:
+  workflow_call:
   pull_request:
     types: [opened, synchronize, reopened, labeled]
 
@@ -25,7 +26,7 @@ env:
 jobs:
   e2e:
     if:
-      ${{ github.event_name == 'workflow_dispatch' ||
+      ${{ github.event_name == ('workflow_dispatch' || 'workflow_call') ||
       contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}
     name: test e2e
     runs-on: ubuntu-latest
