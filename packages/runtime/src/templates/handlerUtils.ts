@@ -32,9 +32,11 @@ export const downloadFileFromCDN = async (
   const options = {
     timeout: 10000,
     maxRedirects: 1,
-    headers: {
-      'X-Nf-Waf-Bypass-Token': event.headers['x-nf-waf-bypass-token'],
-    },
+    headers: {},
+  }
+
+  if (event.headers['x-nf-waf-bypass-token']) {
+    options.headers['x-nf-waf-bypass-token'] = event.headers['x-nf-waf-bypass-token']
   }
 
   await new Promise((resolve, reject) => {
