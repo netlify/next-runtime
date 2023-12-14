@@ -20,13 +20,25 @@ const writeFilePromisified = promisify(writeFile)
  * Downloads a file from the CDN to the local aliased filesystem. This is a fallback, because in most cases we'd expect
  * files required at runtime to not be sent to the CDN.
  */
-export const downloadFileFromCDN = async (url: string, destination: string): Promise<void> => {
+export const downloadFileFromCDN = async (
+  url: string,
+  destination: string,
+  event: Pick<HandlerEvent, 'headers'>,
+): Promise<void> => {
   console.log(`Downloading ${url} from CDN to ${destination}`)
 
   const httpx = url.startsWith('https') ? https : http
 
+  const options = {
+    timeout: 10000,
+    maxRedirects: 1,
+    headers: {
+      'X-Nf-Waf-Bypass-Token': event.headers['x-nf-waf-bypass-token'],
+    },
+  }
+
   await new Promise((resolve, reject) => {
-    const req = httpx.get(url, { timeout: 10000, maxRedirects: 1 }, (response) => {
+    const req = httpx.get(url, options, (response) => {
       if (response.statusCode < 200 || response.statusCode > 299) {
         reject(new Error(`Failed to download ${url}: ${response.statusCode} ${response.statusMessage || ''}`))
         return
@@ -105,13 +117,13 @@ export const augmentFsModule = ({
   staticManifest,
   blobsManifest,
   pageRoot,
-  getBase,
+  getEvent,
 }: {
   promises: typeof fs.promises
   staticManifest: Array<[string, string]>
   blobsManifest: Set<string>
   pageRoot: string
-  getBase: () => string
+  getEvent: () => Pick<HandlerEvent, 'rawUrl' | 'headers'>
 }) => {
   // Only do this if we have some static files moved to the CDN
   if (staticManifest.length === 0) {
@@ -140,7 +152,8 @@ export const augmentFsModule = ({
     // instead of trying to handle all possible type before checking weather read
     // is about page files.
     if (typeof file === 'string' && file.startsWith(pageRoot)) {
-      const baseUrl = getBase()
+      const event = getEvent()
+      const baseUrl = new URL(event.rawUrl).origin
       // We only want the part after `.next/server/`
       const filePath = file.slice(pageRoot.length + 1)
 
@@ -164,7 +177,7 @@ export const augmentFsModule = ({
             try {
               // Append the path to our host and we can load it like a regular page
               const downloadPromise = isStatic
-                ? downloadFileFromCDN(url, cacheFile)
+                ? downloadFileFromCDN(url, cacheFile, event)
                 : downloadFileFromBlobs(filePath, cacheFile)
               downloadPromises.set(url, downloadPromise)
               await downloadPromise
