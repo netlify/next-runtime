@@ -8,7 +8,12 @@ import {
   runPlugin,
   type FixtureTestContext,
 } from '../utils/fixture.js'
-import { generateRandomObjectID, getBlobEntries, startMockBlobStore } from '../utils/helpers.js'
+import {
+  decodeBlobKey,
+  generateRandomObjectID,
+  getBlobEntries,
+  startMockBlobStore,
+} from '../utils/helpers.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -29,11 +34,11 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
   await runPlugin(ctx)
 
   const entries = await getBlobEntries(ctx)
-  expect(entries.map(({ key }) => key).sort()).toEqual([
-    'server/pages/404.html',
-    'server/pages/500.html',
-    'server/pages/static/revalidate-automatic',
-    'server/pages/static/revalidate-manual',
+  expect(entries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
+    '404.html',
+    '500.html',
+    'static/revalidate-automatic',
+    'static/revalidate-manual',
   ])
 
   // test that it should request the 404.html file

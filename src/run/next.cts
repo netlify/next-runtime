@@ -1,6 +1,7 @@
-import { join, relative } from 'path'
-import fs from 'fs/promises'
 import { getDeployStore } from '@netlify/blobs'
+import fs from 'fs/promises'
+import { Buffer } from 'node:buffer'
+import { relative, resolve } from 'path'
 
 import type { getRequestHandlers } from 'next/dist/server/lib/start-server.js'
 
@@ -22,7 +23,8 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
     } catch (error) {
       // only try to get .html files from the blob store
       if (typeof path === 'string' && path.endsWith('.html')) {
-        const blobKey = relative(join(process.cwd(), '.next'), path)
+        const relPath = relative(resolve('.next/server/pages'), path)
+        const blobKey = Buffer.from(relPath).toString('base64')
         const file = await store.get(blobKey)
         if (file !== null) {
           return file

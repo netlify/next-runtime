@@ -16,7 +16,7 @@ export default async (request: Request) => {
     setRunConfig(nextConfig)
     tagsManifest = await getTagsManifest()
 
-    const { getMockedRequestHandlers } = await import('./next.cjs')
+    const { getMockedRequestHandlers } = await import('../next.cjs')
     ;[nextHandler] = await getMockedRequestHandlers({
       port: 3000,
       hostname: 'localhost',

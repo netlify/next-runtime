@@ -8,7 +8,12 @@ import {
   runPlugin,
   type FixtureTestContext,
 } from '../utils/fixture.js'
-import { generateRandomObjectID, getBlobEntries, startMockBlobStore } from '../utils/helpers.js'
+import {
+  encodeBlobKey,
+  generateRandomObjectID,
+  getBlobEntries,
+  startMockBlobStore,
+} from '../utils/helpers.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -30,8 +35,8 @@ test<FixtureTestContext>('should revalidate a route by path', async (ctx) => {
   await createFixture('server-components', ctx)
   await runPlugin(ctx)
 
-  expect(await ctx.blobStore.get('server/app/static-fetch/1')).not.toBeNull()
-  expect(await ctx.blobStore.get('.netlify/cache/tags/_N_T_/static-fetch/[id]/page')).toBeNull()
+  expect(await ctx.blobStore.get(encodeBlobKey('static-fetch/1'))).not.toBeNull()
+  expect(await ctx.blobStore.get(encodeBlobKey('_N_T_/static-fetch/[id]/page'))).toBeNull()
 
   // test the function call
   const [post1, post1Route2] = await Promise.all([
@@ -63,7 +68,7 @@ test<FixtureTestContext>('should revalidate a route by path', async (ctx) => {
   await new Promise<void>((resolve) => setTimeout(resolve, 1000))
 
   const entries = await getBlobEntries(ctx)
-  expect(await ctx.blobStore.get('.netlify/cache/tags/_N_T_/static-fetch/[id]/page')).not.toBeNull()
+  expect(await ctx.blobStore.get(encodeBlobKey('_N_T_/static-fetch/[id]/page'))).not.toBeNull()
 
   const [post2, post2Route2] = await Promise.all([
     invokeFunction(ctx, { url: '/static-fetch/1' }),

@@ -8,7 +8,13 @@ import {
   runPlugin,
   type FixtureTestContext,
 } from '../utils/fixture.js'
-import { generateRandomObjectID, getBlobEntries, startMockBlobStore } from '../utils/helpers.js'
+import {
+  decodeBlobKey,
+  encodeBlobKey,
+  generateRandomObjectID,
+  getBlobEntries,
+  startMockBlobStore,
+} from '../utils/helpers.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -34,11 +40,11 @@ describe('page router', () => {
     console.timeEnd('runPlugin')
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
-    expect(blobEntries.map(({ key }) => key).sort()).toEqual([
-      'server/pages/404.html',
-      'server/pages/500.html',
-      'server/pages/static/revalidate-automatic',
-      'server/pages/static/revalidate-manual',
+    expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
+      '404.html',
+      '500.html',
+      'static/revalidate-automatic',
+      'static/revalidate-manual',
     ])
 
     // test the function call
@@ -91,15 +97,15 @@ describe('app router', () => {
     console.timeEnd('runPlugin')
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
-    expect(blobEntries.map(({ key }) => key).sort()).toEqual([
-      'cache/fetch-cache/460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
-      'cache/fetch-cache/ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
-      'server/app/_not-found',
-      'server/app/index',
-      'server/app/posts/1',
-      'server/app/posts/2',
-      'server/pages/404.html',
-      'server/pages/500.html',
+    expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
+      '404',
+      '404.html',
+      '460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
+      '500.html',
+      'ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
+      'index',
+      'posts/1',
+      'posts/2',
     ])
 
     // test the function call
@@ -114,7 +120,7 @@ describe('app router', () => {
       }),
     )
 
-    expect(await ctx.blobStore.get('server/app/posts/3')).toBeNull()
+    expect(await ctx.blobStore.get(decodeBlobKey('posts/3'))).toBeNull()
     // this page is not pre-rendered and should result in a cache miss
     const post3 = await invokeFunction(ctx, { url: 'posts/3' })
     expect(post3.statusCode).toBe(200)
@@ -128,7 +134,7 @@ describe('app router', () => {
     // wait to have a stale page
     await new Promise<void>((resolve) => setTimeout(resolve, 5_000))
     // after the dynamic call of `posts/3` it should be in cache, not this is after the timout as the cache set happens async
-    expect(await ctx.blobStore.get('server/app/posts/3')).not.toBeNull()
+    expect(await ctx.blobStore.get(encodeBlobKey('posts/3'))).not.toBeNull()
 
     const stale = await invokeFunction(ctx, { url: 'posts/1' })
     const staleDate = load(stale.body)('[data-testid="date-now"]').text()
@@ -163,21 +169,21 @@ describe('plugin', () => {
     await runPlugin(ctx)
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
-    expect(blobEntries.map((entry) => entry.key)).toEqual([
-      'cache/fetch-cache/460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
-      'cache/fetch-cache/ac26c54e17c3018c17bfe5ae6adc0e6d37dbfaf28445c1f767ff267144264ac9',
-      'cache/fetch-cache/ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
-      'server/app/_not-found',
-      'server/app/api/revalidate-handler',
-      'server/app/index',
-      'server/app/revalidate-fetch',
-      'server/app/static-fetch/1',
-      'server/app/static-fetch/2',
-      'server/app/static-fetch-1',
-      'server/app/static-fetch-2',
-      'server/app/static-fetch-3',
-      'server/pages/404.html',
-      'server/pages/500.html',
+    expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
+      '404',
+      '404.html',
+      '460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
+      '500.html',
+      'ac26c54e17c3018c17bfe5ae6adc0e6d37dbfaf28445c1f767ff267144264ac9',
+      'ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
+      'api/revalidate-handler',
+      'index',
+      'revalidate-fetch',
+      'static-fetch-1',
+      'static-fetch-2',
+      'static-fetch-3',
+      'static-fetch/1',
+      'static-fetch/2',
     ])
   })
 })
@@ -188,7 +194,9 @@ describe('route', () => {
     await runPlugin(ctx)
 
     // check if the route got prerendered
-    const blobEntry = await ctx.blobStore.get('server/app/api/revalidate-handler', { type: 'json' })
+    const blobEntry = await ctx.blobStore.get(encodeBlobKey('api/revalidate-handler'), {
+      type: 'json',
+    })
     expect(blobEntry).not.toBeNull()
 
     // test the first invocation of the route

@@ -11,13 +11,14 @@ import type {
   CacheHandlerContext,
   IncrementalCache,
 } from 'next/dist/server/lib/incremental-cache/index.js'
+import { Buffer } from 'node:buffer'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path/posix'
-import type { CacheEntryValue } from '../../build/content/prerendered.js'
+// @ts-ignore
+import type { CacheEntry } from '../../build/content/prerendered'
 
 type TagManifest = { revalidatedAt: number }
 
-const tagsManifestPath = '.netlify/cache/tags'
 export const blobStore = getDeployStore()
 
 // load the prerender manifest
@@ -25,37 +26,41 @@ const prerenderManifest: PrerenderManifest = JSON.parse(
   readFileSync(join(process.cwd(), '.next/prerender-manifest.json'), 'utf-8'),
 )
 
-/** Converts a cache key pathname to a route */
-function toRoute(pathname: string): string {
-  return pathname.replace(/\/$/, '').replace(/\/index$/, '') || '/'
+/** Strips trailing slashes and normalizes the index root */
+function toRoute(cacheKey: string): string {
+  return cacheKey.replace(/\/$/, '').replace(/\/index$/, '') || '/'
+}
+
+function encodeBlobKey(key: string) {
+  return Buffer.from(key.replace(/^\//, '')).toString('base64')
 }
 
 export class NetlifyCacheHandler implements CacheHandler {
   options: CacheHandlerContext
   revalidatedTags: string[]
-  /** Indicates if the application is using the new appDir */
-  #appDir: boolean
 
   constructor(options: CacheHandlerContext) {
-    this.#appDir = Boolean(options._appDir)
     this.options = options
     this.revalidatedTags = options.revalidatedTags
   }
 
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
-    const [cacheKey, ctx = {}] = args
-    console.debug(`[NetlifyCacheHandler.get]: ${cacheKey}`)
-    const blob = await this.getBlobByKey(cacheKey, ctx.fetchCache)
+    const [key, ctx = {}] = args
+
+    console.debug(`[NetlifyCacheHandler.get]: ${key}`)
+
+    const blob = (await blobStore.get(encodeBlobKey(key), {
+      type: 'json',
+    })) as CacheEntry | null
 
     // if blob is null then we don't have a cache entry
     if (!blob) {
       return null
     }
 
-    const revalidateAfter = this.calculateRevalidate(cacheKey, blob.lastModified, ctx)
+    const revalidateAfter = this.calculateRevalidate(key, blob.lastModified, ctx)
     const isStale = revalidateAfter !== false && revalidateAfter < Date.now()
     const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.softTags)
-    console.debug(`!!! CHACHE KEY: ${cacheKey} - is stale: `, { isStale, staleByTags })
 
     if (staleByTags || isStale) {
       return null
@@ -91,30 +96,14 @@ export class NetlifyCacheHandler implements CacheHandler {
   }
 
   async set(...args: Parameters<IncrementalCache['set']>) {
-    const [key, data, ctx] = args
-    console.debug(`[NetlifyCacheHandler.set]: ${key}`)
-    let cacheKey: string | null = null
-    switch (data?.kind) {
-      case 'ROUTE':
-        cacheKey = join('server/app', key)
-        break
-      case 'FETCH':
-        cacheKey = join('cache/fetch-cache', key)
-        break
-      case 'PAGE':
-        cacheKey =
-          typeof data.pageData === 'string' ? join('server/app', key) : join('server/pages', key)
-        break
-      default:
-        console.debug(`TODO: implement NetlifyCacheHandler.set for ${key}`, { data, ctx })
-    }
+    const [key, data] = args
 
-    if (cacheKey) {
-      await blobStore.setJSON(cacheKey, {
-        lastModified: Date.now(),
-        value: data,
-      })
-    }
+    console.debug(`[NetlifyCacheHandler.set]: ${key}`)
+
+    await blobStore.setJSON(encodeBlobKey(key), {
+      lastModified: Date.now(),
+      value: data,
+    })
   }
 
   async revalidateTag(tag: string, ...args: any) {
@@ -125,8 +114,7 @@ export class NetlifyCacheHandler implements CacheHandler {
     }
 
     try {
-      console.log('set cache tag for ', { tag: this.tagManifestPath(tag), data })
-      await blobStore.setJSON(this.tagManifestPath(tag), data)
+      await blobStore.setJSON(encodeBlobKey(tag), data)
     } catch (error) {
       console.warn(`Failed to update tag manifest for ${tag}`, error)
     }
@@ -137,70 +125,10 @@ export class NetlifyCacheHandler implements CacheHandler {
     })
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  private tagManifestPath(tag: string) {
-    return [tagsManifestPath, tag].join('/')
-  }
-
-  /**
-   * Computes a cache key and tries to load it for different scenarios (app/server or fetch)
-   * @param key The cache key used by next.js
-   * @param fetch If it is a FETCH request or not
-   * @returns the parsed data from the cache or null if not
-   */
-  private async getBlobByKey(
-    key: string,
-    fetch?: boolean,
-  ): Promise<
-    | null
-    | ({
-        path: string
-        isAppPath: boolean
-      } & CacheEntryValue)
-  > {
-    const appKey = join('server/app', key)
-    const pagesKey = join('server/pages', key)
-    const fetchKey = join('cache/fetch-cache', key)
-
-    if (fetch) {
-      return await blobStore
-        .get(fetchKey, { type: 'json' })
-        .then((res) => (res !== null ? { path: fetchKey, isAppPath: false, ...res } : null))
-    }
-
-    // pagesKey needs to be requested first as there could be both sadly
-    const values = await Promise.all([
-      blobStore
-        .get(pagesKey, { type: 'json' })
-        .then((res) => ({ path: pagesKey, isAppPath: false, ...res })),
-      // only request the appKey if the whole application supports the app key
-      !this.#appDir
-        ? Promise.resolve(null)
-        : blobStore
-            .get(appKey, { type: 'json' })
-            .then((res) => ({ path: appKey, isAppPath: true, ...res })),
-    ])
-
-    // just get the first item out of it that is defined (either the pageRoute or the appRoute)
-    const [cacheEntry] = values.filter((keys) => keys && !!keys.value)
-
-    // TODO: set the cache tags based on the tag manifest once we have that
-    // if (cacheEntry) {
-    //   const cacheTags: string[] =
-    //     cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER]?.split(',') || []
-    //   const manifests = await Promise.all(
-    //     cacheTags.map((tag) => blobStore.get(this.tagManifestPath(tag), { type: 'json' })),
-    //   )
-    //   console.log(manifests)
-    // }
-
-    return cacheEntry || null
-  }
-
   /**
    * Checks if a page is stale through on demand revalidated tags
    */
-  private async checkCacheEntryStaleByTags(cacheEntry: CacheEntryValue, softTags: string[] = []) {
+  private async checkCacheEntryStaleByTags(cacheEntry: CacheEntry, softTags: string[] = []) {
     const tags =
       'headers' in cacheEntry.value
         ? cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER]?.split(',') || []
@@ -209,12 +137,11 @@ export class NetlifyCacheHandler implements CacheHandler {
     const cacheTags = [...tags, ...softTags]
     const allManifests = await Promise.all(
       cacheTags.map(async (tag) => {
-        const key = this.tagManifestPath(tag)
         const res = await blobStore
-          .get(key, { type: 'json' })
-          .then((value) => ({ [key]: value }))
+          .get(encodeBlobKey(tag), { type: 'json' })
+          .then((value: TagManifest) => ({ [tag]: value }))
           .catch(console.error)
-        return res || { [key]: null }
+        return res || { [tag]: null }
       }),
     )
 
@@ -229,7 +156,7 @@ export class NetlifyCacheHandler implements CacheHandler {
         return true
       }
 
-      const { revalidatedAt } = tagsManifest[this.tagManifestPath(tag)] || {}
+      const { revalidatedAt } = tagsManifest[tag] || {}
       return revalidatedAt && revalidatedAt >= (cacheEntry.lastModified || Date.now())
     })
 
@@ -240,7 +167,7 @@ export class NetlifyCacheHandler implements CacheHandler {
    * Retrieves the milliseconds since midnight, January 1, 1970 when it should revalidate for a path.
    */
   private calculateRevalidate(
-    pathname: string,
+    cacheKey: string,
     fromTime: number,
     ctx: Parameters<CacheHandler['get']>[1],
     dev?: boolean,
@@ -254,7 +181,7 @@ export class NetlifyCacheHandler implements CacheHandler {
     }
 
     // if an entry isn't present in routes we fallback to a default
-    const { initialRevalidateSeconds } = prerenderManifest.routes[toRoute(pathname)] || {
+    const { initialRevalidateSeconds } = prerenderManifest.routes[toRoute(cacheKey)] || {
       initialRevalidateSeconds: 0,
     }
     // the initialRevalidate can be either set to false or to a number (representing the seconds)

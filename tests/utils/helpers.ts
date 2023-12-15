@@ -3,11 +3,12 @@ import { BLOB_TOKEN, type FixtureTestContext } from './fixture.js'
 
 import { BlobsServer, getDeployStore } from '@netlify/blobs'
 import type { NetlifyPluginUtils } from '@netlify/build'
+import IncrementalCache from 'next/dist/server/lib/incremental-cache/index.js'
+import { Buffer } from 'node:buffer'
 import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assert, vi } from 'vitest'
-import IncrementalCache from 'next/dist/server/lib/incremental-cache/index.js'
 
 /**
  * Uses next.js incremental cache to compute the same cache key for a URL that is automatically generated
@@ -88,6 +89,16 @@ export const getBlobEntries = async (ctx: FixtureTestContext) => {
   const { blobs } = await ctx.blobStore.list()
   return blobs
 }
+
+/**
+ * Converts a string to base64 blob key
+ */
+export const encodeBlobKey = (key: string) => Buffer.from(key).toString('base64')
+
+/**
+ * Converts a base64 blob key to a string
+ */
+export const decodeBlobKey = (key: string) => Buffer.from(key, 'base64').toString('utf-8')
 
 /**
  * Fake build utils that are passed to a build plugin execution

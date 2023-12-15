@@ -1,8 +1,9 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
+import { Buffer } from 'node:buffer'
 import { existsSync } from 'node:fs'
 import { cp, mkdir, rename, rm } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { BLOB_DIR, STATIC_DIR } from '../constants.js'
 
 /**
@@ -15,7 +16,7 @@ export const copyStaticContent = async ({
   },
 }: Pick<NetlifyPluginOptions, 'constants' | 'utils'>): Promise<void> => {
   const srcDir = resolve(PUBLISH_DIR, 'server/pages')
-  const destDir = resolve(BLOB_DIR, 'server/pages')
+  const destDir = resolve(BLOB_DIR)
 
   const paths = await glob('**/*.+(html|json)', {
     cwd: srcDir,
@@ -27,7 +28,8 @@ export const copyStaticContent = async ({
       paths
         .filter((path) => !paths.includes(`${path.slice(0, -5)}.json`))
         .map(async (path) => {
-          await cp(resolve(srcDir, path), resolve(destDir, path), { recursive: true })
+          const key = Buffer.from(path).toString('base64')
+          await cp(join(srcDir, path), join(destDir, key), { recursive: true })
         }),
     )
   } catch (error) {

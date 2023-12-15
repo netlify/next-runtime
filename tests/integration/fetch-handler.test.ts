@@ -11,6 +11,8 @@ import {
   type FixtureTestContext,
 } from '../utils/fixture.js'
 import {
+  decodeBlobKey,
+  encodeBlobKey,
   generateRandomObjectID,
   getBlobEntries,
   getFetchCacheKey,
@@ -69,29 +71,28 @@ test<FixtureTestContext>('if the fetch call is cached correctly', async (ctx) =>
 
   // replace the build time fetch cache with our mocked hash
   const cacheKey = await getFetchCacheKey(new URL('/1', apiBase).href)
-  const originalKey =
-    'cache/fetch-cache/460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29'
-  const fakeKey = `cache/fetch-cache/${cacheKey}`
-  const fetchEntry = await ctx.blobStore.get(originalKey, { type: 'json' })
+  const originalKey = '460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29'
+  const fakeKey = cacheKey
+  const fetchEntry = await ctx.blobStore.get(encodeBlobKey(originalKey), { type: 'json' })
 
   await Promise.all([
     // delete the page cache so that it falls back to the fetch call
-    ctx.blobStore.delete('server/app/posts/1'),
+    ctx.blobStore.delete(encodeBlobKey('posts/1')),
     // delete the original key as we use the fake key only
-    ctx.blobStore.delete(originalKey),
-    ctx.blobStore.setJSON(fakeKey, fetchEntry),
+    ctx.blobStore.delete(encodeBlobKey(originalKey)),
+    ctx.blobStore.setJSON(encodeBlobKey(fakeKey), fetchEntry),
   ])
 
   const blobEntries = await getBlobEntries(ctx)
-  expect(blobEntries.map((e) => e.key).sort()).toEqual(
+  expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual(
     [
       fakeKey,
-      'cache/fetch-cache/ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
-      'server/app/_not-found',
-      'server/app/index',
-      'server/app/posts/2',
-      'server/pages/404.html',
-      'server/pages/500.html',
+      'ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
+      '404',
+      'index',
+      'posts/2',
+      '404.html',
+      '500.html',
     ].sort(),
   )
   const post1 = await invokeFunction(ctx, {

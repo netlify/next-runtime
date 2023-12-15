@@ -10,7 +10,7 @@ import {
   runPlugin,
   type FixtureTestContext,
 } from '../utils/fixture.js'
-import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
+import { encodeBlobKey, generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -71,7 +71,7 @@ test<FixtureTestContext>('Should revalidate path with On-demand Revalidation', a
 
   expect(staticPageInitial.statusCode).toBe(200)
   expect(staticPageInitial.headers?.['x-nextjs-cache']).toBe('HIT')
-  const blobDataInitial = await ctx.blobStore.get('server/pages/static/revalidate-manual', {
+  const blobDataInitial = await ctx.blobStore.get(encodeBlobKey('static/revalidate-manual'), {
     type: 'json',
   })
   const blobDateInitial = load(blobDataInitial.value.html).html('[data-testid="date-now"]')
@@ -81,7 +81,7 @@ test<FixtureTestContext>('Should revalidate path with On-demand Revalidation', a
 
   await new Promise<void>((resolve) => setTimeout(resolve, 100))
 
-  const blobDataRevalidated = await ctx.blobStore.get('server/pages/static/revalidate-manual', {
+  const blobDataRevalidated = await ctx.blobStore.get(encodeBlobKey('static/revalidate-manual'), {
     type: 'json',
   })
 

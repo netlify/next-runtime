@@ -8,7 +8,12 @@ import {
   runPlugin,
   type FixtureTestContext,
 } from '../utils/fixture.js'
-import { generateRandomObjectID, getBlobEntries, startMockBlobStore } from '../utils/helpers.js'
+import {
+  decodeBlobKey,
+  generateRandomObjectID,
+  getBlobEntries,
+  startMockBlobStore,
+} from '../utils/helpers.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -30,12 +35,12 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
   await runPlugin(ctx)
   // check if the blob entries where successful set on the build plugin
   const blobEntries = await getBlobEntries(ctx)
-  expect(blobEntries.map(({ key }) => key).sort()).toEqual([
-    'server/app/_not-found',
-    'server/app/index',
-    'server/app/other',
-    'server/pages/404.html',
-    'server/pages/500.html',
+  expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
+    '404',
+    '404.html',
+    '500.html',
+    'index',
+    'other',
   ])
 
   // test the function call

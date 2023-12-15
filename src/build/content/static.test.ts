@@ -99,10 +99,11 @@ test<FixtureTestContext>('should copy the static pages to the publish directory 
     utils,
   })
 
-  expect((await glob('**/*', { cwd: join(cwd, BLOB_DIR), dot: true })).sort()).toEqual([
-    'server/pages/test.html',
-    'server/pages/test2.html',
-  ])
+  expect(
+    (await glob('**/*', { cwd: join(cwd, BLOB_DIR), dot: true }))
+      .map((path) => Buffer.from(path, 'base64').toString('utf-8'))
+      .sort(),
+  ).toEqual(['test.html', 'test2.html'])
 })
 
 test<FixtureTestContext>('should not copy the static pages to the publish directory if there are corresponding JSON files', async (ctx) => {
