@@ -58,7 +58,7 @@ jobs:
         with:
           repository: ${{ env.NEXT_REPO }}
           token: ${{ steps.token.outputs.token }}
-          ref: netlify-testing-${{ env.NEXT_VERSION }}
+          ref: v${{ env.NEXT_VERSION }}-netlify
           path: ${{ env.next-path }}
 
       - name: checkout runtime repo
