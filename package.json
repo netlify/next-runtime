@@ -51,7 +51,7 @@
     "@playwright/test": "^1.40.0",
     "@types/node": "^20.9.2",
     "@types/uuid": "^9.0.6",
-    "@vercel/nft": "^0.24.3",
+    "@vercel/nft": "^0.26.0",
     "cheerio": "^1.0.0-rc.12",
     "clean-package": "^2.2.0",
     "esbuild": "^0.19.8",
