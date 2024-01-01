@@ -30,7 +30,7 @@
     "@testing-library/react": "13.4.0",
     "@types/jest": "28.1.8",
     "@types/node": "16.18.69",
-    "@types/react": "18.2.45",
+    "@types/react": "18.2.46",
     "@types/react-dom": "18.2.18",
     "@typescript-eslint/eslint-plugin": "^5.36.1",
     "@typescript-eslint/parser": "^5.36.1",
