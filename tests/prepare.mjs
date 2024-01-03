@@ -14,37 +14,40 @@ const fixturesDir = fileURLToPath(new URL(`./fixtures`, import.meta.url))
 
 const limit = pLimit(Math.max(2, cpus().length))
 await Promise.all(
-  readdirSync(fixturesDir).map((fixture) =>
-    limit(async () => {
-      console.log(`[${fixture}] Preparing fixture`)
-      await rm(join(fixturesDir, fixture, '.next'), { recursive: true, force: true })
-      const cwd = join(fixturesDir, fixture)
+  readdirSync(fixturesDir)
+    // Ignoring things like `.DS_Store`.
+    .filter((fixture) => !fixture.startsWith('.'))
+    .map((fixture) =>
+      limit(async () => {
+        console.log(`[${fixture}] Preparing fixture`)
+        await rm(join(fixturesDir, fixture, '.next'), { recursive: true, force: true })
+        const cwd = join(fixturesDir, fixture)
 
-      // npm is the default
-      let cmd = `npm install --no-audit --progress=false --prefer-offline`
+        // npm is the default
+        let cmd = `npm install --no-audit --progress=false --prefer-offline`
 
-      if (existsSync(join(cwd, 'pnpm-lock.yaml'))) {
-        cmd = `pnpm install --reporter=silent`
-      }
+        if (existsSync(join(cwd, 'pnpm-lock.yaml'))) {
+          cmd = `pnpm install --reporter=silent`
+        }
 
-      const addPrefix = new Transform({
-        transform(chunk, encoding, callback) {
-          this.push(chunk.toString().replace(/\n/gm, `\n[${fixture}] `))
-          callback()
-        },
-      })
+        const addPrefix = new Transform({
+          transform(chunk, encoding, callback) {
+            this.push(chunk.toString().replace(/\n/gm, `\n[${fixture}] `))
+            callback()
+          },
+        })
 
-      const output = execaCommand(cmd, {
-        cwd,
-        stdio: 'pipe',
-        env: { ...process.env, FORCE_COLOR: '1' },
-      })
-      if (process.env.DEBUG) {
-        output.stdout?.pipe(addPrefix).pipe(process.stdout)
-      }
-      output.stderr?.pipe(addPrefix).pipe(process.stderr)
+        const output = execaCommand(cmd, {
+          cwd,
+          stdio: 'pipe',
+          env: { ...process.env, FORCE_COLOR: '1' },
+        })
+        if (process.env.DEBUG) {
+          output.stdout?.pipe(addPrefix).pipe(process.stdout)
+        }
+        output.stderr?.pipe(addPrefix).pipe(process.stderr)
 
-      return output
-    }),
-  ),
+        return output
+      }),
+    ),
 )

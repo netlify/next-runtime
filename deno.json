@@ -3,5 +3,9 @@
     "files": {
       "include": ["edge-runtime/middleware.ts"]
     }
-  }
+  },
+  "imports": {
+    "@netlify/edge-functions": "https://edge.netlify.com/v1/index.ts"
+  },
+  "importMap": "./edge-runtime/vendor/import_map.json"
 }

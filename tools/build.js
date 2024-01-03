@@ -1,4 +1,6 @@
+import { resolve } from 'node:path'
 import { build, context } from 'esbuild'
+import { execaCommand } from 'execa'
 import glob from 'fast-glob'
 import { rm } from 'node:fs/promises'
 
@@ -58,10 +60,30 @@ async function bundle(entryPoints, format, watch) {
   })
 }
 
+async function vendorDeno() {
+  const vendorSource = resolve('edge-runtime/vendor.ts')
+  const vendorDest = resolve('edge-runtime/vendor')
+
+  try {
+    await execaCommand('deno --version')
+  } catch {
+    throw new Error('Could not check the version of Deno. Is it installed on your system?')
+  }
+
+  console.log(`🧹 Deleting '${vendorDest}'...`)
+
+  await rm(vendorDest, { force: true, recursive: true })
+
+  console.log(`📦 Vendoring Deno modules into '${vendorDest}'...`)
+
+  await execaCommand(`deno vendor ${vendorSource} --output=${vendorDest}`)
+}
+
 const args = new Set(process.argv.slice(2))
 const watch = args.has('--watch') || args.has('-w')
 
 await Promise.all([
+  vendorDeno(),
   bundle(entryPointsESM, 'esm', watch),
   ...entryPointsCJS.map((entry) => bundle([entry], 'cjs', watch)),
 ])

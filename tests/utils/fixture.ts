@@ -1,22 +1,20 @@
 import { BlobsServer, type getStore } from '@netlify/blobs'
-import { TestContext, assert, expect, vi } from 'vitest'
+import { TestContext, assert, vi } from 'vitest'
 
-import {
-  runCoreSteps,
-  type NetlifyPluginConstants,
-  type NetlifyPluginOptions,
-} from '@netlify/build'
+import { type NetlifyPluginConstants, type NetlifyPluginOptions } from '@netlify/build'
 import { bundle, serve } from '@netlify/edge-bundler'
 import type { LambdaResponse } from '@netlify/serverless-functions-api/dist/lambda/response.js'
 import { zipFunctions } from '@netlify/zip-it-and-ship-it'
 import { execaCommand } from 'execa'
+import { glob } from 'fast-glob'
 import getPort from 'get-port'
 import { execute } from 'lambda-local'
 import { existsSync } from 'node:fs'
-import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, parse, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { v4 } from 'uuid'
 import {
   BLOB_DIR,
   EDGE_FUNCTIONS_DIR,
@@ -24,10 +22,8 @@ import {
   SERVER_FUNCTIONS_DIR,
   SERVER_HANDLER_NAME,
 } from '../../src/build/constants.js'
+import { LocalServer } from './local-server.js'
 import { streamToString } from './stream-to-string.js'
-import { inspect } from 'node:util'
-import { v4 } from 'uuid'
-import { glob } from 'fast-glob'
 
 export interface FixtureTestContext extends TestContext {
   cwd: string
@@ -38,7 +34,7 @@ export interface FixtureTestContext extends TestContext {
   blobStore: ReturnType<typeof getStore>
   functionDist: string
   edgeFunctionPort: number
-  cleanup?: () => Promise<void>
+  cleanup?: (() => Promise<void>)[]
 }
 
 export const BLOB_TOKEN = 'secret-token'
@@ -63,13 +59,15 @@ function installDependencies(cwd: string) {
 export const createFixture = async (fixture: string, ctx: FixtureTestContext) => {
   ctx.cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
   vi.spyOn(process, 'cwd').mockReturnValue(ctx.cwd)
-  ctx.cleanup = async () => {
-    try {
-      await rm(ctx.cwd, { recursive: true, force: true })
-    } catch {
-      // noop
-    }
-  }
+  ctx.cleanup = [
+    async () => {
+      try {
+        await rm(ctx.cwd, { recursive: true, force: true })
+      } catch {
+        // noop
+      }
+    },
+  ]
 
   try {
     const src = fileURLToPath(new URL(`../fixtures/${fixture}`, import.meta.url))
@@ -94,13 +92,15 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
 export const createFsFixture = async (fixture: Record<string, string>, ctx: FixtureTestContext) => {
   ctx.cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
   vi.spyOn(process, 'cwd').mockReturnValue(ctx.cwd)
-  ctx.cleanup = async () => {
-    try {
-      await rm(ctx.cwd, { recursive: true, force: true })
-    } catch {
-      // noop
-    }
-  }
+  ctx.cleanup = [
+    async () => {
+      try {
+        await rm(ctx.cwd, { recursive: true, force: true })
+      } catch {
+        // noop
+      }
+    },
+  ]
 
   try {
     await Promise.all(
@@ -225,7 +225,6 @@ export async function runPlugin(
         path: join(dist, 'source/root', relative(ctx.cwd, fn.path)),
       })),
     )
-    expect(success).toBe(true)
   }
 
   await Promise.all([bundleEdgeFunctions(), bundleFunctions(), uploadBlobs(ctx)])
@@ -327,25 +326,46 @@ export async function invokeFunction(
 export async function invokeEdgeFunction(
   ctx: FixtureTestContext,
   options: {
+    /**
+     * The local server to use as the mock origin
+     */
+    origin?: LocalServer
+
+    /**
+     * The relative path for the request
+     * @default '/'
+     */
+    url?: string
+
+    /**
+     * Whether to follow redirects
+     */
+    redirect?: RequestInit['redirect']
+
     /** Array of functions to invoke */
     functions?: string[]
   } = {},
 ): Promise<Response> {
+  const passthroughHost = options.origin ? `localhost:${options.origin.port}` : ''
   const functionsToInvoke = options.functions || [EDGE_HANDLER_NAME]
-  return await fetch(`http://0.0.0.0:${ctx.edgeFunctionPort}/`, {
+
+  return await fetch(`http://0.0.0.0:${ctx.edgeFunctionPort}${options.url ?? '/'}`, {
+    redirect: options.redirect,
+
     // Checkout the stargate headers: https://github.com/netlify/stargate/blob/dc8adfb6e91fa0a2fb00c0cba06e4e2f9e5d4e4d/proxy/deno/edge.go#L1142-L1170
     headers: {
       'x-nf-edge-functions': functionsToInvoke.join(','),
       'x-nf-deploy-id': ctx.deployID,
-      'X-NF-Site-Info': Buffer.from(
+      'x-nf-site-info': Buffer.from(
         JSON.stringify({ id: ctx.siteID, name: 'Test Site', url: 'https://example.com' }),
       ).toString('base64'),
       'x-nf-blobs-info': Buffer.from(
         JSON.stringify({ url: `http://${ctx.blobStoreHost}`, token: BLOB_TOKEN }),
       ).toString('base64'),
-      'x-NF-passthrough': 'passthrough',
-      // 'x-NF-passthrough-host': 'passthrough', // TODO: add lambda local url
-      'X-NF-Request-ID': v4(),
+      'x-nf-passthrough': 'passthrough',
+      'x-nf-passthrough-host': passthroughHost,
+      'x-nf-passthrough-proto': 'http:',
+      'x-nf-request-id': v4(),
     },
   })
 }

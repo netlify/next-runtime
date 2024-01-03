@@ -46,6 +46,9 @@ following:
    up. In case of a failure, the deploy won't be cleaned up to leave it for troubleshooting
    purposes.
 
+> [!TIP] If you'd like to always keep the deployment and the local fixture around for
+> troubleshooting, run `E2E_PERSIST=1 npm run e2e`.
+
 #### cleanup old deploys
 
 To cleanup old and dangling deploys from failed builds you can run the following script:
