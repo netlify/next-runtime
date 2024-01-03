@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { type Locator, expect, test } from '@playwright/test'
 import { createE2EFixture } from '../utils/create-e2e-fixture.js'
 
 let ctx: Awaited<ReturnType<typeof createE2EFixture>>
@@ -11,6 +11,10 @@ test.afterAll(async ({}, testInfo) => {
   await ctx?.cleanup?.(!!testInfo.errors.length)
 })
 
+const expectImageWasLoaded = async (locator: Locator) => {
+  expect(await locator.evaluate((img: HTMLImageElement) => img.naturalHeight)).toBeGreaterThan(0)
+}
+
 test('Renders the Home page correctly', async ({ page }) => {
   await page.goto(ctx.url)
 
@@ -18,6 +22,8 @@ test('Renders the Home page correctly', async ({ page }) => {
 
   const h1 = page.locator('h1')
   await expect(h1).toHaveText('Home')
+
+  await expectImageWasLoaded(page.locator('img'))
 })
 
 test('Serves a static image correctly', async ({ page }) => {

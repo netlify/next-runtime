@@ -30,17 +30,6 @@ export const setPreBuildConfig = () => {
   process.env.NEXT_PRIVATE_STANDALONE = 'true'
 }
 
-export const setPostBuildConfig = ({
-  netlifyConfig,
-}: Pick<NetlifyPluginOptions, 'netlifyConfig'>) => {
-  netlifyConfig.redirects ||= []
-  netlifyConfig.redirects.push({
-    from: '/*',
-    to: `/.netlify/functions/${SERVER_HANDLER_NAME}`,
-    status: 200,
-  })
-}
-
 export const verifyBuildConfig = ({
   constants: { PUBLISH_DIR },
   utils: {

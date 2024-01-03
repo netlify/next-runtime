@@ -1,6 +1,6 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 import { restoreBuildCache, saveBuildCache } from './build/cache.js'
-import { setPostBuildConfig, setPreBuildConfig, verifyBuildConfig } from './build/config.js'
+import { setPreBuildConfig, verifyBuildConfig } from './build/config.js'
 import { copyFetchContent, copyPrerenderedContent } from './build/content/prerendered.js'
 import {
   copyStaticAssets,
@@ -30,8 +30,7 @@ export const onBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
   ])
 }
 
-export const onPostBuild = async ({ constants, utils, netlifyConfig }: NetlifyPluginOptions) => {
-  setPostBuildConfig({ netlifyConfig })
+export const onPostBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
   await publishStaticDir({ constants, utils })
 }
 

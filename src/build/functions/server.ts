@@ -52,7 +52,14 @@ const writePackageMetadata = async () => {
 const writeHandlerFile = async () => {
   await writeFile(
     resolve(SERVER_HANDLER_DIR, `${SERVER_HANDLER_NAME}.js`),
-    `import handler from './dist/run/handlers/server.js';export default handler`,
+    `
+    import handler from './dist/run/handlers/server.js';
+    export default handler;
+    export const config = {
+      path: '/*',
+      preferStatic: true
+    };
+    `,
   )
 }
 
