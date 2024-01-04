@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { cpus } from 'node:os'
 import pLimit from 'p-limit'
 import { Transform } from 'node:stream'
+import glob from 'fast-glob'
 
 const fixturesDir = fileURLToPath(new URL(`./fixtures`, import.meta.url))
 
@@ -20,8 +21,15 @@ await Promise.all(
     .map((fixture) =>
       limit(async () => {
         console.log(`[${fixture}] Preparing fixture`)
-        await rm(join(fixturesDir, fixture, '.next'), { recursive: true, force: true })
         const cwd = join(fixturesDir, fixture)
+        const publishDirectories = await glob(['**/.next', '**/.turbo'], {
+          onlyDirectories: true,
+          cwd,
+          absolute: true,
+        })
+        await Promise.all(
+          publishDirectories.map((dir) => rm(dir, { recursive: true, force: true })),
+        )
 
         // npm is the default
         let cmd = `npm install --no-audit --progress=false --prefer-offline`

@@ -1,19 +1,17 @@
-import type { NetlifyPluginOptions } from '@netlify/build'
-import glob from 'fast-glob'
 import { existsSync } from 'node:fs'
 import { cp, mkdir, readFile, readdir, readlink, symlink, writeFile } from 'node:fs/promises'
-import { dirname, join, resolve } from 'node:path'
-import { getPrerenderManifest } from '../config.js'
-import { SERVER_HANDLER_DIR } from '../constants.js'
+import { dirname, join } from 'node:path'
+
+import glob from 'fast-glob'
+
+import { PluginContext } from '../plugin-context.js'
 
 /**
  * Copy App/Pages Router Javascript needed by the server handler
  */
-export const copyNextServerCode = async ({
-  constants: { PUBLISH_DIR },
-}: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
-  const srcDir = resolve(PUBLISH_DIR, 'standalone/.next')
-  const destDir = resolve(SERVER_HANDLER_DIR, '.next')
+export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
+  const srcDir = join(ctx.publishDir, 'standalone/.next')
+  const destDir = join(ctx.serverHandlerDir, '.next')
 
   const paths = await glob([`*`, `server/*`, `server/chunks/*`, `server/+(app|pages)/**/*.js`], {
     cwd: srcDir,
@@ -75,36 +73,33 @@ async function recreateNodeModuleSymlinks(src: string, dest: string, org?: strin
   )
 }
 
-export const copyNextDependencies = async ({
-  constants: { PUBLISH_DIR },
-}: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
-  const srcDir = resolve(PUBLISH_DIR, 'standalone/node_modules')
-  const destDir = resolve(SERVER_HANDLER_DIR, 'node_modules')
+export const copyNextDependencies = async (ctx: PluginContext): Promise<void> => {
+  const srcDir = join(ctx.publishDir, 'standalone/node_modules')
+  const destDir = join(ctx.serverHandlerDir, 'node_modules')
 
   await cp(srcDir, destDir, { recursive: true })
 
+  // TODO: @Lukas Holzer test this in monorepos
   // use the node_modules tree from the process.cwd() and not the one from the standalone output
   // as the standalone node_modules are already wrongly assembled by Next.js.
   // see: https://github.com/vercel/next.js/issues/50072
-  await recreateNodeModuleSymlinks(resolve('node_modules'), destDir)
+  await recreateNodeModuleSymlinks(ctx.resolve('node_modules'), destDir)
 }
 
-export const writeTagsManifest = async ({
-  constants: { PUBLISH_DIR },
-}: Pick<NetlifyPluginOptions, 'constants'>): Promise<void> => {
-  const manifest = await getPrerenderManifest({ PUBLISH_DIR })
+export const writeTagsManifest = async (ctx: PluginContext): Promise<void> => {
+  const manifest = await ctx.getPrerenderManifest()
 
   const routes = Object.entries(manifest.routes).map(async ([route, definition]) => {
     let tags
 
     // app router
     if (definition.dataRoute?.endsWith('.rsc')) {
-      const path = resolve(PUBLISH_DIR, `server/app/${route === '/' ? '/index' : route}.meta`)
+      const path = join(ctx.publishDir, `server/app/${route === '/' ? '/index' : route}.meta`)
       try {
         const file = await readFile(path, 'utf-8')
         const meta = JSON.parse(file)
         tags = meta.headers['x-next-cache-tags']
-      } catch (error) {
+      } catch {
         console.log(`Unable to read cache tags for: ${path}`)
       }
     }
@@ -123,7 +118,7 @@ export const writeTagsManifest = async ({
   })
 
   await writeFile(
-    resolve(resolve(SERVER_HANDLER_DIR, '.netlify/tags-manifest.json')),
+    join(ctx.serverHandlerDir, '.netlify/tags-manifest.json'),
     JSON.stringify(Object.fromEntries(await Promise.all(routes))),
     'utf-8',
   )

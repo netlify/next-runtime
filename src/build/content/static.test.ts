@@ -1,128 +1,221 @@
-import type { NetlifyPluginConstants, NetlifyPluginUtils } from '@netlify/build'
+import { Buffer } from 'node:buffer'
+import { join } from 'node:path'
+
+import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
-import { join } from 'path'
-import { expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+
 import { mockFileSystem } from '../../../tests/index.js'
 import { FixtureTestContext, createFsFixture } from '../../../tests/utils/fixture.js'
-import { BLOB_DIR, STATIC_DIR } from '../constants.js'
+import { PluginContext } from '../plugin-context.js'
+
 import { copyStaticAssets, copyStaticContent } from './static.js'
 
-const utils = {
-  build: { failBuild: vi.fn() },
-} as unknown as NetlifyPluginUtils
+type Context = FixtureTestContext & {
+  pluginContext: PluginContext
+}
 
-test('should clear the static directory contents', async () => {
-  const PUBLISH_DIR = '.next'
-
-  const { vol } = mockFileSystem({
-    [`${STATIC_DIR}/remove-me.js`]: '',
+describe('Regular Repository layout', () => {
+  beforeEach<Context>((ctx) => {
+    ctx.pluginContext = new PluginContext({
+      constants: {
+        PUBLISH_DIR: '.next',
+      },
+      utils: { build: { failBuild: vi.fn() } as unknown },
+    } as NetlifyPluginOptions)
   })
 
-  await copyStaticAssets({
-    constants: { PUBLISH_DIR } as NetlifyPluginConstants,
-    utils,
+  test<Context>('should clear the static directory contents', async ({ pluginContext }) => {
+    const { vol } = mockFileSystem({
+      [`${pluginContext.staticDir}/remove-me.js`]: '',
+    })
+    await copyStaticAssets(pluginContext)
+    expect(Object.keys(vol.toJSON())).toEqual(
+      expect.not.arrayContaining([`${pluginContext.staticDir}/remove-me.js`]),
+    )
   })
 
-  expect(Object.keys(vol.toJSON())).toEqual(
-    expect.not.arrayContaining([`${STATIC_DIR}/remove-me.js`]),
-  )
+  test<Context>('should link static content from the publish directory to the static directory', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    const { cwd } = await createFsFixture(
+      {
+        '.next/static/test.js': '',
+        '.next/static/sub-dir/test2.js': '',
+      },
+      ctx,
+    )
+
+    await copyStaticAssets(pluginContext)
+    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+      expect.arrayContaining([
+        join(cwd, '.next/static/test.js'),
+        join(cwd, '.next/static/sub-dir/test2.js'),
+        join(pluginContext.staticDir, '/_next/static/test.js'),
+        join(pluginContext.staticDir, '/_next/static/sub-dir/test2.js'),
+      ]),
+    )
+  })
+
+  test<Context>('should link static content from the public directory to the static directory', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    const { cwd } = await createFsFixture(
+      {
+        'public/fake-image.svg': '',
+        'public/another-asset.json': '',
+      },
+      ctx,
+    )
+
+    await copyStaticAssets(pluginContext)
+    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+      expect.arrayContaining([
+        join(cwd, 'public/another-asset.json'),
+        join(cwd, 'public/fake-image.svg'),
+        join(pluginContext.staticDir, '/another-asset.json'),
+        join(pluginContext.staticDir, '/fake-image.svg'),
+      ]),
+    )
+  })
+
+  test<Context>('should copy the static pages to the publish directory if there are no corresponding JSON files', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    await createFsFixture(
+      {
+        '.next/server/pages/test.html': '',
+        '.next/server/pages/test2.html': '',
+        '.next/server/pages/test3.json': '',
+      },
+      ctx,
+    )
+
+    await copyStaticContent(pluginContext)
+    const files = await glob('**/*', { cwd: pluginContext.blobDir, dot: true })
+
+    expect(files.map((path) => Buffer.from(path, 'base64').toString('utf-8')).sort()).toEqual([
+      'test.html',
+      'test2.html',
+    ])
+  })
+
+  test<Context>('should not copy the static pages to the publish directory if there are corresponding JSON files', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    await createFsFixture(
+      {
+        '.next/server/pages/test.html': '',
+        '.next/server/pages/test.json': '',
+        '.next/server/pages/test2.html': '',
+        '.next/server/pages/test2.json': '',
+      },
+      ctx,
+    )
+
+    await copyStaticContent(pluginContext)
+    expect(await glob('**/*', { cwd: pluginContext.blobDir, dot: true })).toHaveLength(0)
+  })
 })
 
-test<FixtureTestContext>('should link static content from the publish directory to the static directory', async (ctx) => {
-  const PUBLISH_DIR = '.next'
-
-  const { cwd } = await createFsFixture(
-    {
-      [`${PUBLISH_DIR}/static/test.js`]: '',
-      [`${PUBLISH_DIR}/static/sub-dir/test2.js`]: '',
-    },
-    ctx,
-  )
-
-  await copyStaticAssets({
-    constants: { PUBLISH_DIR } as NetlifyPluginConstants,
-    utils,
+describe('Mono Repository', () => {
+  beforeEach<Context>((ctx) => {
+    ctx.pluginContext = new PluginContext({
+      constants: {
+        PUBLISH_DIR: 'apps/app-1/.next',
+        PACKAGE_PATH: 'apps/app-1',
+      },
+      utils: { build: { failBuild: vi.fn() } as unknown },
+    } as NetlifyPluginOptions)
   })
 
-  const files = await glob('**/*', { cwd, dot: true })
+  test<Context>('should link static content from the publish directory to the static directory', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    const { cwd } = await createFsFixture(
+      {
+        'apps/app-1/.next/static/test.js': '',
+        'apps/app-1/.next/static/sub-dir/test2.js': '',
+      },
+      ctx,
+    )
 
-  expect(files).toEqual(
-    expect.arrayContaining([
-      `${PUBLISH_DIR}/static/test.js`,
-      `${PUBLISH_DIR}/static/sub-dir/test2.js`,
-      `${STATIC_DIR}/_next/static/test.js`,
-      `${STATIC_DIR}/_next/static/sub-dir/test2.js`,
-    ]),
-  )
-})
-
-test<FixtureTestContext>('should link static content from the public directory to the static directory', async (ctx) => {
-  const PUBLISH_DIR = '.next'
-
-  const { cwd } = await createFsFixture(
-    {
-      'public/fake-image.svg': '',
-      'public/another-asset.json': '',
-    },
-    ctx,
-  )
-
-  await copyStaticAssets({
-    constants: { PUBLISH_DIR } as NetlifyPluginConstants,
-    utils,
+    await copyStaticAssets(pluginContext)
+    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+      expect.arrayContaining([
+        join(cwd, 'apps/app-1/.next/static/test.js'),
+        join(cwd, 'apps/app-1/.next/static/sub-dir/test2.js'),
+        join(pluginContext.staticDir, '/_next/static/test.js'),
+        join(pluginContext.staticDir, '/_next/static/sub-dir/test2.js'),
+      ]),
+    )
   })
 
-  const files = await glob('**/*', { cwd, dot: true })
-  expect(files).toEqual(
-    expect.arrayContaining([
-      'public/another-asset.json',
-      'public/fake-image.svg',
-      `${STATIC_DIR}/another-asset.json`,
-      `${STATIC_DIR}/fake-image.svg`,
-    ]),
-  )
-})
+  test<Context>('should link static content from the public directory to the static directory', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    const { cwd } = await createFsFixture(
+      {
+        'apps/app-1/public/fake-image.svg': '',
+        'apps/app-1/public/another-asset.json': '',
+      },
+      ctx,
+    )
 
-test<FixtureTestContext>('should copy the static pages to the publish directory if there are no corresponding JSON files', async (ctx) => {
-  const PUBLISH_DIR = '.next'
-  const { cwd } = await createFsFixture(
-    {
-      [`${PUBLISH_DIR}/server/pages/test.html`]: '',
-      [`${PUBLISH_DIR}/server/pages/test2.html`]: '',
-      [`${PUBLISH_DIR}/server/pages/test3.json`]: '',
-    },
-    ctx,
-  )
-
-  await copyStaticContent({
-    constants: { PUBLISH_DIR } as NetlifyPluginConstants,
-    utils,
+    await copyStaticAssets(pluginContext)
+    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+      expect.arrayContaining([
+        join(cwd, 'apps/app-1/public/another-asset.json'),
+        join(cwd, 'apps/app-1/public/fake-image.svg'),
+        join(pluginContext.staticDir, '/another-asset.json'),
+        join(pluginContext.staticDir, '/fake-image.svg'),
+      ]),
+    )
   })
 
-  expect(
-    (await glob('**/*', { cwd: join(cwd, BLOB_DIR), dot: true }))
-      .map((path) => Buffer.from(path, 'base64').toString('utf-8'))
-      .sort(),
-  ).toEqual(['test.html', 'test2.html'])
-})
+  test<Context>('should copy the static pages to the publish directory if there are no corresponding JSON files', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    await createFsFixture(
+      {
+        'apps/app-1/.next/server/pages/test.html': '',
+        'apps/app-1/.next/server/pages/test2.html': '',
+        'apps/app-1/.next/server/pages/test3.json': '',
+      },
+      ctx,
+    )
 
-test<FixtureTestContext>('should not copy the static pages to the publish directory if there are corresponding JSON files', async (ctx) => {
-  const PUBLISH_DIR = '.next'
+    await copyStaticContent(pluginContext)
+    const files = await glob('**/*', { cwd: pluginContext.blobDir, dot: true })
 
-  const { cwd } = await createFsFixture(
-    {
-      [`${PUBLISH_DIR}/server/pages/test.html`]: '',
-      [`${PUBLISH_DIR}/server/pages/test.json`]: '',
-      [`${PUBLISH_DIR}/server/pages/test2.html`]: '',
-      [`${PUBLISH_DIR}/server/pages/test2.json`]: '',
-    },
-    ctx,
-  )
-
-  await copyStaticContent({
-    constants: { PUBLISH_DIR } as NetlifyPluginConstants,
-    utils,
+    expect(files.map((path) => Buffer.from(path, 'base64').toString('utf-8')).sort()).toEqual([
+      'test.html',
+      'test2.html',
+    ])
   })
 
-  expect(await glob('**/*', { cwd: join(cwd, BLOB_DIR), dot: true })).toHaveLength(0)
+  test<Context>('should not copy the static pages to the publish directory if there are corresponding JSON files', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    await createFsFixture(
+      {
+        'apps/app-1/.next/server/pages/test.html': '',
+        'apps/app-1/.next/server/pages/test.json': '',
+        'apps/app-1/.next/server/pages/test2.html': '',
+        'apps/app-1/.next/server/pages/test2.json': '',
+      },
+      ctx,
+    )
+
+    await copyStaticContent(pluginContext)
+    expect(await glob('**/*', { cwd: pluginContext.blobDir, dot: true })).toHaveLength(0)
+  })
 })

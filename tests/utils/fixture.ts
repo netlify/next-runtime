@@ -6,25 +6,24 @@ import { bundle, serve } from '@netlify/edge-bundler'
 import type { LambdaResponse } from '@netlify/serverless-functions-api/dist/lambda/response.js'
 import { zipFunctions } from '@netlify/zip-it-and-ship-it'
 import { execaCommand } from 'execa'
-import { glob } from 'fast-glob'
 import getPort from 'get-port'
 import { execute } from 'lambda-local'
 import { existsSync } from 'node:fs'
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { basename, dirname, join, parse, relative, resolve } from 'node:path'
+import { basename, dirname, join, parse, relative } from 'node:path'
 import { env } from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { v4 } from 'uuid'
-import {
-  BLOB_DIR,
-  EDGE_FUNCTIONS_DIR,
-  EDGE_HANDLER_NAME,
-  SERVER_FUNCTIONS_DIR,
-  SERVER_HANDLER_NAME,
-} from '../../src/build/constants.js'
 import { LocalServer } from './local-server.js'
 import { streamToString } from './stream-to-string.js'
+
+import { glob } from 'fast-glob'
+import {
+  EDGE_HANDLER_NAME,
+  PluginContext,
+  SERVER_HANDLER_NAME,
+} from '../../src/build/plugin-context.js'
 
 export interface FixtureTestContext extends TestContext {
   cwd: string
@@ -137,12 +136,12 @@ export async function runPlugin(
   constants: Partial<NetlifyPluginConstants> = {},
 ) {
   const { onBuild } = await import('../../src/index.js')
-  await onBuild({
+  const options = {
     constants: {
       SITE_ID: ctx.siteID,
       NETLIFY_API_TOKEN: BLOB_TOKEN,
       NETLIFY_API_HOST: ctx.blobStoreHost,
-      PUBLISH_DIR: join(ctx.cwd, '.next'),
+      PUBLISH_DIR: join(ctx.cwd, constants.PACKAGE_PATH || '', '.next'),
       ...(constants || {}),
       // TODO: figure out if we need them
       // CONFIG_PATH: 'netlify.toml',
@@ -157,12 +156,15 @@ export async function runPlugin(
     utils: {
       build: {
         failBuild: (message, options) => {
+          if (options.error) console.error(options.error)
           assert.fail(`${message}: ${options?.error || ''}`)
         },
         failPlugin: (message, options) => {
+          if (options.error) console.error(options.error)
           assert.fail(`${message}: ${options?.error || ''}`)
         },
         cancelBuild: (message, options) => {
+          if (options.error) console.error(options.error)
           assert.fail(`${message}: ${options?.error || ''}`)
         },
       },
@@ -170,9 +172,14 @@ export async function runPlugin(
         save: vi.fn(),
       },
     },
-  } as unknown as NetlifyPluginOptions)
+  } as unknown as NetlifyPluginOptions
+  await onBuild(options)
 
-  const internalSrcFolder = join(ctx.cwd, SERVER_FUNCTIONS_DIR)
+  const base = new PluginContext(options)
+  vi.spyOn(base, 'resolve').mockImplementation((...args: string[]) =>
+    join(ctx.cwd, options.constants.PACKAGE_PATH || '', ...args),
+  )
+  const internalSrcFolder = base.serverFunctionsDir
 
   const bundleFunctions = async () => {
     if (!existsSync(internalSrcFolder)) {
@@ -193,8 +200,8 @@ export async function runPlugin(
   }
 
   const bundleEdgeFunctions = async () => {
-    const dist = join(ctx.cwd, '.netlify', 'edge-functions-bundled')
-    const edgeSource = join(ctx.cwd, EDGE_FUNCTIONS_DIR)
+    const dist = base.resolve('.netlify', 'edge-functions-bundled')
+    const edgeSource = base.edgeFunctionsDir
 
     if (!existsSync(edgeSource)) {
       return
@@ -212,7 +219,7 @@ export async function runPlugin(
     await execaCommand(cmd, { cwd: dist })
 
     // start the edge functions server:
-    const servePath = join(ctx.cwd, '.netlify', 'edge-functions-serve')
+    const servePath = base.resolve('.netlify', 'edge-functions-serve')
     ctx.edgeFunctionPort = await getPort()
     const server = await serve({
       basePath: ctx.cwd,
@@ -235,11 +242,10 @@ export async function runPlugin(
     )
   }
 
-  await Promise.all([bundleEdgeFunctions(), bundleFunctions(), uploadBlobs(ctx)])
+  await Promise.all([bundleEdgeFunctions(), bundleFunctions(), uploadBlobs(ctx, base.blobDir)])
 }
 
-export async function uploadBlobs(ctx: FixtureTestContext) {
-  const blobsDir = resolve(ctx.cwd, BLOB_DIR)
+export async function uploadBlobs(ctx: FixtureTestContext, blobsDir: string) {
   const files = await glob('**/*', {
     dot: true,
     cwd: blobsDir,

@@ -1,0 +1,17 @@
+{
+  "name": "turborepo",
+  "private": true,
+  "scripts": {
+    "postinstall": "turbo build",
+    "build": "turbo build",
+    "dev": "turbo dev"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "turbo": "latest"
+  },
+  "packageManager": "pnpm@8.9.0",
+  "engines": {
+    "node": ">=18"
+  }
+}

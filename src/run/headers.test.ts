@@ -1,5 +1,6 @@
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
+
 import { setCacheControlHeaders, setVaryHeaders } from './headers.js'
 
 describe('headers', () => {

@@ -1,8 +1,9 @@
+import { rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
+
 import { build, context } from 'esbuild'
 import { execaCommand } from 'execa'
 import glob from 'fast-glob'
-import { rm } from 'node:fs/promises'
 
 const OUT_DIR = 'dist'
 await rm(OUT_DIR, { force: true, recursive: true })
@@ -20,7 +21,7 @@ const entryPointsCJS = await glob('src/**/*.cts')
 async function bundle(entryPoints, format, watch) {
   /** @type {import('esbuild').BuildOptions} */
   const options = {
-    entryPoints: entryPoints,
+    entryPoints,
     entryNames: '[dir]/[name]',
     bundle: true,
     platform: 'node',
@@ -53,8 +54,9 @@ async function bundle(entryPoints, format, watch) {
   const ctx = await context(options)
   await ctx.watch()
 
-  process.on('SIGINT', function () {
+  process.on('SIGINT', () => {
     ctx.dispose().then(() => {
+      // eslint-disable-next-line n/no-process-exit
       process.exit()
     })
   })
@@ -76,7 +78,7 @@ async function vendorDeno() {
 
   console.log(`📦 Vendoring Deno modules into '${vendorDest}'...`)
 
-  await execaCommand(`deno vendor ${vendorSource} --output=${vendorDest}`)
+  await execaCommand(`deno vendor ${vendorSource} --output=${vendorDest} --force`)
 }
 
 const args = new Set(process.argv.slice(2))

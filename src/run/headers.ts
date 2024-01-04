@@ -1,4 +1,5 @@
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
+
 import type { TagsManifest } from './config.js'
 
 interface NetlifyVaryValues {

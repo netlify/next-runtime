@@ -1,6 +1,8 @@
+import { existsSync } from 'node:fs'
+
 import type { NetlifyPluginOptions } from '@netlify/build'
+
 import { restoreBuildCache, saveBuildCache } from './build/cache.js'
-import { setPreBuildConfig, verifyBuildConfig } from './build/config.js'
 import { copyFetchContent, copyPrerenderedContent } from './build/content/prerendered.js'
 import {
   copyStaticAssets,
@@ -10,30 +12,35 @@ import {
 } from './build/content/static.js'
 import { createEdgeHandlers } from './build/functions/edge.js'
 import { createServerHandler } from './build/functions/server.js'
+import { PluginContext } from './build/plugin-context.js'
 
-export const onPreBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
-  setPreBuildConfig()
-  await restoreBuildCache({ constants, utils })
+export const onPreBuild = async (options: NetlifyPluginOptions) => {
+  // Enable Next.js standalone mode at build time
+  process.env.NEXT_PRIVATE_STANDALONE = 'true'
+  await restoreBuildCache(new PluginContext(options))
 }
 
-export const onBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
-  verifyBuildConfig({ constants, utils })
-  await saveBuildCache({ constants, utils })
+export const onBuild = async (options: NetlifyPluginOptions) => {
+  const ctx = new PluginContext(options)
+  if (!existsSync(ctx.publishDir)) {
+    ctx.failBuild('Publish directory not found, please check your netlify.toml')
+  }
+  await saveBuildCache(ctx)
 
   await Promise.all([
-    copyStaticAssets({ constants, utils }),
-    copyStaticContent({ constants, utils }),
-    copyPrerenderedContent({ constants, utils }),
-    copyFetchContent({ constants, utils }),
-    createServerHandler({ constants }),
-    createEdgeHandlers({ constants }),
+    copyStaticAssets(ctx),
+    copyStaticContent(ctx),
+    copyPrerenderedContent(ctx),
+    copyFetchContent(ctx),
+    createServerHandler(ctx),
+    createEdgeHandlers(ctx),
   ])
 }
 
-export const onPostBuild = async ({ constants, utils }: NetlifyPluginOptions) => {
-  await publishStaticDir({ constants, utils })
+export const onPostBuild = async (options: NetlifyPluginOptions) => {
+  await publishStaticDir(new PluginContext(options))
 }
 
-export const onEnd = async ({ constants }: NetlifyPluginOptions) => {
-  await unpublishStaticDir({ constants })
+export const onEnd = async (options: NetlifyPluginOptions) => {
+  await unpublishStaticDir(new PluginContext(options))
 }

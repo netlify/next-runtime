@@ -11,3 +11,4 @@ edge-runtime/vendor
 /playwright/.cache/
 
 deno.lock
+.eslintcache

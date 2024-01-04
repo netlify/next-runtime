@@ -1,33 +1,27 @@
-import { type NetlifyPluginOptions } from '@netlify/build'
-import { glob } from 'fast-glob'
 import { cp, mkdir, rm, writeFile } from 'fs/promises'
-import { join, resolve } from 'node:path'
-import {
-  PLUGIN_DIR,
-  PLUGIN_NAME,
-  PLUGIN_VERSION,
-  SERVER_FUNCTIONS_DIR,
-  SERVER_HANDLER_DIR,
-  SERVER_HANDLER_NAME,
-} from '../constants.js'
-import { copyNextDependencies, copyNextServerCode, writeTagsManifest } from '../content/server.js'
+import { join } from 'node:path'
 
-const copyHandlerDependencies = async () => {
-  const fileList = await glob('dist/**/*', { cwd: PLUGIN_DIR })
+import { glob } from 'fast-glob'
+
+import { copyNextDependencies, copyNextServerCode, writeTagsManifest } from '../content/server.js'
+import { PluginContext, SERVER_HANDLER_NAME } from '../plugin-context.js'
+
+const copyHandlerDependencies = async (ctx: PluginContext) => {
+  const fileList = await glob('dist/**/*', { cwd: ctx.pluginDir })
   await Promise.all(
-    [...fileList].map(async (path) =>
-      cp(join(PLUGIN_DIR, path), resolve(SERVER_HANDLER_DIR, path), { recursive: true }),
+    [...fileList].map((path) =>
+      cp(join(ctx.pluginDir, path), join(ctx.serverHandlerDir, path), { recursive: true }),
     ),
   )
 }
 
-const writeHandlerManifest = async () => {
+const writeHandlerManifest = async (ctx: PluginContext) => {
   await writeFile(
-    resolve(SERVER_HANDLER_DIR, `${SERVER_HANDLER_NAME}.json`),
+    join(ctx.serverHandlerDir, `${SERVER_HANDLER_NAME}.json`),
     JSON.stringify({
       config: {
         name: 'Next.js Server Handler',
-        generator: `${PLUGIN_NAME}@${PLUGIN_VERSION}`,
+        generator: `${ctx.pluginName}@${ctx.pluginVersion}`,
         nodeBundler: 'none',
         includedFiles: [
           `${SERVER_HANDLER_NAME}*`,
@@ -37,7 +31,7 @@ const writeHandlerManifest = async () => {
           '.netlify/**',
           'node_modules/**',
         ],
-        includedFilesBasePath: resolve(SERVER_HANDLER_DIR),
+        includedFilesBasePath: ctx.serverHandlerDir,
       },
       version: 1,
     }),
@@ -45,13 +39,13 @@ const writeHandlerManifest = async () => {
   )
 }
 
-const writePackageMetadata = async () => {
-  await writeFile(resolve(SERVER_HANDLER_DIR, 'package.json'), JSON.stringify({ type: 'module' }))
+const writePackageMetadata = async (ctx: PluginContext) => {
+  await writeFile(join(ctx.serverHandlerDir, 'package.json'), JSON.stringify({ type: 'module' }))
 }
 
-const writeHandlerFile = async () => {
+const writeHandlerFile = async (ctx: PluginContext) => {
   await writeFile(
-    resolve(SERVER_HANDLER_DIR, `${SERVER_HANDLER_NAME}.js`),
+    join(ctx.serverHandlerDir, `${SERVER_HANDLER_NAME}.js`),
     `
     import handler from './dist/run/handlers/server.js';
     export default handler;
@@ -66,19 +60,17 @@ const writeHandlerFile = async () => {
 /**
  * Create a Netlify function to run the Next.js server
  */
-export const createServerHandler = async ({
-  constants,
-}: Pick<NetlifyPluginOptions, 'constants'>) => {
-  await rm(resolve(SERVER_FUNCTIONS_DIR), { recursive: true, force: true })
-  await mkdir(resolve(SERVER_HANDLER_DIR, '.netlify'), { recursive: true })
+export const createServerHandler = async (ctx: PluginContext) => {
+  await rm(ctx.serverFunctionsDir, { recursive: true, force: true })
+  await mkdir(join(ctx.serverHandlerDir, '.netlify'), { recursive: true })
 
   await Promise.all([
-    copyNextServerCode({ constants }),
-    copyNextDependencies({ constants }),
-    writeTagsManifest({ constants }),
-    copyHandlerDependencies(),
-    writeHandlerManifest(),
-    writePackageMetadata(),
-    writeHandlerFile(),
+    copyNextServerCode(ctx),
+    copyNextDependencies(ctx),
+    writeTagsManifest(ctx),
+    copyHandlerDependencies(ctx),
+    writeHandlerManifest(ctx),
+    writePackageMetadata(ctx),
+    writeHandlerFile(ctx),
   ])
 }

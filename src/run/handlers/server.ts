@@ -2,6 +2,7 @@ import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
 import { HeadersSentEvent } from '@fastly/http-compute-js/dist/http-compute-js/http-outgoing.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
+
 import { TagsManifest, getTagsManifest } from '../config.js'
 import { setCacheControlHeaders, setCacheTagsHeaders, setVaryHeaders } from '../headers.js'
 import { nextResponseProxy } from '../revalidate.js'
@@ -51,6 +52,7 @@ export default async (request: Request) => {
   }
 
   // log the response from Next.js
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const response = {
     headers: resProxy.getHeaders(),
     statusCode: resProxy.statusCode,

@@ -1,21 +1,22 @@
 // Netlify Cache Handler
 // (CJS format because Next.js doesn't support ESM yet)
 //
+import { Buffer } from 'node:buffer'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path/posix'
+
 import { getDeployStore } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
 import type { PrerenderManifest } from 'next/dist/build/index.js'
-
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 import type {
   CacheHandler,
   CacheHandlerContext,
   IncrementalCache,
 } from 'next/dist/server/lib/incremental-cache/index.js'
-import { Buffer } from 'node:buffer'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path/posix'
-// @ts-ignore
-import type { CacheEntry } from '../../build/content/prerendered'
+
+// @ts-expect-error only type import of an ESM file will be removed in compiled version
+import type { CacheEntry } from '../../build/plugin-context.ts'
 
 type TagManifest = { revalidatedAt: number }
 
@@ -92,7 +93,10 @@ export class NetlifyCacheHandler implements CacheHandler {
           lastModified: blob.lastModified,
           value: blob.value,
         }
+      default:
+      // TODO: system level logging not implemented
     }
+    return null
   }
 
   async set(...args: Parameters<IncrementalCache['set']>) {
@@ -106,6 +110,7 @@ export class NetlifyCacheHandler implements CacheHandler {
     })
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async revalidateTag(tag: string, ...args: any) {
     console.debug('NetlifyCacheHandler.revalidateTag', tag, args)
 

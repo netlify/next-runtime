@@ -1,6 +1,8 @@
-import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
+
+import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
+
 import { PLUGIN_DIR } from './constants.js'
 
 /**
