@@ -110,6 +110,12 @@ jobs:
         run: pnpm add --workspace-root @next/swc-linux-x64-gnu@${{ env.NEXT_VERSION }}
         working-directory: ${{ env.next-path }}
 
+      - name: Install Deno
+        uses: denoland/setup-deno@v1
+        with:
+          # Should match the `DENO_VERSION_RANGE` from https://github.com/netlify/edge-bundler/blob/main/node/bridge.ts#L17
+          deno-version: v1.37.0
+
       - name: install runtime
         run: npm install --ignore-scripts
         working-directory: ${{ env.runtime-path }}
