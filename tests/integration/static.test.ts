@@ -39,6 +39,7 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
     '500.html',
     'static/revalidate-automatic',
     'static/revalidate-manual',
+    'static/revalidate-slow',
   ])
 
   // test that it should request the 404.html file

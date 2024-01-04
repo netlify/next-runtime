@@ -45,6 +45,7 @@ describe('page router', () => {
       '500.html',
       'static/revalidate-automatic',
       'static/revalidate-manual',
+      'static/revalidate-slow',
     ])
 
     // test the function call
@@ -59,6 +60,9 @@ describe('page router', () => {
       }),
     )
 
+    // Ping this now so we can wait in parallel
+    const callLater = await invokeFunction(ctx, { url: 'static/revalidate-slow' })
+
     // wait to have a stale page
     await new Promise<void>((resolve) => setTimeout(resolve, 3_000))
 
@@ -72,6 +76,18 @@ describe('page router', () => {
       }),
     )
     expect(call2Date, 'the date was cached and is matching the initial one').not.toBe(call1Date)
+
+    // Slow revalidate should still be a hit, but the maxage should be updated
+    const callLater2 = await invokeFunction(ctx, { url: 'static/revalidate-slow' })
+
+    expect(callLater2.statusCode).toBe(200)
+
+    expect(callLater2.headers, 'date header matches the cached value').toEqual(
+      expect.objectContaining({
+        'x-nextjs-cache': 'HIT',
+        date: callLater.headers['date'],
+      }),
+    )
 
     // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
     await new Promise<void>((resolve) => setTimeout(resolve, 100))

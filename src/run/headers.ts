@@ -1,3 +1,6 @@
+import { Buffer } from 'node:buffer'
+
+import { getDeployStore } from '@netlify/blobs'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
 import type { TagsManifest } from './config.js'
@@ -69,6 +72,37 @@ export const setVaryHeaders = (
   }
 
   headers.set(`netlify-vary`, generateNetlifyVaryValues(netlifyVaryValues))
+}
+
+function encodeBlobKey(key: string) {
+  return Buffer.from(key.replace(/^\//, '')).toString('base64')
+}
+
+/**
+ * Change the date header to be the last-modified date of the blob. This means the CDN
+ * will use the correct expiry time for the response. e.g. if the blob was last modified
+ * 5 seconds ago and is sent with a maxage of 10, the CDN will cache it for 5 seconds.
+ * By default, Next.js sets the date header to the current time, even if it's served
+ * from the cache, meaning that the CDN will cache it for 10 seconds, which is incorrect.
+ */
+export const adjustDateHeader = async (headers: Headers, request: Request) => {
+  if (headers.get('x-nextjs-cache') !== 'HIT') {
+    return
+  }
+  const path = new URL(request.url).pathname
+  const key = encodeBlobKey(path)
+  const blobStore = getDeployStore()
+  // TODO: use metadata for this
+  const { lastModified } = (await blobStore.get(key, { type: 'json' })) ?? {}
+
+  if (!lastModified) {
+    return
+  }
+  const lastModifiedDate = new Date(lastModified)
+  // Show actual date of the function call in the date header
+  headers.set('x-nextjs-date', headers.get('date') ?? lastModifiedDate.toUTCString())
+  // Setting Age also would work, but we already have the lastModified time so will use that.
+  headers.set('date', lastModifiedDate.toUTCString())
 }
 
 /**

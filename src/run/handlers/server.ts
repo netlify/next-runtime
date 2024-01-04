@@ -4,7 +4,12 @@ import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
 import { TagsManifest, getTagsManifest } from '../config.js'
-import { setCacheControlHeaders, setCacheTagsHeaders, setVaryHeaders } from '../headers.js'
+import {
+  adjustDateHeader,
+  setCacheControlHeaders,
+  setCacheTagsHeaders,
+  setVaryHeaders,
+} from '../headers.js'
 import { nextResponseProxy } from '../revalidate.js'
 
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete, tagsManifest: TagsManifest
@@ -30,15 +35,6 @@ export default async (request: Request) => {
 
   const resProxy = nextResponseProxy(res)
 
-  resProxy.prependListener('_headersSent', (event: HeadersSentEvent) => {
-    const headers = new Headers(event.headers)
-    setCacheControlHeaders(headers)
-    setCacheTagsHeaders(headers, request, tagsManifest)
-    setVaryHeaders(headers, request, nextConfig)
-    event.headers = Object.fromEntries(headers.entries())
-    // console.log('Modified response headers:', JSON.stringify(event.headers, null, 2))
-  })
-
   // temporary workaround for https://linear.app/netlify/issue/ADN-111/
   delete req.headers['accept-encoding']
 
@@ -51,13 +47,16 @@ export default async (request: Request) => {
     resProxy.end('Internal Server Error')
   }
 
-  // log the response from Next.js
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const response = {
-    headers: resProxy.getHeaders(),
-    statusCode: resProxy.statusCode,
-  }
-  // console.log('Next server response:', JSON.stringify(response, null, 2))
+  // Contrary to the docs, this resolves when the headers are available, not when the stream closes.
+  // See https://github.com/fastly/http-compute-js/blob/main/src/http-compute-js/http-server.ts#L168-L173
+  const response = await toComputeResponse(resProxy)
 
-  return toComputeResponse(resProxy)
+  await adjustDateHeader(response.headers, request)
+
+  setCacheControlHeaders(response.headers)
+  setCacheTagsHeaders(response.headers, request, tagsManifest)
+  setVaryHeaders(response.headers, request, nextConfig)
+
+
+  return response
 }

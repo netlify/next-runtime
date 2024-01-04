@@ -1,7 +1,20 @@
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { v4 } from 'uuid'
+import { afterEach, describe, expect, test, vi, beforeEach } from 'vitest'
 
-import { setCacheControlHeaders, setVaryHeaders } from './headers.js'
+import { FixtureTestContext } from '../../tests/utils/fixture.js'
+import { generateRandomObjectID, startMockBlobStore } from '../../tests/utils/helpers.js'
+
+import { setVaryHeaders, setCacheControlHeaders } from './headers.js'
+
+beforeEach<FixtureTestContext>(async (ctx) => {
+  // set for each test a new deployID and siteID
+  ctx.deployID = generateRandomObjectID()
+  ctx.siteID = v4()
+  vi.stubEnv('DEPLOY_ID', ctx.deployID)
+
+  await startMockBlobStore(ctx)
+})
 
 describe('headers', () => {
   afterEach(() => {
