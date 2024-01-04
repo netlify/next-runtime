@@ -34,6 +34,8 @@ export function middleware(request: NextRequest) {
     response = NextResponse.json({ error: 'Error' }, { status: 500 })
   }
 
+  response.headers.append('Deno' in globalThis ? 'x-deno' : 'x-node', Date.now().toString())
+
   response.headers.set('x-hello-from-middleware-res', 'hello')
   return response
 }

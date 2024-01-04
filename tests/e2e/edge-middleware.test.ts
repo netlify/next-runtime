@@ -19,3 +19,15 @@ test('Runs edge middleware', async ({ page }) => {
   const h1 = page.locator('h1')
   await expect(h1).toHaveText('Other')
 })
+
+test('Does not run edge middleware at the origin', async ({ page }) => {
+  const res = await page.goto(`${ctx.url}/test/next`)
+
+  expect(await res?.headerValue('x-deno')).toBeTruthy()
+  expect(await res?.headerValue('x-node')).toBeNull()
+
+  await expect(page).toHaveTitle('Simple Next App')
+
+  const h1 = page.locator('h1')
+  await expect(h1).toHaveText('Message from middleware: hello')
+})

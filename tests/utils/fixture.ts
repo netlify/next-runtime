@@ -13,6 +13,7 @@ import { existsSync } from 'node:fs'
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, parse, relative, resolve } from 'node:path'
+import { env } from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { v4 } from 'uuid'
 import {
@@ -59,15 +60,22 @@ function installDependencies(cwd: string) {
 export const createFixture = async (fixture: string, ctx: FixtureTestContext) => {
   ctx.cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
   vi.spyOn(process, 'cwd').mockReturnValue(ctx.cwd)
-  ctx.cleanup = [
-    async () => {
+
+  ctx.cleanup = []
+
+  if (env.INTEGRATION_PERSIST) {
+    console.log(
+      `💾 Fixture '${fixture}' has been persisted at '${ctx.cwd}'. To clean up automatically, run tests without the 'INTEGRATION_PERSIST' environment variable.`,
+    )
+  } else {
+    ctx.cleanup.push(async () => {
       try {
         await rm(ctx.cwd, { recursive: true, force: true })
       } catch {
         // noop
       }
-    },
-  ]
+    })
+  }
 
   try {
     const src = fileURLToPath(new URL(`../fixtures/${fixture}`, import.meta.url))

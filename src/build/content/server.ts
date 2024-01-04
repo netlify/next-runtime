@@ -2,7 +2,7 @@ import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
 import { existsSync } from 'node:fs'
 import { cp, mkdir, readFile, readdir, readlink, symlink, writeFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { getPrerenderManifest } from '../config.js'
 import { SERVER_HANDLER_DIR } from '../constants.js'
 
@@ -22,7 +22,18 @@ export const copyNextServerCode = async ({
 
   await Promise.all(
     paths.map(async (path: string) => {
-      await cp(join(srcDir, path), join(destDir, path), { recursive: true })
+      const destPath = join(destDir, path)
+
+      // If this is the middleware manifest file, replace it with an empty
+      // manifest to avoid running middleware again in the server handler.
+      if (path === 'server/middleware-manifest.json') {
+        await mkdir(dirname(destPath), { recursive: true })
+        await writeFile(destPath, getEmptyMiddlewareManifest())
+
+        return
+      }
+
+      await cp(join(srcDir, path), destPath, { recursive: true })
     }),
   )
 }
@@ -116,4 +127,20 @@ export const writeTagsManifest = async ({
     JSON.stringify(Object.fromEntries(await Promise.all(routes))),
     'utf-8',
   )
+}
+
+/**
+ * Generates an empty middleware manifest. We don't want to run middleware in
+ * the server handler, because we'll run it upstream in an edge function. So
+ * we patch the manifest to make it seem like there's no middleware configured.
+ */
+const getEmptyMiddlewareManifest = () => {
+  const manifest = {
+    sortedMiddleware: [],
+    middleware: {},
+    functions: {},
+    version: 2,
+  }
+
+  return JSON.stringify(manifest)
 }
