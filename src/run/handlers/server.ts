@@ -11,6 +11,7 @@ import {
   setVaryHeaders,
 } from '../headers.js'
 import { nextResponseProxy } from '../revalidate.js'
+import { logger } from '../systemlog.js'
 
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete, tagsManifest: TagsManifest
 
@@ -42,6 +43,7 @@ export default async (request: Request) => {
     // console.log('Next server request:', req.url)
     await nextHandler(req, resProxy)
   } catch (error) {
+    logger.withError(error).error('next handler error')
     console.error(error)
     resProxy.statusCode = 500
     resProxy.end('Internal Server Error')
