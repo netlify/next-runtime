@@ -20,18 +20,22 @@ export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
 
   await Promise.all(
     paths.map(async (path: string) => {
+      const srcPath = join(srcDir, path)
       const destPath = join(destDir, path)
 
       // If this is the middleware manifest file, replace it with an empty
       // manifest to avoid running middleware again in the server handler.
       if (path === 'server/middleware-manifest.json') {
-        await mkdir(dirname(destPath), { recursive: true })
-        await writeFile(destPath, getEmptyMiddlewareManifest())
+        try {
+          await replaceMiddlewareManifest(srcPath, destPath)
+        } catch (error) {
+          throw new Error('Could not patch middleware manifest file', { cause: error })
+        }
 
         return
       }
 
-      await cp(join(srcDir, path), destPath, { recursive: true })
+      await cp(srcPath, destPath, { recursive: true })
     }),
   )
 }
@@ -125,17 +129,25 @@ export const writeTagsManifest = async (ctx: PluginContext): Promise<void> => {
 }
 
 /**
- * Generates an empty middleware manifest. We don't want to run middleware in
- * the server handler, because we'll run it upstream in an edge function. So
- * we patch the manifest to make it seem like there's no middleware configured.
+ * Generates a copy of the middleware manifest without any middleware in it. We
+ * do this because we'll run middleware in an edge function, and we don't want
+ * to run it again in the server handler.
  */
-const getEmptyMiddlewareManifest = () => {
-  const manifest = {
-    sortedMiddleware: [],
-    middleware: {},
-    functions: {},
-    version: 2,
-  }
+const replaceMiddlewareManifest = async (sourcePath: string, destPath: string) => {
+  await mkdir(dirname(destPath), { recursive: true })
 
-  return JSON.stringify(manifest)
+  const data = await readFile(sourcePath, 'utf8')
+  const manifest = JSON.parse(data)
+
+  // TODO: Check for `manifest.version` and write an error to the system log
+  // when we find a value that is not equal to 2. This will alert us in case
+  // Next.js starts using a new format for the manifest and we're writing
+  // one with the old version.
+  const newManifest = {
+    ...manifest,
+    middleware: {},
+  }
+  const newData = JSON.stringify(newManifest)
+
+  await writeFile(destPath, newData)
 }
