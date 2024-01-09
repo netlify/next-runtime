@@ -1,5 +1,4 @@
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
-import { HeadersSentEvent } from '@fastly/http-compute-js/dist/http-compute-js/http-outgoing.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
@@ -55,10 +54,9 @@ export default async (request: Request) => {
 
   await adjustDateHeader(response.headers, request)
 
-  setCacheControlHeaders(response.headers)
+  setCacheControlHeaders(response.headers, request)
   setCacheTagsHeaders(response.headers, request, tagsManifest)
   setVaryHeaders(response.headers, request, nextConfig)
-
 
   return response
 }

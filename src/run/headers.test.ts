@@ -144,11 +144,14 @@ describe('headers', () => {
   })
 
   describe('setCacheControlHeaders', () => {
+    const defaultUrl = 'https://example.com'
+
     test('should not set any headers if "cache-control" is not set', () => {
       const headers = new Headers()
+      const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers)
+      setCacheControlHeaders(headers, request)
 
       expect(headers.set).toHaveBeenCalledTimes(0)
     })
@@ -159,9 +162,10 @@ describe('headers', () => {
         'cdn-cache-control': 'public, max-age=0, must-revalidate',
       }
       const headers = new Headers(givenHeaders)
+      const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers)
+      setCacheControlHeaders(headers, request)
 
       expect(headers.set).toHaveBeenCalledTimes(0)
     })
@@ -172,21 +176,23 @@ describe('headers', () => {
         'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate',
       }
       const headers = new Headers(givenHeaders)
+      const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers)
+      setCacheControlHeaders(headers, request)
 
       expect(headers.set).toHaveBeenCalledTimes(0)
     })
 
-    test('should set expected headers if "cache-control" is set and "cdn-cache-control" and "netlify-cdn-cache-control" are not present', () => {
+    test('should set expected headers if "cache-control" is set and "cdn-cache-control" and "netlify-cdn-cache-control" are not present (GET request)', () => {
       const givenHeaders = {
         'cache-control': 'public, max-age=0, must-revalidate',
       }
       const headers = new Headers(givenHeaders)
+      const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers)
+      setCacheControlHeaders(headers, request)
 
       expect(headers.set).toHaveBeenNthCalledWith(
         1,
@@ -200,14 +206,50 @@ describe('headers', () => {
       )
     })
 
+    test('should set expected headers if "cache-control" is set and "cdn-cache-control" and "netlify-cdn-cache-control" are not present (HEAD request)', () => {
+      const givenHeaders = {
+        'cache-control': 'public, max-age=0, must-revalidate',
+      }
+      const headers = new Headers(givenHeaders)
+      const request = new Request(defaultUrl, { method: 'HEAD' })
+      vi.spyOn(headers, 'set')
+
+      setCacheControlHeaders(headers, request)
+
+      expect(headers.set).toHaveBeenNthCalledWith(
+        1,
+        'cache-control',
+        'public, max-age=0, must-revalidate',
+      )
+      expect(headers.set).toHaveBeenNthCalledWith(
+        2,
+        'netlify-cdn-cache-control',
+        'public, max-age=0, must-revalidate',
+      )
+    })
+
+    test('should not set any headers on POST request', () => {
+      const givenHeaders = {
+        'cache-control': 'public, max-age=0, must-revalidate',
+      }
+      const headers = new Headers(givenHeaders)
+      const request = new Request(defaultUrl, { method: 'POST' })
+      vi.spyOn(headers, 'set')
+
+      setCacheControlHeaders(headers, request)
+
+      expect(headers.set).toHaveBeenCalledTimes(0)
+    })
+
     test('should remove "s-maxage" from "cache-control" header', () => {
       const givenHeaders = {
         'cache-control': 'public, s-maxage=604800',
       }
       const headers = new Headers(givenHeaders)
+      const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers)
+      setCacheControlHeaders(headers, request)
 
       expect(headers.set).toHaveBeenNthCalledWith(1, 'cache-control', 'public')
       expect(headers.set).toHaveBeenNthCalledWith(
@@ -222,9 +264,10 @@ describe('headers', () => {
         'cache-control': 'max-age=604800, stale-while-revalidate=86400',
       }
       const headers = new Headers(givenHeaders)
+      const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers)
+      setCacheControlHeaders(headers, request)
 
       expect(headers.set).toHaveBeenNthCalledWith(1, 'cache-control', 'max-age=604800')
       expect(headers.set).toHaveBeenNthCalledWith(
@@ -239,9 +282,10 @@ describe('headers', () => {
         'cache-control': 's-maxage=604800, stale-while-revalidate=86400',
       }
       const headers = new Headers(givenHeaders)
+      const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers)
+      setCacheControlHeaders(headers, request)
 
       expect(headers.set).toHaveBeenNthCalledWith(
         1,

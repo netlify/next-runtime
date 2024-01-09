@@ -109,10 +109,11 @@ export const adjustDateHeader = async (headers: Headers, request: Request) => {
  * Ensure stale-while-revalidate and s-maxage don't leak to the client, but
  * assume the user knows what they are doing if CDN cache controls are set
  */
-export const setCacheControlHeaders = (headers: Headers) => {
+export const setCacheControlHeaders = (headers: Headers, request: Request) => {
   const cacheControl = headers.get('cache-control')
   if (
     cacheControl !== null &&
+    ['GET', 'HEAD'].includes(request.method) &&
     !headers.has('cdn-cache-control') &&
     !headers.has('netlify-cdn-cache-control')
   ) {
