@@ -84,3 +84,12 @@ test<FixtureTestContext>('stale-while-revalidate headers should be normalized to
   const index = await invokeFunction(ctx, { url: '/' })
   expect(index.headers?.['netlify-cdn-cache-control']).toContain('stale-while-revalidate=31536000')
 })
+
+test<FixtureTestContext>('handlers receive correct site domain', async (ctx) => {
+  await createFixture('simple-next-app', ctx)
+  await runPlugin(ctx)
+  const index = await invokeFunction(ctx, { url: '/api/url' })
+  const data = JSON.parse(index.body)
+  const url = new URL(data.url)
+  expect(url.hostname).toBe('example.netlify')
+})

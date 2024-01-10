@@ -23,9 +23,11 @@ export default async (request: Request) => {
     tagsManifest = await getTagsManifest()
 
     const { getMockedRequestHandlers } = await import('../next.cjs')
+    const url = new URL(request.url)
+
     ;[nextHandler] = await getMockedRequestHandlers({
-      port: 3000,
-      hostname: 'localhost',
+      port: Number(url.port) || 443,
+      hostname: url.hostname,
       dir: process.cwd(),
       isDev: false,
     })
