@@ -58,5 +58,12 @@ export default async (request: Request) => {
   setCacheTagsHeaders(response.headers, request, tagsManifest)
   setVaryHeaders(response.headers, request, nextConfig)
 
+  // Temporary workaround for an issue where sending a response with an empty
+  // body causes an unhandled error.
+  // TODO: Remove once a fix has been rolled out.
+  if (response.status > 300 && response.status < 400) {
+    return new Response(null, response)
+  }
+
   return response
 }

@@ -32,3 +32,11 @@ test('Serves a static image correctly', async ({ page }) => {
   expect(response?.status()).toBe(200)
   expect(response?.headers()['content-type']).toBe('image/svg+xml')
 })
+
+test('Redirects correctly', async ({ page }) => {
+  await page.goto(`${ctx.url}/redirect/response`)
+  await expect(page).toHaveURL(`https://www.netlify.com/`)
+
+  await page.goto(`${ctx.url}/redirect`)
+  await expect(page).toHaveURL(`https://www.netlify.com/`)
+})
