@@ -2,3 +2,4 @@ dist/
 demo/
 tests/
 edge-runtime
+tools/deno

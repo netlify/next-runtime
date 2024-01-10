@@ -7,12 +7,11 @@ on:
     types: [opened, synchronize, reopened, labeled]
 
 env:
-  NODE_VERSION: 18.16.1
-  PNPM_VERSION: 8.7.1
+  NODE_VERSION: 18.17.1
+  PNPM_VERSION: 8.9.0
   NEXT_REPO: netlify/next.js
-  NEXT_VERSION: 13.5.1
   NEXT_TEST_MODE: deploy
-  NEXT_TEST_JOB: true
+  NEXT_JUNIT_TEST_REPORT: true
   TEST_CONCURRENCY: 8
   NEXT_E2E_TEST_TIMEOUT: 600000
   NEXT_TELEMETRY_DISABLED: 1
@@ -22,29 +21,22 @@ env:
   NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
   NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
   NEXT_TEST_CONTINUE_ON_ERROR: 1
-
+  next-path: next.js
+  runtime-path: next-runtime-minimal
 jobs:
   e2e:
     if:
       ${{ github.event_name == ('workflow_dispatch' || 'workflow_call') ||
       contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}
-    name: test e2e
+    name: Test group ${{ matrix.group }}/20
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        group: [1, 2, 3, 4, 5, 6, 7, 8]
-    env:
-      next-path: next.js
-      runtime-path: next-runtime-minimal
-      skipped-tests: |
-        test/e2e/app-dir/app-compilation/index.test.ts
-        test/e2e/favicon-short-circuit/favicon-short-circuit.test.ts
+        group: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
     steps:
-      - name: 'Setup jq'
-        uses: dcarbone/install-jq-action@v2.1.0
       - name: get github token
         uses: navikt/github-app-token-generator@v1
         id: token
@@ -58,7 +50,6 @@ jobs:
         with:
           repository: ${{ env.NEXT_REPO }}
           token: ${{ steps.token.outputs.token }}
-          ref: v${{ env.NEXT_VERSION }}-netlify
           path: ${{ env.next-path }}
 
       - name: checkout runtime repo
@@ -131,73 +122,42 @@ jobs:
         run: npx playwright install
         working-directory: ${{ env.next-path }}
 
-      - name: set test filter
-        run: |
-          ls test/e2e/**/*.test.* > included_tests
-          printf %s "${{ env.skipped-tests }}" > skipped_tests
-          comm -23 included_tests skipped_tests > filtered_tests
-          echo "{\"enabledTests\":[\"$(printf %s "$(< filtered_tests)" | sed -z "s/\n/\",\"/g")\"]}" > tests.json
-        working-directory: ${{ env.next-path }}
-
       - name: run tests
         env:
           NODE_ENV: production
-          NEXT_EXTERNAL_TESTS_FILTERS: ./tests.json
-        run: node run-tests.js -g ${{ matrix.group }}/8 -c ${TEST_CONCURRENCY} --type e2e
+          NEXT_EXTERNAL_TESTS_FILTERS: ../next-runtime-minimal/tests/netlify-e2e.json
+        run: node run-tests.js -g ${{ matrix.group }}/20 -c ${TEST_CONCURRENCY} --type e2e
         working-directory: ${{ env.next-path }}
 
-      - name: Test results
-        working-directory: ${{ env.next-path }}
+      - name: Upload Test Results
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Test Results (${{ matrix.group }})
+          path: ${{ env.next-path }}/test/test-junit-report/*.xml
+  publish-test-results:
+    name: 'E2E Test Summary'
+    needs: e2e
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+      issues: read
+    if: success() || failure()
+
+    steps:
+      - name: checkout runtime repo
+        uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v1
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Publish Test Report
+        if: success() || failure()
         run: |
-          for file in `ls test/e2e/**/*.results.json`; do
-            test_name=$(echo $file | sed -e 's/test\/e2e\/\(.*\/.*\).results.json/\1/')
-
-            success=$(jq -r '.success' $file)
-            if [ "$success" = "true" ] ; then
-              test_result=":white_check_mark:"
-            else
-              test_result=":x:"
-            fi
-
-            passed=$(jq -r '.numPassedTests' $file)
-            passed_total=$((passed_total + passed))
-            failed=$(jq -r '.numFailedTests' $file)
-            failed_total=$((failed_total + failed))
-            pending=$(jq -r '.numPendingTests' $file)
-            pending_total=$((pending_total + pending))
-            total=$(jq -r '.numTotalTests' $file)
-            total_total=$((total_total + total))
-
-            message=$(jq -r '.testResults[].message' $file)
-                        
-            echo "<details>" >> test_summary
-            echo "<summary>${test_result} <code>${test_name}</code></summary>" >> test_summary
-            echo "<h4>Results</h4>" >> test_summary
-            echo "<div>Passing tests: ${passed}</div>" >> test_summary
-            echo "<div>Failing tests: ${failed}</div>" >> test_summary
-            echo "<div>Pending tests: ${pending}</div>" >> test_summary
-            echo "<div>Total tests: ${total}</div>" >> test_summary
-
-            if [ -n "${message}" ] ; then
-              echo "<h4>Details</h4>" >> test_summary
-              echo "<pre><code>" >> test_summary
-              echo $message >> test_summary
-              echo "</code></pre>" >> test_summary
-            fi
-
-            echo "</details>" >> test_summary
-          done
-
-          echo "<h3>Results</h3>" >> $GITHUB_STEP_SUMMARY
-          echo "<div>Passing tests: ${passed_total}</div>" >> $GITHUB_STEP_SUMMARY
-          echo "<div>Failing tests: ${failed_total}</div>" >> $GITHUB_STEP_SUMMARY
-          echo "<div>Pending tests: ${pending_total}</div>" >> $GITHUB_STEP_SUMMARY
-          echo "<div>Total tests: ${total_total}</div>" >> $GITHUB_STEP_SUMMARY
-
-          echo "<h3>Details</h3>" >> $GITHUB_STEP_SUMMARY
-          cat test_summary >> $GITHUB_STEP_SUMMARY
-
-          if [ "$failed_total" -gt 0 ] ; then
-            echo "Failed tests. Please see action summary for details."
-            exit 1
-          fi
+          deno run -A tools/deno/junit2md.ts artifacts >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,138 @@
+{
+  "version": 2,
+  "suites": {
+    "test/e2e/app-dir/app-static/app-static.test.ts": {
+      "failed": [
+        "app-dir static/dynamic handling usePathname should have values from canonical url on rewrite",
+        "app-dir static/dynamic handling should have correct prerender-manifest entries",
+        "app-dir static/dynamic handling should output HTML/RSC files for static paths",
+        "app-dir static/dynamic handling should output debug info for static bailouts"
+      ]
+    },
+    "test/e2e/app-dir/app-client-cache/client-cache.test.ts": {
+      "failed": [
+        "app dir client cache semantics prefetch={undefined} - default should re-use the full cache for only 30 seconds",
+        "app dir client cache semantics prefetch={undefined} - default should refetch below the fold after 30 seconds"
+      ]
+    },
+    "test/e2e/app-dir/headers-static-bailout/headers-static-bailout.test.ts": {
+      "failed": [
+        "headers-static-bailout it provides a helpful link in case static generation bailout is uncaught"
+      ]
+    },
+    "test/e2e/app-dir/parallel-routes-and-interception/parallel-routes-and-interception.test.ts": {
+      "failed": [
+        "parallel-routes-and-interception route intercepting should render modal when paired with parallel routes",
+        "parallel-routes-and-interception route intercepting should support intercepting local dynamic sibling routes"
+      ]
+    },
+    "test/e2e/app-dir/error-boundary-navigation/override-node-env.test.ts": {
+      "failed": [
+        "app dir - not found navigation - with overridden node env should be able to navigate to other page from root not-found page"
+      ]
+    },
+    "test/e2e/opentelemetry/opentelemetry.test.ts": {
+      "failed": [
+        "opentelemetry root context app router should handle RSC with fetch",
+        "opentelemetry incoming context propagation app router should handle RSC with fetch",
+        "opentelemetry incoming context propagation app router should handle route handlers in app router"
+      ]
+    },
+    "test/e2e/app-dir/rsc-basic/rsc-basic.test.ts": {
+      "failed": [
+        "app dir - rsc basics should render initial styles of css-in-js in edge SSR correctly",
+        "app dir - rsc basics should render initial styles of css-in-js in nodejs SSR correctly",
+        "app dir - rsc basics should render server components correctly"
+      ],
+      "flakey": [
+        "app dir - rsc basics react@experimental should opt into the react@experimental when enabling ppr",
+        "app dir - rsc basics react@experimental should opt into the react@experimental when enabling taint"
+      ]
+    },
+    "test/e2e/app-dir/navigation/navigation.test.ts": {
+      "failed": [
+        "app dir - navigation redirect status code should respond with 308 status code if permanent flag is set",
+        "app dir - navigation redirect status code should respond with 307 status code in client component",
+        "app dir - navigation redirect status code should respond with 307 status code in server component",
+        "app dir - navigation bots should block rendering for bots and return 404 status",
+        "app dir - navigation navigation between pages and app should not continously initiate a mpa navigation to the same URL when router state changes"
+      ]
+    },
+    "test/e2e/app-dir/app-static/app-static-custom-handler.test.ts": {
+      "failed": [
+        "app-dir static/dynamic handling should output debug info for static bailouts",
+        "app-dir static/dynamic handling should have correct prerender-manifest entries",
+        "app-dir static/dynamic handling should output HTML/RSC files for static paths"
+      ]
+    },
+    "test/production/app-dir/unexpected-error/unexpected-error.test.ts": {
+      "failed": [
+        "unexpected-error should set response status to 500 for unexpected errors in ssr app route",
+        "unexpected-error should set response status to 500 for unexpected errors in isr app route"
+      ]
+    },
+    "test/e2e/skip-trailing-slash-redirect/index.test.ts": {
+      "flakey": [
+        "skip-trailing-slash-redirect should merge cookies from middleware and edge API routes correctly",
+        "skip-trailing-slash-redirect should handle external rewrite correctly /chained-rewrite-ssr",
+        "skip-trailing-slash-redirect should handle external rewrite correctly /chained-rewrite-static",
+        "skip-trailing-slash-redirect should handle external rewrite correctly /chained-rewrite-ssg"
+      ]
+    },
+    "test/e2e/module-layer/index.test.ts": {
+      "flakey": [
+        "module layer no server-only in server targets should render routes marked with restriction marks without errors",
+        "module layer with server-only in server targets should render routes marked with restriction marks without errors"
+      ]
+    },
+    "test/e2e/getserversideprops/test/index.test.ts": {
+      "flakey": [
+        "getServerSideProps should set default caching header",
+        "getServerSideProps should respect custom caching header"
+      ]
+    },
+    "test/e2e/app-dir/metadata-dynamic-routes/index.test.ts": {
+      "pending": [],
+      "flakey": [
+        "app dir - metadata dynamic routes text routes should handle robots.[ext] dynamic routes",
+        "app dir - metadata dynamic routes text routes should handle sitemap.[ext] dynamic routes",
+        "app dir - metadata dynamic routes social image routes should handle manifest.[ext] dynamic routes",
+        "app dir - metadata dynamic routes social image routes should render og image with opengraph-image dynamic routes",
+        "app dir - metadata dynamic routes social image routes should render og image with twitter-image dynamic routes",
+        "app dir - metadata dynamic routes icon image routes should render icon with dynamic routes",
+        "app dir - metadata dynamic routes icon image routes should render apple icon with dynamic routes",
+        "app dir - metadata dynamic routes should inject dynamic metadata properly to head"
+      ]
+    },
+    "test/e2e/app-dir/metadata/metadata.test.ts": {
+      "flakey": [
+        "app dir - metadata opengraph should pick up opengraph-image and twitter-image as static metadata files",
+        "app dir - metadata static routes should have /favicon.ico as route"
+      ]
+    }
+  },
+  "rules": {
+    "include": ["test/e2e/**/*.test.{t,j}s{,x}"],
+    "exclude": [
+      "test/e2e/app-dir/next-font/**/*",
+      "test/e2e/app-dir/ppr/**/*",
+      "test/e2e/app-dir/ppr-*/**/*",
+      "test/e2e/app-dir/app-prefetch*/**/*",
+      "test/e2e/app-dir/app-esm-js/index.test.ts",
+      "test/e2e/app-dir/interception-middleware-rewrite/interception-middleware-rewrite.test.ts",
+      "test/e2e/app-dir/searchparams-static-bailout/searchparams-static-bailout.test.ts",
+      "test/e2e/app-dir/app-compilation/index.test.ts",
+      "test/e2e/cancel-request/stream-cancel.test.ts",
+      "test/e2e/favicon-short-circuit/favicon-short-circuit.test.ts",
+      "test/e2e/edge-pages-support/edge-document.test.ts",
+      "test/e2e/third-parties/index.test.ts",
+      "test/e2e/swc-warnings/index.test.ts",
+      "test/e2e/app-dir/externals/externals.test.ts",
+      "test/e2e/app-dir/use-selected-layout-segment-s/use-selected-layout-segment-s.test.ts",
+      "test/e2e/repeated-forward-slashes-error/repeated-forward-slashes-error.test.ts",
+      "test/e2e/app-dir/with-exported-function-config/with-exported-function-config.test.ts",
+      "test/e2e/app-dir/x-forwarded-headers/x-forwarded-headers.test.ts",
+      "test/e2e/app-dir/third-parties/basic.test.ts"
+    ]
+  }
+}
