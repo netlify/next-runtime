@@ -44,7 +44,7 @@
     "@fastly/http-compute-js": "1.1.1",
     "@netlify/blobs": "^6.4.0",
     "@netlify/build": "^29.31.0",
-    "@netlify/edge-functions": "^2.2.0",
+    "@netlify/edge-functions": "^2.3.0",
     "@netlify/eslint-config-node": "^7.0.1",
     "@netlify/functions": "^2.4.1",
     "@netlify/serverless-functions-api": "^1.10.1",
