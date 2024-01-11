@@ -13,13 +13,28 @@ import { copyStaticAssets, copyStaticContent } from './static.js'
 
 type Context = FixtureTestContext & {
   pluginContext: PluginContext
+  publishDir: string
+}
+const createFsFixtureWithBasePath = (
+  fixture: Record<string, string>,
+  ctx: Omit<Context, 'pluginContext'>,
+  basePath = '',
+) => {
+  return createFsFixture(
+    {
+      ...fixture,
+      [join(ctx.publishDir, 'routes-manifest.json')]: JSON.stringify({ basePath }),
+    },
+    ctx,
+  )
 }
 
 describe('Regular Repository layout', () => {
   beforeEach<Context>((ctx) => {
+    ctx.publishDir = '.next'
     ctx.pluginContext = new PluginContext({
       constants: {
-        PUBLISH_DIR: '.next',
+        PUBLISH_DIR: ctx.publishDir,
       },
       utils: { build: { failBuild: vi.fn() } as unknown },
     } as NetlifyPluginOptions)
@@ -35,11 +50,11 @@ describe('Regular Repository layout', () => {
     )
   })
 
-  test<Context>('should link static content from the publish directory to the static directory', async ({
+  test<Context>('should link static content from the publish directory to the static directory (no basePath)', async ({
     pluginContext,
     ...ctx
   }) => {
-    const { cwd } = await createFsFixture(
+    const { cwd } = await createFsFixtureWithBasePath(
       {
         '.next/static/test.js': '',
         '.next/static/sub-dir/test2.js': '',
@@ -58,11 +73,35 @@ describe('Regular Repository layout', () => {
     )
   })
 
-  test<Context>('should link static content from the public directory to the static directory', async ({
+  test<Context>('should link static content from the publish directory to the static directory (with basePath)', async ({
     pluginContext,
     ...ctx
   }) => {
-    const { cwd } = await createFsFixture(
+    const { cwd } = await createFsFixtureWithBasePath(
+      {
+        '.next/static/test.js': '',
+        '.next/static/sub-dir/test2.js': '',
+      },
+      ctx,
+      '/base/path',
+    )
+
+    await copyStaticAssets(pluginContext)
+    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+      expect.arrayContaining([
+        join(cwd, '.next/static/test.js'),
+        join(cwd, '.next/static/sub-dir/test2.js'),
+        join(pluginContext.staticDir, 'base/path/_next/static/test.js'),
+        join(pluginContext.staticDir, 'base/path/_next/static/sub-dir/test2.js'),
+      ]),
+    )
+  })
+
+  test<Context>('should link static content from the public directory to the static directory (no basePath)', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    const { cwd } = await createFsFixtureWithBasePath(
       {
         'public/fake-image.svg': '',
         'public/another-asset.json': '',
@@ -81,11 +120,35 @@ describe('Regular Repository layout', () => {
     )
   })
 
+  test<Context>('should link static content from the public directory to the static directory (with basePath)', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    const { cwd } = await createFsFixtureWithBasePath(
+      {
+        'public/fake-image.svg': '',
+        'public/another-asset.json': '',
+      },
+      ctx,
+      '/base/path',
+    )
+
+    await copyStaticAssets(pluginContext)
+    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+      expect.arrayContaining([
+        join(cwd, 'public/another-asset.json'),
+        join(cwd, 'public/fake-image.svg'),
+        join(pluginContext.staticDir, '/base/path/another-asset.json'),
+        join(pluginContext.staticDir, '/base/path/fake-image.svg'),
+      ]),
+    )
+  })
+
   test<Context>('should copy the static pages to the publish directory if there are no corresponding JSON files', async ({
     pluginContext,
     ...ctx
   }) => {
-    await createFsFixture(
+    await createFsFixtureWithBasePath(
       {
         '.next/server/pages/test.html': '',
         '.next/server/pages/test2.html': '',
@@ -107,7 +170,7 @@ describe('Regular Repository layout', () => {
     pluginContext,
     ...ctx
   }) => {
-    await createFsFixture(
+    await createFsFixtureWithBasePath(
       {
         '.next/server/pages/test.html': '',
         '.next/server/pages/test.json': '',
@@ -124,20 +187,21 @@ describe('Regular Repository layout', () => {
 
 describe('Mono Repository', () => {
   beforeEach<Context>((ctx) => {
+    ctx.publishDir = 'apps/app-1/.next'
     ctx.pluginContext = new PluginContext({
       constants: {
-        PUBLISH_DIR: 'apps/app-1/.next',
+        PUBLISH_DIR: ctx.publishDir,
         PACKAGE_PATH: 'apps/app-1',
       },
       utils: { build: { failBuild: vi.fn() } as unknown },
     } as NetlifyPluginOptions)
   })
 
-  test<Context>('should link static content from the publish directory to the static directory', async ({
+  test<Context>('should link static content from the publish directory to the static directory (no basePath)', async ({
     pluginContext,
     ...ctx
   }) => {
-    const { cwd } = await createFsFixture(
+    const { cwd } = await createFsFixtureWithBasePath(
       {
         'apps/app-1/.next/static/test.js': '',
         'apps/app-1/.next/static/sub-dir/test2.js': '',
@@ -156,11 +220,35 @@ describe('Mono Repository', () => {
     )
   })
 
-  test<Context>('should link static content from the public directory to the static directory', async ({
+  test<Context>('should link static content from the publish directory to the static directory (with basePath)', async ({
     pluginContext,
     ...ctx
   }) => {
-    const { cwd } = await createFsFixture(
+    const { cwd } = await createFsFixtureWithBasePath(
+      {
+        'apps/app-1/.next/static/test.js': '',
+        'apps/app-1/.next/static/sub-dir/test2.js': '',
+      },
+      ctx,
+      '/base/path',
+    )
+
+    await copyStaticAssets(pluginContext)
+    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+      expect.arrayContaining([
+        join(cwd, 'apps/app-1/.next/static/test.js'),
+        join(cwd, 'apps/app-1/.next/static/sub-dir/test2.js'),
+        join(pluginContext.staticDir, '/base/path/_next/static/test.js'),
+        join(pluginContext.staticDir, '/base/path/_next/static/sub-dir/test2.js'),
+      ]),
+    )
+  })
+
+  test<Context>('should link static content from the public directory to the static directory (no basePath)', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    const { cwd } = await createFsFixtureWithBasePath(
       {
         'apps/app-1/public/fake-image.svg': '',
         'apps/app-1/public/another-asset.json': '',
@@ -179,11 +267,35 @@ describe('Mono Repository', () => {
     )
   })
 
+  test<Context>('should link static content from the public directory to the static directory (with basePath)', async ({
+    pluginContext,
+    ...ctx
+  }) => {
+    const { cwd } = await createFsFixtureWithBasePath(
+      {
+        'apps/app-1/public/fake-image.svg': '',
+        'apps/app-1/public/another-asset.json': '',
+      },
+      ctx,
+      '/base/path',
+    )
+
+    await copyStaticAssets(pluginContext)
+    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+      expect.arrayContaining([
+        join(cwd, 'apps/app-1/public/another-asset.json'),
+        join(cwd, 'apps/app-1/public/fake-image.svg'),
+        join(pluginContext.staticDir, '/base/path/another-asset.json'),
+        join(pluginContext.staticDir, '/base/path/fake-image.svg'),
+      ]),
+    )
+  })
+
   test<Context>('should copy the static pages to the publish directory if there are no corresponding JSON files', async ({
     pluginContext,
     ...ctx
   }) => {
-    await createFsFixture(
+    await createFsFixtureWithBasePath(
       {
         'apps/app-1/.next/server/pages/test.html': '',
         'apps/app-1/.next/server/pages/test2.html': '',
@@ -205,7 +317,7 @@ describe('Mono Repository', () => {
     pluginContext,
     ...ctx
   }) => {
-    await createFsFixture(
+    await createFsFixtureWithBasePath(
       {
         'apps/app-1/.next/server/pages/test.html': '',
         'apps/app-1/.next/server/pages/test.json': '',

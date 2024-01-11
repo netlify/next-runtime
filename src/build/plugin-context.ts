@@ -7,7 +7,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { NetlifyPluginConstants, NetlifyPluginOptions, NetlifyPluginUtils } from '@netlify/build'
-import { PrerenderManifest } from 'next/dist/build/index.js'
+import { PrerenderManifest, RoutesManifest } from 'next/dist/build/index.js'
 import { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 
 const MODULE_DIR = fileURLToPath(new URL('.', import.meta.url))
@@ -133,6 +133,13 @@ export class PluginContext {
     return JSON.parse(
       await readFile(join(this.publishDir, 'server/middleware-manifest.json'), 'utf-8'),
     )
+  }
+
+  /**
+   * Get Next.js routes manifest from the build output
+   */
+  async getRoutesManifest(): Promise<RoutesManifest> {
+    return JSON.parse(await readFile(join(this.publishDir, 'routes-manifest.json'), 'utf-8'))
   }
 
   /**

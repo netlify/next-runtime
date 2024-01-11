@@ -124,18 +124,12 @@ export const createFsFixture = async (fixture: Record<string, string>, ctx: Fixt
   return { cwd: ctx.cwd }
 }
 
-/**
- * This method does basically two main parts
- * 1. Running the `onBuild` plugin with a set of defined constants
- * 2. Bundling the function up to an actual lambda function embedding the Netlify local parts
- * @param ctx The testing context
- * @param constants The build plugin constants that are passed down by `@netlify/build` to the plugin
- */
-export async function runPlugin(
+export async function runPluginStep(
   ctx: FixtureTestContext,
+  step: 'onPreBuild' | 'onBuild' | 'onPostBuild' | 'onEnd',
   constants: Partial<NetlifyPluginConstants> = {},
 ) {
-  const { onBuild } = await import('../../src/index.js')
+  const stepFunction = (await import('../../src/index.js'))[step]
   const options = {
     constants: {
       SITE_ID: ctx.siteID,
@@ -173,7 +167,22 @@ export async function runPlugin(
       },
     },
   } as unknown as NetlifyPluginOptions
-  await onBuild(options)
+  await stepFunction(options)
+  return options
+}
+
+/**
+ * This method does basically two main parts
+ * 1. Running the `onBuild` plugin with a set of defined constants
+ * 2. Bundling the function up to an actual lambda function embedding the Netlify local parts
+ * @param ctx The testing context
+ * @param constants The build plugin constants that are passed down by `@netlify/build` to the plugin
+ */
+export async function runPlugin(
+  ctx: FixtureTestContext,
+  constants: Partial<NetlifyPluginConstants> = {},
+) {
+  const options = await runPluginStep(ctx, 'onBuild', constants)
 
   const base = new PluginContext(options)
   vi.spyOn(base, 'resolve').mockImplementation((...args: string[]) =>
@@ -243,6 +252,8 @@ export async function runPlugin(
   }
 
   await Promise.all([bundleEdgeFunctions(), bundleFunctions(), uploadBlobs(ctx, base.blobDir)])
+
+  return options
 }
 
 export async function uploadBlobs(ctx: FixtureTestContext, blobsDir: string) {
@@ -292,48 +303,54 @@ export async function invokeFunction(
 ) {
   const { httpMethod, headers, body, url, env } = options
   // now for the execution set the process working directory to the dist entry point
-  vi.spyOn(process, 'cwd').mockReturnValue(join(ctx.functionDist, SERVER_HANDLER_NAME))
-  const { handler } = await import(
-    join(ctx.functionDist, SERVER_HANDLER_NAME, '___netlify-entry-point.mjs')
-  )
+  const cwdMock = vi
+    .spyOn(process, 'cwd')
+    .mockReturnValue(join(ctx.functionDist, SERVER_HANDLER_NAME))
+  try {
+    const { handler } = await import(
+      join(ctx.functionDist, SERVER_HANDLER_NAME, '___netlify-entry-point.mjs')
+    )
 
-  // The environment variables available during execution
-  const environment = {
-    NETLIFY_BLOBS_CONTEXT: Buffer.from(
-      JSON.stringify({
-        edgeURL: `http://${ctx.blobStoreHost}`,
-        token: BLOB_TOKEN,
-        siteID: ctx.siteID,
-        deployID: ctx.deployID,
+    // The environment variables available during execution
+    const environment = {
+      NETLIFY_BLOBS_CONTEXT: Buffer.from(
+        JSON.stringify({
+          edgeURL: `http://${ctx.blobStoreHost}`,
+          token: BLOB_TOKEN,
+          siteID: ctx.siteID,
+          deployID: ctx.deployID,
+        }),
+      ).toString('base64'),
+      ...(env || {}),
+    }
+    const response = (await execute({
+      event: {
+        headers: headers || {},
+        httpMethod: httpMethod || 'GET',
+        rawUrl: new URL(url || '/', 'https://example.netlify').href,
+      },
+      environment,
+      envdestroy: true,
+      lambdaFunc: { handler },
+      timeoutMs: 4_000,
+    })) as LambdaResponse
+
+    const responseHeaders = Object.entries(response.multiValueHeaders || {}).reduce(
+      (prev, [key, value]) => ({
+        ...prev,
+        [key]: value.length === 1 ? `${value}` : value.join(', '),
       }),
-    ).toString('base64'),
-    ...(env || {}),
-  }
-  const response = (await execute({
-    event: {
-      headers: headers || {},
-      httpMethod: httpMethod || 'GET',
-      rawUrl: new URL(url || '/', 'https://example.netlify').href,
-    },
-    environment,
-    envdestroy: true,
-    lambdaFunc: { handler },
-    timeoutMs: 4_000,
-  })) as LambdaResponse
+      response.headers || {},
+    )
 
-  const responseHeaders = Object.entries(response.multiValueHeaders || {}).reduce(
-    (prev, [key, value]) => ({
-      ...prev,
-      [key]: value.length === 1 ? `${value}` : value.join(', '),
-    }),
-    response.headers || {},
-  )
-
-  return {
-    statusCode: response.statusCode,
-    body: await streamToString(response.body),
-    headers: responseHeaders,
-    isBase64Encoded: response.isBase64Encoded,
+    return {
+      statusCode: response.statusCode,
+      body: await streamToString(response.body),
+      headers: responseHeaders,
+      isBase64Encoded: response.isBase64Encoded,
+    }
+  } finally {
+    cwdMock.mockRestore()
   }
 }
 

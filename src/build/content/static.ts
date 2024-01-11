@@ -39,11 +39,12 @@ export const copyStaticContent = async (ctx: PluginContext): Promise<void> => {
 export const copyStaticAssets = async (ctx: PluginContext): Promise<void> => {
   try {
     await rm(ctx.staticDir, { recursive: true, force: true })
+    const { basePath } = await ctx.getRoutesManifest()
     if (existsSync(ctx.resolve('public'))) {
-      await cp(ctx.resolve('public'), ctx.staticDir, { recursive: true })
+      await cp(ctx.resolve('public'), join(ctx.staticDir, basePath), { recursive: true })
     }
     if (existsSync(join(ctx.publishDir, 'static'))) {
-      await cp(join(ctx.publishDir, 'static'), join(ctx.staticDir, '_next/static'), {
+      await cp(join(ctx.publishDir, 'static'), join(ctx.staticDir, basePath, '_next/static'), {
         recursive: true,
       })
     }
