@@ -369,6 +369,11 @@ export async function invokeEdgeFunction(
     url?: string
 
     /**
+     * Custom headers for the request
+     */
+    headers?: Record<string, string>
+
+    /**
      * Whether to follow redirects
      */
     redirect?: RequestInit['redirect']
@@ -397,6 +402,7 @@ export async function invokeEdgeFunction(
       'x-nf-passthrough-host': passthroughHost,
       'x-nf-passthrough-proto': 'http:',
       'x-nf-request-id': v4(),
+      ...options.headers,
     },
   })
 }

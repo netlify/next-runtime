@@ -1,10 +1,19 @@
 import type { Context } from '@netlify/edge-functions'
 
+import matchers from './matchers.json' assert { type: 'json' }
+
 import { buildNextRequest, RequestData } from './lib/next-request.ts'
 import { buildResponse } from './lib/response.ts'
 import { FetchEventResult } from './lib/response.ts'
+import {
+  type MiddlewareRouteMatch,
+  getMiddlewareRouteMatcher,
+  searchParamsToUrlQuery,
+} from './lib/routing.ts'
 
 type NextHandler = (params: { request: RequestData }) => Promise<FetchEventResult>
+
+const matchesMiddleware: MiddlewareRouteMatch = getMiddlewareRouteMatcher(matchers || [])
 
 /**
  * Runs a Next.js middleware as a Netlify Edge Function. It translates a web
@@ -20,12 +29,16 @@ export async function handleMiddleware(
   context: Context,
   nextHandler: NextHandler,
 ) {
-  // Don't run in dev
-  if (Netlify.env.has('NETLIFY_DEV')) {
+  const nextRequest = buildNextRequest(request, context)
+  const url = new URL(request.url)
+
+  // While we have already checked the path when mapping to the edge function,
+  // Next.js supports extra rules that we need to check here too, because we
+  // might be running an edge function for a path we should not. If we find
+  // that's the case, short-circuit the execution.
+  if (!matchesMiddleware(url.pathname, request, searchParamsToUrlQuery(url.searchParams))) {
     return
   }
-
-  const nextRequest = buildNextRequest(request, context)
 
   try {
     const result = await nextHandler({ request: nextRequest })

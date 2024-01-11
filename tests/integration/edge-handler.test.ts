@@ -1,5 +1,5 @@
 import { v4 } from 'uuid'
-import { beforeEach, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   createFixture,
   invokeEdgeFunction,
@@ -93,4 +93,74 @@ test<FixtureTestContext>('should rewrite to an external URL', async (ctx) => {
   expect(response1.status).toBe(200)
   expect(external.calls).toBe(1)
   expect(origin.calls).toBe(0)
+})
+
+describe("aborts middleware execution when the matcher conditions don't match the request", () => {
+  test<FixtureTestContext>('when the path is excluded', async (ctx) => {
+    await createFixture('middleware', ctx)
+    await runPlugin(ctx)
+
+    const origin = await LocalServer.run(async (req, res) => {
+      expect(req.url).toBe('/_next/data')
+      expect(req.headers['x-hello-from-middleware-req']).toBeUndefined()
+
+      res.write('Hello from origin!')
+      res.end()
+    })
+
+    ctx.cleanup?.push(() => origin.stop())
+
+    const response1 = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      url: '/_next/data',
+    })
+
+    expect(await response1.text()).toBe('Hello from origin!')
+    expect(response1.status).toBe(200)
+    expect(response1.headers.has('x-hello-from-middleware-res')).toBeFalsy()
+    expect(origin.calls).toBe(1)
+  })
+
+  test<FixtureTestContext>('when a request header matches a condition', async (ctx) => {
+    await createFixture('middleware-conditions', ctx)
+    await runPlugin(ctx)
+
+    const origin = await LocalServer.run(async (req, res) => {
+      expect(req.url).toBe('/foo')
+      expect(req.headers['x-hello-from-middleware-req']).toBeUndefined()
+
+      res.write('Hello from origin!')
+      res.end()
+    })
+
+    ctx.cleanup?.push(() => origin.stop())
+
+    // Request 1: Middleware should run because we're not sending the header.
+    const response1 = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      url: '/foo',
+    })
+
+    expect(await response1.text()).toBe('Hello from origin!')
+    expect(response1.status).toBe(200)
+    expect(response1.headers.has('x-hello-from-middleware-res')).toBeTruthy()
+    expect(origin.calls).toBe(1)
+
+    // Request 1: Middleware should not run because we're sending the header.
+    const response2 = await invokeEdgeFunction(ctx, {
+      headers: {
+        'x-custom-header': 'custom-value',
+      },
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      url: '/foo',
+    })
+
+    expect(await response2.text()).toBe('Hello from origin!')
+    expect(response2.status).toBe(200)
+    expect(response2.headers.has('x-hello-from-middleware-res')).toBeFalsy()
+    expect(origin.calls).toBe(2)
+  })
 })

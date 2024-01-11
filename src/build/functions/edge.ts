@@ -23,16 +23,25 @@ const writeEdgeManifest = async (ctx: PluginContext, manifest: NetlifyManifest) 
   await writeFile(join(ctx.edgeFunctionsDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
 }
 
-const writeHandlerFile = async (ctx: PluginContext, { name }: NextDefinition) => {
+const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefinition) => {
   const handlerName = getHandlerName({ name })
+  const handlerDirectory = join(ctx.edgeFunctionsDir, handlerName)
+  const handlerRuntimeDirectory = join(handlerDirectory, 'edge-runtime')
 
-  await cp(
-    join(ctx.pluginDir, 'edge-runtime'),
-    join(ctx.edgeFunctionsDir, handlerName, 'edge-runtime'),
-    { recursive: true },
-  )
+  // Copying the runtime files. These are the compatibility layer between
+  // Netlify Edge Functions and the Next.js edge runtime.
+  await cp(join(ctx.pluginDir, 'edge-runtime'), handlerRuntimeDirectory, {
+    recursive: true,
+  })
+
+  // Writing a file with the matchers that should trigger this function. We'll
+  // read this file from the function at runtime.
+  await writeFile(join(handlerRuntimeDirectory, 'matchers.json'), JSON.stringify(matchers))
+
+  // Writing the function entry file. It wraps the middleware code with the
+  // compatibility layer mentioned above.
   await writeFile(
-    join(ctx.edgeFunctionsDir, handlerName, `${handlerName}.js`),
+    join(handlerDirectory, `${handlerName}.js`),
     `
     import {handleMiddleware} from './edge-runtime/middleware.ts';
     import handler from './server/${name}.js';
