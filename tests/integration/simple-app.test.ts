@@ -39,6 +39,7 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
     '404',
     '404.html',
     '500.html',
+    'image',
     'index',
     'other',
     'redirect',

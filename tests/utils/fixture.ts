@@ -147,6 +147,9 @@ export async function runPluginStep(
       // INTERNAL_FUNCTIONS_SRC: '.netlify/functions-internal',
       // INTERNAL_EDGE_FUNCTIONS_SRC: '.netlify/edge-functions',
     },
+    netlifyConfig: {
+      redirects: [],
+    },
     utils: {
       build: {
         failBuild: (message, options) => {

@@ -6,9 +6,14 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { NetlifyPluginConstants, NetlifyPluginOptions, NetlifyPluginUtils } from '@netlify/build'
-import { PrerenderManifest, RoutesManifest } from 'next/dist/build/index.js'
-import { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
+import type {
+  NetlifyPluginConstants,
+  NetlifyPluginOptions,
+  NetlifyPluginUtils,
+} from '@netlify/build'
+import type { PrerenderManifest, RoutesManifest } from 'next/dist/build/index.js'
+import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
+import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
 const MODULE_DIR = fileURLToPath(new URL('.', import.meta.url))
 const PLUGIN_DIR = join(MODULE_DIR, '../..')
@@ -49,6 +54,7 @@ export type CacheEntry = {
 
 export class PluginContext {
   utils: NetlifyPluginUtils
+  netlifyConfig: NetlifyPluginOptions['netlifyConfig']
   pluginName: string
   pluginVersion: string
 
@@ -114,6 +120,7 @@ export class PluginContext {
     this.pluginVersion = this.packageJSON.version
     this.constants = options.constants
     this.utils = options.utils
+    this.netlifyConfig = options.netlifyConfig
   }
 
   /** Resolves a path correctly with mono repository awareness  */
@@ -133,6 +140,12 @@ export class PluginContext {
     return JSON.parse(
       await readFile(join(this.publishDir, 'server/middleware-manifest.json'), 'utf-8'),
     )
+  }
+
+  /** Get Next Config from build output **/
+  async getBuildConfig(): Promise<NextConfigComplete> {
+    return JSON.parse(await readFile(join(this.publishDir, 'required-server-files.json'), 'utf-8'))
+      .config
   }
 
   /**

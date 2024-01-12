@@ -12,6 +12,7 @@ import {
 } from './build/content/static.js'
 import { createEdgeHandlers } from './build/functions/edge.js'
 import { createServerHandler } from './build/functions/server.js'
+import { setImageConfig } from './build/image-cdn.js'
 import { PluginContext } from './build/plugin-context.js'
 
 export const onPreBuild = async (options: NetlifyPluginOptions) => {
@@ -25,6 +26,7 @@ export const onBuild = async (options: NetlifyPluginOptions) => {
   if (!existsSync(ctx.publishDir)) {
     ctx.failBuild('Publish directory not found, please check your netlify.toml')
   }
+  await setImageConfig(ctx)
   await saveBuildCache(ctx)
 
   await Promise.all([
