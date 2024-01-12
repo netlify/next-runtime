@@ -50,11 +50,14 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
     const manifest = await ctx.getPrerenderManifest()
 
     await Promise.all(
-      Object.entries(manifest.routes).map(async ([route, meta]) => {
+      Object.entries(manifest.routes).map(async ([route, meta]): Promise<void> => {
         const key = routeToFilePath(route)
         let value: CacheValue
-
         switch (true) {
+          // Parallel route default layout has no prerendered page
+          case meta.dataRoute?.endsWith('/default.rsc') &&
+            !existsSync(join(ctx.publishDir, 'server/app', `${key}.html`)):
+            return
           case meta.dataRoute?.endsWith('.json'):
             value = await buildPagesCacheValue(join(ctx.publishDir, 'server/pages', key))
             break

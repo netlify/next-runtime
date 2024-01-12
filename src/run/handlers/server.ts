@@ -61,10 +61,14 @@ export default async (request: Request) => {
   setVaryHeaders(response.headers, request, nextConfig)
 
   // Temporary workaround for an issue where sending a response with an empty
-  // body causes an unhandled error.
+  // body causes an unhandled error. This doesn't catch everything, but redirects are the
+  // most common case of sending empty bodies. We can't check it directly because these are streams.
+  // The side effect is that responses which do contain data will not be streamed to the client,
+  // but that's fine for redirects.
   // TODO: Remove once a fix has been rolled out.
   if (response.status > 300 && response.status < 400) {
-    return new Response(null, response)
+    const body = await response.text()
+    return new Response(body || null, response)
   }
 
   return response

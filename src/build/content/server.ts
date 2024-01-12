@@ -107,7 +107,10 @@ export const writeTagsManifest = async (ctx: PluginContext): Promise<void> => {
         const meta = JSON.parse(file)
         tags = meta.headers['x-next-cache-tags']
       } catch {
-        console.log(`Unable to read cache tags for: ${path}`)
+        // Parallel route default layout has no prerendered page, so don't warn about it
+        if (!definition.dataRoute?.endsWith('/default.rsc')) {
+          console.log(`Unable to read cache tags for: ${path}`)
+        }
       }
     }
 

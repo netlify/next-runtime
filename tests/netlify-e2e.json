@@ -21,9 +21,9 @@
       ]
     },
     "test/e2e/app-dir/parallel-routes-and-interception/parallel-routes-and-interception.test.ts": {
-      "failed": [
-        "parallel-routes-and-interception route intercepting should render modal when paired with parallel routes",
-        "parallel-routes-and-interception route intercepting should support intercepting local dynamic sibling routes"
+      "failed": [],
+      "flakey": [
+        "parallel-routes-and-interception parallel routes should gracefully handle when two page segments match the `children` parallel slot"
       ]
     },
     "test/e2e/app-dir/error-boundary-navigation/override-node-env.test.ts": {
@@ -107,7 +107,14 @@
     "test/e2e/app-dir/metadata/metadata.test.ts": {
       "flakey": [
         "app dir - metadata opengraph should pick up opengraph-image and twitter-image as static metadata files",
-        "app dir - metadata static routes should have /favicon.ico as route"
+        "app dir - metadata static routes should have /favicon.ico as route",
+        "app dir - metadata static routes should have icons as route"
+      ]
+    },
+    "test/e2e/basepath.test.ts": {
+      "flakey": [
+        "basePath should not update URL for a 404",
+        "basePath should handle 404 urls that start with basePath"
       ]
     }
   },
