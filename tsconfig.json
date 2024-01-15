@@ -10,5 +10,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"],
-  "exclude": ["tests/**/*", "src/**/*.test.ts", "edge-runtime/**"]
+  "exclude": ["tests/**/*", "src/**/*.test.ts", "edge-runtime/**", "tests/netlify-deploy.ts"]
 }

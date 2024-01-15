@@ -73,6 +73,7 @@
     },
     "test/e2e/skip-trailing-slash-redirect/index.test.ts": {
       "flakey": [
+        "skip-trailing-slash-redirect should merge cookies from middleware and API routes correctly",
         "skip-trailing-slash-redirect should merge cookies from middleware and edge API routes correctly",
         "skip-trailing-slash-redirect should handle external rewrite correctly /chained-rewrite-ssr",
         "skip-trailing-slash-redirect should handle external rewrite correctly /chained-rewrite-static",
@@ -101,7 +102,8 @@
         "app dir - metadata dynamic routes social image routes should render og image with twitter-image dynamic routes",
         "app dir - metadata dynamic routes icon image routes should render icon with dynamic routes",
         "app dir - metadata dynamic routes icon image routes should render apple icon with dynamic routes",
-        "app dir - metadata dynamic routes should inject dynamic metadata properly to head"
+        "app dir - metadata dynamic routes should inject dynamic metadata properly to head",
+        "app dir - metadata dynamic routes should use localhost for local prod and fallback to deployment url when metadataBase is falsy"
       ]
     },
     "test/e2e/app-dir/metadata/metadata.test.ts": {
@@ -115,6 +117,12 @@
       "flakey": [
         "basePath should not update URL for a 404",
         "basePath should handle 404 urls that start with basePath"
+      ]
+    },
+    "test/e2e/app-dir/app/index.test.ts": {
+      "flakey": [
+        "app dir - basic should return the `vary` header from edge runtime",
+        "app dir - basic should return the `vary` header from pages for flight requests"
       ]
     }
   },
@@ -139,7 +147,28 @@
       "test/e2e/repeated-forward-slashes-error/repeated-forward-slashes-error.test.ts",
       "test/e2e/app-dir/with-exported-function-config/with-exported-function-config.test.ts",
       "test/e2e/app-dir/x-forwarded-headers/x-forwarded-headers.test.ts",
-      "test/e2e/app-dir/third-parties/basic.test.ts"
+      "test/e2e/app-dir/third-parties/basic.test.ts",
+      "test/e2e/app-dir/conflicting-page-segments/conflicting-page-segments.test.ts",
+      "test/e2e/404-page-router/index.test.ts",
+      "test/e2e/app-dir/app-client-cache/client-cache.test.ts",
+      "test/e2e/app-dir/app-fetch-deduping/app-fetch-deduping.test.ts",
+      "test/e2e/app-dir/app/experimental-compile.test.ts",
+      "test/e2e/app-dir/app/standalone-gsp.test.ts",
+      "test/e2e/app-dir/app/standalone.test.ts",
+      "test/e2e/app-dir/app/vercel-speed-insights.test.ts",
+      "test/e2e/app-dir/build-size/index.test.ts",
+      "test/e2e/app-dir/create-root-layout/create-root-layout.test.ts",
+      "test/e2e/app-dir/headers-static-bailout/headers-static-bailout.test.ts",
+      "test/e2e/app-dir/rewrites-redirects/rewrites-redirects.test.ts",
+      "test/e2e/edge-compiler-can-import-blob-assets/index.test.ts",
+      "test/e2e/i18n-data-fetching-redirect/index.test.ts",
+      "test/e2e/manual-client-base-path/index.test.ts",
+      "test/e2e/no-eslint-warn-with-no-eslint-config/index.test.ts",
+      "test/e2e/switchable-runtime/index.test.ts",
+      "test/e2e/trailingslash-with-rewrite/index.test.ts",
+      "test/e2e/transpile-packages/index.test.ts",
+      "test/e2e/typescript-version-no-warning/typescript-version-no-warning.test.ts",
+      "test/e2e/typescript-version-warning/typescript-version-warning.test.ts"
     ]
   }
 }

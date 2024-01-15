@@ -9,7 +9,7 @@ on:
 env:
   NODE_VERSION: 18.17.1
   PNPM_VERSION: 8.9.0
-  NEXT_REPO: netlify/next.js
+  NEXT_REPO: vercel/next.js
   NEXT_TEST_MODE: deploy
   NEXT_JUNIT_TEST_REPORT: true
   TEST_CONCURRENCY: 8
@@ -28,29 +28,29 @@ jobs:
     if:
       ${{ github.event_name == ('workflow_dispatch' || 'workflow_call') ||
       contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}
-    name: Test group ${{ matrix.group }}/20
+    name: Test group ${{ matrix.group }}/24
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        group: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        group:
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 
     steps:
-      - name: get github token
-        uses: navikt/github-app-token-generator@v1
-        id: token
-        with:
-          private-key: ${{ secrets.TOKENS_PRIVATE_KEY }}
-          app-id: ${{ secrets.TOKENS_APP_ID }}
-          repo: ${{ env.NEXT_REPO }}
+      - name: Get Latest Next.js Release
+        id: next-release
+        run: |
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/vercel/next.js/releases/latest | jq -r .tag_name)
+          echo "Latest release tag is $LATEST_RELEASE"
+          echo "tag=$LATEST_RELEASE" >> $GITHUB_OUTPUT
 
-      - name: checkout next.js repo
+      - name: checkout Next.js repo
         uses: actions/checkout@v4
         with:
           repository: ${{ env.NEXT_REPO }}
-          token: ${{ steps.token.outputs.token }}
           path: ${{ env.next-path }}
+          ref: ${{ steps.next-release.outputs.tag }}
 
       - name: checkout runtime repo
         uses: actions/checkout@v4
@@ -89,11 +89,17 @@ jobs:
           restore-keys: |
             node-cache-
 
-      - name: install next.js
+      - name: patch Next.js
+        run: |
+          cp ../${{ env.runtime-path }}/tests/netlify-deploy.ts test/lib/next-modes/
+          git apply ../${{ env.runtime-path }}/tests/e2e-utils.patch
+        working-directory: ${{ env.next-path }}
+
+      - name: install Next.js
         run: pnpm install
         working-directory: ${{ env.next-path }}
 
-      - name: build next.js
+      - name: build Next.js
         run: pnpm build
         working-directory: ${{ env.next-path }}
 
@@ -126,7 +132,7 @@ jobs:
         env:
           NODE_ENV: production
           NEXT_EXTERNAL_TESTS_FILTERS: ../next-runtime-minimal/tests/netlify-e2e.json
-        run: node run-tests.js -g ${{ matrix.group }}/20 -c ${TEST_CONCURRENCY} --type e2e
+        run: node run-tests.js -g ${{ matrix.group }}/24 -c ${TEST_CONCURRENCY} --type e2e
         working-directory: ${{ env.next-path }}
 
       - name: Upload Test Results

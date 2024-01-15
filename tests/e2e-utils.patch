@@ -1,0 +1,10 @@
+diff --git a/test/lib/e2e-utils.ts b/test/lib/e2e-utils.ts
+index ee43a460d6..9f9aa30d33 100644
+--- a/test/lib/e2e-utils.ts
++++ b/test/lib/e2e-utils.ts
+@@ -7,3 +7,3 @@ import { NextDevInstance } from './next-modes/next-dev'
+ import { NextStartInstance } from './next-modes/next-start'
+-import { NextDeployInstance } from './next-modes/next-deploy'
++import { NextDeployInstance } from './next-modes/netlify-deploy'
+ import { shouldRunTurboDevTest } from './next-test-utils'
+ 
