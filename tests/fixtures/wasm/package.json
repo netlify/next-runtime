@@ -8,9 +8,9 @@
     "build": "next build"
   },
   "dependencies": {
-    "next": "13.5.2",
+    "@vercel/og": "latest",
+    "next": "^14.0.4",
     "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "@vercel/og": "latest"
+    "react-dom": "18.2.0"
   }
 }

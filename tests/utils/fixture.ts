@@ -316,6 +316,7 @@ export async function invokeFunction(
 
     // The environment variables available during execution
     const environment = {
+      NODE_ENV: 'production',
       NETLIFY_BLOBS_CONTEXT: Buffer.from(
         JSON.stringify({
           edgeURL: `http://${ctx.blobStoreHost}`,
