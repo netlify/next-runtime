@@ -139,6 +139,7 @@ export const buildResponse = async ({
   }
 
   if (res.headers.get('x-middleware-next') === '1') {
+    res.headers.delete('x-middleware-next')
     return addMiddlewareHeaders(context.next(), res)
   }
   return res

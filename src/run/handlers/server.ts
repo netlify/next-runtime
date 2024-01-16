@@ -66,7 +66,7 @@ export default async (request: Request) => {
   // The side effect is that responses which do contain data will not be streamed to the client,
   // but that's fine for redirects.
   // TODO: Remove once a fix has been rolled out.
-  if (response.status > 300 && response.status < 400) {
+  if ((response.status > 300 && response.status < 400) || response.status >= 500) {
     const body = await response.text()
     return new Response(body || null, response)
   }

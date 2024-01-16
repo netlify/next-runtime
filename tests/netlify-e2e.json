@@ -116,13 +116,24 @@
     "test/e2e/basepath.test.ts": {
       "flakey": [
         "basePath should not update URL for a 404",
-        "basePath should handle 404 urls that start with basePath"
+        "basePath should handle 404 urls that start with basePath",
+        "basePath should show 404 for page not under the /docs prefix"
       ]
     },
     "test/e2e/app-dir/app/index.test.ts": {
       "flakey": [
         "app dir - basic should return the `vary` header from edge runtime",
         "app dir - basic should return the `vary` header from pages for flight requests"
+      ]
+    },
+    "test/e2e/app-dir/conflicting-page-segments/conflicting-page-segments.test.ts": {
+      "flakey": [
+        "conflicting-page-segments should throw an error when a route groups causes a conflict with a parallel segment"
+      ]
+    },
+    "test/e2e/app-dir/actions-navigation/index.test.ts": {
+      "flakey": [
+        "app-dir action handling should handle actions correctly after following a relative link"
       ]
     }
   },
@@ -168,7 +179,8 @@
       "test/e2e/trailingslash-with-rewrite/index.test.ts",
       "test/e2e/transpile-packages/index.test.ts",
       "test/e2e/typescript-version-no-warning/typescript-version-no-warning.test.ts",
-      "test/e2e/typescript-version-warning/typescript-version-warning.test.ts"
+      "test/e2e/typescript-version-warning/typescript-version-warning.test.ts",
+      "test/e2e/app-dir/app/useReportWebVitals.test.ts"
     ]
   }
 }
