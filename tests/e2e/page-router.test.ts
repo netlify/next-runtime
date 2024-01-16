@@ -12,10 +12,28 @@ test.afterAll(async ({}, testInfo) => {
 })
 
 test('Static revalidate works correctly', async ({ page }) => {
+  // this disables browser cache - otherwise If-None-Match header
+  // is added to repeat requests which result in actual 304 response
+  // with custom headers from function not being returned
+  // additionally Playwright wrongly report 304 as 200
+  // https://github.com/microsoft/playwright/issues/27573
+  // which makes the assertions confusing
+  // see https://playwright.dev/docs/api/class-browsercontext#browser-context-route
+  // > Enabling routing disables http cache.
+  // and https://stackoverflow.com/questions/68522170/playwright-disable-caching-of-webpage-so-i-can-fetch-new-elements-after-scrollin
+  // note - this is likely the same problem that cause assertions at the bottom to be commented out
+  // generally we shouldn't do that
+  page.route('**', (route) => route.continue())
+
   const response1 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
   const headers1 = response1?.headers() || {}
   expect(response1?.status()).toBe(200)
-  expect(headers1['x-nextjs-cache']).toBe('HIT')
+  expect(headers1['x-nextjs-cache']).toBeUndefined()
+  // first time hitting this route - we will invoke function and see
+  // Next cache hit status in the response because it was prerendered
+  // at build time
+  expect(headers1['cache-status']).toMatch(/"Netlify Edge"; fwd=miss/m)
+  expect(headers1['cache-status']).toMatch(/"Next.js"; hit/m)
 
   const date1 = await page.textContent('[data-testid="date-now"]')
   const h1 = await page.textContent('h1')
@@ -24,7 +42,11 @@ test('Static revalidate works correctly', async ({ page }) => {
   const response2 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
   const headers2 = response2?.headers() || {}
   expect(response2?.status()).toBe(200)
-  expect(headers2['x-nextjs-cache']).toBe('HIT')
+  expect(headers2['x-nextjs-cache']).toBeUndefined()
+  // On CDN hit, Next cache status is not added to response anymore
+  // (any cache-status set by functions is not added - this is a platform behavior
+  // not runtime behavior)
+  expect(headers2['cache-status']).toMatch(/"Netlify Edge"; hit/m)
 
   // the page is cached
   const date2 = await page.textContent('[data-testid="date-now"]')
@@ -40,7 +62,14 @@ test('Static revalidate works correctly', async ({ page }) => {
   const response3 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
   const headers3 = response3?.headers() || {}
   expect(response3?.status()).toBe(200)
-  expect(headers3['x-nextjs-cache']).toBe('HIT')
+  expect(headers3?.['x-nextjs-cache']).toBeUndefined()
+  // revalidate refreshes Next cache, but not CDN cache
+  // so our request after revalidation means that Next cache is already
+  // warmed up with fresh response, but CDN cache just knows that previously
+  // cached response is stale, so we are hitting our function that serve
+  // already cached response
+  expect(headers3['cache-status']).toMatch(/"Next.js"; hit/m)
+  expect(headers3['cache-status']).toMatch(/"Netlify Edge"; fwd=stale/m)
 
   // the page has now an updated date
   // TODO: Cache purge is currently not working as expected

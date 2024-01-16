@@ -111,7 +111,7 @@ test<FixtureTestContext>('if the fetch call is cached correctly', async (ctx) =>
   expect(post1Name).toBe('Under the Dome')
   expect(post1.headers, 'the page should be a miss').toEqual(
     expect.objectContaining({
-      'x-nextjs-cache': 'MISS',
+      'cache-status': expect.stringMatching(/"Next.js"; miss/),
     }),
   )
 

@@ -70,7 +70,7 @@ test<FixtureTestContext>('Should revalidate path with On-demand Revalidation', a
   const dateCacheInitial = load(staticPageInitial.body)('[data-testid="date-now"]').text()
 
   expect(staticPageInitial.statusCode).toBe(200)
-  expect(staticPageInitial.headers?.['x-nextjs-cache']).toBe('HIT')
+  expect(staticPageInitial.headers?.['cache-status']).toMatch(/"Next.js"; hit/)
   const blobDataInitial = await ctx.blobStore.get(encodeBlobKey('static/revalidate-manual'), {
     type: 'json',
   })
@@ -91,7 +91,7 @@ test<FixtureTestContext>('Should revalidate path with On-demand Revalidation', a
   expect(blobDateInitial).not.toBe(blobDateRevalidated)
 
   const staticPageRevalidated = await invokeFunction(ctx, { url: '/static/revalidate-manual' })
-  expect(staticPageRevalidated.headers?.['x-nextjs-cache']).toBe('HIT')
+  expect(staticPageRevalidated.headers?.['cache-status']).toMatch(/"Next.js"; hit/)
   const dateCacheRevalidated = load(staticPageRevalidated.body)('[data-testid="date-now"]').text()
 
   console.log({ dateCacheInitial, dateCacheRevalidated })

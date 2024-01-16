@@ -135,3 +135,32 @@ export const setCacheTagsHeaders = (headers: Headers, request: Request, manifest
   const tags = manifest[path]
   headers.set('cache-tag', tags)
 }
+
+/**
+ * https://httpwg.org/specs/rfc9211.html
+ *
+ * We only should get HIT and MISS statuses from Next cache.
+ * We will ignore other statuses and will not set Cache-Status header in those cases.
+ */
+const NEXT_CACHE_TO_CACHE_STATUS: Record<string, string> = {
+  HIT: `hit`,
+  MISS: `miss,`,
+}
+
+/**
+ * x-nextjs-cache header will be confusing to users as very often it will be MISS
+ * even when the CDN serves cached the response. So we'll remove it and instead add
+ * a Cache-Status header for Next cache so users inspect that together with CDN cache status
+ * and not on its own.
+ */
+export const handleNextCacheHeader = (headers: Headers) => {
+  const nextCache = headers.get('x-nextjs-cache')
+  if (typeof nextCache === 'string') {
+    if (nextCache in NEXT_CACHE_TO_CACHE_STATUS) {
+      const cacheStatus = NEXT_CACHE_TO_CACHE_STATUS[nextCache]
+      headers.set('cache-status', `"Next.js"; ${cacheStatus}`)
+    }
+
+    headers.delete('x-nextjs-cache')
+  }
+}

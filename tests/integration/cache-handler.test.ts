@@ -55,7 +55,7 @@ describe('page router', () => {
     expect(load(call1.body)('h1').text()).toBe('Show #71')
     expect(call1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'HIT',
+        'cache-status': expect.stringMatching(/"Next.js"; hit/),
         'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
       }),
     )
@@ -72,7 +72,7 @@ describe('page router', () => {
     expect(call2.statusCode).toBe(200)
     expect(call2.headers, 'a cache miss on a stale page').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'MISS',
+        'cache-status': expect.stringMatching(/"Next.js"; miss/),
       }),
     )
     expect(call2Date, 'the date was cached and is matching the initial one').not.toBe(call1Date)
@@ -84,7 +84,7 @@ describe('page router', () => {
 
     expect(callLater2.headers, 'date header matches the cached value').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'HIT',
+        'cache-status': expect.stringMatching(/"Next.js"; hit/),
         date: callLater.headers['date'],
       }),
     )
@@ -99,7 +99,7 @@ describe('page router', () => {
     expect(call3.statusCode).toBe(200)
     expect(call3.headers, 'a cache hit after dynamically regenerating the stale page').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'HIT',
+        'cache-status': expect.stringMatching(/"Next.js"; hit/),
       }),
     )
   })
@@ -131,7 +131,7 @@ describe('app router', () => {
     expect(load(post1.body)('h1').text()).toBe('Revalidate Fetch')
     expect(post1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'HIT',
+        'cache-status': expect.stringMatching(/"Next.js"; hit/),
         'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
       }),
     )
@@ -143,7 +143,7 @@ describe('app router', () => {
     expect(load(post3.body)('h1').text()).toBe('Revalidate Fetch')
     expect(post3.headers, 'a cache miss on a non prerendered page').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'MISS',
+        'cache-status': expect.stringMatching(/"Next.js"; miss/),
       }),
     )
 
@@ -157,7 +157,7 @@ describe('app router', () => {
     expect(stale.statusCode).toBe(200)
     expect(stale.headers, 'a cache miss on a stale page').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'MISS',
+        'cache-status': expect.stringMatching(/"Next.js"; miss/),
       }),
     )
     // it should have a new date rendered
@@ -173,7 +173,7 @@ describe('app router', () => {
     expect(staleDate, 'the date was not cached').toBe(cachedDate)
     expect(cached.headers, 'a cache hit after dynamically regenerating the stale page').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'HIT',
+        'cache-status': expect.stringMatching(/"Next.js"; hit/),
       }),
     )
   })
@@ -228,7 +228,7 @@ describe('route', () => {
     })
     expect(call1.headers, 'a cache hit on the first invocation of a prerendered route').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'HIT',
+        'cache-status': expect.stringMatching(/"Next.js"; hit/),
       }),
     )
     // wait to have a stale route
@@ -242,7 +242,7 @@ describe('route', () => {
     expect(call2Body).toMatchObject({ data: expect.objectContaining({ id: 1 }) })
     expect(call2.headers, 'a cache miss on a stale route').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'MISS',
+        'cache-status': expect.stringMatching(/"Next.js"; miss/),
       }),
     )
     expect(call1Time, 'the date is a new one on a stale route').not.toBe(call2Time)
@@ -257,7 +257,7 @@ describe('route', () => {
     expect(call3Body).toMatchObject({ data: expect.objectContaining({ id: 1 }) })
     expect(call3.headers, 'a cache hit after dynamically regenerating the stale  route').toEqual(
       expect.objectContaining({
-        'x-nextjs-cache': 'HIT',
+        'cache-status': expect.stringMatching(/"Next.js"; hit/),
       }),
     )
     expect(call3Time, 'the date was cached as well').toBe(call2Time)

@@ -39,7 +39,7 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   expect(load(post1.body)('h1').text()).toBe('Hello, Static Fetch 1')
   expect(post1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
     expect.objectContaining({
-      'x-nextjs-cache': 'HIT',
+      'cache-status': expect.stringMatching(/"Next.js"; hit/),
       'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
     }),
   )
@@ -57,7 +57,7 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   expect(load(post2.body)('h1').text()).toBe('Hello, Static Fetch 1')
   expect(post2.headers, 'a cache miss on the on demand revalidated page').toEqual(
     expect.objectContaining({
-      'x-nextjs-cache': 'MISS',
+      'cache-status': expect.stringMatching(/"Next.js"; miss/),
       'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
     }),
   )
@@ -72,7 +72,7 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   expect(load(post3.body)('h1').text()).toBe('Hello, Static Fetch 1')
   expect(post3.headers, 'a cache hit on the revalidated and regenerated page').toEqual(
     expect.objectContaining({
-      'x-nextjs-cache': 'HIT',
+      'cache-status': expect.stringMatching(/"Next.js"; hit/),
       'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
     }),
   )
