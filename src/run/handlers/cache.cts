@@ -34,6 +34,8 @@ function encodeBlobKey(key: string) {
   return Buffer.from(key.replace(/^\//, '')).toString('base64')
 }
 
+const fetchBeforeNextPatchedIt = globalThis.fetch
+
 export class NetlifyCacheHandler implements CacheHandler {
   options: CacheHandlerContext
   revalidatedTags: string[]
@@ -42,7 +44,7 @@ export class NetlifyCacheHandler implements CacheHandler {
   constructor(options: CacheHandlerContext) {
     this.options = options
     this.revalidatedTags = options.revalidatedTags
-    this.blobStore = getDeployStore()
+    this.blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt })
   }
 
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
