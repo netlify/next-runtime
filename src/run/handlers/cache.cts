@@ -5,7 +5,7 @@ import { Buffer } from 'node:buffer'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path/posix'
 
-import { getDeployStore } from '@netlify/blobs'
+import { getDeployStore, Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
 import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
@@ -19,8 +19,6 @@ import type {
 import type { CacheEntry } from '../../build/plugin-context.ts'
 
 type TagManifest = { revalidatedAt: number }
-
-export const blobStore = getDeployStore()
 
 // load the prerender manifest
 const prerenderManifest: PrerenderManifest = JSON.parse(
@@ -39,10 +37,12 @@ function encodeBlobKey(key: string) {
 export class NetlifyCacheHandler implements CacheHandler {
   options: CacheHandlerContext
   revalidatedTags: string[]
+  blobStore: Store
 
   constructor(options: CacheHandlerContext) {
     this.options = options
     this.revalidatedTags = options.revalidatedTags
+    this.blobStore = getDeployStore()
   }
 
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
@@ -50,7 +50,7 @@ export class NetlifyCacheHandler implements CacheHandler {
 
     console.debug(`[NetlifyCacheHandler.get]: ${key}`)
 
-    const blob = (await blobStore.get(encodeBlobKey(key), {
+    const blob = (await this.blobStore.get(encodeBlobKey(key), {
       type: 'json',
     })) as CacheEntry | null
 
@@ -104,7 +104,7 @@ export class NetlifyCacheHandler implements CacheHandler {
 
     console.debug(`[NetlifyCacheHandler.set]: ${key}`)
 
-    await blobStore.setJSON(encodeBlobKey(key), {
+    await this.blobStore.setJSON(encodeBlobKey(key), {
       lastModified: Date.now(),
       value: data,
     })
@@ -119,7 +119,7 @@ export class NetlifyCacheHandler implements CacheHandler {
     }
 
     try {
-      await blobStore.setJSON(encodeBlobKey(tag), data)
+      await this.blobStore.setJSON(encodeBlobKey(tag), data)
     } catch (error) {
       console.warn(`Failed to update tag manifest for ${tag}`, error)
     }
@@ -142,7 +142,7 @@ export class NetlifyCacheHandler implements CacheHandler {
     const cacheTags = [...tags, ...softTags]
     const allManifests = await Promise.all(
       cacheTags.map(async (tag) => {
-        const res = await blobStore
+        const res = await this.blobStore
           .get(encodeBlobKey(tag), { type: 'json' })
           .then((value: TagManifest) => ({ [tag]: value }))
           .catch(console.error)
