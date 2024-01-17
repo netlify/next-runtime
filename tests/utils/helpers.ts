@@ -63,6 +63,7 @@ export const startMockBlobStore = async (ctx: FixtureTestContext) => {
   })
   await ctx.blobServer.start()
   ctx.blobStoreHost = `localhost:${port}`
+  ctx.blobStorePort = port
   vi.stubEnv('NETLIFY_BLOBS_CONTEXT', createBlobContext(ctx))
 
   ctx.blobStore = getDeployStore({

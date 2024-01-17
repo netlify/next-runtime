@@ -3,7 +3,7 @@ import getPort from 'get-port'
 import { getLogger } from 'lambda-local'
 import { createServer, type Server } from 'node:http'
 import { v4 } from 'uuid'
-import { afterAll, beforeAll, beforeEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import {
   createFixture,
   invokeFunction,
@@ -22,6 +22,10 @@ import {
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
 
+let apiBase: string
+let testServer: Server
+let handlerCalled = 0
+
 beforeEach<FixtureTestContext>(async (ctx) => {
   // set for each test a new deployID and siteID
   ctx.deployID = generateRandomObjectID()
@@ -32,15 +36,10 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   // vi.spyOn(console, 'debug').mockImplementation(() => {})
 
   await startMockBlobStore(ctx)
-})
 
-let apiBase: string
-let testServer: Server
-let handlerCalled = 0
-
-beforeAll(async () => {
   // create a fake endpoint to test if it got called
-  const port = await getPort({ host: '0.0.0.0' })
+  const port = await getPort({ host: '0.0.0.0', exclude: [ctx.blobStorePort] })
+  handlerCalled = 0
 
   testServer = createServer((_, res) => {
     handlerCalled++
@@ -56,7 +55,7 @@ beforeAll(async () => {
   })
 })
 
-afterAll(async () => {
+afterEach(async () => {
   testServer.closeAllConnections()
   await new Promise((resolve) => {
     testServer.on('close', resolve)

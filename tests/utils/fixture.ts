@@ -30,6 +30,7 @@ export interface FixtureTestContext extends TestContext {
   siteID: string
   deployID: string
   blobStoreHost: string
+  blobStorePort: number
   blobServer: BlobsServer
   blobStore: ReturnType<typeof getStore>
   functionDist: string
