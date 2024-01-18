@@ -1,5 +1,5 @@
 {
-  "name": "middleware-conditions",
+  "name": "middleware-trailing-slash",
   "version": "0.1.0",
   "private": true,
   "scripts": {

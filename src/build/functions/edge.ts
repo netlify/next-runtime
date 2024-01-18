@@ -24,6 +24,7 @@ const writeEdgeManifest = async (ctx: PluginContext, manifest: NetlifyManifest) 
 }
 
 const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefinition) => {
+  const nextConfig = await ctx.getBuildConfig()
   const handlerName = getHandlerName({ name })
   const handlerDirectory = join(ctx.edgeFunctionsDir, handlerName)
   const handlerRuntimeDirectory = join(handlerDirectory, 'edge-runtime')
@@ -37,6 +38,20 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
   // Writing a file with the matchers that should trigger this function. We'll
   // read this file from the function at runtime.
   await writeFile(join(handlerRuntimeDirectory, 'matchers.json'), JSON.stringify(matchers))
+
+  // The config is needed by the edge function to match and normalize URLs. To
+  // avoid shipping and parsing a large file at runtime, let's strip it down to
+  // just the properties that the edge function actually needs.
+  const minimalNextConfig = {
+    basePath: nextConfig.basePath,
+    i18n: nextConfig.i18n,
+    trailingSlash: nextConfig.trailingSlash,
+  }
+
+  await writeFile(
+    join(handlerRuntimeDirectory, 'next.config.json'),
+    JSON.stringify(minimalNextConfig),
+  )
 
   // Writing the function entry file. It wraps the middleware code with the
   // compatibility layer mentioned above.

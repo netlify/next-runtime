@@ -1,16 +1,16 @@
-// If the redirect is a data URL, we need to normalize it.
+// If the URL path matches a data URL, we need to normalize it.
 // https://github.com/vercel/next.js/blob/25e0988e7c9033cb1503cbe0c62ba5de2e97849c/packages/next/src/shared/lib/router/utils/get-next-pathname-info.ts#L69-L76
-export function normalizeDataUrl(redirect: string) {
-  if (redirect.startsWith('/_next/data/') && redirect.includes('.json')) {
-    const paths = redirect
+export function normalizeDataUrl(urlPath: string) {
+  if (urlPath.startsWith('/_next/data/') && urlPath.includes('.json')) {
+    const paths = urlPath
       .replace(/^\/_next\/data\//, '')
       .replace(/\.json/, '')
       .split('/')
 
-    redirect = paths[1] !== 'index' ? `/${paths.slice(1).join('/')}` : '/'
+    urlPath = paths[1] !== 'index' ? `/${paths.slice(1).join('/')}` : '/'
   }
 
-  return redirect
+  return urlPath
 }
 
 /**

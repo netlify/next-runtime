@@ -106,7 +106,7 @@ export const buildResponse = async ({ context, logger, request, result }: BuildR
   const isDataReq = request.headers.get('x-nextjs-data')
 
   if (rewrite) {
-    logger.withFields({ rewrite_url: rewrite }).debug('Is rewrite')
+    logger.withFields({ rewrite_url: rewrite }).debug('Found middleware rewrite')
 
     const rewriteUrl = new URL(rewrite, request.url)
     const baseUrl = new URL(request.url)

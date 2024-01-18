@@ -29,5 +29,5 @@ export const setRunConfig = (config: NextConfigComplete) => {
 export type TagsManifest = Record<string, string>
 
 export const getTagsManifest = async (): Promise<TagsManifest> => {
-  return JSON.parse(await readFile(resolve('.netlify/tags-manifest.json'), 'utf-8'))
+  return JSON.parse(await readFile(resolve(PLUGIN_DIR, '.netlify/tags-manifest.json'), 'utf-8'))
 }

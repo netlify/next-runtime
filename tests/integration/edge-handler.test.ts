@@ -84,9 +84,6 @@ describe('redirect', () => {
 
     ctx.cleanup?.push(() => origin.stop())
 
-    const foo = await response.text()
-    console.log(foo)
-
     expect(response.status).toBe(307)
     expect(response.headers.get('location'), 'added a location header').toBeTypeOf('string')
     expect(
@@ -197,5 +194,55 @@ describe("aborts middleware execution when the matcher conditions don't match th
     expect(response2.status).toBe(200)
     expect(response2.headers.has('x-hello-from-middleware-res')).toBeFalsy()
     expect(origin.calls).toBe(2)
+  })
+})
+
+describe('should run middleware on data requests', () => {
+  test<FixtureTestContext>('when `trailingSlash: false`', async (ctx) => {
+    await createFixture('middleware', ctx)
+    await runPlugin(ctx)
+
+    const origin = new LocalServer()
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      redirect: 'manual',
+      url: '/_next/data/dJvEyLV8MW7CBLFf0Ecbk/test/redirect-with-headers.json',
+    })
+
+    ctx.cleanup?.push(() => origin.stop())
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location'), 'added a location header').toBeTypeOf('string')
+    expect(
+      new URL(response.headers.get('location') as string).pathname,
+      'redirected to the correct path',
+    ).toEqual('/other')
+    expect(response.headers.get('x-header-from-redirect'), 'hello').toBe('hello')
+    expect(origin.calls).toBe(0)
+  })
+
+  test<FixtureTestContext>('when `trailingSlash: true`', async (ctx) => {
+    await createFixture('middleware-trailing-slash', ctx)
+    await runPlugin(ctx)
+
+    const origin = new LocalServer()
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      redirect: 'manual',
+      url: '/_next/data/dJvEyLV8MW7CBLFf0Ecbk/test/redirect-with-headers.json',
+    })
+
+    ctx.cleanup?.push(() => origin.stop())
+
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location'), 'added a location header').toBeTypeOf('string')
+    expect(
+      new URL(response.headers.get('location') as string).pathname,
+      'redirected to the correct path',
+    ).toEqual('/other')
+    expect(response.headers.get('x-header-from-redirect'), 'hello').toBe('hello')
+    expect(origin.calls).toBe(0)
   })
 })

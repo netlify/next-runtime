@@ -1,6 +1,7 @@
 import type { Context } from '@netlify/edge-functions'
 
 import matchers from './matchers.json' assert { type: 'json' }
+import nextConfig from './next.config.json' assert { type: 'json' }
 
 import { InternalHeaders } from './lib/headers.ts'
 import { logger, LogLevel } from './lib/logging.ts'
@@ -31,7 +32,7 @@ export async function handleMiddleware(
   context: Context,
   nextHandler: NextHandler,
 ) {
-  const nextRequest = buildNextRequest(request, context)
+  const nextRequest = buildNextRequest(request, context, nextConfig)
   const url = new URL(request.url)
   const reqLogger = logger
     .withLogLevel(
