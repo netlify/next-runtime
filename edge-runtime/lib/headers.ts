@@ -1,3 +1,8 @@
+export const InternalHeaders = {
+  NFDebugLogging: 'x-nf-debug-logging',
+  NFRequestID: 'x-nf-request-id',
+}
+
 // Next 13 supports request header mutations and has the side effect of prepending header values with 'x-middleware-request'
 // as part of invoking NextResponse.next() in the middleware. We need to remove that before sending the response the user
 // as the code that removes it in Next isn't run based on how we handle the middleware

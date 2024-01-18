@@ -16,3 +16,5 @@ import 'https://deno.land/x/html_rewriter@v0.1.0-pre.17/index.ts'
 
 import 'https://esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/request.js'
 import 'https://esm.sh/v91/next@12.2.5/deno/dist/server/web/spec-extension/response.js'
+
+import 'https://v1-7-0--edge-utils.netlify.app/logger/mod.ts'

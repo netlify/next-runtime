@@ -17,8 +17,11 @@ How to add new integration test scenarios to the application:
 4. Add your test
 
 > Currently the tests require a built version of the `dist/run/handlers/cache.cjs` so you need to
-> run `npm run build` before executing the integration tests. In addition, the integration tests
-> need to be prepared before first use. You can do this by running `npm run pretest`.
+> run `npm run build` before executing the integration tests.
+
+In addition, the integration tests need to be prepared before first use. You can do this by running
+`npm run pretest`. To speed up this process and build only the fixtures whose name starts with a
+given prefix, run `npm run pretest -- <prefix>`.
 
 ### E2E testing
 

@@ -2,6 +2,7 @@ import type { Context } from '@netlify/edge-functions'
 import { HTMLRewriter } from '../vendor/deno.land/x/html_rewriter@v0.1.0-pre.17/index.ts'
 
 import { updateModifiedHeaders } from './headers.ts'
+import type { StructuredLogger } from './logging.ts'
 import { normalizeDataUrl, relativizeURL } from './util.ts'
 import { addMiddlewareHeaders, isMiddlewareRequest, isMiddlewareResponse } from './middleware.ts'
 
@@ -10,15 +11,18 @@ export interface FetchEventResult {
   waitUntil: Promise<any>
 }
 
-export const buildResponse = async ({
-  result,
-  request,
-  context,
-}: {
-  result: FetchEventResult
-  request: Request
+interface BuildResponseOptions {
   context: Context
-}) => {
+  logger: StructuredLogger
+  request: Request
+  result: FetchEventResult
+}
+
+export const buildResponse = async ({ context, logger, request, result }: BuildResponseOptions) => {
+  logger
+    .withFields({ is_nextresponse_next: result.response.headers.has('x-middleware-next') })
+    .debug('Building Next.js response')
+
   updateModifiedHeaders(request.headers, result.response.headers)
 
   // They've returned the MiddlewareRequest directly, so we'll call `next()` for them.
@@ -102,6 +106,8 @@ export const buildResponse = async ({
   const isDataReq = request.headers.get('x-nextjs-data')
 
   if (rewrite) {
+    logger.withFields({ rewrite_url: rewrite }).debug('Is rewrite')
+
     const rewriteUrl = new URL(rewrite, request.url)
     const baseUrl = new URL(request.url)
     const relativeUrl = relativizeURL(rewrite, request.url)
@@ -142,5 +148,6 @@ export const buildResponse = async ({
     res.headers.delete('x-middleware-next')
     return addMiddlewareHeaders(context.next(), res)
   }
+
   return res
 }

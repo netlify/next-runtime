@@ -8,7 +8,7 @@ import { zipFunctions } from '@netlify/zip-it-and-ship-it'
 import { execaCommand } from 'execa'
 import getPort from 'get-port'
 import { execute } from 'lambda-local'
-import { existsSync } from 'node:fs'
+import { createWriteStream, existsSync, type WriteStream } from 'node:fs'
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, parse, relative } from 'node:path'
@@ -35,6 +35,7 @@ export interface FixtureTestContext extends TestContext {
   blobStore: ReturnType<typeof getStore>
   functionDist: string
   edgeFunctionPort: number
+  edgeFunctionOutput: WriteStream
   cleanup?: (() => Promise<void>)[]
 }
 
@@ -63,10 +64,31 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
 
   ctx.cleanup = []
 
+  // Path to a temporary file that receives the stderr and stdout of the edge
+  // functions server. This lets us capture logs reliably, which isn't the
+  // case if we pipe them to the parent process (the test runner).
+  const edgeFunctionsLogsPath = join(ctx.cwd, 'edge-functions-output.netlify')
+
+  ctx.edgeFunctionOutput = createWriteStream(edgeFunctionsLogsPath, {
+    flags: 'a',
+  })
+
   if (env.INTEGRATION_PERSIST) {
     console.log(
       `💾 Fixture '${fixture}' has been persisted at '${ctx.cwd}'. To clean up automatically, run tests without the 'INTEGRATION_PERSIST' environment variable.`,
     )
+
+    ctx.cleanup.push(async () => {
+      try {
+        const logOutput = await readFile(edgeFunctionsLogsPath, 'utf8')
+
+        if (!logOutput.trim()) {
+          return
+        }
+
+        console.log(logOutput)
+      } catch {}
+    })
   } else {
     ctx.cleanup.push(async () => {
       try {
@@ -238,16 +260,14 @@ export async function runPlugin(
       basePath: ctx.cwd,
       bootstrapURL,
       port: ctx.edgeFunctionPort,
-      importMapPaths: [],
       servePath: servePath,
       // debug: true,
       userLogger: console.log,
-      featureFlags: {
-        edge_functions_npm_modules: true,
-      },
+      stdout: ctx.edgeFunctionOutput,
+      stderr: ctx.edgeFunctionOutput,
     })
 
-    const { success, features } = await server(
+    await server(
       result.functions.map((fn) => ({
         name: fn.name,
         path: join(dist, 'source/root', relative(ctx.cwd, fn.path)),

@@ -2,6 +2,8 @@ import type { Context } from '@netlify/edge-functions'
 
 import matchers from './matchers.json' assert { type: 'json' }
 
+import { InternalHeaders } from './lib/headers.ts'
+import { logger, LogLevel } from './lib/logging.ts'
 import { buildNextRequest, RequestData } from './lib/next-request.ts'
 import { buildResponse } from './lib/response.ts'
 import { FetchEventResult } from './lib/response.ts'
@@ -31,18 +33,26 @@ export async function handleMiddleware(
 ) {
   const nextRequest = buildNextRequest(request, context)
   const url = new URL(request.url)
+  const reqLogger = logger
+    .withLogLevel(
+      request.headers.has(InternalHeaders.NFDebugLogging) ? LogLevel.Debug : LogLevel.Log,
+    )
+    .withFields({ url_path: url.pathname })
+    .withRequestID(request.headers.get(InternalHeaders.NFRequestID))
 
   // While we have already checked the path when mapping to the edge function,
   // Next.js supports extra rules that we need to check here too, because we
   // might be running an edge function for a path we should not. If we find
   // that's the case, short-circuit the execution.
   if (!matchesMiddleware(url.pathname, request, searchParamsToUrlQuery(url.searchParams))) {
+    reqLogger.debug('Aborting middleware due to runtime rules')
+
     return
   }
 
   try {
     const result = await nextHandler({ request: nextRequest })
-    const response = await buildResponse({ result, request: request, context })
+    const response = await buildResponse({ context, logger: reqLogger, request, result })
 
     return response
   } catch (error) {
