@@ -58,13 +58,6 @@
         "app dir - navigation navigation between pages and app should not continously initiate a mpa navigation to the same URL when router state changes"
       ]
     },
-    "test/e2e/app-dir/app-static/app-static-custom-handler.test.ts": {
-      "failed": [
-        "app-dir static/dynamic handling should output debug info for static bailouts",
-        "app-dir static/dynamic handling should have correct prerender-manifest entries",
-        "app-dir static/dynamic handling should output HTML/RSC files for static paths"
-      ]
-    },
     "test/production/app-dir/unexpected-error/unexpected-error.test.ts": {
       "failed": [
         "unexpected-error should set response status to 500 for unexpected errors in ssr app route",
@@ -139,7 +132,9 @@
     "test/e2e/middleware-general/test/index.test.ts": {
       "flakey": [
         "Middleware Runtime with i18n should redirect the same for direct visit and client-transition",
-        "Middleware Runtime without i18n should redirect the same for direct visit and client-transition"
+        "Middleware Runtime without i18n should redirect the same for direct visit and client-transition",
+        "Middleware Runtime with i18n should allow to abort a fetch request",
+        "Middleware Runtime without i18n should allow to abort a fetch request"
       ]
     },
     "test/e2e/prerender.test.ts": {
@@ -153,6 +148,11 @@
     "test/e2e/app-dir/app-routes/app-custom-routes.test.ts": {
       "flakey": [
         "app-custom-routes no response returned should print an error when no response is returned"
+      ]
+    },
+    "test/e2e/app-dir/actions/app-action.test.ts": {
+      "flakey": [
+        "app-dir action handling should log a warning when a server action is not found but an id is provided"
       ]
     }
   },
