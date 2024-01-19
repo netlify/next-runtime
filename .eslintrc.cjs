@@ -23,6 +23,8 @@ module.exports = {
     'promise/catch-or-return': 'off',
     'promise/always-return': 'off',
     'max-nested-callbacks': 'off',
+    'max-statements': 'off',
+    'require-await': 'off',
     'no-inline-comments': 'off',
     'line-comment-position': 'off',
     'max-lines': 'off',

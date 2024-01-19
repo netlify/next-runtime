@@ -47,11 +47,11 @@ const eszipHelper = join(actualCwd, 'tools/deno/eszip.ts')
 
 function installDependencies(cwd: string) {
   if (existsSync(join(cwd, 'pnpm-lock.yaml'))) {
-    return execaCommand('pnpm install --ignore-scripts --reporter=silent', {
+    return execaCommand(`pnpm install --ignore-scripts --reporter=silent`, {
       cwd,
     })
   }
-  return execaCommand('npm install --ignore-scripts --no-audit --progress=false', { cwd })
+  return execaCommand(`npm install --ignore-scripts --no-audit --progress=false`, { cwd })
 }
 
 /**

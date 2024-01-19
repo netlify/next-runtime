@@ -1,7 +1,7 @@
 import { relative } from 'node:path'
+
 import { defineConfig } from 'vitest/config'
-import { W } from 'vitest/dist/reporters-5f784f42'
-import { BaseSequencer } from 'vitest/node'
+import { BaseSequencer, WorkspaceSpec } from 'vitest/node'
 
 /**
  * Tests that might influence others and should run on an isolated executor (shard)
@@ -11,10 +11,11 @@ const RUN_ISOLATED = new Set([
   'tests/integration/fetch-handler.test.ts',
   'tests/integration/revalidate-path.test.ts',
   'tests/integration/cache-handler.test.ts',
+  'tests/integration/edge-handler.test.ts',
 ])
 
 class Sequencer extends BaseSequencer {
-  async shard(projects: W[]): Promise<W[]> {
+  async shard(projects: WorkspaceSpec[]): Promise<WorkspaceSpec[]> {
     const {
       config: { shard: { index = 1, count = 1 } = {} },
     } = this.ctx
@@ -68,9 +69,10 @@ export default defineConfig({
     unstubEnvs: true,
     unstubGlobals: true,
     environment: 'node',
-    testTimeout: 100000,
+    testTimeout: 100_000,
     setupFiles: ['tests/test-setup.ts'],
     logHeapUsage: true,
+    hookTimeout: 50_000,
     sequence: {
       sequencer: Sequencer,
     },

@@ -131,6 +131,7 @@ jobs:
         env:
           NODE_ENV: production
           NEXT_EXTERNAL_TESTS_FILTERS: ../next-runtime-minimal/tests/netlify-e2e.json
+          NEXT_TEST_SKIP_RETRY_MANIFEST: ../next-runtime-minimal/tests/e2e-skip-retry.json
         run: node run-tests.js -g ${{ matrix.group }}/12 -c ${TEST_CONCURRENCY} --type e2e
         working-directory: ${{ env.next-path }}
 

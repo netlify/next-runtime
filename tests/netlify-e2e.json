@@ -135,6 +135,15 @@
       "flakey": [
         "app-dir action handling should handle actions correctly after following a relative link"
       ]
+    },
+    "test/e2e/middleware-general/test/index.test.ts": {
+      "flakey": [
+        "Middleware Runtime with i18n should redirect the same for direct visit and client-transition",
+        "Middleware Runtime without i18n should redirect the same for direct visit and client-transition"
+      ]
+    },
+    "test/e2e/prerender.test.ts": {
+      "flakey": ["Prerender should handle on-demand revalidate for fallback: blocking"]
     }
   },
   "rules": {
@@ -180,7 +189,8 @@
       "test/e2e/transpile-packages/index.test.ts",
       "test/e2e/typescript-version-no-warning/typescript-version-no-warning.test.ts",
       "test/e2e/typescript-version-warning/typescript-version-warning.test.ts",
-      "test/e2e/app-dir/app/useReportWebVitals.test.ts"
+      "test/e2e/app-dir/app/useReportWebVitals.test.ts",
+      "test/e2e/app-dir/app-static/app-static-custom-handler.test.ts"
     ]
   }
 }
