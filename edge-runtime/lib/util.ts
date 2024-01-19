@@ -13,6 +13,13 @@ export function normalizeDataUrl(urlPath: string) {
   return urlPath
 }
 
+export const removeBasePath = (path: string, basePath?: string) => {
+  if (basePath && path.startsWith(basePath)) {
+    return path.replace(basePath, '')
+  }
+  return path
+}
+
 /**
  * This is how Next handles rewritten URLs.
  */
@@ -23,4 +30,29 @@ export function relativizeURL(url: string | string, base: string | URL) {
   return `${relative.protocol}//${relative.host}` === origin
     ? relative.toString().replace(origin, '')
     : relative.toString()
+}
+
+export const normalizeIndex = (path: string) => (path === '/' ? '/index' : path)
+
+const stripTrailingSlash = (path: string) =>
+  path !== '/' && path.endsWith('/') ? path.slice(0, -1) : path
+
+/**
+ * Modify a data url to point to a new page route.
+ */
+export function rewriteDataPath({
+  dataUrl,
+  newRoute,
+  basePath,
+}: {
+  dataUrl: string
+  newRoute: string
+  basePath?: string
+}) {
+  const normalizedDataUrl = normalizeDataUrl(removeBasePath(dataUrl, basePath))
+
+  return dataUrl.replace(
+    normalizeIndex(normalizedDataUrl),
+    stripTrailingSlash(normalizeIndex(newRoute)),
+  )
 }

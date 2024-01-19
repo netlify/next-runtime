@@ -246,3 +246,33 @@ describe('should run middleware on data requests', () => {
     expect(origin.calls).toBe(0)
   })
 })
+
+describe('page router', () => {
+  test<FixtureTestContext>('should rewrite data requests', async (ctx) => {
+    await createFixture('middleware-pages', ctx)
+    await runPlugin(ctx)
+    const origin = await LocalServer.run(async (req, res) => {
+      res.write(
+        JSON.stringify({
+          url: req.url,
+          headers: req.headers,
+        }),
+      )
+      res.end()
+    })
+    ctx.cleanup?.push(() => origin.stop())
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      headers: {
+        'x-nextjs-data': '1',
+      },
+      origin,
+      url: `/_next/data/build-id/ssr-page.json`,
+    })
+    const res = await response.json()
+    const url = new URL(res.url, 'http://n/')
+    expect(url.pathname).toBe('/_next/data/build-id/ssr-page-2.json')
+    expect(response.headers.get('x-nextjs-rewrite')).toBe('/ssr-page-2/')
+    expect(response.status).toBe(200)
+  })
+})

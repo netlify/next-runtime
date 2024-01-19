@@ -1,6 +1,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
+import { glob } from 'fast-glob'
 import type { EdgeFunctionDefinition as NextDefinition } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 
 import { EDGE_HANDLER_NAME, PluginContext } from '../plugin-context.js'
@@ -23,6 +24,19 @@ const writeEdgeManifest = async (ctx: PluginContext, manifest: NetlifyManifest) 
   await writeFile(join(ctx.edgeFunctionsDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
 }
 
+const copyRuntime = async (ctx: PluginContext, handlerDirectory: string): Promise<void> => {
+  const files = await glob('edge-runtime/**/*', {
+    cwd: ctx.pluginDir,
+    ignore: ['**/*.test.ts'],
+    dot: true,
+  })
+  await Promise.all(
+    files.map((path) =>
+      cp(join(ctx.pluginDir, path), join(handlerDirectory, path), { recursive: true }),
+    ),
+  )
+}
+
 const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefinition) => {
   const nextConfig = await ctx.getBuildConfig()
   const handlerName = getHandlerName({ name })
@@ -31,9 +45,7 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
 
   // Copying the runtime files. These are the compatibility layer between
   // Netlify Edge Functions and the Next.js edge runtime.
-  await cp(join(ctx.pluginDir, 'edge-runtime'), handlerRuntimeDirectory, {
-    recursive: true,
-  })
+  await copyRuntime(ctx, handlerDirectory)
 
   // Writing a file with the matchers that should trigger this function. We'll
   // read this file from the function at runtime.

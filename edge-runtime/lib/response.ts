@@ -3,8 +3,9 @@ import { HTMLRewriter } from '../vendor/deno.land/x/html_rewriter@v0.1.0-pre.17/
 
 import { updateModifiedHeaders } from './headers.ts'
 import type { StructuredLogger } from './logging.ts'
-import { normalizeDataUrl, relativizeURL } from './util.ts'
+import { normalizeDataUrl, relativizeURL, rewriteDataPath } from './util.ts'
 import { addMiddlewareHeaders, isMiddlewareRequest, isMiddlewareResponse } from './middleware.ts'
+import { RequestData } from './next-request.ts'
 
 export interface FetchEventResult {
   response: Response
@@ -16,9 +17,16 @@ interface BuildResponseOptions {
   logger: StructuredLogger
   request: Request
   result: FetchEventResult
+  nextConfig?: RequestData['nextConfig']
 }
 
-export const buildResponse = async ({ context, logger, request, result }: BuildResponseOptions) => {
+export const buildResponse = async ({
+  context,
+  logger,
+  request,
+  result,
+  nextConfig,
+}: BuildResponseOptions) => {
   logger
     .withFields({ is_nextresponse_next: result.response.headers.has('x-middleware-next') })
     .debug('Building Next.js response')
@@ -103,7 +111,7 @@ export const buildResponse = async ({ context, logger, request, result }: BuildR
   const rewrite = res.headers.get('x-middleware-rewrite')
 
   // Data requests (i.e. requests for /_next/data ) need special handling
-  const isDataReq = request.headers.get('x-nextjs-data')
+  const isDataReq = request.headers.has('x-nextjs-data')
 
   if (rewrite) {
     logger.withFields({ rewrite_url: rewrite }).debug('Found middleware rewrite')
@@ -111,23 +119,27 @@ export const buildResponse = async ({ context, logger, request, result }: BuildR
     const rewriteUrl = new URL(rewrite, request.url)
     const baseUrl = new URL(request.url)
     const relativeUrl = relativizeURL(rewrite, request.url)
+    const originalPath = new URL(request.url, `http://n`).pathname
 
     // Data requests might be rewritten to an external URL
     // This header tells the client router the redirect target, and if it's external then it will do a full navigation
     if (isDataReq) {
       res.headers.set('x-nextjs-rewrite', relativeUrl)
+      rewriteUrl.pathname = rewriteDataPath({
+        dataUrl: originalPath,
+        newRoute: relativeUrl,
+        basePath: nextConfig?.basePath,
+      })
     }
     if (rewriteUrl.origin !== baseUrl.origin) {
       // Netlify Edge Functions don't support proxying to external domains, but Next middleware does
-      const proxied = fetch(new Request(rewriteUrl.toString(), request))
+      const proxied = fetch(new Request(rewriteUrl, request))
       return addMiddlewareHeaders(proxied, res)
     }
     res.headers.set('x-middleware-rewrite', relativeUrl)
-
-    request.headers.set('x-original-path', new URL(request.url, `http://n`).pathname)
     request.headers.set('x-middleware-rewrite', rewrite)
 
-    return addMiddlewareHeaders(context.rewrite(rewrite), res)
+    return addMiddlewareHeaders(fetch(new Request(rewriteUrl, request)), res)
   }
 
   const redirect = res.headers.get('Location')

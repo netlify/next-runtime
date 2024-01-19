@@ -1,6 +1,6 @@
 import type { Context } from '@netlify/edge-functions'
 
-import { normalizeDataUrl } from './util.ts'
+import { normalizeDataUrl, removeBasePath } from './util.ts'
 
 interface I18NConfig {
   defaultLocale: string
@@ -33,8 +33,10 @@ export interface RequestData {
   body?: ReadableStream<Uint8Array>
 }
 
-const normalizeRequestURL = (originalURL: string, enforceTrailingSlash: boolean) => {
+const normalizeRequestURL = (originalURL: string, nextConfig?: RequestData['nextConfig']) => {
   const url = new URL(originalURL)
+
+  url.pathname = removeBasePath(url.pathname, nextConfig?.basePath)
 
   // We want to run middleware for data requests and expose the URL of the
   // corresponding pages, so we have to normalize the URLs before running
@@ -43,7 +45,7 @@ const normalizeRequestURL = (originalURL: string, enforceTrailingSlash: boolean)
 
   // Normalizing the trailing slash based on the `trailingSlash` configuration
   // property from the Next.js config.
-  if (enforceTrailingSlash && url.pathname !== '/' && !url.pathname.endsWith('/')) {
+  if (nextConfig?.trailingSlash && url.pathname !== '/' && !url.pathname.endsWith('/')) {
     url.pathname = `${url.pathname}/`
   }
 
@@ -69,7 +71,7 @@ export const buildNextRequest = (
   return {
     headers: Object.fromEntries(headers.entries()),
     geo,
-    url: normalizeRequestURL(url, Boolean(nextConfig?.trailingSlash)),
+    url: normalizeRequestURL(url, nextConfig),
     method,
     ip: context.ip,
     body: body ?? undefined,
