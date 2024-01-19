@@ -151,6 +151,10 @@ console.log(
   } |`,
 )
 
+console.log(
+  `Pass rate: ${((testCount['✅'] / (testCount['✅'] + testCount['❌'])) * 100).toFixed(2)}%`,
+)
+
 console.log('## Test cases')
 
 console.log(details)
