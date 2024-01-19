@@ -78,10 +78,6 @@ export class NextDeployInstance extends NextInstance {
       ? `${testName} - ${process.env.GITHUB_SHA}`
       : testName
 
-    if (fs.existsSync(path.join(this.testDir, 'cache-handler.js'))) {
-      process.env.CUSTOM_CACHE_HANDLER = path.join(this.testDir, 'cache-handler.js')
-    }
-
     const deployRes = await execa(
       'ntl',
       ['deploy', '--build', '--json', '--message', deployTitle ?? ''],
