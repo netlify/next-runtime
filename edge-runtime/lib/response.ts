@@ -26,7 +26,7 @@ export const buildResponse = async ({
   request,
   result,
   nextConfig,
-}: BuildResponseOptions) => {
+}: BuildResponseOptions): Promise<Response | void> => {
   logger
     .withFields({ is_nextresponse_next: result.response.headers.has('x-middleware-next') })
     .debug('Building Next.js response')
@@ -118,12 +118,41 @@ export const buildResponse = async ({
 
     const rewriteUrl = new URL(rewrite, request.url)
     const baseUrl = new URL(request.url)
+    if (rewriteUrl.toString() === baseUrl.toString()) {
+      logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
+      return
+    }
+
     const relativeUrl = relativizeURL(rewrite, request.url)
     const originalPath = new URL(request.url, `http://n`).pathname
 
-    // Data requests might be rewritten to an external URL
-    // This header tells the client router the redirect target, and if it's external then it will do a full navigation
-    if (isDataReq) {
+    if (rewriteUrl.origin !== baseUrl.origin) {
+      // Netlify Edge Functions don't support proxying to external domains, but Next middleware does
+      logger.withFields({ rewrite_url: rewrite }).debug('Rewriting to external url')
+      let proxyRequest: Request
+
+      // Remove Netlify internal headers
+      const headers = new Headers(
+        [...request.headers.entries()].filter(([key]) => !key.startsWith('x-nf-')),
+      )
+      if (request.body && !request.bodyUsed) {
+        // This is not ideal, but streaming to an external URL doesn't work
+        const body = await request.arrayBuffer()
+        proxyRequest = new Request(rewriteUrl, {
+          headers,
+          method: request.method,
+          body,
+        })
+      } else {
+        proxyRequest = new Request(rewriteUrl, {
+          headers,
+          method: request.method,
+        })
+      }
+      return addMiddlewareHeaders(fetch(proxyRequest), res)
+    } else if (isDataReq) {
+      // Data requests might be rewritten to an external URL
+      // This header tells the client router the redirect target, and if it's external then it will do a full navigation
       res.headers.set('x-nextjs-rewrite', relativeUrl)
       rewriteUrl.pathname = rewriteDataPath({
         dataUrl: originalPath,
@@ -131,14 +160,8 @@ export const buildResponse = async ({
         basePath: nextConfig?.basePath,
       })
     }
-    if (rewriteUrl.origin !== baseUrl.origin) {
-      // Netlify Edge Functions don't support proxying to external domains, but Next middleware does
-      const proxied = fetch(new Request(rewriteUrl, request))
-      return addMiddlewareHeaders(proxied, res)
-    }
     res.headers.set('x-middleware-rewrite', relativeUrl)
     request.headers.set('x-middleware-rewrite', rewrite)
-
     return addMiddlewareHeaders(fetch(new Request(rewriteUrl, request)), res)
   }
 
