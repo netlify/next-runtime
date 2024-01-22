@@ -1,5 +1,9 @@
-// If the URL path matches a data URL, we need to normalize it.
-// https://github.com/vercel/next.js/blob/25e0988e7c9033cb1503cbe0c62ba5de2e97849c/packages/next/src/shared/lib/router/utils/get-next-pathname-info.ts#L69-L76
+import type { RequestData } from './next-request.ts'
+
+/**
+ * Normalize a data URL into a route path.
+ * @see https://github.com/vercel/next.js/blob/25e0988e7c9033cb1503cbe0c62ba5de2e97849c/packages/next/src/shared/lib/router/utils/get-next-pathname-info.ts#L69-L76
+ */
 export function normalizeDataUrl(urlPath: string) {
   if (urlPath.startsWith('/_next/data/') && urlPath.includes('.json')) {
     const paths = urlPath
@@ -16,6 +20,18 @@ export function normalizeDataUrl(urlPath: string) {
 export const removeBasePath = (path: string, basePath?: string) => {
   if (basePath && path.startsWith(basePath)) {
     return path.replace(basePath, '')
+  }
+  return path
+}
+
+export const removeLocaleFromPath = (path: string, nextConfig: RequestData['nextConfig']) => {
+  if (nextConfig?.i18n) {
+    for (const locale of nextConfig.i18n.locales) {
+      const regexp = new RegExp(`^/${locale}($|/)`, 'i')
+      if (path.match(regexp)) {
+        return path.replace(regexp, '/') || '/'
+      }
+    }
   }
   return path
 }

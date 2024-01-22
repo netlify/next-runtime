@@ -1,6 +1,6 @@
 import type { Context } from '@netlify/edge-functions'
 
-import { normalizeDataUrl, removeBasePath } from './util.ts'
+import { normalizeDataUrl, removeBasePath, removeLocaleFromPath } from './util.ts'
 
 interface I18NConfig {
   defaultLocale: string
@@ -37,6 +37,7 @@ const normalizeRequestURL = (originalURL: string, nextConfig?: RequestData['next
   const url = new URL(originalURL)
 
   url.pathname = removeBasePath(url.pathname, nextConfig?.basePath)
+  url.pathname = removeLocaleFromPath(url.pathname, nextConfig)
 
   // We want to run middleware for data requests and expose the URL of the
   // corresponding pages, so we have to normalize the URLs before running
