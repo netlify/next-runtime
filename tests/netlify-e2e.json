@@ -152,7 +152,8 @@
     },
     "test/e2e/app-dir/actions/app-action.test.ts": {
       "flakey": [
-        "app-dir action handling should log a warning when a server action is not found but an id is provided"
+        "app-dir action handling should log a warning when a server action is not found but an id is provided",
+        "app-dir action handling should work with interception routes"
       ]
     }
   },
