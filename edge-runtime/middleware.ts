@@ -53,7 +53,13 @@ export async function handleMiddleware(
 
   try {
     const result = await nextHandler({ request: nextRequest })
-    const response = await buildResponse({ context, logger: reqLogger, request, result })
+    const response = await buildResponse({
+      context,
+      logger: reqLogger,
+      request,
+      result,
+      requestLocale: nextRequest.detectedLocale,
+    })
 
     return response
   } catch (error) {

@@ -3,7 +3,7 @@ import { HTMLRewriter } from '../vendor/deno.land/x/html_rewriter@v0.1.0-pre.17/
 
 import { updateModifiedHeaders } from './headers.ts'
 import type { StructuredLogger } from './logging.ts'
-import { normalizeDataUrl, relativizeURL, rewriteDataPath } from './util.ts'
+import { normalizeDataUrl, normalizeLocalePath, relativizeURL, rewriteDataPath } from './util.ts'
 import { addMiddlewareHeaders, isMiddlewareRequest, isMiddlewareResponse } from './middleware.ts'
 import { RequestData } from './next-request.ts'
 
@@ -18,6 +18,7 @@ interface BuildResponseOptions {
   request: Request
   result: FetchEventResult
   nextConfig?: RequestData['nextConfig']
+  requestLocale?: string
 }
 
 export const buildResponse = async ({
@@ -26,6 +27,7 @@ export const buildResponse = async ({
   request,
   result,
   nextConfig,
+  requestLocale,
 }: BuildResponseOptions): Promise<Response | void> => {
   logger
     .withFields({ is_nextresponse_next: result.response.headers.has('x-middleware-next') })
@@ -168,7 +170,22 @@ export const buildResponse = async ({
     return addMiddlewareHeaders(fetch(new Request(rewriteUrl, request)), res)
   }
 
-  const redirect = res.headers.get('Location')
+  let redirect = res.headers.get('location')
+
+  // If we are redirecting a request that had a locale in the URL, we need to add it back in
+  if (redirect && requestLocale) {
+    const redirectUrl = new URL(redirect, request.url)
+
+    const normalizedRedirect = normalizeLocalePath(redirectUrl.pathname, nextConfig?.i18n?.locales)
+
+    const locale = normalizedRedirect.detectedLocale ?? requestLocale
+    // Pages router API routes don't have a locale in the URL
+    if (locale && !redirectUrl.pathname.startsWith(`/api/`)) {
+      redirectUrl.pathname = `/${locale}${normalizedRedirect.pathname}`
+      redirect = redirectUrl.toString()
+      res.headers.set('location', redirect)
+    }
+  }
 
   // Data requests shouldn't automatically redirect in the browser (they might be HTML pages): they're handled by the router
   if (redirect && isDataReq) {

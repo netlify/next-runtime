@@ -1,6 +1,6 @@
 import type { Context } from '@netlify/edge-functions'
 
-import { normalizeDataUrl, removeBasePath, removeLocaleFromPath } from './util.ts'
+import { normalizeDataUrl, removeBasePath, normalizeLocalePath } from './util.ts'
 
 interface I18NConfig {
   defaultLocale: string
@@ -31,13 +31,27 @@ export interface RequestData {
   }
   url: string
   body?: ReadableStream<Uint8Array>
+  detectedLocale?: string
 }
 
-const normalizeRequestURL = (originalURL: string, nextConfig?: RequestData['nextConfig']) => {
+const normalizeRequestURL = (
+  originalURL: string,
+  nextConfig?: RequestData['nextConfig'],
+): { url: string; detectedLocale?: string } => {
   const url = new URL(originalURL)
 
   url.pathname = removeBasePath(url.pathname, nextConfig?.basePath)
-  url.pathname = removeLocaleFromPath(url.pathname, nextConfig)
+
+  let detectedLocale: string | undefined
+
+  if (nextConfig?.i18n) {
+    const { pathname, detectedLocale: detected } = normalizeLocalePath(
+      url.pathname,
+      nextConfig?.i18n?.locales,
+    )
+    url.pathname = pathname
+    detectedLocale = detected
+  }
 
   // We want to run middleware for data requests and expose the URL of the
   // corresponding pages, so we have to normalize the URLs before running
@@ -50,7 +64,10 @@ const normalizeRequestURL = (originalURL: string, nextConfig?: RequestData['next
     url.pathname = `${url.pathname}/`
   }
 
-  return url.toString()
+  return {
+    url: url.toString(),
+    detectedLocale,
+  }
 }
 
 export const buildNextRequest = (
@@ -69,13 +86,16 @@ export const buildNextRequest = (
     timezone,
   }
 
+  const { detectedLocale, url: normalizedUrl } = normalizeRequestURL(url, nextConfig)
+
   return {
     headers: Object.fromEntries(headers.entries()),
     geo,
-    url: normalizeRequestURL(url, nextConfig),
+    url: normalizedUrl,
     method,
     ip: context.ip,
     body: body ?? undefined,
     nextConfig,
+    detectedLocale,
   }
 }
