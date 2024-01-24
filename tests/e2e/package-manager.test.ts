@@ -6,6 +6,19 @@ let ctx: Awaited<ReturnType<typeof createE2EFixture>>
 // those tests have different fixtures and can run in parallel
 test.describe.configure({ mode: 'parallel' })
 
+test.afterEach(async ({ page }, testInfo) => {
+  if (testInfo.status !== testInfo.expectedStatus) {
+    const screenshotPath = testInfo.outputPath(`failure.png`)
+    // Add it to the report to see the failure immediately
+    testInfo.attachments.push({
+      name: 'failure',
+      path: screenshotPath,
+      contentType: 'image/png',
+    })
+    await page.screenshot({ path: screenshotPath, timeout: 5000 })
+  }
+})
+
 test.describe('[Yarn] Package manager', () => {
   test.describe('simple-next-app', () => {
     test.beforeAll(async () => {

@@ -37,9 +37,10 @@ async function bundle(entryPoints, format, watch) {
     options.splitting = true
     options.banner = {
       // this shim is needed for cjs modules that are imported in ESM :(
+      // explicitly use var as it might be already defined in some cases
       js: `
-      const require = await (async () => {
-        const { createRequire } = await import("node:module");
+      var require = await (async () => {
+        var { createRequire } = await import("node:module");
         return createRequire(import.meta.url);
       })();
     `,

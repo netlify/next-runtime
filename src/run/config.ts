@@ -1,5 +1,6 @@
+import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
@@ -16,11 +17,21 @@ export const getRunConfig = async () => {
  * Configure the custom cache handler at request time
  */
 export const setRunConfig = (config: NextConfigComplete) => {
+  const cacheHandler = join(PLUGIN_DIR, 'dist/run/handlers/cache.cjs')
+  if (!existsSync(cacheHandler)) {
+    throw new Error(`Cache handler not found at ${cacheHandler}`)
+  }
+
   // set the path to the cache handler
   config.experimental = {
     ...config.experimental,
-    incrementalCacheHandlerPath: `${PLUGIN_DIR}/dist/run/handlers/cache.cjs`,
+    incrementalCacheHandlerPath: cacheHandler,
   }
+
+  // Next.js 14.1.0 moved the cache handler from experimental to stable
+  // https://github.com/vercel/next.js/pull/57953/files#diff-c49c4767e6ed8627e6e1b8f96b141ee13246153f5e9142e1da03450c8e81e96fL311
+  config.cacheHandler = cacheHandler
+  config.cacheMaxMemorySize = 0
 
   // set config
   process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(config)

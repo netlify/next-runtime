@@ -175,15 +175,15 @@ export async function runPluginStep(
     },
     utils: {
       build: {
-        failBuild: (message, options) => {
+        failBuild: (message, options: { error?: Error } = {}) => {
           if (options.error) console.error(options.error)
           assert.fail(`${message}: ${options?.error || ''}`)
         },
-        failPlugin: (message, options) => {
+        failPlugin: (message, options: { error?: Error } = {}) => {
           if (options.error) console.error(options.error)
           assert.fail(`${message}: ${options?.error || ''}`)
         },
-        cancelBuild: (message, options) => {
+        cancelBuild: (message, options: { error?: Error } = {}) => {
           if (options.error) console.error(options.error)
           assert.fail(`${message}: ${options?.error || ''}`)
         },
@@ -208,6 +208,9 @@ export async function runPlugin(
   ctx: FixtureTestContext,
   constants: Partial<NetlifyPluginConstants> = {},
 ) {
+  // imitate netlify/build here
+  constants.PUBLISH_DIR =
+    constants.PUBLISH_DIR || join(ctx.cwd, constants.PACKAGE_PATH || '', '.next')
   const options = await runPluginStep(ctx, 'onBuild', constants)
 
   const base = new PluginContext(options)

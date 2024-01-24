@@ -79,7 +79,7 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
 
 const copyHandlerDependencies = async (ctx: PluginContext, { name, files }: NextDefinition) => {
   const edgeRuntimePath = join(ctx.pluginDir, 'edge-runtime')
-  const srcDir = ctx.resolve('.next/standalone/.next')
+  const srcDir = join(ctx.standaloneDir, '.next')
   const shimPath = join(edgeRuntimePath, 'shim/index.js')
   const shim = await readFile(shimPath, 'utf8')
   const imports = `import './edge-runtime-webpack.js';`

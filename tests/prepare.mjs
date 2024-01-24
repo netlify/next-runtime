@@ -15,7 +15,7 @@ import pLimit from 'p-limit'
 const fixturesDir = fileURLToPath(new URL(`./fixtures`, import.meta.url))
 const fixtureFilter = argv[2] ?? ''
 
-const limit = pLimit(Math.max(2, cpus().length))
+const limit = pLimit(Math.max(2, cpus().length / 2))
 await Promise.all(
   readdirSync(fixturesDir)
     // Ignoring things like `.DS_Store`.

@@ -10,7 +10,7 @@ import { PluginContext } from '../plugin-context.js'
  * Copy App/Pages Router Javascript needed by the server handler
  */
 export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
-  const srcDir = join(ctx.publishDir, 'standalone/.next')
+  const srcDir = join(ctx.standaloneDir, '.next')
   const destDir = join(ctx.serverHandlerDir, '.next')
 
   const paths = await glob(
@@ -81,27 +81,39 @@ async function recreateNodeModuleSymlinks(src: string, dest: string, org?: strin
 }
 
 export const copyNextDependencies = async (ctx: PluginContext): Promise<void> => {
-  const entries = await readdir(join(ctx.publishDir, 'standalone'))
+  const entries = await readdir(ctx.standaloneDir)
+  const promises: Promise<void>[] = entries.map(async (entry) => {
+    // copy all except the package.json and .next folder as this is handled in a separate function
+    // this will include the node_modules folder as well
+    if (entry === 'package.json' || entry === '.next') {
+      return
+    }
+    const src = join(ctx.standaloneDir, entry)
+    const dest = join(ctx.serverHandlerDir, entry)
+    await cp(src, dest, { recursive: true })
 
-  await Promise.all(
-    entries.map(async (entry) => {
-      if (entry === 'package.json' || entry === '.next') {
-        return
-      }
-      const src = join(ctx.publishDir, 'standalone', entry)
-      const dest = join(ctx.serverHandlerDir, entry)
-      await cp(src, dest, { recursive: true })
-    }),
-  )
+    if (entry === 'node_modules') {
+      await recreateNodeModuleSymlinks(ctx.resolve('node_modules'), dest)
+    }
+  })
+
+  // inside a monorepo there is a root `node_modules` folder that contains all the dependencies
+  const rootSrcDir = join(ctx.standaloneRootDir, 'node_modules')
+  const rootDestDir = join(ctx.serverHandlerRootDir, 'node_modules')
 
   // TODO: @Lukas Holzer test this in monorepos
   // use the node_modules tree from the process.cwd() and not the one from the standalone output
   // as the standalone node_modules are already wrongly assembled by Next.js.
   // see: https://github.com/vercel/next.js/issues/50072
-  await recreateNodeModuleSymlinks(
-    ctx.resolve('node_modules'),
-    join(ctx.serverHandlerDir, 'node_modules'),
-  )
+  if (existsSync(rootSrcDir) && ctx.standaloneRootDir !== ctx.standaloneDir) {
+    promises.push(
+      cp(rootSrcDir, rootDestDir, { recursive: true }).then(() =>
+        recreateNodeModuleSymlinks(ctx.resolve('node_modules'), rootDestDir),
+      ),
+    )
+  }
+
+  await Promise.all(promises)
 }
 
 export const writeTagsManifest = async (ctx: PluginContext): Promise<void> => {

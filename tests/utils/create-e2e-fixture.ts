@@ -28,6 +28,8 @@ export const createE2EFixture = async (
   fixture: string,
   config: {
     packageManger?: PackageManager
+    packagePath?: string
+    buildCommand?: string
   } = {},
 ) => {
   const cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
@@ -50,9 +52,12 @@ export const createE2EFixture = async (
     // on failures we don't delete the deploy
   }
   try {
-    const [packageName] = await Promise.all([buildAndPackRuntime(cwd), copyFixture(fixture, cwd)])
-    await installRuntime(packageName, cwd, config.packageManger || 'npm')
-    const result = await deploySite(cwd)
+    const [packageName] = await Promise.all([
+      buildAndPackRuntime(cwd, config.packagePath, config.buildCommand),
+      copyFixture(fixture, cwd),
+    ])
+    await installRuntime(packageName, cwd, config.packageManger || 'npm', config.packagePath)
+    const result = await deploySite(cwd, config.packagePath)
     console.log(`🌍 Deployed site is live: ${result.url}`)
     deployID = result.deployID
     logs = result.logs
@@ -65,9 +70,6 @@ export const createE2EFixture = async (
 
 /** Copies a fixture folder to a destination */
 async function copyFixture(fixtureName: string, dest: string): Promise<void> {
-  console.log(`🔨 Building runtime...`)
-  await execaCommand('npm run build')
-
   console.log(`📂 Copying fixture to '${dest}'...`)
   const src = fileURLToPath(new URL(`../fixtures/${fixtureName}`, import.meta.url))
   const files = await fg.glob('**/*', {
@@ -88,7 +90,14 @@ async function copyFixture(fixtureName: string, dest: string): Promise<void> {
 }
 
 /** Creates a tarball of the packed npm package at the provided destination */
-async function buildAndPackRuntime(dest: string): Promise<string> {
+async function buildAndPackRuntime(
+  dest: string,
+  packagePath: string = '',
+  buildCommand = 'next build',
+): Promise<string> {
+  console.log(`🔨 Building runtime...`, process.cwd())
+  await execaCommand('npm run build')
+
   console.log(`📦 Creating tarball with 'npm pack'...`)
 
   const { stdout } = await execaCommand(
@@ -98,10 +107,10 @@ async function buildAndPackRuntime(dest: string): Promise<string> {
   const [{ filename, name }] = JSON.parse(stdout)
 
   await writeFile(
-    join(dest, 'netlify.toml'),
+    join(join(dest, packagePath), 'netlify.toml'),
     `[build]
-command = "next build"
-publish = ".next"
+command = "${buildCommand}"
+publish = "${join(packagePath, '.next')}"
 
 [[plugins]]
 package = "${name}"
@@ -115,17 +124,20 @@ async function installRuntime(
   packageName: string,
   cwd: string,
   packageManger: PackageManager,
+  packagePath?: string,
 ): Promise<void> {
   console.log(`🐣 Installing runtime from '${packageName}'...`)
 
-  let command: string = `npm install --ignore-scripts --no-audit --progress=false ${packageName}`
+  let command: string = `npm install --ignore-scripts --no-audit ${packageName}`
 
   switch (packageManger) {
     case 'yarn':
-      command = `yarn add file:./${packageName} --ignore-scripts --no-progress`
+      command = `yarn add file:${join(cwd, packageName)} --ignore-scripts`
       break
     case 'pnpm':
-      command = `pnpm add file:./${packageName} --ignore-scripts --reporter=silent`
+      command = `pnpm add file:${join(cwd, packageName)} ${
+        packagePath ? `--filter ./${packagePath}` : ''
+      } --ignore-scripts`
       break
     case 'bun':
       command = `bun install ./${packageName}`
@@ -139,11 +151,15 @@ async function installRuntime(
   await execaCommand(command, { cwd })
 }
 
-async function deploySite(cwd: string): Promise<DeployResult> {
+async function deploySite(cwd: string, packagePath?: string): Promise<DeployResult> {
   console.log(`🚀 Building and deploying site...`)
 
   const outputFile = 'deploy-output.txt'
-  const cmd = `ntl deploy --build --site ${SITE_ID}`
+  let cmd = `ntl deploy --build --site ${SITE_ID}`
+
+  if (packagePath) {
+    cmd += ` --filter ${packagePath}`
+  }
 
   await execaCommand(cmd, { cwd, all: true }).pipeAll?.(join(cwd, outputFile))
   const output = await readFile(join(cwd, outputFile), 'utf-8')

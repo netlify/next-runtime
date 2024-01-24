@@ -72,6 +72,27 @@ export class PluginContext {
   }
 
   /**
+   * Relative package path in non monorepo setups this is an empty string
+   * @example ''
+   * @example 'apps/my-app'
+   */
+  get packagePath(): string {
+    return this.constants.PACKAGE_PATH || ''
+  }
+
+  /**
+   * Retrieves the root of the `.next/standalone` directory
+   */
+  get standaloneRootDir(): string {
+    return join(this.publishDir, 'standalone')
+  }
+
+  /** Retrieves the `.next/standalone/` directory monorepo aware */
+  get standaloneDir(): string {
+    return join(this.standaloneRootDir, this.constants.PACKAGE_PATH || '')
+  }
+
+  /**
    * Absolute path of the directory that is published and deployed to the Netlify CDN
    * Will be swapped with the publish directory
    * `.netlify/static`
@@ -97,8 +118,16 @@ export class PluginContext {
   }
 
   /** Absolute path of the server handler */
-  get serverHandlerDir(): string {
+  get serverHandlerRootDir(): string {
     return join(this.serverFunctionsDir, SERVER_HANDLER_NAME)
+  }
+
+  get serverHandlerDir(): string {
+    return join(this.serverHandlerRootDir, this.constants.PACKAGE_PATH || '')
+  }
+
+  get nextServerHandler(): string {
+    return join(this.constants.PACKAGE_PATH || '', 'dist/run/handlers/server.js')
   }
 
   /**
