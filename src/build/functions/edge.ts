@@ -115,13 +115,20 @@ const getHandlerName = ({ name }: Pick<NextDefinition, 'name'>): string =>
 const buildHandlerDefinition = (
   ctx: PluginContext,
   { name, matchers, page }: NextDefinition,
-): NetlifyDefinition => ({
-  function: getHandlerName({ name }),
-  name: name === 'middleware' ? 'Next.js Middleware Handler' : `Next.js Edge Handler: ${page}`,
-  pattern: matchers[0].regexp,
-  cache: name === 'middleware' ? undefined : 'manual',
-  generator: `${ctx.pluginName}@${ctx.pluginVersion}`,
-})
+): Array<NetlifyDefinition> => {
+  const fun = getHandlerName({ name })
+  const funName =
+    name === 'middleware' ? 'Next.js Middleware Handler' : `Next.js Edge Handler: ${page}`
+  const cache = name === 'middleware' ? undefined : 'manual'
+  const generator = `${ctx.pluginName}@${ctx.pluginVersion}`
+  return matchers.map((matcher) => ({
+    function: fun,
+    name: funName,
+    pattern: matcher.regexp,
+    cache,
+    generator,
+  }))
+}
 
 export const createEdgeHandlers = async (ctx: PluginContext) => {
   await rm(ctx.edgeFunctionsDir, { recursive: true, force: true })
@@ -133,7 +140,7 @@ export const createEdgeHandlers = async (ctx: PluginContext) => {
   ]
   await Promise.all(nextDefinitions.map((def) => createEdgeHandler(ctx, def)))
 
-  const netlifyDefinitions = nextDefinitions.map((def) => buildHandlerDefinition(ctx, def))
+  const netlifyDefinitions = nextDefinitions.flatMap((def) => buildHandlerDefinition(ctx, def))
   const netlifyManifest = {
     version: 1,
     functions: netlifyDefinitions,
