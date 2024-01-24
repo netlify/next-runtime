@@ -12,3 +12,5 @@ edge-runtime/vendor
 
 deno.lock
 .eslintcache
+/report/index.html
+.DS_Store

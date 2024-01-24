@@ -36,6 +36,9 @@ jobs:
       matrix:
         group: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
+    outputs:
+      tag: ${{ steps.next-release.outputs.tag }}
+
     steps:
       - name: Get Latest Next.js Release
         id: next-release
@@ -167,3 +170,9 @@ jobs:
         if: success() || failure()
         run: |
           deno run -A tools/deno/junit2md.ts artifacts >> $GITHUB_STEP_SUMMARY
+
+      - name: Publish test site
+        if: success() || failure()
+        run: |
+          deno run -A tools/deno/junit2html.ts artifacts ${{needs.e2e.outputs.tag}} > report/index.html
+          npx --yes netlify-cli@latest deploy --prod --cwd report
