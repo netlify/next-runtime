@@ -18,7 +18,9 @@ import { PluginContext } from './build/plugin-context.js'
 export const onPreBuild = async (options: NetlifyPluginOptions) => {
   // Enable Next.js standalone mode at build time
   process.env.NEXT_PRIVATE_STANDALONE = 'true'
-  await restoreBuildCache(new PluginContext(options))
+  if (!options.constants.IS_LOCAL) {
+    await restoreBuildCache(new PluginContext(options))
+  }
 }
 
 export const onBuild = async (options: NetlifyPluginOptions) => {
@@ -27,7 +29,11 @@ export const onBuild = async (options: NetlifyPluginOptions) => {
     ctx.failBuild('Publish directory not found, please check your netlify.toml')
   }
   await setImageConfig(ctx)
-  await saveBuildCache(ctx)
+
+  // only save the build cache if not run via the CLI
+  if (!options.constants.IS_LOCAL) {
+    await saveBuildCache(ctx)
+  }
 
   await Promise.all([
     copyStaticAssets(ctx),
