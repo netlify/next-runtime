@@ -138,7 +138,10 @@
       ]
     },
     "test/e2e/prerender.test.ts": {
-      "flakey": ["Prerender should handle on-demand revalidate for fallback: blocking"]
+      "flakey": [
+        "Prerender should handle on-demand revalidate for fallback: blocking",
+        "Prerender should use correct caching headers for a revalidate page"
+      ]
     },
     "test/e2e/app-dir/app-routes/app-custom-route-base-path.test.ts": {
       "flakey": [

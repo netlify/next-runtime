@@ -81,16 +81,27 @@ async function recreateNodeModuleSymlinks(src: string, dest: string, org?: strin
 }
 
 export const copyNextDependencies = async (ctx: PluginContext): Promise<void> => {
-  const srcDir = join(ctx.publishDir, 'standalone/node_modules')
-  const destDir = join(ctx.serverHandlerDir, 'node_modules')
+  const entries = await readdir(join(ctx.publishDir, 'standalone'))
 
-  await cp(srcDir, destDir, { recursive: true })
+  await Promise.all(
+    entries.map(async (entry) => {
+      if (entry === 'package.json' || entry === '.next') {
+        return
+      }
+      const src = join(ctx.publishDir, 'standalone', entry)
+      const dest = join(ctx.serverHandlerDir, entry)
+      await cp(src, dest, { recursive: true })
+    }),
+  )
 
   // TODO: @Lukas Holzer test this in monorepos
   // use the node_modules tree from the process.cwd() and not the one from the standalone output
   // as the standalone node_modules are already wrongly assembled by Next.js.
   // see: https://github.com/vercel/next.js/issues/50072
-  await recreateNodeModuleSymlinks(ctx.resolve('node_modules'), destDir)
+  await recreateNodeModuleSymlinks(
+    ctx.resolve('node_modules'),
+    join(ctx.serverHandlerDir, 'node_modules'),
+  )
 }
 
 export const writeTagsManifest = async (ctx: PluginContext): Promise<void> => {
