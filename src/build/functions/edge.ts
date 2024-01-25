@@ -77,13 +77,31 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
   )
 }
 
-const copyHandlerDependencies = async (ctx: PluginContext, { name, files }: NextDefinition) => {
+const copyHandlerDependencies = async (
+  ctx: PluginContext,
+  { name, files, wasm }: NextDefinition,
+) => {
   const edgeRuntimePath = join(ctx.pluginDir, 'edge-runtime')
   const srcDir = join(ctx.standaloneDir, '.next')
   const shimPath = join(edgeRuntimePath, 'shim/index.js')
   const shim = await readFile(shimPath, 'utf8')
   const imports = `import './edge-runtime-webpack.js';`
   const exports = `export default _ENTRIES["middleware_${name}"].default;`
+  const parts = [shim, imports]
+
+  if (wasm?.length) {
+    parts.push(
+      `import { decode as _base64Decode } from "../edge-runtime/vendor/deno.land/std@0.175.0/encoding/base64.ts";`,
+    )
+    for (const wasmChunk of wasm ?? []) {
+      const data = await readFile(join(srcDir, wasmChunk.filePath))
+      parts.push(
+        `const ${wasmChunk.name} = _base64Decode(${JSON.stringify(
+          data.toString('base64'),
+        )}).buffer`,
+      )
+    }
+  }
 
   await Promise.all(
     files.map(async (file) => {
@@ -91,10 +109,9 @@ const copyHandlerDependencies = async (ctx: PluginContext, { name, files }: Next
 
       if (file === `server/${name}.js`) {
         const entrypoint = await readFile(join(srcDir, file), 'utf8')
-        const parts = [shim, imports, entrypoint, exports]
 
         await mkdir(dirname(join(destDir, file)), { recursive: true })
-        await writeFile(join(destDir, file), parts.join('\n;'))
+        await writeFile(join(destDir, file), [...parts, entrypoint, exports].join('\n;'))
 
         return
       }

@@ -145,12 +145,14 @@
     },
     "test/e2e/app-dir/app-routes/app-custom-route-base-path.test.ts": {
       "flakey": [
-        "app-custom-routes no response returned should print an error when no response is returned"
+        "app-custom-routes no response returned should print an error when no response is returned",
+        "app-custom-routes error conditions responds with 400 (Bad Request) when the requested method is not a valid HTTP method"
       ]
     },
     "test/e2e/app-dir/app-routes/app-custom-routes.test.ts": {
       "flakey": [
-        "app-custom-routes no response returned should print an error when no response is returned"
+        "app-custom-routes no response returned should print an error when no response is returned",
+        "app-custom-routes error conditions responds with 400 (Bad Request) when the requested method is not a valid HTTP method"
       ]
     },
     "test/e2e/app-dir/actions/app-action.test.ts": {
