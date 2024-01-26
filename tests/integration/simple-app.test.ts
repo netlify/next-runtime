@@ -94,3 +94,17 @@ test<FixtureTestContext>('handlers receive correct site domain', async (ctx) => 
   const url = new URL(data.url)
   expect(url.hostname).toBe('example.netlify')
 })
+
+// adapted from https://github.com/vercel/next.js/blob/bd605245aae4c8545bdd38a597b89ad78ca3d978/test/e2e/app-dir/actions/app-action.test.ts#L119-L127
+test<FixtureTestContext>('handlers can add cookies in route handlers with the correct overrides', async (ctx) => {
+  await createFixture('simple-next-app', ctx)
+  await runPlugin(ctx)
+  const index = await invokeFunction(ctx, { url: '/api/headers' })
+  expect(index.headers['content-type']).toEqual('text/custom')
+  const setCookieHeader = index.headers['set-cookie']
+  expect(setCookieHeader).toContain('bar=bar2; Path=/')
+  expect(setCookieHeader).toContain('baz=baz2; Path=/')
+  expect(setCookieHeader).toContain('foo=foo1; Path=/')
+  expect(setCookieHeader).toContain('test1=value1; Path=/; Secure')
+  expect(setCookieHeader).toContain('test2=value2; Path=/handler; HttpOnly')
+})
