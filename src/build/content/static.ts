@@ -1,10 +1,10 @@
-import { Buffer } from 'node:buffer'
 import { existsSync } from 'node:fs'
 import { cp, mkdir, rename, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 
 import glob from 'fast-glob'
 
+import { encodeBlobKey } from '../../shared/blobkey.js'
 import { PluginContext } from '../plugin-context.js'
 
 /**
@@ -24,8 +24,7 @@ export const copyStaticContent = async (ctx: PluginContext): Promise<void> => {
       paths
         .filter((path) => !paths.includes(`${path.slice(0, -5)}.json`))
         .map(async (path) => {
-          const key = Buffer.from(path).toString('base64')
-          await cp(join(srcDir, path), join(destDir, key), { recursive: true })
+          await cp(join(srcDir, path), join(destDir, await encodeBlobKey(path)), { recursive: true })
         }),
     )
   } catch (error) {

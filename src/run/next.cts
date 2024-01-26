@@ -1,5 +1,4 @@
 import fs from 'fs/promises'
-import { Buffer } from 'node:buffer'
 import { relative, resolve } from 'path'
 
 import { getDeployStore } from '@netlify/blobs'
@@ -13,6 +12,8 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
   const store = getDeployStore()
   const ofs = { ...fs }
 
+  const { encodeBlobKey } = await import("../shared/blobkey.js")
+
   async function readFileFallbackBlobStore(...fsargs: Parameters<FS['promises']['readFile']>) {
     const [path, options] = fsargs
     try {
@@ -23,8 +24,7 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
       // only try to get .html files from the blob store
       if (typeof path === 'string' && path.endsWith('.html')) {
         const relPath = relative(resolve('.next/server/pages'), path)
-        const blobKey = Buffer.from(relPath).toString('base64')
-        const file = await store.get(blobKey)
+        const file = await store.get(await encodeBlobKey(relPath))
         if (file !== null) {
           return file
         }

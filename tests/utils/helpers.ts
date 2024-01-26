@@ -94,12 +94,12 @@ export const getBlobEntries = async (ctx: FixtureTestContext) => {
 /**
  * Converts a string to base64 blob key
  */
-export const encodeBlobKey = (key: string) => Buffer.from(key).toString('base64')
+export const encodeBlobKey = (key: string) => Buffer.from(key).toString('base64url')
 
 /**
  * Converts a base64 blob key to a string
  */
-export const decodeBlobKey = (key: string) => Buffer.from(key, 'base64').toString('utf-8')
+export const decodeBlobKey = (key: string) => Buffer.from(key, 'base64url').toString('utf-8')
 
 /**
  * Fake build utils that are passed to a build plugin execution

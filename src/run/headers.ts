@@ -1,7 +1,7 @@
-import { Buffer } from 'node:buffer'
-
 import { getDeployStore } from '@netlify/blobs'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
+
+import { encodeBlobKey } from '../shared/blobkey.js'
 
 import type { TagsManifest } from './config.js'
 
@@ -74,10 +74,6 @@ export const setVaryHeaders = (
   headers.set(`netlify-vary`, generateNetlifyVaryValues(netlifyVaryValues))
 }
 
-function encodeBlobKey(key: string) {
-  return Buffer.from(key.replace(/^\//, '')).toString('base64')
-}
-
 /**
  * Change the date header to be the last-modified date of the blob. This means the CDN
  * will use the correct expiry time for the response. e.g. if the blob was last modified
@@ -90,7 +86,7 @@ export const adjustDateHeader = async (headers: Headers, request: Request) => {
     return
   }
   const path = new URL(request.url).pathname
-  const key = encodeBlobKey(path)
+  const key = await encodeBlobKey(path)
   const blobStore = getDeployStore()
   // TODO: use metadata for this
   const { lastModified } = (await blobStore.get(key, { type: 'json' })) ?? {}

@@ -86,3 +86,13 @@ test('requesting a non existing page route that needs to be fetched from the blo
 
   expect(await page.textContent('h1')).toBe('404')
 })
+
+test('requesting a page with a very long name works', async ({ page }) => {
+  const response = await page.goto(
+    new URL(
+      '/products/an-incredibly-long-product-name-thats-impressively-repetetively-needlessly-overdimensioned-and-should-be-shortened-to-less-than-255-characters-for-the-sake-of-seo-and-ux-and-first-and-foremost-for-gods-sake-but-nobody-wont-ever-read-this-anyway',
+      ctx.url,
+    ).href,
+  )
+  expect(response?.status()).toBe(200)
+})

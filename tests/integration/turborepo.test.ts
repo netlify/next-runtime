@@ -1,17 +1,13 @@
-import { load } from 'cheerio'
 import { getLogger } from 'lambda-local'
 import { v4 } from 'uuid'
 import { beforeEach, expect, test, vi } from 'vitest'
 import {
   createFixture,
-  invokeFunction,
   runPlugin,
   type FixtureTestContext,
 } from '../utils/fixture.js'
 import {
-  encodeBlobKey,
   generateRandomObjectID,
-  getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
 import { glob } from 'fast-glob'

@@ -1,4 +1,3 @@
-import { Buffer } from 'node:buffer'
 import { readFileSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 // Here we need to actually import `resolve` from node:path as we want to resolve the paths
@@ -14,6 +13,8 @@ import type {
 import type { PrerenderManifest, RoutesManifest } from 'next/dist/build/index.js'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
+
+import { encodeBlobKey } from '../shared/blobkey.js'
 
 const MODULE_DIR = fileURLToPath(new URL('.', import.meta.url))
 const PLUGIN_DIR = join(MODULE_DIR, '../..')
@@ -185,11 +186,10 @@ export class PluginContext {
   }
 
   /**
-   * Write a cache entry to the blob upload directory using
-   * base64 keys to avoid collisions with directories
+   * Write a cache entry to the blob upload directory.
    */
-  async writeCacheEntry(key: string, value: CacheValue): Promise<void> {
-    const path = join(this.blobDir, Buffer.from(key).toString('base64'))
+  async writeCacheEntry(route: string, value: CacheValue): Promise<void> {
+    const path = join(this.blobDir, await encodeBlobKey(route))
     const entry = JSON.stringify({
       lastModified: Date.now(),
       value,

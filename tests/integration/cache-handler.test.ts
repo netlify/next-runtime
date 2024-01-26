@@ -40,9 +40,11 @@ describe('page router', () => {
     console.timeEnd('runPlugin')
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
-    expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
+    expect(blobEntries.map(({ key }) => decodeBlobKey(key.substring(0, 50))).sort()).toEqual([
       '404.html',
       '500.html',
+      // the real key is much longer and ends in a hash, but we only assert on the first 50 chars to make it easier
+      'products/an-incredibly-long-product-n',
       'static/revalidate-automatic',
       'static/revalidate-manual',
       'static/revalidate-slow',
