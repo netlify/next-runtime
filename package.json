@@ -48,7 +48,7 @@
     "@netlify/eslint-config-node": "^7.0.1",
     "@netlify/functions": "^2.5.1",
     "@netlify/serverless-functions-api": "^1.10.1",
-    "@netlify/zip-it-and-ship-it": "^9.28.3",
+    "@netlify/zip-it-and-ship-it": "^9.28.4",
     "@playwright/test": "^1.40.0",
     "@types/node": "^20.9.2",
     "@types/uuid": "^9.0.6",
