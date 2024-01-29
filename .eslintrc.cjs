@@ -27,6 +27,7 @@ module.exports = {
     'require-await': 'off',
     'no-inline-comments': 'off',
     'line-comment-position': 'off',
+    complexity: 'off',
     'max-lines': 'off',
   },
   overrides: [

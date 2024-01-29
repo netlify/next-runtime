@@ -1,6 +1,8 @@
 import { existsSync } from 'node:fs'
 import { cp, mkdir, readFile, readdir, readlink, symlink, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { createRequire } from 'node:module'
+// eslint-disable-next-line no-restricted-imports
+import { dirname, join, resolve } from 'node:path'
 
 import glob from 'fast-glob'
 
@@ -73,7 +75,7 @@ async function recreateNodeModuleSymlinks(src: string, dest: string, org?: strin
             // if it is an organization folder let's create the folder first
             await mkdir(join(dest, org), { recursive: true })
           }
-          await symlink(symlinkDest, symlinkSrc)
+          await symlink(symlinkTarget, symlinkSrc)
         }
       }
     }),
@@ -90,7 +92,7 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
     }
     const src = join(ctx.standaloneDir, entry)
     const dest = join(ctx.serverHandlerDir, entry)
-    await cp(src, dest, { recursive: true })
+    await cp(src, dest, { recursive: true, verbatimSymlinks: true })
 
     if (entry === 'node_modules') {
       await recreateNodeModuleSymlinks(ctx.resolve('node_modules'), dest)
@@ -101,19 +103,30 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
   const rootSrcDir = join(ctx.standaloneRootDir, 'node_modules')
   const rootDestDir = join(ctx.serverHandlerRootDir, 'node_modules')
 
-  // TODO: @Lukas Holzer test this in monorepos
   // use the node_modules tree from the process.cwd() and not the one from the standalone output
   // as the standalone node_modules are already wrongly assembled by Next.js.
   // see: https://github.com/vercel/next.js/issues/50072
   if (existsSync(rootSrcDir) && ctx.standaloneRootDir !== ctx.standaloneDir) {
     promises.push(
-      cp(rootSrcDir, rootDestDir, { recursive: true }).then(() =>
-        recreateNodeModuleSymlinks(ctx.resolve('node_modules'), rootDestDir),
+      cp(rootSrcDir, rootDestDir, { recursive: true, verbatimSymlinks: true }).then(() =>
+        recreateNodeModuleSymlinks(resolve('node_modules'), rootDestDir),
       ),
     )
   }
 
   await Promise.all(promises)
+
+  // detect if it might lead to a runtime issue and throw an error upfront on build time instead of silently failing during runtime
+  const require = createRequire(ctx.serverHandlerDir)
+  try {
+    require.resolve('styled-jsx')
+    require.resolve('next')
+  } catch {
+    throw new Error(
+      'node_modules are not installed correctly, if you are using pnpm please set the public hoist pattern to: `public-hoist-pattern[]=*`.\n' +
+        'Refer to your docs for more details: https://docs.netlify.com/integrations/frameworks/next-js/overview/#pnpm-support',
+    )
+  }
 }
 
 export const writeTagsManifest = async (ctx: PluginContext): Promise<void> => {

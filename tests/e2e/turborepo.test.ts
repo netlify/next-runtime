@@ -32,7 +32,7 @@ test.describe('[PNPM] Package manager', () => {
     await ctx?.cleanup?.(!!testInfo.errors.length)
   })
 
-  test.skip('Static revalidate works correctly', async ({ page }) => {
+  test('Static revalidate works correctly', async ({ page }) => {
     // this disables browser cache - otherwise If-None-Match header
     // is added to repeat requests which result in actual 304 response
     // with custom headers from function not being returned

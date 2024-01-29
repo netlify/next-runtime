@@ -26,7 +26,9 @@ export const onPreBuild = async (options: NetlifyPluginOptions) => {
 export const onBuild = async (options: NetlifyPluginOptions) => {
   const ctx = new PluginContext(options)
   if (!existsSync(ctx.publishDir)) {
-    ctx.failBuild('Publish directory not found, please check your netlify.toml')
+    ctx.failBuild(
+      `Publish directory not found under: ${ctx.publishDir}, please check your netlify.toml`,
+    )
   }
   await setImageConfig(ctx)
 
