@@ -30,7 +30,7 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   await createFixture('server-components', ctx)
   await runPlugin(ctx)
 
-  expect(await ctx.blobStore.get(encodeBlobKey('static-fetch-1'))).not.toBeNull()
+  expect(await ctx.blobStore.get(encodeBlobKey('/static-fetch-1'))).not.toBeNull()
 
   // test the function call
   const post1 = await invokeFunction(ctx, { url: '/static-fetch-1' })

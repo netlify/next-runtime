@@ -12,7 +12,7 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
   const store = getDeployStore()
   const ofs = { ...fs }
 
-  const { encodeBlobKey } = await import("../shared/blobkey.js")
+  const { encodeBlobKey } = await import('../shared/blobkey.js')
 
   async function readFileFallbackBlobStore(...fsargs: Parameters<FS['promises']['readFile']>) {
     const [path, options] = fsargs

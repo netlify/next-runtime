@@ -1,8 +1,8 @@
+import { load } from 'cheerio'
+import glob from 'fast-glob'
+import { getLogger } from 'lambda-local'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { load } from 'cheerio'
-import { getLogger } from 'lambda-local'
-import glob from 'fast-glob'
 import { v4 } from 'uuid'
 import { beforeEach, expect, test, vi } from 'vitest'
 import {
@@ -39,13 +39,13 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
 
   const entries = await getBlobEntries(ctx)
   expect(entries.map(({ key }) => decodeBlobKey(key.substring(0, 50))).sort()).toEqual([
+    '/products/an-incredibly-long-product-',
+    '/static/revalidate-automatic',
+    '/static/revalidate-manual',
+    '/static/revalidate-slow',
     '404.html',
     '500.html',
     // the real key is much longer and ends in a hash, but we only assert on the first 50 chars to make it easier
-    'products/an-incredibly-long-product-n',
-    'static/revalidate-automatic',
-    'static/revalidate-manual',
-    'static/revalidate-slow',
   ])
 
   // test that it should request the 404.html file

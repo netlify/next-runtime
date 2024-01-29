@@ -76,7 +76,7 @@ test<FixtureTestContext>('if the fetch call is cached correctly', async (ctx) =>
 
   await Promise.all([
     // delete the page cache so that it falls back to the fetch call
-    ctx.blobStore.delete(encodeBlobKey('posts/1')),
+    ctx.blobStore.delete(encodeBlobKey('/posts/1')),
     // delete the original key as we use the fake key only
     ctx.blobStore.delete(encodeBlobKey(originalKey)),
     ctx.blobStore.setJSON(encodeBlobKey(fakeKey), fetchEntry),
@@ -85,13 +85,13 @@ test<FixtureTestContext>('if the fetch call is cached correctly', async (ctx) =>
   const blobEntries = await getBlobEntries(ctx)
   expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual(
     [
+      '/404',
+      '/index',
+      '/posts/2',
       fakeKey,
-      'ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
-      '404',
-      'index',
-      'posts/2',
       '404.html',
       '500.html',
+      'ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
     ].sort(),
   )
   const post1 = await invokeFunction(ctx, {

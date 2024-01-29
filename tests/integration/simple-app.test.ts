@@ -36,14 +36,14 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
   // check if the blob entries where successful set on the build plugin
   const blobEntries = await getBlobEntries(ctx)
   expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
-    '404',
+    '/404',
+    '/image',
+    '/index',
+    '/other',
+    '/redirect',
+    '/redirect/response',
     '404.html',
     '500.html',
-    'image',
-    'index',
-    'other',
-    'redirect',
-    'redirect/response',
   ])
 
   // test the function call

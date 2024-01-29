@@ -41,13 +41,13 @@ describe('page router', () => {
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
     expect(blobEntries.map(({ key }) => decodeBlobKey(key.substring(0, 50))).sort()).toEqual([
+      // the real key is much longer and ends in a hash, but we only assert on the first 50 chars to make it easier
+      '/products/an-incredibly-long-product-',
+      '/static/revalidate-automatic',
+      '/static/revalidate-manual',
+      '/static/revalidate-slow',
       '404.html',
       '500.html',
-      // the real key is much longer and ends in a hash, but we only assert on the first 50 chars to make it easier
-      'products/an-incredibly-long-product-n',
-      'static/revalidate-automatic',
-      'static/revalidate-manual',
-      'static/revalidate-slow',
     ])
 
     // test the function call
@@ -116,14 +116,14 @@ describe('app router', () => {
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
     expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
-      '404',
+      '/404',
+      '/index',
+      '/posts/1',
+      '/posts/2',
       '404.html',
       '460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
       '500.html',
       'ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
-      'index',
-      'posts/1',
-      'posts/2',
     ])
 
     // test the function call
@@ -138,7 +138,7 @@ describe('app router', () => {
       }),
     )
 
-    expect(await ctx.blobStore.get(decodeBlobKey('posts/3'))).toBeNull()
+    expect(await ctx.blobStore.get(encodeBlobKey('/posts/3'))).toBeNull()
     // this page is not pre-rendered and should result in a cache miss
     const post3 = await invokeFunction(ctx, { url: 'posts/3' })
     expect(post3.statusCode).toBe(200)
@@ -152,7 +152,7 @@ describe('app router', () => {
     // wait to have a stale page
     await new Promise<void>((resolve) => setTimeout(resolve, 5_000))
     // after the dynamic call of `posts/3` it should be in cache, not this is after the timout as the cache set happens async
-    expect(await ctx.blobStore.get(encodeBlobKey('posts/3'))).not.toBeNull()
+    expect(await ctx.blobStore.get(encodeBlobKey('/posts/3'))).not.toBeNull()
 
     const stale = await invokeFunction(ctx, { url: 'posts/1' })
     const staleDate = load(stale.body)('[data-testid="date-now"]').text()
@@ -188,20 +188,20 @@ describe('plugin', () => {
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
     expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
-      '404',
+      '/404',
+      '/api/revalidate-handler',
+      '/index',
+      '/revalidate-fetch',
+      '/static-fetch-1',
+      '/static-fetch-2',
+      '/static-fetch-3',
+      '/static-fetch/1',
+      '/static-fetch/2',
       '404.html',
       '460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
       '500.html',
       'ac26c54e17c3018c17bfe5ae6adc0e6d37dbfaf28445c1f767ff267144264ac9',
       'ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
-      'api/revalidate-handler',
-      'index',
-      'revalidate-fetch',
-      'static-fetch-1',
-      'static-fetch-2',
-      'static-fetch-3',
-      'static-fetch/1',
-      'static-fetch/2',
     ])
   })
 })
@@ -212,7 +212,7 @@ describe('route', () => {
     await runPlugin(ctx)
 
     // check if the route got prerendered
-    const blobEntry = await ctx.blobStore.get(encodeBlobKey('api/revalidate-handler'), {
+    const blobEntry = await ctx.blobStore.get(encodeBlobKey('/api/revalidate-handler'), {
       type: 'json',
     })
     expect(blobEntry).not.toBeNull()

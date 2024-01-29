@@ -8,12 +8,7 @@ import {
   runPlugin,
   type FixtureTestContext,
 } from '../utils/fixture.js'
-import {
-  encodeBlobKey,
-  generateRandomObjectID,
-  getBlobEntries,
-  startMockBlobStore,
-} from '../utils/helpers.js'
+import { encodeBlobKey, generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -35,7 +30,7 @@ test<FixtureTestContext>('should revalidate a route by path', async (ctx) => {
   await createFixture('server-components', ctx)
   await runPlugin(ctx)
 
-  expect(await ctx.blobStore.get(encodeBlobKey('static-fetch/1'))).not.toBeNull()
+  expect(await ctx.blobStore.get(encodeBlobKey('/static-fetch/1'))).not.toBeNull()
   expect(await ctx.blobStore.get(encodeBlobKey('_N_T_/static-fetch/[id]/page'))).toBeNull()
 
   // test the function call
@@ -68,7 +63,6 @@ test<FixtureTestContext>('should revalidate a route by path', async (ctx) => {
   // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
   await new Promise<void>((resolve) => setTimeout(resolve, 1000))
 
-  const entries = await getBlobEntries(ctx)
   expect(await ctx.blobStore.get(encodeBlobKey('_N_T_/static-fetch/[id]/page'))).not.toBeNull()
 
   const [post2, post2Route2] = await Promise.all([

@@ -15,7 +15,7 @@ import type {
 /**
  * Normalize routes by stripping leading slashes and ensuring root path is index
  */
-const routeToFilePath = (path: string) => path.replace(/^\//, '') || 'index'
+const routeToFilePath = (path: string) => (path === '/' ? '/index' : path)
 
 const buildPagesCacheValue = async (path: string): Promise<PageCacheValue> => ({
   kind: 'PAGE',
@@ -78,7 +78,7 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
     // app router 404 pages are not in the prerender manifest
     // so we need to check for them manually
     if (existsSync(join(ctx.publishDir, `server/app/_not-found.html`))) {
-      const key = '404'
+      const key = '/404'
       const value = await buildAppCacheValue(join(ctx.publishDir, 'server/app/_not-found'))
       await ctx.writeCacheEntry(key, value)
     }
