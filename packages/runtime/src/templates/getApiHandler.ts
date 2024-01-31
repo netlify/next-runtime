@@ -10,6 +10,7 @@ import type { NetlifyNextServerType } from './server'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+const { Buffer } = require('buffer')
 const { Server } = require('http')
 const path = require('path')
 // eslint-disable-next-line n/prefer-global/url, n/prefer-global/url-search-params
@@ -108,6 +109,19 @@ const makeApiHandler = ({ conf, app, pageRoot, NextServer }: MakeApiHandlerParam
     // Next expects to be able to parse the query from the URL
     const query = new URLSearchParams(event.queryStringParameters).toString()
     event.path = query ? `${event.path}?${query}` : event.path
+
+    if (context?.clientContext?.custom?.blobs) {
+      const rawData = Buffer.from(context.clientContext.custom.blobs, 'base64')
+      const data = JSON.parse(rawData.toString('ascii'))
+      process.env.NETLIFY_BLOBS_CONTEXT = Buffer.from(
+        JSON.stringify({
+          deployID: event.headers['x-nf-deploy-id'],
+          edgeURL: data.url,
+          siteID: event.headers['x-nf-site-id'],
+          token: data.token,
+        }),
+      ).toString('base64')
+    }
     const { headers, ...result } = await getBridge(event, context).launcher(event, context)
 
     // Convert all headers to multiValueHeaders
@@ -145,6 +159,7 @@ export const getApiHandler = ({
     throw new Error('Could not find Next.js server')
   }
 
+  const { Buffer } = require('buffer')
   const { Server } = require("http");
   // We copy the file here rather than requiring from the node module
   const { Bridge } = require("./bridge");

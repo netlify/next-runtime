@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/netlify/next-runtime#readme",
   "dependencies": {
+    "@netlify/blobs": "^6.4.2",
     "@netlify/next": "*",
     "@reach/dialog": "^0.16.2",
     "@reach/visually-hidden": "^0.16.0",
