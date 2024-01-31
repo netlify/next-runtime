@@ -42,7 +42,7 @@
   "devDependencies": {
     "@fastly/http-compute-js": "1.1.4",
     "@netlify/blobs": "^6.4.2",
-    "@netlify/build": "^29.33.3",
+    "@netlify/build": "^29.33.4",
     "@netlify/edge-bundler": "^11.2.2",
     "@netlify/edge-functions": "^2.3.0",
     "@netlify/eslint-config-node": "^7.0.1",
