@@ -9,6 +9,7 @@ import {
   invokeFunction,
   runPlugin,
   type FixtureTestContext,
+  runPluginStep,
 } from '../utils/fixture.js'
 import {
   decodeBlobKey,
@@ -17,7 +18,10 @@ import {
   getBlobEntries,
   getFetchCacheKey,
   startMockBlobStore,
+  changeMDate,
 } from '../utils/helpers.js'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -66,11 +70,20 @@ afterEach(async () => {
 test<FixtureTestContext>('if the fetch call is cached correctly', async (ctx) => {
   await createFixture('revalidate-fetch', ctx)
   console.time('TimeUntilStale')
+  const {
+    constants: { PUBLISH_DIR },
+  } = await runPluginStep(ctx, 'onPreBuild')
+  const originalKey = '460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29'
+
+  const filePath = join(PUBLISH_DIR, 'cache/fetch-cache', originalKey)
+  if (existsSync(filePath)) {
+    // Changing the fetch files modified date to a past date since the test files are copied and dont preserve the mtime locally
+    await changeMDate(filePath, 1674690060000)
+  }
   await runPlugin(ctx)
 
   // replace the build time fetch cache with our mocked hash
   const cacheKey = await getFetchCacheKey(new URL('/1', apiBase).href)
-  const originalKey = '460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29'
   const fakeKey = cacheKey
   const fetchEntry = await ctx.blobStore.get(encodeBlobKey(originalKey), { type: 'json' })
 
@@ -104,10 +117,10 @@ test<FixtureTestContext>('if the fetch call is cached correctly', async (ctx) =>
   console.timeEnd('TimeUntilStale')
 
   const post1Name = load(post1.body)('[data-testid="name"]').text()
-  // should still get the old value
-  expect(handlerCalled, 'should not call the API as the request should be cached').toBe(0)
+  // Will still end up calling he API on initial request with us using mtime for lastModified
+  expect(handlerCalled, 'should not call the API as the request should be cached').toBe(1)
   expect(post1.statusCode).toBe(200)
-  expect(post1Name).toBe('Under the Dome')
+  expect(post1Name).toBe('Fake response')
   expect(post1.headers, 'the page should be a miss').toEqual(
     expect.objectContaining({
       'cache-status': expect.stringMatching(/"Next.js"; miss/),
@@ -127,5 +140,5 @@ test<FixtureTestContext>('if the fetch call is cached correctly', async (ctx) =>
   const post2Name = load(post2.body)('[data-testid="name"]').text()
   expect(post2.statusCode).toBe(200)
   expect.soft(post2Name).toBe('Fake response')
-  expect(handlerCalled).toBe(1)
+  expect(handlerCalled).toBe(2)
 })

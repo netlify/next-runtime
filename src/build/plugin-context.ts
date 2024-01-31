@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile, stat } from 'node:fs/promises'
 // Here we need to actually import `resolve` from node:path as we want to resolve the paths
 // eslint-disable-next-line no-restricted-imports
 import { dirname, join, resolve } from 'node:path'
@@ -188,10 +188,12 @@ export class PluginContext {
   /**
    * Write a cache entry to the blob upload directory.
    */
-  async writeCacheEntry(route: string, value: CacheValue): Promise<void> {
+  async writeCacheEntry(route: string, value: CacheValue, filePath: string): Promise<void> {
+    // Getting modified file date from prerendered content
+    const { mtime } = await stat(filePath)
     const path = join(this.blobDir, await encodeBlobKey(route))
     const entry = JSON.stringify({
-      lastModified: Date.now(),
+      lastModified: mtime.getTime(),
       value,
     } satisfies CacheEntry)
 

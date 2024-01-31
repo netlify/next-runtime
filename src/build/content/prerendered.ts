@@ -53,25 +53,33 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
       Object.entries(manifest.routes).map(async ([route, meta]): Promise<void> => {
         const key = routeToFilePath(route)
         let value: CacheValue
+        let path: string
         switch (true) {
           // Parallel route default layout has no prerendered page
           case meta.dataRoute?.endsWith('/default.rsc') &&
             !existsSync(join(ctx.publishDir, 'server/app', `${key}.html`)):
             return
           case meta.dataRoute?.endsWith('.json'):
-            value = await buildPagesCacheValue(join(ctx.publishDir, 'server/pages', key))
+            path = join(ctx.publishDir, 'server/pages', key)
+            value = await buildPagesCacheValue(path)
             break
           case meta.dataRoute?.endsWith('.rsc'):
-            value = await buildAppCacheValue(join(ctx.publishDir, 'server/app', key))
+            path = join(ctx.publishDir, 'server/app', key)
+            value = await buildAppCacheValue(path)
             break
           case meta.dataRoute === null:
-            value = await buildRouteCacheValue(join(ctx.publishDir, 'server/app', key))
+            path = join(ctx.publishDir, 'server/app', key)
+            value = await buildRouteCacheValue(path)
             break
           default:
             throw new Error(`Unrecognized content: ${route}`)
         }
 
-        await ctx.writeCacheEntry(key, value)
+        await ctx.writeCacheEntry(
+          key,
+          value,
+          meta.dataRoute === null ? `${path}.body` : `${path}.html`,
+        )
       }),
     )
 
@@ -79,8 +87,9 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
     // so we need to check for them manually
     if (existsSync(join(ctx.publishDir, `server/app/_not-found.html`))) {
       const key = '/404'
-      const value = await buildAppCacheValue(join(ctx.publishDir, 'server/app/_not-found'))
-      await ctx.writeCacheEntry(key, value)
+      const path = join(ctx.publishDir, 'server/app/_not-found')
+      const value = await buildAppCacheValue(path)
+      await ctx.writeCacheEntry(key, value, `${path}.html`)
     }
   } catch (error) {
     ctx.failBuild('Failed assembling prerendered content for upload', error)
@@ -99,8 +108,9 @@ export const copyFetchContent = async (ctx: PluginContext): Promise<void> => {
 
     await Promise.all(
       paths.map(async (key): Promise<void> => {
-        const value = await buildFetchCacheValue(join(ctx.publishDir, 'cache/fetch-cache', key))
-        await ctx.writeCacheEntry(key, value)
+        const path = join(ctx.publishDir, 'cache/fetch-cache', key)
+        const value = await buildFetchCacheValue(path)
+        await ctx.writeCacheEntry(key, value, path)
       }),
     )
   } catch (error) {

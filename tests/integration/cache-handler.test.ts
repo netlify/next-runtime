@@ -7,14 +7,19 @@ import {
   invokeFunction,
   runPlugin,
   type FixtureTestContext,
+  runPluginStep,
 } from '../utils/fixture.js'
 import {
+  changeMDate,
   decodeBlobKey,
   encodeBlobKey,
   generateRandomObjectID,
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
+import { join } from 'path'
+import { existsSync } from 'node:fs'
+import { minify } from 'next/dist/build/swc/index.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -36,6 +41,22 @@ describe('page router', () => {
   test<FixtureTestContext>('page router with static revalidate', async (ctx) => {
     await createFixture('page-router', ctx)
     console.time('runPlugin')
+    const {
+      constants: { PUBLISH_DIR },
+    } = await runPluginStep(ctx, 'onPreBuild')
+    const filePaths = [
+      'server/pages/static/revalidate-automatic.html',
+      'server/pages/static/revalidate-automatic.json',
+      'server/pages/static/revalidate-slow.html',
+      'server/pages/static/revalidate-slow.json',
+    ]
+
+    filePaths.forEach(async (filePath) => {
+      if (existsSync(filePath)) {
+        // Changing the fetch files modified date to a past date since the test files are copied and dont preserve the mtime locally
+        await changeMDate(join(PUBLISH_DIR, filePath), 1674690060000)
+      }
+    })
     await runPlugin(ctx)
     console.timeEnd('runPlugin')
     // check if the blob entries where successful set on the build plugin
@@ -55,18 +76,19 @@ describe('page router', () => {
     const call1Date = load(call1.body)('[data-testid="date-now"]').text()
     expect(call1.statusCode).toBe(200)
     expect(load(call1.body)('h1').text()).toBe('Show #71')
-    expect(call1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
+    // Because we're using mtime instead of Date.now() first invocation will actually be a cache miss.
+    expect(call1.headers, 'a cache miss on the first invocation of a prerendered page').toEqual(
       expect.objectContaining({
-        'cache-status': expect.stringMatching(/"Next.js"; hit/),
+        'cache-status': expect.stringMatching(/"Next.js"; miss/),
         'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
       }),
     )
 
+    // wait to have a stale page
+    await new Promise<void>((resolve) => setTimeout(resolve, 9_000))
+
     // Ping this now so we can wait in parallel
     const callLater = await invokeFunction(ctx, { url: 'static/revalidate-slow' })
-
-    // wait to have a stale page
-    await new Promise<void>((resolve) => setTimeout(resolve, 3_000))
 
     // now it should be a cache miss
     const call2 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
@@ -131,9 +153,10 @@ describe('app router', () => {
     const post1Date = load(post1.body)('[data-testid="date-now"]').text()
     expect(post1.statusCode).toBe(200)
     expect(load(post1.body)('h1').text()).toBe('Revalidate Fetch')
-    expect(post1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
+    expect(post1.headers, 'a cache miss on the first invocation of a prerendered page').toEqual(
+      // It will be stale/miss instead of hit
       expect.objectContaining({
-        'cache-status': expect.stringMatching(/"Next.js"; hit/),
+        'cache-status': expect.stringMatching(/"Next.js"; miss/),
         'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
       }),
     )
@@ -228,9 +251,9 @@ describe('route', () => {
         name: 'Under the Dome',
       }),
     })
-    expect(call1.headers, 'a cache hit on the first invocation of a prerendered route').toEqual(
+    expect(call1.headers, 'a cache miss on the first invocation').toEqual(
       expect.objectContaining({
-        'cache-status': expect.stringMatching(/"Next.js"; hit/),
+        'cache-status': expect.stringMatching(/"Next.js"; miss/),
       }),
     )
     // wait to have a stale route
