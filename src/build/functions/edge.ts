@@ -1,5 +1,5 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 
 import { glob } from 'fast-glob'
 import type { EdgeFunctionDefinition as NextDefinition } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
@@ -81,42 +81,45 @@ const copyHandlerDependencies = async (
   ctx: PluginContext,
   { name, files, wasm }: NextDefinition,
 ) => {
-  const edgeRuntimePath = join(ctx.pluginDir, 'edge-runtime')
   const srcDir = join(ctx.standaloneDir, '.next')
-  const shimPath = join(edgeRuntimePath, 'shim/index.js')
-  const shim = await readFile(shimPath, 'utf8')
-  const imports = `import './edge-runtime-webpack.js';`
-  const exports = `export default _ENTRIES["middleware_${name}"].default;`
-  const parts = [shim, imports]
-
-  if (wasm?.length) {
-    parts.push(
-      `import { decode as _base64Decode } from "../edge-runtime/vendor/deno.land/std@0.175.0/encoding/base64.ts";`,
-    )
-    for (const wasmChunk of wasm ?? []) {
-      const data = await readFile(join(srcDir, wasmChunk.filePath))
-      parts.push(
-        `const ${wasmChunk.name} = _base64Decode(${JSON.stringify(
-          data.toString('base64'),
-        )}).buffer`,
-      )
-    }
-  }
+  const destDir = join(ctx.edgeFunctionsDir, getHandlerName({ name }))
 
   await Promise.all(
     files.map(async (file) => {
-      const destDir = join(ctx.edgeFunctionsDir, getHandlerName({ name }))
-
       if (file === `server/${name}.js`) {
+        const edgeRuntimeDir = join(ctx.pluginDir, 'edge-runtime')
+        const shimPath = join(edgeRuntimeDir, 'shim/index.js')
+        const shim = await readFile(shimPath, 'utf8')
+
+        const importsDir = relative(dirname(join(srcDir, file)), join(srcDir, 'server'))
+        const importsSrc = `${importsDir || '.'}/edge-runtime-webpack.js`
+        const imports = `import '${importsSrc}';`
+
+        const exports = `export default _ENTRIES["middleware_${name}"].default;`
+
+        const parts = [shim, imports]
+
+        if (wasm?.length) {
+          parts.push(
+            `import { decode as _base64Decode } from "../edge-runtime/vendor/deno.land/std@0.175.0/encoding/base64.ts";`,
+          )
+          for (const wasmChunk of wasm ?? []) {
+            const data = await readFile(join(srcDir, wasmChunk.filePath))
+            parts.push(
+              `const ${wasmChunk.name} = _base64Decode(${JSON.stringify(
+                data.toString('base64'),
+              )}).buffer`,
+            )
+          }
+        }
+
         const entrypoint = await readFile(join(srcDir, file), 'utf8')
 
         await mkdir(dirname(join(destDir, file)), { recursive: true })
         await writeFile(join(destDir, file), [...parts, entrypoint, exports].join('\n;'))
-
-        return
+      } else {
+        await cp(join(srcDir, file), join(destDir, file))
       }
-
-      await cp(join(srcDir, file), join(destDir, file))
     }),
   )
 }
@@ -134,9 +137,10 @@ const buildHandlerDefinition = (
   { name, matchers, page }: NextDefinition,
 ): Array<NetlifyDefinition> => {
   const fun = getHandlerName({ name })
-  const funName =
-    name === 'middleware' ? 'Next.js Middleware Handler' : `Next.js Edge Handler: ${page}`
-  const cache = name === 'middleware' ? undefined : 'manual'
+  const funName = name.endsWith('middleware')
+    ? 'Next.js Middleware Handler'
+    : `Next.js Edge Handler: ${page}`
+  const cache = name.endsWith('middleware') ? undefined : 'manual'
   const generator = `${ctx.pluginName}@${ctx.pluginVersion}`
   return matchers.map((matcher) => ({
     function: fun,

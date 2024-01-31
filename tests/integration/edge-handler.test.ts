@@ -46,6 +46,34 @@ test<FixtureTestContext>('should add request/response headers', async (ctx) => {
   expect(origin.calls).toBe(1)
 })
 
+test<FixtureTestContext>('should add request/response headers when using src dir', async (ctx) => {
+  await createFixture('middleware-src', ctx)
+  await runPlugin(ctx)
+
+  const origin = await LocalServer.run(async (req, res) => {
+    expect(req.url).toBe('/test/next')
+    expect(req.headers['x-hello-from-middleware-req']).toBe('hello')
+
+    res.write('Hello from origin!')
+    res.end()
+  })
+
+  ctx.cleanup?.push(() => origin.stop())
+
+  const response = await invokeEdgeFunction(ctx, {
+    functions: ['___netlify-edge-handler-src-middleware'],
+    origin,
+    url: '/test/next',
+  })
+
+  expect(await response.text()).toBe('Hello from origin!')
+  expect(response.status).toBe(200)
+  expect(response.headers.get('x-hello-from-middleware-res'), 'added a response header').toEqual(
+    'hello',
+  )
+  expect(origin.calls).toBe(1)
+})
+
 describe('redirect', () => {
   test<FixtureTestContext>('should return a redirect response', async (ctx) => {
     await createFixture('middleware', ctx)

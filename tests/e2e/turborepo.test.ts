@@ -50,6 +50,7 @@ test.describe('[PNPM] Package manager', () => {
     const headers1 = response1?.headers() || {}
     expect(response1?.status()).toBe(200)
     expect(headers1['x-nextjs-cache']).toBeUndefined()
+    expect(headers1['x-hello-from-middleware-res']).toBe('hello')
     // first time hitting this route - we will invoke function and see
     // Next cache hit status in the response because it was prerendered
     // at build time
