@@ -29,3 +29,9 @@ package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
 package = "../plugin-wrapper"
+
+[images]
+remote_images = [
+  "https://raw.githubusercontent.com/.*",
+  "https://.*.imgur.com/.*",
+]

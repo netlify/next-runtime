@@ -82,6 +82,8 @@ module.exports = {
         hostname: '*.imgur.com',
       },
     ],
+    loader: 'custom',
+    loaderFile: './netlify-image-loader.js',
   },
   // https://nextjs.org/docs/basic-features/built-in-css-support#customizing-sass-options
   sassOptions: {
