@@ -59,6 +59,7 @@ export async function handleMiddleware(
       request,
       result,
       requestLocale: nextRequest.detectedLocale,
+      nextConfig,
     })
 
     return response

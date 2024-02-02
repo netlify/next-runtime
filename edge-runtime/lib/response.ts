@@ -164,27 +164,33 @@ export const buildResponse = async ({
         newRoute: rewriteUrl.pathname,
         basePath: nextConfig?.basePath,
       })
+      if (rewriteUrl.toString() === request.url) {
+        logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
+        return
+      }
+      res.headers.set('x-middleware-rewrite', relativeUrl)
+      return addMiddlewareHeaders(fetch(new Request(rewriteUrl, request)), res)
+    }
+    const target = normalizeLocalizedTarget({ target: rewrite, request, nextConfig })
+    if (target === request.url) {
+      logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
+      return
     }
     res.headers.set('x-middleware-rewrite', relativeUrl)
-    request.headers.set('x-middleware-rewrite', rewrite)
-    return addMiddlewareHeaders(fetch(new Request(rewriteUrl, request)), res)
+    request.headers.set('x-middleware-rewrite', target)
+    return addMiddlewareHeaders(fetch(new Request(target, request)), res)
   }
 
   let redirect = res.headers.get('location')
 
   // If we are redirecting a request that had a locale in the URL, we need to add it back in
   if (redirect && requestLocale) {
-    const redirectUrl = new URL(redirect, request.url)
-
-    const normalizedRedirect = normalizeLocalePath(redirectUrl.pathname, nextConfig?.i18n?.locales)
-
-    const locale = normalizedRedirect.detectedLocale ?? requestLocale
-    // Pages router API routes don't have a locale in the URL
-    if (locale && !redirectUrl.pathname.startsWith(`/api/`)) {
-      redirectUrl.pathname = `/${locale}${normalizedRedirect.pathname}`
-      redirect = redirectUrl.toString()
-      res.headers.set('location', redirect)
+    redirect = normalizeLocalizedTarget({ target: redirect, request, nextConfig })
+    if (redirect === request.url) {
+      logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
+      return
     }
+    res.headers.set('location', redirect)
   }
 
   // Data requests shouldn't automatically redirect in the browser (they might be HTML pages): they're handled by the router
@@ -205,4 +211,35 @@ export const buildResponse = async ({
   }
 
   return res
+}
+
+/**
+ * Normalizes the locale in a URL.
+ */
+function normalizeLocalizedTarget({
+  target,
+  request,
+  nextConfig,
+  requestLocale,
+}: {
+  target: string
+  request: Request
+  nextConfig?: RequestData['nextConfig']
+  requestLocale?: string
+}) {
+  const targetUrl = new URL(target, request.url)
+
+  const normalizedTarget = normalizeLocalePath(targetUrl.pathname, nextConfig?.i18n?.locales)
+
+  const locale = normalizedTarget.detectedLocale ?? requestLocale
+  if (
+    locale &&
+    !normalizedTarget.pathname.startsWith(`/api/`) &&
+    !normalizedTarget.pathname.startsWith(`/_next/static/`)
+  ) {
+    targetUrl.pathname = `/${locale}${normalizedTarget.pathname}`
+    return targetUrl.toString()
+  }
+  targetUrl.pathname = normalizedTarget.pathname
+  return targetUrl.toString()
 }
