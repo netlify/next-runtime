@@ -24,6 +24,13 @@ export const removeBasePath = (path: string, basePath?: string) => {
   return path
 }
 
+export const addBasePath = (path: string, basePath?: string) => {
+  if (basePath && !path.startsWith(basePath)) {
+    return `${basePath}${path}`
+  }
+  return path
+}
+
 // https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/i18n/normalize-locale-path.ts
 
 export interface PathLocale {
@@ -91,8 +98,11 @@ export function rewriteDataPath({
 }) {
   const normalizedDataUrl = normalizeDataUrl(removeBasePath(dataUrl, basePath))
 
-  return dataUrl.replace(
-    normalizeIndex(normalizedDataUrl),
-    stripTrailingSlash(normalizeIndex(newRoute)),
+  return addBasePath(
+    dataUrl.replace(
+      normalizeIndex(normalizedDataUrl),
+      stripTrailingSlash(normalizeIndex(newRoute)),
+    ),
+    basePath,
   )
 }

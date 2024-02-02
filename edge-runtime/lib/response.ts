@@ -3,7 +3,13 @@ import { HTMLRewriter } from '../vendor/deno.land/x/html_rewriter@v0.1.0-pre.17/
 
 import { updateModifiedHeaders } from './headers.ts'
 import type { StructuredLogger } from './logging.ts'
-import { normalizeDataUrl, normalizeLocalePath, relativizeURL, rewriteDataPath } from './util.ts'
+import {
+  addBasePath,
+  normalizeDataUrl,
+  normalizeLocalePath,
+  relativizeURL,
+  rewriteDataPath,
+} from './util.ts'
 import { addMiddlewareHeaders, isMiddlewareRequest, isMiddlewareResponse } from './middleware.ts'
 import { RequestData } from './next-request.ts'
 
@@ -237,9 +243,9 @@ function normalizeLocalizedTarget({
     !normalizedTarget.pathname.startsWith(`/api/`) &&
     !normalizedTarget.pathname.startsWith(`/_next/static/`)
   ) {
-    targetUrl.pathname = `/${locale}${normalizedTarget.pathname}`
-    return targetUrl.toString()
+    targetUrl.pathname = addBasePath(`/${locale}${normalizedTarget.pathname}`, nextConfig?.basePath)
+  } else {
+    targetUrl.pathname = addBasePath(normalizedTarget.pathname, nextConfig?.basePath)
   }
-  targetUrl.pathname = normalizedTarget.pathname
   return targetUrl.toString()
 }

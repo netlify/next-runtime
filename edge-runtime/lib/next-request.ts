@@ -1,6 +1,6 @@
 import type { Context } from '@netlify/edge-functions'
 
-import { normalizeDataUrl, removeBasePath, normalizeLocalePath } from './util.ts'
+import { normalizeDataUrl, removeBasePath, normalizeLocalePath, addBasePath } from './util.ts'
 
 interface I18NConfig {
   defaultLocale: string
@@ -41,6 +41,7 @@ const normalizeRequestURL = (
   const url = new URL(originalURL)
 
   url.pathname = removeBasePath(url.pathname, nextConfig?.basePath)
+  const didRemoveBasePath = url.toString() !== originalURL
 
   let detectedLocale: string | undefined
 
@@ -62,6 +63,10 @@ const normalizeRequestURL = (
   // property from the Next.js config.
   if (nextConfig?.trailingSlash && url.pathname !== '/' && !url.pathname.endsWith('/')) {
     url.pathname = `${url.pathname}/`
+  }
+
+  if (didRemoveBasePath) {
+    url.pathname = addBasePath(url.pathname, nextConfig?.basePath)
   }
 
   return {
