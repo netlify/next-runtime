@@ -493,8 +493,9 @@ export const writeEdgeFunctions = async ({
     const edgeFunctionDir = join(edgeFunctionRoot, 'ipx')
     await ensureDir(edgeFunctionDir)
     await copyEdgeSourceFile({ edgeFunctionDir, file: 'ipx.ts', target: 'index.ts' })
+    const internalFunctionRoot = resolve(PACKAGE_PATH, '.netlify', 'functions-internal')
     await copyFile(
-      join('.netlify', 'functions-internal', IMAGE_FUNCTION_NAME, 'imageconfig.json'),
+      join(internalFunctionRoot, IMAGE_FUNCTION_NAME, 'imageconfig.json'),
       join(edgeFunctionDir, 'imageconfig.json'),
     )
 
