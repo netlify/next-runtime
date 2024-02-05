@@ -163,6 +163,15 @@ const makeHandler = ({
         context: `deploy:${event.headers['x-nf-deploy-id']}`,
         siteID: event.headers['x-nf-site-id'],
       })
+
+      process.env.NETLIFY_BLOBS_CONTEXT = Buffer.from(
+        JSON.stringify({
+          deployID: event.headers['x-nf-deploy-id'],
+          edgeURL: data.url,
+          siteID: event.headers['x-nf-site-id'],
+          token: data.token,
+        }),
+      ).toString('base64')
     }
 
     const { headers, ...result } = await getBridge(event, context).launcher(event, context)
