@@ -40,7 +40,7 @@ export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
         return
       }
 
-      await cp(srcPath, destPath, { recursive: true })
+      await cp(srcPath, destPath, { recursive: true, force: true })
     }),
   )
 }
@@ -92,7 +92,7 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
     }
     const src = join(ctx.standaloneDir, entry)
     const dest = join(ctx.serverHandlerDir, entry)
-    await cp(src, dest, { recursive: true, verbatimSymlinks: true })
+    await cp(src, dest, { recursive: true, verbatimSymlinks: true, force: true })
 
     if (entry === 'node_modules') {
       await recreateNodeModuleSymlinks(ctx.resolve('node_modules'), dest)

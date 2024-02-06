@@ -7,6 +7,7 @@ import { join } from 'node:path/posix'
 
 import { getDeployStore, Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
+import { trace } from '@opentelemetry/api'
 import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 import type {
@@ -33,6 +34,7 @@ export class NetlifyCacheHandler implements CacheHandler {
   options: CacheHandlerContext
   revalidatedTags: string[]
   blobStore: Store
+  tracer = trace.getTracer('Netlify Cache Handler')
 
   constructor(options: CacheHandlerContext) {
     this.options = options
@@ -41,72 +43,97 @@ export class NetlifyCacheHandler implements CacheHandler {
   }
 
   private async encodeBlobKey(key: string) {
-    const { encodeBlobKey } = await import("../../shared/blobkey.js")
+    const { encodeBlobKey } = await import('../../shared/blobkey.js')
     return await encodeBlobKey(key)
   }
 
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
-    const [key, ctx = {}] = args
+    return this.tracer.startActiveSpan('get cache key', async (span) => {
+      const [key, ctx = {}] = args
+      console.debug(`[NetlifyCacheHandler.get]: ${key}`)
 
-    console.debug(`[NetlifyCacheHandler.get]: ${key}`)
+      const blobKey = await this.encodeBlobKey(key)
+      span.setAttributes({ key, blobKey })
+      const blob = (await this.blobStore.get(blobKey, {
+        type: 'json',
+      })) as CacheEntry | null
 
-    const blob = (await this.blobStore.get(await this.encodeBlobKey(key), {
-      type: 'json',
-    })) as CacheEntry | null
+      // if blob is null then we don't have a cache entry
+      if (!blob) {
+        span.addEvent('Cache miss', { key, blobKey })
+        span.end()
+        return null
+      }
 
-    // if blob is null then we don't have a cache entry
-    if (!blob) {
-      return null
-    }
+      const revalidateAfter = this.calculateRevalidate(key, blob.lastModified, ctx)
+      const isStale = revalidateAfter !== false && revalidateAfter < Date.now()
+      const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.softTags)
 
-    const revalidateAfter = this.calculateRevalidate(key, blob.lastModified, ctx)
-    const isStale = revalidateAfter !== false && revalidateAfter < Date.now()
-    const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.softTags)
+      if (staleByTags || isStale) {
+        span.addEvent('Stale', { staleByTags, isStale })
+        span.end()
+        return null
+      }
 
-    if (staleByTags || isStale) {
-      return null
-    }
+      switch (blob.value.kind) {
+        case 'FETCH':
+          span.addEvent('FETCH', { lastModified: blob.lastModified, revalidate: ctx.revalidate })
+          span.end()
+          return {
+            lastModified: blob.lastModified,
+            value: {
+              kind: blob.value.kind,
+              data: blob.value.data,
+              revalidate: ctx.revalidate || 1,
+            },
+          }
 
-    switch (blob.value.kind) {
-      case 'FETCH':
-        return {
-          lastModified: blob.lastModified,
-          value: {
-            kind: blob.value.kind,
-            data: blob.value.data,
-            revalidate: ctx.revalidate || 1,
-          },
-        }
-
-      case 'ROUTE':
-        return {
-          lastModified: blob.lastModified,
-          value: {
-            body: Buffer.from(blob.value.body),
+        case 'ROUTE':
+          span.addEvent('ROUTE', {
+            lastModified: blob.lastModified,
             kind: blob.value.kind,
             status: blob.value.status,
-            headers: blob.value.headers,
-          },
-        }
-      case 'PAGE':
-        return {
-          lastModified: blob.lastModified,
-          value: blob.value,
-        }
-      default:
-      // TODO: system level logging not implemented
-    }
-    return null
+          })
+          span.end()
+          return {
+            lastModified: blob.lastModified,
+            value: {
+              body: Buffer.from(blob.value.body),
+              kind: blob.value.kind,
+              status: blob.value.status,
+              headers: blob.value.headers,
+            },
+          }
+        case 'PAGE':
+          span.addEvent('PAGE', { lastModified: blob.lastModified })
+          span.end()
+          return {
+            lastModified: blob.lastModified,
+            value: blob.value,
+          }
+        default:
+          span.recordException(new Error(`Unknown cache entry kind: ${blob.value.kind}`))
+        // TODO: system level logging not implemented
+      }
+      span.end()
+      return null
+    })
   }
 
   async set(...args: Parameters<IncrementalCache['set']>) {
-    const [key, data] = args
+    return this.tracer.startActiveSpan('set cache key', async (span) => {
+      const [key, data] = args
+      const blobKey = await this.encodeBlobKey(key)
+      const lastModified = Date.now()
+      span.setAttributes({ key, lastModified, blobKey })
 
-    console.debug(`[NetlifyCacheHandler.set]: ${key}`)
+      console.debug(`[NetlifyCacheHandler.set]: ${key}`)
 
-    await this.blobStore.setJSON(await this.encodeBlobKey(key), {
-      lastModified: Date.now(),
-      value: data,
+      await this.blobStore.setJSON(blobKey, {
+        lastModified,
+        value: data,
+      })
+      span.end()
     })
   }
 

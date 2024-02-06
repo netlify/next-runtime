@@ -95,9 +95,6 @@ async function buildAndPackRuntime(
   packagePath: string = '',
   buildCommand = 'next build',
 ): Promise<string> {
-  console.log(`🔨 Building runtime...`, process.cwd())
-  await execaCommand('npm run build')
-
   console.log(`📦 Creating tarball with 'npm pack'...`)
 
   const { stdout } = await execaCommand(

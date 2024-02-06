@@ -13,6 +13,7 @@ module.exports = {
     'n/prefer-global/process': 'off',
     'unicorn/numeric-separators-style': 'off',
     'unicorn/filename-case': ['error', { case: 'kebabCase' }],
+    'import/no-extraneous-dependencies': 'off',
     'import/no-namespace': 'off',
     'import/extensions': 'off',
     'max-depth': 'off',
@@ -68,6 +69,15 @@ module.exports = {
             ],
           },
         ],
+      },
+    },
+    {
+      files: ['src/build/templates/**/*'],
+      rules: {
+        'n/no-missing-import': 'off',
+        'import/no-unresolved': 'off',
+        'import/no-anonymous-default-export': 'off',
+        'func-names': 'off',
       },
     },
   ],

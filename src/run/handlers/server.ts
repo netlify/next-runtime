@@ -1,4 +1,5 @@
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
+import { trace } from '@opentelemetry/api'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
@@ -16,21 +17,32 @@ import { logger } from '../systemlog.js'
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete, tagsManifest: TagsManifest
 
 export default async (request: Request) => {
+  const tracer = trace.getTracer('Next.js Runtime')
+
   if (!nextHandler) {
-    // set the server config
-    const { getRunConfig, setRunConfig } = await import('../config.js')
-    nextConfig = await getRunConfig()
-    setRunConfig(nextConfig)
-    tagsManifest = await getTagsManifest()
+    await tracer.startActiveSpan('initialize next server', async (span) => {
+      // set the server config
+      const { getRunConfig, setRunConfig } = await import('../config.js')
+      nextConfig = await getRunConfig()
+      setRunConfig(nextConfig)
+      tagsManifest = await getTagsManifest()
+      span.setAttributes(
+        Object.entries(tagsManifest).reduce(
+          (acc, [key, value]) => ({ ...acc, [`tagsManifest.${key}`]: value }),
+          {},
+        ),
+      )
 
-    const { getMockedRequestHandlers } = await import('../next.cjs')
-    const url = new URL(request.url)
+      const { getMockedRequestHandlers } = await import('../next.cjs')
+      const url = new URL(request.url)
 
-    ;[nextHandler] = await getMockedRequestHandlers({
-      port: Number(url.port) || 443,
-      hostname: url.hostname,
-      dir: process.cwd(),
-      isDev: false,
+      ;[nextHandler] = await getMockedRequestHandlers({
+        port: Number(url.port) || 443,
+        hostname: url.hostname,
+        dir: process.cwd(),
+        isDev: false,
+      })
+      span.end()
     })
   }
 

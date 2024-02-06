@@ -23,8 +23,11 @@ export const copyStaticContent = async (ctx: PluginContext): Promise<void> => {
     await Promise.all(
       paths
         .filter((path) => !paths.includes(`${path.slice(0, -5)}.json`))
-        .map(async (path) => {
-          await cp(join(srcDir, path), join(destDir, await encodeBlobKey(path)), { recursive: true })
+        .map(async (path): Promise<void> => {
+          await cp(join(srcDir, path), join(destDir, await encodeBlobKey(path)), {
+            recursive: true,
+            force: true,
+          })
         }),
     )
   } catch (error) {

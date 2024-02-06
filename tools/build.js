@@ -1,5 +1,5 @@
-import { rm } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { cp, rm } from 'node:fs/promises'
+import { resolve, join } from 'node:path'
 
 import { build, context } from 'esbuild'
 import { execaCommand } from 'execa'
@@ -89,6 +89,7 @@ await Promise.all([
   vendorDeno(),
   bundle(entryPointsESM, 'esm', watch),
   ...entryPointsCJS.map((entry) => bundle([entry], 'cjs', watch)),
+  cp('src/build/templates', join(OUT_DIR, 'build/templates'), { recursive: true, force: true }),
 ])
 
 if (watch) {

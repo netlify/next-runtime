@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, writeFile } from 'fs/promises'
+import { cp, mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join } from 'node:path'
 
 import { glob } from 'fast-glob'
@@ -10,7 +10,10 @@ const copyHandlerDependencies = async (ctx: PluginContext) => {
   const fileList = await glob('dist/**/*', { cwd: ctx.pluginDir })
   await Promise.all(
     [...fileList].map((path) =>
-      cp(join(ctx.pluginDir, path), join(ctx.serverHandlerDir, path), { recursive: true }),
+      cp(join(ctx.pluginDir, path), join(ctx.serverHandlerDir, path), {
+        recursive: true,
+        force: true,
+      }),
     ),
   )
 }
@@ -41,37 +44,25 @@ const writePackageMetadata = async (ctx: PluginContext) => {
 }
 
 /** Get's the content of the handler file that will be written to the lambda */
-const getHandlerFile = (ctx: PluginContext): string => {
-  const config = `
-export const config = {
-  path: '/*',
-  preferStatic: true,
-}`
+const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
+  const templatesDir = join(ctx.pluginDir, 'dist/build/templates')
 
-  // In this case it is a monorepo and we need to change the process working directory
+  // In this case it is a monorepo and we need to use a own template for it
+  // as we have to change the process working directory
   if (ctx.packagePath.length !== 0) {
-    return `process.chdir('${join('/var/task', ctx.packagePath)}');
+    const template = await readFile(join(templatesDir, 'handler-monorepo.tmpl.js'), 'utf-8')
 
-let cachedHandler;
-export default async function(...args) {
-  if (!cachedHandler) {
-    const { default: handler } = await import('./${ctx.nextServerHandler}');
-    cachedHandler = handler;
-  }
-  return cachedHandler(...args)
-};
-
-${config}`
+    return template
+      .replaceAll('{{cwd}}', join('/var/task', ctx.packagePath))
+      .replace('{{nextServerHandler}}', ctx.nextServerHandler)
   }
 
-  // in non monorepo scenarios we don't have to change the process working directory
-  return `import handler from './dist/run/handlers/server.js';
-export default handler;
-${config}`
+  return await readFile(join(templatesDir, 'handler.tmpl.js'), 'utf-8')
 }
 
 const writeHandlerFile = async (ctx: PluginContext) => {
-  await writeFile(join(ctx.serverHandlerRootDir, `${SERVER_HANDLER_NAME}.mjs`), getHandlerFile(ctx))
+  const handler = await getHandlerFile(ctx)
+  await writeFile(join(ctx.serverHandlerRootDir, `${SERVER_HANDLER_NAME}.mjs`), handler)
 }
 
 /**
