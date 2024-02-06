@@ -54,3 +54,51 @@ test('next/image is using Netlify Image CDN', async ({ page }) => {
 
   await expectImageWasLoaded(page.locator('img'))
 })
+
+const waitFor = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+// adaptation of https://github.com/vercel/next.js/blob/canary/test/e2e/app-dir/app-static/app-static.test.ts#L1716-L1755
+test('should stream properly', async ({ page }) => {
+  // Prime the cache.
+  const path = `${ctx.url}/stale-cache-serving/app-page`
+  const res = await fetch(path)
+  expect(res.status).toBe(200)
+
+  // Consume the cache, the revalidations are completed on the end of the
+  // stream so we need to wait for that to complete.
+  await res.text()
+
+  // different from next.js test:
+  // we need to wait another 10secs for the blob to propagate back
+  // can be removed once we have a local cache for blobs
+  await waitFor(10000)
+
+  for (let i = 0; i < 6; i++) {
+    await waitFor(1000)
+
+    const timings = {
+      start: Date.now(),
+      startedStreaming: 0,
+    }
+
+    const res = await fetch(path)
+
+    // eslint-disable-next-line no-loop-func
+    await new Promise<void>((resolve) => {
+      res.body?.pipeTo(
+        new WritableStream({
+          write() {
+            if (!timings.startedStreaming) {
+              timings.startedStreaming = Date.now()
+            }
+          },
+          close() {
+            resolve()
+          },
+        }),
+      )
+    })
+
+    expect(timings.startedStreaming - timings.start, `streams in less than 3s, run #${i}/6`).toBeLessThan(3000)
+  }
+})

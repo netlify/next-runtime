@@ -11,17 +11,7 @@ import {
   type FixtureTestContext,
   runPluginStep,
 } from '../utils/fixture.js'
-import {
-  decodeBlobKey,
-  encodeBlobKey,
-  generateRandomObjectID,
-  getBlobEntries,
-  getFetchCacheKey,
-  startMockBlobStore,
-  changeMDate,
-} from '../utils/helpers.js'
-import { existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -51,7 +41,8 @@ beforeEach<FixtureTestContext>(async (ctx) => {
       'Content-Type': 'application/json',
       'cache-control': 'public, max-age=10000',
     })
-    res.end(JSON.stringify({ id: '1', name: 'Fake response' }))
+    const date = new Date().toISOString()
+    res.end(JSON.stringify({ id: '1', name: 'Fake response', date }))
   })
   apiBase = await new Promise<string>((resolve) => {
     // we need always the same port so that the hash is the same
@@ -67,78 +58,280 @@ afterEach(async () => {
   })
 })
 
-test<FixtureTestContext>('if the fetch call is cached correctly', async (ctx) => {
+test<FixtureTestContext>('if the fetch call is cached correctly (force-dynamic page)', async (ctx) => {
   await createFixture('revalidate-fetch', ctx)
-  console.time('TimeUntilStale')
-  const {
-    constants: { PUBLISH_DIR },
-  } = await runPluginStep(ctx, 'onPreBuild')
-  const originalKey = '460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29'
-
-  const filePath = join(PUBLISH_DIR, 'cache/fetch-cache', originalKey)
-  if (existsSync(filePath)) {
-    // Changing the fetch files modified date to a past date since the test files are copied and dont preserve the mtime locally
-    await changeMDate(filePath, 1674690060000)
-  }
+  await runPluginStep(ctx, 'onPreBuild')
   await runPlugin(ctx)
 
-  // replace the build time fetch cache with our mocked hash
-  const cacheKey = await getFetchCacheKey(new URL('/1', apiBase).href)
-  const fakeKey = cacheKey
-  const fetchEntry = await ctx.blobStore.get(encodeBlobKey(originalKey), { type: 'json' })
+  // blob mtime is unpredictable, so this is just waiting for all blobs used from builds to get stale
+  await new Promise<void>((resolve) => setTimeout(resolve, 10_000))
 
-  await Promise.all([
-    // delete the page cache so that it falls back to the fetch call
-    ctx.blobStore.delete(encodeBlobKey('/posts/1')),
-    // delete the original key as we use the fake key only
-    ctx.blobStore.delete(encodeBlobKey(originalKey)),
-    ctx.blobStore.setJSON(encodeBlobKey(fakeKey), fetchEntry),
-  ])
-
-  const blobEntries = await getBlobEntries(ctx)
-  expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual(
-    [
-      '/404',
-      '/index',
-      '/posts/2',
-      fakeKey,
-      '404.html',
-      '500.html',
-      'ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
-    ].sort(),
-  )
+  handlerCalled = 0
   const post1 = await invokeFunction(ctx, {
-    url: 'posts/1',
+    url: 'dynamic-posts/1',
     env: {
-      REVALIDATE_SECONDS: 10,
+      REVALIDATE_SECONDS: 5,
       API_BASE: apiBase,
     },
   })
-  console.timeEnd('TimeUntilStale')
 
+  // allow for background regeneration to happen
+  await new Promise<void>((resolve) => setTimeout(resolve, 500))
+
+  const post1FetchDate = load(post1.body)('[data-testid="date-from-response"]').text()
   const post1Name = load(post1.body)('[data-testid="name"]').text()
-  // Will still end up calling he API on initial request with us using mtime for lastModified
-  expect(handlerCalled, 'should not call the API as the request should be cached').toBe(1)
+
+  expect(
+    handlerCalled,
+    'API should be hit as fetch did NOT happen during build for dynamic page',
+  ).toBeGreaterThan(0)
   expect(post1.statusCode).toBe(200)
   expect(post1Name).toBe('Fake response')
-  expect(post1.headers, 'the page should be a miss').toEqual(
-    expect.objectContaining({
-      'cache-status': expect.stringMatching(/"Next.js"; miss/),
+  expect(post1.headers, 'the page should not be cacheable').toEqual(
+    expect.not.objectContaining({
+      'cache-status': expect.any(String),
     }),
   )
 
-  await new Promise<void>((resolve) => setTimeout(resolve, 10_000))
-  // delete the generated page again to have a miss but go to the underlaying fetch call
-  await ctx.blobStore.delete('server/app/posts/1')
+  handlerCalled = 0
   const post2 = await invokeFunction(ctx, {
-    url: 'posts/1',
+    url: 'dynamic-posts/1',
     env: {
-      REVALIDATE_SECONDS: 10,
+      REVALIDATE_SECONDS: 5,
       API_BASE: apiBase,
     },
   })
+
+  // allow for any potential background regeneration to happen
+  await new Promise<void>((resolve) => setTimeout(resolve, 500))
+
+  const post2FetchDate = load(post2.body)('[data-testid="date-from-response"]').text()
   const post2Name = load(post2.body)('[data-testid="name"]').text()
+
+  expect(handlerCalled, 'API should NOT be hit as fetch-cache is still fresh').toBe(0)
+  expect(post2FetchDate, 'Cached fetch response should be used').toBe(post1FetchDate)
   expect(post2.statusCode).toBe(200)
-  expect.soft(post2Name).toBe('Fake response')
-  expect(handlerCalled).toBe(2)
+  expect(post2Name).toBe('Fake response')
+  expect(post2.headers, 'the page should not be cacheable').toEqual(
+    expect.not.objectContaining({
+      'cache-status': expect.any(String),
+    }),
+  )
+
+  // make fetch-cache stale
+  await new Promise<void>((resolve) => setTimeout(resolve, 7_000))
+
+  handlerCalled = 0
+  const post3 = await invokeFunction(ctx, {
+    url: 'dynamic-posts/1',
+    env: {
+      REVALIDATE_SECONDS: 5,
+      API_BASE: apiBase,
+    },
+  })
+
+  // allow for any potential background regeneration to happen
+  await new Promise<void>((resolve) => setTimeout(resolve, 500))
+
+  const post3FetchDate = load(post3.body)('[data-testid="date-from-response"]').text()
+  const post3Name = load(post3.body)('[data-testid="name"]').text()
+
+  // note here that we are testing if API was called it least once and not that it was
+  // hit exactly once - this is because of Next.js quirk that seems to cause multiple
+  // fetch calls being made for single request
+  // https://github.com/vercel/next.js/issues/44655
+  expect(
+    handlerCalled,
+    'API should be hit as fetch did go stale and should be revalidated',
+  ).toBeGreaterThan(0)
+  expect(
+    post3FetchDate,
+    'Cached fetch response should be used (revalidation happen in background)',
+  ).toBe(post1FetchDate)
+  expect(post3.statusCode).toBe(200)
+  expect(post3Name).toBe('Fake response')
+  expect(post3.headers, 'the page should not be cacheable').toEqual(
+    expect.not.objectContaining({
+      'cache-status': expect.any(String),
+    }),
+  )
+
+  handlerCalled = 0
+  const post4 = await invokeFunction(ctx, {
+    url: 'dynamic-posts/1',
+    env: {
+      REVALIDATE_SECONDS: 5,
+      API_BASE: apiBase,
+    },
+  })
+
+  // allow for any potential background regeneration to happen
+  await new Promise<void>((resolve) => setTimeout(resolve, 500))
+
+  const post4FetchDate = load(post4.body)('[data-testid="date-from-response"]').text()
+  const post4Name = load(post4.body)('[data-testid="name"]').text()
+
+  expect(
+    handlerCalled,
+    'API should NOT be hit as fetch-cache is still fresh after being revalidated in background by previous request',
+  ).toBe(0)
+  expect(
+    post4FetchDate,
+    'Response cached in background by previous request should be used',
+  ).not.toBe(post3FetchDate)
+  expect(post4.statusCode).toBe(200)
+  expect(post4Name).toBe('Fake response')
+  expect(post4.headers, 'the page should not be cacheable').toEqual(
+    expect.not.objectContaining({
+      'cache-status': expect.any(String),
+    }),
+  )
+})
+
+test<FixtureTestContext>('if the fetch call is cached correctly (cached page response)', async (ctx) => {
+  await createFixture('revalidate-fetch', ctx)
+  await runPluginStep(ctx, 'onPreBuild')
+  await runPlugin(ctx)
+
+  // blob mtime is unpredictable, so this is just waiting for all blobs used from builds to get stale
+  await new Promise<void>((resolve) => setTimeout(resolve, 10_000))
+
+  handlerCalled = 0
+  const post1 = await invokeFunction(ctx, {
+    url: 'posts/1',
+    env: {
+      REVALIDATE_SECONDS: 5,
+      API_BASE: apiBase,
+    },
+  })
+
+  // allow for background regeneration to happen
+  await new Promise<void>((resolve) => setTimeout(resolve, 500))
+
+  const post1FetchDate = load(post1.body)('[data-testid="date-from-response"]').text()
+  const post1Name = load(post1.body)('[data-testid="name"]').text()
+
+  expect(handlerCalled, 'API should be hit as page was revalidated in background').toBeGreaterThan(
+    0,
+  )
+  expect(post1.statusCode).toBe(200)
+  expect(post1Name, 'a stale page served with swr').not.toBe('Fake response')
+  expect(post1.headers, 'a stale page served with swr').toEqual(
+    expect.objectContaining({
+      'cache-status': '"Next.js"; hit; fwd=stale',
+      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+    }),
+  )
+
+  handlerCalled = 0
+  const post2 = await invokeFunction(ctx, {
+    url: 'posts/1',
+    env: {
+      REVALIDATE_SECONDS: 5,
+      API_BASE: apiBase,
+    },
+  })
+
+  // allow for any potential background regeneration to happen
+  await new Promise<void>((resolve) => setTimeout(resolve, 500))
+
+  const post2FetchDate = load(post2.body)('[data-testid="date-from-response"]').text()
+  const post2Name = load(post2.body)('[data-testid="name"]').text()
+
+  expect(
+    handlerCalled,
+    'API should NOT be hit as fetch-cache is still fresh after being revalidated in background by previous request',
+  ).toBe(0)
+  expect(
+    post2FetchDate,
+    'Response cached after being revalidated in background should be now used',
+  ).not.toBe(post1FetchDate)
+  expect(post2.statusCode).toBe(200)
+  expect(
+    post2Name,
+    'Response cached after being revalidated in background should be now used',
+  ).toBe('Fake response')
+  expect(
+    post2.headers,
+    'Still fresh response after being regenerated in background by previous request',
+  ).toEqual(
+    expect.objectContaining({
+      'cache-status': '"Next.js"; hit',
+      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+    }),
+  )
+
+  // make response and fetch-cache stale
+  await new Promise<void>((resolve) => setTimeout(resolve, 7_000))
+
+  handlerCalled = 0
+  const post3 = await invokeFunction(ctx, {
+    url: 'posts/1',
+    env: {
+      REVALIDATE_SECONDS: 5,
+      API_BASE: apiBase,
+    },
+  })
+
+  // allow for any potential background regeneration to happen
+  await new Promise<void>((resolve) => setTimeout(resolve, 500))
+
+  const post3FetchDate = load(post3.body)('[data-testid="date-from-response"]').text()
+  const post3Name = load(post3.body)('[data-testid="name"]').text()
+
+  // note here that we are testing if API was called it least once and not that it was
+  // hit exactly once - this is because of Next.js quirk that seems to cause multiple
+  // fetch calls being made for single request
+  // https://github.com/vercel/next.js/issues/44655
+  expect(
+    handlerCalled,
+    'API should be hit as fetch did go stale and should be revalidated',
+  ).toBeGreaterThan(0)
+  expect(
+    post3FetchDate,
+    'Cached fetch response should be used (revalidation happen in background)',
+  ).toBe(post2FetchDate)
+  expect(post3.statusCode).toBe(200)
+  expect(post3Name).toBe('Fake response')
+  expect(post3.headers, 'a stale page served with swr').toEqual(
+    expect.objectContaining({
+      'cache-status': '"Next.js"; hit; fwd=stale',
+      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+    }),
+  )
+
+  handlerCalled = 0
+  const post4 = await invokeFunction(ctx, {
+    url: 'posts/1',
+    env: {
+      REVALIDATE_SECONDS: 5,
+      API_BASE: apiBase,
+    },
+  })
+
+  // allow for any potential background regeneration to happen
+  await new Promise<void>((resolve) => setTimeout(resolve, 500))
+
+  const post4FetchDate = load(post4.body)('[data-testid="date-from-response"]').text()
+  const post4Name = load(post4.body)('[data-testid="name"]').text()
+
+  expect(
+    handlerCalled,
+    'API should NOT be hit as fetch-cache is still fresh after being revalidated in background by previous request',
+  ).toBe(0)
+  expect(
+    post4FetchDate,
+    'Response cached in background by previous request should be used',
+  ).not.toBe(post3FetchDate)
+  expect(post4.statusCode).toBe(200)
+  expect(post4Name).toBe('Fake response')
+  expect(
+    post4.headers,
+    'Still fresh response after being regenerated in background by previous request',
+  ).toEqual(
+    expect.objectContaining({
+      'cache-status': '"Next.js"; hit',
+      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+    }),
+  )
 })

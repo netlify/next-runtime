@@ -82,7 +82,9 @@ export const setVaryHeaders = (
  * from the cache, meaning that the CDN will cache it for 10 seconds, which is incorrect.
  */
 export const adjustDateHeader = async (headers: Headers, request: Request) => {
-  if (headers.get('x-nextjs-cache') !== 'HIT') {
+  const cacheState = headers.get('x-nextjs-cache')
+  const isServedFromCache = cacheState === 'HIT' || cacheState === 'STALE'
+  if (!isServedFromCache) {
     return
   }
   const path = new URL(request.url).pathname
@@ -135,12 +137,13 @@ export const setCacheTagsHeaders = (headers: Headers, request: Request, manifest
 /**
  * https://httpwg.org/specs/rfc9211.html
  *
- * We only should get HIT and MISS statuses from Next cache.
+ * We get HIT, MISS, STALE statuses from Next cache.
  * We will ignore other statuses and will not set Cache-Status header in those cases.
  */
 const NEXT_CACHE_TO_CACHE_STATUS: Record<string, string> = {
   HIT: `hit`,
   MISS: `miss,`,
+  STALE: `hit; fwd=stale`,
 }
 
 /**

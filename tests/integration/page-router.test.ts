@@ -18,14 +18,14 @@ let server: ReturnType<typeof setupServer>
 
 beforeAll(() => {
   // Enable API mocking before tests.
-  //api.netlify.com/api/v1/purge
+  // mock just api.netlify.com/api/v1/purge
+  // and passthrough everything else
   server = setupServer(
-    http.all(/^http:\/\/localhost:.*/, () => passthrough()),
-    http.all(/^https:\/\/tvproxy.*/, () => passthrough()),
     http.post('https://api.netlify.com/api/v1/purge', () => {
       console.log('intercepted purge api call')
       return HttpResponse.json({})
     }),
+    http.all(/.*/, () => passthrough()),
   )
 
   server.listen()

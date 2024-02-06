@@ -59,6 +59,16 @@ function installDependencies(cwd: string) {
  * @param fixture name of the folder inside the fixtures folder
  */
 export const createFixture = async (fixture: string, ctx: FixtureTestContext) => {
+  // if we did run lambda from other fixture before it will set some global flags
+  // that would prevent Next.js from patching it again meaning that future function
+  // invocations would not use fetch-cache at all - this restores the original fetch
+  // and makes globalThis.fetch.__nextPatched falsy which will allow Next.js to apply
+  // needed patch
+  // @ts-ignore fetch doesn't have __nextPatched property in types
+  if (globalThis.fetch.__nextPatched && globalThis._nextOriginalFetch) {
+    globalThis.fetch = globalThis._nextOriginalFetch
+  }
+
   ctx.cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
   vi.spyOn(process, 'cwd').mockReturnValue(ctx.cwd)
 

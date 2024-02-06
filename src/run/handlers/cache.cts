@@ -2,13 +2,10 @@
 // (CJS format because Next.js doesn't support ESM yet)
 //
 import { Buffer } from 'node:buffer'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path/posix'
 
 import { getDeployStore, Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
 import { trace } from '@opentelemetry/api'
-import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 import type {
   CacheHandler,
@@ -17,16 +14,6 @@ import type {
 } from 'next/dist/server/lib/incremental-cache/index.js'
 
 type TagManifest = { revalidatedAt: number }
-
-// load the prerender manifest
-const prerenderManifest: PrerenderManifest = JSON.parse(
-  readFileSync(join(process.cwd(), '.next/prerender-manifest.json'), 'utf-8'),
-)
-
-/** Strips trailing slashes and normalizes the index root */
-function toRoute(cacheKey: string): string {
-  return cacheKey.replace(/\/$/, '').replace(/\/index$/, '') || '/'
-}
 
 const fetchBeforeNextPatchedIt = globalThis.fetch
 
@@ -65,12 +52,10 @@ export class NetlifyCacheHandler implements CacheHandler {
         return null
       }
 
-      const revalidateAfter = this.calculateRevalidate(key, blob.lastModified, ctx)
-      const isStale = revalidateAfter !== false && revalidateAfter < Date.now()
       const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.softTags)
 
-      if (staleByTags || isStale) {
-        span.addEvent('Stale', { staleByTags, isStale })
+      if (staleByTags) {
+        span.addEvent('Stale', { staleByTags })
         span.end()
         return null
       }
@@ -193,36 +178,6 @@ export class NetlifyCacheHandler implements CacheHandler {
     })
 
     return isStale
-  }
-
-  /**
-   * Retrieves the milliseconds since midnight, January 1, 1970 when it should revalidate for a path.
-   */
-  private calculateRevalidate(
-    cacheKey: string,
-    fromTime: number,
-    ctx: Parameters<CacheHandler['get']>[1],
-    dev?: boolean,
-  ): number | false {
-    // in development we don't have a prerender-manifest
-    // and default to always revalidating to allow easier debugging
-    if (dev) return Date.now() - 1_000
-
-    if (ctx?.revalidate && typeof ctx.revalidate === 'number') {
-      return fromTime + ctx.revalidate * 1_000
-    }
-
-    // if an entry isn't present in routes we fallback to a default
-    const { initialRevalidateSeconds } = prerenderManifest.routes[toRoute(cacheKey)] || {
-      initialRevalidateSeconds: 0,
-    }
-    // the initialRevalidate can be either set to false or to a number (representing the seconds)
-    const revalidateAfter: number | false =
-      typeof initialRevalidateSeconds === 'number'
-        ? initialRevalidateSeconds * 1_000 + fromTime
-        : initialRevalidateSeconds
-
-    return revalidateAfter
   }
 }
 
