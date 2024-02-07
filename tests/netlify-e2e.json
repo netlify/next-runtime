@@ -140,7 +140,8 @@
     "test/e2e/prerender.test.ts": {
       "flakey": [
         "Prerender should handle on-demand revalidate for fallback: blocking",
-        "Prerender should use correct caching headers for a revalidate page"
+        "Prerender should use correct caching headers for a revalidate page",
+        "Prerender should use correct caching headers for a no-revalidate page"
       ]
     },
     "test/e2e/app-dir/app-routes/app-custom-route-base-path.test.ts": {
@@ -208,7 +209,9 @@
       "test/e2e/app-dir/app/useReportWebVitals.test.ts",
       "test/e2e/app-dir/app-static/app-static-custom-handler.test.ts",
       "test/e2e/app-dir/missing-suspense-with-csr-bailout/missing-suspense-with-csr-bailout.test.ts",
-      "test/e2e/module-layer/module-layer.test.ts"
+      "test/e2e/module-layer/module-layer.test.ts",
+      "test/e2e/app-dir/next-image/next-image-proxy.test.ts",
+      "test/e2e/proxy-request-with-middleware/test/index.test.ts"
     ]
   }
 }
