@@ -32,7 +32,7 @@ const buildAppCacheValue = async (path: string): Promise<PageCacheValue> => ({
 
 const buildRouteCacheValue = async (path: string): Promise<RouteCacheValue> => ({
   kind: 'ROUTE',
-  body: await readFile(`${path}.body`, 'utf-8'),
+  body: await readFile(`${path}.body`, 'base64'),
   ...JSON.parse(await readFile(`${path}.meta`, 'utf-8')),
 })
 

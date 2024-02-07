@@ -83,7 +83,7 @@ export class NetlifyCacheHandler implements CacheHandler {
           return {
             lastModified: blob.lastModified,
             value: {
-              body: Buffer.from(blob.value.body),
+              body: Buffer.from(blob.value.body, 'base64'),
               kind: blob.value.kind,
               status: blob.value.status,
               headers: blob.value.headers,
@@ -113,6 +113,11 @@ export class NetlifyCacheHandler implements CacheHandler {
       span.setAttributes({ key, lastModified, blobKey })
 
       console.debug(`[NetlifyCacheHandler.set]: ${key}`)
+
+      if (data?.kind === 'ROUTE') {
+        // @ts-expect-error gotta find a better solution for this
+        data.body = data.body.toString('base64')
+      }
 
       await this.blobStore.setJSON(blobKey, {
         lastModified,

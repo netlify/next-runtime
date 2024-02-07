@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test'
 import { test } from '../utils/create-e2e-fixture.js'
+import { getImageSize } from 'next/dist/server/image-optimizer.js'
 
 test('Runs edge middleware', async ({ page, middleware }) => {
   await page.goto(`${middleware.url}/test/redirect`)
@@ -26,4 +27,15 @@ test('Supports CJS dependencies in Edge Middleware', async ({ page, middleware }
   const res = await page.goto(`${middleware.url}/test/next`)
 
   expect(await res?.headerValue('x-cjs-module-works')).toEqual("true")
+})
+
+// adaptation of https://github.com/vercel/next.js/blob/8aa9a52c36f338320d55bd2ec292ffb0b8c7cb35/test/e2e/app-dir/metadata-edge/index.test.ts#L24C5-L31C7
+test('it should render OpenGraph image meta tag correctly', async ({ page, middleware }) => {
+  await page.goto(`${middleware.url}/`)
+  const ogURL = await page.locator('meta[property="og:image"]').getAttribute('content')
+  expect(ogURL).toBeTruthy()
+  const ogResponse = await fetch(new URL(new URL(ogURL!).pathname, middleware.url))
+  const imageBuffer = await ogResponse.arrayBuffer()
+  const size = await getImageSize(Buffer.from(imageBuffer), 'png')
+  expect([size.width, size.height]).toEqual([1200, 630])
 })
