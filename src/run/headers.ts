@@ -1,4 +1,5 @@
 import { getDeployStore } from '@netlify/blobs'
+import type { Span, Tracer } from '@opentelemetry/api'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
 import { encodeBlobKey } from '../shared/blobkey.js'
@@ -81,17 +82,42 @@ export const setVaryHeaders = (
  * By default, Next.js sets the date header to the current time, even if it's served
  * from the cache, meaning that the CDN will cache it for 10 seconds, which is incorrect.
  */
-export const adjustDateHeader = async (headers: Headers, request: Request) => {
+export const adjustDateHeader = async (
+  headers: Headers,
+  request: Request,
+  span: Span,
+  tracer: Tracer,
+) => {
   const cacheState = headers.get('x-nextjs-cache')
   const isServedFromCache = cacheState === 'HIT' || cacheState === 'STALE'
+
+  span.setAttributes({
+    'x-nextjs-cache': cacheState ?? undefined,
+    isServedFromCache,
+  })
+
   if (!isServedFromCache) {
     return
   }
-  const path = new URL(request.url).pathname
-  const key = await encodeBlobKey(path)
+  const key = new URL(request.url).pathname
+  const blobKey = await encodeBlobKey(key)
   const blobStore = getDeployStore()
+
   // TODO: use metadata for this
-  const { lastModified } = (await blobStore.get(key, { type: 'json' })) ?? {}
+  const { lastModified } = await tracer.startActiveSpan(
+    'get cache to calculate date header',
+    async (getBlobForDateSpan) => {
+      getBlobForDateSpan.setAttributes({
+        key,
+        blobKey,
+      })
+      const blob = (await blobStore.get(blobKey, { type: 'json' })) ?? {}
+
+      getBlobForDateSpan.addEvent(blob ? 'Cache hit' : 'Cache miss')
+      getBlobForDateSpan.end()
+      return blob
+    },
+  )
 
   if (!lastModified) {
     return
@@ -142,7 +168,7 @@ export const setCacheTagsHeaders = (headers: Headers, request: Request, manifest
  */
 const NEXT_CACHE_TO_CACHE_STATUS: Record<string, string> = {
   HIT: `hit`,
-  MISS: `miss,`,
+  MISS: `fwd=miss`,
   STALE: `hit; fwd=stale`,
 }
 

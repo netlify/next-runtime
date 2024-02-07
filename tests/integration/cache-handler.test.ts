@@ -205,7 +205,7 @@ describe('app router', () => {
     expect(load(post3.body)('h1').text()).toBe('Revalidate Fetch')
     expect(post3.headers, 'a cache miss on a non prerendered page').toEqual(
       expect.objectContaining({
-        'cache-status': expect.stringMatching(/"Next.js"; miss/),
+        'cache-status': '"Next.js"; fwd=miss',
       }),
     )
 

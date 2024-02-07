@@ -58,7 +58,7 @@ test('next/image is using Netlify Image CDN', async ({ page }) => {
 const waitFor = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // adaptation of https://github.com/vercel/next.js/blob/canary/test/e2e/app-dir/app-static/app-static.test.ts#L1716-L1755
-test('should stream properly', async ({ page }) => {
+test('streams stale responses', async ({ page }) => {
   // Prime the cache.
   const path = `${ctx.url}/stale-cache-serving/app-page`
   const res = await fetch(path)
@@ -99,6 +99,9 @@ test('should stream properly', async ({ page }) => {
       )
     })
 
-    expect(timings.startedStreaming - timings.start, `streams in less than 3s, run #${i}/6`).toBeLessThan(3000)
+    expect(
+      timings.startedStreaming - timings.start,
+      `streams in less than 3s, run #${i}/6`,
+    ).toBeLessThan(3000)
   }
 })

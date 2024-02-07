@@ -17,6 +17,8 @@ export default async function (req, context) {
           'deploy.id': context.deploy.id,
           'request.id': context.requestId,
           'site.id': context.site.id,
+          'http.method': req.method,
+          'http.target': req.url,
           monorepo: true,
           cwd: '{{cwd}}',
         })
@@ -24,9 +26,14 @@ export default async function (req, context) {
           const { default: handler } = await import('./{{nextServerHandler}}')
           cachedHandler = handler
         }
-        return cachedHandler(req, context)
+        const response = await cachedHandler(req, context)
+        span.setAttributes({
+          'http.status_code': response.status,
+        })
+        return response
       } catch (error) {
         span.recordException(error)
+        throw error
       } finally {
         span.end()
       }

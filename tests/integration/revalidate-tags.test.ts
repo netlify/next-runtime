@@ -57,7 +57,7 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   expect(load(post2.body)('h1').text()).toBe('Hello, Static Fetch 1')
   expect(post2.headers, 'a cache miss on the on demand revalidated page').toEqual(
     expect.objectContaining({
-      'cache-status': expect.stringMatching(/"Next.js"; miss/),
+      'cache-status': '"Next.js"; fwd=miss',
       'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
     }),
   )
