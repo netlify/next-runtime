@@ -1,11 +1,23 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { createServerRunner } from '@aws-amplify/adapter-nextjs'
 
-export function middleware(request: NextRequest) {
+export const { runWithAmplifyServerContext } = createServerRunner({
+  config: {},
+})
+
+export async function middleware(request: NextRequest) {
   const response = getResponse(request)
 
   response.headers.append('Deno' in globalThis ? 'x-deno' : 'x-node', Date.now().toString())
   response.headers.set('x-hello-from-middleware-res', 'hello')
+
+  await runWithAmplifyServerContext({
+    nextServerContext: { request, response },
+    operation: async () => {
+      response.headers.set('x-cjs-module-works', 'true')
+    },
+  })
 
   return response
 }

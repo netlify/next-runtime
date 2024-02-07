@@ -31,3 +31,9 @@ test('Does not run edge middleware at the origin', async ({ page }) => {
   const h1 = page.locator('h1')
   await expect(h1).toHaveText('Message from middleware: hello')
 })
+
+test('Supports CJS dependencies in Edge Middleware', async ({ page }) => {
+  const res = await page.goto(`${ctx.url}/test/next`)
+
+  expect(await res?.headerValue('x-cjs-module-works')).toEqual("true")
+})
