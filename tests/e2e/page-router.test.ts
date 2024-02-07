@@ -96,3 +96,75 @@ test('requesting a page with a very long name works', async ({ page }) => {
   )
   expect(response?.status()).toBe(200)
 })
+
+export function waitFor(millis: number) {
+  return new Promise((resolve) => setTimeout(resolve, millis))
+}
+
+/**
+ * Check for content in 1 second intervals timing out after 30 seconds.
+ *
+ * @param {() => Promise<unknown> | unknown} contentFn
+ * @param {RegExp | string | number} regex
+ * @param {boolean} hardError
+ * @param {number} maxRetries
+ * @returns {Promise<boolean>}
+ */
+export async function check(
+  contentFn: () => any | Promise<any>,
+  regex: any,
+  hardError = true,
+  maxRetries = 30,
+) {
+  let content
+  let lastErr
+
+  for (let tries = 0; tries < maxRetries; tries++) {
+    try {
+      content = await contentFn()
+      if (typeof regex !== typeof /regex/) {
+        if (regex === content) {
+          return true
+        }
+      } else if (regex.test(content)) {
+        // found the content
+        return true
+      }
+      await waitFor(1000)
+    } catch (err) {
+      await waitFor(1000)
+      lastErr = err
+    }
+  }
+  console.error('TIMED OUT CHECK: ', { regex, content, lastErr })
+
+  if (hardError) {
+    throw new Error('TIMED OUT: ' + regex + '\n\n' + content + '\n\n' + lastErr)
+  }
+  return false
+}
+
+// adapted from https://github.com/vercel/next.js/blob/89fcf68c6acd62caf91a8cf0bfd3fdc566e75d9d/test/e2e/app-dir/app-static/app-static.test.ts#L108
+
+test('unstable-cache should work', async () => {
+  const pathname = `${ctx.url}/api/unstable-cache-node`
+  let res = await fetch(`${ctx.url}/api/unstable-cache-node`)
+  expect(res.status).toBe(200)
+  let prevData = await res.json()
+
+  expect(prevData.data.random).toBeTruthy()
+
+  await check(async () => {
+    res = await fetch(pathname)
+    expect(res.status).toBe(200)
+    const curData = await res.json()
+
+    try {
+      expect(curData.data.random).toBeTruthy()
+      expect(curData.data.random).toBe(prevData.data.random)
+    } finally {
+      prevData = curData
+    }
+    return 'success'
+  }, 'success')
+})

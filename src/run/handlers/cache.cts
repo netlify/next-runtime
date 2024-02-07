@@ -69,7 +69,7 @@ export class NetlifyCacheHandler implements CacheHandler {
             value: {
               kind: blob.value.kind,
               data: blob.value.data,
-              revalidate: ctx.revalidate || 1,
+              revalidate: blob.value.revalidate,
             },
           }
 
