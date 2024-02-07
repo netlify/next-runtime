@@ -75,6 +75,8 @@ export const setVaryHeaders = (
   headers.set(`netlify-vary`, generateNetlifyVaryValues(netlifyVaryValues))
 }
 
+const fetchBeforeNextPatchedIt = globalThis.fetch
+
 /**
  * Change the date header to be the last-modified date of the blob. This means the CDN
  * will use the correct expiry time for the response. e.g. if the blob was last modified
@@ -101,7 +103,7 @@ export const adjustDateHeader = async (
   }
   const key = new URL(request.url).pathname
   const blobKey = await encodeBlobKey(key)
-  const blobStore = getDeployStore()
+  const blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt })
 
   // TODO: use metadata for this
   const { lastModified } = await tracer.startActiveSpan(
