@@ -1,22 +1,12 @@
-import { type Locator, expect, test } from '@playwright/test'
-import { createE2EFixture } from '../utils/create-e2e-fixture.js'
-
-let ctx: Awaited<ReturnType<typeof createE2EFixture>>
-
-test.beforeAll(async () => {
-  ctx = await createE2EFixture('simple-next-app')
-})
-
-test.afterAll(async ({}, testInfo) => {
-  await ctx?.cleanup?.(!!testInfo.errors.length)
-})
+import { type Locator, expect } from '@playwright/test'
+import { test } from '../utils/create-e2e-fixture.js'
 
 const expectImageWasLoaded = async (locator: Locator) => {
   expect(await locator.evaluate((img: HTMLImageElement) => img.naturalHeight)).toBeGreaterThan(0)
 }
 
-test('Renders the Home page correctly', async ({ page }) => {
-  await page.goto(ctx.url)
+test('Renders the Home page correctly', async ({ page, simpleNextApp }) => {
+  await page.goto(simpleNextApp.url)
 
   await expect(page).toHaveTitle('Simple Next App')
 
@@ -26,31 +16,31 @@ test('Renders the Home page correctly', async ({ page }) => {
   await expectImageWasLoaded(page.locator('img'))
 })
 
-test('Serves a static image correctly', async ({ page }) => {
-  const response = await page.goto(`${ctx.url}/next.svg`)
+test('Serves a static image correctly', async ({ page, simpleNextApp }) => {
+  const response = await page.goto(`${simpleNextApp.url}/next.svg`)
 
   expect(response?.status()).toBe(200)
   expect(response?.headers()['content-type']).toBe('image/svg+xml')
 })
 
-test('Redirects correctly', async ({ page }) => {
-  await page.goto(`${ctx.url}/redirect/response`)
+test('Redirects correctly', async ({ page, simpleNextApp }) => {
+  await page.goto(`${simpleNextApp.url}/redirect/response`)
   await expect(page).toHaveURL(`https://www.netlify.com/`)
 
-  await page.goto(`${ctx.url}/redirect`)
+  await page.goto(`${simpleNextApp.url}/redirect`)
   await expect(page).toHaveURL(`https://www.netlify.com/`)
 })
 
-test('next/image is using Netlify Image CDN', async ({ page }) => {
+test('next/image is using Netlify Image CDN', async ({ page, simpleNextApp }) => {
   const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
 
-  await page.goto(`${ctx.url}/image`)
+  await page.goto(`${simpleNextApp.url}/image`)
 
   const nextImageResponse = await nextImageResponsePromise
   expect(nextImageResponse.request().url()).toContain('_next/image?url=%2Fsquirrel.jpg')
   // ensure next/image is using Image CDN
   // source image is jpg, but when requesting it through Image CDN avif will be returned
-  await expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+  expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
 
   await expectImageWasLoaded(page.locator('img'))
 })
@@ -58,9 +48,9 @@ test('next/image is using Netlify Image CDN', async ({ page }) => {
 const waitFor = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // adaptation of https://github.com/vercel/next.js/blob/canary/test/e2e/app-dir/app-static/app-static.test.ts#L1716-L1755
-test('streams stale responses', async ({ page }) => {
+test('streams stale responses', async ({ simpleNextApp }) => {
   // Prime the cache.
-  const path = `${ctx.url}/stale-cache-serving/app-page`
+  const path = `${simpleNextApp.url}/stale-cache-serving/app-page`
   const res = await fetch(path)
   expect(res.status).toBe(200)
 

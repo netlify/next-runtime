@@ -8,6 +8,8 @@ import { env } from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { cpus } from 'os'
 import pLimit from 'p-limit'
+import { test as base, PlaywrightWorkerArgs, WorkerFixture } from '@playwright/test'
+import { ArgumentsType } from 'vitest'
 
 // This is the netlify testing application
 export const SITE_ID = 'ee859ce9-44a7-46be-830b-ead85e445e53'
@@ -67,6 +69,8 @@ export const createE2EFixture = async (
     throw error
   }
 }
+
+export type Fixture = Awaited<ReturnType<typeof createE2EFixture>>
 
 /** Copies a fixture folder to a destination */
 async function copyFixture(fixtureName: string, dest: string): Promise<void> {
@@ -187,3 +191,63 @@ async function cleanup(dest: string, deployId?: string): Promise<void> {
 
   await Promise.allSettled([deleteDeploy(deployId), rm(dest, { recursive: true, force: true })])
 }
+
+const makeE2EFixture = (
+  ...args: ArgumentsType<typeof createE2EFixture>
+): [WorkerFixture<Fixture, PlaywrightWorkerArgs>, { scope: 'worker' }] => [
+  async ({}, use) => {
+    const fixture = await createE2EFixture(...args)
+    await use(fixture)
+    await fixture.cleanup(false) // TODO: replace false with info about test results
+  },
+  { scope: 'worker' },
+]
+
+export const test = base.extend<
+  { takeScreenshot: void },
+  {
+    simpleNextApp: Fixture
+    simpleNextAppYarn: Fixture
+    simpleNextAppPNPM: Fixture
+    simpleNextAppBun: Fixture
+    middleware: Fixture
+    pageRouter: Fixture
+    turborepo: Fixture
+    turborepoNPM: Fixture
+  }
+>({
+  simpleNextApp: makeE2EFixture('simple-next-app'),
+  simpleNextAppYarn: makeE2EFixture('simple-next-app', { packageManger: 'yarn' }),
+  simpleNextAppPNPM: makeE2EFixture('simple-next-app-pnpm', { packageManger: 'pnpm' }),
+  simpleNextAppBun: makeE2EFixture('simple-next-app', { packageManger: 'bun' }),
+  middleware: makeE2EFixture('middleware'),
+  pageRouter: makeE2EFixture('page-router'),
+  turborepo: makeE2EFixture('turborepo', {
+    packageManger: 'pnpm',
+    packagePath: 'apps/page-router',
+    buildCommand: 'turbo build --filter page-router',
+  }),
+  turborepoNPM: makeE2EFixture('turborepo-npm', {
+    packageManger: 'npm',
+    packagePath: 'apps/page-router',
+    buildCommand: 'turbo build --filter page-router',
+  }),
+
+  takeScreenshot: [
+    async ({ page }, use, testInfo) => {
+      await use()
+
+      if (testInfo.status !== testInfo.expectedStatus) {
+        const screenshotPath = testInfo.outputPath(`failure.png`)
+        // Add it to the report to see the failure immediately
+        testInfo.attachments.push({
+          name: 'failure',
+          path: screenshotPath,
+          contentType: 'image/png',
+        })
+        await page.screenshot({ path: screenshotPath, timeout: 5000 })
+      }
+    },
+    { auto: true },
+  ],
+})

@@ -1,17 +1,7 @@
-import { expect, test } from '@playwright/test'
-import { createE2EFixture } from '../utils/create-e2e-fixture.js'
+import { expect } from '@playwright/test'
+import { test } from '../utils/create-e2e-fixture.js'
 
-let ctx: Awaited<ReturnType<typeof createE2EFixture>>
-
-test.beforeAll(async () => {
-  ctx = await createE2EFixture('page-router')
-})
-
-test.afterAll(async ({}, testInfo) => {
-  await ctx?.cleanup?.(!!testInfo.errors.length)
-})
-
-test('Static revalidate works correctly', async ({ page }) => {
+test('Static revalidate works correctly', async ({ page, pageRouter }) => {
   // this disables browser cache - otherwise If-None-Match header
   // is added to repeat requests which result in actual 304 response
   // with custom headers from function not being returned
@@ -25,7 +15,7 @@ test('Static revalidate works correctly', async ({ page }) => {
   // generally we shouldn't do that
   page.route('**', (route) => route.continue())
 
-  const response1 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+  const response1 = await page.goto(new URL('static/revalidate-manual', pageRouter.url).href)
   const headers1 = response1?.headers() || {}
   expect(response1?.status()).toBe(200)
   expect(headers1['x-nextjs-cache']).toBeUndefined()
@@ -39,7 +29,7 @@ test('Static revalidate works correctly', async ({ page }) => {
   const h1 = await page.textContent('h1')
   expect(h1).toBe('Show #71')
 
-  const response2 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+  const response2 = await page.goto(new URL('static/revalidate-manual', pageRouter.url).href)
   const headers2 = response2?.headers() || {}
   expect(response2?.status()).toBe(200)
   expect(headers2['x-nextjs-cache']).toBeUndefined()
@@ -52,14 +42,14 @@ test('Static revalidate works correctly', async ({ page }) => {
   const date2 = await page.textContent('[data-testid="date-now"]')
   expect(date2).toBe(date1)
 
-  const revalidate = await page.goto(new URL('/api/revalidate', ctx.url).href)
+  const revalidate = await page.goto(new URL('/api/revalidate', pageRouter.url).href)
   expect(revalidate?.status()).toBe(200)
 
   // wait a bit until the page got regenerated
   await page.waitForTimeout(100)
 
   // now after the revalidation it should have a different date
-  const response3 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+  const response3 = await page.goto(new URL('static/revalidate-manual', pageRouter.url).href)
   const headers3 = response3?.headers() || {}
   expect(response3?.status()).toBe(200)
   expect(headers3?.['x-nextjs-cache']).toBeUndefined()
@@ -80,18 +70,19 @@ test('Static revalidate works correctly', async ({ page }) => {
 
 test('requesting a non existing page route that needs to be fetched from the blob store like 404.html', async ({
   page,
+  pageRouter,
 }) => {
-  const response = await page.goto(new URL('non-exisitng', ctx.url).href)
+  const response = await page.goto(new URL('non-exisitng', pageRouter.url).href)
   expect(response?.status()).toBe(404)
 
   expect(await page.textContent('h1')).toBe('404')
 })
 
-test('requesting a page with a very long name works', async ({ page }) => {
+test('requesting a page with a very long name works', async ({ page, pageRouter }) => {
   const response = await page.goto(
     new URL(
       '/products/an-incredibly-long-product-name-thats-impressively-repetetively-needlessly-overdimensioned-and-should-be-shortened-to-less-than-255-characters-for-the-sake-of-seo-and-ux-and-first-and-foremost-for-gods-sake-but-nobody-wont-ever-read-this-anyway',
-      ctx.url,
+      pageRouter.url,
     ).href,
   )
   expect(response?.status()).toBe(200)
@@ -146,9 +137,9 @@ export async function check(
 
 // adapted from https://github.com/vercel/next.js/blob/89fcf68c6acd62caf91a8cf0bfd3fdc566e75d9d/test/e2e/app-dir/app-static/app-static.test.ts#L108
 
-test('unstable-cache should work', async () => {
-  const pathname = `${ctx.url}/api/unstable-cache-node`
-  let res = await fetch(`${ctx.url}/api/unstable-cache-node`)
+test('unstable-cache should work', async ({ pageRouter }) => {
+  const pathname = `${pageRouter.url}/api/unstable-cache-node`
+  let res = await fetch(`${pageRouter.url}/api/unstable-cache-node`)
   expect(res.status).toBe(200)
   let prevData = await res.json()
 

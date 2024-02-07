@@ -1,38 +1,11 @@
-import { expect, test } from '@playwright/test'
-import { createE2EFixture } from '../utils/create-e2e-fixture.js'
-
-let ctx: Awaited<ReturnType<typeof createE2EFixture>>
+import { expect } from '@playwright/test'
+import { test } from '../utils/create-e2e-fixture.js'
 
 // those tests have different fixtures and can run in parallel
 test.describe.configure({ mode: 'parallel' })
 
-test.afterEach(async ({ page }, testInfo) => {
-  if (testInfo.status !== testInfo.expectedStatus) {
-    const screenshotPath = testInfo.outputPath(`failure.png`)
-    // Add it to the report to see the failure immediately
-    testInfo.attachments.push({
-      name: 'failure',
-      path: screenshotPath,
-      contentType: 'image/png',
-    })
-    await page.screenshot({ path: screenshotPath, timeout: 5000 })
-  }
-})
-
 test.describe('[PNPM] Package manager', () => {
-  test.beforeAll(async () => {
-    ctx = await createE2EFixture('turborepo', {
-      packageManger: 'pnpm',
-      packagePath: 'apps/page-router',
-      buildCommand: 'turbo build --filter page-router',
-    })
-  })
-
-  test.afterAll(async ({}, testInfo) => {
-    await ctx?.cleanup?.(!!testInfo.errors.length)
-  })
-
-  test('Static revalidate works correctly', async ({ page }) => {
+  test('Static revalidate works correctly', async ({ page, turborepo }) => {
     // this disables browser cache - otherwise If-None-Match header
     // is added to repeat requests which result in actual 304 response
     // with custom headers from function not being returned
@@ -46,7 +19,7 @@ test.describe('[PNPM] Package manager', () => {
     // generally we shouldn't do that
     page.route('**', (route) => route.continue())
 
-    const response1 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+    const response1 = await page.goto(new URL('static/revalidate-manual', turborepo.url).href)
     const headers1 = response1?.headers() || {}
     expect(response1?.status()).toBe(200)
     expect(headers1['x-nextjs-cache']).toBeUndefined()
@@ -61,7 +34,7 @@ test.describe('[PNPM] Package manager', () => {
     const h1 = await page.textContent('h1')
     expect(h1).toBe('Show #71')
 
-    const response2 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+    const response2 = await page.goto(new URL('static/revalidate-manual', turborepo.url).href)
     const headers2 = response2?.headers() || {}
     expect(response2?.status()).toBe(200)
     expect(headers2['x-nextjs-cache']).toBeUndefined()
@@ -74,14 +47,14 @@ test.describe('[PNPM] Package manager', () => {
     const date2 = await page.textContent('[data-testid="date-now"]')
     expect(date2).toBe(date1)
 
-    const revalidate = await page.goto(new URL('/api/revalidate', ctx.url).href)
+    const revalidate = await page.goto(new URL('/api/revalidate', turborepo.url).href)
     expect(revalidate?.status()).toBe(200)
 
     // wait a bit until the page got regenerated
     await page.waitForTimeout(100)
 
     // now after the revalidation it should have a different date
-    const response3 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+    const response3 = await page.goto(new URL('static/revalidate-manual', turborepo.url).href)
     const headers3 = response3?.headers() || {}
     expect(response3?.status()).toBe(200)
     expect(headers3?.['x-nextjs-cache']).toBeUndefined()
@@ -102,19 +75,7 @@ test.describe('[PNPM] Package manager', () => {
 })
 
 test.describe('[NPM] Package manager', () => {
-  test.beforeAll(async () => {
-    ctx = await createE2EFixture('turborepo-npm', {
-      packageManger: 'npm',
-      packagePath: 'apps/page-router',
-      buildCommand: 'turbo build --filter page-router',
-    })
-  })
-
-  test.afterAll(async ({}, testInfo) => {
-    await ctx?.cleanup?.(!!testInfo.errors.length)
-  })
-
-  test('Static revalidate works correctly', async ({ page }) => {
+  test('Static revalidate works correctly', async ({ page, turborepoNPM }) => {
     // this disables browser cache - otherwise If-None-Match header
     // is added to repeat requests which result in actual 304 response
     // with custom headers from function not being returned
@@ -128,7 +89,7 @@ test.describe('[NPM] Package manager', () => {
     // generally we shouldn't do that
     page.route('**', (route) => route.continue())
 
-    const response1 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+    const response1 = await page.goto(new URL('static/revalidate-manual', turborepoNPM.url).href)
     const headers1 = response1?.headers() || {}
     expect(response1?.status()).toBe(200)
     expect(headers1['x-nextjs-cache']).toBeUndefined()
@@ -142,7 +103,7 @@ test.describe('[NPM] Package manager', () => {
     const h1 = await page.textContent('h1')
     expect(h1).toBe('Show #71')
 
-    const response2 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+    const response2 = await page.goto(new URL('static/revalidate-manual', turborepoNPM.url).href)
     const headers2 = response2?.headers() || {}
     expect(response2?.status()).toBe(200)
     expect(headers2['x-nextjs-cache']).toBeUndefined()
@@ -155,14 +116,14 @@ test.describe('[NPM] Package manager', () => {
     const date2 = await page.textContent('[data-testid="date-now"]')
     expect(date2).toBe(date1)
 
-    const revalidate = await page.goto(new URL('/api/revalidate', ctx.url).href)
+    const revalidate = await page.goto(new URL('/api/revalidate', turborepoNPM.url).href)
     expect(revalidate?.status()).toBe(200)
 
     // wait a bit until the page got regenerated
     await page.waitForTimeout(100)
 
     // now after the revalidation it should have a different date
-    const response3 = await page.goto(new URL('static/revalidate-manual', ctx.url).href)
+    const response3 = await page.goto(new URL('static/revalidate-manual', turborepoNPM.url).href)
     const headers3 = response3?.headers() || {}
     expect(response3?.status()).toBe(200)
     expect(headers3?.['x-nextjs-cache']).toBeUndefined()
