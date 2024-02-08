@@ -35,7 +35,7 @@ export const setImageConfig = async (netlifyConfig: NetlifyConfig): Promise<void
         }
 
         port = port ? `:${port}` : ''
-        remoteImage = `${protocol}://${hostname}${port}${pathname || ''}`
+        remoteImage = `${protocol ?? 'https?'}://${hostname}${port}${pathname || ''}`
 
         netlifyConfig.images.remote_images.push(remoteImage)
       }
