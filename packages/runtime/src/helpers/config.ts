@@ -1,4 +1,4 @@
-import type { NetlifyConfig } from '@netlify/build/types'
+import type { NetlifyConfig } from '@netlify/build'
 import { readJSON, writeJSON } from 'fs-extra'
 import type { Header } from 'next/dist/lib/load-custom-routes'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'

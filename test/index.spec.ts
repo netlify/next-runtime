@@ -2,7 +2,7 @@ import os from 'os'
 import path, { resolve } from 'path'
 import process from 'process'
 
-import type { NetlifyPluginOptions } from '@netlify/build/types'
+import type { NetlifyPluginOptions } from '@netlify/build'
 import Chance from 'chance'
 import { writeJSON, unlink, existsSync, readFileSync, ensureDir, readJson, pathExists, writeFile, move } from 'fs-extra'
 import { join, relative } from 'pathe'

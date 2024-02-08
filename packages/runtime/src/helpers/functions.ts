@@ -1,4 +1,4 @@
-import type { NetlifyPluginConstants } from '@netlify/build/types'
+import type { NetlifyPluginConstants } from '@netlify/build'
 import bridgeFile from '@vercel/node-bridge'
 import chalk from 'chalk'
 import { copyFile, ensureDir, existsSync, readJSON, writeFile, stat } from 'fs-extra'

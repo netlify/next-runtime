@@ -1,4 +1,4 @@
-import type { NetlifyConfig } from '@netlify/build/types'
+import type { NetlifyConfig } from '@netlify/build'
 import globby from 'globby'
 import type { ExperimentalConfig } from 'next/dist/server/config-shared'
 import type { ImageConfigComplete } from 'next/dist/shared/lib/image-config'

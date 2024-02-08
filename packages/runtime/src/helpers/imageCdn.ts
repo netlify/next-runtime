@@ -1,4 +1,4 @@
-import { NetlifyConfig } from '@netlify/build/types'
+import { NetlifyConfig } from '@netlify/build'
 import type { RemotePattern } from 'next/dist/shared/lib/image-config'
 
 import { getImageManifest } from './config'

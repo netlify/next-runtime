@@ -1,7 +1,7 @@
 import { promises as fs, existsSync } from 'fs'
 import { resolve, join } from 'path'
 
-import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build/types'
+import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build'
 import { greenBright } from 'chalk'
 import destr from 'destr'
 import { copy, emptyDir, ensureDir, readJSON, writeJSON, writeJson } from 'fs-extra'
