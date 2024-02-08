@@ -4,13 +4,11 @@ import { resolve, join } from 'path'
 import type { NetlifyConfig, NetlifyPluginConstants } from '@netlify/build/types'
 import { greenBright } from 'chalk'
 import destr from 'destr'
-import { copy, copyFile, emptyDir, ensureDir, readJSON, writeJSON, writeJson } from 'fs-extra'
+import { copy, emptyDir, ensureDir, readJSON, writeJSON, writeJson } from 'fs-extra'
 import type { PrerenderManifest } from 'next/dist/build'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin'
 import type { RouteHas } from 'next/dist/lib/load-custom-routes'
 import { outdent } from 'outdent'
-
-import { IMAGE_FUNCTION_NAME } from '../constants'
 
 import { getRequiredServerFiles, NextConfig } from './config'
 import { getPluginVersion } from './functionsMetaData'
@@ -479,40 +477,6 @@ export const writeEdgeFunctions = async ({
         })
       }
     }
-  }
-
-  if (
-    destr(process.env.NEXT_FORCE_EDGE_IMAGES) &&
-    !destr(process.env.NEXT_DISABLE_EDGE_IMAGES) &&
-    !destr(process.env.DISABLE_IPX)
-  ) {
-    usesEdge = true
-    console.log(
-      'Using Netlify Edge Functions for image format detection. Set env var "NEXT_DISABLE_EDGE_IMAGES=true" to disable.',
-    )
-    const edgeFunctionDir = join(edgeFunctionRoot, 'ipx')
-    await ensureDir(edgeFunctionDir)
-    await copyEdgeSourceFile({ edgeFunctionDir, file: 'ipx.ts', target: 'index.ts' })
-    await copyFile(
-      join('.netlify', 'functions-internal', IMAGE_FUNCTION_NAME, 'imageconfig.json'),
-      join(edgeFunctionDir, 'imageconfig.json'),
-    )
-
-    manifest.functions.push({
-      function: 'ipx',
-      name: 'next/image handler',
-      path: nextConfig.images.path ? sanitizeEdgePath(nextConfig.images.path) : '/_next/image',
-      generator,
-    })
-
-    manifest.layers.push({
-      name: 'https://ipx-edge-function-layer.netlify.app/mod.ts',
-      flag: 'ipx-edge-function-layer-url',
-    })
-  } else {
-    console.log(
-      'You are not using Netlify Edge Functions for image format detection. Set env var "NEXT_FORCE_EDGE_IMAGES=true" to enable.',
-    )
   }
 
   if (usesEdge) {

@@ -11,7 +11,7 @@ import { dir as getTmpDir } from 'tmp-promise'
 // @ts-expect-error - TODO: Convert runtime export to ES6
 // eslint-disable-next-line import/default
 import nextRuntimeFactory from '../packages/runtime/src'
-import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME, IMAGE_FUNCTION_NAME } from '../packages/runtime/src/constants'
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../packages/runtime/src/constants'
 import { watchForMiddlewareChanges } from '../packages/runtime/src/helpers/compiler'
 import { getRequiredServerFiles, updateRequiredServerFiles } from '../packages/runtime/src/helpers/config'
 import { getAllPageDependencies } from '../packages/runtime/src/templates/getPageResolver'
@@ -578,56 +578,6 @@ describe('onBuild()', () => {
     expect(await nextRuntime.onBuild(defaultArgs)).toBeUndefined()
   })
 
-  it('generates imageconfig file with entries for domains, remotePatterns, and custom response headers', async () => {
-    await moveNextDist()
-    const mockHeaderValue = chance.string()
-
-    const updatedArgs = {
-      ...defaultArgs,
-      netlifyConfig: {
-        ...defaultArgs.netlifyConfig,
-        headers: [
-          {
-            for: '/_next/image/',
-            values: {
-              'X-Foo': mockHeaderValue,
-            },
-          },
-        ],
-      },
-    }
-    await nextRuntime.onBuild(updatedArgs)
-
-    const imageConfigPath = path.join(constants.INTERNAL_FUNCTIONS_SRC, IMAGE_FUNCTION_NAME, 'imageconfig.json')
-    const imageConfigJson = await readJson(imageConfigPath)
-
-    expect(imageConfigJson.domains.length).toBe(1)
-    expect(imageConfigJson.remotePatterns.length).toBe(1)
-    expect(imageConfigJson.responseHeaders).toStrictEqual({
-      'X-Foo': mockHeaderValue,
-    })
-  })
-
-  it('generates an ipx function by default', async () => {
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-    expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeTruthy()
-  })
-
-  // Enabled while edge images are off by default
-  it('does not generate an ipx edge function by default', async () => {
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
-  })
-
-  it('generates an ipx edge function if force is set', async () => {
-    process.env.NEXT_FORCE_EDGE_IMAGES = '1'
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
-  })
-
   it('generates edge-functions manifest', async () => {
     await moveNextDist()
     await nextRuntime.onBuild(defaultArgs)
@@ -647,75 +597,6 @@ describe('onBuild()', () => {
         }),
       ]),
     )
-  })
-
-  it('generates generator field within the edge-functions manifest includes IPX', async () => {
-    process.env.NEXT_FORCE_EDGE_IMAGES = '1'
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-    const manifestPath = await readJson(path.resolve('.netlify/edge-functions/manifest.json'))
-    const manifest = manifestPath.functions
-
-    expect(manifest).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          generator: '@netlify/next-runtime@1.0.0',
-        }),
-      ]),
-    )
-  })
-
-  it('does not generate an ipx function when DISABLE_IPX is set', async () => {
-    process.env.DISABLE_IPX = '1'
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-    expect(existsSync(path.join('.netlify', 'functions-internal', '_ipx', '_ipx.js'))).toBeFalsy()
-    delete process.env.DISABLE_IPX
-  })
-
-  it('creates 404 redirect when DISABLE_IPX is set', async () => {
-    process.env.DISABLE_IPX = '1'
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-    const nextImageRedirect = netlifyConfig.redirects.find((redirect) => redirect.from.includes('/_next/image'))
-
-    expect(nextImageRedirect).toBeDefined()
-    expect(nextImageRedirect.to).toEqual('/404.html')
-    expect(nextImageRedirect.status).toEqual(404)
-    expect(nextImageRedirect.force).toEqual(true)
-
-    delete process.env.DISABLE_IPX
-  })
-
-  it('generates an ipx edge function by default', async () => {
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeTruthy()
-  })
-
-  it('does not generate an ipx edge function if the feature is disabled', async () => {
-    process.env.NEXT_DISABLE_EDGE_IMAGES = '1'
-    await moveNextDist()
-    await nextRuntime.onBuild(defaultArgs)
-    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
-    delete process.env.NEXT_DISABLE_EDGE_IMAGES
-  })
-
-  it('does not generate an ipx edge function if Netlify Edge is disabled', async () => {
-    process.env.NEXT_DISABLE_NETLIFY_EDGE = '1'
-    await moveNextDist()
-
-    // We need to pretend there's no edge API routes, because otherwise it'll fail
-    // when we try to disable edge runtime.
-    const manifest = path.join('.next', 'server', 'middleware-manifest.json')
-    const manifestContent = await readJson(manifest)
-    manifestContent.functions = {}
-    await writeJSON(manifest, manifestContent)
-
-    await nextRuntime.onBuild(defaultArgs)
-
-    expect(existsSync(path.join('.netlify', 'edge-functions', 'ipx', 'index.ts'))).toBeFalsy()
-    delete process.env.NEXT_DISABLE_NETLIFY_EDGE
   })
 
   it('moves static files to a subdirectory if basePath is set', async () => {

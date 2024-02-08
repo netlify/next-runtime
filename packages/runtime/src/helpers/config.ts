@@ -1,12 +1,12 @@
 import type { NetlifyConfig } from '@netlify/build/types'
-import destr from 'destr'
 import { readJSON, writeJSON } from 'fs-extra'
 import type { Header } from 'next/dist/lib/load-custom-routes'
 import type { NextConfigComplete } from 'next/dist/server/config-shared'
+import type { ImageConfigComplete } from 'next/dist/shared/lib/image-config'
 import { join, dirname, relative } from 'pathe'
 import slash from 'slash'
 
-import { HANDLER_FUNCTION_NAME, IMAGE_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
+import { HANDLER_FUNCTION_NAME, ODB_FUNCTION_NAME } from '../constants'
 
 import type { APILambda, SSRLambda } from './functions'
 import type { RoutesManifest } from './types'
@@ -67,6 +67,11 @@ export const getRequiredServerFiles = async (publish: string): Promise<RequiredS
   return await readJSON(configFile)
 }
 
+export const getImageManifest = async (publish: string): Promise<ImageConfigComplete> => {
+  const { images } = await readJSON(join(publish, 'images-manifest.json'))
+  return images
+}
+
 /**
  * Writes a modified configuration object to 'required-server-files.json'.
  * To get the full configuration, use the 'getRequiredServerFiles' method.
@@ -123,11 +128,6 @@ export const configureHandlerFunctions = async ({
   const config = await getRequiredServerFiles(publish)
   const files = config.files || []
   const cssFilesToInclude = files.filter((f) => f.startsWith(`${publish}/static/css/`))
-
-  if (!destr(process.env.DISABLE_IPX)) {
-    netlifyConfig.functions[IMAGE_FUNCTION_NAME] ||= {}
-    netlifyConfig.functions[IMAGE_FUNCTION_NAME].node_bundler = 'nft'
-  }
 
   // If the user has manually added the module to included_files, then don't exclude it
   const excludedModules = DEFAULT_EXCLUDED_MODULES.filter(

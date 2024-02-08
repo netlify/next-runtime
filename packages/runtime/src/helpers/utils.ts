@@ -1,8 +1,7 @@
 import type { NetlifyConfig } from '@netlify/build/types'
-import type { Header } from '@netlify/build/types/config/netlify_config'
 import globby from 'globby'
 import type { ExperimentalConfig } from 'next/dist/server/config-shared'
-import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
+import type { ImageConfigComplete } from 'next/dist/shared/lib/image-config'
 import { join } from 'pathe'
 
 import { OPTIONAL_CATCH_ALL_REGEX, CATCH_ALL_REGEX, DYNAMIC_PARAMETER_REGEX, HANDLER_FUNCTION_PATH } from '../constants'
@@ -292,37 +291,8 @@ export const isNextAuthInstalled = (): boolean => {
   }
 }
 
-export const getCustomImageResponseHeaders = (headers: Header[]): Record<string, string> | null => {
-  const customImageResponseHeaders = headers.find((header) => header.for?.startsWith('/_next/image/'))
-
-  if (customImageResponseHeaders) {
-    return customImageResponseHeaders?.values as Record<string, string>
-  }
-  return null
-}
-
 export const isBundleSizeCheckDisabled = () =>
   process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK === '1' || process.env.DISABLE_BUNDLE_ZIP_SIZE_CHECK === 'true'
-
-// In v12.2.6-canary.12 the types had not yet been updated.
-// Once this type is available from the next package, this should
-// be removed
-export type ImagesConfig = Partial<ImageConfigComplete> &
-  Required<ImageConfigComplete> & {
-    remotePatterns?: RemotePattern[]
-  }
-export const getRemotePatterns = (experimental: ExperimentalConfigWithLegacy, images: ImagesConfig) => {
-  // Where remote patterns is configured pre-v12.2.5
-  if (experimental.images?.remotePatterns) {
-    return experimental.images.remotePatterns
-  }
-
-  // Where remote patterns is configured after v12.2.5
-  if (images.remotePatterns) {
-    return images.remotePatterns || []
-  }
-  return []
-}
 
 // Taken from next/src/shared/lib/escape-regexp.ts
 const reHasRegExp = /[|\\{}()[\]^$+*?.-]/
