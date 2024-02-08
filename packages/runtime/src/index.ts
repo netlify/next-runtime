@@ -1,6 +1,6 @@
 import { join, relative } from 'path'
 
-import type { NetlifyPlugin, NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build/types'
+import type { NetlifyPlugin, NetlifyPluginConstants, NetlifyPluginOptions } from '@netlify/build'
 import { bold, redBright } from 'chalk'
 import destr from 'destr'
 import { existsSync, readFileSync } from 'fs-extra'

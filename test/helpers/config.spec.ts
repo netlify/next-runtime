@@ -1,4 +1,4 @@
-import type { NetlifyPluginOptions } from '@netlify/build/types'
+import type { NetlifyPluginOptions } from '@netlify/build'
 
 import { generateCustomHeaders, NextConfig } from '../../packages/runtime/src/helpers/config'
 

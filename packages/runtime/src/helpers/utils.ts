@@ -1,5 +1,4 @@
-import type { NetlifyConfig } from '@netlify/build/types'
-import type { Header } from '@netlify/build/types/config/netlify_config'
+import type { NetlifyConfig } from '@netlify/build'
 import globby from 'globby'
 import type { ExperimentalConfig } from 'next/dist/server/config-shared'
 import type { ImageConfigComplete, RemotePattern } from 'next/dist/shared/lib/image-config'
@@ -292,7 +291,7 @@ export const isNextAuthInstalled = (): boolean => {
   }
 }
 
-export const getCustomImageResponseHeaders = (headers: Header[]): Record<string, string> | null => {
+export const getCustomImageResponseHeaders = (headers: NetlifyConfig['headers']): Record<string, string> | null => {
   const customImageResponseHeaders = headers.find((header) => header.for?.startsWith('/_next/image/'))
 
   if (customImageResponseHeaders) {
