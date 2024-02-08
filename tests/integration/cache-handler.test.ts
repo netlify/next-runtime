@@ -89,7 +89,7 @@ describe('page router', () => {
     )
 
     // wait to have page regenerated in the background
-    await new Promise<void>((resolve) => setTimeout(resolve, 500))
+    await new Promise<void>((resolve) => setTimeout(resolve, 1000))
 
     const call2 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
     const call2Date = load(call2.body)('[data-testid="date-now"]').text()
@@ -145,7 +145,7 @@ describe('page router', () => {
     )
 
     // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
-    await new Promise<void>((resolve) => setTimeout(resolve, 500))
+    await new Promise<void>((resolve) => setTimeout(resolve, 1000))
 
     // now the page should be in cache again and we should get a cache hit
     const call4 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
@@ -227,7 +227,7 @@ describe('app router', () => {
     expect(staleDate, 'the date was cached and is matching the initial one').not.toBe(post1Date)
 
     // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
-    await new Promise<void>((resolve) => setTimeout(resolve, 500))
+    await new Promise<void>((resolve) => setTimeout(resolve, 1000))
 
     // now the page should be in cache again and we should get a cache hit
     const cached = await invokeFunction(ctx, { url: 'posts/1' })
@@ -299,7 +299,7 @@ describe('route', () => {
     )
 
     // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
-    await new Promise<void>((resolve) => setTimeout(resolve, 500))
+    await new Promise<void>((resolve) => setTimeout(resolve, 1000))
 
     const call2 = await invokeFunction(ctx, { url: '/api/revalidate-handler' })
     const call2Body = JSON.parse(call2.body)
@@ -337,7 +337,7 @@ describe('route', () => {
     ).toBe(call3Time)
 
     // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
-    await new Promise<void>((resolve) => setTimeout(resolve, 500))
+    await new Promise<void>((resolve) => setTimeout(resolve, 1000))
 
     const call4 = await invokeFunction(ctx, { url: '/api/revalidate-handler' })
     expect(call4.statusCode).toBe(200)
