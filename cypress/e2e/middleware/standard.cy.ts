@@ -27,7 +27,7 @@ describe('Standard middleware', () => {
   it('doesnt follow redirects from rewritten page', () => {
     cy.request({ url: '/rewrite-to-redirect', followRedirect: false }).then((response) => {
       expect(response.status).to.eq(302)
-      expect(response.redirectedToUrl).to.eq('https://example.com')
+      expect(response.redirectedToUrl).to.eq('https://example.com/')
     })
   })
 
