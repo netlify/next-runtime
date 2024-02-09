@@ -178,6 +178,7 @@ export const config = {
     '/cookies/:path*',
     { source: '/static' },
     { source: '/request-rewrite' },
+    { source: '/rewrite-to-redirect' },
     { source: '/matcher-cookie' },
     { source: '/shows/((?!99|88).*)' },
     {
