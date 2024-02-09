@@ -103,7 +103,7 @@ export const adjustDateHeader = async (
   }
   const key = new URL(request.url).pathname
   const blobKey = await encodeBlobKey(key)
-  const blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt })
+  const blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt, consistency: 'strong' })
 
   // TODO: use metadata for this
   const { lastModified } = await tracer.startActiveSpan(

@@ -27,7 +27,7 @@ export class NetlifyCacheHandler implements CacheHandler {
   constructor(options: CacheHandlerContext) {
     this.options = options
     this.revalidatedTags = options.revalidatedTags
-    this.blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt })
+    this.blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt, consistency: 'strong' })
   }
 
   private async encodeBlobKey(key: string) {

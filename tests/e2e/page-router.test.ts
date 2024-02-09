@@ -2,28 +2,27 @@ import { expect } from '@playwright/test'
 import { test } from '../utils/create-e2e-fixture.js'
 
 test('Static revalidate works correctly', async ({ page, pageRouter }) => {
-  // this disables browser cache - otherwise If-None-Match header
-  // is added to repeat requests which result in actual 304 response
-  // with custom headers from function not being returned
-  // additionally Playwright wrongly report 304 as 200
-  // https://github.com/microsoft/playwright/issues/27573
-  // which makes the assertions confusing
-  // see https://playwright.dev/docs/api/class-browsercontext#browser-context-route
-  // > Enabling routing disables http cache.
-  // and https://stackoverflow.com/questions/68522170/playwright-disable-caching-of-webpage-so-i-can-fetch-new-elements-after-scrollin
-  // note - this is likely the same problem that cause assertions at the bottom to be commented out
-  // generally we shouldn't do that
-  page.route('**', (route) => route.continue())
+  // in case there is retry or some other test did hit that path before
+  // we want to make sure that cdn cache is not warmed up
+  const purgeCdnCache = await page.goto(
+    new URL('/api/purge-cdn?path=/static/revalidate-manual', pageRouter.url).href,
+  )
+  expect(purgeCdnCache?.status()).toBe(200)
 
   const response1 = await page.goto(new URL('static/revalidate-manual', pageRouter.url).href)
   const headers1 = response1?.headers() || {}
   expect(response1?.status()).toBe(200)
   expect(headers1['x-nextjs-cache']).toBeUndefined()
-  // first time hitting this route - we will invoke function and see
-  // Next cache hit status in the response because it was prerendered
-  // at build time
-  expect(headers1['cache-status']).toMatch(/"Netlify Edge"; fwd=miss/m)
+  // either first time hitting this route or we invalidated
+  // just CDN node in earlier step
+  // we will invoke function and see Next cache hit status \
+  // in the response because it was prerendered at build time
+  // or regenerated in previous attempt to run this test
+  expect(headers1['cache-status']).toMatch(/"Netlify Edge"; fwd=(miss|stale)/m)
   expect(headers1['cache-status']).toMatch(/"Next.js"; hit/m)
+  expect(headers1['netlify-cdn-cache-control']).toBe(
+    's-maxage=31536000, stale-while-revalidate=31536000',
+  )
 
   const date1 = await page.textContent('[data-testid="date-now"]')
   const h1 = await page.textContent('h1')
@@ -33,10 +32,19 @@ test('Static revalidate works correctly', async ({ page, pageRouter }) => {
   const headers2 = response2?.headers() || {}
   expect(response2?.status()).toBe(200)
   expect(headers2['x-nextjs-cache']).toBeUndefined()
-  // On CDN hit, Next cache status is not added to response anymore
-  // (any cache-status set by functions is not added - this is a platform behavior
-  // not runtime behavior)
-  expect(headers2['cache-status']).toMatch(/"Netlify Edge"; hit/m)
+  // we are hitting the same page again and we most likely will see
+  // CDN hit (in this case Next reported cache status is omitted
+  // as it didn't actually take place in handling this request)
+  // or we will see CDN miss because different CDN node handled request
+  expect(headers2['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
+  if (!headers2['cache-status'].includes('hit')) {
+    // if we missed CDN cache, we will see Next cache hit status
+    // as we reuse cached response
+    expect(headers2['cache-status']).toMatch(/"Next.js"; hit/m)
+  }
+  expect(headers2['netlify-cdn-cache-control']).toBe(
+    's-maxage=31536000, stale-while-revalidate=31536000',
+  )
 
   // the page is cached
   const date2 = await page.textContent('[data-testid="date-now"]')
@@ -62,10 +70,8 @@ test('Static revalidate works correctly', async ({ page, pageRouter }) => {
   expect(headers3['cache-status']).toMatch(/"Netlify Edge"; fwd=stale/m)
 
   // the page has now an updated date
-  // TODO: Cache purge is currently not working as expected
-  // @Rob is working on it
-  // const date3 = await page.textContent('[data-testid="date-now"]')
-  // expect(date3).not.toBe(date2)
+  const date3 = await page.textContent('[data-testid="date-now"]')
+  expect(date3).not.toBe(date2)
 })
 
 test('requesting a non existing page route that needs to be fetched from the blob store like 404.html', async ({

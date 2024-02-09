@@ -43,6 +43,7 @@ export const createBlobContext = (ctx: FixtureTestContext) =>
   Buffer.from(
     JSON.stringify({
       edgeURL: `http://${ctx.blobStoreHost}`,
+      uncachedEdgeURL: `http://${ctx.blobStoreHost}`,
       token: BLOB_TOKEN,
       siteID: ctx.siteID,
       deployID: ctx.deployID,

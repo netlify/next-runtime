@@ -354,6 +354,7 @@ export async function invokeFunction(
       NETLIFY_BLOBS_CONTEXT: Buffer.from(
         JSON.stringify({
           edgeURL: `http://${ctx.blobStoreHost}`,
+          uncachedEdgeURL: `http://${ctx.blobStoreHost}`,
           token: BLOB_TOKEN,
           siteID: ctx.siteID,
           deployID: ctx.deployID,

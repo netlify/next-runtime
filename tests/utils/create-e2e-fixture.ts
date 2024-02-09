@@ -224,6 +224,7 @@ export const test = base.extend<
     nxIntegrated: Fixture
     turborepo: Fixture
     turborepoNPM: Fixture
+    serverComponents: Fixture
   }
 >({
   simpleNextApp: makeE2EFixture('simple-next-app'),
@@ -242,13 +243,13 @@ export const test = base.extend<
     packagePath: 'apps/page-router',
     buildCommand: 'turbo build --filter page-router',
   }),
+  serverComponents: makeE2EFixture('server-components'),
   nxIntegrated: makeE2EFixture('nx-integrated', {
     packageManger: 'pnpm',
     packagePath: 'apps/next-app',
     buildCommand: 'nx run next-app:build',
     publishDirectory: 'dist/apps/next-app/.next',
   }),
-
   takeScreenshot: [
     async ({ page }, use, testInfo) => {
       await use()
