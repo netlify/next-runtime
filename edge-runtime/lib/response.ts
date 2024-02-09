@@ -163,7 +163,8 @@ export const buildResponse = async ({
           method: request.method,
         })
       }
-      return addMiddlewareHeaders(fetch(proxyRequest), res)
+
+      return addMiddlewareHeaders(fetch(proxyRequest, { redirect: 'manual' }), res)
     } else if (isDataReq) {
       rewriteUrl.pathname = rewriteDataPath({
         dataUrl: originalPath,

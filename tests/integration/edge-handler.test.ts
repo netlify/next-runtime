@@ -153,6 +153,34 @@ describe('rewrite', () => {
     expect(external.calls).toBe(1)
     expect(origin.calls).toBe(0)
   })
+
+  test<FixtureTestContext>('rewriting to external URL that redirects should return said redirect', async (ctx) => {
+    await createFixture('middleware', ctx)
+    await runPlugin(ctx)
+
+    const external = await LocalServer.run(async (req, res) => {
+      res.writeHead(302, {
+        location: 'http://example.com/redirected',
+      })
+      res.end()
+    })
+    ctx.cleanup?.push(() => external.stop())
+
+    const origin = new LocalServer()
+    ctx.cleanup?.push(() => origin.stop())
+
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      url: `/test/rewrite-external?external-url=http://localhost:${external.port}/some-path`,
+      redirect: 'manual',
+    })
+
+    expect(await response.text()).toBe('')
+
+    expect(response.status).toBe(302)
+    expect(response.headers.get('location')).toBe('http://example.com/redirected')
+  })
 })
 
 describe("aborts middleware execution when the matcher conditions don't match the request", () => {
