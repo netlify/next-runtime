@@ -24,6 +24,13 @@ describe('Standard middleware', () => {
     cy.url().should('eq', `${Cypress.config().baseUrl}/shows/rewrite-external`)
   })
 
+  it('doesnt follow redirects from rewritten page', () => {
+    cy.request({ url: '/rewrite-to-redirect', followRedirect: false }).then((response) => {
+      expect(response.status).to.eq(302)
+      expect(response.redirectedToUrl).to.eq('https://example.com/')
+    })
+  })
+
   it('adds headers to static pages', () => {
     cy.request('/shows/static/3').then((response) => {
       expect(response.headers).to.have.property('x-middleware-date')
