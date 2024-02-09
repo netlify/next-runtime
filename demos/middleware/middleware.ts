@@ -38,6 +38,10 @@ export async function middleware(req: NextRequest) {
     return res
   }
 
+  if (pathname.startsWith("/rewrite-to-redirect")) {
+    return NextResponse.rewrite('https://httpbin.org/redirect-to?url=https://example.com') 
+  }
+
   // skipMiddlewareUrlNormalize next config option is used so we have to try to match both html path and data blob path
   if (pathname.startsWith('/request-rewrite') || pathname.endsWith('/request-rewrite.json')) {
     // request.rewrite() should return the MiddlewareResponse object instead of the Response object.
