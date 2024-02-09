@@ -265,7 +265,7 @@ export const buildResponse = async ({
     }
     if (rewriteUrl.hostname !== baseUrl.hostname) {
       // Netlify Edge Functions don't support proxying to external domains, but Next middleware does
-      const proxied = fetch(new Request(rewriteUrl.toString(), request))
+      const proxied = fetch(new Request(rewriteUrl.toString(), request), { redirect: 'manual' })
       return addMiddlewareHeaders(proxied, res)
     }
     res.headers.set('x-middleware-rewrite', relativeUrl)
