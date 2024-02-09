@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs'
-import { mkdir, readFile, writeFile, stat } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 // Here we need to actually import `resolve` from node:path as we want to resolve the paths
 // eslint-disable-next-line no-restricted-imports
-import { dirname, join, resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type {
@@ -14,44 +14,11 @@ import type { PrerenderManifest, RoutesManifest } from 'next/dist/build/index.js
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
-import { encodeBlobKey } from '../shared/blobkey.js'
-
 const MODULE_DIR = fileURLToPath(new URL('.', import.meta.url))
 const PLUGIN_DIR = join(MODULE_DIR, '../..')
 
 export const SERVER_HANDLER_NAME = '___netlify-server-handler'
 export const EDGE_HANDLER_NAME = '___netlify-edge-handler'
-
-export type PageCacheValue = {
-  kind: 'PAGE'
-  html: string
-  pageData: string
-  headers?: { [k: string]: string }
-  status?: number
-}
-
-export type RouteCacheValue = {
-  kind: 'ROUTE'
-  body: string
-  headers: { [k: string]: string }
-  status: number
-}
-
-export type FetchCacheValue = {
-  kind: 'FETCH'
-  data: {
-    headers: { [k: string]: string }
-    body: string
-    url: string
-    status?: number
-    tags?: string[]
-  }
-}
-export type CacheValue = PageCacheValue | RouteCacheValue | FetchCacheValue
-export type CacheEntry = {
-  lastModified: number
-  value: CacheValue
-}
 
 export class PluginContext {
   utils: NetlifyPluginUtils
@@ -202,22 +169,6 @@ export class PluginContext {
    */
   async getRoutesManifest(): Promise<RoutesManifest> {
     return JSON.parse(await readFile(join(this.publishDir, 'routes-manifest.json'), 'utf-8'))
-  }
-
-  /**
-   * Write a cache entry to the blob upload directory.
-   */
-  async writeCacheEntry(route: string, value: CacheValue, filePath: string): Promise<void> {
-    // Getting modified file date from prerendered content
-    const { mtime } = await stat(filePath)
-    const path = join(this.blobDir, await encodeBlobKey(route))
-    const entry = JSON.stringify({
-      lastModified: mtime.getTime(),
-      value,
-    } satisfies CacheEntry)
-
-    await mkdir(dirname(path), { recursive: true })
-    await writeFile(path, entry, 'utf-8')
   }
 
   /** Fails a build with a message and an optional error */

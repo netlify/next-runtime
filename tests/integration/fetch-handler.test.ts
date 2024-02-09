@@ -8,8 +8,8 @@ import {
   createFixture,
   invokeFunction,
   runPlugin,
-  type FixtureTestContext,
   runPluginStep,
+  type FixtureTestContext,
 } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 
@@ -62,9 +62,6 @@ test<FixtureTestContext>('if the fetch call is cached correctly (force-dynamic p
   await createFixture('revalidate-fetch', ctx)
   await runPluginStep(ctx, 'onPreBuild')
   await runPlugin(ctx)
-
-  // blob mtime is unpredictable, so this is just waiting for all blobs used from builds to get stale
-  await new Promise<void>((resolve) => setTimeout(resolve, 10_000))
 
   handlerCalled = 0
   const post1 = await invokeFunction(ctx, {
@@ -192,9 +189,6 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   await createFixture('revalidate-fetch', ctx)
   await runPluginStep(ctx, 'onPreBuild')
   await runPlugin(ctx)
-
-  // blob mtime is unpredictable, so this is just waiting for all blobs used from builds to get stale
-  await new Promise<void>((resolve) => setTimeout(resolve, 10_000))
 
   handlerCalled = 0
   const post1 = await invokeFunction(ctx, {

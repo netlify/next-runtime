@@ -7,19 +7,14 @@ import {
   invokeFunction,
   runPlugin,
   type FixtureTestContext,
-  runPluginStep,
 } from '../utils/fixture.js'
 import {
-  changeMDate,
   decodeBlobKey,
   encodeBlobKey,
   generateRandomObjectID,
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
-import { join } from 'path'
-import { existsSync } from 'node:fs'
-import { minify } from 'next/dist/build/swc/index.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -41,22 +36,6 @@ describe('page router', () => {
   test<FixtureTestContext>('page router with static revalidate', async (ctx) => {
     await createFixture('page-router', ctx)
     console.time('runPlugin')
-    const {
-      constants: { PUBLISH_DIR },
-    } = await runPluginStep(ctx, 'onPreBuild')
-    const filePaths = [
-      'server/pages/static/revalidate-automatic.html',
-      'server/pages/static/revalidate-automatic.json',
-      'server/pages/static/revalidate-slow.html',
-      'server/pages/static/revalidate-slow.json',
-    ]
-
-    filePaths.forEach(async (filePath) => {
-      if (existsSync(filePath)) {
-        // Changing the fetch files modified date to a past date since the test files are copied and dont preserve the mtime locally
-        await changeMDate(join(PUBLISH_DIR, filePath), 1674690060000)
-      }
-    })
     await runPlugin(ctx)
     console.timeEnd('runPlugin')
     // check if the blob entries where successful set on the build plugin
@@ -71,16 +50,13 @@ describe('page router', () => {
       '500.html',
     ])
 
-    // blob mtime is unpredictable, so this is just waiting for all blobs used from builds to get stale
-    await new Promise<void>((resolve) => setTimeout(resolve, 10_000))
-
     // test the function call
     const call1 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
     const call1Date = load(call1.body)('[data-testid="date-now"]').text()
     expect(call1.statusCode).toBe(200)
     expect(load(call1.body)('h1').text()).toBe('Show #71')
-    // We waited for blobs to get stale so first invocation will actually be a cache hit
-    // with stale being served, while fresh is generated in background
+    // Prerendered content is always cached as expired, so first invocation will
+    // be stale, while fresh is generated in background
     expect(call1.headers, 'a stale page served with swr').toEqual(
       expect.objectContaining({
         'cache-status': '"Next.js"; hit; fwd=stale',
@@ -177,13 +153,8 @@ describe('app router', () => {
       '/posts/1',
       '/posts/2',
       '404.html',
-      '460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
       '500.html',
-      'ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
     ])
-
-    // blob mtime is unpredictable, so this is just waiting for all blobs used from builds to get stale
-    await new Promise<void>((resolve) => setTimeout(resolve, 10_000))
 
     // test the function call
     const post1 = await invokeFunction(ctx, { url: 'posts/1' })
@@ -195,6 +166,17 @@ describe('app router', () => {
       expect.objectContaining({
         'cache-status': '"Next.js"; hit; fwd=stale',
         'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+      }),
+    )
+
+    // test a prerendered page without TTL
+    const post2 = await invokeFunction(ctx, { url: '/' })
+    expect(post2.statusCode).toBe(200)
+    expect(post2.headers, 'a stale response on the first invocation of a prerendered page').toEqual(
+      // It will be hit instead of stale
+      expect.objectContaining({
+        'cache-status': '"Next.js"; hit',
+        'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
       }),
     )
 
@@ -259,10 +241,7 @@ describe('plugin', () => {
       '/static-fetch/1',
       '/static-fetch/2',
       '404.html',
-      '460ed46cd9a194efa197be9f2571e51b729a039d1cff9834297f416dce5ada29',
       '500.html',
-      'ac26c54e17c3018c17bfe5ae6adc0e6d37dbfaf28445c1f767ff267144264ac9',
-      'ad74683e49684ff4fe3d01ba1bef627bc0e38b61fa6bd8244145fbaca87f3c49',
     ])
   })
 })
@@ -277,9 +256,6 @@ describe('route', () => {
       type: 'json',
     })
     expect(blobEntry).not.toBeNull()
-
-    // blob mtime is unpredictable, so this is just waiting for all blobs used from builds to get stale
-    await new Promise<void>((resolve) => setTimeout(resolve, 10_000))
 
     // test the first invocation of the route - we should get stale response while fresh is generated in the background
     const call1 = await invokeFunction(ctx, { url: '/api/revalidate-handler' })

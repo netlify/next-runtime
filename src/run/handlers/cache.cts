@@ -10,6 +10,7 @@ import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 import type {
   CacheHandler,
   CacheHandlerContext,
+  CacheHandlerValue,
   IncrementalCache,
 } from 'next/dist/server/lib/incremental-cache/index.js'
 
@@ -43,7 +44,7 @@ export class NetlifyCacheHandler implements CacheHandler {
       span.setAttributes({ key, blobKey })
       const blob = (await this.blobStore.get(blobKey, {
         type: 'json',
-      })) as CacheEntry | null
+      })) as CacheHandlerValue | null
 
       // if blob is null then we don't have a cache entry
       if (!blob) {
@@ -60,33 +61,23 @@ export class NetlifyCacheHandler implements CacheHandler {
         return null
       }
 
-      switch (blob.value.kind) {
+      switch (blob.value?.kind) {
         case 'FETCH':
           span.addEvent('FETCH', { lastModified: blob.lastModified, revalidate: ctx.revalidate })
           span.end()
           return {
             lastModified: blob.lastModified,
-            value: {
-              kind: blob.value.kind,
-              data: blob.value.data,
-              revalidate: blob.value.revalidate,
-            },
+            value: blob.value,
           }
 
         case 'ROUTE':
-          span.addEvent('ROUTE', {
-            lastModified: blob.lastModified,
-            kind: blob.value.kind,
-            status: blob.value.status,
-          })
+          span.addEvent('ROUTE', { lastModified: blob.lastModified, status: blob.value.status })
           span.end()
           return {
             lastModified: blob.lastModified,
             value: {
-              body: Buffer.from(blob.value.body, 'base64'),
-              kind: blob.value.kind,
-              status: blob.value.status,
-              headers: blob.value.headers,
+              ...blob.value,
+              body: Buffer.from(blob.value.body as unknown as string, 'base64'),
             },
           }
         case 'PAGE':
@@ -97,7 +88,7 @@ export class NetlifyCacheHandler implements CacheHandler {
             value: blob.value,
           }
         default:
-          span.recordException(new Error(`Unknown cache entry kind: ${blob.value.kind}`))
+          span.recordException(new Error(`Unknown cache entry kind: ${blob.value?.kind}`))
         // TODO: system level logging not implemented
       }
       span.end()
@@ -147,13 +138,17 @@ export class NetlifyCacheHandler implements CacheHandler {
     })
   }
 
+  /* Not used, but required by the interface */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  resetRequestCache() {}
+
   /**
    * Checks if a page is stale through on demand revalidated tags
    */
-  private async checkCacheEntryStaleByTags(cacheEntry: CacheEntry, softTags: string[] = []) {
+  private async checkCacheEntryStaleByTags(cacheEntry: CacheHandlerValue, softTags: string[] = []) {
     const tags =
-      'headers' in cacheEntry.value
-        ? cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER]?.split(',') || []
+      cacheEntry.value && 'headers' in cacheEntry.value
+        ? (cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER] as string)?.split(',') || []
         : []
 
     const cacheTags = [...tags, ...softTags]

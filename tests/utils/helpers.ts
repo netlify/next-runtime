@@ -5,11 +5,10 @@ import { BlobsServer, getDeployStore } from '@netlify/blobs'
 import type { NetlifyPluginUtils } from '@netlify/build'
 import IncrementalCache from 'next/dist/server/lib/incremental-cache/index.js'
 import { Buffer } from 'node:buffer'
-import { mkdtemp, stat } from 'node:fs/promises'
+import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assert, vi } from 'vitest'
-import { utimes } from 'node:fs'
 
 /**
  * Uses next.js incremental cache to compute the same cache key for a URL that is automatically generated
@@ -116,17 +115,3 @@ export const mockBuildUtils = {
     assert.fail(`${message}: ${options?.error || ''}`)
   },
 } as unknown as NetlifyPluginUtils
-
-export const changeMDate = async (filePath: string, newTime: number) => {
-  const prevStat = await stat(filePath)
-
-  console.log('Previous Modified time', {
-    mtime: prevStat.mtime.getTime(),
-  })
-
-  utimes(filePath, new Date(newTime), new Date(newTime), () => {
-    console.log('New Modified time', {
-      mtime: newTime,
-    })
-  })
-}

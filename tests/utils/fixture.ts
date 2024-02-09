@@ -200,6 +200,7 @@ export async function runPluginStep(
       },
       cache: {
         save: vi.fn(),
+        restore: vi.fn(),
       },
     },
   } as unknown as NetlifyPluginOptions
