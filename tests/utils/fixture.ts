@@ -168,7 +168,7 @@ export async function runPluginStep(
       SITE_ID: ctx.siteID,
       NETLIFY_API_TOKEN: BLOB_TOKEN,
       NETLIFY_API_HOST: ctx.blobStoreHost,
-      PUBLISH_DIR: join(ctx.cwd, constants.PACKAGE_PATH || '', '.next'),
+      PUBLISH_DIR: join(constants.PACKAGE_PATH || '', '.next'),
       ...(constants || {}),
       // TODO: figure out if we need them
       // CONFIG_PATH: 'netlify.toml',
@@ -219,8 +219,7 @@ export async function runPlugin(
   constants: Partial<NetlifyPluginConstants> = {},
 ) {
   // imitate netlify/build here
-  constants.PUBLISH_DIR =
-    constants.PUBLISH_DIR || join(ctx.cwd, constants.PACKAGE_PATH || '', '.next')
+  constants.PUBLISH_DIR = constants.PUBLISH_DIR || join(constants.PACKAGE_PATH || '', '.next')
   const options = await runPluginStep(ctx, 'onBuild', constants)
 
   const base = new PluginContext(options)

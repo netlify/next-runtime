@@ -53,7 +53,7 @@ const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
     const template = await readFile(join(templatesDir, 'handler-monorepo.tmpl.js'), 'utf-8')
 
     return template
-      .replaceAll('{{cwd}}', join('/var/task', ctx.packagePath))
+      .replaceAll('{{cwd}}', ctx.lambdaWorkingDirectory)
       .replace('{{nextServerHandler}}', ctx.nextServerHandler)
   }
 

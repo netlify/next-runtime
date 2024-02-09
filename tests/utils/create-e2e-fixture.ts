@@ -1,6 +1,7 @@
 import { execaCommand } from 'execa'
 import fg from 'fast-glob'
 import { exec } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -32,6 +33,7 @@ export const createE2EFixture = async (
     packageManger?: PackageManager
     packagePath?: string
     buildCommand?: string
+    publishDirectory?: string
   } = {},
 ) => {
   const cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
@@ -55,7 +57,7 @@ export const createE2EFixture = async (
   }
   try {
     const [packageName] = await Promise.all([
-      buildAndPackRuntime(cwd, config.packagePath, config.buildCommand),
+      buildAndPackRuntime({ ...config, dest: cwd }),
       copyFixture(fixture, cwd),
     ])
     await installRuntime(packageName, cwd, config.packageManger || 'npm', config.packagePath)
@@ -94,11 +96,13 @@ async function copyFixture(fixtureName: string, dest: string): Promise<void> {
 }
 
 /** Creates a tarball of the packed npm package at the provided destination */
-async function buildAndPackRuntime(
-  dest: string,
-  packagePath: string = '',
-  buildCommand = 'next build',
-): Promise<string> {
+async function buildAndPackRuntime(config: {
+  dest: string
+  packagePath?: string
+  buildCommand?: string
+  publishDirectory?: string
+}): Promise<string> {
+  const { dest, packagePath = '', buildCommand = 'next build', publishDirectory } = config
   console.log(`📦 Creating tarball with 'npm pack'...`)
 
   const { stdout } = await execaCommand(
@@ -111,7 +115,7 @@ async function buildAndPackRuntime(
     join(join(dest, packagePath), 'netlify.toml'),
     `[build]
 command = "${buildCommand}"
-publish = "${join(packagePath, '.next')}"
+publish = "${publishDirectory ?? join(packagePath, '.next')}"
 
 [[plugins]]
 package = "${name}"
@@ -129,6 +133,13 @@ async function installRuntime(
 ): Promise<void> {
   console.log(`🐣 Installing runtime from '${packageName}'...`)
 
+  let filter = ''
+  // only add the filter if a package.json exits in the packagePath
+  // some monorepos like nx don't have a package.json in the app folder
+  if (packagePath && existsSync(join(cwd, packagePath, 'package.json'))) {
+    filter = `--filter ./${packagePath}`
+  }
+
   let command: string = `npm install --ignore-scripts --no-audit ${packageName}`
 
   switch (packageManger) {
@@ -136,9 +147,7 @@ async function installRuntime(
       command = `yarn add file:${join(cwd, packageName)} --ignore-scripts`
       break
     case 'pnpm':
-      command = `pnpm add file:${join(cwd, packageName)} ${
-        packagePath ? `--filter ./${packagePath}` : ''
-      } --ignore-scripts`
+      command = `pnpm add file:${join(cwd, packageName)} ${filter} --ignore-scripts`
       break
     case 'bun':
       command = `bun install ./${packageName}`
@@ -212,6 +221,7 @@ export const test = base.extend<
     simpleNextAppBun: Fixture
     middleware: Fixture
     pageRouter: Fixture
+    nxIntegrated: Fixture
     turborepo: Fixture
     turborepoNPM: Fixture
   }
@@ -231,6 +241,12 @@ export const test = base.extend<
     packageManger: 'npm',
     packagePath: 'apps/page-router',
     buildCommand: 'turbo build --filter page-router',
+  }),
+  nxIntegrated: makeE2EFixture('nx-integrated', {
+    packageManger: 'pnpm',
+    packagePath: 'apps/next-app',
+    buildCommand: 'nx run next-app:build',
+    publishDirectory: 'dist/apps/next-app/.next',
   }),
 
   takeScreenshot: [

@@ -65,11 +65,15 @@ export class PluginContext {
   /** Absolute path of the next runtime plugin directory */
   pluginDir = PLUGIN_DIR
 
+  get relPublishDir(): string {
+    return this.constants.PUBLISH_DIR ?? '.next'
+  }
+
   /** Absolute path of the publish directory */
   get publishDir(): string {
     // Does not need to be resolved with the package path as it is always a repository absolute path
     // hence including already the `PACKAGE_PATH` therefore we don't use the `this.resolve`
-    return resolve(this.constants.PUBLISH_DIR)
+    return resolve(this.relPublishDir)
   }
 
   /**
@@ -82,6 +86,13 @@ export class PluginContext {
   }
 
   /**
+   * The working directory inside the lambda that is used for monorepos to execute the serverless function
+   */
+  get lambdaWorkingDirectory(): string {
+    return join('/var/task', this.relPublishDir.replace(/\.next$/, ''))
+  }
+
+  /**
    * Retrieves the root of the `.next/standalone` directory
    */
   get standaloneRootDir(): string {
@@ -90,7 +101,12 @@ export class PluginContext {
 
   /** Retrieves the `.next/standalone/` directory monorepo aware */
   get standaloneDir(): string {
-    return join(this.standaloneRootDir, this.constants.PACKAGE_PATH || '')
+    // the standalone directory mimics the structure of the publish directory
+    // that said if the publish directory is `apps/my-app/.next` the standalone directory will be `.next/standalone/apps/my-app`
+    // if the publish directory is .next the standalone directory will be `.next/standalone`
+    // for nx workspaces where the publish directory is on the root of the repository
+    // like `dist/apps/my-app/.next` the standalone directory will be `.next/standalone/dist/apps/my-app`
+    return join(this.standaloneRootDir, this.relPublishDir.replace(/\.next$/, ''))
   }
 
   /**
@@ -124,11 +140,14 @@ export class PluginContext {
   }
 
   get serverHandlerDir(): string {
-    return join(this.serverHandlerRootDir, this.constants.PACKAGE_PATH || '')
+    return join(this.serverHandlerRootDir, this.relPublishDir.replace(/\.next$/, '') || '')
   }
 
   get nextServerHandler(): string {
-    return join(this.constants.PACKAGE_PATH || '', 'dist/run/handlers/server.js')
+    if (this.packagePath.length !== 0) {
+      return join(this.lambdaWorkingDirectory, 'dist/run/handlers/server.js')
+    }
+    return './dist/run/handlers/server.js'
   }
 
   /**

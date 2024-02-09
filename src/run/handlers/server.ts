@@ -1,5 +1,5 @@
 import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
-import { trace } from '@opentelemetry/api'
+import { SpanStatusCode, trace } from '@opentelemetry/api'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
@@ -59,6 +59,13 @@ export default async (request: Request) => {
       logger.withError(error).error('next handler error')
       console.error(error)
       resProxy.statusCode = 500
+      span.recordException(error)
+      span.setAttribute('http.status_code', 500)
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: error instanceof Error ? error.message : String(error),
+      })
+      span.end()
       resProxy.end('Internal Server Error')
     })
 

@@ -12,6 +12,17 @@ import { PluginContext } from '../plugin-context.js'
  * Copy App/Pages Router Javascript needed by the server handler
  */
 export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
+  // update the dist directory inside the required-server-files.json to work with
+  // nx monorepos and other setups where the dist directory is modified
+  const reqServerFilesPath = join(ctx.standaloneDir, '.next/required-server-files.json')
+  const reqServerFiles = JSON.parse(await readFile(reqServerFilesPath, 'utf-8'))
+
+  // only override it if it was set before to a different value
+  if (reqServerFiles.config.distDir) {
+    reqServerFiles.config.distDir = '.next'
+    await writeFile(reqServerFilesPath, JSON.stringify(reqServerFiles))
+  }
+
   const srcDir = join(ctx.standaloneDir, '.next')
   const destDir = join(ctx.serverHandlerDir, '.next')
 

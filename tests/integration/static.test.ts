@@ -66,7 +66,7 @@ test<FixtureTestContext>('linked static resources are placed in correct place in
   } = await runPlugin(ctx)
 
   const publishDirAfterBuild = (
-    await glob('**/*', { cwd: PUBLISH_DIR, dot: true, absolute: true })
+    await glob('**/*', { cwd: join(ctx.cwd, PUBLISH_DIR), dot: true, absolute: true })
   ).sort()
 
   await runPluginStep(ctx, 'onPostBuild')
@@ -98,14 +98,14 @@ test<FixtureTestContext>('linked static resources are placed in correct place in
 
   // check if linked resources are accessible in publish dir in expected locations
   for (const path of resourcesPaths) {
-    expect(existsSync(join(PUBLISH_DIR, path))).toBe(true)
+    expect(existsSync(join(ctx.cwd, PUBLISH_DIR, path))).toBe(true)
   }
 
   // check if we restore publish dir to its original state
   await runPluginStep(ctx, 'onEnd')
-  expect((await glob('**/*', { cwd: PUBLISH_DIR, dot: true, absolute: true })).sort()).toEqual(
-    publishDirAfterBuild,
-  )
+  expect(
+    (await glob('**/*', { cwd: join(ctx.cwd, PUBLISH_DIR), dot: true, absolute: true })).sort(),
+  ).toEqual(publishDirAfterBuild)
 })
 
 test<FixtureTestContext>('linked static resources are placed in correct place in publish directory (with basePath)', async (ctx) => {
@@ -114,8 +114,9 @@ test<FixtureTestContext>('linked static resources are placed in correct place in
     constants: { PUBLISH_DIR },
   } = await runPlugin(ctx)
 
+  console.log(PUBLISH_DIR)
   const publishDirAfterBuild = (
-    await glob('**/*', { cwd: PUBLISH_DIR, dot: true, absolute: true })
+    await glob('**/*', { cwd: join(ctx.cwd, PUBLISH_DIR), dot: true, absolute: true })
   ).sort()
 
   await runPluginStep(ctx, 'onPostBuild')
@@ -147,11 +148,11 @@ test<FixtureTestContext>('linked static resources are placed in correct place in
 
   // check if linked resources are accessible in publish dir in expected locations
   for (const path of resourcesPaths) {
-    expect(existsSync(join(PUBLISH_DIR, path))).toBe(true)
+    expect(existsSync(join(ctx.cwd, PUBLISH_DIR, path))).toBe(true)
   }
   // check if we restore publish dir to its original state
   await runPluginStep(ctx, 'onEnd')
-  expect((await glob('**/*', { cwd: PUBLISH_DIR, dot: true, absolute: true })).sort()).toEqual(
-    publishDirAfterBuild,
-  )
+  expect(
+    (await glob('**/*', { cwd: join(ctx.cwd, PUBLISH_DIR), dot: true, absolute: true })).sort(),
+  ).toEqual(publishDirAfterBuild)
 })
