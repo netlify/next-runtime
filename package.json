@@ -18,9 +18,10 @@
     "pretest": "node tests/prepare.mjs",
     "build": "node ./tools/build.js",
     "build:watch": "node ./tools/build.js --watch",
-    "lint": "eslint --cache --format=codeframe --max-warnings=0 src/**/*.ts",
+    "lint": "eslint --cache --format=codeframe --max-warnings=0 --ext .ts,.cts,.js src",
     "test": "vitest",
     "test:ci": "vitest run --reporter=default --retry=3",
+    "typecheck": "tsc --noEmit",
     "e2e": "playwright test",
     "e2e:ci": "playwright test"
   },
