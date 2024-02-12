@@ -76,7 +76,7 @@
     "typescript": "^5.1.6",
     "unionfs": "^4.5.1",
     "uuid": "^9.0.1",
-    "vitest": "^0.34.6"
+    "vitest": "^1.2.2"
   },
   "clean-package": {
     "indent": 2,
