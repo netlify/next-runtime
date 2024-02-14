@@ -51,9 +51,6 @@ export default async (request: Request) => {
 
     const resProxy = nextResponseProxy(res)
 
-    // temporary workaround for https://linear.app/netlify/issue/ADN-111/
-    delete req.headers['accept-encoding']
-
     // We don't await this here, because it won't resolve until the response is finished.
     const nextHandlerPromise = nextHandler(req, resProxy).catch((error) => {
       logger.withError(error).error('next handler error')
