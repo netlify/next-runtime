@@ -63,6 +63,7 @@ export const startMockBlobStore = async (ctx: FixtureTestContext) => {
     directory: await mkdtemp(join(tmpdir(), 'netlify-next-runtime-blob-')),
   })
   await ctx.blobServer.start()
+  ctx.blobServerGetSpy = vi.spyOn(ctx.blobServer, 'get')
   ctx.blobStoreHost = `localhost:${port}`
   ctx.blobStorePort = port
   vi.stubEnv('NETLIFY_BLOBS_CONTEXT', createBlobContext(ctx))
@@ -90,6 +91,29 @@ export const getBlobEntries = async (ctx: FixtureTestContext) => {
 
   const { blobs } = await ctx.blobStore.list()
   return blobs
+}
+
+function getBlobServerGets(ctx: FixtureTestContext) {
+  const isString = (arg: unknown): arg is string => typeof arg === 'string'
+  return ctx.blobServerGetSpy.mock.calls
+    .map(([request]) => {
+      if (typeof request.url !== 'string') {
+        return undefined
+      }
+      // request url is /:siteID/:deployID/:key for get
+      //                /:siteID/:deployID for list
+      // we only want gets
+      const urlSegments = request.url.split('/')
+      if (urlSegments.length === 4) {
+        return decodeBlobKey(urlSegments[3])
+      }
+      return undefined
+    })
+    .filter(isString)
+}
+
+export function countOfBlobServerGetsForKey(ctx: FixtureTestContext, key: string) {
+  return getBlobServerGets(ctx).reduce((acc, curr) => (curr === key ? acc + 1 : acc), 0)
 }
 
 /**

@@ -5,7 +5,7 @@ import { Buffer } from 'node:buffer'
 
 import { getDeployStore, Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
-import { trace } from '@opentelemetry/api'
+import { trace, type Span } from '@opentelemetry/api'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 import type {
   CacheHandler,
@@ -13,6 +13,8 @@ import type {
   CacheHandlerValue,
   IncrementalCache,
 } from 'next/dist/server/lib/incremental-cache/index.js'
+
+import { getRequestContext } from './request-context.cjs'
 
 type TagManifest = { revalidatedAt: number }
 
@@ -33,6 +35,54 @@ export class NetlifyCacheHandler implements CacheHandler {
   private async encodeBlobKey(key: string) {
     const { encodeBlobKey } = await import('../../shared/blobkey.js')
     return await encodeBlobKey(key)
+  }
+
+  private captureResponseCacheLastModified(
+    cacheValue: CacheHandlerValue,
+    key: string,
+    getCacheKeySpan: Span,
+  ) {
+    if (cacheValue.value?.kind === 'FETCH') {
+      return
+    }
+
+    const requestContext = getRequestContext()
+
+    if (!requestContext) {
+      // we will not be able to use request context for date header calculation
+      // we will fallback to using blobs
+      getCacheKeySpan.recordException(
+        new Error('CacheHandler was called without a request context'),
+      )
+      getCacheKeySpan.setAttributes({
+        severity: 'alert',
+        warning: true,
+      })
+      return
+    }
+
+    if (requestContext.responseCacheKey && requestContext.responseCacheKey !== key) {
+      // if there are multiple response-cache keys, we don't know which one we should use
+      // so as a safety measure we will not use any of them and let blobs be used
+      // to calculate the date header
+      requestContext.responseCacheGetLastModified = undefined
+      getCacheKeySpan.recordException(
+        new Error(
+          `Multiple response cache keys used in single request: ["${requestContext.responseCacheKey}, "${key}"]`,
+        ),
+      )
+      getCacheKeySpan.setAttributes({
+        severity: 'alert',
+        warning: true,
+      })
+      return
+    }
+
+    requestContext.responseCacheKey = key
+    if (cacheValue.lastModified) {
+      // we store it to use it later when calculating date header
+      requestContext.responseCacheGetLastModified = cacheValue.lastModified
+    }
   }
 
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
@@ -60,6 +110,8 @@ export class NetlifyCacheHandler implements CacheHandler {
         span.end()
         return null
       }
+
+      this.captureResponseCacheLastModified(blob, key, span)
 
       switch (blob.value?.kind) {
         case 'FETCH':

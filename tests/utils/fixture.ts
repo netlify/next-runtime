@@ -1,5 +1,5 @@
 import { BlobsServer, type getStore } from '@netlify/blobs'
-import { TestContext, assert, vi } from 'vitest'
+import { TestContext, assert, vi, MockInstance } from 'vitest'
 
 import { type NetlifyPluginConstants, type NetlifyPluginOptions } from '@netlify/build'
 import { bundle, serve } from '@netlify/edge-bundler'
@@ -32,6 +32,7 @@ export interface FixtureTestContext extends TestContext {
   blobStoreHost: string
   blobStorePort: number
   blobServer: BlobsServer
+  blobServerGetSpy: MockInstance<Parameters<BlobsServer['get']>, ReturnType<BlobsServer['get']>>
   blobStore: ReturnType<typeof getStore>
   functionDist: string
   edgeFunctionPort: number

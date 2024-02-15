@@ -5,6 +5,7 @@ import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import { encodeBlobKey } from '../shared/blobkey.js'
 
 import type { TagsManifest } from './config.js'
+import type { RequestContext } from './handlers/request-context.cjs'
 
 interface NetlifyVaryValues {
   headers: string[]
@@ -84,12 +85,19 @@ const fetchBeforeNextPatchedIt = globalThis.fetch
  * By default, Next.js sets the date header to the current time, even if it's served
  * from the cache, meaning that the CDN will cache it for 10 seconds, which is incorrect.
  */
-export const adjustDateHeader = async (
-  headers: Headers,
-  request: Request,
-  span: Span,
-  tracer: Tracer,
-) => {
+export const adjustDateHeader = async ({
+  headers,
+  request,
+  span,
+  tracer,
+  requestContext,
+}: {
+  headers: Headers
+  request: Request
+  span: Span
+  tracer: Tracer
+  requestContext: RequestContext
+}) => {
   const cacheState = headers.get('x-nextjs-cache')
   const isServedFromCache = cacheState === 'HIT' || cacheState === 'STALE'
 
@@ -102,28 +110,72 @@ export const adjustDateHeader = async (
     return
   }
   const key = new URL(request.url).pathname
-  const blobKey = await encodeBlobKey(key)
-  const blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt, consistency: 'strong' })
 
-  // TODO: use metadata for this
-  const { lastModified } = await tracer.startActiveSpan(
-    'get cache to calculate date header',
-    async (getBlobForDateSpan) => {
-      getBlobForDateSpan.setAttributes({
-        key,
-        blobKey,
-      })
-      const blob = (await blobStore.get(blobKey, { type: 'json' })) ?? {}
+  let lastModified: number | undefined
+  if (requestContext.responseCacheGetLastModified) {
+    lastModified = requestContext.responseCacheGetLastModified
+  } else {
+    // this is fallback in case requestContext doesn't contain lastModified
+    // using fallback indicate problem in the setup as assumption is that for cached responses
+    // request context would contain lastModified value
+    // this is not fatal as we have fallback,
+    // but we want to know about it happening
+    span.recordException(
+      new Error('lastModified not found in requestContext, falling back to trying blobs'),
+    )
+    span.setAttributes({
+      severity: 'alert',
+      warning: true,
+    })
 
-      getBlobForDateSpan.addEvent(blob ? 'Cache hit' : 'Cache miss')
-      getBlobForDateSpan.end()
-      return blob
-    },
-  )
+    const blobKey = await encodeBlobKey(key)
+    const blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt, consistency: 'strong' })
+
+    // TODO: use metadata for this
+    lastModified = await tracer.startActiveSpan(
+      'get cache to calculate date header',
+      async (getBlobForDateSpan) => {
+        getBlobForDateSpan.setAttributes({
+          key,
+          blobKey,
+        })
+        const blob = (await blobStore.get(blobKey, { type: 'json' })) ?? {}
+
+        getBlobForDateSpan.addEvent(blob ? 'Cache hit' : 'Cache miss')
+        getBlobForDateSpan.end()
+        return blob.lastModified
+      },
+    )
+  }
 
   if (!lastModified) {
+    // this should never happen as we only execute this code path for cached responses
+    // and those should always have lastModified value
+    span.recordException(
+      new Error(
+        'lastModified not found in either requestContext or blobs, date header for cached response is not set',
+      ),
+    )
+    span.setAttributes({
+      severity: 'alert',
+      warning: true,
+    })
     return
   }
+
+  if (lastModified === 1) {
+    // epoch 1 time seems to not work well with the CDN
+    // it causes to produce "Thu, 01 Jan 1970 00:00:00 GMT" date
+    // header correctly but CDN calculates then AGE to be 0
+    // causing response to be cached for entire max-age period
+    // since the first hit
+    // so instead of using 1 we use 1 year ago
+    // this is done here instead at build time as it's unclear
+    // what exactly is edge case in CDN and setting 1 year ago
+    // from request time seems to work consistently
+    lastModified = Date.now() - 31536000000
+  }
+
   const lastModifiedDate = new Date(lastModified)
   // Show actual date of the function call in the date header
   headers.set('x-nextjs-date', headers.get('date') ?? lastModifiedDate.toUTCString())

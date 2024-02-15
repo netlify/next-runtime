@@ -14,6 +14,8 @@ import {
 import { nextResponseProxy } from '../revalidate.js'
 import { logger } from '../systemlog.js'
 
+import { createRequestContext, runWithRequestContext } from './request-context.cjs'
+
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete, tagsManifest: TagsManifest
 
 export default async (request: Request) => {
@@ -51,26 +53,34 @@ export default async (request: Request) => {
 
     const resProxy = nextResponseProxy(res)
 
+    const requestContext = createRequestContext()
+
     // We don't await this here, because it won't resolve until the response is finished.
-    const nextHandlerPromise = nextHandler(req, resProxy).catch((error) => {
-      logger.withError(error).error('next handler error')
-      console.error(error)
-      resProxy.statusCode = 500
-      span.recordException(error)
-      span.setAttribute('http.status_code', 500)
-      span.setStatus({
-        code: SpanStatusCode.ERROR,
-        message: error instanceof Error ? error.message : String(error),
-      })
-      span.end()
-      resProxy.end('Internal Server Error')
-    })
+    const nextHandlerPromise = runWithRequestContext(requestContext, () =>
+      nextHandler(req, resProxy).catch((error) => {
+        logger.withError(error).error('next handler error')
+        console.error(error)
+        resProxy.statusCode = 500
+        span.recordException(error)
+        span.setAttribute('http.status_code', 500)
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: error instanceof Error ? error.message : String(error),
+        })
+        span.end()
+        resProxy.end('Internal Server Error')
+      }),
+    )
 
     // Contrary to the docs, this resolves when the headers are available, not when the stream closes.
     // See https://github.com/fastly/http-compute-js/blob/main/src/http-compute-js/http-server.ts#L168-L173
     const response = await toComputeResponse(resProxy)
 
-    await adjustDateHeader(response.headers, request, span, tracer)
+    if (requestContext.responseCacheKey) {
+      span.setAttribute('responseCacheKey', requestContext.responseCacheKey)
+    }
+
+    await adjustDateHeader({ headers: response.headers, request, span, tracer, requestContext })
 
     setCacheControlHeaders(response.headers, request)
     setCacheTagsHeaders(response.headers, request, tagsManifest)
