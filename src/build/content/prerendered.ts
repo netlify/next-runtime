@@ -74,7 +74,7 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
 
     await Promise.all(
       Object.entries(manifest.routes).map(async ([route, meta]): Promise<void> => {
-        const lastModified = meta.initialRevalidateSeconds ? 1 : Date.now()
+        const lastModified = meta.initialRevalidateSeconds ? Date.now() - 31536000000 : Date.now()
         const key = routeToFilePath(route)
         let value: IncrementalCacheValue
         switch (true) {
@@ -124,7 +124,7 @@ export const copyFetchContent = async (ctx: PluginContext): Promise<void> => {
 
     await Promise.all(
       paths.map(async (key): Promise<void> => {
-        const lastModified = 1
+        const lastModified = Date.now() - 31536000000
         const path = join(ctx.publishDir, 'cache/fetch-cache', key)
         const value = await buildFetchCacheValue(path)
         await writeCacheEntry(key, value, lastModified, ctx)

@@ -163,19 +163,6 @@ export const adjustDateHeader = async ({
     return
   }
 
-  if (lastModified === 1) {
-    // epoch 1 time seems to not work well with the CDN
-    // it causes to produce "Thu, 01 Jan 1970 00:00:00 GMT" date
-    // header correctly but CDN calculates then AGE to be 0
-    // causing response to be cached for entire max-age period
-    // since the first hit
-    // so instead of using 1 we use 1 year ago
-    // this is done here instead at build time as it's unclear
-    // what exactly is edge case in CDN and setting 1 year ago
-    // from request time seems to work consistently
-    lastModified = Date.now() - 31536000000
-  }
-
   const lastModifiedDate = new Date(lastModified)
   // Show actual date of the function call in the date header
   headers.set('x-nextjs-date', headers.get('date') ?? lastModifiedDate.toUTCString())
@@ -195,16 +182,20 @@ export const setCacheControlHeaders = (headers: Headers, request: Request) => {
     !headers.has('cdn-cache-control') &&
     !headers.has('netlify-cdn-cache-control')
   ) {
-    const privateCacheControl = omitHeaderValues(cacheControl, [
+    const browserCacheControl = omitHeaderValues(cacheControl, [
       's-maxage',
       'stale-while-revalidate',
     ])
-    const sharedCacheControl = mapHeaderValues(cacheControl, (value) =>
-      value === 'stale-while-revalidate' ? 'stale-while-revalidate=31536000' : value,
-    )
+    const cdnCacheControl =
+      // if we are serving already stale response, instruct edge to not attempt to cache that response
+      headers.get('x-nextjs-cache') === 'STALE'
+        ? 'public, max-age=0, must-revalidate'
+        : mapHeaderValues(cacheControl, (value) =>
+            value === 'stale-while-revalidate' ? 'stale-while-revalidate=31536000' : value,
+          )
 
-    headers.set('cache-control', privateCacheControl || 'public, max-age=0, must-revalidate')
-    headers.set('netlify-cdn-cache-control', sharedCacheControl)
+    headers.set('cache-control', browserCacheControl || 'public, max-age=0, must-revalidate')
+    headers.set('netlify-cdn-cache-control', cdnCacheControl)
   }
 }
 
@@ -232,7 +223,7 @@ const NEXT_CACHE_TO_CACHE_STATUS: Record<string, string> = {
  * a Cache-Status header for Next cache so users inspect that together with CDN cache status
  * and not on its own.
  */
-export const handleNextCacheHeader = (headers: Headers) => {
+export const setCacheStatusHeader = (headers: Headers) => {
   const nextCache = headers.get('x-nextjs-cache')
   if (typeof nextCache === 'string') {
     if (nextCache in NEXT_CACHE_TO_CACHE_STATUS) {

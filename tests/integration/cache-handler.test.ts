@@ -61,7 +61,7 @@ describe('page router', () => {
     expect(call1.headers, 'a stale page served with swr').toEqual(
       expect.objectContaining({
         'cache-status': '"Next.js"; hit; fwd=stale',
-        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+        'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate',
       }),
     )
 
@@ -92,7 +92,8 @@ describe('page router', () => {
       'the rendered date in regenerated page is newer than initial stale page',
     ).toBeGreaterThan(0)
     expect(
-      call2.headers['date'].toString().localeCompare(call1.headers['date'].toString()),
+      new Date(call2.headers['date'].toString()).getTime() -
+        new Date(call1.headers['date'].toString()).getTime(),
       'the date header of regenerated page is newer than initial stale page',
     ).toBeGreaterThan(0)
 
@@ -171,7 +172,8 @@ describe('page router', () => {
     const call4Date = load(call4.body)('[data-testid="date-now"]').text()
     expect(call4Date, 'the date was not cached').not.toBe(call3Date)
     expect(
-      call4.headers['date'].toString().localeCompare(call3.headers['date'].toString()),
+      new Date(call4.headers['date'].toString()).getTime() -
+        new Date(call3.headers['date'].toString()).getTime(),
       'the date header of regenerated page is newer than initial stale page',
     ).toBeGreaterThan(0)
     expect(call4.statusCode).toBe(200)
@@ -217,7 +219,7 @@ describe('app router', () => {
       // It will be stale instead of hit
       expect.objectContaining({
         'cache-status': '"Next.js"; hit; fwd=stale',
-        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+        'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate',
       }),
     )
     expect(
@@ -284,7 +286,8 @@ describe('app router', () => {
     expect(cached.statusCode).toBe(200)
     expect(cachedDate, 'the date is not stale').not.toBe(staleDate)
     expect(
-      cached.headers['date'].toString().localeCompare(post1.headers['date'].toString()),
+      new Date(cached.headers['date'].toString()).getTime() -
+        new Date(post1.headers['date'].toString()).getTime(),
       'the date header of regenerated page is newer than initial stale page',
     ).toBeGreaterThan(0)
     expect(cached.headers, 'a cache hit after dynamically regenerating the stale page').toEqual(
@@ -378,7 +381,8 @@ describe('route', () => {
     )
     expect(call2Time.localeCompare(call1Time), 'the rendered date is new').toBeGreaterThan(0)
     expect(
-      call2.headers['date'].toString().localeCompare(call1.headers['date'].toString()),
+      new Date(call2.headers['date'].toString()).getTime() -
+        new Date(call1.headers['date'].toString()).getTime(),
       'the date header of regenerated route is newer than initial stale route',
     ).toBeGreaterThan(0)
     expect(
@@ -429,7 +433,8 @@ describe('route', () => {
     )
     expect(call4Time.localeCompare(call3Time), 'the rendered date is new').toBeGreaterThan(0)
     expect(
-      call4.headers['date'].toString().localeCompare(call3.headers['date'].toString()),
+      new Date(call4.headers['date'].toString()).getTime() -
+        new Date(call3.headers['date'].toString()).getTime(),
       'the date header of regenerated route is newer than previously stale route',
     ).toBeGreaterThan(0)
     expect(

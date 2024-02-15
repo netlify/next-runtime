@@ -6,7 +6,7 @@ import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 import { TagsManifest, getTagsManifest } from '../config.js'
 import {
   adjustDateHeader,
-  handleNextCacheHeader,
+  setCacheStatusHeader,
   setCacheControlHeaders,
   setCacheTagsHeaders,
   setVaryHeaders,
@@ -85,7 +85,7 @@ export default async (request: Request) => {
     setCacheControlHeaders(response.headers, request)
     setCacheTagsHeaders(response.headers, request, tagsManifest)
     setVaryHeaders(response.headers, request, nextConfig)
-    handleNextCacheHeader(response.headers)
+    setCacheStatusHeader(response.headers)
 
     // Temporary workaround for an issue where sending a response with an empty
     // body causes an unhandled error. This doesn't catch everything, but redirects are the

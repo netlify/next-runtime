@@ -213,7 +213,7 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   expect(post1.headers, 'a stale page served with swr').toEqual(
     expect.objectContaining({
       'cache-status': '"Next.js"; hit; fwd=stale',
-      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+      'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate',
     }),
   )
 
@@ -290,7 +290,7 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   expect(post3.headers, 'a stale page served with swr').toEqual(
     expect.objectContaining({
       'cache-status': '"Next.js"; hit; fwd=stale',
-      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+      'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate',
     }),
   )
 
