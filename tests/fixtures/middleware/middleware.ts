@@ -45,8 +45,22 @@ const getResponse = (request: NextRequest) => {
     })
   }
 
+  if (request.nextUrl.pathname === '/test/rewrite-target') {
+    const response = NextResponse.next()
+    response.headers.set('x-added-rewrite-target', 'true')
+    return response
+  }
+
   if (request.nextUrl.pathname === '/test/rewrite-internal') {
     return NextResponse.rewrite(new URL('/rewrite-target', request.url), {
+      request: {
+        headers: requestHeaders,
+      },
+    })
+  }
+
+  if (request.nextUrl.pathname === '/test/rewrite-loop-detect') {
+    return NextResponse.rewrite(new URL('/test/rewrite-target', request.url), {
       request: {
         headers: requestHeaders,
       },

@@ -334,6 +334,32 @@ describe('page router', () => {
     expect(response.status).toBe(200)
   })
 
+  test<FixtureTestContext>('middleware should leave non-data requests untouched', async (ctx) => {
+    await createFixture('middleware-pages', ctx)
+    await runPlugin(ctx)
+    const origin = await LocalServer.run(async (req, res) => {
+      res.write(
+        JSON.stringify({
+          url: req.url,
+          headers: req.headers,
+        }),
+      )
+      res.end()
+    })
+    ctx.cleanup?.push(() => origin.stop())
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      url: `/_next/static/build-id/_devMiddlewareManifest.json?foo=1`,
+    })
+    const res = await response.json()
+    const url = new URL(res.url, 'http://n/')
+    expect(url.pathname).toBe('/_next/static/build-id/_devMiddlewareManifest.json')
+    expect(url.search).toBe('?foo=1')
+    expect(res.headers['x-nextjs-data']).toBeUndefined()
+    expect(response.status).toBe(200)
+  })
+
   test<FixtureTestContext>('should rewrite un-rewritten data requests to page route', async (ctx) => {
     await createFixture('middleware-pages', ctx)
     await runPlugin(ctx)

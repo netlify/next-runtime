@@ -190,7 +190,7 @@ export const buildResponse = async ({
     }
     res.headers.set('x-middleware-rewrite', relativeUrl)
     request.headers.set('x-middleware-rewrite', target)
-    return addMiddlewareHeaders(fetch(new Request(target, request), { redirect: 'manual' }), res)
+    return addMiddlewareHeaders(context.rewrite(target), res)
   }
 
   // If we are redirecting a request that had a locale in the URL, we need to add it back in
