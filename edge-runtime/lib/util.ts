@@ -81,8 +81,13 @@ export function relativizeURL(url: string | string, base: string | URL) {
 
 export const normalizeIndex = (path: string) => (path === '/' ? '/index' : path)
 
-const stripTrailingSlash = (path: string) =>
+export const normalizeTrailingSlash = (path: string, trailingSlash?: boolean) =>
+  trailingSlash ? addTrailingSlash(path) : stripTrailingSlash(path)
+
+export const stripTrailingSlash = (path: string) =>
   path !== '/' && path.endsWith('/') ? path.slice(0, -1) : path
+
+export const addTrailingSlash = (path: string) => (path.endsWith('/') ? path : `${path}/`)
 
 /**
  * Modify a data url to point to a new page route.

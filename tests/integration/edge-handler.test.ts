@@ -304,7 +304,7 @@ describe('should run middleware on data requests', () => {
 })
 
 describe('page router', () => {
-  test<FixtureTestContext>('should rewrite data requests', async (ctx) => {
+  test<FixtureTestContext>('middleware should rewrite data requests', async (ctx) => {
     await createFixture('middleware-pages', ctx)
     await runPlugin(ctx)
     const origin = await LocalServer.run(async (req, res) => {
@@ -327,8 +327,70 @@ describe('page router', () => {
     })
     const res = await response.json()
     const url = new URL(res.url, 'http://n/')
-    expect(url.pathname).toBe('/_next/data/build-id/ssr-page-2.json')
+    expect(url.pathname).toBe('/ssr-page-2/')
+    expect(url.searchParams.get('__nextDataReq')).toBe('1')
+    expect(res.headers['x-nextjs-data']).toBe('1')
     expect(response.headers.get('x-nextjs-rewrite')).toBe('/ssr-page-2/')
+    expect(response.status).toBe(200)
+  })
+
+  test<FixtureTestContext>('should rewrite un-rewritten data requests to page route', async (ctx) => {
+    await createFixture('middleware-pages', ctx)
+    await runPlugin(ctx)
+    const origin = await LocalServer.run(async (req, res) => {
+      res.write(
+        JSON.stringify({
+          url: req.url,
+          headers: req.headers,
+        }),
+      )
+      res.end()
+    })
+    ctx.cleanup?.push(() => origin.stop())
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      headers: {
+        'x-nextjs-data': '1',
+      },
+      origin,
+      url: `/_next/data/build-id/ssg/hello.json`,
+    })
+    const res = await response.json()
+    const url = new URL(res.url, 'http://n/')
+    expect(url.pathname).toBe('/ssg/hello/')
+    expect(url.searchParams.get('__nextDataReq')).toBe('1')
+    expect(res.headers['x-nextjs-data']).toBe('1')
+    expect(response.status).toBe(200)
+  })
+
+  test<FixtureTestContext>('should preserve query params in rewritten data requests', async (ctx) => {
+    await createFixture('middleware-pages', ctx)
+    await runPlugin(ctx)
+    const origin = await LocalServer.run(async (req, res) => {
+      res.write(
+        JSON.stringify({
+          url: req.url,
+          headers: req.headers,
+        }),
+      )
+      res.end()
+    })
+    ctx.cleanup?.push(() => origin.stop())
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      headers: {
+        'x-nextjs-data': '1',
+      },
+      origin,
+      url: `/_next/data/build-id/blog/first.json?slug=first`,
+    })
+    const res = await response.json()
+    console.log(res)
+    const url = new URL(res.url, 'http://n/')
+    expect(url.pathname).toBe('/blog/first/')
+    expect(url.searchParams.get('__nextDataReq')).toBe('1')
+    expect(url.searchParams.get('slug')).toBe('first')
+    expect(res.headers['x-nextjs-data']).toBe('1')
     expect(response.status).toBe(200)
   })
 })

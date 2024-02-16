@@ -39,7 +39,7 @@ describe('headers', () => {
 
         expect(headers.set).toBeCalledWith(
           'netlify-vary',
-          'cookie=__prerender_bypass|__next_preview_data',
+          'header=x-nextjs-data,cookie=__prerender_bypass|__next_preview_data',
         )
       })
 
@@ -55,7 +55,7 @@ describe('headers', () => {
 
         expect(headers.set).toBeCalledWith(
           'netlify-vary',
-          'header=Accept|Accept-Language,cookie=__prerender_bypass|__next_preview_data',
+          'header=x-nextjs-data|Accept|Accept-Language,cookie=__prerender_bypass|__next_preview_data',
         )
       })
 
@@ -76,7 +76,7 @@ describe('headers', () => {
 
         expect(headers.set).toBeCalledWith(
           'netlify-vary',
-          'cookie=__prerender_bypass|__next_preview_data',
+          'header=x-nextjs-data,cookie=__prerender_bypass|__next_preview_data',
         )
       })
 
@@ -96,7 +96,7 @@ describe('headers', () => {
 
         expect(headers.set).toBeCalledWith(
           'netlify-vary',
-          'cookie=__prerender_bypass|__next_preview_data',
+          'header=x-nextjs-data,cookie=__prerender_bypass|__next_preview_data',
         )
       })
 
@@ -116,7 +116,7 @@ describe('headers', () => {
 
         expect(headers.set).toBeCalledWith(
           'netlify-vary',
-          'language=en|de|fr,cookie=__prerender_bypass|__next_preview_data|NEXT_LOCALE',
+          'header=x-nextjs-data,language=en|de|fr,cookie=__prerender_bypass|__next_preview_data|NEXT_LOCALE',
         )
       })
 
@@ -137,7 +137,7 @@ describe('headers', () => {
 
         expect(headers.set).toBeCalledWith(
           'netlify-vary',
-          'language=en|de|fr,cookie=__prerender_bypass|__next_preview_data|NEXT_LOCALE',
+          'header=x-nextjs-data,language=en|de|fr,cookie=__prerender_bypass|__next_preview_data|NEXT_LOCALE',
         )
       })
     })

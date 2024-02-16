@@ -7,8 +7,8 @@ import {
   addBasePath,
   normalizeDataUrl,
   normalizeLocalePath,
+  normalizeTrailingSlash,
   relativizeURL,
-  rewriteDataPath,
 } from './util.ts'
 import { addMiddlewareHeaders, isMiddlewareRequest, isMiddlewareResponse } from './middleware.ts'
 import { RequestData } from './next-request.ts'
@@ -116,10 +116,21 @@ export const buildResponse = async ({
   const res = new Response(result.response.body, result.response)
   request.headers.set('x-nf-next-middleware', 'skip')
 
-  const rewrite = res.headers.get('x-middleware-rewrite')
+  let rewrite = res.headers.get('x-middleware-rewrite')
+  let redirect = res.headers.get('location')
 
   // Data requests (i.e. requests for /_next/data ) need special handling
   const isDataReq = request.headers.has('x-nextjs-data')
+  // Data requests need to be normalized to the route path
+  if (isDataReq && !redirect && !rewrite) {
+    const requestUrl = new URL(request.url)
+    const normalizedDataUrl = normalizeDataUrl(requestUrl.pathname)
+    // Don't rewrite unless the URL has changed
+    if (normalizedDataUrl !== requestUrl.pathname) {
+      rewrite = `${normalizedDataUrl}${requestUrl.search}`
+      logger.withFields({ rewrite_url: rewrite }).debug('Rewritten data URL')
+    }
+  }
 
   if (rewrite) {
     logger.withFields({ rewrite_url: rewrite }).debug('Found middleware rewrite')
@@ -132,7 +143,6 @@ export const buildResponse = async ({
     }
 
     const relativeUrl = relativizeURL(rewrite, request.url)
-    const originalPath = new URL(request.url, `http://n`).pathname
 
     if (isDataReq) {
       // Data requests might be rewritten to an external URL
@@ -165,30 +175,23 @@ export const buildResponse = async ({
       }
 
       return addMiddlewareHeaders(fetch(proxyRequest, { redirect: 'manual' }), res)
-    } else if (isDataReq) {
-      rewriteUrl.pathname = rewriteDataPath({
-        dataUrl: originalPath,
-        newRoute: rewriteUrl.pathname,
-        basePath: nextConfig?.basePath,
-      })
-      if (rewriteUrl.toString() === request.url) {
-        logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
-        return
-      }
-      res.headers.set('x-middleware-rewrite', relativeUrl)
-      return addMiddlewareHeaders(fetch(new Request(rewriteUrl, request)), res)
     }
-    const target = normalizeLocalizedTarget({ target: rewrite, request, nextConfig })
+
+    if (isDataReq) {
+      // The rewrite target is a data request, but a middleware rewrite target is always for the page route,
+      // so we need to tell the server this is a data request. Setting the `x-nextjs-data` header is not enough. 🤷
+      rewriteUrl.searchParams.set('__nextDataReq', '1')
+      rewriteUrl.pathname = normalizeTrailingSlash(rewriteUrl.pathname, nextConfig?.trailingSlash)
+    }
+    const target = normalizeLocalizedTarget({ target: rewriteUrl.toString(), request, nextConfig })
     if (target === request.url) {
       logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
       return
     }
     res.headers.set('x-middleware-rewrite', relativeUrl)
     request.headers.set('x-middleware-rewrite', target)
-    return addMiddlewareHeaders(fetch(new Request(target, request)), res)
+    return addMiddlewareHeaders(fetch(new Request(target, request), { redirect: 'manual' }), res)
   }
-
-  let redirect = res.headers.get('location')
 
   // If we are redirecting a request that had a locale in the URL, we need to add it back in
   if (redirect && requestLocale) {

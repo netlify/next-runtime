@@ -55,7 +55,7 @@ export const setVaryHeaders = (
   { basePath, i18n }: Pick<NextConfigComplete, 'basePath' | 'i18n'>,
 ) => {
   const netlifyVaryValues: NetlifyVaryValues = {
-    headers: [],
+    headers: ['x-nextjs-data'],
     languages: [],
     cookies: ['__prerender_bypass', '__next_preview_data'],
   }
