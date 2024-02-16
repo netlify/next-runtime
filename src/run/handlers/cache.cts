@@ -5,7 +5,7 @@ import { Buffer } from 'node:buffer'
 
 import { getDeployStore, Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
-import { trace, type Span } from '@opentelemetry/api'
+import { trace, type Span, SpanStatusCode } from '@opentelemetry/api'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 import type {
   CacheHandler,
@@ -18,6 +18,8 @@ import { getRequestContext } from './request-context.cjs'
 
 type TagManifest = { revalidatedAt: number }
 
+type TagManifestBlobCache = Record<string, Promise<TagManifest>>
+
 const fetchBeforeNextPatchedIt = globalThis.fetch
 
 export class NetlifyCacheHandler implements CacheHandler {
@@ -25,11 +27,13 @@ export class NetlifyCacheHandler implements CacheHandler {
   revalidatedTags: string[]
   blobStore: Store
   tracer = trace.getTracer('Netlify Cache Handler')
+  tagManifestsFetchedFromBlobStoreInCurrentRequest: TagManifestBlobCache
 
   constructor(options: CacheHandlerContext) {
     this.options = options
     this.revalidatedTags = options.revalidatedTags
     this.blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt, consistency: 'strong' })
+    this.tagManifestsFetchedFromBlobStoreInCurrentRequest = {}
   }
 
   private async encodeBlobKey(key: string) {
@@ -87,64 +91,71 @@ export class NetlifyCacheHandler implements CacheHandler {
 
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
     return this.tracer.startActiveSpan('get cache key', async (span) => {
-      const [key, ctx = {}] = args
-      console.debug(`[NetlifyCacheHandler.get]: ${key}`)
+      try {
+        const [key, ctx = {}] = args
+        console.debug(`[NetlifyCacheHandler.get]: ${key}`)
 
-      const blobKey = await this.encodeBlobKey(key)
-      span.setAttributes({ key, blobKey })
-      const blob = (await this.blobStore.get(blobKey, {
-        type: 'json',
-      })) as CacheHandlerValue | null
+        const blobKey = await this.encodeBlobKey(key)
+        span.setAttributes({ key, blobKey })
+        const blob = (await this.blobStore.get(blobKey, {
+          type: 'json',
+        })) as CacheHandlerValue | null
 
-      // if blob is null then we don't have a cache entry
-      if (!blob) {
-        span.addEvent('Cache miss', { key, blobKey })
-        span.end()
+        // if blob is null then we don't have a cache entry
+        if (!blob) {
+          span.addEvent('Cache miss', { key, blobKey })
+          return null
+        }
+
+        const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.tags, ctx.softTags)
+
+        if (staleByTags) {
+          span.addEvent('Stale', { staleByTags })
+          return null
+        }
+
+        this.captureResponseCacheLastModified(blob, key, span)
+
+        switch (blob.value?.kind) {
+          case 'FETCH':
+            span.addEvent('FETCH', { lastModified: blob.lastModified, revalidate: ctx.revalidate })
+            return {
+              lastModified: blob.lastModified,
+              value: blob.value,
+            }
+
+          case 'ROUTE':
+            span.addEvent('ROUTE', { lastModified: blob.lastModified, status: blob.value.status })
+            return {
+              lastModified: blob.lastModified,
+              value: {
+                ...blob.value,
+                body: Buffer.from(blob.value.body as unknown as string, 'base64'),
+              },
+            }
+          case 'PAGE':
+            span.addEvent('PAGE', { lastModified: blob.lastModified })
+            return {
+              lastModified: blob.lastModified,
+              value: blob.value,
+            }
+          default:
+            span.recordException(new Error(`Unknown cache entry kind: ${blob.value?.kind}`))
+          // TODO: system level logging not implemented
+        }
         return null
-      }
-
-      const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.tags, ctx.softTags)
-
-      if (staleByTags) {
-        span.addEvent('Stale', { staleByTags })
+      } catch (error) {
+        if (error instanceof Error) {
+          span.recordException(error)
+        }
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: error instanceof Error ? error.message : String(error),
+        })
+        throw error
+      } finally {
         span.end()
-        return null
       }
-
-      this.captureResponseCacheLastModified(blob, key, span)
-
-      switch (blob.value?.kind) {
-        case 'FETCH':
-          span.addEvent('FETCH', { lastModified: blob.lastModified, revalidate: ctx.revalidate })
-          span.end()
-          return {
-            lastModified: blob.lastModified,
-            value: blob.value,
-          }
-
-        case 'ROUTE':
-          span.addEvent('ROUTE', { lastModified: blob.lastModified, status: blob.value.status })
-          span.end()
-          return {
-            lastModified: blob.lastModified,
-            value: {
-              ...blob.value,
-              body: Buffer.from(blob.value.body as unknown as string, 'base64'),
-            },
-          }
-        case 'PAGE':
-          span.addEvent('PAGE', { lastModified: blob.lastModified })
-          span.end()
-          return {
-            lastModified: blob.lastModified,
-            value: blob.value,
-          }
-        default:
-          span.recordException(new Error(`Unknown cache entry kind: ${blob.value?.kind}`))
-        // TODO: system level logging not implemented
-      }
-      span.end()
-      return null
     })
   }
 
@@ -190,12 +201,12 @@ export class NetlifyCacheHandler implements CacheHandler {
     })
   }
 
-  /* Not used, but required by the interface */
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  resetRequestCache() {}
+  resetRequestCache() {
+    this.tagManifestsFetchedFromBlobStoreInCurrentRequest = {}
+  }
 
   /**
-   * Checks if a page is stale through on demand revalidated tags
+   * Checks if a cache entry is stale through on demand revalidated tags
    */
   private async checkCacheEntryStaleByTags(
     cacheEntry: CacheHandlerValue,
@@ -212,32 +223,76 @@ export class NetlifyCacheHandler implements CacheHandler {
       return false
     }
 
-    const allManifests = await Promise.all(
-      cacheTags.map(async (tag) => {
-        const res = await this.blobStore
-          .get(await this.encodeBlobKey(tag), { type: 'json' })
-          .then((value: TagManifest) => ({ [tag]: value }))
-          .catch(console.error)
-        return res || { [tag]: null }
-      }),
-    )
-
-    const tagsManifest = Object.assign({}, ...allManifests) as Record<
-      string,
-      null | { revalidatedAt: number }
-    >
-
-    const isStale = cacheTags.some((tag) => {
+    // 1. Check if revalidateTags array passed from Next.js contains any of cacheEntry tags
+    if (this.revalidatedTags && this.revalidatedTags.length !== 0) {
       // TODO: test for this case
-      if (this.revalidatedTags?.includes(tag)) {
-        return true
+      for (const tag of this.revalidatedTags) {
+        if (cacheTags.includes(tag)) {
+          return true
+        }
+      }
+    }
+
+    // 2. If any in-memory tags don't indicate that any of tags was invalidated
+    //    we will check blob store, but memoize results for duration of current request
+    //    so that we only check blob store once per tag within a single request
+    //    full-route cache and fetch caches share a lot of tags so this might save
+    //    some roundtrips to the blob store.
+    //    Additionally, we will resolve the promise as soon as we find first
+    //    stale tag, so that we don't wait for all of them to resolve (but keep all
+    //    running in case future `CacheHandler.get` calls would be able to use results).
+    //    "Worst case" scenario is none of tag was invalidated in which case we need to wait
+    //    for all blob store checks to finish before we can be certain that no tag is stale.
+    return new Promise<boolean>((resolve, reject) => {
+      const tagManifestPromises: Promise<boolean>[] = []
+
+      for (const tag of cacheTags) {
+        let tagManifestPromise: Promise<TagManifest> =
+          this.tagManifestsFetchedFromBlobStoreInCurrentRequest[tag]
+
+        if (!tagManifestPromise) {
+          tagManifestPromise = this.encodeBlobKey(tag).then((blobKey) => {
+            return this.tracer.startActiveSpan(`get tag manifest`, async (span) => {
+              span.setAttributes({ tag, blobKey })
+              try {
+                return await this.blobStore.get(blobKey, { type: 'json' })
+              } catch (error) {
+                if (error instanceof Error) {
+                  span.recordException(error)
+                }
+                span.setStatus({
+                  code: SpanStatusCode.ERROR,
+                  message: error instanceof Error ? error.message : String(error),
+                })
+                throw error
+              } finally {
+                span.end()
+              }
+            })
+          })
+
+          this.tagManifestsFetchedFromBlobStoreInCurrentRequest[tag] = tagManifestPromise
+        }
+
+        tagManifestPromises.push(
+          tagManifestPromise.then((tagManifest) => {
+            const isStale = tagManifest?.revalidatedAt >= (cacheEntry.lastModified || Date.now())
+            if (isStale) {
+              resolve(true)
+              return true
+            }
+            return false
+          }),
+        )
       }
 
-      const { revalidatedAt } = tagsManifest[tag] || {}
-      return revalidatedAt && revalidatedAt >= (cacheEntry.lastModified || Date.now())
+      // make sure we resolve promise after all blobs are checked (if we didn't resolve as stale yet)
+      Promise.all(tagManifestPromises)
+        .then((tagManifestAreStale) => {
+          resolve(tagManifestAreStale.some((tagIsStale) => tagIsStale))
+        })
+        .catch(reject)
     })
-
-    return isStale
   }
 }
 

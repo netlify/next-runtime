@@ -8,7 +8,35 @@ import {
   runPlugin,
   type FixtureTestContext,
 } from '../utils/fixture.js'
-import { encodeBlobKey, generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
+import {
+  encodeBlobKey,
+  generateRandomObjectID,
+  getBlobServerGets,
+  startMockBlobStore,
+} from '../utils/helpers.js'
+
+function isTagManifest(key: string) {
+  return key.startsWith('_N_T_')
+}
+
+expect.extend({
+  toBeDistinct(received: string[]) {
+    const { isNot } = this
+    const pass = new Set(received).size === received.length
+    return {
+      pass,
+      message: () => `${received} is${isNot ? ' not' : ''} array with distinct values`,
+    }
+  },
+})
+
+interface CustomMatchers<R = unknown> {
+  toBeDistinct(): R
+}
+
+declare module 'vitest' {
+  interface Assertion<T = any> extends CustomMatchers<T> {}
+}
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -32,6 +60,8 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
 
   expect(await ctx.blobStore.get(encodeBlobKey('/static-fetch-1'))).not.toBeNull()
 
+  ctx.blobServerGetSpy.mockClear()
+
   // test the function call
   const post1 = await invokeFunction(ctx, { url: '/static-fetch-1' })
   const post1Date = load(post1.body)('[data-testid="date-now"]').text()
@@ -45,12 +75,20 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
     }),
   )
 
+  expect(
+    getBlobServerGets(ctx, isTagManifest),
+    `expected tag manifests to be retrieved at most once per tag`,
+  ).toBeDistinct()
+  ctx.blobServerGetSpy.mockClear()
+
   const revalidate = await invokeFunction(ctx, { url: '/api/on-demand-revalidate/tag' })
   expect(revalidate.statusCode).toBe(200)
   expect(JSON.parse(revalidate.body)).toEqual({ revalidated: true, now: expect.any(String) })
 
   // it does not wait for the revalidation
   await new Promise<void>((resolve) => setTimeout(resolve, 100))
+
+  ctx.blobServerGetSpy.mockClear()
 
   const post2 = await invokeFunction(ctx, { url: '/static-fetch-1' })
   const post2Date = load(post2.body)('[data-testid="date-now"]').text()
@@ -65,6 +103,12 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   )
   expect(post2Date).not.toBe(post1Date)
   expect(post2Quote).not.toBe(post1Quote)
+
+  expect(
+    getBlobServerGets(ctx, isTagManifest),
+    `expected tag manifests to be retrieved at most once per tag`,
+  ).toBeDistinct()
+  ctx.blobServerGetSpy.mockClear()
 
   // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
   await new Promise<void>((resolve) => setTimeout(resolve, 100))
@@ -83,12 +127,20 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   expect(post3Date).toBe(post2Date)
   expect(post3Quote).toBe(post2Quote)
 
+  expect(
+    getBlobServerGets(ctx, isTagManifest),
+    `expected tag manifests to be retrieved at most once per tag`,
+  ).toBeDistinct()
+  ctx.blobServerGetSpy.mockClear()
+
   const revalidate2 = await invokeFunction(ctx, { url: '/api/on-demand-revalidate/tag' })
   expect(revalidate2.statusCode).toBe(200)
   expect(JSON.parse(revalidate2.body)).toEqual({ revalidated: true, now: expect.any(String) })
 
   // it does not wait for the revalidation
   await new Promise<void>((resolve) => setTimeout(resolve, 100))
+
+  ctx.blobServerGetSpy.mockClear()
 
   const post4 = await invokeFunction(ctx, { url: '/static-fetch-1' })
   const post4Date = load(post4.body)('[data-testid="date-now"]').text()
@@ -103,4 +155,10 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   )
   expect(post4Date).not.toBe(post3Date)
   expect(post4Quote).not.toBe(post3Quote)
+
+  expect(
+    getBlobServerGets(ctx, isTagManifest),
+    `expected tag manifests to be retrieved at most once per tag`,
+  ).toBeDistinct()
+  ctx.blobServerGetSpy.mockClear()
 })

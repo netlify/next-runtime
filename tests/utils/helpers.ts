@@ -93,7 +93,7 @@ export const getBlobEntries = async (ctx: FixtureTestContext) => {
   return blobs
 }
 
-function getBlobServerGets(ctx: FixtureTestContext) {
+export function getBlobServerGets(ctx: FixtureTestContext, predicate?: (key: string) => boolean) {
   const isString = (arg: unknown): arg is string => typeof arg === 'string'
   return ctx.blobServerGetSpy.mock.calls
     .map(([request]) => {
@@ -110,6 +110,7 @@ function getBlobServerGets(ctx: FixtureTestContext) {
       return undefined
     })
     .filter(isString)
+    .filter((key) => !predicate || predicate(key))
 }
 
 export function countOfBlobServerGetsForKey(ctx: FixtureTestContext, key: string) {
