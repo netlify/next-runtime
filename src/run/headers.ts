@@ -202,7 +202,9 @@ export const setCacheControlHeaders = (headers: Headers, request: Request) => {
 export const setCacheTagsHeaders = (headers: Headers, request: Request, manifest: TagsManifest) => {
   const path = new URL(request.url).pathname
   const tags = manifest[path]
-  headers.set('cache-tag', tags)
+  if (tags !== undefined) {
+    headers.set('netlify-cache-tag', tags)
+  }
 }
 
 /**

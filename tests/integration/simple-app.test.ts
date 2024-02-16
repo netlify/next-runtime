@@ -66,7 +66,7 @@ test<FixtureTestContext>('Should add cache-tags to prerendered app pages', async
 
   const staticFetch1 = await invokeFunction(ctx, { url: '/other' })
 
-  expect(staticFetch1.headers?.['cache-tag']).toBe(
+  expect(staticFetch1.headers?.['netlify-cache-tag']).toBe(
     '_N_T_/layout,_N_T_/other/layout,_N_T_/other/page,_N_T_/other',
   )
 })
@@ -76,7 +76,7 @@ test<FixtureTestContext>('index should be normalized within the cacheHandler and
   await runPlugin(ctx)
   const index = await invokeFunction(ctx, { url: '/' })
   expect(index.statusCode).toBe(200)
-  expect(index.headers?.['cache-tag']).toBe('_N_T_/layout,_N_T_/page,_N_T_/')
+  expect(index.headers?.['netlify-cache-tag']).toBe('_N_T_/layout,_N_T_/page,_N_T_/')
 })
 
 test<FixtureTestContext>('stale-while-revalidate headers should be normalized to include delta-seconds', async (ctx) => {

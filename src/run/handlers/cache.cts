@@ -103,7 +103,7 @@ export class NetlifyCacheHandler implements CacheHandler {
         return null
       }
 
-      const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.softTags)
+      const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.tags, ctx.softTags)
 
       if (staleByTags) {
         span.addEvent('Stale', { staleByTags })
@@ -197,13 +197,21 @@ export class NetlifyCacheHandler implements CacheHandler {
   /**
    * Checks if a page is stale through on demand revalidated tags
    */
-  private async checkCacheEntryStaleByTags(cacheEntry: CacheHandlerValue, softTags: string[] = []) {
-    const tags =
-      cacheEntry.value && 'headers' in cacheEntry.value
-        ? (cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER] as string)?.split(',') || []
-        : []
+  private async checkCacheEntryStaleByTags(
+    cacheEntry: CacheHandlerValue,
+    tags: string[] = [],
+    softTags: string[] = [],
+  ) {
+    let cacheTags: string[] = []
 
-    const cacheTags = [...tags, ...softTags]
+    if (cacheEntry.value?.kind === 'FETCH') {
+      cacheTags = [...tags, ...softTags]
+    } else if (cacheEntry.value?.kind === 'PAGE' || cacheEntry.value?.kind === 'ROUTE') {
+      cacheTags = (cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER] as string)?.split(',') || []
+    } else {
+      return false
+    }
+
     const allManifests = await Promise.all(
       cacheTags.map(async (tag) => {
         const res = await this.blobStore

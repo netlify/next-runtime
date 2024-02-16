@@ -35,6 +35,7 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   // test the function call
   const post1 = await invokeFunction(ctx, { url: '/static-fetch-1' })
   const post1Date = load(post1.body)('[data-testid="date-now"]').text()
+  const post1Quote = load(post1.body)('[data-testid="quote"]').text()
   expect(post1.statusCode).toBe(200)
   expect(load(post1.body)('h1').text()).toBe('Hello, Static Fetch 1')
   expect(post1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
@@ -53,6 +54,7 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
 
   const post2 = await invokeFunction(ctx, { url: '/static-fetch-1' })
   const post2Date = load(post2.body)('[data-testid="date-now"]').text()
+  const post2Quote = load(post2.body)('[data-testid="quote"]').text()
   expect(post2.statusCode).toBe(200)
   expect(load(post2.body)('h1').text()).toBe('Hello, Static Fetch 1')
   expect(post2.headers, 'a cache miss on the on demand revalidated page').toEqual(
@@ -62,12 +64,14 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
     }),
   )
   expect(post2Date).not.toBe(post1Date)
+  expect(post2Quote).not.toBe(post1Quote)
 
   // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
   await new Promise<void>((resolve) => setTimeout(resolve, 100))
 
   const post3 = await invokeFunction(ctx, { url: '/static-fetch-1' })
   const post3Date = load(post3.body)('[data-testid="date-now"]').text()
+  const post3Quote = load(post3.body)('[data-testid="quote"]').text()
   expect(post3.statusCode).toBe(200)
   expect(load(post3.body)('h1').text()).toBe('Hello, Static Fetch 1')
   expect(post3.headers, 'a cache hit on the revalidated and regenerated page').toEqual(
@@ -77,4 +81,26 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
     }),
   )
   expect(post3Date).toBe(post2Date)
+  expect(post3Quote).toBe(post2Quote)
+
+  const revalidate2 = await invokeFunction(ctx, { url: '/api/on-demand-revalidate/tag' })
+  expect(revalidate2.statusCode).toBe(200)
+  expect(JSON.parse(revalidate2.body)).toEqual({ revalidated: true, now: expect.any(String) })
+
+  // it does not wait for the revalidation
+  await new Promise<void>((resolve) => setTimeout(resolve, 100))
+
+  const post4 = await invokeFunction(ctx, { url: '/static-fetch-1' })
+  const post4Date = load(post4.body)('[data-testid="date-now"]').text()
+  const post4Quote = load(post4.body)('[data-testid="quote"]').text()
+  expect(post4.statusCode).toBe(200)
+  expect(load(post4.body)('h1').text()).toBe('Hello, Static Fetch 1')
+  expect(post4.headers, 'a cache miss on the on demand revalidated page').toEqual(
+    expect.objectContaining({
+      'cache-status': '"Next.js"; fwd=miss',
+      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
+    }),
+  )
+  expect(post4Date).not.toBe(post3Date)
+  expect(post4Quote).not.toBe(post3Quote)
 })

@@ -13,7 +13,7 @@ export default async function Page() {
       <h1>Hello, Static Fetch 1</h1>
       <dl>
         <dt>Quote</dt>
-        <dd>{data[0].quote}</dd>
+        <dd data-testid="quote">{data[0].quote}</dd>
         <dt>Time</dt>
         <dd data-testid="date-now">{new Date().toISOString()}</dd>
       </dl>
