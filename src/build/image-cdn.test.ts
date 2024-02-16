@@ -1,42 +1,31 @@
 /* eslint-disable id-length */
 import type { NetlifyPluginOptions } from '@netlify/build'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
-import { beforeEach, describe, expect, test, vi, TestContext } from 'vitest'
+import { TestContext, beforeEach, describe, expect, test } from 'vitest'
 
 import { setImageConfig } from './image-cdn.js'
 import { PluginContext } from './plugin-context.js'
 
-type DeepPartial<T> = T extends object
-  ? {
-      [P in keyof T]?: DeepPartial<T[P]>
-    }
-  : T
-
 type ImageCDNTestContext = TestContext & {
   pluginContext: PluginContext
-  mockNextConfig?: DeepPartial<NextConfigComplete>
 }
 
 describe('Image CDN', () => {
   beforeEach<ImageCDNTestContext>((ctx) => {
-    ctx.mockNextConfig = undefined
     ctx.pluginContext = new PluginContext({
       netlifyConfig: {
         redirects: [],
       },
     } as unknown as NetlifyPluginOptions)
-    vi.spyOn(ctx.pluginContext, 'getBuildConfig').mockImplementation(() =>
-      Promise.resolve((ctx.mockNextConfig ?? {}) as NextConfigComplete),
-    )
   })
 
   test<ImageCDNTestContext>('adds redirect to Netlify Image CDN when default image loader is used', async (ctx) => {
-    ctx.mockNextConfig = {
+    ctx.pluginContext._buildConfig = {
       images: {
         path: '/_next/image',
         loader: 'default',
       },
-    }
+    } as NextConfigComplete
 
     await setImageConfig(ctx.pluginContext)
 
@@ -57,13 +46,13 @@ describe('Image CDN', () => {
   })
 
   test<ImageCDNTestContext>('does not add redirect to Netlify Image CDN when non-default loader is used', async (ctx) => {
-    ctx.mockNextConfig = {
+    ctx.pluginContext._buildConfig = {
       images: {
         path: '/_next/image',
         loader: 'custom',
         loaderFile: './custom-loader.js',
       },
-    }
+    } as NextConfigComplete
 
     await setImageConfig(ctx.pluginContext)
 
@@ -84,7 +73,7 @@ describe('Image CDN', () => {
   })
 
   test<ImageCDNTestContext>('handles custom images.path', async (ctx) => {
-    ctx.mockNextConfig = {
+    ctx.pluginContext._buildConfig = {
       images: {
         // Next.js automatically adds basePath to images.path (when user does not set custom `images.path` in their config)
         // if user sets custom `images.path` - it will be used as-is (so user need to cover their basePath by themselves
@@ -94,7 +83,7 @@ describe('Image CDN', () => {
         path: '/base/path/_custom/image/endpoint',
         loader: 'default',
       },
-    }
+    } as NextConfigComplete
 
     await setImageConfig(ctx.pluginContext)
 

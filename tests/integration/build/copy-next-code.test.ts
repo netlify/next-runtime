@@ -1,0 +1,132 @@
+import { join } from 'node:path'
+
+import { NetlifyPluginOptions } from '@netlify/build'
+import { expect, test } from 'vitest'
+
+import { copyNextServerCode } from '../../../src/build/content/server.js'
+import { PluginContext } from '../../../src/build/plugin-context.js'
+import { FixtureTestContext, createFsFixture } from '../../utils/fixture.js'
+import { readFile, readdir } from 'node:fs/promises'
+
+test<FixtureTestContext>('should copy the next standalone folder correctly for a simple site', async (ctx) => {
+  const reqServerFiles = JSON.stringify({ config: { distDir: '.next' } })
+  const reqServerPath = '.next/required-server-files.json'
+  const reqServerPathStandalone = join('.next/standalone', reqServerPath)
+  const { cwd } = await createFsFixture(
+    {
+      [reqServerPath]: reqServerFiles,
+      [reqServerPathStandalone]: reqServerFiles,
+    },
+    ctx,
+  )
+  const pluginCtx = new PluginContext({
+    constants: { PUBLISH_DIR: '.next' },
+  } as NetlifyPluginOptions)
+  await copyNextServerCode(pluginCtx)
+
+  expect(
+    await readdir(join(cwd, '.netlify/functions-internal/___netlify-server-handler/.next')),
+  ).toEqual(['required-server-files.json'])
+})
+
+test<FixtureTestContext>('should copy the next standalone folder correctly based on a custom dist dir', async (ctx) => {
+  const reqServerFiles = JSON.stringify({ config: { distDir: 'out/dir' } })
+  const reqServerPath = 'out/dir/required-server-files.json'
+  const reqServerPathStandalone = join('out/dir/standalone', reqServerPath)
+  const { cwd } = await createFsFixture(
+    {
+      [reqServerPath]: reqServerFiles,
+      [reqServerPathStandalone]: reqServerFiles,
+    },
+    ctx,
+  )
+  const pluginCtx = new PluginContext({
+    constants: { PUBLISH_DIR: 'out/dir' },
+  } as NetlifyPluginOptions)
+  await copyNextServerCode(pluginCtx)
+
+  expect(
+    await readdir(join(cwd, '.netlify/functions-internal/___netlify-server-handler/out/dir')),
+  ).toEqual(['required-server-files.json'])
+})
+
+test<FixtureTestContext>('should copy the next standalone folder correctly for monorepo', async (ctx) => {
+  const reqServerFiles = JSON.stringify({ config: { distDir: '.next' } })
+  const reqServerPath = 'apps/my-app/.next/required-server-files.json'
+  const reqServerPathStandalone = join('apps/my-app/.next/standalone', reqServerPath)
+  const { cwd } = await createFsFixture(
+    {
+      [reqServerPath]: reqServerFiles,
+      [reqServerPathStandalone]: reqServerFiles,
+    },
+    ctx,
+  )
+  const pluginCtx = new PluginContext({
+    constants: { PUBLISH_DIR: 'apps/my-app/.next', PACKAGE_PATH: 'apps/my-app' },
+  } as NetlifyPluginOptions)
+  await copyNextServerCode(pluginCtx)
+
+  expect(
+    await readdir(
+      join(
+        cwd,
+        'apps/my-app/.netlify/functions-internal/___netlify-server-handler/apps/my-app/.next',
+      ),
+    ),
+  ).toEqual(['required-server-files.json'])
+})
+
+test<FixtureTestContext>('should copy the next standalone folder correctly for monorepo with custom dir', async (ctx) => {
+  const reqServerFiles = JSON.stringify({ config: { distDir: 'deep/out/dir' } })
+  const reqServerPath = 'apps/my-app/deep/out/dir/required-server-files.json'
+  const reqServerPathStandalone = join('apps/my-app/deep/out/dir/standalone', reqServerPath)
+  const { cwd } = await createFsFixture(
+    {
+      [reqServerPath]: reqServerFiles,
+      [reqServerPathStandalone]: reqServerFiles,
+    },
+    ctx,
+  )
+  const pluginCtx = new PluginContext({
+    constants: { PUBLISH_DIR: 'apps/my-app/deep/out/dir', PACKAGE_PATH: 'apps/my-app' },
+  } as NetlifyPluginOptions)
+  await copyNextServerCode(pluginCtx)
+
+  const nextDir = join(
+    cwd,
+    'apps/my-app/.netlify/functions-internal/___netlify-server-handler/apps/my-app/deep/out/dir',
+  )
+  expect(await readdir(nextDir)).toEqual(['required-server-files.json'])
+  expect(await readFile(join(nextDir, 'required-server-files.json'), 'utf-8')).toBe(reqServerFiles)
+})
+
+// case of nx-integrated
+test<FixtureTestContext>('should copy the next standalone folder correctly in a monorepo based on a custom dist dir', async (ctx) => {
+  const reqServerFiles = JSON.stringify({ config: { distDir: '../../dist/apps/my-app/.next' } })
+  const reqServerPath = 'dist/apps/my-app/.next/required-server-files.json'
+  const reqServerPathStandalone = join('dist/apps/my-app/.next/standalone', reqServerPath)
+  const { cwd } = await createFsFixture(
+    {
+      [reqServerPath]: reqServerFiles,
+      [reqServerPathStandalone]: reqServerFiles,
+    },
+    ctx,
+  )
+  const pluginCtx = new PluginContext({
+    constants: {
+      PACKAGE_PATH: 'apps/my-app',
+      PUBLISH_DIR: 'dist/apps/my-app/.next',
+    },
+  } as NetlifyPluginOptions)
+  await copyNextServerCode(pluginCtx)
+
+  const nextDir = join(
+    cwd,
+    'apps/my-app/.netlify/functions-internal/___netlify-server-handler/dist/apps/my-app/.next',
+  )
+  expect(await readdir(nextDir)).toEqual(['required-server-files.json'])
+  // config got updated to the .next folder
+  expect(await readFile(join(nextDir, 'required-server-files.json'), 'utf-8')).toBe(
+    '{"config":{"distDir":".next"}}',
+  )
+})

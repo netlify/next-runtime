@@ -4,20 +4,20 @@ import { join, resolve } from 'node:path'
 
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
-import { PLUGIN_DIR } from './constants.js'
+import { PLUGIN_DIR, RUN_CONFIG } from './constants.js'
 
 /**
  * Get Next.js config from the build output
  */
 export const getRunConfig = async () => {
-  return JSON.parse(await readFile(resolve('.next/required-server-files.json'), 'utf-8')).config
+  return JSON.parse(await readFile(resolve(RUN_CONFIG), 'utf-8'))
 }
 
 /**
  * Configure the custom cache handler at request time
  */
 export const setRunConfig = (config: NextConfigComplete) => {
-  const cacheHandler = join(PLUGIN_DIR, 'dist/run/handlers/cache.cjs')
+  const cacheHandler = join(PLUGIN_DIR, '.netlify/dist/run/handlers/cache.cjs')
   if (!existsSync(cacheHandler)) {
     throw new Error(`Cache handler not found at ${cacheHandler}`)
   }

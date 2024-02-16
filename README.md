@@ -3,6 +3,29 @@
 Next.js is supported natively on Netlify, and in most cases you will not need to install or
 configure anything. This repo includes the packages used to support Next.js on Netlify.
 
+## Lambda Folder structure:
+
+For a simple next.js app
+
+```
+/___netlify-server-handler
+├── .netlify
+│   ├── tags-manifest.json
+│   └── dist // the compiled runtime code
+│       └── run
+│           ├── handlers
+│           │   ├── server.js
+│           │   └── cache.cjs
+│           └── next.cjs
+├── .next // or distDir name from the next.config.js
+│   └── // content from standalone
+├── run-config.json // the config object from the required-server-files.json
+├── node_modules
+├── ___netlify-server-handler.json
+├── ___netlify-server-handler.mjs
+└── package.json
+```
+
 ## Testing
 
 ### Integration testing

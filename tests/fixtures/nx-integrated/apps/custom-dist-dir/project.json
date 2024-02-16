@@ -1,0 +1,47 @@
+{
+  "name": "custom-dist-dir",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/custom-dist-dir",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/custom-dist-dir"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/custom-dist-dir"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "custom-dist-dir:build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "custom-dist-dir:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "custom-dist-dir:build:production",
+          "dev": false
+        }
+      }
+    },
+    "export": {
+      "executor": "@nx/next:export",
+      "options": {
+        "buildTarget": "custom-dist-dir:build:production"
+      }
+    }
+  },
+  "tags": []
+}

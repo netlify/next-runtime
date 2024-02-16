@@ -216,18 +216,23 @@ export const test = base.extend<
   { takeScreenshot: void },
   {
     simpleNextApp: Fixture
+    simpleNextAppDistDir: Fixture
     simpleNextAppYarn: Fixture
     simpleNextAppPNPM: Fixture
     simpleNextAppBun: Fixture
     middleware: Fixture
     pageRouter: Fixture
     nxIntegrated: Fixture
+    nxIntegratedDistDir: Fixture
     turborepo: Fixture
     turborepoNPM: Fixture
     serverComponents: Fixture
   }
 >({
   simpleNextApp: makeE2EFixture('simple-next-app'),
+  simpleNextAppDistDir: makeE2EFixture('simple-next-app-dist-dir', {
+    publishDirectory: 'cool/output',
+  }),
   simpleNextAppYarn: makeE2EFixture('simple-next-app', { packageManger: 'yarn' }),
   simpleNextAppPNPM: makeE2EFixture('simple-next-app-pnpm', { packageManger: 'pnpm' }),
   simpleNextAppBun: makeE2EFixture('simple-next-app', { packageManger: 'bun' }),
@@ -249,6 +254,12 @@ export const test = base.extend<
     packagePath: 'apps/next-app',
     buildCommand: 'nx run next-app:build',
     publishDirectory: 'dist/apps/next-app/.next',
+  }),
+  nxIntegratedDistDir: makeE2EFixture('nx-integrated', {
+    packageManger: 'pnpm',
+    packagePath: 'apps/custom-dist-dir',
+    buildCommand: 'nx run custom-dist-dir:build',
+    publishDirectory: 'dist/apps/custom-dist-dir/dist',
   }),
   takeScreenshot: [
     async ({ page }, use, testInfo) => {

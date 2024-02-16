@@ -13,7 +13,11 @@ export const osHomeDir = platform() === 'win32' ? 'C:\\Users\\test-user' : '/hom
  * @param folder Optional folder where it should be placed inside the osHomeDir
  * @returns The cwd where all files are placed in
  */
-export const mockFileSystem = (fileSystem: Record<string, string>, folder = 'test') => {
+export const mockFileSystem = (
+  fileSystem: Record<string, string>,
+  folder = 'test',
+  overlay = true,
+) => {
   ;(fs as any).reset?.()
   const vol = Volume.fromJSON(
     Object.entries(fileSystem).reduce(
@@ -26,7 +30,9 @@ export const mockFileSystem = (fileSystem: Record<string, string>, folder = 'tes
   )
   // in this case we don't want to have the actual underlying fs so we clear them
   // we only have the fs from the volume now.
-  ;(fs as any).fss = []
+  if (!overlay) {
+    ;(fs as any).fss = []
+  }
   ;(fs as any).use?.(vol)
 
   const cwd = folder ? join(osHomeDir, folder) : process.cwd()

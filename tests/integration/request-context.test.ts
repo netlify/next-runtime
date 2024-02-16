@@ -44,7 +44,7 @@ function mockCacheHandlerWithPausing(ctx: FixtureTestContext) {
   }
 
   const cacheHandlerPath = realpathSync(
-    join(ctx.functionDist, SERVER_HANDLER_NAME, `dist/run/handlers/cache.cjs`),
+    join(ctx.functionDist, SERVER_HANDLER_NAME, `.netlify/dist/run/handlers/cache.cjs`),
   )
   const CacheHandler = require(cacheHandlerPath).default
   class MockedCacheHandler extends CacheHandler {
@@ -71,7 +71,7 @@ function mockCacheHandlerWithPausing(ctx: FixtureTestContext) {
 
 function spyOnRequestContext(ctx: FixtureTestContext) {
   const requestContextPath = realpathSync(
-    join(ctx.functionDist, SERVER_HANDLER_NAME, `dist/run/handlers/request-context.cjs`),
+    join(ctx.functionDist, SERVER_HANDLER_NAME, `.netlify/dist/run/handlers/request-context.cjs`),
   )
   const RequestContextModule = require(requestContextPath)
   const mockedRequestContextModule = {

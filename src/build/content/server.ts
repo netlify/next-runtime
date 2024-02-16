@@ -6,6 +6,7 @@ import { dirname, join, resolve } from 'node:path'
 
 import glob from 'fast-glob'
 
+import { RUN_CONFIG } from '../../run/constants.js'
 import { PluginContext } from '../plugin-context.js'
 
 /**
@@ -14,17 +15,38 @@ import { PluginContext } from '../plugin-context.js'
 export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
   // update the dist directory inside the required-server-files.json to work with
   // nx monorepos and other setups where the dist directory is modified
-  const reqServerFilesPath = join(ctx.standaloneDir, '.next/required-server-files.json')
+  const reqServerFilesPath = join(
+    ctx.standaloneRootDir,
+    ctx.relPublishDir,
+    'required-server-files.json',
+  )
   const reqServerFiles = JSON.parse(await readFile(reqServerFilesPath, 'utf-8'))
 
-  // only override it if it was set before to a different value
-  if (reqServerFiles.config.distDir) {
-    reqServerFiles.config.distDir = '.next'
+  // if the resolved dist folder does not match the distDir of the required-server-files.json
+  // this means the path got altered by a plugin like nx and contained ../../ parts so we have to reset it
+  // to point to the correct lambda destination
+  if (
+    ctx.distDir.replace(new RegExp(`^${ctx.packagePath}/?`), '') !== reqServerFiles.config.distDir
+  ) {
+    // set the distDir to the latest path portion of the publish dir
+    reqServerFiles.config.distDir = ctx.nextDistDir
     await writeFile(reqServerFilesPath, JSON.stringify(reqServerFiles))
   }
 
-  const srcDir = join(ctx.standaloneDir, '.next')
-  const destDir = join(ctx.serverHandlerDir, '.next')
+  // ensure the directory exists before writing to it
+  await mkdir(ctx.serverHandlerDir, { recursive: true })
+  // write our run-config.json to the root dir so that we can easily get the runtime config of the required-server-files.json
+  // without the need to know about the monorepo or distDir configuration upfront.
+  await writeFile(
+    join(ctx.serverHandlerDir, RUN_CONFIG),
+    JSON.stringify(reqServerFiles.config),
+    'utf-8',
+  )
+
+  const srcDir = join(ctx.standaloneDir, ctx.nextDistDir)
+  // if the distDir got resolved and altered use the nextDistDir instead
+  const nextFolder = ctx.distDir === ctx.buildConfig.distDir ? ctx.distDir : ctx.nextDistDir
+  const destDir = join(ctx.serverHandlerDir, nextFolder)
 
   const paths = await glob(
     [`*`, `server/*`, `server/chunks/*`, `server/edge-chunks/*`, `server/+(app|pages)/**/*.js`],
@@ -96,9 +118,9 @@ async function recreateNodeModuleSymlinks(src: string, dest: string, org?: strin
 export const copyNextDependencies = async (ctx: PluginContext): Promise<void> => {
   const entries = await readdir(ctx.standaloneDir)
   const promises: Promise<void>[] = entries.map(async (entry) => {
-    // copy all except the package.json and .next folder as this is handled in a separate function
+    // copy all except the package.json and distDir (.next) folder as this is handled in a separate function
     // this will include the node_modules folder as well
-    if (entry === 'package.json' || entry === '.next') {
+    if (entry === 'package.json' || entry === ctx.nextDistDir) {
       return
     }
     const src = join(ctx.standaloneDir, entry)

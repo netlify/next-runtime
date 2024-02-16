@@ -1,5 +1,5 @@
-import serverHandler from './dist/run/handlers/server.js'
-import tracing, { trace } from './dist/run/handlers/tracing.js'
+import serverHandler from './.netlify/dist/run/handlers/server.js'
+import tracing, { trace } from './.netlify/dist/run/handlers/tracing.js'
 
 export default async function handler(req, context) {
   if (process.env.NETLIFY_OTLP_TRACE_EXPORTER_URL) {

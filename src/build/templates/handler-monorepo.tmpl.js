@@ -1,4 +1,4 @@
-import tracing, { trace } from '{{cwd}}dist/run/handlers/tracing.js'
+import tracing, { trace } from '{{cwd}}/.netlify/dist/run/handlers/tracing.js'
 
 process.chdir('{{cwd}}')
 

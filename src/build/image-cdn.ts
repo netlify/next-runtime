@@ -6,7 +6,7 @@ import { PluginContext } from './plugin-context.js'
 export const setImageConfig = async (ctx: PluginContext): Promise<void> => {
   const {
     images: { path: imageEndpointPath, loader: imageLoader },
-  } = await ctx.getBuildConfig()
+  } = ctx.buildConfig
 
   if (imageLoader === 'default') {
     ctx.netlifyConfig.redirects.push({

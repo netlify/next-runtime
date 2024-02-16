@@ -16,6 +16,17 @@ test('Renders the Home page correctly', async ({ page, simpleNextApp }) => {
   await expectImageWasLoaded(page.locator('img'))
 })
 
+test('Renders the Home page correctly with distDir', async ({ page, simpleNextAppDistDir }) => {
+  await page.goto(simpleNextAppDistDir.url)
+
+  await expect(page).toHaveTitle('Simple Next App')
+
+  const h1 = page.locator('h1')
+  await expect(h1).toHaveText('Home')
+
+  await expectImageWasLoaded(page.locator('img'))
+})
+
 test('Serves a static image correctly', async ({ page, simpleNextApp }) => {
   const response = await page.goto(`${simpleNextApp.url}/next.svg`)
 

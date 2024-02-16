@@ -38,7 +38,7 @@ const copyRuntime = async (ctx: PluginContext, handlerDirectory: string): Promis
 }
 
 const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefinition) => {
-  const nextConfig = await ctx.getBuildConfig()
+  const nextConfig = ctx.buildConfig
   const handlerName = getHandlerName({ name })
   const handlerDirectory = join(ctx.edgeFunctionsDir, handlerName)
   const handlerRuntimeDirectory = join(handlerDirectory, 'edge-runtime')
@@ -81,7 +81,7 @@ const copyHandlerDependencies = async (
   ctx: PluginContext,
   { name, files, wasm }: NextDefinition,
 ) => {
-  const srcDir = join(ctx.standaloneDir, '.next')
+  const srcDir = join(ctx.standaloneDir, ctx.nextDistDir)
   const destDir = join(ctx.edgeFunctionsDir, getHandlerName({ name }))
 
   await Promise.all(

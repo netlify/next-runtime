@@ -2,7 +2,9 @@
   "name": "@nx-latest/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "postinstall": "nx run-many --target build"
+  },
   "private": true,
   "dependencies": {
     "next": "14.0.4",

@@ -6,11 +6,12 @@ import { glob } from 'fast-glob'
 import { copyNextDependencies, copyNextServerCode, writeTagsManifest } from '../content/server.js'
 import { PluginContext, SERVER_HANDLER_NAME } from '../plugin-context.js'
 
+/** Copies the runtime dist folder to the lambda */
 const copyHandlerDependencies = async (ctx: PluginContext) => {
   const fileList = await glob('dist/**/*', { cwd: ctx.pluginDir })
   await Promise.all(
     [...fileList].map((path) =>
-      cp(join(ctx.pluginDir, path), join(ctx.serverHandlerDir, path), {
+      cp(join(ctx.pluginDir, path), join(ctx.serverHandlerDir, '.netlify', path), {
         recursive: true,
         force: true,
       }),
