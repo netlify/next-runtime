@@ -411,12 +411,35 @@ describe('page router', () => {
       url: `/_next/data/build-id/blog/first.json?slug=first`,
     })
     const res = await response.json()
-    console.log(res)
     const url = new URL(res.url, 'http://n/')
     expect(url.pathname).toBe('/blog/first/')
     expect(url.searchParams.get('__nextDataReq')).toBe('1')
     expect(url.searchParams.get('slug')).toBe('first')
     expect(res.headers['x-nextjs-data']).toBe('1')
     expect(response.status).toBe(200)
+  })
+
+  test<FixtureTestContext>('should preserve locale in redirects', async (ctx) => {
+    await createFixture('middleware-i18n', ctx)
+    await runPlugin(ctx)
+    const origin = await LocalServer.run(async (req, res) => {
+      res.write(
+        JSON.stringify({
+          url: req.url,
+          headers: req.headers,
+        }),
+      )
+      res.end()
+    })
+    ctx.cleanup?.push(() => origin.stop())
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      url: `/fr/old-home`,
+      redirect: 'manual',
+    })
+    const url = new URL(response.headers.get('location') ?? '', 'http://n/')
+    expect(url.pathname).toBe('/fr/new-home')
+    expect(response.status).toBe(302)
   })
 })

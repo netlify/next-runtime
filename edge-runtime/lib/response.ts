@@ -195,7 +195,7 @@ export const buildResponse = async ({
 
   // If we are redirecting a request that had a locale in the URL, we need to add it back in
   if (redirect && requestLocale) {
-    redirect = normalizeLocalizedTarget({ target: redirect, request, nextConfig })
+    redirect = normalizeLocalizedTarget({ target: redirect, request, nextConfig, requestLocale })
     if (redirect === request.url) {
       logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
       return
