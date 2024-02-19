@@ -16,7 +16,6 @@ const fetchBeforeNextPatchedIt = globalThis.fetch
 export async function getMockedRequestHandlers(...args: Parameters<typeof getRequestHandlers>) {
   const tracer = trace.getTracer('Next.js Runtime')
   return tracer.startActiveSpan('mocked request handler', async (span) => {
-    const store = getDeployStore({ fetch: fetchBeforeNextPatchedIt })
     const ofs = { ...fs }
 
     const { encodeBlobKey } = await import('../shared/blobkey.js')
@@ -30,6 +29,7 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
       } catch (error) {
         // only try to get .html files from the blob store
         if (typeof path === 'string' && path.endsWith('.html')) {
+          const store = getDeployStore({ fetch: fetchBeforeNextPatchedIt })
           const relPath = relative(resolve('.next/server/pages'), path)
           const file = await store.get(await encodeBlobKey(relPath))
           if (file !== null) {
