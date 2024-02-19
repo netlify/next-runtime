@@ -37,6 +37,11 @@ export class PluginContext {
     return this.constants.PUBLISH_DIR ?? join(this.packagePath, DEFAULT_PUBLISH_DIR)
   }
 
+  /** Temporary directory for stashing the build output */
+  get tempPublishDir(): string {
+    return this.resolve('.netlify/.next')
+  }
+
   /** Absolute path of the publish directory */
   get publishDir(): string {
     // Does not need to be resolved with the package path as it is always a repository absolute path

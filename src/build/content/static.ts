@@ -60,8 +60,9 @@ export const copyStaticAssets = async (ctx: PluginContext): Promise<void> => {
  */
 export const publishStaticDir = async (ctx: PluginContext): Promise<void> => {
   try {
-    await mkdir(ctx.resolve('.netlify/.next'), { recursive: true })
-    await rename(ctx.publishDir, ctx.resolve('.netlify/.next'))
+    await rm(ctx.tempPublishDir, { recursive: true, force: true })
+    await mkdir(ctx.tempPublishDir, { recursive: true })
+    await rename(ctx.publishDir, ctx.tempPublishDir)
     await rename(ctx.staticDir, ctx.publishDir)
   } catch (error) {
     ctx.failBuild('Failed publishing static content', error instanceof Error ? { error } : {})
@@ -73,9 +74,9 @@ export const publishStaticDir = async (ctx: PluginContext): Promise<void> => {
  */
 export const unpublishStaticDir = async (ctx: PluginContext): Promise<void> => {
   try {
-    if (existsSync(ctx.resolve('.netlify/.next'))) {
+    if (existsSync(ctx.tempPublishDir)) {
       await rename(ctx.publishDir, ctx.staticDir)
-      await rename(ctx.resolve('.netlify/.next'), ctx.publishDir)
+      await rename(ctx.tempPublishDir, ctx.publishDir)
     }
   } catch {
     // ignore
