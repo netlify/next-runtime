@@ -37,7 +37,10 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
   const blobEntries = await getBlobEntries(ctx)
   expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
     '/404',
-    '/image',
+    '/image/local',
+    '/image/remote-domain',
+    '/image/remote-pattern-1',
+    '/image/remote-pattern-2',
     '/index',
     '/other',
     '/redirect',

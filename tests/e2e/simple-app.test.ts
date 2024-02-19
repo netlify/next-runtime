@@ -42,20 +42,6 @@ test('Redirects correctly', async ({ page, simpleNextApp }) => {
   await expect(page).toHaveURL(`https://www.netlify.com/`)
 })
 
-test('next/image is using Netlify Image CDN', async ({ page, simpleNextApp }) => {
-  const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
-
-  await page.goto(`${simpleNextApp.url}/image`)
-
-  const nextImageResponse = await nextImageResponsePromise
-  expect(nextImageResponse.request().url()).toContain('_next/image?url=%2Fsquirrel.jpg')
-  // ensure next/image is using Image CDN
-  // source image is jpg, but when requesting it through Image CDN avif will be returned
-  expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
-
-  await expectImageWasLoaded(page.locator('img'))
-})
-
 const waitFor = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // adaptation of https://github.com/vercel/next.js/blob/canary/test/e2e/app-dir/app-static/app-static.test.ts#L1716-L1755
@@ -105,4 +91,77 @@ test('streams stale responses', async ({ simpleNextApp }) => {
       `streams in less than 3s, run #${i}/6`,
     ).toBeLessThan(3000)
   }
+})
+
+test.describe('next/image is using Netlify Image CDN', () => {
+  test('Local images', async ({ page, simpleNextApp }) => {
+    const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
+
+    await page.goto(`${simpleNextApp.url}/image/local`)
+
+    const nextImageResponse = await nextImageResponsePromise
+    expect(nextImageResponse.request().url()).toContain('_next/image?url=%2Fsquirrel.jpg')
+    // ensure next/image is using Image CDN
+    // source image is jpg, but when requesting it through Image CDN avif will be returned
+    expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+
+    await expectImageWasLoaded(page.locator('img'))
+  })
+
+  test('Remote images: remote patterns #1 (protocol, hostname, pathname set)', async ({
+    page,
+    simpleNextApp,
+  }) => {
+    const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
+
+    await page.goto(`${simpleNextApp.url}/image/remote-pattern-1`)
+
+    const nextImageResponse = await nextImageResponsePromise
+
+    expect(nextImageResponse.url()).toContain(
+      `_next/image?url=${encodeURIComponent(
+        'https://images.unsplash.com/photo-1574870111867-089730e5a72b',
+      )}`,
+    )
+
+    await expect(nextImageResponse?.status()).toBe(200)
+    await expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+  })
+
+  test('Remote images: remote patterns #2 (just hostname starting with wildcard)', async ({
+    page,
+    simpleNextApp,
+  }) => {
+    const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
+
+    await page.goto(`${simpleNextApp.url}/image/remote-pattern-2`)
+
+    const nextImageResponse = await nextImageResponsePromise
+
+    expect(nextImageResponse.url()).toContain(
+      `_next/image?url=${encodeURIComponent(
+        'https://cdn.pixabay.com/photo/2017/02/20/18/03/cat-2083492_1280.jpg',
+      )}`,
+    )
+
+    await expect(nextImageResponse?.status()).toBe(200)
+    await expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+  })
+
+  test('Remote images: domains', async ({ page, simpleNextApp }) => {
+    const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
+
+    await page.goto(`${simpleNextApp.url}/image/remote-domain`)
+
+    const nextImageResponse = await nextImageResponsePromise
+
+    expect(nextImageResponse.url()).toContain(
+      `_next/image?url=${encodeURIComponent(
+        'https://images.pexels.com/photos/406014/pexels-photo-406014.jpeg',
+      )}`,
+    )
+
+    await expect(nextImageResponse?.status()).toBe(200)
+    await expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+  })
 })
