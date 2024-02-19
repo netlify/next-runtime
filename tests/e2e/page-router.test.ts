@@ -79,9 +79,15 @@ test('requesting a non existing page route that needs to be fetched from the blo
   pageRouter,
 }) => {
   const response = await page.goto(new URL('non-exisitng', pageRouter.url).href)
+  const headers = response?.headers() || {}
   expect(response?.status()).toBe(404)
 
   expect(await page.textContent('h1')).toBe('404')
+
+  expect(headers['netlify-cdn-cache-control']).toBe(
+    'no-cache, no-store, max-age=0, must-revalidate',
+  )
+  expect(headers['cache-control']).toBe('no-cache,no-store,max-age=0,must-revalidate')
 })
 
 test('requesting a page with a very long name works', async ({ page, pageRouter }) => {
@@ -164,4 +170,12 @@ test('unstable-cache should work', async ({ pageRouter }) => {
     }
     return 'success'
   }, 'success')
+})
+
+test('Fully static pages should be cached permanently', async ({ page, pageRouter }) => {
+  const response = await page.goto(new URL('static/fully-static', pageRouter.url).href)
+  const headers = response?.headers() || {}
+
+  expect(headers['netlify-cdn-cache-control']).toBe('max-age=31536000')
+  expect(headers['cache-control']).toBe('public,max-age=0,must-revalidate')
 })

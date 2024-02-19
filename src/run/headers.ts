@@ -174,7 +174,11 @@ export const adjustDateHeader = async ({
  * Ensure stale-while-revalidate and s-maxage don't leak to the client, but
  * assume the user knows what they are doing if CDN cache controls are set
  */
-export const setCacheControlHeaders = (headers: Headers, request: Request) => {
+export const setCacheControlHeaders = (
+  headers: Headers,
+  request: Request,
+  requestContext: RequestContext,
+) => {
   const cacheControl = headers.get('cache-control')
   if (
     cacheControl !== null &&
@@ -196,6 +200,16 @@ export const setCacheControlHeaders = (headers: Headers, request: Request) => {
 
     headers.set('cache-control', browserCacheControl || 'public, max-age=0, must-revalidate')
     headers.set('netlify-cdn-cache-control', cdnCacheControl)
+  }
+
+  if (
+    cacheControl === null &&
+    !headers.has('cdn-cache-control') &&
+    !headers.has('netlify-cdn-cache-control') &&
+    requestContext.usedFsRead
+  ) {
+    headers.set('cache-control', 'public, max-age=0, must-revalidate')
+    headers.set('netlify-cdn-cache-control', `max-age=31536000`)
   }
 }
 

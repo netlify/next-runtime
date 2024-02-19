@@ -7,6 +7,8 @@ import { trace } from '@opentelemetry/api'
 import { patchFs } from 'fs-monkey'
 import type { getRequestHandlers } from 'next/dist/server/lib/start-server.js'
 
+import { getRequestContext } from './handlers/request-context.cjs'
+
 type FS = typeof import('fs')
 
 const fetchBeforeNextPatchedIt = globalThis.fetch
@@ -31,6 +33,11 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
           const relPath = relative(resolve('.next/server/pages'), path)
           const file = await store.get(await encodeBlobKey(relPath))
           if (file !== null) {
+            const requestContext = getRequestContext()
+            if (requestContext) {
+              requestContext.usedFsRead = true
+            }
+
             return file
           }
         }

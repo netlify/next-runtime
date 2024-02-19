@@ -3,6 +3,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 export type RequestContext = {
   responseCacheGetLastModified?: number
   responseCacheKey?: string
+  usedFsRead?: boolean
 }
 
 type RequestContextAsyncLocalStorage = AsyncLocalStorage<RequestContext>

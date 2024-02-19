@@ -82,7 +82,7 @@ export default async (request: Request) => {
 
     await adjustDateHeader({ headers: response.headers, request, span, tracer, requestContext })
 
-    setCacheControlHeaders(response.headers, request)
+    setCacheControlHeaders(response.headers, request, requestContext)
     setCacheTagsHeaders(response.headers, request, tagsManifest)
     setVaryHeaders(response.headers, request, nextConfig)
     setCacheStatusHeader(response.headers)

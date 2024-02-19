@@ -113,3 +113,15 @@ test<FixtureTestContext>('Should return JSON for data req to page route', async 
 
   expect(data.pageProps.show).toBeDefined()
 })
+
+test<FixtureTestContext>('Should set permanent "netlify-cdn-cache-control" header on fully static pages"', async (ctx) => {
+  await createFixture('page-router', ctx)
+  await runPlugin(ctx)
+
+  const response = await invokeFunction(ctx, {
+    url: '/static/fully-static',
+  })
+
+  expect(response.headers?.['netlify-cdn-cache-control']).toBe('max-age=31536000')
+  expect(response.headers?.['cache-control']).toBe('public, max-age=0, must-revalidate')
+})

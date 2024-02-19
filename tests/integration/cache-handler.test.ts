@@ -49,6 +49,7 @@ describe('page router', () => {
       '/static/revalidate-slow',
       '404.html',
       '500.html',
+      'static/fully-static.html',
     ])
 
     // test the function call

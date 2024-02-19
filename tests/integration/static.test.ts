@@ -45,6 +45,7 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
     '/static/revalidate-slow',
     '404.html',
     '500.html',
+    'static/fully-static.html',
     // the real key is much longer and ends in a hash, but we only assert on the first 50 chars to make it easier
   ])
 
