@@ -10,7 +10,7 @@ import { PLUGIN_DIR, RUN_CONFIG } from './constants.js'
  * Get Next.js config from the build output
  */
 export const getRunConfig = async () => {
-  return JSON.parse(await readFile(resolve(RUN_CONFIG), 'utf-8'))
+  return JSON.parse(await readFile(resolve(PLUGIN_DIR, RUN_CONFIG), 'utf-8'))
 }
 
 /**
