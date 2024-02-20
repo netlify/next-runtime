@@ -7,8 +7,10 @@ import {
   invokeFunction,
   runPlugin,
   type FixtureTestContext,
+  invokeEdgeFunction,
 } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
+import { LocalServer } from '../utils/local-server.js'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -57,5 +59,23 @@ describe('WASM', () => {
     const ogNode = await invokeFunction(ctx, { url: '/og-node' })
     expect(ogNode.statusCode).toBe(200)
     expect(ogNode.headers['content-type']).toBe('image/png')
+  })
+
+  test<FixtureTestContext>('should work in middleware', async (ctx) => {
+    const origin = new LocalServer()
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      url: '/wasm?input=3',
+    })
+
+    ctx.cleanup?.push(() => origin.stop())
+
+    const data = response.headers.get('data')
+
+    expect(data).toBeDefined()
+
+    const parsed = JSON.parse(data ?? '{}')
+    expect(parsed.value).toBe(4)
   })
 })

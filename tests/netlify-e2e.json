@@ -211,7 +211,8 @@
       "test/e2e/app-dir/missing-suspense-with-csr-bailout/missing-suspense-with-csr-bailout.test.ts",
       "test/e2e/module-layer/module-layer.test.ts",
       "test/e2e/app-dir/next-image/next-image-proxy.test.ts",
-      "test/e2e/proxy-request-with-middleware/test/index.test.ts"
+      "test/e2e/proxy-request-with-middleware/test/index.test.ts",
+      "test/e2e/edge-can-use-wasm-files/index.test.ts"
     ]
   }
 }
