@@ -213,8 +213,18 @@ export const setCacheControlHeaders = (
   }
 }
 
-export const setCacheTagsHeaders = (headers: Headers, request: Request, manifest: TagsManifest) => {
-  const path = new URL(request.url).pathname
+function getCanonicalPathFromCacheKey(cacheKey: string | undefined): string | undefined {
+  return cacheKey === '/index' ? '/' : cacheKey
+}
+
+export const setCacheTagsHeaders = (
+  headers: Headers,
+  request: Request,
+  manifest: TagsManifest,
+  requestContext: RequestContext,
+) => {
+  const path =
+    getCanonicalPathFromCacheKey(requestContext.responseCacheKey) ?? new URL(request.url).pathname
   const tags = manifest[path]
   if (tags !== undefined) {
     headers.set('netlify-cache-tag', tags)

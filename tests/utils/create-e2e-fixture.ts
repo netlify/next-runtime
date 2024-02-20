@@ -222,6 +222,7 @@ export const test = base.extend<
     simpleNextAppBun: Fixture
     middleware: Fixture
     pageRouter: Fixture
+    pageRouterBasePathI18n: Fixture
     nxIntegrated: Fixture
     nxIntegratedDistDir: Fixture
     turborepo: Fixture
@@ -238,6 +239,7 @@ export const test = base.extend<
   simpleNextAppBun: makeE2EFixture('simple-next-app', { packageManger: 'bun' }),
   middleware: makeE2EFixture('middleware'),
   pageRouter: makeE2EFixture('page-router'),
+  pageRouterBasePathI18n: makeE2EFixture('page-router-base-path-i18n'),
   turborepo: makeE2EFixture('turborepo', {
     packageManger: 'pnpm',
     packagePath: 'apps/page-router',

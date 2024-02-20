@@ -4,6 +4,7 @@ export type RequestContext = {
   responseCacheGetLastModified?: number
   responseCacheKey?: string
   usedFsRead?: boolean
+  didPagesRouterOnDemandRevalidate?: boolean
 }
 
 type RequestContextAsyncLocalStorage = AsyncLocalStorage<RequestContext>

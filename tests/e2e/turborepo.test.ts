@@ -58,7 +58,7 @@ test.describe('[PNPM] Package manager', () => {
     expect(revalidate?.status()).toBe(200)
 
     // wait a bit until the page got regenerated
-    await page.waitForTimeout(100)
+    await page.waitForTimeout(1000)
 
     // now after the revalidation it should have a different date
     const response3 = await page.goto(new URL('static/revalidate-manual', turborepo.url).href)
@@ -133,7 +133,7 @@ test.describe('[NPM] Package manager', () => {
     expect(revalidate?.status()).toBe(200)
 
     // wait a bit until the page got regenerated
-    await page.waitForTimeout(100)
+    await page.waitForTimeout(1000)
 
     // now after the revalidation it should have a different date
     const response3 = await page.goto(new URL('static/revalidate-manual', turborepoNPM.url).href)

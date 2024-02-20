@@ -51,9 +51,9 @@ export default async (request: Request) => {
   return await tracer.startActiveSpan('generate response', async (span) => {
     const { req, res } = toReqRes(request)
 
-    const resProxy = nextResponseProxy(res)
-
     const requestContext = createRequestContext()
+
+    const resProxy = nextResponseProxy(res, requestContext)
 
     // We don't await this here, because it won't resolve until the response is finished.
     const nextHandlerPromise = runWithRequestContext(requestContext, () =>
@@ -83,7 +83,7 @@ export default async (request: Request) => {
     await adjustDateHeader({ headers: response.headers, request, span, tracer, requestContext })
 
     setCacheControlHeaders(response.headers, request, requestContext)
-    setCacheTagsHeaders(response.headers, request, tagsManifest)
+    setCacheTagsHeaders(response.headers, request, tagsManifest, requestContext)
     setVaryHeaders(response.headers, request, nextConfig)
     setCacheStatusHeader(response.headers)
 

@@ -177,6 +177,18 @@ export class NetlifyCacheHandler implements CacheHandler {
         lastModified,
         value: data,
       })
+
+      if (data?.kind === 'PAGE') {
+        const requestContext = getRequestContext()
+        if (requestContext?.didPagesRouterOnDemandRevalidate) {
+          const tag = `_N_T_${key === '/index' ? '/' : key}`
+          console.debug('Purging CDN cache for:', [tag])
+          purgeCache({ tags: [tag] }).catch((error) => {
+            // TODO: add reporting here
+            console.error(`[NetlifyCacheHandler]: Purging the cache for tag ${tag} failed`, error)
+          })
+        }
+      }
       span.end()
     })
   }
