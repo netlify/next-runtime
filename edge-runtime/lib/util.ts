@@ -56,7 +56,7 @@ export function normalizeLocalePath(pathname: string, locales?: string[]): PathL
     if (pathnameParts[1] && pathnameParts[1].toLowerCase() === locale.toLowerCase()) {
       detectedLocale = locale
       pathnameParts.splice(1, 1)
-      pathname = pathnameParts.join('/') || '/'
+      pathname = pathnameParts.join('/')
       return true
     }
     return false

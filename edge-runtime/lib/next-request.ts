@@ -24,6 +24,7 @@ export interface RequestData {
     basePath?: string
     i18n?: I18NConfig | null
     trailingSlash?: boolean
+    skipMiddlewareUrlNormalize?: boolean
   }
   page?: {
     name?: string
@@ -50,19 +51,23 @@ const normalizeRequestURL = (
       url.pathname,
       nextConfig?.i18n?.locales,
     )
-    url.pathname = pathname
+    if (!nextConfig?.skipMiddlewareUrlNormalize) {
+      url.pathname = pathname || '/'
+    }
     detectedLocale = detected
   }
 
-  // We want to run middleware for data requests and expose the URL of the
-  // corresponding pages, so we have to normalize the URLs before running
-  // the handler.
-  url.pathname = normalizeDataUrl(url.pathname)
+  if (!nextConfig?.skipMiddlewareUrlNormalize) {
+    // We want to run middleware for data requests and expose the URL of the
+    // corresponding pages, so we have to normalize the URLs before running
+    // the handler.
+    url.pathname = normalizeDataUrl(url.pathname)
 
-  // Normalizing the trailing slash based on the `trailingSlash` configuration
-  // property from the Next.js config.
-  if (nextConfig?.trailingSlash && url.pathname !== '/' && !url.pathname.endsWith('/')) {
-    url.pathname = `${url.pathname}/`
+    // Normalizing the trailing slash based on the `trailingSlash` configuration
+    // property from the Next.js config.
+    if (nextConfig?.trailingSlash && url.pathname !== '/' && !url.pathname.endsWith('/')) {
+      url.pathname = `${url.pathname}/`
+    }
   }
 
   if (didRemoveBasePath) {

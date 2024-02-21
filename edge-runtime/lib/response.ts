@@ -247,9 +247,10 @@ function normalizeLocalizedTarget({
     !normalizedTarget.pathname.startsWith(`/api/`) &&
     !normalizedTarget.pathname.startsWith(`/_next/static/`)
   ) {
-    targetUrl.pathname = addBasePath(`/${locale}${normalizedTarget.pathname}`, nextConfig?.basePath)
+    targetUrl.pathname =
+      addBasePath(`/${locale}${normalizedTarget.pathname}`, nextConfig?.basePath) || `/`
   } else {
-    targetUrl.pathname = addBasePath(normalizedTarget.pathname, nextConfig?.basePath)
+    targetUrl.pathname = addBasePath(normalizedTarget.pathname, nextConfig?.basePath) || `/`
   }
   return targetUrl.toString()
 }

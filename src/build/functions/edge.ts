@@ -89,6 +89,7 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
     basePath: nextConfig.basePath,
     i18n: nextConfig.i18n,
     trailingSlash: nextConfig.trailingSlash,
+    skipMiddlewareUrlNormalize: nextConfig.skipMiddlewareUrlNormalize,
   }
 
   await writeFile(
