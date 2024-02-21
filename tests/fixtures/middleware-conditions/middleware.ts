@@ -15,5 +15,12 @@ export const config = {
       source: '/foo',
       missing: [{ type: 'header', key: 'x-custom-header', value: 'custom-value' }],
     },
+    {
+      source: '/hello',
+    },
+    {
+      source: '/nl-NL/about',
+      locale: false,
+    },
   ],
 }

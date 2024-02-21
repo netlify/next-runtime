@@ -3,6 +3,7 @@ import { dirname, join, relative } from 'node:path'
 
 import { glob } from 'fast-glob'
 import type { EdgeFunctionDefinition as NextDefinition } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
+import { pathToRegexp } from 'path-to-regexp'
 
 import { EDGE_HANDLER_NAME, PluginContext } from '../plugin-context.js'
 
@@ -37,6 +38,33 @@ const copyRuntime = async (ctx: PluginContext, handlerDirectory: string): Promis
   )
 }
 
+/**
+ * When i18n is enabled the matchers assume that paths _always_ include the
+ * locale. We manually add an extra matcher for the original path without
+ * the locale to ensure that the edge function can handle it.
+ * We don't need to do this for data routes because they always have the locale.
+ */
+const augmentMatchers = (
+  matchers: NextDefinition['matchers'],
+  ctx: PluginContext,
+): NextDefinition['matchers'] => {
+  if (!ctx.buildConfig.i18n) {
+    return matchers
+  }
+  return matchers.flatMap((matcher) => {
+    if (matcher.originalSource && matcher.locale !== false) {
+      return [
+        matcher,
+        {
+          ...matcher,
+          regexp: pathToRegexp(matcher.originalSource).source,
+        },
+      ]
+    }
+    return matcher
+  })
+}
+
 const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefinition) => {
   const nextConfig = ctx.buildConfig
   const handlerName = getHandlerName({ name })
@@ -49,7 +77,10 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
 
   // Writing a file with the matchers that should trigger this function. We'll
   // read this file from the function at runtime.
-  await writeFile(join(handlerRuntimeDirectory, 'matchers.json'), JSON.stringify(matchers))
+  await writeFile(
+    join(handlerRuntimeDirectory, 'matchers.json'),
+    JSON.stringify(augmentMatchers(matchers, ctx)),
+  )
 
   // The config is needed by the edge function to match and normalize URLs. To
   // avoid shipping and parsing a large file at runtime, let's strip it down to
@@ -140,9 +171,10 @@ const buildHandlerDefinition = (
   const funName = name.endsWith('middleware')
     ? 'Next.js Middleware Handler'
     : `Next.js Edge Handler: ${page}`
-  const cache = name.endsWith('middleware') ? undefined : 'manual'
+  const cache = name.endsWith('middleware') ? undefined : ('manual' as const)
   const generator = `${ctx.pluginName}@${ctx.pluginVersion}`
-  return matchers.map((matcher) => ({
+
+  return augmentMatchers(matchers, ctx).map((matcher) => ({
     function: fun,
     name: funName,
     pattern: matcher.regexp,

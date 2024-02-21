@@ -76,6 +76,7 @@
     "os": "^0.1.2",
     "outdent": "^0.8.0",
     "p-limit": "^4.0.0",
+    "path-to-regexp": "^6.2.1",
     "picomatch": "^3.0.1",
     "regexp-tree": "^0.1.27",
     "typescript": "^5.1.6",

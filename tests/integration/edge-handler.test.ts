@@ -251,6 +251,45 @@ describe("aborts middleware execution when the matcher conditions don't match th
     expect(response2.headers.has('x-hello-from-middleware-res')).toBeFalsy()
     expect(origin.calls).toBe(2)
   })
+
+  test<FixtureTestContext>('should handle locale matching correctly', async (ctx) => {
+    await createFixture('middleware-conditions', ctx)
+    await runPlugin(ctx)
+
+    const origin = await LocalServer.run(async (req, res) => {
+      expect(req.headers['x-hello-from-middleware-req']).toBeUndefined()
+
+      res.write('Hello from origin!')
+      res.end()
+    })
+
+    ctx.cleanup?.push(() => origin.stop())
+
+    for (const path of ['/hello', '/en/hello', '/nl-NL/hello', '/nl-NL/about']) {
+      const response = await invokeEdgeFunction(ctx, {
+        functions: ['___netlify-edge-handler-middleware'],
+        origin,
+        url: path,
+      })
+      expect(response.headers.has('x-hello-from-middleware-res'), `does match ${path}`).toBeTruthy()
+      expect(await response.text()).toBe('Hello from origin!')
+      expect(response.status).toBe(200)
+    }
+
+    for (const path of ['/hello/invalid', '/about', '/en/about']) {
+      const response = await invokeEdgeFunction(ctx, {
+        functions: ['___netlify-edge-handler-middleware'],
+        origin,
+        url: path,
+      })
+      expect(
+        response.headers.has('x-hello-from-middleware-res'),
+        `does not match ${path}`,
+      ).toBeFalsy()
+      expect(await response.text()).toBe('Hello from origin!')
+      expect(response.status).toBe(200)
+    }
+  })
 })
 
 describe('should run middleware on data requests', () => {
