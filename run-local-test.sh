@@ -12,6 +12,7 @@ fi
 export NEXT_TEST_CONTINUE_ON_ERROR=1
 export NETLIFY_SITE_ID=1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
 export NEXT_TEST_MODE=deploy
+export RUNTIME_DIR=$(pwd)
 cp tests/netlify-deploy.ts ../next.js/test/lib/next-modes/netlify-deploy.ts
 cd ../next.js/
 git apply ../next-runtime-minimal/tests/e2e-utils.patch

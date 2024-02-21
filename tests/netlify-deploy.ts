@@ -43,7 +43,10 @@ export class NextDeployInstance extends NextInstance {
           publish = ".next"
           
           [[plugins]]
-          package = "${path.relative(this.testDir, `${process.cwd()}/../next-runtime-minimal`)}"
+          package = "${path.relative(
+            this.testDir,
+            process.env.RUNTIME_DIR || `${process.cwd()}/../next-runtime-minimal`,
+          )}"
           `
 
       await fs.writeFile(path.join(this.testDir, 'netlify.toml'), toml)
