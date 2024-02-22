@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 // Here we need to actually import `resolve` from node:path as we want to resolve the paths
 // eslint-disable-next-line no-restricted-imports
@@ -62,7 +62,7 @@ export class PluginContext {
    * The working directory inside the lambda that is used for monorepos to execute the serverless function
    */
   get lambdaWorkingDirectory(): string {
-    return join('/var/task', this.distFolder)
+    return join('/var/task', this.distDirParent)
   }
 
   /**
@@ -83,8 +83,8 @@ export class PluginContext {
     return relative(process.cwd(), resolve(this.packagePath, dir))
   }
 
-  /** The dist folder represents the parent directory of the .next folder or custom distDir */
-  get distFolder(): string {
+  /** Represents the parent directory of the .next folder or custom distDir */
+  get distDirParent(): string {
     // the .. is omitting the last part of the dist dir like `.next` but as it can be any custom folder
     // let's just move one directory up with that
     return join(this.distDir, '..')
@@ -92,7 +92,7 @@ export class PluginContext {
 
   /** The `.next` folder or what the custom dist dir is set to */
   get nextDistDir(): string {
-    return relative(this.distFolder, this.distDir)
+    return relative(this.distDirParent, this.distDir)
   }
 
   /** Retrieves the `.next/standalone/` directory monorepo aware */
@@ -102,7 +102,7 @@ export class PluginContext {
     // if the publish directory is .next the standalone directory will be `.next/standalone`
     // for nx workspaces where the publish directory is on the root of the repository
     // like `dist/apps/my-app/.next` the standalone directory will be `.next/standalone/dist/apps/my-app`
-    return join(this.standaloneRootDir, this.distFolder)
+    return join(this.standaloneRootDir, this.distDirParent)
   }
 
   /**
@@ -139,7 +139,7 @@ export class PluginContext {
     if (this.packagePath.length === 0) {
       return this.serverHandlerRootDir
     }
-    return join(this.serverHandlerRootDir, this.distFolder)
+    return join(this.serverHandlerRootDir, this.distDirParent)
   }
 
   get nextServerHandler(): string {
@@ -212,5 +212,18 @@ export class PluginContext {
   /** Fails a build with a message and an optional error */
   failBuild(message: string, error?: unknown): never {
     return this.utils.build.failBuild(message, error instanceof Error ? { error } : undefined)
+  }
+
+  verifyPublishDir() {
+    if (!existsSync(this.publishDir)) {
+      this.failBuild(
+        `Your publish directory was not found at: ${this.publishDir}, please check your build settings`,
+      )
+    }
+    if (this.publishDir === this.resolve(this.packagePath)) {
+      this.failBuild(
+        `Your publish directory cannot be the same as the base directory of your site, please check your build settings`,
+      )
+    }
   }
 }

@@ -63,6 +63,13 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
   expect(load(notFound.body)('h1').text()).toBe('404')
 })
 
+test<FixtureTestContext>('Should warn if publish dir is root', async (ctx) => {
+  await createFixture('simple-next-app', ctx)
+  expect(() => runPlugin(ctx, { PUBLISH_DIR: '.' })).rejects.toThrowError(
+    'check your build settings',
+  )
+})
+
 test<FixtureTestContext>('Should add cache-tags to prerendered app pages', async (ctx) => {
   await createFixture('simple-next-app', ctx)
   await runPlugin(ctx)

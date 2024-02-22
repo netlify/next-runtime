@@ -1,5 +1,3 @@
-import { existsSync } from 'node:fs'
-
 import type { NetlifyPluginOptions } from '@netlify/build'
 
 import { restoreBuildCache, saveBuildCache } from './build/cache.js'
@@ -25,12 +23,7 @@ export const onPreBuild = async (options: NetlifyPluginOptions) => {
 
 export const onBuild = async (options: NetlifyPluginOptions) => {
   const ctx = new PluginContext(options)
-  if (!existsSync(ctx.publishDir)) {
-    ctx.failBuild(
-      `Publish directory not found under: ${ctx.publishDir}, please check your netlify.toml`,
-    )
-  }
-  await setImageConfig(ctx)
+  ctx.verifyPublishDir()
 
   // only save the build cache if not run via the CLI
   if (!options.constants.IS_LOCAL) {
@@ -43,6 +36,7 @@ export const onBuild = async (options: NetlifyPluginOptions) => {
     copyPrerenderedContent(ctx),
     createServerHandler(ctx),
     createEdgeHandlers(ctx),
+    setImageConfig(ctx),
   ])
 }
 

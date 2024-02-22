@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 
 import { NetlifyPluginOptions } from '@netlify/build'
-import { test, expect, vi } from 'vitest'
+import { expect, test, vi } from 'vitest'
 
 import { mockFileSystem } from '../../tests/index.js'
 
@@ -66,7 +66,7 @@ test('next app with deep custom distDir', () => {
   expect(ctx.standaloneDir).toBe(join(cwd, 'out/dir/standalone/out'))
   expect(ctx.standaloneRootDir).toBe(join(cwd, 'out/dir/standalone'))
   expect(ctx.distDir).toBe('out/dir')
-  expect(ctx.distFolder).toBe('out')
+  expect(ctx.distDirParent).toBe('out')
   expect(ctx.nextDistDir).toBe('dir')
   expect(ctx.relPublishDir).toBe('out/dir')
   expect(ctx.publishDir).toBe(join(cwd, 'out/dir'))
@@ -103,7 +103,7 @@ test('monorepo with package path', () => {
   expect(ctx.standaloneRootDir).toBe(join(cwd, 'apps/my-app/.next/standalone'))
   expect(ctx.staticDir).toBe(join(cwd, 'apps/my-app/.netlify/static'))
   expect(ctx.distDir).toBe('apps/my-app/.next')
-  expect(ctx.distFolder).toBe('apps/my-app')
+  expect(ctx.distDirParent).toBe('apps/my-app')
   expect(ctx.nextDistDir).toBe('.next')
   expect(ctx.relPublishDir).toBe('apps/my-app/.next')
   expect(ctx.publishDir).toBe(join(cwd, 'apps/my-app/.next'))
@@ -142,7 +142,7 @@ test('nx monorepo with package path and different distDir', () => {
   expect(ctx.standaloneRootDir).toBe(join(cwd, 'dist/apps/my-app/.next/standalone'))
   expect(ctx.staticDir).toBe(join(cwd, 'apps/my-app/.netlify/static'))
   expect(ctx.distDir).toBe('dist/apps/my-app/.next')
-  expect(ctx.distFolder).toBe('dist/apps/my-app')
+  expect(ctx.distDirParent).toBe('dist/apps/my-app')
   expect(ctx.nextDistDir).toBe('.next')
   expect(ctx.relPublishDir).toBe('dist/apps/my-app/.next')
   expect(ctx.publishDir).toBe(join(cwd, 'dist/apps/my-app/.next'))
