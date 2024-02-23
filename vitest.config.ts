@@ -1,4 +1,4 @@
-import { relative } from 'node:path'
+import { join, relative } from 'node:path'
 
 import { defineConfig } from 'vitest/config'
 import { BaseSequencer, WorkspaceSpec } from 'vitest/node'
@@ -8,10 +8,10 @@ import { BaseSequencer, WorkspaceSpec } from 'vitest/node'
  * Needs to be relative paths to the repository root.
  */
 const RUN_ISOLATED = new Set([
-  'tests/integration/fetch-handler.test.ts',
-  'tests/integration/revalidate-path.test.ts',
-  'tests/integration/cache-handler.test.ts',
-  'tests/integration/edge-handler.test.ts',
+  join('tests', 'integration', 'fetch-handler.test.ts'),
+  join('tests', 'integration', 'revalidate-path.test.ts'),
+  join('tests', 'integration', 'cache-handler.test.ts'),
+  join('tests', 'integration', 'edge-handler.test.ts'),
 ])
 
 class Sequencer extends BaseSequencer {

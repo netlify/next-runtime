@@ -16,6 +16,7 @@ import {
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
+import { platform } from 'node:process'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -34,7 +35,7 @@ beforeEach<FixtureTestContext>(async (ctx) => {
 })
 
 describe('page router', () => {
-  test<FixtureTestContext>('page router with static revalidate', async (ctx) => {
+  test.skipIf(platform === 'win32')<FixtureTestContext>('page router with static revalidate', async (ctx) => {
     await createFixture('page-router', ctx)
     console.time('runPlugin')
     await runPlugin(ctx)

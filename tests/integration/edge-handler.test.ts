@@ -8,6 +8,7 @@ import {
 } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 import { LocalServer } from '../utils/local-server.js'
+import { platform } from 'process'
 
 beforeEach<FixtureTestContext>(async (ctx) => {
   // set for each test a new deployID and siteID
@@ -18,7 +19,7 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   await startMockBlobStore(ctx)
 })
 
-test<FixtureTestContext>('should add request/response headers', async (ctx) => {
+test.skipIf(platform === "win32")<FixtureTestContext>('should add request/response headers', async (ctx) => {
   await createFixture('middleware', ctx)
   await runPlugin(ctx)
 
@@ -46,7 +47,7 @@ test<FixtureTestContext>('should add request/response headers', async (ctx) => {
   expect(origin.calls).toBe(1)
 })
 
-test<FixtureTestContext>('should add request/response headers when using src dir', async (ctx) => {
+test.skipIf(platform === "win32")<FixtureTestContext>('should add request/response headers when using src dir', async (ctx) => {
   await createFixture('middleware-src', ctx)
   await runPlugin(ctx)
 
@@ -74,7 +75,7 @@ test<FixtureTestContext>('should add request/response headers when using src dir
   expect(origin.calls).toBe(1)
 })
 
-describe('redirect', () => {
+describe.skipIf(platform === "win32")('redirect', () => {
   test<FixtureTestContext>('should return a redirect response', async (ctx) => {
     await createFixture('middleware', ctx)
     await runPlugin(ctx)
@@ -123,7 +124,7 @@ describe('redirect', () => {
   })
 })
 
-describe('rewrite', () => {
+describe.skipIf(platform === "win32")('rewrite', () => {
   test<FixtureTestContext>('should rewrite to an external URL', async (ctx) => {
     await createFixture('middleware', ctx)
     await runPlugin(ctx)
@@ -183,7 +184,7 @@ describe('rewrite', () => {
   })
 })
 
-describe("aborts middleware execution when the matcher conditions don't match the request", () => {
+describe.skipIf(platform === "win32")("aborts middleware execution when the matcher conditions don't match the request", () => {
   test<FixtureTestContext>('when the path is excluded', async (ctx) => {
     await createFixture('middleware', ctx)
     await runPlugin(ctx)
@@ -292,7 +293,7 @@ describe("aborts middleware execution when the matcher conditions don't match th
   })
 })
 
-describe('should run middleware on data requests', () => {
+describe.skipIf(platform === "win32")('should run middleware on data requests', () => {
   test<FixtureTestContext>('when `trailingSlash: false`', async (ctx) => {
     await createFixture('middleware', ctx)
     await runPlugin(ctx)

@@ -1,5 +1,6 @@
 import { Buffer } from 'node:buffer'
 import { join } from 'node:path'
+import { platform } from 'node:process'
 
 import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
@@ -29,7 +30,7 @@ const createFsFixtureWithBasePath = (
   )
 }
 
-describe('Regular Repository layout', () => {
+describe.skipIf(platform === 'win32')('Regular Repository layout', () => {
   beforeEach<Context>((ctx) => {
     ctx.publishDir = '.next'
     ctx.pluginContext = new PluginContext({
@@ -185,7 +186,7 @@ describe('Regular Repository layout', () => {
   })
 })
 
-describe('Mono Repository', () => {
+describe.skipIf(platform === 'win32')('Mono Repository', () => {
   beforeEach<Context>((ctx) => {
     ctx.publishDir = 'apps/app-1/.next'
     ctx.pluginContext = new PluginContext({

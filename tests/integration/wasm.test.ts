@@ -11,6 +11,7 @@ import {
 } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 import { LocalServer } from '../utils/local-server.js'
+import { platform } from 'node:process'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -27,7 +28,7 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   await startMockBlobStore(ctx)
 })
 
-describe('WASM', () => {
+describe.skipIf(platform === 'win32')('WASM', () => {
   beforeEach<FixtureTestContext>(async (ctx) => {
     // set for each test a new deployID and siteID
     ctx.deployID = generateRandomObjectID()

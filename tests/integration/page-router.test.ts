@@ -11,6 +11,7 @@ import {
   type FixtureTestContext,
 } from '../utils/fixture.js'
 import { encodeBlobKey, generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
+import { platform } from 'node:process'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -62,7 +63,7 @@ test<FixtureTestContext>('Should add pathname to cache-tags for pages route', as
   expect(staticFetch1.headers?.['netlify-cache-tag']).toBe('_N_T_/static/revalidate-manual')
 })
 
-test<FixtureTestContext>('Should revalidate path with On-demand Revalidation', async (ctx) => {
+test.skipIf(platform === 'win32')<FixtureTestContext>('Should revalidate path with On-demand Revalidation', async (ctx) => {
   await createFixture('page-router', ctx)
   await runPlugin(ctx)
 
@@ -114,7 +115,7 @@ test<FixtureTestContext>('Should return JSON for data req to page route', async 
   expect(data.pageProps.show).toBeDefined()
 })
 
-test<FixtureTestContext>('Should set permanent "netlify-cdn-cache-control" header on fully static pages"', async (ctx) => {
+test.skipIf(platform === "win32")<FixtureTestContext>('Should set permanent "netlify-cdn-cache-control" header on fully static pages"', async (ctx) => {
   await createFixture('page-router', ctx)
   await runPlugin(ctx)
 

@@ -7,6 +7,7 @@ import { copyNextServerCode } from '../../../src/build/content/server.js'
 import { PluginContext } from '../../../src/build/plugin-context.js'
 import { FixtureTestContext, createFsFixture } from '../../utils/fixture.js'
 import { readFile, readdir } from 'node:fs/promises'
+import { platform } from 'node:process'
 
 test<FixtureTestContext>('should copy the next standalone folder correctly for a simple site', async (ctx) => {
   const reqServerFiles = JSON.stringify({ config: { distDir: '.next' } })
@@ -29,7 +30,7 @@ test<FixtureTestContext>('should copy the next standalone folder correctly for a
   ).toEqual(['required-server-files.json'])
 })
 
-test<FixtureTestContext>('should copy the next standalone folder correctly based on a custom dist dir', async (ctx) => {
+test.skipIf(platform === "win32")<FixtureTestContext>('should copy the next standalone folder correctly based on a custom dist dir', async (ctx) => {
   const reqServerFiles = JSON.stringify({ config: { distDir: 'out/dir' } })
   const reqServerPath = 'out/dir/required-server-files.json'
   const reqServerPathStandalone = join('out/dir/standalone', reqServerPath)
@@ -76,7 +77,7 @@ test<FixtureTestContext>('should copy the next standalone folder correctly for m
   ).toEqual(['required-server-files.json'])
 })
 
-test<FixtureTestContext>('should copy the next standalone folder correctly for monorepo with custom dir', async (ctx) => {
+test.skipIf(platform === "win32")<FixtureTestContext>('should copy the next standalone folder correctly for monorepo with custom dir', async (ctx) => {
   const reqServerFiles = JSON.stringify({ config: { distDir: 'deep/out/dir' } })
   const reqServerPath = 'apps/my-app/deep/out/dir/required-server-files.json'
   const reqServerPathStandalone = join('apps/my-app/deep/out/dir/standalone', reqServerPath)

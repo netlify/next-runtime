@@ -9,6 +9,7 @@ import {
   type FixtureTestContext,
 } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
+import { platform } from 'node:process'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -24,11 +25,14 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   await startMockBlobStore(ctx)
 })
 
-test<FixtureTestContext>('that the runtime works correctly with the pnpm package manager', async (ctx) => {
-  await createFixture('simple-next-app-pnpm', ctx)
-  await runPlugin(ctx)
+test.skipIf(platform === 'win32')<FixtureTestContext>(
+  'that the runtime works correctly with the pnpm package manager',
+  async (ctx) => {
+    await createFixture('simple-next-app-pnpm', ctx)
+    await runPlugin(ctx)
 
-  const home = await invokeFunction(ctx)
-  expect(home.statusCode).toBe(200)
-  expect(load(home.body)('h1').text()).toBe('Home')
-})
+    const home = await invokeFunction(ctx)
+    expect(home.statusCode).toBe(200)
+    expect(load(home.body)('h1').text()).toBe('Home')
+  },
+)

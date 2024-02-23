@@ -18,6 +18,7 @@ import {
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
+import { platform } from 'node:process'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -60,7 +61,7 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
   )
 })
 
-test<FixtureTestContext>('linked static resources are placed in correct place in publish directory (no basePath)', async (ctx) => {
+test.skipIf(platform === 'win32')<FixtureTestContext>('linked static resources are placed in correct place in publish directory (no basePath)', async (ctx) => {
   await createFixture('simple-next-app', ctx)
   const {
     constants: { PUBLISH_DIR },
@@ -109,51 +110,54 @@ test<FixtureTestContext>('linked static resources are placed in correct place in
   ).toEqual(publishDirAfterBuild)
 })
 
-test<FixtureTestContext>('linked static resources are placed in correct place in publish directory (with basePath)', async (ctx) => {
-  await createFixture('simple-next-app-base-path', ctx)
-  const {
-    constants: { PUBLISH_DIR },
-  } = await runPlugin(ctx)
+test.skipIf(platform === 'win32')<FixtureTestContext>(
+  'linked static resources are placed in correct place in publish directory (with basePath)',
+  async (ctx) => {
+    await createFixture('simple-next-app-base-path', ctx)
+    const {
+      constants: { PUBLISH_DIR },
+    } = await runPlugin(ctx)
 
-  console.log(PUBLISH_DIR)
-  const publishDirAfterBuild = (
-    await glob('**/*', { cwd: join(ctx.cwd, PUBLISH_DIR), dot: true, absolute: true })
-  ).sort()
+    console.log(PUBLISH_DIR)
+    const publishDirAfterBuild = (
+      await glob('**/*', { cwd: join(ctx.cwd, PUBLISH_DIR), dot: true, absolute: true })
+    ).sort()
 
-  await runPluginStep(ctx, 'onPostBuild')
+    await runPluginStep(ctx, 'onPostBuild')
 
-  // fetch index page
-  const call1 = await invokeFunction(ctx, { url: 'base/path' })
-  expect(call1.statusCode).toBe(200)
+    // fetch index page
+    const call1 = await invokeFunction(ctx, { url: 'base/path' })
+    expect(call1.statusCode).toBe(200)
 
-  const document = load(call1.body)
+    const document = load(call1.body)
 
-  // collect linked resources - those should
-  // contain scripts and an image (can contain duplicates because of preload links)
-  const resourcesPaths = [
-    ...Array.from(document('script[src]')).map((elem) => {
-      return elem.attribs.src
-    }),
-    ...Array.from(document('link[href]')).map((elem) => {
-      return elem.attribs.href
-    }),
-    ...Array.from(document('img[src]')).map((elem) => {
-      return elem.attribs.src
-    }),
-  ]
+    // collect linked resources - those should
+    // contain scripts and an image (can contain duplicates because of preload links)
+    const resourcesPaths = [
+      ...Array.from(document('script[src]')).map((elem) => {
+        return elem.attribs.src
+      }),
+      ...Array.from(document('link[href]')).map((elem) => {
+        return elem.attribs.href
+      }),
+      ...Array.from(document('img[src]')).map((elem) => {
+        return elem.attribs.src
+      }),
+    ]
 
-  // To make sure test works as expected, we will check if we found
-  // at least one script and one image
-  expect(resourcesPaths.find((path) => path.endsWith('.js'))).not.toBeUndefined()
-  expect(resourcesPaths.find((path) => path.endsWith('.jpg'))).not.toBeUndefined()
+    // To make sure test works as expected, we will check if we found
+    // at least one script and one image
+    expect(resourcesPaths.find((path) => path.endsWith('.js'))).not.toBeUndefined()
+    expect(resourcesPaths.find((path) => path.endsWith('.jpg'))).not.toBeUndefined()
 
-  // check if linked resources are accessible in publish dir in expected locations
-  for (const path of resourcesPaths) {
-    expect(existsSync(join(ctx.cwd, PUBLISH_DIR, path))).toBe(true)
-  }
-  // check if we restore publish dir to its original state
-  await runPluginStep(ctx, 'onEnd')
-  expect(
-    (await glob('**/*', { cwd: join(ctx.cwd, PUBLISH_DIR), dot: true, absolute: true })).sort(),
-  ).toEqual(publishDirAfterBuild)
-})
+    // check if linked resources are accessible in publish dir in expected locations
+    for (const path of resourcesPaths) {
+      expect(existsSync(join(ctx.cwd, PUBLISH_DIR, path))).toBe(true)
+    }
+    // check if we restore publish dir to its original state
+    await runPluginStep(ctx, 'onEnd')
+    expect(
+      (await glob('**/*', { cwd: join(ctx.cwd, PUBLISH_DIR), dot: true, absolute: true })).sort(),
+    ).toEqual(publishDirAfterBuild)
+  },
+)

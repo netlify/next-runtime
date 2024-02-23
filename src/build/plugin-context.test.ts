@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import { platform } from 'node:process'
 
 import { NetlifyPluginOptions } from '@netlify/build'
 import { expect, test, vi } from 'vitest'
@@ -58,7 +59,7 @@ test('next app with custom distDir', () => {
   expect(ctx.publishDir).toBe(join(cwd, 'out'))
 })
 
-test('next app with deep custom distDir', () => {
+test.skipIf(platform === 'win32')('next app with deep custom distDir', () => {
   const { cwd } = mockFileSystem({
     'out/dir/required-server-files.json': JSON.stringify({ config: { distDir: 'out/dir' } }),
   })
@@ -75,7 +76,7 @@ test('next app with deep custom distDir', () => {
   )
 })
 
-test('monorepo with package path', () => {
+test.skipIf(platform === 'win32')('monorepo with package path', () => {
   const { cwd } = mockFileSystem({
     'apps/my-app/.next/required-server-files.json': JSON.stringify({
       config: { distDir: '.next' },
@@ -109,7 +110,7 @@ test('monorepo with package path', () => {
   expect(ctx.publishDir).toBe(join(cwd, 'apps/my-app/.next'))
 })
 
-test('nx monorepo with package path and different distDir', () => {
+test.skipIf(platform === 'win32')('nx monorepo with package path and different distDir', () => {
   const { cwd } = mockFileSystem({
     'dist/apps/my-app/.next/required-server-files.json': JSON.stringify({
       config: { distDir: '../../dist/apps/my-app/.next' },
