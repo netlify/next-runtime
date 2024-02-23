@@ -1,0 +1,3 @@
+[functions]
+directory = "netlify/functions"
+included_files = ["apps/next-app/static/**"]

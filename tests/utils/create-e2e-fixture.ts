@@ -2,7 +2,7 @@ import { execaCommand } from 'execa'
 import fg from 'fast-glob'
 import { exec } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { appendFile, copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { env } from 'node:process'
@@ -111,7 +111,7 @@ async function buildAndPackRuntime(config: {
   )
   const [{ filename, name }] = JSON.parse(stdout)
 
-  await writeFile(
+  await appendFile(
     join(join(dest, packagePath), 'netlify.toml'),
     `[build]
 command = "${buildCommand}"

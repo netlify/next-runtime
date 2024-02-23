@@ -12,6 +12,11 @@ test('Renders the Home page correctly', async ({ page, nxIntegrated }) => {
 
   const h1 = page.locator('h1')
   await expect(h1).toHaveText('Hello there,\nWelcome next-app 👋')
+
+  // test additional netlify.toml settings
+  await page.goto(`${nxIntegrated.url}/api/static`)
+  const body = (await page.$('body').then((el) => el?.textContent())) || '{}'
+  expect(body).toBe('{"words":"hello world"}')
 })
 
 test('Renders the Home page correctly with distDir', async ({ page, nxIntegratedDistDir }) => {

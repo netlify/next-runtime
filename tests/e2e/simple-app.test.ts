@@ -14,6 +14,11 @@ test('Renders the Home page correctly', async ({ page, simpleNextApp }) => {
   await expect(h1).toHaveText('Home')
 
   await expectImageWasLoaded(page.locator('img'))
+
+  await page.goto(`${simpleNextApp.url}/api/static`)
+
+  const body = (await page.$('body').then((el) => el?.textContent())) || '{}'
+  expect(body).toBe('{"words":"hello world"}')
 })
 
 test('Renders the Home page correctly with distDir', async ({ page, simpleNextAppDistDir }) => {

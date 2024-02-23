@@ -1,5 +1,6 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join } from 'node:path'
+import { relative } from 'path'
 
 import { glob } from 'fast-glob'
 
@@ -8,15 +9,43 @@ import { PluginContext, SERVER_HANDLER_NAME } from '../plugin-context.js'
 
 /** Copies the runtime dist folder to the lambda */
 const copyHandlerDependencies = async (ctx: PluginContext) => {
+  const promises: Promise<void>[] = []
+  const { included_files: includedFiles = [] } = ctx.netlifyConfig.functions?.['*'] || {}
+  // if the user specified some files to include in the lambda
+  // we need to copy them to the functions-internal folder
+  if (includedFiles.length !== 0) {
+    const resolvedFiles = await Promise.all(
+      includedFiles.map((globPattern) => glob(globPattern, { cwd: process.cwd() })),
+    )
+    for (const filePath of resolvedFiles.flat()) {
+      promises.push(
+        cp(
+          join(process.cwd(), filePath),
+          // the serverHandlerDir is aware of the dist dir.
+          // The distDir must not be the package path therefore we need to rely on the
+          // serverHandlerDir instead of the serverHandlerRootDir
+          // therefore we need to remove the package path from the filePath
+          join(ctx.serverHandlerDir, relative(ctx.packagePath, filePath)),
+          {
+            recursive: true,
+            force: true,
+          },
+        ),
+      )
+    }
+  }
+
   const fileList = await glob('dist/**/*', { cwd: ctx.pluginDir })
-  await Promise.all(
-    [...fileList].map((path) =>
-      cp(join(ctx.pluginDir, path), join(ctx.serverHandlerDir, '.netlify', path), {
+
+  for (const filePath of fileList) {
+    promises.push(
+      cp(join(ctx.pluginDir, filePath), join(ctx.serverHandlerDir, '.netlify', filePath), {
         recursive: true,
         force: true,
       }),
-    ),
-  )
+    )
+  }
+  await Promise.all(promises)
 }
 
 const writeHandlerManifest = async (ctx: PluginContext) => {
