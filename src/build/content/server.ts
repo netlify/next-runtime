@@ -155,8 +155,9 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
   // detect if it might lead to a runtime issue and throw an error upfront on build time instead of silently failing during runtime
   const require = createRequire(ctx.serverHandlerDir)
   try {
-    require.resolve('styled-jsx')
-    require.resolve('next')
+    const nextEntryAbsolutePath = require.resolve('next')
+    const nextRequire = createRequire(nextEntryAbsolutePath)
+    nextRequire.resolve('styled-jsx')
   } catch {
     throw new Error(
       'node_modules are not installed correctly, if you are using pnpm please set the public hoist pattern to: `public-hoist-pattern[]=*`.\n' +

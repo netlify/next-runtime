@@ -21,7 +21,7 @@ export interface DeployResult {
   logs: string
 }
 
-type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun'
+type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun' | 'berry'
 
 /**
  * Copies a fixture to a temp folder on the system and runs the tests inside.
@@ -34,6 +34,7 @@ export const createE2EFixture = async (
     packagePath?: string
     buildCommand?: string
     publishDirectory?: string
+    smoke?: boolean
   } = {},
 ) => {
   const cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
@@ -58,7 +59,7 @@ export const createE2EFixture = async (
   try {
     const [packageName] = await Promise.all([
       buildAndPackRuntime({ ...config, dest: cwd }),
-      copyFixture(fixture, cwd),
+      copyFixture(fixture, cwd, config),
     ])
     await installRuntime(packageName, cwd, config.packageManger || 'npm', config.packagePath)
     const result = await deploySite(cwd, config.packagePath)
@@ -75,9 +76,15 @@ export const createE2EFixture = async (
 export type Fixture = Awaited<ReturnType<typeof createE2EFixture>>
 
 /** Copies a fixture folder to a destination */
-async function copyFixture(fixtureName: string, dest: string): Promise<void> {
+async function copyFixture(
+  fixtureName: string,
+  dest: string,
+  config: Parameters<typeof createE2EFixture>[1],
+): Promise<void> {
   console.log(`📂 Copying fixture to '${dest}'...`)
-  const src = fileURLToPath(new URL(`../fixtures/${fixtureName}`, import.meta.url))
+  const src = fileURLToPath(
+    new URL(`../${config?.smoke ? `smoke-fixtures` : `fixtures`}/${fixtureName}`, import.meta.url),
+  )
   const files = await fg.glob('**/*', {
     ignore: ['node_modules'],
     dot: true,
@@ -141,10 +148,15 @@ async function installRuntime(
   }
 
   let command: string = `npm install --ignore-scripts --no-audit ${packageName}`
+  let env = {} as NodeJS.ProcessEnv
 
   switch (packageManger) {
     case 'yarn':
       command = `yarn add file:${join(cwd, packageName)} --ignore-scripts`
+      break
+    case 'berry':
+      command = `yarn add ${join(cwd, packageName)}`
+      env['YARN_ENABLE_SCRIPTS'] = 'false'
       break
     case 'pnpm':
       command = `pnpm add file:${join(cwd, packageName)} ${filter} --ignore-scripts`
@@ -158,7 +170,7 @@ async function installRuntime(
     await rm(join(cwd, 'package-lock.json'), { force: true })
   }
 
-  await execaCommand(command, { cwd })
+  await execaCommand(command, { cwd, env })
 }
 
 async function deploySite(cwd: string, packagePath?: string): Promise<DeployResult> {
@@ -228,6 +240,7 @@ export const test = base.extend<
     turborepo: Fixture
     turborepoNPM: Fixture
     serverComponents: Fixture
+    yarnMonorepoWithPnpmLinker: Fixture
   }
 >({
   simpleNextApp: makeE2EFixture('simple-next-app'),
@@ -262,6 +275,13 @@ export const test = base.extend<
     packagePath: 'apps/custom-dist-dir',
     buildCommand: 'nx run custom-dist-dir:build',
     publishDirectory: 'dist/apps/custom-dist-dir/dist',
+  }),
+  yarnMonorepoWithPnpmLinker: makeE2EFixture('yarn-monorepo-with-pnpm-linker', {
+    packageManger: 'berry',
+    packagePath: 'apps/site',
+    buildCommand: 'yarn build',
+    publishDirectory: 'apps/site/.next',
+    smoke: true,
   }),
   takeScreenshot: [
     async ({ page }, use, testInfo) => {

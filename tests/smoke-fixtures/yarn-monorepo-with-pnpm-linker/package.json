@@ -1,0 +1,15 @@
+{
+  "name": "yarn-monorepo-with-pnpm-linker",
+  "private": true,
+  "scripts": {
+    "build": "yarn workspace @apps/site build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "yarn@3.2.4",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

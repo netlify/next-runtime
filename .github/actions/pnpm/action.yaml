@@ -3,17 +3,9 @@ description: Setup PNPM with Node.js and caching of the workspace
 runs:
   using: 'composite'
   steps:
-    - name: Install Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18
-
-    - uses: pnpm/action-setup@v2
-      name: Install PNPM
-      id: pnpm-install
-      with:
-        version: 8
-        run_install: false
+    - name: setup pnpm/yarn
+      run: corepack enable
+      shell: bash
 
     - name: Get pnpm store directory
       id: pnpm-cache
