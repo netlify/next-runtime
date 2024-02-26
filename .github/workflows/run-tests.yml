@@ -82,7 +82,19 @@ jobs:
         run: npm run build
       - name: 'Lint'
         run: npm run lint
+      - name: Compute Fixtures Cache Key
+        id: fixture-cache-key
+        # Fixtures only need to be rebuilt if anything in the tests/fixtures directory changes,
+        # so we're using a hash of the files in that directory as the cache key.
+        run: echo "key=$(git ls-files -s tests/fixtures/ tests/prepare.mjs | git hash-object --stdin)" >> "$GITHUB_OUTPUT"
+      - name: Cache Fixtures
+        id: cache-fixtures
+        uses: actions/cache@v4
+        with:
+          path: tests/fixtures
+          key: integration-fixtures-${{ runner.os }}-${{ steps.fixture-cache-key.outputs.key }}
       - name: 'Prepare Fixtures'
+        if: steps.cache-fixtures.outputs.cache-hit != 'true'
         run: npm run pretest
       - name: 'Test'
         run: npm run test:ci -- --shard=${{ matrix.shard }}
