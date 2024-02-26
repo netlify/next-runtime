@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { cp, mkdir, rename, rm } from 'node:fs/promises'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 
 import glob from 'fast-glob'
 
@@ -61,7 +61,7 @@ export const copyStaticAssets = async (ctx: PluginContext): Promise<void> => {
 export const publishStaticDir = async (ctx: PluginContext): Promise<void> => {
   try {
     await rm(ctx.tempPublishDir, { recursive: true, force: true })
-    await mkdir(ctx.tempPublishDir, { recursive: true })
+    await mkdir(basename(ctx.tempPublishDir), { recursive: true })
     await rename(ctx.publishDir, ctx.tempPublishDir)
     await rename(ctx.staticDir, ctx.publishDir)
   } catch (error) {

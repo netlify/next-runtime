@@ -61,7 +61,7 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
   )
 })
 
-test.skipIf(platform === 'win32')<FixtureTestContext>('linked static resources are placed in correct place in publish directory (no basePath)', async (ctx) => {
+test<FixtureTestContext>('linked static resources are placed in correct place in publish directory (no basePath)', async (ctx) => {
   await createFixture('simple-next-app', ctx)
   const {
     constants: { PUBLISH_DIR },
@@ -110,7 +110,7 @@ test.skipIf(platform === 'win32')<FixtureTestContext>('linked static resources a
   ).toEqual(publishDirAfterBuild)
 })
 
-test.skipIf(platform === 'win32')<FixtureTestContext>(
+test<FixtureTestContext>(
   'linked static resources are placed in correct place in publish directory (with basePath)',
   async (ctx) => {
     await createFixture('simple-next-app-base-path', ctx)
