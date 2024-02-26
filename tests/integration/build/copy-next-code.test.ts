@@ -30,7 +30,7 @@ test<FixtureTestContext>('should copy the next standalone folder correctly for a
   ).toEqual(['required-server-files.json'])
 })
 
-test.skipIf(platform === "win32")<FixtureTestContext>('should copy the next standalone folder correctly based on a custom dist dir', async (ctx) => {
+test<FixtureTestContext>('should copy the next standalone folder correctly based on a custom dist dir', async (ctx) => {
   const reqServerFiles = JSON.stringify({ config: { distDir: 'out/dir' } })
   const reqServerPath = 'out/dir/required-server-files.json'
   const reqServerPathStandalone = join('out/dir/standalone', reqServerPath)
@@ -77,7 +77,7 @@ test<FixtureTestContext>('should copy the next standalone folder correctly for m
   ).toEqual(['required-server-files.json'])
 })
 
-test.skipIf(platform === "win32")<FixtureTestContext>('should copy the next standalone folder correctly for monorepo with custom dir', async (ctx) => {
+test<FixtureTestContext>('should copy the next standalone folder correctly for monorepo with custom dir', async (ctx) => {
   const reqServerFiles = JSON.stringify({ config: { distDir: 'deep/out/dir' } })
   const reqServerPath = 'apps/my-app/deep/out/dir/required-server-files.json'
   const reqServerPathStandalone = join('apps/my-app/deep/out/dir/standalone', reqServerPath)

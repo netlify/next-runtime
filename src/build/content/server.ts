@@ -2,12 +2,15 @@ import { existsSync } from 'node:fs'
 import { cp, mkdir, readFile, readdir, readlink, symlink, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 // eslint-disable-next-line no-restricted-imports
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join, resolve, sep } from 'node:path'
+import { sep as posixSep } from 'node:path/posix'
 
 import glob from 'fast-glob'
 
 import { RUN_CONFIG } from '../../run/constants.js'
 import { PluginContext } from '../plugin-context.js'
+
+const toPosixPath = (path: string) => path.split(sep).join(posixSep)
 
 /**
  * Copy App/Pages Router Javascript needed by the server handler
@@ -26,7 +29,7 @@ export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
   // this means the path got altered by a plugin like nx and contained ../../ parts so we have to reset it
   // to point to the correct lambda destination
   if (
-    ctx.distDir.replace(new RegExp(`^${ctx.packagePath}/?`), '') !== reqServerFiles.config.distDir
+    toPosixPath(ctx.distDir).replace(new RegExp(`^${ctx.packagePath}/?`), '') !== reqServerFiles.config.distDir
   ) {
     // set the distDir to the latest path portion of the publish dir
     reqServerFiles.config.distDir = ctx.nextDistDir
@@ -45,7 +48,7 @@ export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
 
   const srcDir = join(ctx.standaloneDir, ctx.nextDistDir)
   // if the distDir got resolved and altered use the nextDistDir instead
-  const nextFolder = ctx.distDir === ctx.buildConfig.distDir ? ctx.distDir : ctx.nextDistDir
+  const nextFolder = toPosixPath(ctx.distDir) === toPosixPath(ctx.buildConfig.distDir) ? ctx.distDir : ctx.nextDistDir
   const destDir = join(ctx.serverHandlerDir, nextFolder)
 
   const paths = await glob(
