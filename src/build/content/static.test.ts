@@ -1,6 +1,5 @@
 import { Buffer } from 'node:buffer'
 import { join } from 'node:path'
-import { platform } from 'node:process'
 
 import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
@@ -30,7 +29,15 @@ const createFsFixtureWithBasePath = (
   )
 }
 
-describe.skipIf(platform === 'win32')('Regular Repository layout', () => {
+async function readDirRecursive(dir: string) {
+  const posixPaths = await glob('**/*', { cwd: dir, dot: true, absolute: true })
+  // glob always returns unix-style paths, even on Windows!
+  // To compare them more easily in our tests running on Windows, we convert them to the platform-specific paths.
+  const paths = posixPaths.map((posixPath) => join(posixPath))
+  return paths
+}
+
+describe('Regular Repository layout', () => {
   beforeEach<Context>((ctx) => {
     ctx.publishDir = '.next'
     ctx.pluginContext = new PluginContext({
@@ -64,7 +71,7 @@ describe.skipIf(platform === 'win32')('Regular Repository layout', () => {
     )
 
     await copyStaticAssets(pluginContext)
-    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+    expect(await readDirRecursive(cwd)).toEqual(
       expect.arrayContaining([
         join(cwd, '.next/static/test.js'),
         join(cwd, '.next/static/sub-dir/test2.js'),
@@ -88,7 +95,7 @@ describe.skipIf(platform === 'win32')('Regular Repository layout', () => {
     )
 
     await copyStaticAssets(pluginContext)
-    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+    expect(await readDirRecursive(cwd)).toEqual(
       expect.arrayContaining([
         join(cwd, '.next/static/test.js'),
         join(cwd, '.next/static/sub-dir/test2.js'),
@@ -111,7 +118,7 @@ describe.skipIf(platform === 'win32')('Regular Repository layout', () => {
     )
 
     await copyStaticAssets(pluginContext)
-    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+    expect(await readDirRecursive(cwd)).toEqual(
       expect.arrayContaining([
         join(cwd, 'public/another-asset.json'),
         join(cwd, 'public/fake-image.svg'),
@@ -135,7 +142,7 @@ describe.skipIf(platform === 'win32')('Regular Repository layout', () => {
     )
 
     await copyStaticAssets(pluginContext)
-    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+    expect(await readDirRecursive(cwd)).toEqual(
       expect.arrayContaining([
         join(cwd, 'public/another-asset.json'),
         join(cwd, 'public/fake-image.svg'),
@@ -186,7 +193,7 @@ describe.skipIf(platform === 'win32')('Regular Repository layout', () => {
   })
 })
 
-describe.skipIf(platform === 'win32')('Mono Repository', () => {
+describe('Mono Repository', () => {
   beforeEach<Context>((ctx) => {
     ctx.publishDir = 'apps/app-1/.next'
     ctx.pluginContext = new PluginContext({
@@ -211,7 +218,7 @@ describe.skipIf(platform === 'win32')('Mono Repository', () => {
     )
 
     await copyStaticAssets(pluginContext)
-    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+    expect(await readDirRecursive(cwd)).toEqual(
       expect.arrayContaining([
         join(cwd, 'apps/app-1/.next/static/test.js'),
         join(cwd, 'apps/app-1/.next/static/sub-dir/test2.js'),
@@ -235,7 +242,7 @@ describe.skipIf(platform === 'win32')('Mono Repository', () => {
     )
 
     await copyStaticAssets(pluginContext)
-    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+    expect(await readDirRecursive(cwd)).toEqual(
       expect.arrayContaining([
         join(cwd, 'apps/app-1/.next/static/test.js'),
         join(cwd, 'apps/app-1/.next/static/sub-dir/test2.js'),
@@ -258,7 +265,7 @@ describe.skipIf(platform === 'win32')('Mono Repository', () => {
     )
 
     await copyStaticAssets(pluginContext)
-    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+    expect(await readDirRecursive(cwd)).toEqual(
       expect.arrayContaining([
         join(cwd, 'apps/app-1/public/another-asset.json'),
         join(cwd, 'apps/app-1/public/fake-image.svg'),
@@ -282,7 +289,7 @@ describe.skipIf(platform === 'win32')('Mono Repository', () => {
     )
 
     await copyStaticAssets(pluginContext)
-    expect(await glob('**/*', { cwd, dot: true, absolute: true })).toEqual(
+    expect(await readDirRecursive(cwd)).toEqual(
       expect.arrayContaining([
         join(cwd, 'apps/app-1/public/another-asset.json'),
         join(cwd, 'apps/app-1/public/fake-image.svg'),

@@ -1,5 +1,4 @@
 import { join } from 'node:path'
-import { platform } from 'node:process'
 
 import { NetlifyPluginOptions } from '@netlify/build'
 import { expect, test, vi } from 'vitest'
@@ -59,14 +58,14 @@ test('next app with custom distDir', () => {
   expect(ctx.publishDir).toBe(join(cwd, 'out'))
 })
 
-test.skipIf(platform === 'win32')('next app with deep custom distDir', () => {
+test('next app with deep custom distDir', () => {
   const { cwd } = mockFileSystem({
     'out/dir/required-server-files.json': JSON.stringify({ config: { distDir: 'out/dir' } }),
   })
   const ctx = new PluginContext({ constants: { PUBLISH_DIR: 'out/dir' } } as NetlifyPluginOptions)
   expect(ctx.standaloneDir).toBe(join(cwd, 'out/dir/standalone/out'))
   expect(ctx.standaloneRootDir).toBe(join(cwd, 'out/dir/standalone'))
-  expect(ctx.distDir).toBe('out/dir')
+  expect(ctx.distDir).toBe(join('out', 'dir'))
   expect(ctx.distDirParent).toBe('out')
   expect(ctx.nextDistDir).toBe('dir')
   expect(ctx.relPublishDir).toBe('out/dir')
@@ -76,7 +75,7 @@ test.skipIf(platform === 'win32')('next app with deep custom distDir', () => {
   )
 })
 
-test.skipIf(platform === 'win32')('monorepo with package path', () => {
+test('monorepo with package path', () => {
   const { cwd } = mockFileSystem({
     'apps/my-app/.next/required-server-files.json': JSON.stringify({
       config: { distDir: '.next' },
@@ -91,8 +90,10 @@ test.skipIf(platform === 'win32')('monorepo with package path', () => {
   expect(ctx.edgeHandlerDir).toBe(
     join(cwd, 'apps/my-app/.netlify/edge-functions/___netlify-edge-handler'),
   )
-  expect(ctx.lambdaWorkingDirectory).toBe('/var/task/apps/my-app')
-  expect(ctx.nextServerHandler).toBe('/var/task/apps/my-app/.netlify/dist/run/handlers/server.js')
+  expect(ctx.lambdaWorkingDirectory).toBe(join('/var/task/apps/my-app'))
+  expect(ctx.nextServerHandler).toBe(
+    join('/var/task/apps/my-app/.netlify/dist/run/handlers/server.js'),
+  )
   expect(ctx.serverFunctionsDir).toBe(join(cwd, 'apps/my-app/.netlify/functions-internal'))
   expect(ctx.serverHandlerDir).toBe(
     join(cwd, 'apps/my-app/.netlify/functions-internal/___netlify-server-handler/apps/my-app'),
@@ -103,14 +104,14 @@ test.skipIf(platform === 'win32')('monorepo with package path', () => {
   expect(ctx.standaloneDir).toBe(join(cwd, 'apps/my-app/.next/standalone/apps/my-app'))
   expect(ctx.standaloneRootDir).toBe(join(cwd, 'apps/my-app/.next/standalone'))
   expect(ctx.staticDir).toBe(join(cwd, 'apps/my-app/.netlify/static'))
-  expect(ctx.distDir).toBe('apps/my-app/.next')
-  expect(ctx.distDirParent).toBe('apps/my-app')
+  expect(ctx.distDir).toBe(join('apps/my-app/.next'))
+  expect(ctx.distDirParent).toBe(join('apps/my-app'))
   expect(ctx.nextDistDir).toBe('.next')
-  expect(ctx.relPublishDir).toBe('apps/my-app/.next')
+  expect(ctx.relPublishDir).toBe(join('apps/my-app/.next'))
   expect(ctx.publishDir).toBe(join(cwd, 'apps/my-app/.next'))
 })
 
-test.skipIf(platform === 'win32')('nx monorepo with package path and different distDir', () => {
+test('nx monorepo with package path and different distDir', () => {
   const { cwd } = mockFileSystem({
     'dist/apps/my-app/.next/required-server-files.json': JSON.stringify({
       config: { distDir: '../../dist/apps/my-app/.next' },
@@ -128,9 +129,9 @@ test.skipIf(platform === 'win32')('nx monorepo with package path and different d
   expect(ctx.edgeHandlerDir).toBe(
     join(cwd, 'apps/my-app/.netlify/edge-functions/___netlify-edge-handler'),
   )
-  expect(ctx.lambdaWorkingDirectory).toBe('/var/task/dist/apps/my-app')
+  expect(ctx.lambdaWorkingDirectory).toBe(join('/var/task/dist/apps/my-app'))
   expect(ctx.nextServerHandler).toBe(
-    '/var/task/dist/apps/my-app/.netlify/dist/run/handlers/server.js',
+    join('/var/task/dist/apps/my-app/.netlify/dist/run/handlers/server.js'),
   )
   expect(ctx.serverFunctionsDir).toBe(join(cwd, 'apps/my-app/.netlify/functions-internal'))
   expect(ctx.serverHandlerDir).toBe(
@@ -142,9 +143,9 @@ test.skipIf(platform === 'win32')('nx monorepo with package path and different d
   expect(ctx.standaloneDir).toBe(join(cwd, 'dist/apps/my-app/.next/standalone/dist/apps/my-app'))
   expect(ctx.standaloneRootDir).toBe(join(cwd, 'dist/apps/my-app/.next/standalone'))
   expect(ctx.staticDir).toBe(join(cwd, 'apps/my-app/.netlify/static'))
-  expect(ctx.distDir).toBe('dist/apps/my-app/.next')
-  expect(ctx.distDirParent).toBe('dist/apps/my-app')
-  expect(ctx.nextDistDir).toBe('.next')
+  expect(ctx.distDir).toBe(join('dist/apps/my-app/.next'))
+  expect(ctx.distDirParent).toBe(join('dist/apps/my-app'))
+  expect(ctx.nextDistDir).toBe(join('.next'))
   expect(ctx.relPublishDir).toBe('dist/apps/my-app/.next')
   expect(ctx.publishDir).toBe(join(cwd, 'dist/apps/my-app/.next'))
 })

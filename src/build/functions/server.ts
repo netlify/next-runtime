@@ -1,6 +1,6 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'fs/promises'
-import { join } from 'node:path'
-import { relative } from 'path'
+import { join, relative } from 'node:path'
+import { join as posixJoin } from 'node:path/posix'
 
 import { glob } from 'fast-glob'
 
@@ -83,8 +83,8 @@ const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
     const template = await readFile(join(templatesDir, 'handler-monorepo.tmpl.js'), 'utf-8')
 
     return template
-      .replaceAll('{{cwd}}', ctx.lambdaWorkingDirectory)
-      .replace('{{nextServerHandler}}', ctx.nextServerHandler)
+      .replaceAll('{{cwd}}', posixJoin(ctx.lambdaWorkingDirectory))
+      .replace('{{nextServerHandler}}', posixJoin(ctx.nextServerHandler))
   }
 
   return await readFile(join(templatesDir, 'handler.tmpl.js'), 'utf-8')
