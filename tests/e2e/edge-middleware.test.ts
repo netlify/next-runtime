@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test'
-import { test } from '../utils/create-e2e-fixture.js'
+import { test } from '../utils/playwright-helpers.js'
 import { getImageSize } from 'next/dist/server/image-optimizer.js'
 
 test('Runs edge middleware', async ({ page, middleware }) => {

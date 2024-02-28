@@ -1,5 +1,5 @@
 import { expect, type Locator } from '@playwright/test'
-import { test } from '../utils/create-e2e-fixture.js'
+import { test } from '../utils/playwright-helpers.js'
 
 const expectImageWasLoaded = async (locator: Locator) => {
   expect(await locator.evaluate((img: HTMLImageElement) => img.naturalHeight)).toBeGreaterThan(0)

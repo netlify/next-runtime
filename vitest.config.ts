@@ -1,8 +1,8 @@
 import { join, relative } from 'node:path'
+import { platform } from 'node:process'
 
 import { defineConfig } from 'vitest/config'
 import { BaseSequencer, WorkspaceSpec } from 'vitest/node'
-
 /**
  * Tests that might influence others and should run on an isolated executor (shard)
  * Needs to be relative paths to the repository root.
@@ -12,7 +12,10 @@ const RUN_ISOLATED = new Set([
   join('tests', 'integration', 'revalidate-path.test.ts'),
   join('tests', 'integration', 'cache-handler.test.ts'),
   join('tests', 'integration', 'edge-handler.test.ts'),
+  join('tests', 'smoke', 'deploy.test.ts'),
 ])
+
+const SKIP = new Set(platform === 'win32' ? [join('tests', 'smoke', 'deploy.test.ts')] : [])
 
 class Sequencer extends BaseSequencer {
   async shard(projects: WorkspaceSpec[]): Promise<WorkspaceSpec[]> {
@@ -33,23 +36,25 @@ Increasing the node count of the sharding to --shard 1/${RUN_ISOLATED.size}`,
       )
     }
 
-    const specialTests = projects.filter((project) =>
+    const notSkipped = projects.filter((project) => !SKIP.has(relative(process.cwd(), project[1])))
+
+    const specialTests = notSkipped.filter((project) =>
       RUN_ISOLATED.has(relative(process.cwd(), project[1])),
     )
-    const regularTests = projects.filter(
+    const regularTests = notSkipped.filter(
       (project) => !RUN_ISOLATED.has(relative(process.cwd(), project[1])),
     )
 
     // Allocate the first nodes for special tests
-    if (index <= RUN_ISOLATED.size) {
+    if (index <= specialTests.length) {
       return [specialTests[index - 1]]
     }
 
     // Distribute remaining tests on the remaining nodes
-    if (index > RUN_ISOLATED.size && index <= count) {
-      const remainingNodes = count - RUN_ISOLATED.size
+    if (index > specialTests.length && index <= count) {
+      const remainingNodes = count - specialTests.length
       const bucketSize = Math.ceil(regularTests.length / remainingNodes)
-      const startIndex = (index - RUN_ISOLATED.size - 1) * bucketSize
+      const startIndex = (index - specialTests.length - 1) * bucketSize
       const endIndex = startIndex + bucketSize
       return regularTests.slice(startIndex, endIndex)
     }
@@ -61,7 +66,7 @@ Increasing the node count of the sharding to --shard 1/${RUN_ISOLATED.size}`,
 export default defineConfig({
   root: '.',
   test: {
-    include: ['{tests/integration,src}/**/*.test.ts'],
+    include: ['{tests/integration,tests/smoke,src}/**/*.test.ts'],
     globals: true,
     restoreMocks: true,
     clearMocks: true,

@@ -86,7 +86,9 @@ jobs:
         id: fixture-cache-key
         # Fixtures only need to be rebuilt if anything in the tests/fixtures directory changes,
         # so we're using a hash of the files in that directory as the cache key.
-        run: echo "key=$(git ls-files -s tests/fixtures/ tests/prepare.mjs | git hash-object --stdin)" >> "$GITHUB_OUTPUT"
+        run:
+          echo "key=$(git ls-files -s tests/fixtures/ tests/prepare.mjs | git hash-object --stdin)"
+          >> "$GITHUB_OUTPUT"
         shell: bash
       - name: Cache Fixtures
         id: cache-fixtures
@@ -99,3 +101,5 @@ jobs:
         run: npm run pretest
       - name: 'Test'
         run: npm run test:ci -- --shard=${{ matrix.shard }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}

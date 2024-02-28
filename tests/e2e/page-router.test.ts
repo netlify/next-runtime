@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test'
-import { test } from '../utils/create-e2e-fixture.js'
+import { test } from '../utils/playwright-helpers.js'
 
 export function waitFor(millis: number) {
   return new Promise((resolve) => setTimeout(resolve, millis))

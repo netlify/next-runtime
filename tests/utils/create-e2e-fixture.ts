@@ -2,15 +2,13 @@ import { execaCommand } from 'execa'
 import fg from 'fast-glob'
 import { exec } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { appendFile, copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { appendFile, copyFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { env } from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { cpus } from 'os'
 import pLimit from 'p-limit'
-import { test as base, PlaywrightWorkerArgs, WorkerFixture } from '@playwright/test'
-import { ArgumentsType } from 'vitest'
 
 // This is the netlify testing application
 export const SITE_ID = 'ee859ce9-44a7-46be-830b-ead85e445e53'
@@ -83,10 +81,10 @@ async function copyFixture(
 ): Promise<void> {
   console.log(`📂 Copying fixture to '${dest}'...`)
   const src = fileURLToPath(
-    new URL(`../${config?.smoke ? `smoke-fixtures` : `fixtures`}/${fixtureName}`, import.meta.url),
+    new URL(`../${config?.smoke ? `smoke/fixtures` : `fixtures`}/${fixtureName}`, import.meta.url),
   )
   const files = await fg.glob('**/*', {
-    ignore: ['node_modules'],
+    ignore: ['node_modules', '.yarn'],
     dot: true,
     cwd: src,
   })
@@ -213,91 +211,51 @@ async function cleanup(dest: string, deployId?: string): Promise<void> {
   await Promise.allSettled([deleteDeploy(deployId), rm(dest, { recursive: true, force: true })])
 }
 
-const makeE2EFixture = (
-  ...args: ArgumentsType<typeof createE2EFixture>
-): [WorkerFixture<Fixture, PlaywrightWorkerArgs>, { scope: 'worker' }] => [
-  async ({}, use) => {
-    const fixture = await createE2EFixture(...args)
-    await use(fixture)
-    await fixture.cleanup(false) // TODO: replace false with info about test results
-  },
-  { scope: 'worker' },
-]
-
-export const test = base.extend<
-  { takeScreenshot: void },
-  {
-    simpleNextApp: Fixture
-    simpleNextAppDistDir: Fixture
-    simpleNextAppYarn: Fixture
-    simpleNextAppPNPM: Fixture
-    simpleNextAppBun: Fixture
-    middleware: Fixture
-    pageRouter: Fixture
-    pageRouterBasePathI18n: Fixture
-    nxIntegrated: Fixture
-    nxIntegratedDistDir: Fixture
-    turborepo: Fixture
-    turborepoNPM: Fixture
-    serverComponents: Fixture
-    yarnMonorepoWithPnpmLinker: Fixture
-  }
->({
-  simpleNextApp: makeE2EFixture('simple-next-app'),
-  simpleNextAppDistDir: makeE2EFixture('simple-next-app-dist-dir', {
-    publishDirectory: 'cool/output',
-  }),
-  simpleNextAppYarn: makeE2EFixture('simple-next-app', { packageManger: 'yarn' }),
-  simpleNextAppPNPM: makeE2EFixture('simple-next-app-pnpm', { packageManger: 'pnpm' }),
-  simpleNextAppBun: makeE2EFixture('simple-next-app', { packageManger: 'bun' }),
-  middleware: makeE2EFixture('middleware'),
-  pageRouter: makeE2EFixture('page-router'),
-  pageRouterBasePathI18n: makeE2EFixture('page-router-base-path-i18n'),
-  turborepo: makeE2EFixture('turborepo', {
-    packageManger: 'pnpm',
-    packagePath: 'apps/page-router',
-    buildCommand: 'turbo build --filter page-router',
-  }),
-  turborepoNPM: makeE2EFixture('turborepo-npm', {
-    packageManger: 'npm',
-    packagePath: 'apps/page-router',
-    buildCommand: 'turbo build --filter page-router',
-  }),
-  serverComponents: makeE2EFixture('server-components'),
-  nxIntegrated: makeE2EFixture('nx-integrated', {
-    packageManger: 'pnpm',
-    packagePath: 'apps/next-app',
-    buildCommand: 'nx run next-app:build',
-    publishDirectory: 'dist/apps/next-app/.next',
-  }),
-  nxIntegratedDistDir: makeE2EFixture('nx-integrated', {
-    packageManger: 'pnpm',
-    packagePath: 'apps/custom-dist-dir',
-    buildCommand: 'nx run custom-dist-dir:build',
-    publishDirectory: 'dist/apps/custom-dist-dir/dist',
-  }),
-  yarnMonorepoWithPnpmLinker: makeE2EFixture('yarn-monorepo-with-pnpm-linker', {
-    packageManger: 'berry',
-    packagePath: 'apps/site',
-    buildCommand: 'yarn build',
-    publishDirectory: 'apps/site/.next',
-    smoke: true,
-  }),
-  takeScreenshot: [
-    async ({ page }, use, testInfo) => {
-      await use()
-
-      if (testInfo.status !== testInfo.expectedStatus) {
-        const screenshotPath = testInfo.outputPath(`failure.png`)
-        // Add it to the report to see the failure immediately
-        testInfo.attachments.push({
-          name: 'failure',
-          path: screenshotPath,
-          contentType: 'image/png',
-        })
-        await page.screenshot({ path: screenshotPath, timeout: 5000 })
-      }
-    },
-    { auto: true },
-  ],
-})
+export const fixtureFactories = {
+  simpleNextApp: () => createE2EFixture('simple-next-app'),
+  simpleNextAppDistDir: () =>
+    createE2EFixture('simple-next-app-dist-dir', {
+      publishDirectory: 'cool/output',
+    }),
+  simpleNextAppYarn: () => createE2EFixture('simple-next-app', { packageManger: 'yarn' }),
+  simpleNextAppPNPM: () => createE2EFixture('simple-next-app-pnpm', { packageManger: 'pnpm' }),
+  simpleNextAppBun: () => createE2EFixture('simple-next-app', { packageManger: 'bun' }),
+  middleware: () => createE2EFixture('middleware'),
+  pageRouter: () => createE2EFixture('page-router'),
+  pageRouterBasePathI18n: () => createE2EFixture('page-router-base-path-i18n'),
+  turborepo: () =>
+    createE2EFixture('turborepo', {
+      packageManger: 'pnpm',
+      packagePath: 'apps/page-router',
+      buildCommand: 'turbo build --filter page-router',
+    }),
+  turborepoNPM: () =>
+    createE2EFixture('turborepo-npm', {
+      packageManger: 'npm',
+      packagePath: 'apps/page-router',
+      buildCommand: 'turbo build --filter page-router',
+    }),
+  serverComponents: () => createE2EFixture('server-components'),
+  nxIntegrated: () =>
+    createE2EFixture('nx-integrated', {
+      packageManger: 'pnpm',
+      packagePath: 'apps/next-app',
+      buildCommand: 'nx run next-app:build',
+      publishDirectory: 'dist/apps/next-app/.next',
+    }),
+  nxIntegratedDistDir: () =>
+    createE2EFixture('nx-integrated', {
+      packageManger: 'pnpm',
+      packagePath: 'apps/custom-dist-dir',
+      buildCommand: 'nx run custom-dist-dir:build',
+      publishDirectory: 'dist/apps/custom-dist-dir/dist',
+    }),
+  yarnMonorepoWithPnpmLinker: () =>
+    createE2EFixture('yarn-monorepo-with-pnpm-linker', {
+      packageManger: 'berry',
+      packagePath: 'apps/site',
+      buildCommand: 'yarn build',
+      publishDirectory: 'apps/site/.next',
+      smoke: true,
+    }),
+}

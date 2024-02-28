@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test'
-import { test } from '../utils/create-e2e-fixture.js'
+import { test } from '../utils/playwright-helpers.js'
 
 test.describe('app router on-demand revalidation', () => {
   test('revalidatePath', async ({ page, serverComponents }) => {
