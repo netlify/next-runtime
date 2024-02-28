@@ -21,21 +21,22 @@ export interface DeployResult {
 
 type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun' | 'berry'
 
+interface E2EConfig {
+  packageManger?: PackageManager
+  packagePath?: string
+  cwd?: string
+  buildCommand?: string
+  publishDirectory?: string
+  smoke?: boolean
+  generateNetlifyToml?: false
+}
+
 /**
  * Copies a fixture to a temp folder on the system and runs the tests inside.
  * @param fixture name of the folder inside the fixtures folder
  */
-export const createE2EFixture = async (
-  fixture: string,
-  config: {
-    packageManger?: PackageManager
-    packagePath?: string
-    buildCommand?: string
-    publishDirectory?: string
-    smoke?: boolean
-  } = {},
-) => {
-  const cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
+export const createE2EFixture = async (fixture: string, config: E2EConfig = {}) => {
+  const isolatedFixtureRoot = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
   let deployID: string
   let logs: string
   const _cleanup = (failure: boolean = false) => {
@@ -48,7 +49,7 @@ export const createE2EFixture = async (
     }
 
     if (!failure) {
-      return cleanup(cwd, deployID)
+      return cleanup(isolatedFixtureRoot, deployID)
     }
     console.log('\n\n\n🪵  Deploy logs:')
     console.log(logs)
@@ -56,15 +57,19 @@ export const createE2EFixture = async (
   }
   try {
     const [packageName] = await Promise.all([
-      buildAndPackRuntime({ ...config, dest: cwd }),
-      copyFixture(fixture, cwd, config),
+      buildAndPackRuntime(config, isolatedFixtureRoot),
+      copyFixture(fixture, isolatedFixtureRoot, config),
     ])
-    await installRuntime(packageName, cwd, config.packageManger || 'npm', config.packagePath)
-    const result = await deploySite(cwd, config.packagePath)
+    await installRuntime(packageName, isolatedFixtureRoot, config)
+    const result = await deploySite(isolatedFixtureRoot, config)
     console.log(`🌍 Deployed site is live: ${result.url}`)
     deployID = result.deployID
     logs = result.logs
-    return { cwd, cleanup: _cleanup, deployID: result.deployID, url: result.url }
+    return {
+      cleanup: _cleanup,
+      deployID: result.deployID,
+      url: result.url,
+    }
   } catch (error) {
     await _cleanup(true)
     throw error
@@ -76,12 +81,12 @@ export type Fixture = Awaited<ReturnType<typeof createE2EFixture>>
 /** Copies a fixture folder to a destination */
 async function copyFixture(
   fixtureName: string,
-  dest: string,
-  config: Parameters<typeof createE2EFixture>[1],
+  isolatedFixtureRoot: string,
+  config: E2EConfig,
 ): Promise<void> {
-  console.log(`📂 Copying fixture to '${dest}'...`)
+  console.log(`📂 Copying fixture to '${isolatedFixtureRoot}'...`)
   const src = fileURLToPath(
-    new URL(`../${config?.smoke ? `smoke/fixtures` : `fixtures`}/${fixtureName}`, import.meta.url),
+    new URL(`../${config.smoke ? `smoke/fixtures` : `fixtures`}/${fixtureName}`, import.meta.url),
   )
   const files = await fg.glob('**/*', {
     ignore: ['node_modules', '.yarn'],
@@ -93,85 +98,123 @@ async function copyFixture(
   await Promise.all(
     files.map((file) =>
       limit(async () => {
-        await mkdir(join(dest, dirname(file)), { recursive: true })
-        await copyFile(join(src, file), join(dest, file))
+        await mkdir(join(isolatedFixtureRoot, dirname(file)), { recursive: true })
+        await copyFile(join(src, file), join(isolatedFixtureRoot, file))
       }),
     ),
   )
+
+  await execaCommand('git init', { cwd: isolatedFixtureRoot })
 }
 
 /** Creates a tarball of the packed npm package at the provided destination */
-async function buildAndPackRuntime(config: {
-  dest: string
-  packagePath?: string
-  buildCommand?: string
-  publishDirectory?: string
-}): Promise<string> {
-  const { dest, packagePath = '', buildCommand = 'next build', publishDirectory } = config
+async function buildAndPackRuntime(
+  config: E2EConfig,
+  isolatedFixtureRoot: string,
+): Promise<string> {
+  const {
+    packagePath,
+    cwd,
+    buildCommand = 'next build',
+    publishDirectory,
+    generateNetlifyToml,
+  } = config
   console.log(`📦 Creating tarball with 'npm pack'...`)
+
+  const siteRelDir = cwd ?? packagePath ?? ''
 
   const { stdout } = await execaCommand(
     // for the e2e tests we don't need to clean up the package.json. That just creates issues with concurrency
-    `npm pack --json --ignore-scripts --pack-destination ${dest}`,
+    `npm pack --json --ignore-scripts --pack-destination ${isolatedFixtureRoot}`,
   )
   const [{ filename, name }] = JSON.parse(stdout)
 
-  await appendFile(
-    join(join(dest, packagePath), 'netlify.toml'),
-    `[build]
+  if (generateNetlifyToml !== false) {
+    await appendFile(
+      join(join(isolatedFixtureRoot, siteRelDir), 'netlify.toml'),
+      `[build]
 command = "${buildCommand}"
-publish = "${publishDirectory ?? join(packagePath, '.next')}"
+publish = "${publishDirectory ?? join(siteRelDir, '.next')}"
 
 [[plugins]]
 package = "${name}"
 `,
-  )
+    )
+  }
 
   return filename
 }
 
 async function installRuntime(
   packageName: string,
-  cwd: string,
-  packageManger: PackageManager,
-  packagePath?: string,
+  isolatedFixtureRoot: string,
+  { packageManger = 'npm', packagePath, cwd }: E2EConfig,
 ): Promise<void> {
   console.log(`🐣 Installing runtime from '${packageName}'...`)
 
-  let filter = ''
-  // only add the filter if a package.json exits in the packagePath
+  const siteRelDir = cwd ?? packagePath ?? ''
+
+  let workspaceRelPath: string | undefined
+  let workspaceName: string | undefined
+  // only add the workspace if a package.json exits in the packagePath
   // some monorepos like nx don't have a package.json in the app folder
-  if (packagePath && existsSync(join(cwd, packagePath, 'package.json'))) {
-    filter = `--filter ./${packagePath}`
+  if (siteRelDir && existsSync(join(isolatedFixtureRoot, siteRelDir, 'package.json'))) {
+    workspaceRelPath = siteRelDir
+    workspaceName = JSON.parse(
+      await readFile(join(isolatedFixtureRoot, siteRelDir, 'package.json'), 'utf-8'),
+    ).name
   }
 
-  let command: string = `npm install --ignore-scripts --no-audit ${packageName}`
+  let command: string | undefined
   let env = {} as NodeJS.ProcessEnv
 
+  if (packageManger !== 'npm') {
+    await rm(join(isolatedFixtureRoot, 'package-lock.json'), { force: true })
+  }
+
   switch (packageManger) {
+    case 'npm':
+      command = `npm install --ignore-scripts --no-audit ${packageName} ${
+        workspaceRelPath ? `-w ${workspaceRelPath}` : ''
+      }`
+      break
     case 'yarn':
-      command = `yarn add file:${join(cwd, packageName)} --ignore-scripts`
+      command = `yarn ${workspaceName ? `workspace ${workspaceName}` : ''} add file:${join(
+        isolatedFixtureRoot,
+        packageName,
+      )} --ignore-scripts`
       break
     case 'berry':
-      command = `yarn add ${join(cwd, packageName)}`
+      command = `yarn ${workspaceName ? `workspace ${workspaceName}` : ''} add ${join(
+        isolatedFixtureRoot,
+        packageName,
+      )}`
       env['YARN_ENABLE_SCRIPTS'] = 'false'
       break
     case 'pnpm':
-      command = `pnpm add file:${join(cwd, packageName)} ${filter} --ignore-scripts`
+      command = `pnpm add file:${join(isolatedFixtureRoot, packageName)} ${
+        workspaceRelPath ? `--filter ./${workspaceRelPath}` : ''
+      } --ignore-scripts`
       break
     case 'bun':
       command = `bun install ./${packageName}`
       break
+    default:
+      throw new Error(`Unsupported package manager: ${packageManger}`)
   }
 
-  if (packageManger !== 'npm') {
-    await rm(join(cwd, 'package-lock.json'), { force: true })
-  }
+  await execaCommand(command, { cwd: isolatedFixtureRoot, env })
 
-  await execaCommand(command, { cwd, env })
+  if (packageManger === 'npm' && workspaceRelPath) {
+    // installing package in npm workspace doesn't install root level packages, so we additionally install those
+    await execaCommand(`npm install --ignore-scripts --no-audit`, { cwd: isolatedFixtureRoot })
+  }
 }
 
-async function deploySite(cwd: string, packagePath?: string): Promise<DeployResult> {
+async function deploySite(
+  isolatedFixtureRoot: string,
+  { packagePath, cwd = '' }: E2EConfig,
+): Promise<DeployResult> {
   console.log(`🚀 Building and deploying site...`)
 
   const outputFile = 'deploy-output.txt'
@@ -181,8 +224,9 @@ async function deploySite(cwd: string, packagePath?: string): Promise<DeployResu
     cmd += ` --filter ${packagePath}`
   }
 
-  await execaCommand(cmd, { cwd, all: true }).pipeAll?.(join(cwd, outputFile))
-  const output = await readFile(join(cwd, outputFile), 'utf-8')
+  const siteDir = join(isolatedFixtureRoot, cwd)
+  await execaCommand(cmd, { cwd: siteDir, all: true }).pipeAll?.(join(siteDir, outputFile))
+  const output = await readFile(join(siteDir, outputFile), 'utf-8')
 
   const [url] = new RegExp(/https:.+runtime-testing\.netlify\.app/gm).exec(output) || []
   if (!url) {
@@ -257,5 +301,13 @@ export const fixtureFactories = {
       buildCommand: 'yarn build',
       publishDirectory: 'apps/site/.next',
       smoke: true,
+    }),
+  npmMonorepoEmptyBaseNoPackagePath: () =>
+    createE2EFixture('npm-monorepo-empty-base', {
+      cwd: 'apps/site',
+      buildCommand: 'npm run build',
+      publishDirectory: 'apps/site/.next',
+      smoke: true,
+      generateNetlifyToml: false,
     }),
 }

@@ -1,5 +1,6 @@
-import { expect, test } from 'vitest'
+import { expect, test, beforeAll } from 'vitest'
 import { Fixture, fixtureFactories } from '../utils/create-e2e-fixture'
+import { execaCommand } from 'execa'
 
 async function smokeTest(createFixture: () => Promise<Fixture>) {
   const fixture = await createFixture()
@@ -13,4 +14,8 @@ async function smokeTest(createFixture: () => Promise<Fixture>) {
 
 test('yarn@3 monorepo with pnpm linker', async () => {
   await smokeTest(fixtureFactories.yarnMonorepoWithPnpmLinker)
+})
+
+test('npm monorepo deploying from site directory without --filter', async () => {
+  await smokeTest(fixtureFactories.npmMonorepoEmptyBaseNoPackagePath)
 })

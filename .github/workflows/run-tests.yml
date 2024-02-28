@@ -80,8 +80,12 @@ jobs:
         run: npm ci
       - name: 'Build'
         run: npm run build
-      - name: 'Lint'
-        run: npm run lint
+      - name: 'Netlify Login'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+        run: |
+          npm i -g netlify-cli
+          netlify login
       - name: Compute Fixtures Cache Key
         id: fixture-cache-key
         # Fixtures only need to be rebuilt if anything in the tests/fixtures directory changes,
