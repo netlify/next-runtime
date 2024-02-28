@@ -87,6 +87,7 @@ jobs:
         # Fixtures only need to be rebuilt if anything in the tests/fixtures directory changes,
         # so we're using a hash of the files in that directory as the cache key.
         run: echo "key=$(git ls-files -s tests/fixtures/ tests/prepare.mjs | git hash-object --stdin)" >> "$GITHUB_OUTPUT"
+        shell: bash
       - name: Cache Fixtures
         id: cache-fixtures
         uses: actions/cache@v4
