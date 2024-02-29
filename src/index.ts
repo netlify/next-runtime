@@ -1,7 +1,7 @@
 import type { NetlifyPluginOptions } from '@netlify/build'
 
 import { restoreBuildCache, saveBuildCache } from './build/cache.js'
-import { copyPrerenderedContent } from './build/content/prerendered.js'
+import { copyFetchContent, copyPrerenderedContent } from './build/content/prerendered.js'
 import {
   copyStaticAssets,
   copyStaticContent,
@@ -34,6 +34,7 @@ export const onBuild = async (options: NetlifyPluginOptions) => {
     copyStaticAssets(ctx),
     copyStaticContent(ctx),
     copyPrerenderedContent(ctx),
+    copyFetchContent(ctx),
     createServerHandler(ctx),
     createEdgeHandlers(ctx),
     setImageConfig(ctx),
