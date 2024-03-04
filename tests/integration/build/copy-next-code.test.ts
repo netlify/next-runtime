@@ -7,7 +7,6 @@ import { copyNextServerCode } from '../../../src/build/content/server.js'
 import { PluginContext } from '../../../src/build/plugin-context.js'
 import { FixtureTestContext, createFsFixture } from '../../utils/fixture.js'
 import { readFile, readdir } from 'node:fs/promises'
-import { platform } from 'node:process'
 
 test<FixtureTestContext>('should copy the next standalone folder correctly for a simple site', async (ctx) => {
   const reqServerFiles = JSON.stringify({ config: { distDir: '.next' } })

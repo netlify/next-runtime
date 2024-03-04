@@ -18,7 +18,6 @@ import type { CacheHandler } from 'next/dist/server/lib/incremental-cache/index.
 import { SERVER_HANDLER_NAME } from '../../src/build/plugin-context.js'
 import { realpathSync } from 'node:fs'
 import { join } from 'node:path'
-import { platform } from 'node:process'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -85,7 +84,7 @@ function spyOnRequestContext(ctx: FixtureTestContext) {
   return mockedRequestContextModule.getRequestContext
 }
 
-describe.skipIf(platform === 'win32')(
+describe(
   'request-context does NOT leak between concurrent requests',
   () => {
     test<FixtureTestContext>('pages router', async (ctx) => {

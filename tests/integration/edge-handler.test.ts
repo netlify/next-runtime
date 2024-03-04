@@ -8,7 +8,6 @@ import {
 } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 import { LocalServer } from '../utils/local-server.js'
-import { platform } from 'process'
 
 beforeEach<FixtureTestContext>(async (ctx) => {
   // set for each test a new deployID and siteID
@@ -19,11 +18,9 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   await startMockBlobStore(ctx)
 })
 
-test.skipIf(platform === 'win32')<FixtureTestContext>(
-  'should add request/response headers',
-  async (ctx) => {
-    await createFixture('middleware', ctx)
-    await runPlugin(ctx)
+test<FixtureTestContext>('should add request/response headers', async (ctx) => {
+  await createFixture('middleware', ctx)
+  await runPlugin(ctx)
 
     const origin = await LocalServer.run(async (req, res) => {
       expect(req.url).toBe('/test/next')
@@ -50,11 +47,9 @@ test.skipIf(platform === 'win32')<FixtureTestContext>(
   },
 )
 
-test.skipIf(platform === 'win32')<FixtureTestContext>(
-  'should add request/response headers when using src dir',
-  async (ctx) => {
-    await createFixture('middleware-src', ctx)
-    await runPlugin(ctx)
+test<FixtureTestContext>('should add request/response headers when using src dir', async (ctx) => {
+  await createFixture('middleware-src', ctx)
+  await runPlugin(ctx)
 
     const origin = await LocalServer.run(async (req, res) => {
       expect(req.url).toBe('/test/next')
@@ -81,7 +76,7 @@ test.skipIf(platform === 'win32')<FixtureTestContext>(
   },
 )
 
-describe.skipIf(platform === 'win32')('redirect', () => {
+describe('redirect', () => {
   test<FixtureTestContext>('should return a redirect response', async (ctx) => {
     await createFixture('middleware', ctx)
     await runPlugin(ctx)
@@ -130,7 +125,7 @@ describe.skipIf(platform === 'win32')('redirect', () => {
   })
 })
 
-describe.skipIf(platform === 'win32')('rewrite', () => {
+describe('rewrite', () => {
   test<FixtureTestContext>('should rewrite to an external URL', async (ctx) => {
     await createFixture('middleware', ctx)
     await runPlugin(ctx)
@@ -190,12 +185,10 @@ describe.skipIf(platform === 'win32')('rewrite', () => {
   })
 })
 
-describe.skipIf(platform === 'win32')(
-  "aborts middleware execution when the matcher conditions don't match the request",
-  () => {
-    test<FixtureTestContext>('when the path is excluded', async (ctx) => {
-      await createFixture('middleware', ctx)
-      await runPlugin(ctx)
+describe("aborts middleware execution when the matcher conditions don't match the request", () => {
+  test<FixtureTestContext>('when the path is excluded', async (ctx) => {
+    await createFixture('middleware', ctx)
+    await runPlugin(ctx)
 
       const origin = await LocalServer.run(async (req, res) => {
         expect(req.url).toBe('/_next/data')
@@ -238,8 +231,8 @@ describe.skipIf(platform === 'win32')(
         functions: ['___netlify-edge-handler-middleware'],
         origin,
         url: '/foo',
-      })
-
+      })  
+      
       expect(await response1.text()).toBe('Hello from origin!')
       expect(response1.status).toBe(200)
       expect(response1.headers.has('x-hello-from-middleware-res')).toBeTruthy()
@@ -305,7 +298,7 @@ describe.skipIf(platform === 'win32')(
   },
 )
 
-describe.skipIf(platform === 'win32')('should run middleware on data requests', () => {
+describe('should run middleware on data requests', () => {
   test<FixtureTestContext>('when `trailingSlash: false`', async (ctx) => {
     await createFixture('middleware', ctx)
     await runPlugin(ctx)

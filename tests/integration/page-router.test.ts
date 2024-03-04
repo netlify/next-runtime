@@ -63,7 +63,7 @@ test<FixtureTestContext>('Should add pathname to cache-tags for pages route', as
   expect(staticFetch1.headers?.['netlify-cache-tag']).toBe('_N_T_/static/revalidate-manual')
 })
 
-test.skipIf(platform === 'win32')<FixtureTestContext>('Should revalidate path with On-demand Revalidation', async (ctx) => {
+test<FixtureTestContext>('Should revalidate path with On-demand Revalidation', async (ctx) => {
   await createFixture('page-router', ctx)
   await runPlugin(ctx)
 
@@ -115,14 +115,17 @@ test<FixtureTestContext>('Should return JSON for data req to page route', async 
   expect(data.pageProps.show).toBeDefined()
 })
 
-test.skipIf(platform === "win32")<FixtureTestContext>('Should set permanent "netlify-cdn-cache-control" header on fully static pages"', async (ctx) => {
-  await createFixture('page-router', ctx)
-  await runPlugin(ctx)
+test.skipIf(platform === 'win32')<FixtureTestContext>(
+  'Should set permanent "netlify-cdn-cache-control" header on fully static pages"',
+  async (ctx) => {
+    await createFixture('page-router', ctx)
+    await runPlugin(ctx)
 
-  const response = await invokeFunction(ctx, {
-    url: '/static/fully-static',
-  })
+    const response = await invokeFunction(ctx, {
+      url: '/static/fully-static',
+    })
 
-  expect(response.headers?.['netlify-cdn-cache-control']).toBe('max-age=31536000')
-  expect(response.headers?.['cache-control']).toBe('public, max-age=0, must-revalidate')
-})
+    expect(response.headers?.['netlify-cdn-cache-control']).toBe('max-age=31536000')
+    expect(response.headers?.['cache-control']).toBe('public, max-age=0, must-revalidate')
+  },
+)

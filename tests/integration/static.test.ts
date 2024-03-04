@@ -18,7 +18,6 @@ import {
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
-import { platform } from 'node:process'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'

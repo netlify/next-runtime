@@ -107,3 +107,4 @@ jobs:
         run: npm run test:ci -- --shard=${{ matrix.shard }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          TEMP: ${{ github.workspace }}/..
