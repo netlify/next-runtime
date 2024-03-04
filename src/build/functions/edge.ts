@@ -1,5 +1,5 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { dirname, join, relative } from 'node:path'
+import { dirname, join } from 'node:path'
 
 import { glob } from 'fast-glob'
 import type { EdgeFunctionDefinition as NextDefinition } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
@@ -116,44 +116,34 @@ const copyHandlerDependencies = async (
   const srcDir = join(ctx.standaloneDir, ctx.nextDistDir)
   const destDir = join(ctx.edgeFunctionsDir, getHandlerName({ name }))
 
-  await Promise.all(
-    files.map(async (file) => {
-      if (file === `server/${name}.js`) {
-        const edgeRuntimeDir = join(ctx.pluginDir, 'edge-runtime')
-        const shimPath = join(edgeRuntimeDir, 'shim/index.js')
-        const shim = await readFile(shimPath, 'utf8')
+  const edgeRuntimeDir = join(ctx.pluginDir, 'edge-runtime')
+  const shimPath = join(edgeRuntimeDir, 'shim/index.js')
+  const shim = await readFile(shimPath, 'utf8')
 
-        const importsDir = relative(dirname(join(srcDir, file)), join(srcDir, 'server'))
-        const importsSrc = `${importsDir || '.'}/edge-runtime-webpack.js`
-        const imports = `import '${importsSrc}';`
+  const parts = [shim]
 
-        const exports = `export default _ENTRIES["middleware_${name}"].default;`
+  if (wasm?.length) {
+    parts.push(
+      `import { decode as _base64Decode } from "../edge-runtime/vendor/deno.land/std@0.175.0/encoding/base64.ts";`,
+    )
+    for (const wasmChunk of wasm ?? []) {
+      const data = await readFile(join(srcDir, wasmChunk.filePath))
+      parts.push(
+        `const ${wasmChunk.name} = _base64Decode(${JSON.stringify(
+          data.toString('base64'),
+        )}).buffer`,
+      )
+    }
+  }
 
-        const parts = [shim, imports]
+  for (const file of files) {
+    const entrypoint = await readFile(join(srcDir, file), 'utf8')
+    parts.push(`;// Concatenated file: ${file} \n`, entrypoint)
+  }
+  const exports = `export default _ENTRIES["middleware_${name}"].default;`
+  await mkdir(dirname(join(destDir, `server/${name}.js`)), { recursive: true })
 
-        if (wasm?.length) {
-          parts.push(
-            `import { decode as _base64Decode } from "../edge-runtime/vendor/deno.land/std@0.175.0/encoding/base64.ts";`,
-          )
-          for (const wasmChunk of wasm ?? []) {
-            const data = await readFile(join(srcDir, wasmChunk.filePath))
-            parts.push(
-              `const ${wasmChunk.name} = _base64Decode(${JSON.stringify(
-                data.toString('base64'),
-              )}).buffer`,
-            )
-          }
-        }
-
-        const entrypoint = await readFile(join(srcDir, file), 'utf8')
-
-        await mkdir(dirname(join(destDir, file)), { recursive: true })
-        await writeFile(join(destDir, file), [...parts, entrypoint, exports].join('\n;'))
-      } else {
-        await cp(join(srcDir, file), join(destDir, file))
-      }
-    }),
-  )
+  await writeFile(join(destDir, `server/${name}.js`), [...parts, exports].join('\n'))
 }
 
 const createEdgeHandler = async (ctx: PluginContext, definition: NextDefinition): Promise<void> => {

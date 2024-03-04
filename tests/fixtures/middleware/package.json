@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@aws-amplify/adapter-nextjs": "^1.0.13",
-    "next": "^14.0.4",
+    "next": "^14.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   }
