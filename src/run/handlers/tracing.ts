@@ -2,7 +2,10 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { Resource } from '@opentelemetry/resources'
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node'
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
+import {
+  SEMRESATTRS_SERVICE_NAME,
+  SEMRESATTRS_SERVICE_VERSION,
+} from '@opentelemetry/semantic-conventions'
 
 const {
   default: { version, name },
@@ -10,8 +13,8 @@ const {
 
 const sdk = new NodeSDK({
   resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: name,
-    [SemanticResourceAttributes.SERVICE_VERSION]: version,
+    [SEMRESATTRS_SERVICE_NAME]: name,
+    [SEMRESATTRS_SERVICE_VERSION]: version,
   }),
   spanProcessor: new SimpleSpanProcessor(
     new OTLPTraceExporter({
