@@ -67,37 +67,43 @@ test<FixtureTestContext>('Should revalidate path with On-demand Revalidation', a
   await createFixture('page-router', ctx)
   await runPlugin(ctx)
 
-  const staticPageInitial = await invokeFunction(ctx, { url: '/static/revalidate-manual' })
-  const dateCacheInitial = load(staticPageInitial.body)('[data-testid="date-now"]').text()
+    const staticPageInitial = await invokeFunction(ctx, { url: '/static/revalidate-manual' })
+    const dateCacheInitial = load(staticPageInitial.body)('[data-testid="date-now"]').text()
 
-  expect(staticPageInitial.statusCode).toBe(200)
-  expect(staticPageInitial.headers?.['cache-status']).toMatch(/"Next.js"; hit/)
-  const blobDataInitial = await ctx.blobStore.get(encodeBlobKey('/static/revalidate-manual'), {
-    type: 'json',
-  })
-  const blobDateInitial = load(blobDataInitial.value.html).html('[data-testid="date-now"]')
+    expect(staticPageInitial.statusCode).toBe(200)
+    expect(staticPageInitial.headers?.['cache-status']).toMatch(/"Next.js"; hit/)
+    const blobDataInitial = await ctx.blobStore.get(encodeBlobKey('/static/revalidate-manual'), {
+      type: 'json',
+    })
+    const blobDateInitial = load(blobDataInitial.value.html).html('[data-testid="date-now"]')
 
-  const revalidate = await invokeFunction(ctx, { url: '/api/revalidate' })
-  expect(revalidate.statusCode).toBe(200)
+    const revalidate = await invokeFunction(ctx, { url: '/api/revalidate' })
+    expect(revalidate.statusCode).toBe(200)
 
-  await new Promise<void>((resolve) => setTimeout(resolve, 100))
+    await new Promise<void>((resolve) => setTimeout(resolve, 100))
 
-  const blobDataRevalidated = await ctx.blobStore.get(encodeBlobKey('/static/revalidate-manual'), {
-    type: 'json',
-  })
+    const blobDataRevalidated = await ctx.blobStore.get(
+      encodeBlobKey('/static/revalidate-manual'),
+      {
+        type: 'json',
+      },
+    )
 
-  const blobDateRevalidated = load(blobDataRevalidated.value.html).html('[data-testid="date-now"]')
+    const blobDateRevalidated = load(blobDataRevalidated.value.html).html(
+      '[data-testid="date-now"]',
+    )
 
-  // TODO: Blob data is updated on revalidate but page still producing previous data
-  expect(blobDateInitial).not.toBe(blobDateRevalidated)
+    // TODO: Blob data is updated on revalidate but page still producing previous data
+    expect(blobDateInitial).not.toBe(blobDateRevalidated)
 
-  const staticPageRevalidated = await invokeFunction(ctx, { url: '/static/revalidate-manual' })
-  expect(staticPageRevalidated.headers?.['cache-status']).toMatch(/"Next.js"; hit/)
-  const dateCacheRevalidated = load(staticPageRevalidated.body)('[data-testid="date-now"]').text()
+    const staticPageRevalidated = await invokeFunction(ctx, { url: '/static/revalidate-manual' })
+    expect(staticPageRevalidated.headers?.['cache-status']).toMatch(/"Next.js"; hit/)
+    const dateCacheRevalidated = load(staticPageRevalidated.body)('[data-testid="date-now"]').text()
 
-  console.log({ dateCacheInitial, dateCacheRevalidated })
-  expect(dateCacheInitial).not.toBe(dateCacheRevalidated)
-})
+    console.log({ dateCacheInitial, dateCacheRevalidated })
+    expect(dateCacheInitial).not.toBe(dateCacheRevalidated)
+  },
+)
 
 test<FixtureTestContext>('Should return JSON for data req to page route', async (ctx) => {
   await createFixture('page-router', ctx)

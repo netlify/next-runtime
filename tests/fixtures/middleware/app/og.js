@@ -16,6 +16,6 @@ export default function og() {
       >
         Open Graph
       </div>
-    )
+    ),
   )
 }

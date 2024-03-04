@@ -21,6 +21,6 @@ export default function () {
       >
         Hello!
       </div>
-    )
+    ),
   )
 }

@@ -52,146 +52,147 @@ describe('page router', () => {
       'static/fully-static.html',
     ])
 
-    // test the function call
-    const call1 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
-    const call1Date = load(call1.body)('[data-testid="date-now"]').text()
-    expect(call1.statusCode).toBe(200)
-    expect(load(call1.body)('h1').text()).toBe('Show #71')
-    // Prerendered content is always cached as expired, so first invocation will
-    // be stale, while fresh is generated in background
-    expect(call1.headers, 'a stale page served with swr').toEqual(
-      expect.objectContaining({
-        'cache-status': '"Next.js"; hit; fwd=stale',
-        'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate',
-      }),
-    )
+      // test the function call
+      const call1 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
+      const call1Date = load(call1.body)('[data-testid="date-now"]').text()
+      expect(call1.statusCode).toBe(200)
+      expect(load(call1.body)('h1').text()).toBe('Show #71')
+      // Prerendered content is always cached as expired, so first invocation will
+      // be stale, while fresh is generated in background
+      expect(call1.headers, 'a stale page served with swr').toEqual(
+        expect.objectContaining({
+          'cache-status': '"Next.js"; hit; fwd=stale',
+          'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate',
+        }),
+      )
 
-    expect(
-      countOfBlobServerGetsForKey(ctx, '/static/revalidate-automatic'),
-      'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
-    ).toBe(1)
-    ctx.blobServerGetSpy.mockClear()
+      expect(
+        countOfBlobServerGetsForKey(ctx, '/static/revalidate-automatic'),
+        'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
+      ).toBe(1)
+      ctx.blobServerGetSpy.mockClear()
 
-    // wait to have page regenerated in the background
-    await new Promise<void>((resolve) => setTimeout(resolve, 1000))
+      // wait to have page regenerated in the background
+      await new Promise<void>((resolve) => setTimeout(resolve, 1000))
 
-    const call2 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
-    const call2Date = load(call2.body)('[data-testid="date-now"]').text()
-    expect(call2.statusCode).toBe(200)
-    expect(load(call2.body)('h1').text()).toBe('Show #71')
-    expect(
-      call2.headers,
-      'fresh page that was generated in background during previous call was served',
-    ).toEqual(
-      expect.objectContaining({
-        'cache-status': '"Next.js"; hit',
-        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
-      }),
-    )
-    expect(
-      call2Date.localeCompare(call1Date),
-      'the rendered date in regenerated page is newer than initial stale page',
-    ).toBeGreaterThan(0)
-    expect(
-      new Date(call2.headers['date'].toString()).getTime() -
-        new Date(call1.headers['date'].toString()).getTime(),
-      'the date header of regenerated page is newer than initial stale page',
-    ).toBeGreaterThan(0)
+      const call2 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
+      const call2Date = load(call2.body)('[data-testid="date-now"]').text()
+      expect(call2.statusCode).toBe(200)
+      expect(load(call2.body)('h1').text()).toBe('Show #71')
+      expect(
+        call2.headers,
+        'fresh page that was generated in background during previous call was served',
+      ).toEqual(
+        expect.objectContaining({
+          'cache-status': '"Next.js"; hit',
+          'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+        }),
+      )
+      expect(
+        call2Date.localeCompare(call1Date),
+        'the rendered date in regenerated page is newer than initial stale page',
+      ).toBeGreaterThan(0)
+      expect(
+        new Date(call2.headers['date'].toString()).getTime() -
+          new Date(call1.headers['date'].toString()).getTime(),
+        'the date header of regenerated page is newer than initial stale page',
+      ).toBeGreaterThan(0)
 
-    expect(
-      countOfBlobServerGetsForKey(ctx, '/static/revalidate-automatic'),
-      'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
-    ).toBe(1)
-    ctx.blobServerGetSpy.mockClear()
+      expect(
+        countOfBlobServerGetsForKey(ctx, '/static/revalidate-automatic'),
+        'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
+      ).toBe(1)
+      ctx.blobServerGetSpy.mockClear()
 
-    // ping that should serve the stale page for static/revalidate-slow, while revalidating in background
-    await invokeFunction(ctx, { url: 'static/revalidate-slow' })
+      // ping that should serve the stale page for static/revalidate-slow, while revalidating in background
+      await invokeFunction(ctx, { url: 'static/revalidate-slow' })
 
-    expect(
-      countOfBlobServerGetsForKey(ctx, '/static/revalidate-slow'),
-      'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
-    ).toBe(1)
-    ctx.blobServerGetSpy.mockClear()
+      expect(
+        countOfBlobServerGetsForKey(ctx, '/static/revalidate-slow'),
+        'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
+      ).toBe(1)
+      ctx.blobServerGetSpy.mockClear()
 
-    // wait to have a stale page
-    await new Promise<void>((resolve) => setTimeout(resolve, 6_000))
+      // wait to have a stale page
+      await new Promise<void>((resolve) => setTimeout(resolve, 6_000))
 
-    // Ping this now so we can wait in parallel
-    const callLater = await invokeFunction(ctx, { url: 'static/revalidate-slow' })
-    expect(
-      countOfBlobServerGetsForKey(ctx, '/static/revalidate-slow'),
-      'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
-    ).toBe(1)
-    ctx.blobServerGetSpy.mockClear()
+      // Ping this now so we can wait in parallel
+      const callLater = await invokeFunction(ctx, { url: 'static/revalidate-slow' })
+      expect(
+        countOfBlobServerGetsForKey(ctx, '/static/revalidate-slow'),
+        'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
+      ).toBe(1)
+      ctx.blobServerGetSpy.mockClear()
 
-    // over 5 seconds since it was regenerated, so we should get stale response,
-    // while fresh is generated in the background
-    const call3 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
-    const call3Date = load(call3.body)('[data-testid="date-now"]').text()
-    expect(call3.statusCode).toBe(200)
-    expect(call3.headers, 'a stale page served with swr').toEqual(
-      expect.objectContaining({
-        'cache-status': '"Next.js"; hit; fwd=stale',
-      }),
-    )
-    expect(
-      call3Date,
-      'the rendered date was cached and is matching the initially regenerated one',
-    ).toBe(call2Date)
-    expect(
-      call3.headers['date'],
-      'the date header is the same as the initially regenerated one',
-    ).toBe(call2.headers['date'])
-    expect(
-      countOfBlobServerGetsForKey(ctx, '/static/revalidate-automatic'),
-      'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
-    ).toBe(1)
-    ctx.blobServerGetSpy.mockClear()
+      // over 5 seconds since it was regenerated, so we should get stale response,
+      // while fresh is generated in the background
+      const call3 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
+      const call3Date = load(call3.body)('[data-testid="date-now"]').text()
+      expect(call3.statusCode).toBe(200)
+      expect(call3.headers, 'a stale page served with swr').toEqual(
+        expect.objectContaining({
+          'cache-status': '"Next.js"; hit; fwd=stale',
+        }),
+      )
+      expect(
+        call3Date,
+        'the rendered date was cached and is matching the initially regenerated one',
+      ).toBe(call2Date)
+      expect(
+        call3.headers['date'],
+        'the date header is the same as the initially regenerated one',
+      ).toBe(call2.headers['date'])
+      expect(
+        countOfBlobServerGetsForKey(ctx, '/static/revalidate-automatic'),
+        'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
+      ).toBe(1)
+      ctx.blobServerGetSpy.mockClear()
 
-    // Slow revalidate should still be a hit, but the maxage should be updated
-    const callLater2 = await invokeFunction(ctx, { url: 'static/revalidate-slow' })
+      // Slow revalidate should still be a hit, but the maxage should be updated
+      const callLater2 = await invokeFunction(ctx, { url: 'static/revalidate-slow' })
 
-    expect(callLater2.statusCode).toBe(200)
+      expect(callLater2.statusCode).toBe(200)
 
-    expect(callLater2.headers, 'date header matches the cached value').toEqual(
-      expect.objectContaining({
-        'cache-status': '"Next.js"; hit',
-        date: callLater.headers['date'],
-      }),
-    )
-    expect(
-      countOfBlobServerGetsForKey(ctx, '/static/revalidate-slow'),
-      'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
-    ).toBe(1)
-    ctx.blobServerGetSpy.mockClear()
+      expect(callLater2.headers, 'date header matches the cached value').toEqual(
+        expect.objectContaining({
+          'cache-status': '"Next.js"; hit',
+          date: callLater.headers['date'],
+        }),
+      )
+      expect(
+        countOfBlobServerGetsForKey(ctx, '/static/revalidate-slow'),
+        'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
+      ).toBe(1)
+      ctx.blobServerGetSpy.mockClear()
 
-    // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
-    await new Promise<void>((resolve) => setTimeout(resolve, 1000))
+      // it does not wait for the cache.set so we have to manually wait here until the blob storage got populated
+      await new Promise<void>((resolve) => setTimeout(resolve, 1000))
 
-    // now the page should be in cache again and we should get a cache hit
-    const call4 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
-    const call4Date = load(call4.body)('[data-testid="date-now"]').text()
-    expect(call4Date, 'the date was not cached').not.toBe(call3Date)
-    expect(
-      new Date(call4.headers['date'].toString()).getTime() -
-        new Date(call3.headers['date'].toString()).getTime(),
-      'the date header of regenerated page is newer than initial stale page',
-    ).toBeGreaterThan(0)
-    expect(call4.statusCode).toBe(200)
-    expect(
-      call4.headers,
-      'a cache hit after dynamically regenerating the stale page in the background',
-    ).toEqual(
-      expect.objectContaining({
-        'cache-status': expect.stringMatching(/"Next.js"; hit/),
-      }),
-    )
-    expect(
-      countOfBlobServerGetsForKey(ctx, '/static/revalidate-automatic'),
-      'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
-    ).toBe(1)
-    ctx.blobServerGetSpy.mockClear()
-  })
+      // now the page should be in cache again and we should get a cache hit
+      const call4 = await invokeFunction(ctx, { url: 'static/revalidate-automatic' })
+      const call4Date = load(call4.body)('[data-testid="date-now"]').text()
+      expect(call4Date, 'the date was not cached').not.toBe(call3Date)
+      expect(
+        new Date(call4.headers['date'].toString()).getTime() -
+          new Date(call3.headers['date'].toString()).getTime(),
+        'the date header of regenerated page is newer than initial stale page',
+      ).toBeGreaterThan(0)
+      expect(call4.statusCode).toBe(200)
+      expect(
+        call4.headers,
+        'a cache hit after dynamically regenerating the stale page in the background',
+      ).toEqual(
+        expect.objectContaining({
+          'cache-status': expect.stringMatching(/"Next.js"; hit/),
+        }),
+      )
+      expect(
+        countOfBlobServerGetsForKey(ctx, '/static/revalidate-automatic'),
+        'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
+      ).toBe(1)
+      ctx.blobServerGetSpy.mockClear()
+    },
+  )
 })
 
 describe('app router', () => {

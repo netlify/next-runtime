@@ -13,7 +13,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -21,6 +23,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
       - run: npm ci
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.3
+        with:
+          prettier_options: --write .
+          only_changed: true
+          commit_message: 'chore: format with prettier'
+          clean_node_folder: false
+
       - name: Lint
         # github adds inline annotation for compact or stylish format
         # which is different than our default for local usage

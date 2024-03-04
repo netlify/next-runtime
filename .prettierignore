@@ -1,2 +1,12 @@
 dist/
-demo/
+.next
+playwright-report/
+.netlify
+CHANGELOG.md
+package-lock.json
+package.json
+edge-runtime/vendor/
+deno.lock
+tests/fixtures/simple-next-app-dist-dir/cool/output
+.nx
+custom-dist-dir
