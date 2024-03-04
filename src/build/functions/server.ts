@@ -1,10 +1,15 @@
-import { cp, mkdir, readFile, rm, writeFile } from 'fs/promises'
+import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import { join as posixJoin } from 'node:path/posix'
 
 import { glob } from 'fast-glob'
 
-import { copyNextDependencies, copyNextServerCode, writeTagsManifest } from '../content/server.js'
+import {
+  copyNextDependencies,
+  copyNextServerCode,
+  verifyHandlerDirStructure,
+  writeTagsManifest,
+} from '../content/server.js'
 import { PluginContext, SERVER_HANDLER_NAME } from '../plugin-context.js'
 
 /** Copies the runtime dist folder to the lambda */
@@ -111,4 +116,6 @@ export const createServerHandler = async (ctx: PluginContext) => {
     writePackageMetadata(ctx),
     writeHandlerFile(ctx),
   ])
+
+  await verifyHandlerDirStructure(ctx)
 }

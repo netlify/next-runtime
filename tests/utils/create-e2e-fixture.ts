@@ -310,4 +310,11 @@ export const fixtureFactories = {
       smoke: true,
       generateNetlifyToml: false,
     }),
+  npmMonorepoSiteCreatedAtBuild: () =>
+    createE2EFixture('npm-monorepo-site-created-at-build', {
+      buildCommand: 'npm run build',
+      publishDirectory: 'apps/site/.next',
+      smoke: true,
+      generateNetlifyToml: false,
+    }),
 }

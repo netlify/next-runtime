@@ -1,0 +1,6 @@
+[build]
+command = "node setup-site.mjs && npm install && npm run build -w apps/site"
+publish = "./apps/site/.next"
+
+[[plugins]]
+package = "@netlify/plugin-nextjs"

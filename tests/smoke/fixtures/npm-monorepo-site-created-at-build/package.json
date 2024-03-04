@@ -1,0 +1,12 @@
+{
+  "name": "no-package-path-set",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@10.2.3",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
