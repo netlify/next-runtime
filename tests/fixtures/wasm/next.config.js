@@ -1,7 +1,7 @@
 const { platform } = require('process')
 const fsPromises = require('fs/promises')
 
-// Next.js uses `fs.promises.copyFile` to copy the `.wasm` file to the `.next` directory
+// Next.js uses `fs.promises.copyFile` to copy files from `.next`to the `.next/standalone` directory
 // It tries copying the same file twice in parallel. Unix is fine with that, but Windows fails
 // with "Resource busy or locked", failing the build.
 // We work around this by memoizing the copy operation, so that the second copy is a no-op.
