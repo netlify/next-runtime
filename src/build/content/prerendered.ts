@@ -46,12 +46,21 @@ const buildPagesCacheValue = async (path: string): Promise<CachedPageValue> => (
   status: undefined,
 })
 
-const buildAppCacheValue = async (path: string): Promise<CachedPageValue> => ({
-  kind: 'PAGE',
-  html: await readFile(`${path}.html`, 'utf-8'),
-  pageData: await readFile(`${path}.rsc`, 'utf-8'),
-  ...JSON.parse(await readFile(`${path}.meta`, 'utf-8')),
-})
+const buildAppCacheValue = async (path: string): Promise<CachedPageValue> => {
+  const meta = JSON.parse(await readFile(`${path}.meta`, 'utf-8'))
+  const rsc = await readFile(`${path}.rsc`, 'utf-8')
+
+  if (!meta.status && rsc.includes('NEXT_NOT_FOUND')) {
+    meta.status = 404
+  }
+
+  return {
+    kind: 'PAGE',
+    html: await readFile(`${path}.html`, 'utf-8'),
+    pageData: rsc,
+    ...meta,
+  }
+}
 
 const buildRouteCacheValue = async (path: string): Promise<CachedRouteValue> => ({
   kind: 'ROUTE',
@@ -83,6 +92,10 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
             !existsSync(join(ctx.publishDir, 'server/app', `${key}.html`)):
             return
           case meta.dataRoute?.endsWith('.json'):
+            if (manifest.notFoundRoutes.includes(route)) {
+              // if pages router returns 'notFound: true', build won't produce html and json files
+              return
+            }
             value = await buildPagesCacheValue(join(ctx.publishDir, 'server/pages', key))
             break
           case meta.dataRoute?.endsWith('.rsc'):

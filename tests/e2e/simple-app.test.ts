@@ -170,3 +170,35 @@ test.describe('next/image is using Netlify Image CDN', () => {
     await expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
   })
 })
+
+test('requesting a non existing page route that needs to be fetched from the blob store like 404.html', async ({
+  page,
+  simpleNextApp,
+}) => {
+  const response = await page.goto(new URL('non-exisitng', simpleNextApp.url).href)
+  const headers = response?.headers() || {}
+  expect(response?.status()).toBe(404)
+
+  expect(await page.textContent('h1')).toBe('404')
+
+  expect(headers['netlify-cdn-cache-control']).toBe(
+    'private, no-cache, no-store, max-age=0, must-revalidate',
+  )
+  expect(headers['cache-control']).toBe('private,no-cache,no-store,max-age=0,must-revalidate')
+})
+
+test('requesting a non existing page route that needs to be fetched from the blob store like 404.html (notFound())', async ({
+  page,
+  simpleNextApp,
+}) => {
+  const response = await page.goto(new URL('not-found', simpleNextApp.url).href)
+  const headers = response?.headers() || {}
+  expect(response?.status()).toBe(404)
+
+  expect(await page.textContent('h1')).toBe('404')
+
+  expect(headers['netlify-cdn-cache-control']).toBe(
+    's-maxage=31536000, stale-while-revalidate=31536000',
+  )
+  expect(headers['cache-control']).toBe('public,max-age=0,must-revalidate')
+})

@@ -208,6 +208,22 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     expect(headers['cache-control']).toBe('no-cache,no-store,max-age=0,must-revalidate')
   })
 
+  test('requesting a non existing page route that needs to be fetched from the blob store like 404.html (notFound: true)', async ({
+    page,
+    pageRouter,
+  }) => {
+    const response = await page.goto(new URL('static/not-found', pageRouter.url).href)
+    const headers = response?.headers() || {}
+    expect(response?.status()).toBe(404)
+
+    expect(await page.textContent('h1')).toBe('404')
+
+    expect(headers['netlify-cdn-cache-control']).toBe(
+      's-maxage=31536000, stale-while-revalidate=31536000',
+    )
+    expect(headers['cache-control']).toBe('public,max-age=0,must-revalidate')
+  })
+
   test('requesting a page with a very long name works', async ({ page, pageRouter }) => {
     const response = await page.goto(
       new URL(
@@ -739,5 +755,37 @@ test.describe('Page Router with basePath and i18n', () => {
       const data3 = (await response3Json?.json()) || {}
       expect(data3?.pageProps?.time).toBe(date3)
     })
+  })
+
+  test('requesting a non existing page route that needs to be fetched from the blob store like 404.html', async ({
+    page,
+    pageRouter,
+  }) => {
+    const response = await page.goto(new URL('non-exisitng', pageRouter.url).href)
+    const headers = response?.headers() || {}
+    expect(response?.status()).toBe(404)
+
+    expect(await page.textContent('h1')).toBe('404')
+
+    expect(headers['netlify-cdn-cache-control']).toBe(
+      'no-cache, no-store, max-age=0, must-revalidate',
+    )
+    expect(headers['cache-control']).toBe('no-cache,no-store,max-age=0,must-revalidate')
+  })
+
+  test('requesting a non existing page route that needs to be fetched from the blob store like 404.html (notFound: true)', async ({
+    page,
+    pageRouter,
+  }) => {
+    const response = await page.goto(new URL('static/not-found', pageRouter.url).href)
+    const headers = response?.headers() || {}
+    expect(response?.status()).toBe(404)
+
+    expect(await page.textContent('h1')).toBe('404')
+
+    expect(headers['netlify-cdn-cache-control']).toBe(
+      's-maxage=31536000, stale-while-revalidate=31536000',
+    )
+    expect(headers['cache-control']).toBe('public,max-age=0,must-revalidate')
   })
 })

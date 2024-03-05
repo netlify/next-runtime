@@ -42,6 +42,7 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
     '/image/remote-pattern-1',
     '/image/remote-pattern-2',
     '/index',
+    '/not-found',
     '/other',
     '/redirect',
     '/redirect/response',
@@ -60,7 +61,11 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
 
   const notFound = await invokeFunction(ctx, { url: 'not-found' })
   expect(notFound.statusCode).toBe(404)
-  expect(load(notFound.body)('h1').text()).toBe('404')
+  expect(notFound.body).toContain('NEXT_NOT_FOUND')
+
+  const notExisting = await invokeFunction(ctx, { url: 'non-exisitng' })
+  expect(notExisting.statusCode).toBe(404)
+  expect(load(notExisting.body)('h1').text()).toBe('404')
 })
 
 test<FixtureTestContext>('Should warn if publish dir is root', async (ctx) => {
