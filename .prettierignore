@@ -10,5 +10,6 @@ deno.lock
 tests/fixtures/simple-next-app-dist-dir/cool/output
 .nx
 custom-dist-dir
+pnpm.lock
 # to avoid needing extra permissions to format files
 .github/workflows

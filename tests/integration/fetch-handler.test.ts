@@ -1,9 +1,9 @@
 import { load } from 'cheerio'
-import getPort from 'get-port'
 import { getLogger } from 'lambda-local'
-import { createServer, type Server } from 'node:http'
+import { HttpResponse, http, passthrough } from 'msw'
+import { setupServer } from 'msw/node'
 import { v4 } from 'uuid'
-import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, expect, test, vi } from 'vitest'
 import {
   createFixture,
   invokeFunction,
@@ -16,9 +16,40 @@ import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
 
-let apiBase: string
-let testServer: Server
 let handlerCalled = 0
+let server: ReturnType<typeof setupServer>
+
+beforeAll(() => {
+  // Enable API mocking before tests.
+  // mock just https://api.tvmaze.com/shows/:params which is used by tested routes
+  // and passthrough everything else
+  server = setupServer(
+    http.get('https://api.tvmaze.com/shows/:params', () => {
+      handlerCalled++
+      const date = new Date().toISOString()
+      return HttpResponse.json(
+        {
+          id: '1',
+          name: 'Fake response',
+          date,
+        },
+        {
+          headers: {
+            'cache-control': 'public, max-age=10000',
+          },
+        },
+      )
+    }),
+    http.all(/.*/, () => passthrough()),
+  )
+
+  server.listen()
+})
+
+afterAll(() => {
+  // Disable API mocking after the tests are done.
+  server.close()
+})
 
 beforeEach<FixtureTestContext>(async (ctx) => {
   // set for each test a new deployID and siteID
@@ -31,31 +62,7 @@ beforeEach<FixtureTestContext>(async (ctx) => {
 
   await startMockBlobStore(ctx)
 
-  // create a fake endpoint to test if it got called
-  const port = await getPort({ host: '0.0.0.0', exclude: [ctx.blobStorePort] })
   handlerCalled = 0
-
-  testServer = createServer((_, res) => {
-    handlerCalled++
-    res.writeHead(200, {
-      'Content-Type': 'application/json',
-      'cache-control': 'public, max-age=10000',
-    })
-    const date = new Date().toISOString()
-    res.end(JSON.stringify({ id: '1', name: 'Fake response', date }))
-  })
-  apiBase = await new Promise<string>((resolve) => {
-    // we need always the same port so that the hash is the same
-    testServer.listen(port, () => resolve(`http://0.0.0.0:${port}`))
-  })
-})
-
-afterEach(async () => {
-  testServer.closeAllConnections()
-  await new Promise((resolve) => {
-    testServer.on('close', resolve)
-    testServer.close()
-  })
 })
 
 test<FixtureTestContext>('if the fetch call is cached correctly (force-dynamic page)', async (ctx) => {
@@ -66,10 +73,6 @@ test<FixtureTestContext>('if the fetch call is cached correctly (force-dynamic p
   handlerCalled = 0
   const post1 = await invokeFunction(ctx, {
     url: 'dynamic-posts/1',
-    env: {
-      REVALIDATE_SECONDS: 5,
-      API_BASE: apiBase,
-    },
   })
 
   // allow for background regeneration to happen
@@ -93,10 +96,6 @@ test<FixtureTestContext>('if the fetch call is cached correctly (force-dynamic p
   handlerCalled = 0
   const post2 = await invokeFunction(ctx, {
     url: 'dynamic-posts/1',
-    env: {
-      REVALIDATE_SECONDS: 5,
-      API_BASE: apiBase,
-    },
   })
 
   // allow for any potential background regeneration to happen
@@ -121,10 +120,6 @@ test<FixtureTestContext>('if the fetch call is cached correctly (force-dynamic p
   handlerCalled = 0
   const post3 = await invokeFunction(ctx, {
     url: 'dynamic-posts/1',
-    env: {
-      REVALIDATE_SECONDS: 5,
-      API_BASE: apiBase,
-    },
   })
 
   // allow for any potential background regeneration to happen
@@ -156,10 +151,6 @@ test<FixtureTestContext>('if the fetch call is cached correctly (force-dynamic p
   handlerCalled = 0
   const post4 = await invokeFunction(ctx, {
     url: 'dynamic-posts/1',
-    env: {
-      REVALIDATE_SECONDS: 5,
-      API_BASE: apiBase,
-    },
   })
 
   // allow for any potential background regeneration to happen
@@ -193,10 +184,6 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   handlerCalled = 0
   const post1 = await invokeFunction(ctx, {
     url: 'posts/1',
-    env: {
-      REVALIDATE_SECONDS: 5,
-      API_BASE: apiBase,
-    },
   })
 
   // allow for background regeneration to happen
@@ -220,10 +207,6 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   handlerCalled = 0
   const post2 = await invokeFunction(ctx, {
     url: 'posts/1',
-    env: {
-      REVALIDATE_SECONDS: 5,
-      API_BASE: apiBase,
-    },
   })
 
   // allow for any potential background regeneration to happen
@@ -261,10 +244,6 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   handlerCalled = 0
   const post3 = await invokeFunction(ctx, {
     url: 'posts/1',
-    env: {
-      REVALIDATE_SECONDS: 5,
-      API_BASE: apiBase,
-    },
   })
 
   // allow for any potential background regeneration to happen
@@ -297,10 +276,6 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   handlerCalled = 0
   const post4 = await invokeFunction(ctx, {
     url: 'posts/1',
-    env: {
-      REVALIDATE_SECONDS: 5,
-      API_BASE: apiBase,
-    },
   })
 
   // allow for any potential background regeneration to happen

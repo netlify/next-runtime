@@ -2,16 +2,19 @@ import { execaCommand } from 'execa'
 import fg from 'fast-glob'
 import { exec } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { appendFile, copyFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
+import { appendFile, copyFile, mkdir, mkdtemp, readFile, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { env } from 'node:process'
+import { valid, satisfies } from 'semver'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { cpus } from 'os'
 import pLimit from 'p-limit'
 
 // This is the netlify testing application
-export const SITE_ID = 'ee859ce9-44a7-46be-830b-ead85e445e53'
+export const SITE_ID = process.env.NETLIFY_SITE_ID ?? 'ee859ce9-44a7-46be-830b-ead85e445e53'
+const NEXT_VERSION = process.env.NEXT_VERSION || 'latest'
+const FUTURE_NEXT_PATCH_VERSION = '14.999'
 
 export interface DeployResult {
   deployID: string
@@ -40,7 +43,7 @@ export const createE2EFixture = async (fixture: string, config: E2EConfig = {}) 
   let deployID: string
   let logs: string
   const _cleanup = (failure: boolean = false) => {
-    if (env.E2E_PERSIST) {
+    if (process.env.E2E_PERSIST) {
       console.log(
         `💾 Fixture and deployed site have been persisted. To clean up automatically, run tests without the 'E2E_PERSIST' environment variable.`,
       )
@@ -60,8 +63,13 @@ export const createE2EFixture = async (fixture: string, config: E2EConfig = {}) 
       buildAndPackRuntime(config, isolatedFixtureRoot),
       copyFixture(fixture, isolatedFixtureRoot, config),
     ])
+
+    if (NEXT_VERSION !== 'latest') {
+      await updateNextVersions(isolatedFixtureRoot, NEXT_VERSION)
+    }
     await installRuntime(packageName, isolatedFixtureRoot, config)
     const result = await deploySite(isolatedFixtureRoot, config)
+
     console.log(`🌍 Deployed site is live: ${result.url}`)
     deployID = result.deployID
     logs = result.logs
@@ -84,7 +92,8 @@ async function copyFixture(
   isolatedFixtureRoot: string,
   config: E2EConfig,
 ): Promise<void> {
-  console.log(`📂 Copying fixture to '${isolatedFixtureRoot}'...`)
+  console.log(`📂 Copying fixture '${fixtureName}' to '${isolatedFixtureRoot}'...`)
+
   const src = fileURLToPath(
     new URL(`../${config.smoke ? `smoke/fixtures` : `fixtures`}/${fixtureName}`, import.meta.url),
   )
@@ -145,6 +154,35 @@ package = "${name}"
   return filename
 }
 
+async function updateNextVersions(cwd, version) {
+  console.log(`▲  Updating 'next' version to '${version}'...`)
+  const packageJsons = await fg.glob(['**/package.json', '!**/node_modules'], {
+    cwd,
+    absolute: true,
+  })
+
+  const isSemverVersion = valid(version)
+
+  await Promise.all(
+    packageJsons.map(async (packageJsonPath) => {
+      const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'))
+      if (packageJson.dependencies?.next) {
+        const versionConstraint = packageJson.test?.dependencies?.next
+        // We can't use semver to check "canary" or "latest", so we use a fake future minor version
+        const checkVersion = isSemverVersion ? version : FUTURE_NEXT_PATCH_VERSION
+        if (versionConstraint && !satisfies(checkVersion, versionConstraint)) {
+          console.log(
+            `⏩ Skipping '${packageJson.name}' because it requires next@${versionConstraint}`,
+          )
+          return
+        }
+        packageJson.dependencies.next = version
+        await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n')
+      }
+    }),
+  )
+}
+
 async function installRuntime(
   packageName: string,
   isolatedFixtureRoot: string,
@@ -166,6 +204,7 @@ async function installRuntime(
   }
 
   let command: string | undefined
+
   let env = {} as NodeJS.ProcessEnv
 
   if (packageManger !== 'npm') {
@@ -174,7 +213,7 @@ async function installRuntime(
 
   switch (packageManger) {
     case 'npm':
-      command = `npm install --ignore-scripts --no-audit ${packageName} ${
+      command = `npm install --ignore-scripts --no-audit --legacy-peer-deps ${packageName} ${
         workspaceRelPath ? `-w ${workspaceRelPath}` : ''
       }`
       break
@@ -202,6 +241,8 @@ async function installRuntime(
     default:
       throw new Error(`Unsupported package manager: ${packageManger}`)
   }
+
+  console.log(`📦 Running install command '${command}'...`)
 
   await execaCommand(command, { cwd: isolatedFixtureRoot, env })
 
@@ -265,6 +306,7 @@ export const fixtureFactories = {
   simpleNextAppPNPM: () => createE2EFixture('simple-next-app-pnpm', { packageManger: 'pnpm' }),
   simpleNextAppBun: () => createE2EFixture('simple-next-app', { packageManger: 'bun' }),
   middleware: () => createE2EFixture('middleware'),
+  middlewareOg: () => createE2EFixture('middleware-og'),
   pageRouter: () => createE2EFixture('page-router'),
   pageRouterBasePathI18n: () => createE2EFixture('page-router-base-path-i18n'),
   turborepo: () =>

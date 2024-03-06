@@ -82,6 +82,7 @@
     "picomatch": "^3.0.1",
     "prettier": "^3.2.5",
     "regexp-tree": "^0.1.27",
+    "semver": "^7.6.0",
     "typescript": "^5.1.6",
     "unionfs": "^4.5.1",
     "uuid": "^9.0.1",

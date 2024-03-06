@@ -28,6 +28,16 @@ For a simple next.js app
 
 ## Testing
 
+The repo includes two types of tests: e2e tests in the repo that use Playwright, integration tests
+that use Vitest.
+
+By default the e2e and integration tests run against the latest version of Next.js. To run tests
+against a specific version, set the `NEXT_VERSION` environment variable to the desired version.
+
+By default, PRs will run the integration tests against the latest version of Next.js. To run tests
+against `latest`, `canary` and `13.5.1`, apply the `test all versions` label to the PR when you
+create it. These also run nightly and on release PRs.
+
 ### Integration testing
 
 How to add new integration test scenarios to the application:
@@ -74,6 +84,12 @@ following:
 
 > [!TIP] If you'd like to always keep the deployment and the local fixture around for
 > troubleshooting, run `E2E_PERSIST=1 npm run e2e`.
+
+### Next.js tests
+
+There is a script `run-local-test.sh` and GitHub workflow that runs the e2e tests from the Next.js
+repo against this repo. It requires that `next.js` is checked out in the same parent directory as
+this repo, and is run from this repo with `./run-local-test.sh your-test-pattern-here`.
 
 #### cleanup old deploys
 

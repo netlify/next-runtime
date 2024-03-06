@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test'
 import { test } from '../utils/playwright-helpers.js'
 import { getImageSize } from 'next/dist/server/image-optimizer.js'
+import { nextVersionSatisfies } from './e2e-helpers.js'
 
 test('Runs edge middleware', async ({ page, middleware }) => {
   await page.goto(`${middleware.url}/test/redirect`)
@@ -41,11 +42,12 @@ test('Supports CJS dependencies in Edge Middleware', async ({ page, middleware }
 })
 
 // adaptation of https://github.com/vercel/next.js/blob/8aa9a52c36f338320d55bd2ec292ffb0b8c7cb35/test/e2e/app-dir/metadata-edge/index.test.ts#L24C5-L31C7
-test('it should render OpenGraph image meta tag correctly', async ({ page, middleware }) => {
-  await page.goto(`${middleware.url}/`)
+test('it should render OpenGraph image meta tag correctly', async ({ page, middlewareOg }) => {
+  test.skip(!nextVersionSatisfies('>=14.0.0'), 'This test is only for Next.js 14+')
+  await page.goto(`${middlewareOg.url}/`)
   const ogURL = await page.locator('meta[property="og:image"]').getAttribute('content')
   expect(ogURL).toBeTruthy()
-  const ogResponse = await fetch(new URL(new URL(ogURL!).pathname, middleware.url))
+  const ogResponse = await fetch(new URL(new URL(ogURL!).pathname, middlewareOg.url))
   const imageBuffer = await ogResponse.arrayBuffer()
   const size = await getImageSize(Buffer.from(imageBuffer), 'png')
   expect([size.width, size.height]).toEqual([1200, 630])

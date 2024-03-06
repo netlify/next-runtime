@@ -14,3 +14,4 @@ deno.lock
 .eslintcache
 /report/index.html
 .DS_Store
+tests/fixtures/**/package-lock.json

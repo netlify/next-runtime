@@ -1,5 +1,6 @@
 import { type Locator, expect } from '@playwright/test'
 import { test } from '../utils/playwright-helpers.js'
+import { nextVersionSatisfies } from './e2e-helpers.js'
 
 const expectImageWasLoaded = async (locator: Locator) => {
   expect(await locator.evaluate((img: HTMLImageElement) => img.naturalHeight)).toBeGreaterThan(0)
@@ -50,7 +51,9 @@ test('Redirects correctly', async ({ page, simpleNextApp }) => {
 const waitFor = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // adaptation of https://github.com/vercel/next.js/blob/canary/test/e2e/app-dir/app-static/app-static.test.ts#L1716-L1755
-test('streams stale responses', async ({ simpleNextApp }) => {
+test.skip('streams stale responses', async ({ simpleNextApp }) => {
+  // Introduced in https://github.com/vercel/next.js/pull/55978
+  test.skip(!nextVersionSatisfies('>=13.5.4'), 'This test is only for Next.js 13.5.4+')
   // Prime the cache.
   const path = `${simpleNextApp.url}/stale-cache-serving/app-page`
   const res = await fetch(path)
