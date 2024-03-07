@@ -76,7 +76,7 @@ jobs:
           netlify login
       - name: Get installed Playwright version
         id: playwright-version
-        run: echo "::set-output name=version::$(npm view @playwright/test version)"
+        run: echo "version=$(npm view @playwright/test version)" >> $GITHUB_OUTPUT
       - uses: actions/cache@v4
         id: playwright-cache
         with:
