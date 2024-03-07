@@ -87,11 +87,19 @@ jobs:
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps
+      - name: Resolve Next.js version
+        id: resolve-next-version
+        shell: bash
+        run: |
+          RESOLVED_VERSION=$(npm view next@${{ matrix.version }} version)
+          echo "version=$RESOLVED_VERSION" >> $GITHUB_OUTPUT
+          echo "Resolved Next.js version for 'next@${{ matrix.version }}' is '$RESOLVED_VERSION'"
       - name: Run Playwright tests
         run: npm run e2e:ci -- --shard=${{ matrix.shard }}/4
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NEXT_VERSION: ${{ matrix.version }}
+          NEXT_RESOLVED_VERSION: ${{ steps.resolve-next-version.outputs.version }}
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         if: always()
@@ -135,9 +143,13 @@ jobs:
         run: |
           npm i -g netlify-cli
           netlify login
-      - name: Get actual Next.js version
-        id: actual-next-version
-        run: echo "version=$(npm view next@${{ matrix.version }} version)" >> $GITHUB_OUTPUT
+      - name: Resolve Next.js version
+        id: resolve-next-version
+        shell: bash
+        run: |
+          RESOLVED_VERSION=$(npm view next@${{ matrix.version }} version)
+          echo "version=$RESOLVED_VERSION" >> $GITHUB_OUTPUT
+          echo "Resolved Next.js version for 'next@${{ matrix.version }}' is '$RESOLVED_VERSION'"
       - name: Compute Fixtures Cache Key
         id: fixture-cache-key
         # Fixtures only need to be rebuilt if anything in the tests/fixtures directory changes,
@@ -152,18 +164,20 @@ jobs:
         with:
           path: tests/fixtures
           key:
-            integration-fixtures-${{ runner.os }}-${{steps.next-version.outputs.version}}-${{
+            integration-fixtures-${{ runner.os }}-${{steps.resolve-next-version.outputs.version}}-${{
             steps.fixture-cache-key.outputs.key }}
       - name: 'Prepare Fixtures'
         if: steps.cache-fixtures.outputs.cache-hit != 'true'
         run: npm run pretest
         env:
           NEXT_VERSION: ${{ matrix.version }}
+          NEXT_RESOLVED_VERSION: ${{ steps.resolve-next-version.outputs.version }}
       - name: 'Test'
         run: npm run test:ci -- --shard=${{ matrix.shard }}/8
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NEXT_VERSION: ${{ matrix.version }}
+          NEXT_RESOLVED_VERSION: ${{ steps.resolve-next-version.outputs.version }}
           TEMP: ${{ github.workspace }}/..
   merge-reports:
     if: always()

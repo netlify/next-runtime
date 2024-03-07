@@ -2,7 +2,7 @@
 // this installs and builds all the fixtures
 // Needed to run before executing the integration tests
 import { existsSync, readdirSync } from 'node:fs'
-import { rm, readFile, writeFile } from 'node:fs/promises'
+import { rm, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { argv } from 'node:process'
 import { Transform } from 'node:stream'
@@ -11,46 +11,12 @@ import { cpus } from 'node:os'
 import { execaCommand } from 'execa'
 import glob from 'fast-glob'
 import pLimit from 'p-limit'
-import { valid, satisfies } from 'semver'
+import { setNextVersionInFixture } from './utils/next-version-helpers.mjs'
 
 const NEXT_VERSION = process.env.NEXT_VERSION ?? 'latest'
 
 const fixturesDir = fileURLToPath(new URL(`./fixtures`, import.meta.url))
 const fixtureFilter = argv[2] ?? ''
-
-async function updateNextVersions(cwd, version, fixture) {
-  console.log(`[${fixture}] ▲  Updating 'next' version to '${version}'...`)
-  const packageJsons = await glob(['**/package.json', '!**/node_modules'], {
-    cwd,
-    absolute: true,
-  })
-
-  const isSemver = valid(version)
-
-  await Promise.all(
-    packageJsons.map(async (packageJsonPath) => {
-      try {
-        const data = await readFile(packageJsonPath, 'utf8')
-        const packageJson = JSON.parse(data)
-        if (packageJson.dependencies?.next) {
-          const minimumVersion = packageJson.test?.dependencies?.next
-          if (isSemver && minimumVersion && !satisfies(version, minimumVersion)) {
-            console.log(
-              `⏩ Skipping '${packageJson.name}' because it requires next@${minimumVersion}`,
-            )
-            return
-          }
-          packageJson.dependencies.next = version
-          await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n')
-        }
-      } catch (e) {
-        console.error(`Error updating ${packageJsonPath}`, e)
-        throw e
-      }
-    }),
-  )
-  console.log(`[${fixture}] ▲  Updated to next@${version}`)
-}
 
 const limit = pLimit(Math.max(2, cpus().length / 2))
 const fixtures = readdirSync(fixturesDir)
@@ -73,14 +39,15 @@ const promises = fixtures.map((fixture) =>
     await Promise.all(publishDirectories.map((dir) => rm(dir, { recursive: true, force: true })))
 
     if (NEXT_VERSION !== 'latest') {
-      console.log(`[${fixture}] Updating Next.js to ${NEXT_VERSION}`)
-      await updateNextVersions(cwd, NEXT_VERSION, fixture)
+      await setNextVersionInFixture(cwd, NEXT_VERSION, {
+        logPrefix: `[${fixture}] `,
+      })
     }
 
     // npm is the default
     let cmd = `npm install --no-audit --progress=false --prefer-offline `
-
-    if (existsSync(join(cwd, 'pnpm-lock.yaml'))) {
+    const { packageManager } = JSON.parse(await readFile(join(cwd, 'package.json'), 'utf8'))
+    if (packageManager?.startsWith('pnpm')) {
       // We disable frozen-lockfile because we may have changed the version of Next.js
       cmd = `pnpm install --frozen-lockfile=false --force ${
         process.env.DEBUG || NEXT_VERSION !== 'latest' ? '' : '--reporter silent'
@@ -103,17 +70,22 @@ const promises = fixtures.map((fixture) =>
       output.stdout?.pipe(addPrefix).pipe(process.stdout)
     }
     output.stderr?.pipe(addPrefix).pipe(process.stderr)
-    output.finally(async () => {
-      fixtureList.delete(fixture)
-
-      console.log(
-        `[${fixture}] Done. ${limit.pendingCount + limit.activeCount}/${fixtureCount} remaining.`,
-      )
-      if (limit.activeCount < 5 && limit.activeCount > 0) {
-        console.log(`[${fixture}] Waiting for ${Array.from(fixtureList).join(', ')}`)
+    return output.finally(async () => {
+      if (NEXT_VERSION !== 'latest') {
+        await setNextVersionInFixture(cwd, 'latest', {
+          logPrefix: `[${fixture}] `,
+          operation: 'revert',
+        })
       }
+      fixtureList.delete(fixture)
     })
-    return output
+  }).finally(() => {
+    console.log(
+      `[${fixture}] Done. ${limit.pendingCount + limit.activeCount}/${fixtureCount} remaining.`,
+    )
+    if (limit.activeCount < 5 && limit.activeCount > 0) {
+      console.log(`[${fixture}] Waiting for ${Array.from(fixtureList).join(', ')}`)
+    }
   }),
 )
 await Promise.allSettled(promises)

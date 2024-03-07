@@ -5,16 +5,15 @@ import { existsSync } from 'node:fs'
 import { appendFile, copyFile, mkdir, mkdtemp, readFile, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { valid, satisfies } from 'semver'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { cpus } from 'os'
 import pLimit from 'p-limit'
+import { setNextVersionInFixture } from './next-version-helpers.mjs'
 
 // This is the netlify testing application
 export const SITE_ID = process.env.NETLIFY_SITE_ID ?? 'ee859ce9-44a7-46be-830b-ead85e445e53'
 const NEXT_VERSION = process.env.NEXT_VERSION || 'latest'
-const FUTURE_NEXT_PATCH_VERSION = '14.999'
 
 export interface DeployResult {
   deployID: string
@@ -65,7 +64,7 @@ export const createE2EFixture = async (fixture: string, config: E2EConfig = {}) 
     ])
 
     if (NEXT_VERSION !== 'latest') {
-      await updateNextVersions(isolatedFixtureRoot, NEXT_VERSION)
+      await setNextVersionInFixture(isolatedFixtureRoot, NEXT_VERSION)
     }
     await installRuntime(packageName, isolatedFixtureRoot, config)
     const result = await deploySite(isolatedFixtureRoot, config)
@@ -152,35 +151,6 @@ package = "${name}"
   }
 
   return filename
-}
-
-async function updateNextVersions(cwd, version) {
-  console.log(`▲  Updating 'next' version to '${version}'...`)
-  const packageJsons = await fg.glob(['**/package.json', '!**/node_modules'], {
-    cwd,
-    absolute: true,
-  })
-
-  const isSemverVersion = valid(version)
-
-  await Promise.all(
-    packageJsons.map(async (packageJsonPath) => {
-      const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'))
-      if (packageJson.dependencies?.next) {
-        const versionConstraint = packageJson.test?.dependencies?.next
-        // We can't use semver to check "canary" or "latest", so we use a fake future minor version
-        const checkVersion = isSemverVersion ? version : FUTURE_NEXT_PATCH_VERSION
-        if (versionConstraint && !satisfies(checkVersion, versionConstraint)) {
-          console.log(
-            `⏩ Skipping '${packageJson.name}' because it requires next@${versionConstraint}`,
-          )
-          return
-        }
-        packageJson.dependencies.next = version
-        await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n')
-      }
-    }),
-  )
 }
 
 async function installRuntime(

@@ -11,5 +11,6 @@
     "next": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0"
-  }
+  },
+  "packageManager": "pnpm@8.9.0"
 }

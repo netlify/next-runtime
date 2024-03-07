@@ -14,4 +14,6 @@ deno.lock
 .eslintcache
 /report/index.html
 .DS_Store
-tests/fixtures/**/package-lock.json
+tests/**/package-lock.json
+tests/**/pnpm-lock.yaml
+tests/**/yarn.lock

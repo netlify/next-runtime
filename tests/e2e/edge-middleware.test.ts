@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test'
+import { nextVersionSatisfies } from '../utils/next-version-helpers.mjs'
 import { test } from '../utils/playwright-helpers.js'
 import { getImageSize } from 'next/dist/server/image-optimizer.js'
-import { nextVersionSatisfies } from './e2e-helpers.js'
 
 test('Runs edge middleware', async ({ page, middleware }) => {
   await page.goto(`${middleware.url}/test/redirect`)

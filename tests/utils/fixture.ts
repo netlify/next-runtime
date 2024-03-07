@@ -24,6 +24,7 @@ import {
   PluginContext,
   SERVER_HANDLER_NAME,
 } from '../../src/build/plugin-context.js'
+import { setNextVersionInFixture } from './next-version-helpers.mjs'
 
 export interface FixtureTestContext extends TestContext {
   cwd: string
@@ -46,8 +47,14 @@ const bootstrapURL = 'https://edge.netlify.com/bootstrap/index-combined.ts'
 const actualCwd = await vi.importActual<typeof import('process')>('process').then((p) => p.cwd())
 const eszipHelper = join(actualCwd, 'tools/deno/eszip.ts')
 
-function installDependencies(cwd: string) {
-  if (existsSync(join(cwd, 'pnpm-lock.yaml'))) {
+async function installDependencies(cwd: string) {
+  const NEXT_VERSION = process.env.NEXT_VERSION ?? 'latest'
+  if (NEXT_VERSION !== 'latest') {
+    await setNextVersionInFixture(cwd, NEXT_VERSION, { silent: true })
+  }
+
+  const { packageManager } = JSON.parse(await readFile(join(cwd, 'package.json'), 'utf8'))
+  if (packageManager?.startsWith('pnpm')) {
     return execaCommand(`pnpm install --ignore-scripts --reporter=silent`, {
       cwd,
     })
@@ -104,8 +111,8 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
     ctx.cleanup.push(async () => {
       try {
         await rm(ctx.cwd, { recursive: true, force: true })
-      } catch {
-        // noop
+      } catch (error) {
+        console.log(`Fixture '${fixture}' has failed to cleanup at '${ctx.cwd}'`, error)
       }
     })
   }
