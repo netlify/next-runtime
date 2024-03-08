@@ -91,6 +91,7 @@
   "clean-package": {
     "indent": 2,
     "remove": [
+      "clean-package",
       "dependencies",
       "devDependencies",
       "scripts"

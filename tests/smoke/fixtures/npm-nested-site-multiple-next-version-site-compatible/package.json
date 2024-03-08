@@ -1,5 +1,5 @@
 {
-  "name": "npm-monorepo-empty-base",
+  "name": "no-package-path-set",
   "private": true,
   "scripts": {
     "build": "cd apps/site && npm run build"
@@ -8,8 +8,12 @@
     "node": ">=18"
   },
   "packageManager": "npm@10.2.3",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "dependencies": {
+    "next": "13.4.1"
+  },
+  "test": {
+    "dependencies": {
+      "next": "13.4.1"
+    }
+  }
 }

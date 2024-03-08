@@ -1,16 +1,30 @@
 import { existsSync } from 'node:fs'
-import { cp, mkdir, readFile, readdir, readlink, symlink, writeFile } from 'node:fs/promises'
+import {
+  cp,
+  mkdir,
+  readFile,
+  readdir,
+  readlink,
+  symlink,
+  writeFile,
+  access,
+} from 'node:fs/promises'
 import { createRequire } from 'node:module'
 // eslint-disable-next-line no-restricted-imports
 import { dirname, join, resolve, sep } from 'node:path'
-import { sep as posixSep, relative as posixRelative } from 'node:path/posix'
+import { sep as posixSep, relative as posixRelative, join as posixJoin } from 'node:path/posix'
 
 import glob from 'fast-glob'
 
 import { RUN_CONFIG } from '../../run/constants.js'
 import { PluginContext } from '../plugin-context.js'
+import { verifyNextVersion } from '../verification.js'
 
 const toPosixPath = (path: string) => path.split(sep).join(posixSep)
+
+function isError(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error
+}
 
 /**
  * Copy App/Pages Router Javascript needed by the server handler
@@ -23,6 +37,18 @@ export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
     ctx.relPublishDir,
     'required-server-files.json',
   )
+  try {
+    await access(reqServerFilesPath)
+  } catch (error) {
+    if (isError(error) && error.code === 'ENOENT') {
+      // this error at this point is problem in runtime and not user configuration
+      ctx.failBuild(
+        `Failed creating server handler. required-server-files.json file not found at expected location "${reqServerFilesPath}". Your repository setup is currently not yet supported.`,
+      )
+    } else {
+      throw error
+    }
+  }
   const reqServerFiles = JSON.parse(await readFile(reqServerFilesPath, 'utf-8'))
 
   // if the resolved dist folder does not match the distDir of the required-server-files.json
@@ -157,9 +183,25 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
   await Promise.all(promises)
 
   // detect if it might lead to a runtime issue and throw an error upfront on build time instead of silently failing during runtime
-  const require = createRequire(ctx.serverHandlerDir)
+  const serverHandlerRequire = createRequire(posixJoin(ctx.serverHandlerDir, ':internal:'))
+
+  let nextVersion: string | undefined
   try {
-    const nextEntryAbsolutePath = require.resolve('next')
+    const { version } = serverHandlerRequire('next/package.json')
+    if (version) {
+      nextVersion = version as string
+    }
+  } catch {
+    // failed to resolve package.json - currently this is resolvable in all known next versions, but if next implements
+    // exports map it still might be a problem in the future, so we are not breaking here
+  }
+
+  if (nextVersion) {
+    verifyNextVersion(ctx, nextVersion)
+  }
+
+  try {
+    const nextEntryAbsolutePath = serverHandlerRequire.resolve('next')
     const nextRequire = createRequire(nextEntryAbsolutePath)
     nextRequire.resolve('styled-jsx')
   } catch {

@@ -1,5 +1,5 @@
 {
-  "name": "no-package-path-set",
+  "name": "npm-monorepo-site-created-at-build",
   "private": true,
   "engines": {
     "node": ">=18"

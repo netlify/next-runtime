@@ -1,5 +1,5 @@
 {
-  "name": "npm-monorepo-empty-base",
+  "name": "npm-nested-site-multiple-next-version-site-incompatible",
   "private": true,
   "scripts": {
     "build": "cd apps/site && npm run build"
@@ -8,8 +8,7 @@
     "node": ">=18"
   },
   "packageManager": "npm@10.2.3",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "dependencies": {
+    "next": "latest"
+  }
 }

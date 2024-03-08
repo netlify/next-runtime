@@ -12,6 +12,7 @@ import { createEdgeHandlers } from './build/functions/edge.js'
 import { createServerHandler } from './build/functions/server.js'
 import { setImageConfig } from './build/image-cdn.js'
 import { PluginContext } from './build/plugin-context.js'
+import { verifyPublishDir } from './build/verification.js'
 
 export const onPreBuild = async (options: NetlifyPluginOptions) => {
   // Enable Next.js standalone mode at build time
@@ -23,7 +24,7 @@ export const onPreBuild = async (options: NetlifyPluginOptions) => {
 
 export const onBuild = async (options: NetlifyPluginOptions) => {
   const ctx = new PluginContext(options)
-  ctx.verifyPublishDir()
+  verifyPublishDir(ctx)
 
   // only save the build cache if not run via the CLI
   if (!options.constants.IS_LOCAL) {

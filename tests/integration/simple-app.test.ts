@@ -1,7 +1,7 @@
 import { load } from 'cheerio'
 import { getLogger } from 'lambda-local'
 import { v4 } from 'uuid'
-import { beforeEach, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   createFixture,
   invokeFunction,
@@ -68,11 +68,27 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
   expect(load(notExisting.body)('h1').text()).toBe('404')
 })
 
-test<FixtureTestContext>('Should warn if publish dir is root', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
-  expect(() => runPlugin(ctx, { PUBLISH_DIR: '.' })).rejects.toThrowError(
-    'check your build settings',
-  )
+describe('verification', () => {
+  test<FixtureTestContext>("Should warn if publish dir doesn't exist", async (ctx) => {
+    await createFixture('simple-next-app', ctx)
+    expect(() => runPlugin(ctx, { PUBLISH_DIR: 'no-such-directory' })).rejects.toThrowError(
+      /Your publish directory was not found at: \S+no-such-directory, please check your build settings/,
+    )
+  })
+
+  test<FixtureTestContext>('Should warn if publish dir is root', async (ctx) => {
+    await createFixture('simple-next-app', ctx)
+    expect(() => runPlugin(ctx, { PUBLISH_DIR: '.' })).rejects.toThrowError(
+      'Your publish directory cannot be the same as the base directory of your site, please check your build settings',
+    )
+  })
+
+  test<FixtureTestContext>('Should warn if publish dir is not set to Next.js output directory', async (ctx) => {
+    await createFixture('simple-next-app', ctx)
+    expect(() => runPlugin(ctx, { PUBLISH_DIR: 'public' })).rejects.toThrowError(
+      'Your publish directory does not contain expected Next.js build output, please check your build settings',
+    )
+  })
 })
 
 test<FixtureTestContext>('Should add cache-tags to prerendered app pages', async (ctx) => {

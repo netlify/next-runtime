@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 // Here we need to actually import `resolve` from node:path as we want to resolve the paths
 // eslint-disable-next-line no-restricted-imports
@@ -212,18 +212,5 @@ export class PluginContext {
   /** Fails a build with a message and an optional error */
   failBuild(message: string, error?: unknown): never {
     return this.utils.build.failBuild(message, error instanceof Error ? { error } : undefined)
-  }
-
-  verifyPublishDir() {
-    if (!existsSync(this.publishDir)) {
-      this.failBuild(
-        `Your publish directory was not found at: ${this.publishDir}, please check your build settings`,
-      )
-    }
-    if (this.publishDir === this.resolve(this.packagePath)) {
-      this.failBuild(
-        `Your publish directory cannot be the same as the base directory of your site, please check your build settings`,
-      )
-    }
   }
 }

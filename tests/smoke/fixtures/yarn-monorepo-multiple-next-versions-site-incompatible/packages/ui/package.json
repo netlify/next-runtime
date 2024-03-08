@@ -1,0 +1,11 @@
+{
+  "name": "@packages/ui",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./test.jsx": "./src/test.jsx"
+  },
+  "devDependencies": {
+    "react": "^18.2.0"
+  }
+}

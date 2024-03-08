@@ -31,6 +31,10 @@ interface E2EConfig {
   publishDirectory?: string
   smoke?: boolean
   generateNetlifyToml?: false
+  /**
+   * If runtime should be installed in a custom location and not in cwd / packagePath
+   */
+  runtimeInstallationPath?: string
 }
 
 /**
@@ -156,11 +160,11 @@ package = "${name}"
 async function installRuntime(
   packageName: string,
   isolatedFixtureRoot: string,
-  { packageManger = 'npm', packagePath, cwd }: E2EConfig,
+  { packageManger = 'npm', packagePath, cwd, runtimeInstallationPath }: E2EConfig,
 ): Promise<void> {
   console.log(`🐣 Installing runtime from '${packageName}'...`)
 
-  const siteRelDir = cwd ?? packagePath ?? ''
+  const siteRelDir = runtimeInstallationPath ?? cwd ?? packagePath ?? ''
 
   let workspaceRelPath: string | undefined
   let workspaceName: string | undefined
@@ -188,7 +192,7 @@ async function installRuntime(
       }`
       break
     case 'yarn':
-      command = `yarn ${workspaceName ? `workspace ${workspaceName}` : ''} add file:${join(
+      command = `yarn ${workspaceName ? `workspace ${workspaceName}` : '-W'} add file:${join(
         isolatedFixtureRoot,
         packageName,
       )} --ignore-scripts`
@@ -218,7 +222,7 @@ async function installRuntime(
 
   if (packageManger === 'npm' && workspaceRelPath) {
     // installing package in npm workspace doesn't install root level packages, so we additionally install those
-    await execaCommand(`npm install --ignore-scripts --no-audit`, { cwd: isolatedFixtureRoot })
+    await execaCommand('npm install --ignore-scripts --no-audit', { cwd: isolatedFixtureRoot })
   }
 }
 
@@ -328,5 +332,51 @@ export const fixtureFactories = {
       publishDirectory: 'apps/site/.next',
       smoke: true,
       generateNetlifyToml: false,
+    }),
+  next12_0_3: () =>
+    createE2EFixture('next-12.0.3', {
+      buildCommand: 'npm run build',
+      publishDirectory: '.next',
+      smoke: true,
+    }),
+  next12_1_0: () =>
+    createE2EFixture('next-12.1.0', {
+      buildCommand: 'npm run build',
+      publishDirectory: '.next',
+      smoke: true,
+    }),
+  yarnMonorepoMultipleNextVersionsSiteCompatible: () =>
+    createE2EFixture('yarn-monorepo-multiple-next-versions-site-compatible', {
+      buildCommand: 'npm run build',
+      publishDirectory: 'apps/site/.next',
+      packagePath: 'apps/site',
+      // install runtime in root to make sure we correctly resolve next version from
+      // the site location
+      runtimeInstallationPath: '',
+      packageManger: 'yarn',
+      smoke: true,
+    }),
+  yarnMonorepoMultipleNextVersionsSiteIncompatible: () =>
+    createE2EFixture('yarn-monorepo-multiple-next-versions-site-incompatible', {
+      buildCommand: 'npm run build',
+      publishDirectory: 'apps/site/.next',
+      packagePath: 'apps/site',
+      // install runtime in root to make sure we correctly resolve next version from
+      // the site location
+      runtimeInstallationPath: '',
+      packageManger: 'yarn',
+      smoke: true,
+    }),
+  npmNestedSiteMultipleNextVersionsCompatible: () =>
+    createE2EFixture('npm-nested-site-multiple-next-version-site-compatible', {
+      buildCommand: 'cd apps/site && npm install && npm run build',
+      publishDirectory: 'apps/site/.next',
+      smoke: true,
+    }),
+  npmNestedSiteMultipleNextVersionsIncompatible: () =>
+    createE2EFixture('npm-nested-site-multiple-next-version-site-incompatible', {
+      buildCommand: 'cd apps/site && npm install && npm run build',
+      publishDirectory: 'apps/site/.next',
+      smoke: true,
     }),
 }

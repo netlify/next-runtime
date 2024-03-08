@@ -1,5 +1,5 @@
 {
-  "name": "npm-monorepo-empty-base",
+  "name": "yarn-monorepo-multiple-next-versions-site-incompatible",
   "private": true,
   "scripts": {
     "build": "cd apps/site && npm run build"
@@ -7,9 +7,12 @@
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "npm@10.2.3",
+  "packageManager": "yarn@1.22.21",
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "next": "latest"
+  }
 }

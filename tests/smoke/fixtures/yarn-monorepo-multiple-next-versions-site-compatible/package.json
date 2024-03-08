@@ -1,0 +1,23 @@
+{
+  "name": "yarn-monorepo-multiple-next-versions-site-compatible",
+  "private": true,
+  "scripts": {
+    "build": "cd apps/site && npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "yarn@1.22.21",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "next": "13.4.1"
+  },
+  "test": {
+    "dependencies": {
+      "next": "13.4.1"
+    }
+  }
+}
