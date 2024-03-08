@@ -1,10 +1,20 @@
-name: Run next.js tests
+name: Run Next.js repo tests
 
 on:
-  workflow_dispatch:
   workflow_call:
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    branches: [main]
+  schedule:
+    - cron: '0 3 * * *' # Run every day at 3am UTC
+  workflow_dispatch:
+    inputs:
+      versions:
+        description: 'The versions of Next.js to test against (quoted and comma separated)'
+        required: false
+        default: "\"latest\""
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: 18.17.1
@@ -12,6 +22,9 @@ env:
   NEXT_REPO: vercel/next.js
   NEXT_TEST_MODE: deploy
   NEXT_JUNIT_TEST_REPORT: true
+  # In older versions of Next.js both of these need to be set to enable junit reporting
+  DATADOG_TRACE_NEXTJS_TEST: true
+  DATADOG_API_KEY: foo
   TEST_CONCURRENCY: 2
   NEXT_E2E_TEST_TIMEOUT: 300000
   NEXT_TELEMETRY_DISABLED: 1
@@ -26,17 +39,43 @@ env:
   next-path: next.js
   runtime-path: next-runtime-minimal
 jobs:
-  e2e:
-    if:
-      ${{ github.event_name == ('workflow_dispatch' || 'workflow_call') ||
-      contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}
-    name: Test group ${{ matrix.group }}/12
+  setup:
     runs-on: ubuntu-latest
+    if:
+      ${{ github.event_name == ('workflow_dispatch' || 'workflow_call' || 'schedule') ||
+      contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}
+    outputs:
+      version: ${{ steps.set-matrix.outputs.version }}
+      group: ${{ steps.set-matrix.outputs.group }}
+      total: ${{ steps.set-matrix.outputs.total }}
+    steps:
+
+      - name: Set Next.js versions to test
+        id: set-matrix
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "version=[${{ github.event.inputs.versions }}]" >> $GITHUB_OUTPUT
+            echo "group=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]" >> $GITHUB_OUTPUT
+            echo "total=12" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "version=[\"latest\"]" >> $GITHUB_OUTPUT
+            echo "group=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]" >> $GITHUB_OUTPUT
+            echo "total=12" >> $GITHUB_OUTPUT
+          else
+            echo "version=[\"canary\",\"latest\",\"13.5.1\"]" >> $GITHUB_OUTPUT
+            echo "group=[1, 2, 3, 4]" >> $GITHUB_OUTPUT
+            echo "total=4" >> $GITHUB_OUTPUT
+          fi
+  e2e:
+    needs: setup
+    runs-on: ubuntu-latest
+    name: Test next@${{ matrix.version }} group ${{ matrix.group }}/${{ needs.setup.outputs.total }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        group: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        version: ${{ fromJson(needs.setup.outputs.version) }}
+        group: ${{ fromJson(needs.setup.outputs.group) }}
 
     outputs:
       tag: ${{ steps.next-release.outputs.tag }}
@@ -45,10 +84,20 @@ jobs:
       - name: Get Latest Next.js Release
         id: next-release
         run: |
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/vercel/next.js/releases/latest | jq -r .tag_name)
-          echo "Latest release tag is $LATEST_RELEASE"
-          echo "tag=$LATEST_RELEASE" >> $GITHUB_OUTPUT
-
+          if [ "${{ matrix.version }}" == "latest" ]; then
+            LATEST_RELEASE_TAG=$(curl -s https://api.github.com/repos/vercel/next.js/releases/latest | jq -r .tag_name)
+            echo "Latest release tag is $LATEST_RELEASE_TAG"
+            echo "tag=$LATEST_RELEASE_TAG" >> $GITHUB_OUTPUT
+            echo "version=$(npm view next@latest version)" >> $GITHUB_OUTPUT
+          elif [ "${{ matrix.version }}" == "canary" ]; then
+            LATEST_CANARY_TAG=$(curl -s https://api.github.com/repos/vercel/next.js/releases | jq -r '.[] | select(.prerelease == true) | .tag_name' | head -n 1)
+            echo "Latest canary tag is $LATEST_CANARY_TAG"
+            echo "tag=$LATEST_CANARY_TAG" >> $GITHUB_OUTPUT
+            echo "version=$(npm view next@canary version)" >> $GITHUB_OUTPUT
+          else
+            echo "tag=v${{ matrix.version }}" >> $GITHUB_OUTPUT
+            echo "version=$(npm view next@${{ matrix.version }} version)" >> $GITHUB_OUTPUT
+          fi
       - name: checkout Next.js repo
         uses: actions/checkout@v4
         with:
@@ -69,6 +118,18 @@ jobs:
       - name: setup pnpm/yarn
         run: corepack enable
 
+      - name: get pnpm store
+        id: pnpm-store
+        run: echo "PATH=$(pnpm store path --silent)" >> ${GITHUB_OUTPUT}
+
+      - name: cache pnpm deps
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.PATH }}
+          key: pnpm-store-${{ hashFiles('next.js/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-
+
       - name: get npm cache
         id: npm-cache
         run: echo "PATH=$(npm config get cache)" >> ${GITHUB_OUTPUT}
@@ -77,7 +138,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.npm-cache.outputs.PATH }}
-          key: node-cache-${{ hashFiles('**/package-lock.json') }}
+          key: node-cache-${{ hashFiles('next-runtime-minimal/package-lock.json') }}
           restore-keys: |
             node-cache-
 
@@ -96,7 +157,7 @@ jobs:
         working-directory: ${{ env.next-path }}
 
       - name: install swc
-        run: pnpm add --workspace-root @next/swc-linux-x64-gnu@${{ env.NEXT_VERSION }}
+        run: pnpm add --workspace-root @next/swc-linux-x64-gnu@${{ steps.next-release.outputs.version }}
         working-directory: ${{ env.next-path }}
 
       - name: Install Deno
@@ -116,33 +177,50 @@ jobs:
       - name: add netlify cli
         run: npm install -g netlify-cli
 
-      - name: install playwright
-        run: npx playwright install
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
         working-directory: ${{ env.next-path }}
+
+      - name: Get test filters
+        id: test-filters
+        run: |
+          # This is when the manifest version was changed
+          if [ `npx semver -p -r ">=14.0.4-canary.26" ${{ steps.next-release.outputs.version }}` ]; then
+            echo "filters=../next-runtime-minimal/tests/netlify-e2e.cjs" >> $GITHUB_OUTPUT
+            echo "skip-retry=../next-runtime-minimal/tests/e2e-skip-retry.json" >> $GITHUB_OUTPUT
+          else
+            echo "filters=../next-runtime-minimal/tests/netlify-e2e-legacy.json" >> $GITHUB_OUTPUT
+            echo "skip-retry=../next-runtime-minimal/tests/e2e-skip-retry-legacy.json" >> $GITHUB_OUTPUT
+          fi
 
       - name: run tests
         env:
           NODE_ENV: production
-          NEXT_EXTERNAL_TESTS_FILTERS: ../next-runtime-minimal/tests/netlify-e2e.json
-          NEXT_TEST_SKIP_RETRY_MANIFEST: ../next-runtime-minimal/tests/e2e-skip-retry.json
-        run: node run-tests.js -g ${{ matrix.group }}/12 -c ${TEST_CONCURRENCY} --type e2e
+          NEXT_EXTERNAL_TESTS_FILTERS: ${{ steps.test-filters.outputs.filters }}
+          NEXT_TEST_SKIP_RETRY_MANIFEST: ${{ steps.test-filters.outputs.skip-retry }}
+        run: node run-tests.js -g ${{ matrix.group }}/${{ needs.setup.outputs.total }} -c ${TEST_CONCURRENCY} --type e2e --timings
         working-directory: ${{ env.next-path }}
 
       - name: Upload Test Results
         if: success() || failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: Test Results (${{ matrix.group }})
+          name: test-result-${{matrix.version}}-${{ matrix.group }}
           path: ${{ env.next-path }}/test/test-junit-report/*.xml
   publish-test-results:
-    name: 'E2E Test Summary'
-    needs: e2e
+    name: 'E2E Test Summary (${{matrix.version}})'
+    needs: 
+      - e2e
+      - setup
     runs-on: ubuntu-latest
     permissions:
       checks: write
       contents: read
       issues: read
     if: success() || failure()
+    strategy:
+      matrix:
+        version: ${{ fromJson(needs.setup.outputs.version) }}
 
     steps:
       - name: checkout runtime repo
@@ -152,17 +230,31 @@ jobs:
         uses: denoland/setup-deno@v1
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
+          pattern: test-result-${{matrix.version}}-*
           path: artifacts
 
       - name: Publish Test Report
+        id: publish-test-results
         if: success() || failure()
         run: |
           deno run -A tools/deno/junit2md.ts artifacts >> $GITHUB_STEP_SUMMARY
+          echo "slackEvent<<NETLIFY_EOF" >> $GITHUB_OUTPUT
+          deno run -A tools/deno/junit2slack.ts --dir artifacts --version ${{matrix.version}} --runUrl ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}} >> $GITHUB_OUTPUT
+          echo "NETLIFY_EOF" >> $GITHUB_OUTPUT
+
+      - name: Notify Slack
+        if: success() || failure()
+        uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        with:
+          payload: ${{ steps.publish-test-results.outputs.slackEvent }}
 
       - name: Publish test site
-        if: success() || failure()
+        if: (success() || failure()) && matrix.version == 'latest' && github.event_name == ('schedule' || 'workflow_dispatch') && github.head_ref == 'main'
         run: |
           deno run -A tools/deno/junit2html.ts artifacts ${{needs.e2e.outputs.tag}} > report/index.html
           npx --yes netlify-cli@latest deploy --prod --cwd report
