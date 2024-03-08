@@ -5,7 +5,7 @@ import { test } from '../utils/playwright-helpers.js'
 test.describe.configure({ mode: 'parallel' })
 
 test.describe('[PNPM] Package manager', () => {
-  test('Static revalidate works correctly', async ({ page, turborepo }) => {
+  test('Static revalidate works correctly', async ({ page, pollUntilHeadersMatch, turborepo }) => {
     // in case there is retry or some other test did hit that path before
     // we want to make sure that cdn cache is not warmed up
     const purgeCdnCache = await page.goto(
@@ -13,17 +13,27 @@ test.describe('[PNPM] Package manager', () => {
     )
     expect(purgeCdnCache?.status()).toBe(200)
 
-    const response1 = await page.goto(new URL('static/revalidate-manual', turborepo.url).href)
+    // wait a bit until cdn cache purge propagates
+    await page.waitForTimeout(500)
+
+    const response1 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-manual', turborepo.url).href,
+      {
+        headersToMatch: {
+          // either first time hitting this route or we invalidated
+          // just CDN node in earlier step
+          // we will invoke function and see Next cache hit status \
+          // in the response because it was prerendered at build time
+          // or regenerated in previous attempt to run this test
+          'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit/m],
+        },
+        headersNotMatchedMessage:
+          'First request to tested page (html) should be a miss or stale on the Edge and hit in Next.js',
+      },
+    )
     const headers1 = response1?.headers() || {}
     expect(response1?.status()).toBe(200)
     expect(headers1['x-nextjs-cache']).toBeUndefined()
-    // either first time hitting this route or we invalidated
-    // just CDN node in earlier step
-    // we will invoke function and see Next cache hit status \
-    // in the response because it was prerendered at build time
-    // or regenerated in previous attempt to run this test
-    expect(headers1['cache-status']).toMatch(/"Netlify Edge"; fwd=(miss|stale)/m)
-    expect(headers1['cache-status']).toMatch(/"Next.js"; hit/m)
     expect(headers1['netlify-cdn-cache-control']).toBe(
       's-maxage=31536000, stale-while-revalidate=31536000',
     )
@@ -32,16 +42,24 @@ test.describe('[PNPM] Package manager', () => {
     const h1 = await page.textContent('h1')
     expect(h1).toBe('Show #71')
 
-    const response2 = await page.goto(new URL('static/revalidate-manual', turborepo.url).href)
+    const response2 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-manual', turborepo.url).href,
+      {
+        headersToMatch: {
+          // we are hitting the same page again and we most likely will see
+          // CDN hit (in this case Next reported cache status is omitted
+          // as it didn't actually take place in handling this request)
+          // or we will see CDN miss because different CDN node handled request
+          'cache-status': /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
+        },
+        headersNotMatchedMessage:
+          'Second request to tested page (html) should most likely be a hit on the Edge (optionally miss or stale if different CDN node)',
+      },
+    )
     const headers2 = response2?.headers() || {}
     expect(response2?.status()).toBe(200)
     expect(headers2['x-nextjs-cache']).toBeUndefined()
-    // we are hitting the same page again and we most likely will see
-    // CDN hit (in this case Next reported cache status is omitted
-    // as it didn't actually take place in handling this request)
-    // or we will see CDN miss because different CDN node handled request
-    expect(headers2['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-    if (!headers2['cache-status'].includes('hit')) {
+    if (!headers2['cache-status'].includes('"Netlify Edge"; hit')) {
       // if we missed CDN cache, we will see Next cache hit status
       // as we reuse cached response
       expect(headers2['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -61,17 +79,24 @@ test.describe('[PNPM] Package manager', () => {
     await page.waitForTimeout(1000)
 
     // now after the revalidation it should have a different date
-    const response3 = await page.goto(new URL('static/revalidate-manual', turborepo.url).href)
+    const response3 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-manual', turborepo.url).href,
+      {
+        headersToMatch: {
+          // revalidate refreshes Next cache, but not CDN cache
+          // so our request after revalidation means that Next cache is already
+          // warmed up with fresh response, but CDN cache just knows that previously
+          // cached response is stale, so we are hitting our function that serve
+          // already cached response
+          'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+        },
+        headersNotMatchedMessage:
+          'Third request to tested page (html) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+      },
+    )
     const headers3 = response3?.headers() || {}
     expect(response3?.status()).toBe(200)
     expect(headers3?.['x-nextjs-cache']).toBeUndefined()
-    // revalidate refreshes Next cache, but not CDN cache
-    // so our request after revalidation means that Next cache is already
-    // warmed up with fresh response, but CDN cache just knows that previously
-    // cached response is stale, so we are hitting our function that serve
-    // already cached response
-    expect(headers3['cache-status']).toMatch(/"Next.js"; hit/m)
-    expect(headers3['cache-status']).toMatch(/"Netlify Edge"; fwd=stale/m)
 
     // the page has now an updated date
     const date3 = await page.textContent('[data-testid="date-now"]')
@@ -80,7 +105,11 @@ test.describe('[PNPM] Package manager', () => {
 })
 
 test.describe('[NPM] Package manager', () => {
-  test('Static revalidate works correctly', async ({ page, turborepoNPM }) => {
+  test('Static revalidate works correctly', async ({
+    page,
+    pollUntilHeadersMatch,
+    turborepoNPM,
+  }) => {
     // in case there is retry or some other test did hit that path before
     // we want to make sure that cdn cache is not warmed up
     const purgeCdnCache = await page.goto(
@@ -88,17 +117,27 @@ test.describe('[NPM] Package manager', () => {
     )
     expect(purgeCdnCache?.status()).toBe(200)
 
-    const response1 = await page.goto(new URL('static/revalidate-manual', turborepoNPM.url).href)
+    // wait a bit until cdn cache purge propagates
+    await page.waitForTimeout(500)
+
+    const response1 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-manual', turborepoNPM.url).href,
+      {
+        headersToMatch: {
+          // either first time hitting this route or we invalidated
+          // just CDN node in earlier step
+          // we will invoke function and see Next cache hit status \
+          // in the response because it was prerendered at build time
+          // or regenerated in previous attempt to run this test
+          'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit/m],
+        },
+        headersNotMatchedMessage:
+          'First request to tested page (html) should be a miss or stale on the Edge and hit in Next.js',
+      },
+    )
     const headers1 = response1?.headers() || {}
     expect(response1?.status()).toBe(200)
     expect(headers1['x-nextjs-cache']).toBeUndefined()
-    // either first time hitting this route or we invalidated
-    // just CDN node in earlier step
-    // we will invoke function and see Next cache hit status \
-    // in the response because it was prerendered at build time
-    // or regenerated in previous attempt to run this test
-    expect(headers1['cache-status']).toMatch(/"Netlify Edge"; fwd=(miss|stale)/m)
-    expect(headers1['cache-status']).toMatch(/"Next.js"; hit/m)
     expect(headers1['netlify-cdn-cache-control']).toBe(
       's-maxage=31536000, stale-while-revalidate=31536000',
     )
@@ -107,16 +146,24 @@ test.describe('[NPM] Package manager', () => {
     const h1 = await page.textContent('h1')
     expect(h1).toBe('Show #71')
 
-    const response2 = await page.goto(new URL('static/revalidate-manual', turborepoNPM.url).href)
+    const response2 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-manual', turborepoNPM.url).href,
+      {
+        headersToMatch: {
+          // we are hitting the same page again and we most likely will see
+          // CDN hit (in this case Next reported cache status is omitted
+          // as it didn't actually take place in handling this request)
+          // or we will see CDN miss because different CDN node handled request
+          'cache-status': /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
+        },
+        headersNotMatchedMessage:
+          'Second request to tested page (html) should most likely be a hit on the Edge (optionally miss or stale if different CDN node)',
+      },
+    )
     const headers2 = response2?.headers() || {}
     expect(response2?.status()).toBe(200)
     expect(headers2['x-nextjs-cache']).toBeUndefined()
-    // we are hitting the same page again and we most likely will see
-    // CDN hit (in this case Next reported cache status is omitted
-    // as it didn't actually take place in handling this request)
-    // or we will see CDN miss because different CDN node handled request
-    expect(headers2['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-    if (!headers2['cache-status'].includes('hit')) {
+    if (!headers2['cache-status'].includes('"Netlify Edge"; hit')) {
       // if we missed CDN cache, we will see Next cache hit status
       // as we reuse cached response
       expect(headers2['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -136,17 +183,24 @@ test.describe('[NPM] Package manager', () => {
     await page.waitForTimeout(1000)
 
     // now after the revalidation it should have a different date
-    const response3 = await page.goto(new URL('static/revalidate-manual', turborepoNPM.url).href)
+    const response3 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-manual', turborepoNPM.url).href,
+      {
+        headersToMatch: {
+          // revalidate refreshes Next cache, but not CDN cache
+          // so our request after revalidation means that Next cache is already
+          // warmed up with fresh response, but CDN cache just knows that previously
+          // cached response is stale, so we are hitting our function that serve
+          // already cached response
+          'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+        },
+        headersNotMatchedMessage:
+          'Third request to tested page (html) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+      },
+    )
     const headers3 = response3?.headers() || {}
     expect(response3?.status()).toBe(200)
     expect(headers3?.['x-nextjs-cache']).toBeUndefined()
-    // revalidate refreshes Next cache, but not CDN cache
-    // so our request after revalidation means that Next cache is already
-    // warmed up with fresh response, but CDN cache just knows that previously
-    // cached response is stale, so we are hitting our function that serve
-    // already cached response
-    expect(headers3['cache-status']).toMatch(/"Next.js"; hit/m)
-    expect(headers3['cache-status']).toMatch(/"Netlify Edge"; fwd=stale/m)
 
     // the page has now an updated date
     const date3 = await page.textContent('[data-testid="date-now"]')

@@ -178,7 +178,7 @@ test('requesting a non existing page route that needs to be fetched from the blo
   page,
   simpleNextApp,
 }) => {
-  const response = await page.goto(new URL('non-exisitng', simpleNextApp.url).href)
+  const response = await page.goto(new URL('non-existing', simpleNextApp.url).href)
   const headers = response?.headers() || {}
   expect(response?.status()).toBe(404)
 

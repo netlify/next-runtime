@@ -1,4 +1,4 @@
-import { test as base, PlaywrightWorkerArgs, WorkerFixture } from '@playwright/test'
+import { test as base, PlaywrightWorkerArgs, WorkerFixture, Page, expect } from '@playwright/test'
 import { Fixture, fixtureFactories } from './create-e2e-fixture'
 
 const makeE2EFixture = (
@@ -13,7 +13,16 @@ const makeE2EFixture = (
 ]
 
 export const test = base.extend<
-  { takeScreenshot: void },
+  {
+    takeScreenshot: void
+    pollUntilHeadersMatch: (
+      url: string,
+      options: Parameters<Page['goto']>[1] & {
+        headersToMatch: Record<string, RegExp | Array<RegExp>>
+        headersNotMatchedMessage?: string
+      },
+    ) => ReturnType<Page['goto']>
+  },
   {
     [Property in keyof typeof fixtureFactories]: Fixture
   }
@@ -21,6 +30,50 @@ export const test = base.extend<
   ...Object.fromEntries(
     Object.entries(fixtureFactories).map(([key, f]) => [key, makeE2EFixture(f)]),
   ),
+  pollUntilHeadersMatch: async ({ page }, use) => {
+    await use(async (url, options) => {
+      const start = Date.now()
+      const timeout = options.timeout || 10000
+      const { headersToMatch, headersNotMatchedMessage, ...gotoOptions } = options
+      let response: Awaited<ReturnType<Page['goto']>>
+
+      pollLoop: do {
+        response = await page.goto(url, gotoOptions)
+
+        for (const [header, expected] of Object.entries(headersToMatch)) {
+          const actual = response?.headers()[header]
+
+          if (!actual) {
+            await new Promise((r) => setTimeout(r, 100))
+            continue pollLoop
+          }
+
+          const headerMatches = Array.isArray(expected) ? expected : [expected]
+
+          for (const match of headerMatches) {
+            if (!match.test(actual)) {
+              await new Promise((r) => setTimeout(r, 100))
+              continue pollLoop
+            }
+          }
+        }
+
+        return response
+      } while (Date.now() - start <= timeout)
+
+      // if we didn't return a matching response - we will fail with regular assertions
+      for (const [header, expected] of Object.entries(headersToMatch)) {
+        const actual = response?.headers()[header]
+
+        const headerMatches = Array.isArray(expected) ? expected : [expected]
+        for (const match of headerMatches) {
+          expect(actual, headersNotMatchedMessage).toMatch(match)
+        }
+      }
+
+      return response
+    })
+  },
   takeScreenshot: [
     async ({ page }, use, testInfo) => {
       await use()

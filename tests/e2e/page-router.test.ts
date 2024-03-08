@@ -49,7 +49,7 @@ export async function check(
 }
 
 test.describe('Simple Page Router (no basePath, no i18n)', () => {
-  test('Static revalidate works correctly', async ({ page, pageRouter }) => {
+  test('Static revalidate works correctly', async ({ page, pollUntilHeadersMatch, pageRouter }) => {
     // in case there is retry or some other test did hit that path before
     // we want to make sure that cdn cache is not warmed up
     const purgeCdnCache = await page.goto(
@@ -57,17 +57,27 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     )
     expect(purgeCdnCache?.status()).toBe(200)
 
-    const response1 = await page.goto(new URL('static/revalidate-manual', pageRouter.url).href)
+    // wait a bit until cdn cache purge propagates
+    await page.waitForTimeout(500)
+
+    const response1 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-manual', pageRouter.url).href,
+      {
+        headersToMatch: {
+          // either first time hitting this route or we invalidated
+          // just CDN node in earlier step
+          // we will invoke function and see Next cache hit status \
+          // in the response because it was prerendered at build time
+          // or regenerated in previous attempt to run this test
+          'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit/m],
+        },
+        headersNotMatchedMessage:
+          'First request to tested page (html) should be a miss or stale on the Edge and hit in Next.js',
+      },
+    )
     const headers1 = response1?.headers() || {}
     expect(response1?.status()).toBe(200)
     expect(headers1['x-nextjs-cache']).toBeUndefined()
-    // either first time hitting this route or we invalidated
-    // just CDN node in earlier step
-    // we will invoke function and see Next cache hit status \
-    // in the response because it was prerendered at build time
-    // or regenerated in previous attempt to run this test
-    expect(headers1['cache-status']).toMatch(/"Netlify Edge"; fwd=(miss|stale)/m)
-    expect(headers1['cache-status']).toMatch(/"Next.js"; hit/m)
     expect(headers1['netlify-cache-tag']).toBe('_n_t_/static/revalidate-manual')
     expect(headers1['netlify-cdn-cache-control']).toBe(
       's-maxage=31536000, stale-while-revalidate=31536000',
@@ -78,19 +88,24 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     expect(h1).toBe('Show #71')
 
     // check json route
-    const response1Json = await page.goto(
+    const response1Json = await pollUntilHeadersMatch(
       new URL('_next/data/build-id/static/revalidate-manual.json', pageRouter.url).href,
+      {
+        headersToMatch: {
+          // either first time hitting this route or we invalidated
+          // just CDN node in earlier step
+          // we will invoke function and see Next cache hit status \
+          // in the response because it was prerendered at build time
+          // or regenerated in previous attempt to run this test
+          'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit/m],
+        },
+        headersNotMatchedMessage:
+          'First request to tested page (data) should be a miss or stale on the Edge and hit in Next.js',
+      },
     )
     const headers1Json = response1Json?.headers() || {}
     expect(response1Json?.status()).toBe(200)
     expect(headers1Json['x-nextjs-cache']).toBeUndefined()
-    // either first time hitting this route or we invalidated
-    // just CDN node in earlier step
-    // we will invoke function and see Next cache hit status \
-    // in the response because it was prerendered at build time
-    // or regenerated in previous attempt to run this test
-    expect(headers1Json['cache-status']).toMatch(/"Netlify Edge"; fwd=(miss|stale)/m)
-    expect(headers1Json['cache-status']).toMatch(/"Next.js"; hit/m)
     expect(headers1Json['netlify-cache-tag']).toBe('_n_t_/static/revalidate-manual')
     expect(headers1Json['netlify-cdn-cache-control']).toBe(
       's-maxage=31536000, stale-while-revalidate=31536000',
@@ -98,16 +113,24 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     const data1 = (await response1Json?.json()) || {}
     expect(data1?.pageProps?.time).toBe(date1)
 
-    const response2 = await page.goto(new URL('static/revalidate-manual', pageRouter.url).href)
+    const response2 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-manual', pageRouter.url).href,
+      {
+        headersToMatch: {
+          // we are hitting the same page again and we most likely will see
+          // CDN hit (in this case Next reported cache status is omitted
+          // as it didn't actually take place in handling this request)
+          // or we will see CDN miss because different CDN node handled request
+          'cache-status': /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
+        },
+        headersNotMatchedMessage:
+          'Second request to tested page (html) should most likely be a hit on the Edge (optionally miss or stale if different CDN node)',
+      },
+    )
     const headers2 = response2?.headers() || {}
     expect(response2?.status()).toBe(200)
     expect(headers2['x-nextjs-cache']).toBeUndefined()
-    // we are hitting the same page again and we most likely will see
-    // CDN hit (in this case Next reported cache status is omitted
-    // as it didn't actually take place in handling this request)
-    // or we will see CDN miss because different CDN node handled request
-    expect(headers2['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-    if (!headers2['cache-status'].includes('hit')) {
+    if (!headers2['cache-status'].includes('"Netlify Edge"; hit')) {
       // if we missed CDN cache, we will see Next cache hit status
       // as we reuse cached response
       expect(headers2['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -121,18 +144,24 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     expect(date2).toBe(date1)
 
     // check json route
-    const response2Json = await page.goto(
+    const response2Json = await pollUntilHeadersMatch(
       new URL('/_next/data/build-id/static/revalidate-manual.json', pageRouter.url).href,
+      {
+        headersToMatch: {
+          // we are hitting the same page again and we most likely will see
+          // CDN hit (in this case Next reported cache status is omitted
+          // as it didn't actually take place in handling this request)
+          // or we will see CDN miss because different CDN node handled request
+          'cache-status': /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
+        },
+        headersNotMatchedMessage:
+          'Second request to tested page (data) should most likely be a hit on the Edge (optionally miss or stale if different CDN node)',
+      },
     )
     const headers2Json = response2Json?.headers() || {}
     expect(response2Json?.status()).toBe(200)
     expect(headers2Json['x-nextjs-cache']).toBeUndefined()
-    // we are hitting the same page again and we most likely will see
-    // CDN hit (in this case Next reported cache status is omitted
-    // as it didn't actually take place in handling this request)
-    // or we will see CDN miss because different CDN node handled request
-    expect(headers2Json['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-    if (!headers2Json['cache-status'].includes('hit')) {
+    if (!headers2Json['cache-status'].includes('"Netlify Edge"; hit')) {
       // if we missed CDN cache, we will see Next cache hit status
       // as we reuse cached response
       expect(headers2Json['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -151,39 +180,48 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     await page.waitForTimeout(1000)
 
     // now after the revalidation it should have a different date
-    const response3 = await page.goto(new URL('static/revalidate-manual', pageRouter.url).href)
+    const response3 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-manual', pageRouter.url).href,
+      {
+        headersToMatch: {
+          // revalidate refreshes Next cache, but not CDN cache
+          // so our request after revalidation means that Next cache is already
+          // warmed up with fresh response, but CDN cache just knows that previously
+          // cached response is stale, so we are hitting our function that serve
+          // already cached response
+          'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+        },
+        headersNotMatchedMessage:
+          'Third request to tested page (html) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+      },
+    )
     const headers3 = response3?.headers() || {}
     expect(response3?.status()).toBe(200)
     expect(headers3?.['x-nextjs-cache']).toBeUndefined()
-    // revalidate refreshes Next cache, but not CDN cache
-    // so our request after revalidation means that Next cache is already
-    // warmed up with fresh response, but CDN cache just knows that previously
-    // cached response is stale, so we are hitting our function that serve
-    // already cached response
-    expect(headers3['cache-status']).toMatch(/"Next.js"; hit/m)
-    expect(headers3['cache-status']).toMatch(/"Netlify Edge"; fwd=stale/m)
 
     // the page has now an updated date
     const date3 = await page.textContent('[data-testid="date-now"]')
     expect(date3).not.toBe(date2)
 
     // check json route
-    const response3Json = await page.goto(
+    const response3Json = await pollUntilHeadersMatch(
       new URL('/_next/data/build-id/static/revalidate-manual.json', pageRouter.url).href,
+      {
+        headersToMatch: {
+          // revalidate refreshes Next cache, but not CDN cache
+          // so our request after revalidation means that Next cache is already
+          // warmed up with fresh response, but CDN cache just knows that previously
+          // cached response is stale, so we are hitting our function that serve
+          // already cached response
+          'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+        },
+        headersNotMatchedMessage:
+          'Third request to tested page (data) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+      },
     )
     const headers3Json = response3Json?.headers() || {}
     expect(response3Json?.status()).toBe(200)
     expect(headers3Json['x-nextjs-cache']).toBeUndefined()
-    // we are hitting the same page again and we most likely will see
-    // CDN hit (in this case Next reported cache status is omitted
-    // as it didn't actually take place in handling this request)
-    // or we will see CDN miss because different CDN node handled request
-    expect(headers3Json['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-    if (!headers3Json['cache-status'].includes('hit')) {
-      // if we missed CDN cache, we will see Next cache hit status
-      // as we reuse cached response
-      expect(headers3Json['cache-status']).toMatch(/"Next.js"; hit/m)
-    }
     expect(headers3Json['netlify-cdn-cache-control']).toBe(
       's-maxage=31536000, stale-while-revalidate=31536000',
     )
@@ -196,7 +234,7 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     page,
     pageRouter,
   }) => {
-    const response = await page.goto(new URL('non-exisitng', pageRouter.url).href)
+    const response = await page.goto(new URL('non-existing', pageRouter.url).href)
     const headers = response?.headers() || {}
     expect(response?.status()).toBe(404)
 
@@ -270,7 +308,7 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
 
 test.describe('Page Router with basePath and i18n', () => {
   test.describe('Static revalidate works correctly', () => {
-    test('default locale', async ({ page, pageRouterBasePathI18n }) => {
+    test('default locale', async ({ page, pollUntilHeadersMatch, pageRouterBasePathI18n }) => {
       // in case there is retry or some other test did hit that path before
       // we want to make sure that cdn cache is not warmed up
       const purgeCdnCache = await page.goto(
@@ -281,19 +319,27 @@ test.describe('Page Router with basePath and i18n', () => {
       )
       expect(purgeCdnCache?.status()).toBe(200)
 
-      const response1ImplicitLocale = await page.goto(
+      // wait a bit until cdn cache purge propagates
+      await page.waitForTimeout(500)
+
+      const response1ImplicitLocale = await pollUntilHeadersMatch(
         new URL('base/path/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // either first time hitting this route or we invalidated
+            // just CDN node in earlier step
+            // we will invoke function and see Next cache hit status \
+            // in the response because it was prerendered at build time
+            // or regenerated in previous attempt to run this test
+            'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit/m],
+          },
+          headersNotMatchedMessage:
+            'First request to tested page (implicit locale html) should be a miss or stale on the Edge and hit in Next.js',
+        },
       )
       const headers1ImplicitLocale = response1ImplicitLocale?.headers() || {}
       expect(response1ImplicitLocale?.status()).toBe(200)
       expect(headers1ImplicitLocale['x-nextjs-cache']).toBeUndefined()
-      // either first time hitting this route or we invalidated
-      // just CDN node in earlier step
-      // we will invoke function and see Next cache hit status \
-      // in the response because it was prerendered at build time
-      // or regenerated in previous attempt to run this test
-      expect(headers1ImplicitLocale['cache-status']).toMatch(/"Netlify Edge"; fwd=(miss|stale)/m)
-      expect(headers1ImplicitLocale['cache-status']).toMatch(/"Next.js"; hit/m)
       expect(headers1ImplicitLocale['netlify-cache-tag']).toBe('_n_t_/en/static/revalidate-manual')
       expect(headers1ImplicitLocale['netlify-cdn-cache-control']).toBe(
         's-maxage=31536000, stale-while-revalidate=31536000',
@@ -303,19 +349,24 @@ test.describe('Page Router with basePath and i18n', () => {
       const h1ImplicitLocale = await page.textContent('h1')
       expect(h1ImplicitLocale).toBe('Show #71')
 
-      const response1ExplicitLocale = await page.goto(
+      const response1ExplicitLocale = await pollUntilHeadersMatch(
         new URL('base/path/en/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // either first time hitting this route or we invalidated
+            // just CDN node in earlier step
+            // we will invoke function and see Next cache hit status \
+            // in the response because it was prerendered at build time
+            // or regenerated in previous attempt to run this test
+            'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit/m],
+          },
+          headersNotMatchedMessage:
+            'First request to tested page (explicit locale html) should be a miss or stale on the Edge and hit in Next.js',
+        },
       )
       const headers1ExplicitLocale = response1ExplicitLocale?.headers() || {}
       expect(response1ExplicitLocale?.status()).toBe(200)
       expect(headers1ExplicitLocale['x-nextjs-cache']).toBeUndefined()
-      // either first time hitting this route or we invalidated
-      // just CDN node in earlier step
-      // we will invoke function and see Next cache hit status \
-      // in the response because it was prerendered at build time
-      // or regenerated in previous attempt to run this test
-      expect(headers1ExplicitLocale['cache-status']).toMatch(/"Netlify Edge"; fwd=(miss|stale)/m)
-      expect(headers1ExplicitLocale['cache-status']).toMatch(/"Next.js"; hit/m)
       expect(headers1ExplicitLocale['netlify-cache-tag']).toBe('_n_t_/en/static/revalidate-manual')
       expect(headers1ExplicitLocale['netlify-cdn-cache-control']).toBe(
         's-maxage=31536000, stale-while-revalidate=31536000',
@@ -329,22 +380,27 @@ test.describe('Page Router with basePath and i18n', () => {
       expect(date1ImplicitLocale).toBe(date1ExplicitLocale)
 
       // check json route
-      const response1Json = await page.goto(
+      const response1Json = await pollUntilHeadersMatch(
         new URL(
           'base/path/_next/data/build-id/en/static/revalidate-manual.json',
           pageRouterBasePathI18n.url,
         ).href,
+        {
+          headersToMatch: {
+            // either first time hitting this route or we invalidated
+            // just CDN node in earlier step
+            // we will invoke function and see Next cache hit status \
+            // in the response because it was prerendered at build time
+            // or regenerated in previous attempt to run this test
+            'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit/m],
+          },
+          headersNotMatchedMessage:
+            'First request to tested page (data) should be a miss or stale on the Edge and hit in Next.js',
+        },
       )
       const headers1Json = response1Json?.headers() || {}
       expect(response1Json?.status()).toBe(200)
       expect(headers1Json['x-nextjs-cache']).toBeUndefined()
-      // either first time hitting this route or we invalidated
-      // just CDN node in earlier step
-      // we will invoke function and see Next cache hit status \
-      // in the response because it was prerendered at build time
-      // or regenerated in previous attempt to run this test
-      expect(headers1Json['cache-status']).toMatch(/"Netlify Edge"; fwd=(miss|stale)/m)
-      expect(headers1Json['cache-status']).toMatch(/"Next.js"; hit/m)
       expect(headers1Json['netlify-cache-tag']).toBe('_n_t_/en/static/revalidate-manual')
       expect(headers1Json['netlify-cdn-cache-control']).toBe(
         's-maxage=31536000, stale-while-revalidate=31536000',
@@ -352,20 +408,24 @@ test.describe('Page Router with basePath and i18n', () => {
       const data1 = (await response1Json?.json()) || {}
       expect(data1?.pageProps?.time).toBe(date1ImplicitLocale)
 
-      const response2ImplicitLocale = await page.goto(
+      const response2ImplicitLocale = await pollUntilHeadersMatch(
         new URL('base/path/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // we are hitting the same page again and we most likely will see
+            // CDN hit (in this case Next reported cache status is omitted
+            // as it didn't actually take place in handling this request)
+            // or we will see CDN miss because different CDN node handled request
+            'cache-status': /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
+          },
+          headersNotMatchedMessage:
+            'Second request to tested page (implicit locale html) should most likely be a hit on the Edge (optionally miss or stale if different CDN node)',
+        },
       )
       const headers2ImplicitLocale = response2ImplicitLocale?.headers() || {}
       expect(response2ImplicitLocale?.status()).toBe(200)
       expect(headers2ImplicitLocale['x-nextjs-cache']).toBeUndefined()
-      // we are hitting the same page again and we most likely will see
-      // CDN hit (in this case Next reported cache status is omitted
-      // as it didn't actually take place in handling this request)
-      // or we will see CDN miss because different CDN node handled request
-      expect(headers2ImplicitLocale['cache-status']).toMatch(
-        /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
-      )
-      if (!headers2ImplicitLocale['cache-status'].includes('hit')) {
+      if (!headers2ImplicitLocale['cache-status'].includes('"Netlify Edge"; hit')) {
         // if we missed CDN cache, we will see Next cache hit status
         // as we reuse cached response
         expect(headers2ImplicitLocale['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -378,20 +438,24 @@ test.describe('Page Router with basePath and i18n', () => {
       const date2ImplicitLocale = await page.textContent('[data-testid="date-now"]')
       expect(date2ImplicitLocale).toBe(date1ImplicitLocale)
 
-      const response2ExplicitLocale = await page.goto(
+      const response2ExplicitLocale = await pollUntilHeadersMatch(
         new URL('base/path/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // we are hitting the same page again and we most likely will see
+            // CDN hit (in this case Next reported cache status is omitted
+            // as it didn't actually take place in handling this request)
+            // or we will see CDN miss because different CDN node handled request
+            'cache-status': /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
+          },
+          headersNotMatchedMessage:
+            'Second request to tested page (implicit locale html) should most likely be a hit on the Edge (optionally miss or stale if different CDN node)',
+        },
       )
       const headers2ExplicitLocale = response2ExplicitLocale?.headers() || {}
       expect(response2ExplicitLocale?.status()).toBe(200)
       expect(headers2ExplicitLocale['x-nextjs-cache']).toBeUndefined()
-      // we are hitting the same page again and we most likely will see
-      // CDN hit (in this case Next reported cache status is omitted
-      // as it didn't actually take place in handling this request)
-      // or we will see CDN miss because different CDN node handled request
-      expect(headers2ExplicitLocale['cache-status']).toMatch(
-        /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
-      )
-      if (!headers2ExplicitLocale['cache-status'].includes('hit')) {
+      if (!headers2ExplicitLocale['cache-status'].includes('"Netlify Edge"; hit')) {
         // if we missed CDN cache, we will see Next cache hit status
         // as we reuse cached response
         expect(headers2ExplicitLocale['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -405,21 +469,26 @@ test.describe('Page Router with basePath and i18n', () => {
       expect(date2ExplicitLocale).toBe(date1ExplicitLocale)
 
       // check json route
-      const response2Json = await page.goto(
+      const response2Json = await pollUntilHeadersMatch(
         new URL(
           'base/path/_next/data/build-id/en/static/revalidate-manual.json',
           pageRouterBasePathI18n.url,
         ).href,
+        {
+          headersToMatch: {
+            // we are hitting the same page again and we most likely will see
+            // CDN hit (in this case Next reported cache status is omitted
+            // as it didn't actually take place in handling this request)
+            // or we will see CDN miss because different CDN node handled request
+            'cache-status': /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
+          },
+          headersNotMatchedMessage:
+            'Second request to tested page (data) should most likely be a hit on the Edge (optionally miss or stale if different CDN node)',
+        },
       )
       const headers2Json = response2Json?.headers() || {}
       expect(response2Json?.status()).toBe(200)
-      expect(headers2Json['x-nextjs-cache']).toBeUndefined()
-      // we are hitting the same page again and we most likely will see
-      // CDN hit (in this case Next reported cache status is omitted
-      // as it didn't actually take place in handling this request)
-      // or we will see CDN miss because different CDN node handled request
-      expect(headers2Json['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-      if (!headers2Json['cache-status'].includes('hit')) {
+      if (!headers2Json['cache-status'].includes('"Netlify Edge"; hit')) {
         // if we missed CDN cache, we will see Next cache hit status
         // as we reuse cached response
         expect(headers2Json['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -444,37 +513,47 @@ test.describe('Page Router with basePath and i18n', () => {
       await page.waitForTimeout(1000)
 
       // now after the revalidation it should have a different date
-      const response3ImplicitLocale = await page.goto(
+      const response3ImplicitLocale = await pollUntilHeadersMatch(
         new URL('base/path/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // revalidate refreshes Next cache, but not CDN cache
+            // so our request after revalidation means that Next cache is already
+            // warmed up with fresh response, but CDN cache just knows that previously
+            // cached response is stale, so we are hitting our function that serve
+            // already cached response
+            'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+          },
+          headersNotMatchedMessage:
+            'Third request to tested page (implicit locale html) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+        },
       )
       const headers3ImplicitLocale = response3ImplicitLocale?.headers() || {}
       expect(response3ImplicitLocale?.status()).toBe(200)
       expect(headers3ImplicitLocale?.['x-nextjs-cache']).toBeUndefined()
-      // revalidate refreshes Next cache, but not CDN cache
-      // so our request after revalidation means that Next cache is already
-      // warmed up with fresh response, but CDN cache just knows that previously
-      // cached response is stale, so we are hitting our function that serve
-      // already cached response
-      expect(headers3ImplicitLocale['cache-status']).toMatch(/"Next.js"; hit/m)
-      expect(headers3ImplicitLocale['cache-status']).toMatch(/"Netlify Edge"; fwd=stale/m)
 
       // the page has now an updated date
       const date3ImplicitLocale = await page.textContent('[data-testid="date-now"]')
       expect(date3ImplicitLocale).not.toBe(date2ImplicitLocale)
 
-      const response3ExplicitLocale = await page.goto(
+      const response3ExplicitLocale = await pollUntilHeadersMatch(
         new URL('base/path/en/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // revalidate refreshes Next cache, but not CDN cache
+            // so our request after revalidation means that Next cache is already
+            // warmed up with fresh response, but CDN cache just knows that previously
+            // cached response is stale, so we are hitting our function that serve
+            // already cached response
+            'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+          },
+          headersNotMatchedMessage:
+            'Third request to tested page (explicit locale html) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+        },
       )
       const headers3ExplicitLocale = response3ExplicitLocale?.headers() || {}
       expect(response3ExplicitLocale?.status()).toBe(200)
       expect(headers3ExplicitLocale?.['x-nextjs-cache']).toBeUndefined()
-      // revalidate refreshes Next cache, but not CDN cache
-      // so our request after revalidation means that Next cache is already
-      // warmed up with fresh response, but CDN cache just knows that previously
-      // cached response is stale, so we are hitting our function that serve
-      // already cached response
-      expect(headers3ExplicitLocale['cache-status']).toMatch(/"Next.js"; hit/m)
-      expect(headers3ExplicitLocale['cache-status']).toMatch(/"Netlify Edge"; fwd=stale/m)
 
       // the page has now an updated date
       const date3ExplicitLocale = await page.textContent('[data-testid="date-now"]')
@@ -484,21 +563,28 @@ test.describe('Page Router with basePath and i18n', () => {
       expect(date3ImplicitLocale).toBe(date3ExplicitLocale)
 
       // check json route
-      const response3Json = await page.goto(
+      const response3Json = await pollUntilHeadersMatch(
         new URL(
           'base/path/_next/data/build-id/en/static/revalidate-manual.json',
           pageRouterBasePathI18n.url,
         ).href,
+        {
+          headersToMatch: {
+            // revalidate refreshes Next cache, but not CDN cache
+            // so our request after revalidation means that Next cache is already
+            // warmed up with fresh response, but CDN cache just knows that previously
+            // cached response is stale, so we are hitting our function that serve
+            // already cached response
+            'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+          },
+          headersNotMatchedMessage:
+            'Third request to tested page (data) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+        },
       )
       const headers3Json = response3Json?.headers() || {}
       expect(response3Json?.status()).toBe(200)
       expect(headers3Json['x-nextjs-cache']).toBeUndefined()
-      // we are hitting the same page again and we most likely will see
-      // CDN hit (in this case Next reported cache status is omitted
-      // as it didn't actually take place in handling this request)
-      // or we will see CDN miss because different CDN node handled request
-      expect(headers3Json['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-      if (!headers3Json['cache-status'].includes('hit')) {
+      if (!headers3Json['cache-status'].includes('"Netlify Edge"; hit')) {
         // if we missed CDN cache, we will see Next cache hit status
         // as we reuse cached response
         expect(headers3Json['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -523,37 +609,47 @@ test.describe('Page Router with basePath and i18n', () => {
       await page.waitForTimeout(1000)
 
       // now after the revalidation it should have a different date
-      const response4ImplicitLocale = await page.goto(
+      const response4ImplicitLocale = await pollUntilHeadersMatch(
         new URL('base/path/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // revalidate refreshes Next cache, but not CDN cache
+            // so our request after revalidation means that Next cache is already
+            // warmed up with fresh response, but CDN cache just knows that previously
+            // cached response is stale, so we are hitting our function that serve
+            // already cached response
+            'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+          },
+          headersNotMatchedMessage:
+            'Fourth request to tested page (implicit locale html) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+        },
       )
       const headers4ImplicitLocale = response4ImplicitLocale?.headers() || {}
       expect(response4ImplicitLocale?.status()).toBe(200)
       expect(headers4ImplicitLocale?.['x-nextjs-cache']).toBeUndefined()
-      // revalidate refreshes Next cache, but not CDN cache
-      // so our request after revalidation means that Next cache is already
-      // warmed up with fresh response, but CDN cache just knows that previously
-      // cached response is stale, so we are hitting our function that serve
-      // already cached response
-      expect(headers4ImplicitLocale['cache-status']).toMatch(/"Next.js"; hit/m)
-      expect(headers4ImplicitLocale['cache-status']).toMatch(/"Netlify Edge"; fwd=stale/m)
 
       // the page has now an updated date
       const date4ImplicitLocale = await page.textContent('[data-testid="date-now"]')
       expect(date4ImplicitLocale).not.toBe(date3ImplicitLocale)
 
-      const response4ExplicitLocale = await page.goto(
+      const response4ExplicitLocale = await pollUntilHeadersMatch(
         new URL('base/path/en/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // revalidate refreshes Next cache, but not CDN cache
+            // so our request after revalidation means that Next cache is already
+            // warmed up with fresh response, but CDN cache just knows that previously
+            // cached response is stale, so we are hitting our function that serve
+            // already cached response
+            'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+          },
+          headersNotMatchedMessage:
+            'Fourth request to tested page (explicit locale html) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+        },
       )
       const headers4ExplicitLocale = response4ExplicitLocale?.headers() || {}
       expect(response4ExplicitLocale?.status()).toBe(200)
       expect(headers4ExplicitLocale?.['x-nextjs-cache']).toBeUndefined()
-      // revalidate refreshes Next cache, but not CDN cache
-      // so our request after revalidation means that Next cache is already
-      // warmed up with fresh response, but CDN cache just knows that previously
-      // cached response is stale, so we are hitting our function that serve
-      // already cached response
-      expect(headers4ExplicitLocale['cache-status']).toMatch(/"Next.js"; hit/m)
-      expect(headers4ExplicitLocale['cache-status']).toMatch(/"Netlify Edge"; fwd=stale/m)
 
       // the page has now an updated date
       const date4ExplicitLocale = await page.textContent('[data-testid="date-now"]')
@@ -563,25 +659,27 @@ test.describe('Page Router with basePath and i18n', () => {
       expect(date4ImplicitLocale).toBe(date4ExplicitLocale)
 
       // check json route
-      const response4Json = await page.goto(
+      const response4Json = await pollUntilHeadersMatch(
         new URL(
           'base/path/_next/data/build-id/en/static/revalidate-manual.json',
           pageRouterBasePathI18n.url,
         ).href,
+        {
+          headersToMatch: {
+            // revalidate refreshes Next cache, but not CDN cache
+            // so our request after revalidation means that Next cache is already
+            // warmed up with fresh response, but CDN cache just knows that previously
+            // cached response is stale, so we are hitting our function that serve
+            // already cached response
+            'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+          },
+          headersNotMatchedMessage:
+            'Fourth request to tested page (data) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+        },
       )
       const headers4Json = response4Json?.headers() || {}
       expect(response4Json?.status()).toBe(200)
       expect(headers4Json['x-nextjs-cache']).toBeUndefined()
-      // we are hitting the same page again and we most likely will see
-      // CDN hit (in this case Next reported cache status is omitted
-      // as it didn't actually take place in handling this request)
-      // or we will see CDN miss because different CDN node handled request
-      expect(headers4Json['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-      if (!headers4Json['cache-status'].includes('hit')) {
-        // if we missed CDN cache, we will see Next cache hit status
-        // as we reuse cached response
-        expect(headers4Json['cache-status']).toMatch(/"Next.js"; hit/m)
-      }
       expect(headers4Json['netlify-cdn-cache-control']).toBe(
         's-maxage=31536000, stale-while-revalidate=31536000',
       )
@@ -590,7 +688,7 @@ test.describe('Page Router with basePath and i18n', () => {
       expect(data4?.pageProps?.time).toBe(date4ImplicitLocale)
     })
 
-    test('non-default locale', async ({ page, pageRouterBasePathI18n }) => {
+    test('non-default locale', async ({ page, pollUntilHeadersMatch, pageRouterBasePathI18n }) => {
       // in case there is retry or some other test did hit that path before
       // we want to make sure that cdn cache is not warmed up
       const purgeCdnCache = await page.goto(
@@ -601,19 +699,27 @@ test.describe('Page Router with basePath and i18n', () => {
       )
       expect(purgeCdnCache?.status()).toBe(200)
 
-      const response1 = await page.goto(
+      // wait a bit until cdn cache purge propagates
+      await page.waitForTimeout(500)
+
+      const response1 = await pollUntilHeadersMatch(
         new URL('/base/path/de/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // either first time hitting this route or we invalidated
+            // just CDN node in earlier step
+            // we will invoke function and see Next cache hit status \
+            // in the response because it was prerendered at build time
+            // or regenerated in previous attempt to run this test
+            'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit/m],
+          },
+          headersNotMatchedMessage:
+            'First request to tested page (html) should be a miss or stale on the Edge and hit in Next.js',
+        },
       )
       const headers1 = response1?.headers() || {}
       expect(response1?.status()).toBe(200)
       expect(headers1['x-nextjs-cache']).toBeUndefined()
-      // either first time hitting this route or we invalidated
-      // just CDN node in earlier step
-      // we will invoke function and see Next cache hit status \
-      // in the response because it was prerendered at build time
-      // or regenerated in previous attempt to run this test
-      expect(headers1['cache-status']).toMatch(/"Netlify Edge"; fwd=(miss|stale)/m)
-      expect(headers1['cache-status']).toMatch(/"Next.js"; hit/m)
       expect(headers1['netlify-cache-tag']).toBe('_n_t_/de/static/revalidate-manual')
       expect(headers1['netlify-cdn-cache-control']).toBe(
         's-maxage=31536000, stale-while-revalidate=31536000',
@@ -624,22 +730,27 @@ test.describe('Page Router with basePath and i18n', () => {
       expect(h1).toBe('Show #71')
 
       // check json route
-      const response1Json = await page.goto(
+      const response1Json = await pollUntilHeadersMatch(
         new URL(
           'base/path/_next/data/build-id/de/static/revalidate-manual.json',
           pageRouterBasePathI18n.url,
         ).href,
+        {
+          headersToMatch: {
+            // either first time hitting this route or we invalidated
+            // just CDN node in earlier step
+            // we will invoke function and see Next cache hit status \
+            // in the response because it was prerendered at build time
+            // or regenerated in previous attempt to run this test
+            'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit/m],
+          },
+          headersNotMatchedMessage:
+            'First request to tested page (data) should be a miss or stale on the Edge and hit in Next.js',
+        },
       )
       const headers1Json = response1Json?.headers() || {}
       expect(response1Json?.status()).toBe(200)
       expect(headers1Json['x-nextjs-cache']).toBeUndefined()
-      // either first time hitting this route or we invalidated
-      // just CDN node in earlier step
-      // we will invoke function and see Next cache hit status \
-      // in the response because it was prerendered at build time
-      // or regenerated in previous attempt to run this test
-      expect(headers1Json['cache-status']).toMatch(/"Netlify Edge"; fwd=(miss|stale)/m)
-      expect(headers1Json['cache-status']).toMatch(/"Next.js"; hit/m)
       expect(headers1Json['netlify-cache-tag']).toBe('_n_t_/de/static/revalidate-manual')
       expect(headers1Json['netlify-cdn-cache-control']).toBe(
         's-maxage=31536000, stale-while-revalidate=31536000',
@@ -647,18 +758,24 @@ test.describe('Page Router with basePath and i18n', () => {
       const data1 = (await response1Json?.json()) || {}
       expect(data1?.pageProps?.time).toBe(date1)
 
-      const response2 = await page.goto(
+      const response2 = await pollUntilHeadersMatch(
         new URL('base/path/de/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // we are hitting the same page again and we most likely will see
+            // CDN hit (in this case Next reported cache status is omitted
+            // as it didn't actually take place in handling this request)
+            // or we will see CDN miss because different CDN node handled request
+            'cache-status': /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
+          },
+          headersNotMatchedMessage:
+            'Second request to tested page (html) should most likely be a hit on the Edge (optionally miss or stale if different CDN node)',
+        },
       )
       const headers2 = response2?.headers() || {}
       expect(response2?.status()).toBe(200)
       expect(headers2['x-nextjs-cache']).toBeUndefined()
-      // we are hitting the same page again and we most likely will see
-      // CDN hit (in this case Next reported cache status is omitted
-      // as it didn't actually take place in handling this request)
-      // or we will see CDN miss because different CDN node handled request
-      expect(headers2['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-      if (!headers2['cache-status'].includes('hit')) {
+      if (!headers2['cache-status'].includes('"Netlify Edge"; hit')) {
         // if we missed CDN cache, we will see Next cache hit status
         // as we reuse cached response
         expect(headers2['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -672,21 +789,27 @@ test.describe('Page Router with basePath and i18n', () => {
       expect(date2).toBe(date1)
 
       // check json route
-      const response2Json = await page.goto(
+      const response2Json = await pollUntilHeadersMatch(
         new URL(
           'base/path/_next/data/build-id/de/static/revalidate-manual.json',
           pageRouterBasePathI18n.url,
         ).href,
+        {
+          headersToMatch: {
+            // we are hitting the same page again and we most likely will see
+            // CDN hit (in this case Next reported cache status is omitted
+            // as it didn't actually take place in handling this request)
+            // or we will see CDN miss because different CDN node handled request
+            'cache-status': /"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m,
+          },
+          headersNotMatchedMessage:
+            'Second request to tested page (data) should most likely be a hit on the Edge (optionally miss or stale if different CDN node)',
+        },
       )
       const headers2Json = response2Json?.headers() || {}
       expect(response2Json?.status()).toBe(200)
       expect(headers2Json['x-nextjs-cache']).toBeUndefined()
-      // we are hitting the same page again and we most likely will see
-      // CDN hit (in this case Next reported cache status is omitted
-      // as it didn't actually take place in handling this request)
-      // or we will see CDN miss because different CDN node handled request
-      expect(headers2Json['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-      if (!headers2Json['cache-status'].includes('hit')) {
+      if (!headers2Json['cache-status'].includes('"Netlify Edge"; hit')) {
         // if we missed CDN cache, we will see Next cache hit status
         // as we reuse cached response
         expect(headers2Json['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -710,40 +833,52 @@ test.describe('Page Router with basePath and i18n', () => {
       await page.waitForTimeout(1000)
 
       // now after the revalidation it should have a different date
-      const response3 = await page.goto(
+      const response3 = await pollUntilHeadersMatch(
         new URL('base/path/de/static/revalidate-manual', pageRouterBasePathI18n.url).href,
+        {
+          headersToMatch: {
+            // revalidate refreshes Next cache, but not CDN cache
+            // so our request after revalidation means that Next cache is already
+            // warmed up with fresh response, but CDN cache just knows that previously
+            // cached response is stale, so we are hitting our function that serve
+            // already cached response
+            'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+          },
+          headersNotMatchedMessage:
+            'Third request to tested page (html) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+        },
       )
       const headers3 = response3?.headers() || {}
       expect(response3?.status()).toBe(200)
       expect(headers3?.['x-nextjs-cache']).toBeUndefined()
-      // revalidate refreshes Next cache, but not CDN cache
-      // so our request after revalidation means that Next cache is already
-      // warmed up with fresh response, but CDN cache just knows that previously
-      // cached response is stale, so we are hitting our function that serve
-      // already cached response
-      expect(headers3['cache-status']).toMatch(/"Next.js"; hit/m)
-      expect(headers3['cache-status']).toMatch(/"Netlify Edge"; fwd=stale/m)
 
       // the page has now an updated date
       const date3 = await page.textContent('[data-testid="date-now"]')
       expect(date3).not.toBe(date2)
 
       // check json route
-      const response3Json = await page.goto(
+      const response3Json = await pollUntilHeadersMatch(
         new URL(
           'base/path/_next/data/build-id/de/static/revalidate-manual.json',
           pageRouterBasePathI18n.url,
         ).href,
+        {
+          headersToMatch: {
+            // revalidate refreshes Next cache, but not CDN cache
+            // so our request after revalidation means that Next cache is already
+            // warmed up with fresh response, but CDN cache just knows that previously
+            // cached response is stale, so we are hitting our function that serve
+            // already cached response
+            'cache-status': [/"Next.js"; hit/m, /"Netlify Edge"; fwd=(miss|stale)/m],
+          },
+          headersNotMatchedMessage:
+            'Third request to tested page (data) should be a miss or stale on the Edge and hit in Next.js after on-demand revalidation',
+        },
       )
       const headers3Json = response3Json?.headers() || {}
       expect(response3Json?.status()).toBe(200)
       expect(headers3Json['x-nextjs-cache']).toBeUndefined()
-      // we are hitting the same page again and we most likely will see
-      // CDN hit (in this case Next reported cache status is omitted
-      // as it didn't actually take place in handling this request)
-      // or we will see CDN miss because different CDN node handled request
-      expect(headers3Json['cache-status']).toMatch(/"Netlify Edge"; (hit|fwd=miss|fwd=stale)/m)
-      if (!headers3Json['cache-status'].includes('hit')) {
+      if (!headers3Json['cache-status'].includes('"Netlify Edge"; hit')) {
         // if we missed CDN cache, we will see Next cache hit status
         // as we reuse cached response
         expect(headers3Json['cache-status']).toMatch(/"Next.js"; hit/m)
@@ -761,7 +896,7 @@ test.describe('Page Router with basePath and i18n', () => {
     page,
     pageRouter,
   }) => {
-    const response = await page.goto(new URL('non-exisitng', pageRouter.url).href)
+    const response = await page.goto(new URL('non-existing', pageRouter.url).href)
     const headers = response?.headers() || {}
     expect(response?.status()).toBe(404)
 
