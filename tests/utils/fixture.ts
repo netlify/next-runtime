@@ -1,4 +1,5 @@
-import { BlobsServer, type getStore } from '@netlify/blobs'
+import { type getStore } from '@netlify/blobs'
+import { BlobsServer } from '@netlify/blobs/server'
 import { TestContext, assert, vi, MockInstance } from 'vitest'
 
 import { type NetlifyPluginConstants, type NetlifyPluginOptions } from '@netlify/build'

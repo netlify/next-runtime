@@ -1,7 +1,8 @@
 import getPort from 'get-port'
 import { BLOB_TOKEN, type FixtureTestContext } from './fixture.js'
 
-import { BlobsServer, getDeployStore } from '@netlify/blobs'
+import { getDeployStore } from '@netlify/blobs'
+import { BlobsServer } from '@netlify/blobs/server'
 import type { NetlifyPluginUtils } from '@netlify/build'
 import IncrementalCache from 'next/dist/server/lib/incremental-cache/index.js'
 import { Buffer } from 'node:buffer'
