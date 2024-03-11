@@ -21,7 +21,6 @@ import { moveStaticPages, movePublicFiles, removeMetadataFiles } from './helpers
 import { bundleBasedOnNftFiles, splitApiRoutes, useBlobsForISRAssets } from './helpers/flags'
 import {
   generateFunctions,
-  setupImageFunction,
   generatePagesResolver,
   warnOnApiRoutes,
   getAPILambdas,
@@ -30,14 +29,9 @@ import {
   APILambda,
   getSSRLambdas,
 } from './helpers/functions'
+import { setImageConfig } from './helpers/imageCdn'
 import { generateRedirects, generateStaticRedirects } from './helpers/redirects'
-import {
-  shouldSkip,
-  isNextAuthInstalled,
-  getCustomImageResponseHeaders,
-  getRemotePatterns,
-  ExperimentalConfigWithLegacy,
-} from './helpers/utils'
+import { shouldSkip, isNextAuthInstalled, ExperimentalConfigWithLegacy } from './helpers/utils'
 import {
   verifyNetlifyBuildVersion,
   checkNextSiteHasBuilt,
@@ -102,22 +96,11 @@ const plugin: NetlifyPlugin = {
 
     checkNextSiteHasBuilt({ publish, failBuild })
 
-    const {
-      appDir,
-      basePath,
-      i18n,
-      images,
-      target,
-      ignore,
-      trailingSlash,
-      outdir,
-      experimental,
-      routesManifest,
-      pageExtensions,
-    } = await getNextConfig({
-      publish,
-      failBuild,
-    })
+    const { appDir, basePath, i18n, target, ignore, trailingSlash, outdir, routesManifest, pageExtensions } =
+      await getNextConfig({
+        publish,
+        failBuild,
+      })
     await cleanupEdgeFunctions(constants)
 
     const middlewareManifest = await loadMiddlewareManifest(netlifyConfig)
@@ -225,18 +208,11 @@ const plugin: NetlifyPlugin = {
       await moveStaticPages({ target, netlifyConfig, nextConfig: { basePath, i18n }, netliBlob })
     }
 
+    await setImageConfig(netlifyConfig)
+
     await generateStaticRedirects({
       netlifyConfig,
       nextConfig: { basePath, i18n },
-    })
-
-    await setupImageFunction({
-      constants,
-      imageconfig: images,
-      netlifyConfig,
-      basePath,
-      remotePatterns: getRemotePatterns(experimental, images),
-      responseHeaders: getCustomImageResponseHeaders(netlifyConfig.headers),
     })
 
     await generateRedirects({

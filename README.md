@@ -14,50 +14,7 @@ commands separately will not work, because the Next.js Runtime will not generate
 ## Using `next/image`
 
 If you use [`next/image`](https://nextjs.org/docs/basic-features/image-optimization), your images will be automatically
-optimized at runtime, ensuring that they are served at the best size and format. The image will be processed on the
-first request which means it may take longer to load, but the generated image is then cached and served as a static file
-to future visitors. By default, Next.js will deliver WebP images if the browser supports it. WebP is a modern image format
-with wide browser support that will usually generate smaller files than PNG or JPG. Additionally, you can enable AVIF
-format, which is often even smaller in filesize than WebP. The drawback is that with particularly large images, AVIF images may
-take too long to generate, and the function times-out. You can configure
-[the supported image formats](https://nextjs.org/docs/api-reference/next/image#acceptable-formats) in your
-`next.config.js` file.
-
-### Enabling Edge Images
-
-It is possible to run image content negotiation on the edge. This allows images to be processed on the first request,
-and then, in future loads, served from cache on the edge.
-
-In order to deliver the correct format to a visitor's browser, this uses a Netlify Edge Function. In some cases your
-site may not support Edge Functions, in which case it will instead fall back to delivering the original file format.
-
-To turn on Edge image handling for Next/Image, set the environment variable `NEXT_FORCE_EDGE_IMAGES` to `true`
-
-## Returning custom response headers on images handled by `ipx`
-
-Should you wish to return custom response headers on images handled by the
-[`netlify-ipx`](https://github.com/netlify/netlify-ipx) package, you can add them within your project's `netlify.toml`
-by targeting the `/_next/image/*` route:
-
-```
-[[headers]]
-  for = "/_next/image/*"
-
-  [headers.values]
-    Strict-Transport-Security = "max-age=31536000"
-    X-Test = 'foobar'
-```
-
-## Disabling included image loader
-
-If you wish to disable the use of the image loader which is bundled into the runtime by default, set the `DISABLE_IPX`
-environment variable to `true`.
-
-This should only be done if the site is not using `next/image` or is using a different loader (such as Cloudinary or
-Imgix).
-
-See the [Next.js documentation](https://nextjs.org/docs/api-reference/next/image#built-in-loaders) for image loader
-options.
+optimized at runtime using the Netlify Image CDN.
 
 ## Next.js Middleware on Netlify
 
@@ -91,7 +48,10 @@ Note that Netlify has a minimum TTL of 60 seconds for revalidation.
 
 ## Disable Static 404 on Dynamic Routes with fallback:false
 
-Currently when hitting a non-prerendered path with `fallback=false` it will default to a 404 page. You can now change this default setting by using the environemnt variable `LEGACY_FALLBACK_FALSE=true`. With the environment variable set, those non-prerendered paths will now be routed through using the ISR Handler and will allow you to add redirects for those non-prerendered paths. 
+Currently when hitting a non-prerendered path with `fallback=false` it will default to a 404 page. You can now change
+this default setting by using the environemnt variable `LEGACY_FALLBACK_FALSE=true`. With the environment variable set,
+those non-prerendered paths will now be routed through using the ISR Handler and will allow you to add redirects for
+those non-prerendered paths.
 
 ## Use with `next export`
 
@@ -111,14 +71,12 @@ that it is not enabled at **Site settings > Build & deploy > Post processing > A
 ## Generated functions
 
 The Next.js Runtime works by generating three Netlify functions that handle requests that haven't been pre-rendered.
-These are `___netlify-handler` (for SSR and API routes), `___netlify-odb-handler` (for ISR and fallback routes), and
-`_ipx` (for images). You can see the requests for these in
-[the function logs](https://docs.netlify.com/functions/logs/). For ISR and fallback routes you will not see any requests
-that are served from the edge cache, just actual rendering requests. These are all internal functions, so you won't find
-them in your site's own functions directory.
+These are `___netlify-handler` (for SSR and API routes) and `___netlify-odb-handler` (for ISR and fallback routes). You
+can see the requests for these in [the function logs](https://docs.netlify.com/functions/logs/). For ISR and fallback
+routes you will not see any requests that are served from the edge cache, just actual rendering requests. These are all
+internal functions, so you won't find them in your site's own functions directory.
 
-The Next.js Runtime will also generate a Netlify Edge Function called 'ipx' to handle image content negotiation, and if
-Edge runtime or middleware is enabled it will also generate edge functions for middleware and edge routes.
+If Edge runtime or middleware is enabled it will also generate edge functions for middleware and edge routes.
 
 ## Manually installing the Next.js Runtime
 
@@ -190,13 +148,15 @@ npm test
 
 ### End-to-end tests
 
-In order to run the end-to-end (E2E) tests, you'll need to be logged in to Netlify. You can do this using the [Netlify CLI](https://github.com/netlify/cli) with the command:
+In order to run the end-to-end (E2E) tests, you'll need to be logged in to Netlify. You can do this using the
+[Netlify CLI](https://github.com/netlify/cli) with the command:
 
 ```shell
 netlify login
 ```
 
-Alternatively, you can set an environment variable `NETLIFY_AUTH_TOKEN` to a valid Netlify personal access token. This can be obtained from the [Netlify UI](https://docs.netlify.com/cli/get-started/#obtain-a-token-in-the-netlify-ui).
+Alternatively, you can set an environment variable `NETLIFY_AUTH_TOKEN` to a valid Netlify personal access token. This
+can be obtained from the [Netlify UI](https://docs.netlify.com/cli/get-started/#obtain-a-token-in-the-netlify-ui).
 
 Then run the E2E tests if logged in:
 
@@ -210,7 +170,8 @@ Or if using an access token:
 NETLIFY_AUTH_TOKEN=your-token-here npm run test:next
 ```
 
-_Note: The E2E tests will be deployed to a Netlify owned site. To deploy to your own site then set the environment variable `NETLIFY_SITE_ID` to your site ID._
+_Note: The E2E tests will be deployed to a Netlify owned site. To deploy to your own site then set the environment
+variable `NETLIFY_SITE_ID` to your site ID._
 
 ## Feedback
 

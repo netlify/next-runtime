@@ -1368,11 +1368,6 @@ Array [
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
-    "from": "/_ipx/*",
-    "status": 200,
-    "to": "/.netlify/builders/_ipx",
-  },
-  Object {
     "force": true,
     "from": "/_next/data/build-id/en.json",
     "status": 200,
@@ -2039,14 +2034,14 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/_next/image/*",
+    "from": "/_next/image/",
     "query": Object {
       "q": ":quality",
       "url": ":url",
       "w": ":width",
     },
-    "status": 301,
-    "to": "/_ipx/w_:width,q_:quality/:url",
+    "status": 200,
+    "to": "/.netlify/images?url=:url&w=:width&q=:quality",
   },
   Object {
     "from": "/_next/static/*",
@@ -2937,11 +2932,6 @@ Array [
     "to": "/.netlify/builders/___netlify-odb-handler",
   },
   Object {
-    "from": "/_ipx/*",
-    "status": 200,
-    "to": "/.netlify/builders/_ipx",
-  },
-  Object {
     "force": true,
     "from": "/_next/data/build-id/en.json",
     "status": 200,
@@ -3608,14 +3598,14 @@ Array [
     "to": "/.netlify/functions/___netlify-handler",
   },
   Object {
-    "from": "/_next/image/*",
+    "from": "/_next/image/",
     "query": Object {
       "q": ":quality",
       "url": ":url",
       "w": ":width",
     },
-    "status": 301,
-    "to": "/_ipx/w_:width,q_:quality/:url",
+    "status": 200,
+    "to": "/.netlify/images?url=:url&w=:width&q=:quality",
   },
   Object {
     "from": "/_next/static/*",
