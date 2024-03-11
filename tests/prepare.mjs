@@ -49,7 +49,7 @@ const promises = fixtures.map((fixture) =>
     const { packageManager } = JSON.parse(await readFile(join(cwd, 'package.json'), 'utf8'))
     if (packageManager?.startsWith('pnpm')) {
       // We disable frozen-lockfile because we may have changed the version of Next.js
-      cmd = `pnpm install --frozen-lockfile=false --force ${
+      cmd = `pnpm install --frozen-lockfile=false ${
         process.env.DEBUG || NEXT_VERSION !== 'latest' ? '' : '--reporter silent'
       }`
     }
