@@ -41,9 +41,7 @@ env:
 jobs:
   setup:
     runs-on: ubuntu-latest
-    if:
-      ${{ github.event_name == ('workflow_dispatch' || 'workflow_call' || 'schedule') ||
-      contains(github.event.pull_request.labels.*.name, 'run-e2e-tests') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-e2e-tests')) }}
     outputs:
       version: ${{ steps.set-matrix.outputs.version }}
       group: ${{ steps.set-matrix.outputs.group }}
