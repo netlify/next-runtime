@@ -233,7 +233,7 @@ export async function runPlugin(
   const options = await runPluginStep(ctx, 'onBuild', constants)
 
   const base = new PluginContext(options)
-  vi.spyOn(base, 'resolve').mockImplementation((...args: string[]) =>
+  vi.spyOn(base, 'resolveFromPackagePath').mockImplementation((...args: string[]) =>
     join(ctx.cwd, options.constants.PACKAGE_PATH || '', ...args),
   )
   const internalSrcFolder = base.serverFunctionsDir
@@ -257,7 +257,7 @@ export async function runPlugin(
   }
 
   const bundleEdgeFunctions = async () => {
-    const dist = base.resolve('.netlify', 'edge-functions-bundled')
+    const dist = base.resolveFromPackagePath('.netlify', 'edge-functions-bundled')
     const edgeSource = base.edgeFunctionsDir
 
     if (!existsSync(edgeSource)) {
@@ -278,7 +278,7 @@ export async function runPlugin(
     await execaCommand(cmd, { cwd: dist })
 
     // start the edge functions server:
-    const servePath = base.resolve('.netlify', 'edge-functions-serve')
+    const servePath = base.resolveFromPackagePath('.netlify', 'edge-functions-serve')
     ctx.edgeFunctionPort = await getPort()
     const server = await serve({
       basePath: ctx.cwd,

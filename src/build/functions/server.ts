@@ -30,7 +30,7 @@ const copyHandlerDependencies = async (ctx: PluginContext) => {
           // The distDir must not be the package path therefore we need to rely on the
           // serverHandlerDir instead of the serverHandlerRootDir
           // therefore we need to remove the package path from the filePath
-          join(ctx.serverHandlerDir, relative(ctx.packagePath, filePath)),
+          join(ctx.serverHandlerDir, relative(ctx.relativeAppDir, filePath)),
           {
             recursive: true,
             force: true,
@@ -84,7 +84,7 @@ const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
 
   // In this case it is a monorepo and we need to use a own template for it
   // as we have to change the process working directory
-  if (ctx.packagePath.length !== 0) {
+  if (ctx.relativeAppDir.length !== 0) {
     const template = await readFile(join(templatesDir, 'handler-monorepo.tmpl.js'), 'utf-8')
 
     return template

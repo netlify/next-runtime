@@ -21,6 +21,17 @@ const DEFAULT_PUBLISH_DIR = '.next'
 export const SERVER_HANDLER_NAME = '___netlify-server-handler'
 export const EDGE_HANDLER_NAME = '___netlify-edge-handler'
 
+// copied from https://github.com/vercel/next.js/blob/af5b4db98ac1acccc3f167cc6aba2f0c9e7094df/packages/next/src/build/index.ts#L388-L395
+// as this is not exported from the next.js package
+export interface RequiredServerFilesManifest {
+  version: number
+  config: NextConfigComplete
+  appDir: string
+  relativeAppDir: string
+  files: string[]
+  ignore: string[]
+}
+
 export class PluginContext {
   utils: NetlifyPluginUtils
   netlifyConfig: NetlifyPluginOptions['netlifyConfig']
@@ -34,28 +45,31 @@ export class PluginContext {
   pluginDir = PLUGIN_DIR
 
   get relPublishDir(): string {
-    return this.constants.PUBLISH_DIR ?? join(this.packagePath, DEFAULT_PUBLISH_DIR)
+    return (
+      this.constants.PUBLISH_DIR ?? join(this.constants.PACKAGE_PATH || '', DEFAULT_PUBLISH_DIR)
+    )
   }
 
   /** Temporary directory for stashing the build output */
   get tempPublishDir(): string {
-    return this.resolve('.netlify/.next')
+    return this.resolveFromPackagePath('.netlify/.next')
   }
 
   /** Absolute path of the publish directory */
   get publishDir(): string {
     // Does not need to be resolved with the package path as it is always a repository absolute path
-    // hence including already the `PACKAGE_PATH` therefore we don't use the `this.resolve`
+    // hence including already the `PACKAGE_PATH` therefore we don't use the `this.resolveFromPackagePath`
     return resolve(this.relPublishDir)
   }
 
   /**
    * Relative package path in non monorepo setups this is an empty string
+   * This path is provided by Next.js RequiredServerFiles manifest
    * @example ''
    * @example 'apps/my-app'
    */
-  get packagePath(): string {
-    return this.constants.PACKAGE_PATH || ''
+  get relativeAppDir(): string {
+    return this.requiredServerFiles.relativeAppDir ?? ''
   }
 
   /**
@@ -80,7 +94,7 @@ export class PluginContext {
   get distDir(): string {
     const dir = this.buildConfig.distDir ?? DEFAULT_PUBLISH_DIR
     // resolve the distDir relative to the process working directory in case it contains '../../'
-    return relative(process.cwd(), resolve(this.packagePath, dir))
+    return relative(process.cwd(), resolve(this.relativeAppDir, dir))
   }
 
   /** Represents the parent directory of the .next folder or custom distDir */
@@ -111,7 +125,7 @@ export class PluginContext {
    * `.netlify/static`
    */
   get staticDir(): string {
-    return this.resolve('.netlify/static')
+    return this.resolveFromPackagePath('.netlify/static')
   }
 
   /**
@@ -119,7 +133,7 @@ export class PluginContext {
    * `.netlify/blobs/deploy`
    */
   get blobDir(): string {
-    return this.resolve('.netlify/blobs/deploy')
+    return this.resolveFromPackagePath('.netlify/blobs/deploy')
   }
 
   /**
@@ -127,7 +141,7 @@ export class PluginContext {
    * `.netlify/functions-internal`
    */
   get serverFunctionsDir(): string {
-    return this.resolve('.netlify/functions-internal')
+    return this.resolveFromPackagePath('.netlify/functions-internal')
   }
 
   /** Absolute path of the server handler */
@@ -136,14 +150,14 @@ export class PluginContext {
   }
 
   get serverHandlerDir(): string {
-    if (this.packagePath.length === 0) {
+    if (this.relativeAppDir.length === 0) {
       return this.serverHandlerRootDir
     }
     return join(this.serverHandlerRootDir, this.distDirParent)
   }
 
   get nextServerHandler(): string {
-    if (this.packagePath.length !== 0) {
+    if (this.relativeAppDir.length !== 0) {
       return join(this.lambdaWorkingDirectory, '.netlify/dist/run/handlers/server.js')
     }
     return './.netlify/dist/run/handlers/server.js'
@@ -154,7 +168,7 @@ export class PluginContext {
    * `.netlify/edge-functions`
    */
   get edgeFunctionsDir(): string {
-    return this.resolve('.netlify/edge-functions')
+    return this.resolveFromPackagePath('.netlify/edge-functions')
   }
 
   /** Absolute path of the edge handler */
@@ -171,9 +185,14 @@ export class PluginContext {
     this.netlifyConfig = options.netlifyConfig
   }
 
-  /** Resolves a path correctly with mono repository awareness  */
-  resolve(...args: string[]): string {
+  /** Resolves a path correctly with mono repository awareness for .netlify directories mainly  */
+  resolveFromPackagePath(...args: string[]): string {
     return resolve(this.constants.PACKAGE_PATH || '', ...args)
+  }
+
+  /** Resolves a path correctly from site directory */
+  resolveFromSiteDir(...args: string[]): string {
+    return resolve(this.requiredServerFiles.appDir, ...args)
   }
 
   /** Get the next prerender-manifest.json */
@@ -191,15 +210,21 @@ export class PluginContext {
   }
 
   // don't make private as it is handy inside testing to override the config
-  _buildConfig: NextConfigComplete | null = null
+  _requiredServerFiles: RequiredServerFilesManifest | null = null
+
+  /** Get RequiredServerFiles manifest from build output **/
+  get requiredServerFiles(): RequiredServerFilesManifest {
+    if (!this._requiredServerFiles) {
+      this._requiredServerFiles = JSON.parse(
+        readFileSync(join(this.publishDir, 'required-server-files.json'), 'utf-8'),
+      ) as RequiredServerFilesManifest
+    }
+    return this._requiredServerFiles
+  }
+
   /** Get Next Config from build output **/
   get buildConfig(): NextConfigComplete {
-    if (!this._buildConfig) {
-      this._buildConfig = JSON.parse(
-        readFileSync(join(this.publishDir, 'required-server-files.json'), 'utf-8'),
-      ).config
-    }
-    return this._buildConfig as NextConfigComplete
+    return this.requiredServerFiles.config
   }
 
   /**

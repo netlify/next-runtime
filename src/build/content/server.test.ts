@@ -5,7 +5,7 @@ import { NetlifyPluginOptions } from '@netlify/build'
 import { expect, test, vi, describe, beforeEach } from 'vitest'
 
 import { mockFileSystem } from '../../../tests/index.js'
-import { PluginContext } from '../plugin-context.js'
+import { PluginContext, RequiredServerFilesManifest } from '../plugin-context.js'
 
 import { copyNextServerCode, verifyHandlerDirStructure } from './server.js'
 
@@ -79,7 +79,10 @@ const mockPluginOptions = {
 
 const fixtures = {
   get simple() {
-    const reqServerFiles = JSON.stringify({ config: { distDir: '.next' } })
+    const reqServerFiles = JSON.stringify({
+      config: { distDir: '.next' },
+      relativeAppDir: '',
+    } as RequiredServerFilesManifest)
     const reqServerPath = '.next/required-server-files.json'
     const reqServerPathStandalone = join('.next/standalone', reqServerPath)
     const buildIDPath = join('.netlify/functions-internal/___netlify-server-handler/.next/BUILD_ID')
@@ -92,7 +95,10 @@ const fixtures = {
     return { ...mockFS, reqServerFiles, reqServerPathStandalone, ctx }
   },
   get monorepo() {
-    const reqServerFiles = JSON.stringify({ config: { distDir: '.next' } })
+    const reqServerFiles = JSON.stringify({
+      config: { distDir: '.next' },
+      relativeAppDir: 'apps/my-app',
+    } as RequiredServerFilesManifest)
     const reqServerPath = 'apps/my-app/.next/required-server-files.json'
     const reqServerPathStandalone = join('apps/my-app/.next/standalone', reqServerPath)
     const buildIDPath = join(
@@ -114,7 +120,8 @@ const fixtures = {
   get nxIntegrated() {
     const reqServerFiles = JSON.stringify({
       config: { distDir: '../../dist/apps/my-app/.next' },
-    })
+      relativeAppDir: 'apps/my-app',
+    } as RequiredServerFilesManifest)
     const reqServerPath = 'dist/apps/my-app/.next/required-server-files.json'
     const reqServerPathStandalone = join('dist/apps/my-app/.next/standalone', reqServerPath)
     const buildIDPath = join(
@@ -135,7 +142,10 @@ const fixtures = {
     return { ...mockFS, reqServerFiles, reqServerPathStandalone, ctx }
   },
   get monorepoMissingPackagePath() {
-    const reqServerFiles = JSON.stringify({ config: { distDir: '.next' } })
+    const reqServerFiles = JSON.stringify({
+      config: { distDir: '.next' },
+      relativeAppDir: 'apps/my-app',
+    } as RequiredServerFilesManifest)
     const reqServerPath = 'apps/my-app/.next/required-server-files.json'
     const reqServerPathStandalone = join('apps/my-app/.next/standalone', reqServerPath)
     const buildIDPath = join(
@@ -155,7 +165,10 @@ const fixtures = {
     return { ...mockFS, reqServerFiles, reqServerPathStandalone, ctx }
   },
   get simpleMissingBuildID() {
-    const reqServerFiles = JSON.stringify({ config: { distDir: '.next' } })
+    const reqServerFiles = JSON.stringify({
+      config: { distDir: '.next' },
+      relativeAppDir: 'apps/my-app',
+    } as RequiredServerFilesManifest)
     const reqServerPath = 'apps/my-app/.next/required-server-files.json'
     const reqServerPathStandalone = join('apps/my-app/.next/standalone', reqServerPath)
     mockFS = mockFileSystem({
@@ -197,7 +210,7 @@ describe('copyNextServerCode', () => {
     const { cwd, ctx, reqServerPathStandalone } = fixtures.nxIntegrated
     await copyNextServerCode(ctx)
     expect(await readFile(join(cwd, reqServerPathStandalone), 'utf-8')).toBe(
-      '{"config":{"distDir":".next"}}',
+      '{"config":{"distDir":".next"},"relativeAppDir":"apps/my-app"}',
     )
   })
 })
@@ -231,27 +244,12 @@ describe('verifyHandlerDirStructure', () => {
   })
 
   // case of misconfigured monorepo (no PACKAGE_PATH)
-  test('should fail build in monorepo with PACKAGE_PATH missing with helpful guidance', async () => {
+  test('should not fail build in monorepo with PACKAGE_PATH missing', async () => {
     const { ctx } = fixtures.monorepoMissingPackagePath
     await copyNextServerCode(ctx)
     await verifyHandlerDirStructure(ctx)
 
-    expect(mockFailBuild).toBeCalledTimes(1)
-    expect(mockFailBuild).toHaveBeenCalledWith(
-      `Failed creating server handler. BUILD_ID file not found at expected location "${join(
-        process.cwd(),
-        '.netlify/functions-internal/___netlify-server-handler/.next/BUILD_ID',
-      )}".
-
-It looks like your site is part of monorepo and Netlify is currently not configured correctly for this case.
-
-Current package path: <not set>
-Package path candidates:
- - "apps/my-app"
-
-Refer to https://docs.netlify.com/configure-builds/monorepos/ for more information about monorepo configuration.`,
-      undefined,
-    )
+    expect(mockFailBuild).not.toHaveBeenCalled()
   })
 
   // just missing BUILD_ID

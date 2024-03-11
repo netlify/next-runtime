@@ -12,7 +12,7 @@ import {
 import { createRequire } from 'node:module'
 // eslint-disable-next-line no-restricted-imports
 import { dirname, join, resolve, sep } from 'node:path'
-import { sep as posixSep, relative as posixRelative, join as posixJoin } from 'node:path/posix'
+import { sep as posixSep, join as posixJoin } from 'node:path/posix'
 
 import glob from 'fast-glob'
 
@@ -34,7 +34,8 @@ export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
   // nx monorepos and other setups where the dist directory is modified
   const reqServerFilesPath = join(
     ctx.standaloneRootDir,
-    ctx.relPublishDir,
+    ctx.relativeAppDir,
+    ctx.requiredServerFiles.config.distDir,
     'required-server-files.json',
   )
   try {
@@ -55,7 +56,7 @@ export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
   // this means the path got altered by a plugin like nx and contained ../../ parts so we have to reset it
   // to point to the correct lambda destination
   if (
-    toPosixPath(ctx.distDir).replace(new RegExp(`^${ctx.packagePath}/?`), '') !==
+    toPosixPath(ctx.distDir).replace(new RegExp(`^${ctx.relativeAppDir}/?`), '') !==
     reqServerFiles.config.distDir
   ) {
     // set the distDir to the latest path portion of the publish dir
@@ -161,7 +162,7 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
     await cp(src, dest, { recursive: true, verbatimSymlinks: true, force: true })
 
     if (entry === 'node_modules') {
-      await recreateNodeModuleSymlinks(ctx.resolve('node_modules'), dest)
+      await recreateNodeModuleSymlinks(ctx.resolveFromSiteDir('node_modules'), dest)
     }
   })
 
@@ -282,46 +283,8 @@ export const verifyHandlerDirStructure = async (ctx: PluginContext) => {
 
   const expectedBuildIDPath = join(ctx.serverHandlerDir, runConfig.distDir, 'BUILD_ID')
   if (!existsSync(expectedBuildIDPath)) {
-    let additionalGuidance = ''
-    try {
-      const paths = await glob('**/BUILD_ID', {
-        cwd: ctx.serverHandlerRootDir,
-        dot: true,
-        absolute: true,
-        ignore: ['**/node_modules/**'],
-      })
-
-      const potentiallyNeededPackagePaths = paths
-        .map((path) => {
-          const relativePathToBuildID = posixRelative(
-            toPosixPath(ctx.serverHandlerDir),
-            toPosixPath(path),
-          )
-          // remove <distDir>/BUILD_ID from the path to get the potential package path
-          const removedDistDirBuildId = relativePathToBuildID.replace(
-            new RegExp(`/?${toPosixPath(runConfig.distDir)}/BUILD_ID$`),
-            '',
-          )
-          return removedDistDirBuildId === relativePathToBuildID ? '' : removedDistDirBuildId
-        })
-        .filter(Boolean)
-
-      if (potentiallyNeededPackagePaths.length !== 0) {
-        additionalGuidance = `\n\nIt looks like your site is part of monorepo and Netlify is currently not configured correctly for this case.\n\nCurrent package path: ${
-          ctx.packagePath ? `"${ctx.packagePath}"` : '<not set>'
-        }\nPackage path candidates:\n${potentiallyNeededPackagePaths
-          .map((path) => ` - "${path}"`)
-          .join(
-            '\n',
-          )}\n\nRefer to https://docs.netlify.com/configure-builds/monorepos/ for more information about monorepo configuration.`
-      }
-    } catch {
-      // ignore error when generating additional guidance - we do best effort to provide the guidance, but if generating guidance fails,
-      // we still want to show proper error message (even if it lacks the additional guidance)
-    }
-
     ctx.failBuild(
-      `Failed creating server handler. BUILD_ID file not found at expected location "${expectedBuildIDPath}".${additionalGuidance}`,
+      `Failed creating server handler. BUILD_ID file not found at expected location "${expectedBuildIDPath}".`,
     )
   }
 }

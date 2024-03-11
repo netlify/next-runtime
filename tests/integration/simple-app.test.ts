@@ -84,6 +84,15 @@ describe('verification', () => {
     )
   })
 
+  test<FixtureTestContext>('Should warn if publish dir is root (package path variant)', async (ctx) => {
+    await createFixture('simple-next-app', ctx)
+    expect(() =>
+      runPlugin(ctx, { PUBLISH_DIR: 'app/.', PACKAGE_PATH: 'app' }),
+    ).rejects.toThrowError(
+      'Your publish directory cannot be the same as the base directory of your site, please check your build settings',
+    )
+  })
+
   test<FixtureTestContext>('Should warn if publish dir is not set to Next.js output directory', async (ctx) => {
     await createFixture('simple-next-app', ctx)
     expect(() => runPlugin(ctx, { PUBLISH_DIR: 'public' })).rejects.toThrowError(

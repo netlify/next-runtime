@@ -45,26 +45,9 @@ test('npm monorepo deploying from site directory without --filter', async () => 
   await smokeTest(selfCleaningFixtureFactories.npmMonorepoEmptyBaseNoPackagePath)
 })
 
-test(
-  'npm monorepo creating site workspace as part of build step (no packagePath set) should not deploy',
-  { retry: 0 },
-  async () => {
-    const deployPromise = selfCleaningFixtureFactories.npmMonorepoSiteCreatedAtBuild()
-
-    await expect(deployPromise).rejects.toThrow(
-      /Failed creating server handler. BUILD_ID file not found at expected location/,
-    )
-    await expect(deployPromise).rejects.toThrow(
-      /It looks like your site is part of monorepo and Netlify is currently not configured correctly for this case/,
-    )
-    await expect(deployPromise).rejects.toThrow(/Current package path: <not set>/)
-    await expect(deployPromise).rejects.toThrow(/Package path candidates/)
-    await expect(deployPromise).rejects.toThrow(/- "apps\/site"/)
-    await expect(deployPromise).rejects.toThrow(
-      new RegExp('https://docs.netlify.com/configure-builds/monorepos/'),
-    )
-  },
-)
+test('npm monorepo creating site workspace as part of build step (no packagePath set)', async () => {
+  await smokeTest(selfCleaningFixtureFactories.npmMonorepoSiteCreatedAtBuild)
+})
 
 describe('version check', () => {
   test(
@@ -106,54 +89,21 @@ describe('version check', () => {
     },
   )
 
-  test(
-    'npm nested site multiple next versions site is compatible (currently broken for different reason)',
-    { retry: 0 },
-    async () => {
-      // this should pass version validation, but fails with Error: ENOENT: no such file or directory, open
-      // '<fixture_dir>/apps/site/.next/standalone/apps/site/.next/required-server-files.json'
-      // while actual location is
-      // '<fixture_dir>/apps/site/.next/standalone/.next/required-server-files.json'
-      // so this is another case of directories setup that needs to be handled
-      await expect(
-        selfCleaningFixtureFactories.npmNestedSiteMultipleNextVersionsCompatible(),
-      ).rejects.toThrow(
-        new RegExp(
-          'Failed creating server handler. required-server-files.json file not found at expected location ".+/apps/site/.next/standalone/apps/site/.next/required-server-files.json". Your repository setup is currently not yet supported.',
-        ),
-      )
-
-      // TODO: above test body should be removed and following line uncommented and test title updated once the issue is fixed
-      // await smokeTest(fixtureFactories.npmNestedSiteMultipleNextVersionsCompatible)
-    },
-  )
+  test('npm nested site multiple next versions site is compatible', async () => {
+    await smokeTest(fixtureFactories.npmNestedSiteMultipleNextVersionsCompatible)
+  })
 
   test(
-    'npm nested site multiple next versions site is incompatible should not deploy (currently broken for different reason)',
+    'npm nested site multiple next versions site is incompatible should not deploy',
     { retry: 0 },
     async () => {
-      // this shouldn't pass version validation, but currently fails before that
-      // with Error: ENOENT: no such file or directory, open
-      // '<fixture_dir>/apps/site/.next/standalone/apps/site/.next/required-server-files.json'
-      // while actual location is
-      // '<fixture_dir>/apps/site/.next/standalone/.next/required-server-files.json'
-      // so this is another case of directories setup that needs to be handled
       await expect(
-        selfCleaningFixtureFactories.npmNestedSiteMultipleNextVersionsIncompatible(),
+        fixtureFactories.npmNestedSiteMultipleNextVersionsIncompatible(),
       ).rejects.toThrow(
         new RegExp(
-          'Failed creating server handler. required-server-files.json file not found at expected location ".+/apps/site/.next/standalone/apps/site/.next/required-server-files.json". Your repository setup is currently not yet supported.',
+          `@netlify/plugin-next@5 requires Next.js version >=13.5.0, but found 13.4.1. Please upgrade your project's Next.js version.`,
         ),
       )
-
-      // TODO: above test body should be removed and following line uncommented and test title updated once the issue is fixed
-      // await expect(
-      //   fixtureFactories.npmNestedSiteMultipleNextVersionsIncompatible(),
-      // ).rejects.toThrow(
-      //   new RegExp(
-      //     `@netlify/plugin-next@5 requires Next.js version >=13.5.0, but found 13.4.1. Please upgrade your project's Next.js version.`,
-      //   ),
-      // )
     },
   )
 })

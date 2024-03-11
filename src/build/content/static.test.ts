@@ -1,19 +1,21 @@
 import { Buffer } from 'node:buffer'
 import { join } from 'node:path'
+import { inspect } from 'node:util'
 
 import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { Mock, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { mockFileSystem } from '../../../tests/index.js'
 import { FixtureTestContext, createFsFixture } from '../../../tests/utils/fixture.js'
-import { PluginContext } from '../plugin-context.js'
+import { PluginContext, RequiredServerFilesManifest } from '../plugin-context.js'
 
 import { copyStaticAssets, copyStaticContent } from './static.js'
 
 type Context = FixtureTestContext & {
   pluginContext: PluginContext
   publishDir: string
+  relativeAppDir: string
 }
 const createFsFixtureWithBasePath = (
   fixture: Record<string, string>,
@@ -24,6 +26,13 @@ const createFsFixtureWithBasePath = (
     {
       ...fixture,
       [join(ctx.publishDir, 'routes-manifest.json')]: JSON.stringify({ basePath }),
+      [join(ctx.publishDir, 'required-server-files.json')]: JSON.stringify({
+        relativeAppDir: ctx.relativeAppDir,
+        appDir: ctx.relativeAppDir,
+        config: {
+          distDir: ctx.publishDir,
+        },
+      } as Pick<RequiredServerFilesManifest, 'relativeAppDir' | 'appDir'>),
     },
     ctx,
   )
@@ -37,18 +46,36 @@ async function readDirRecursive(dir: string) {
   return paths
 }
 
+let failBuildMock: Mock<
+  Parameters<PluginContext['utils']['build']['failBuild']>,
+  ReturnType<PluginContext['utils']['build']['failBuild']>
+>
+
+const dontFailTest: PluginContext['utils']['build']['failBuild'] = () => {
+  return undefined as never
+}
+
 describe('Regular Repository layout', () => {
   beforeEach<Context>((ctx) => {
+    failBuildMock = vi.fn((msg, err) => {
+      expect.fail(`failBuild should not be called, was called with ${inspect({ msg, err })}`)
+    })
     ctx.publishDir = '.next'
+    ctx.relativeAppDir = ''
     ctx.pluginContext = new PluginContext({
       constants: {
         PUBLISH_DIR: ctx.publishDir,
       },
-      utils: { build: { failBuild: vi.fn() } as unknown },
+      utils: {
+        build: {
+          failBuild: failBuildMock,
+        } as unknown,
+      },
     } as NetlifyPluginOptions)
   })
 
   test<Context>('should clear the static directory contents', async ({ pluginContext }) => {
+    failBuildMock.mockImplementation(dontFailTest)
     const { vol } = mockFileSystem({
       [`${pluginContext.staticDir}/remove-me.js`]: '',
     })
@@ -56,6 +83,8 @@ describe('Regular Repository layout', () => {
     expect(Object.keys(vol.toJSON())).toEqual(
       expect.not.arrayContaining([`${pluginContext.staticDir}/remove-me.js`]),
     )
+    // routes manifest fails to load because it doesn't exist and we expect that to fail the build
+    expect(failBuildMock).toBeCalled()
   })
 
   test<Context>('should link static content from the publish directory to the static directory (no basePath)', async ({
@@ -196,6 +225,7 @@ describe('Regular Repository layout', () => {
 describe('Mono Repository', () => {
   beforeEach<Context>((ctx) => {
     ctx.publishDir = 'apps/app-1/.next'
+    ctx.relativeAppDir = 'apps/app-1'
     ctx.pluginContext = new PluginContext({
       constants: {
         PUBLISH_DIR: ctx.publishDir,

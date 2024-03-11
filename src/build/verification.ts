@@ -12,7 +12,14 @@ export function verifyPublishDir(ctx: PluginContext) {
       `Your publish directory was not found at: ${ctx.publishDir}, please check your build settings`,
     )
   }
-  if (ctx.publishDir === ctx.resolve(ctx.packagePath)) {
+  // for next.js sites the publish directory should never equal the package path which should be
+  // root of site project (where site's package.json is located)
+  // it always must point to Next.js `distDir` directory:
+  //  - by default will be`<packagePath>/.next`
+  //  - users might configure distDir in next.config.js and for most cases of that it will be
+  //    somewhere nested under packagePath, but there are cases (like nx-integrated) where
+  //    that directory will be above packagePath
+  if (ctx.publishDir === ctx.resolveFromPackagePath('')) {
     ctx.failBuild(
       `Your publish directory cannot be the same as the base directory of your site, please check your build settings`,
     )
