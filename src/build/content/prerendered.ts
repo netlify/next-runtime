@@ -48,7 +48,9 @@ const buildPagesCacheValue = async (path: string): Promise<CachedPageValue> => (
 
 const buildAppCacheValue = async (path: string): Promise<CachedPageValue> => {
   const meta = JSON.parse(await readFile(`${path}.meta`, 'utf-8'))
-  const rsc = await readFile(`${path}.rsc`, 'utf-8')
+  const rsc = await readFile(`${path}.rsc`, 'utf-8').catch(() =>
+    readFile(`${path}.prefetch.rsc`, 'utf-8'),
+  )
 
   if (!meta.status && rsc.includes('NEXT_NOT_FOUND')) {
     meta.status = 404

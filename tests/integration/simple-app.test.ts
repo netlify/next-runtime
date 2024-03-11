@@ -1,5 +1,6 @@
 import { load } from 'cheerio'
 import { getLogger } from 'lambda-local'
+import { gunzipSync } from 'node:zlib'
 import { v4 } from 'uuid'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
@@ -14,7 +15,6 @@ import {
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
-import { gunzipSync } from 'node:zlib'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -155,4 +155,22 @@ test<FixtureTestContext>('rewrites to external addresses dont use compression', 
   expect(page.headers).not.toHaveProperty('transfer-encoding')
   expect(page.headers['content-encoding']).toBe('gzip')
   expect(gunzipSync(page.bodyBuffer).toString('utf-8')).toContain('<title>Example Domain</title>')
+})
+
+test<FixtureTestContext>('Test that a simple next app with PPR is working', async (ctx) => {
+  await createFixture('simple-next-app-ppr', ctx)
+  await runPlugin(ctx)
+  // check if the blob entries where successful set on the build plugin
+  const blobEntries = await getBlobEntries(ctx)
+  expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
+    '/404',
+    '/index',
+    '404.html',
+    '500.html',
+  ])
+
+  // test the function call
+  const home = await invokeFunction(ctx)
+  expect(home.statusCode).toBe(200)
+  expect(load(home.body)('h1').text()).toBe('Home')
 })

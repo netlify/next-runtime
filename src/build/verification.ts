@@ -41,3 +41,11 @@ export function verifyNextVersion(ctx: PluginContext, nextVersion: string): void
     )
   }
 }
+
+export function verifyBuildConfig(ctx: PluginContext) {
+  if (ctx.buildConfig.experimental.ppr) {
+    console.log(
+      `Partial prerendering is not yet fully supported on Netlify, see https://ntl.fyi/nextjs-ppr for details`,
+    )
+  }
+}
