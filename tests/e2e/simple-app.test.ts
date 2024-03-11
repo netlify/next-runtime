@@ -205,3 +205,11 @@ test('requesting a non existing page route that needs to be fetched from the blo
   )
   expect(headers['cache-control']).toBe('public,max-age=0,must-revalidate')
 })
+
+test('Compressed rewrites are readable', async ({ simpleNextApp }) => {
+  const resp = await fetch(`${simpleNextApp.url}/rewrite-no-basepath`)
+  expect(resp.headers.get('content-length')).toBeNull()
+  expect(resp.headers.get('transfer-encoding')).toEqual('chunked')
+  expect(resp.headers.get('content-encoding')).toEqual('br')
+  expect(await resp.text()).toContain('<title>Example Domain</title>')
+})

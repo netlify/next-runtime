@@ -14,6 +14,7 @@ import {
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
+import { gunzipSync } from 'node:zlib'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -138,4 +139,20 @@ test<FixtureTestContext>('handlers can add cookies in route handlers with the co
   expect(setCookieHeader).toContain('foo=foo1; Path=/')
   expect(setCookieHeader).toContain('test1=value1; Path=/; Secure')
   expect(setCookieHeader).toContain('test2=value2; Path=/handler; HttpOnly')
+})
+
+// there's a bug where requests accept-encoding header
+// result in corrupted bodies
+// while that bug stands, we want to ignore accept-encoding
+test<FixtureTestContext>('rewrites to external addresses dont use compression', async (ctx) => {
+  await createFixture('simple-next-app', ctx)
+  await runPlugin(ctx)
+  const page = await invokeFunction(ctx, {
+    url: '/rewrite-no-basepath',
+    headers: { 'accept-encoding': 'gzip' },
+  })
+  expect(page.headers).not.toHaveProperty('content-length')
+  expect(page.headers).not.toHaveProperty('transfer-encoding')
+  expect(page.headers['content-encoding']).toBe('gzip')
+  expect(gunzipSync(page.bodyBuffer).toString('utf-8')).toContain('<title>Example Domain</title>')
 })

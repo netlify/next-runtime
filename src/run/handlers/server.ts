@@ -1,4 +1,6 @@
-import { toComputeResponse, toReqRes } from '@fastly/http-compute-js'
+import type { OutgoingHttpHeaders } from 'http'
+
+import { toComputeResponse, toReqRes, ComputeJsOutgoingMessage } from '@fastly/http-compute-js'
 import { SpanStatusCode, trace } from '@opentelemetry/api'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
@@ -17,6 +19,29 @@ import { logger } from '../systemlog.js'
 import { createRequestContext, runWithRequestContext } from './request-context.cjs'
 
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete, tagsManifest: TagsManifest
+
+/**
+ * When Next.js proxies requests externally, it writes the response back as-is.
+ * In some cases, this includes Transfer-Encoding: chunked.
+ * This triggers behaviour in @fastly/http-compute-js to separate chunks with chunk delimiters, which is not what we want at this level.
+ * We want Lambda to control the behaviour around chunking, not this.
+ * This workaround removes the Transfer-Encoding header, which makes the library send the response as-is.
+ */
+const disableFaultyTransferEncodingHandling = (res: ComputeJsOutgoingMessage) => {
+  const originalStoreHeader = res._storeHeader
+  res._storeHeader = function _storeHeader(firstLine, headers) {
+    if (headers) {
+      if (Array.isArray(headers)) {
+        // eslint-disable-next-line no-param-reassign
+        headers = headers.filter(([header]) => header.toLowerCase() !== 'transfer-encoding')
+      } else {
+        delete (headers as OutgoingHttpHeaders)['transfer-encoding']
+      }
+    }
+
+    return originalStoreHeader.call(this, firstLine, headers)
+  }
+}
 
 export default async (request: Request) => {
   const tracer = trace.getTracer('Next.js Runtime')
@@ -52,6 +77,8 @@ export default async (request: Request) => {
     const { req, res } = toReqRes(request)
 
     const requestContext = createRequestContext()
+
+    disableFaultyTransferEncodingHandling(res as unknown as ComputeJsOutgoingMessage)
 
     const resProxy = nextResponseProxy(res, requestContext)
 

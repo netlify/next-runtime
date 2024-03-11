@@ -17,7 +17,7 @@ import { env } from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { v4 } from 'uuid'
 import { LocalServer } from './local-server.js'
-import { streamToString } from './stream-to-string.js'
+import { streamToBuffer } from './stream-to-buffer.js'
 
 import { glob } from 'fast-glob'
 import {
@@ -393,9 +393,12 @@ export async function invokeFunction(
       response.headers || {},
     )
 
+    const bodyBuffer = await streamToBuffer(response.body)
+
     return {
       statusCode: response.statusCode,
-      body: await streamToString(response.body),
+      bodyBuffer,
+      body: bodyBuffer.toString('utf-8'),
       headers: responseHeaders,
       isBase64Encoded: response.isBase64Encoded,
     }

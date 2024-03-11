@@ -17,6 +17,15 @@ const nextConfig = {
     ],
     domains: ['images.pexels.com'],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/rewrite-no-basepath',
+        destination: 'https://example.vercel.sh',
+        basePath: false,
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig
