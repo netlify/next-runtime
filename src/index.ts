@@ -5,6 +5,7 @@ import { copyPrerenderedContent } from './build/content/prerendered.js'
 import {
   copyStaticAssets,
   copyStaticContent,
+  copyStaticExport,
   publishStaticDir,
   unpublishStaticDir,
 } from './build/content/static.js'
@@ -30,6 +31,11 @@ export const onBuild = async (options: NetlifyPluginOptions) => {
   // only save the build cache if not run via the CLI
   if (!options.constants.IS_LOCAL) {
     await saveBuildCache(ctx)
+  }
+
+  // static exports only need to be uploaded to the CDN
+  if (ctx.buildConfig.output === 'export') {
+    return copyStaticExport(ctx)
   }
 
   await Promise.all([

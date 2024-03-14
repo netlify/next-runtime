@@ -1,4 +1,4 @@
-import { type Locator, expect } from '@playwright/test'
+import { expect, type Locator } from '@playwright/test'
 import { nextVersionSatisfies } from '../utils/next-version-helpers.mjs'
 import { test } from '../utils/playwright-helpers.js'
 
@@ -7,9 +7,12 @@ const expectImageWasLoaded = async (locator: Locator) => {
 }
 
 test('Renders the Home page correctly', async ({ page, simpleNextApp }) => {
-  await page.goto(simpleNextApp.url)
+  const response = await page.goto(simpleNextApp.url)
+  const headers = response?.headers() || {}
 
   await expect(page).toHaveTitle('Simple Next App')
+
+  expect(headers['cache-status']).toBe('"Next.js"; hit\n"Netlify Edge"; fwd=miss')
 
   const h1 = page.locator('h1')
   await expect(h1).toHaveText('Home')
@@ -20,6 +23,23 @@ test('Renders the Home page correctly', async ({ page, simpleNextApp }) => {
 
   const body = (await page.$('body').then((el) => el?.textContent())) || '{}'
   expect(body).toBe('{"words":"hello world"}')
+})
+
+test('Renders the Home page correctly with output export', async ({
+  page,
+  simpleNextAppExport,
+}) => {
+  const response = await page.goto(simpleNextAppExport.url)
+  const headers = response?.headers() || {}
+
+  await expect(page).toHaveTitle('Simple Next App')
+
+  expect(headers['cache-status']).toBe('"Netlify Edge"; fwd=miss')
+
+  const h1 = page.locator('h1')
+  await expect(h1).toHaveText('Home')
+
+  await expectImageWasLoaded(page.locator('img'))
 })
 
 test('Renders the Home page correctly with distDir', async ({ page, simpleNextAppDistDir }) => {

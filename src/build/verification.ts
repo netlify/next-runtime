@@ -34,9 +34,19 @@ export function verifyPublishDir(ctx: PluginContext) {
       'Your publish directory does not contain expected Next.js build output, please check your build settings',
     )
   }
-  if (!existsSync(ctx.standaloneRootDir)) {
+  if (
+    (ctx.buildConfig.output === 'standalone' || ctx.buildConfig.output === undefined) &&
+    !existsSync(ctx.standaloneRootDir)
+  ) {
     ctx.failBuild(
       `Your publish directory does not contain expected Next.js build output, please make sure you are using Next.js version (${SUPPORTED_NEXT_VERSIONS})`,
+    )
+  }
+  if (ctx.buildConfig.output === 'export' && !existsSync(ctx.resolveFromSiteDir('out'))) {
+    ctx.failBuild(
+      `Your export directory was not found at: ${ctx.resolveFromSiteDir(
+        'out',
+      )}, please check your build settings`,
     )
   }
 }

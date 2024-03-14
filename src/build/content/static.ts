@@ -57,6 +57,15 @@ export const copyStaticAssets = async (ctx: PluginContext): Promise<void> => {
   }
 }
 
+export const copyStaticExport = async (ctx: PluginContext): Promise<void> => {
+  try {
+    await rm(ctx.staticDir, { recursive: true, force: true })
+    await cp(ctx.resolveFromSiteDir('out'), ctx.staticDir, { recursive: true })
+  } catch (error) {
+    ctx.failBuild('Failed copying static export', error)
+  }
+}
+
 /**
  * Swap the static dir with the publish dir so it is uploaded to the CDN
  */

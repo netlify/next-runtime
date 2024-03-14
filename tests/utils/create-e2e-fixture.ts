@@ -2,7 +2,7 @@ import { execaCommand } from 'execa'
 import fg from 'fast-glob'
 import { exec } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { appendFile, copyFile, mkdir, mkdtemp, readFile, writeFile, rm } from 'node:fs/promises'
+import { appendFile, copyFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
@@ -272,6 +272,7 @@ async function cleanup(dest: string, deployId?: string): Promise<void> {
 
 export const fixtureFactories = {
   simpleNextApp: () => createE2EFixture('simple-next-app'),
+  simpleNextAppExport: () => createE2EFixture('simple-next-app-export'),
   simpleNextAppDistDir: () =>
     createE2EFixture('simple-next-app-dist-dir', {
       publishDirectory: 'cool/output',
