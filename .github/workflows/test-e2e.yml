@@ -52,7 +52,7 @@ jobs:
         id: set-matrix
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "version=[${{ github.event.inputs.versions }}]" >> $GITHUB_OUTPUT
+            echo 'version=[${{ github.event.inputs.versions }}]' >> $GITHUB_OUTPUT
             echo "group=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]" >> $GITHUB_OUTPUT
             echo "total=12" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" == "pull_request" ]; then
