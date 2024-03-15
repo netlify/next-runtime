@@ -1,29 +1,10 @@
 import type { RemotePattern } from 'next/dist/shared/lib/image-config.js'
 import { makeRe } from 'picomatch'
-import { transform } from 'regexp-tree'
 
 import { PluginContext } from './plugin-context.js'
 
-export function generateRegexFromPattern(pattern: string): string {
-  const initialRegex = makeRe(pattern).source
-  // resulting regex can contain lookaheads which currently cause problems with Netlify Image CDN remote patterns
-  // so we strip them out
-  // those regexes seems to be negative lookaheads for "dotfiles" / dots at the beginning of path segments
-  // we actually are want to allow them and normally would pass dots: true option to `makeRe` function,
-  // but this generally result in even more convoluted regular expression, so we just enable them via
-  // stripping lookaheads
-
-  // Parse the regexp into an AST
-  const re = transform(new RegExp(initialRegex), {
-    Assertion(path) {
-      // Remove the lookahead
-      if (path.node.kind === 'Lookahead') {
-        path.remove()
-      }
-    },
-  })
-  // Strip the leading and trailing slashes
-  return re.toString().slice(1, -1)
+function generateRegexFromPattern(pattern: string): string {
+  return makeRe(pattern).source
 }
 
 /**
