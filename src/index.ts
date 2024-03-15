@@ -52,6 +52,14 @@ export const onPostBuild = async (options: NetlifyPluginOptions) => {
   await publishStaticDir(new PluginContext(options))
 }
 
+export const onSuccess = async () => {
+  const prewarm = [process.env.DEPLOY_URL, process.env.DEPLOY_PRIME_URL, process.env.URL].filter(
+    // If running locally then the deploy ID is a placeholder value. Filtering for `https://0--` removes it.
+    (url?: string): url is string => Boolean(url && !url.startsWith('https://0--')),
+  )
+  await Promise.allSettled(prewarm.map((url) => fetch(url)))
+}
+
 export const onEnd = async (options: NetlifyPluginOptions) => {
   await unpublishStaticDir(new PluginContext(options))
 }
