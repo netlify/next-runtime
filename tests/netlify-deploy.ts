@@ -29,11 +29,29 @@ export class NextDeployInstance extends NextInstance {
     // create the test site
     await super.createTestDir({ parentSpan, skipInstall: true })
 
+    // If the test fixture has node modules we need to move them aside then merge them in after
+
+    const nodeModules = path.join(this.testDir, 'node_modules')
+    const nodeModulesBak = `${nodeModules}.bak`
+
+    if (fs.existsSync(nodeModules)) {
+      await fs.rename(nodeModules, nodeModulesBak)
+    }
+
     // install dependencies
     await execa('npm', ['i'], {
       cwd: this.testDir,
       stdio: 'inherit',
     })
+
+    if (fs.existsSync(nodeModulesBak)) {
+      // move the contents of the fixture node_modules into the installed modules
+      for (const file of await fs.readdir(nodeModulesBak)) {
+        await fs.move(path.join(nodeModulesBak, file), path.join(nodeModules, file), {
+          overwrite: true,
+        })
+      }
+    }
 
     // use next runtime package installed by the test runner
     if (!fs.existsSync(path.join(this.testDir, 'netlify.toml'))) {
