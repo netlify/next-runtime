@@ -73,6 +73,8 @@ export const generateFunctions = async (
   const functionDir = join(functionsDir, HANDLER_FUNCTION_NAME)
   const publishDir = relative(functionDir, publish)
 
+  console.log({ functionsDir, cwd: process.cwd(), INTERNAL_FUNCTIONS_SRC, FUNCTIONS_SRC })
+
   const nextServerModuleAbsoluteLocation = getServerFile(appDir, false)
   const nextServerModuleRelativeLocation = nextServerModuleAbsoluteLocation
     ? relative(functionDir, nextServerModuleAbsoluteLocation)

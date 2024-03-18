@@ -1,7 +1,7 @@
 [build]
-command = "next build"
-publish = ".next"
-ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ../..; fi;"
+command = "npm -w default-demo run build"
+publish = "/demos/default/.next"
+ignore = "if [ $CACHED_COMMIT_REF == $COMMIT_REF ]; then (exit 1); else git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF; fi;"
 
 [build.environment]
 # cache Cypress binary in local "node_modules" folder
@@ -10,8 +10,8 @@ CYPRESS_CACHE_FOLDER = "../node_modules/.CypressBinary"
 # set TERM variable for terminal output
 TERM = "xterm"
 NODE_VERSION = "16.15.1"
-NEXT_SPLIT_API_ROUTES = "true"
-NEXT_BUNDLE_BASED_ON_NFT_FILES = "true"
+NEXT_SPLIT_API_ROUTES = "false"
+NEXT_BUNDLE_BASED_ON_NFT_FILES = "false"
 
 [[headers]]
 for = "/_next/image/*"
@@ -28,4 +28,4 @@ package = "@netlify/plugin-nextjs"
 package = "@netlify/plugin-local-install-core"
 
 [[plugins]]
-package = "../plugin-wrapper"
+package = "/demos/plugin-wrapper"

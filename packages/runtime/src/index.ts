@@ -67,6 +67,7 @@ const plugin: NetlifyPlugin = {
       cache,
     },
   }) {
+    console.log('WE ARE USING NOT YET PUBLISHED CODE', { constants })
     const { publish } = netlifyConfig.build
     if (shouldSkip()) {
       await restoreCache({ cache, publish })
