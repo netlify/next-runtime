@@ -71,7 +71,7 @@ export const getRscDataRouter = ({ routes: staticRoutes, dynamicRoutes }: Preren
         request.headers.set('x-rsc-route', url.pathname)
         const target = rscifyPath(url.pathname)
         log('Rewriting to', target)
-        return context.rewrite(target)
+        return new URL(target, request.url)
       }
     }
   }
