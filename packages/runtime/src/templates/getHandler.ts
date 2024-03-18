@@ -84,10 +84,10 @@ const makeHandler = ({
   for (const [key, value] of Object.entries(conf.env)) {
     process.env[key] = String(value)
   }
-  // Set during the request as it needs to get it from the request URL. Defaults to the URL env var
-  let base = process.env.URL
+  // Partial event object for context in FS augmentation; set during the request
+  let fsEvent = { rawUrl: process.env.URL, headers: {} }
 
-  augmentFsModule({ promises, staticManifest, blobsManifest, pageRoot, getBase: () => base })
+  augmentFsModule({ promises, staticManifest, blobsManifest, pageRoot, getEvent: () => fsEvent })
 
   // We memoize this because it can be shared between requests, but don't instantiate it until
   // the first request because we need the host and port.
@@ -102,7 +102,7 @@ const makeHandler = ({
     }
     const url = new URL(event.rawUrl)
     const port = Number.parseInt(url.port) || 80
-    base = url.origin
+    fsEvent = { rawUrl: event.rawUrl, headers: event.headers }
 
     const nextServer = new NetlifyNextServer(
       {
