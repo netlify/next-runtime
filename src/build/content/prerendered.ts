@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
 
 import { glob } from 'fast-glob'
 import type { CacheHandlerValue } from 'next/dist/server/lib/incremental-cache/index.js'
@@ -29,7 +29,6 @@ const writeCacheEntry = async (
     value,
   } satisfies CacheHandlerValue)
 
-  await mkdir(dirname(path), { recursive: true })
   await writeFile(path, entry, 'utf-8')
 }
 
@@ -81,6 +80,8 @@ const buildFetchCacheValue = async (path: string): Promise<CachedFetchValue> => 
  */
 export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> => {
   try {
+    // ensure the blob directory exists
+    await mkdir(ctx.blobDir, { recursive: true })
     // read prerendered content and build JSON key/values for the blob store
     const manifest = await ctx.getPrerenderManifest()
 
