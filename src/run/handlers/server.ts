@@ -55,8 +55,11 @@ export default async (request: Request) => {
       tagsManifest = await getTagsManifest()
       span.setAttributes(
         Object.entries(tagsManifest).reduce(
-          (acc, [key, value]) => ({ ...acc, [`tagsManifest.${key}`]: value }),
-          {},
+          (acc, [key, value]) => {
+            acc[`tagsManifest.${key}`] = value
+            return acc
+          },
+          {} as Record<string, string>,
         ),
       )
 
