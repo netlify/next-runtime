@@ -132,22 +132,24 @@ describe('request-context does NOT leak between concurrent requests', () => {
     })
 
     // fastCall finished completely so it should have acquired request context
-    expect(getRequestContextSpy).toHaveBeenCalledTimes(1)
-    expect(getRequestContextSpy).toHaveNthReturnedWith(1, {
-      responseCacheGetLastModified: new Date(mockedDateForRevalidateAutomatic).getTime(),
-      responseCacheKey: '/static/revalidate-automatic',
-    })
+    expect(getRequestContextSpy).toHaveLastReturnedWith(
+      expect.objectContaining({
+        responseCacheGetLastModified: new Date(mockedDateForRevalidateAutomatic).getTime(),
+        responseCacheKey: '/static/revalidate-automatic',
+      }),
+    )
 
     // second request finished - now we can unpause the first one
     unpauseSlowCall()
 
     const slowCall = await slowCallPromise
     // slowCall finished completely so it should have acquired request context
-    expect(getRequestContextSpy).toHaveBeenCalledTimes(2)
-    expect(getRequestContextSpy).toHaveNthReturnedWith(2, {
-      responseCacheGetLastModified: new Date(mockedDateForRevalidateSlow).getTime(),
-      responseCacheKey: '/static/revalidate-slow',
-    })
+    expect(getRequestContextSpy).toHaveLastReturnedWith(
+      expect.objectContaining({
+        responseCacheGetLastModified: new Date(mockedDateForRevalidateSlow).getTime(),
+        responseCacheKey: '/static/revalidate-slow',
+      }),
+    )
 
     expect(slowCall.headers['date']).toBe(mockedDateForRevalidateSlow)
     expect(fastCall.headers['date']).toBe(mockedDateForRevalidateAutomatic)
@@ -205,22 +207,24 @@ describe('request-context does NOT leak between concurrent requests', () => {
     })
 
     // fastCall finished completely so it should have acquired request context
-    expect(getRequestContextSpy).toHaveBeenCalledTimes(1)
-    expect(getRequestContextSpy).toHaveNthReturnedWith(1, {
-      responseCacheGetLastModified: new Date(mockedDateForStaticFetch1).getTime(),
-      responseCacheKey: '/static-fetch/1',
-    })
+    expect(getRequestContextSpy).toHaveLastReturnedWith(
+      expect.objectContaining({
+        responseCacheGetLastModified: new Date(mockedDateForStaticFetch1).getTime(),
+        responseCacheKey: '/static-fetch/1',
+      }),
+    )
 
     // second request finished - now we can unpause the first one
     unpauseSlowCall()
 
     const slowCall = await slowCallPromise
     // slowCall finished completely so it should have acquired request context
-    expect(getRequestContextSpy).toHaveBeenCalledTimes(2)
-    expect(getRequestContextSpy).toHaveNthReturnedWith(2, {
-      responseCacheGetLastModified: new Date(mockedDateForStaticFetch2).getTime(),
-      responseCacheKey: '/static-fetch/2',
-    })
+    expect(getRequestContextSpy).toHaveLastReturnedWith(
+      expect.objectContaining({
+        responseCacheGetLastModified: new Date(mockedDateForStaticFetch2).getTime(),
+        responseCacheKey: '/static-fetch/2',
+      }),
+    )
 
     expect(slowCall.headers['date']).toBe(mockedDateForStaticFetch2)
     expect(fastCall.headers['date']).toBe(mockedDateForStaticFetch1)

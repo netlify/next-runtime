@@ -5,7 +5,7 @@ import { Buffer } from 'node:buffer'
 
 import { getDeployStore, Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
-import { trace, type Span, SpanStatusCode } from '@opentelemetry/api'
+import { type Span } from '@opentelemetry/api'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 import type {
   CacheHandler,
@@ -15,6 +15,7 @@ import type {
 } from 'next/dist/server/lib/incremental-cache/index.js'
 
 import { getRequestContext } from './request-context.cjs'
+import { getTracer } from './tracer.cjs'
 
 type TagManifest = { revalidatedAt: number }
 
@@ -26,7 +27,7 @@ export class NetlifyCacheHandler implements CacheHandler {
   options: CacheHandlerContext
   revalidatedTags: string[]
   blobStore: Store
-  tracer = trace.getTracer('Netlify Cache Handler')
+  tracer = getTracer()
   tagManifestsFetchedFromBlobStoreInCurrentRequest: TagManifestBlobCache
 
   constructor(options: CacheHandlerContext) {
@@ -90,77 +91,67 @@ export class NetlifyCacheHandler implements CacheHandler {
   }
 
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
-    return this.tracer.startActiveSpan('get cache key', async (span) => {
-      try {
-        const [key, ctx = {}] = args
-        console.debug(`[NetlifyCacheHandler.get]: ${key}`)
+    return this.tracer.withActiveSpan('get cache key', async (span) => {
+      const [key, ctx = {}] = args
+      console.debug(`[NetlifyCacheHandler.get]: ${key}`)
 
-        const blobKey = await this.encodeBlobKey(key)
-        span.setAttributes({ key, blobKey })
-        const blob = (await this.blobStore.get(blobKey, {
+      const blobKey = await this.encodeBlobKey(key)
+      span.setAttributes({ key, blobKey })
+
+      const blob = (await this.tracer.withActiveSpan('blobStore.get', async (blobGetSpan) => {
+        blobGetSpan.setAttributes({ key, blobKey })
+        return await this.blobStore.get(blobKey, {
           type: 'json',
-        })) as CacheHandlerValue | null
-
-        // if blob is null then we don't have a cache entry
-        if (!blob) {
-          span.addEvent('Cache miss', { key, blobKey })
-          return null
-        }
-
-        const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.tags, ctx.softTags)
-
-        if (staleByTags) {
-          span.addEvent('Stale', { staleByTags })
-          return null
-        }
-
-        this.captureResponseCacheLastModified(blob, key, span)
-
-        switch (blob.value?.kind) {
-          case 'FETCH':
-            span.addEvent('FETCH', { lastModified: blob.lastModified, revalidate: ctx.revalidate })
-            return {
-              lastModified: blob.lastModified,
-              value: blob.value,
-            }
-
-          case 'ROUTE':
-            span.addEvent('ROUTE', { lastModified: blob.lastModified, status: blob.value.status })
-            return {
-              lastModified: blob.lastModified,
-              value: {
-                ...blob.value,
-                body: Buffer.from(blob.value.body as unknown as string, 'base64'),
-              },
-            }
-          case 'PAGE':
-            span.addEvent('PAGE', { lastModified: blob.lastModified })
-            return {
-              lastModified: blob.lastModified,
-              value: blob.value,
-            }
-          default:
-            span.recordException(new Error(`Unknown cache entry kind: ${blob.value?.kind}`))
-          // TODO: system level logging not implemented
-        }
-        return null
-      } catch (error) {
-        if (error instanceof Error) {
-          span.recordException(error)
-        }
-        span.setStatus({
-          code: SpanStatusCode.ERROR,
-          message: error instanceof Error ? error.message : String(error),
         })
-        throw error
-      } finally {
-        span.end()
+      })) as CacheHandlerValue | null
+
+      // if blob is null then we don't have a cache entry
+      if (!blob) {
+        span.addEvent('Cache miss', { key, blobKey })
+        return null
       }
+
+      const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.tags, ctx.softTags)
+
+      if (staleByTags) {
+        span.addEvent('Stale', { staleByTags })
+        return null
+      }
+
+      this.captureResponseCacheLastModified(blob, key, span)
+
+      switch (blob.value?.kind) {
+        case 'FETCH':
+          span.addEvent('FETCH', { lastModified: blob.lastModified, revalidate: ctx.revalidate })
+          return {
+            lastModified: blob.lastModified,
+            value: blob.value,
+          }
+
+        case 'ROUTE':
+          span.addEvent('ROUTE', { lastModified: blob.lastModified, status: blob.value.status })
+          return {
+            lastModified: blob.lastModified,
+            value: {
+              ...blob.value,
+              body: Buffer.from(blob.value.body as unknown as string, 'base64'),
+            },
+          }
+        case 'PAGE':
+          span.addEvent('PAGE', { lastModified: blob.lastModified })
+          return {
+            lastModified: blob.lastModified,
+            value: blob.value,
+          }
+        default:
+          span.recordException(new Error(`Unknown cache entry kind: ${blob.value?.kind}`))
+      }
+      return null
     })
   }
 
   async set(...args: Parameters<IncrementalCache['set']>) {
-    return this.tracer.startActiveSpan('set cache key', async (span) => {
+    return this.tracer.withActiveSpan('set cache key', async (span) => {
       const [key, data] = args
       const blobKey = await this.encodeBlobKey(key)
       const lastModified = Date.now()
@@ -189,7 +180,6 @@ export class NetlifyCacheHandler implements CacheHandler {
           })
         }
       }
-      span.end()
     })
   }
 
@@ -264,22 +254,9 @@ export class NetlifyCacheHandler implements CacheHandler {
 
         if (!tagManifestPromise) {
           tagManifestPromise = this.encodeBlobKey(tag).then((blobKey) => {
-            return this.tracer.startActiveSpan(`get tag manifest`, async (span) => {
+            return this.tracer.withActiveSpan(`get tag manifest`, async (span) => {
               span.setAttributes({ tag, blobKey })
-              try {
-                return await this.blobStore.get(blobKey, { type: 'json' })
-              } catch (error) {
-                if (error instanceof Error) {
-                  span.recordException(error)
-                }
-                span.setStatus({
-                  code: SpanStatusCode.ERROR,
-                  message: error instanceof Error ? error.message : String(error),
-                })
-                throw error
-              } finally {
-                span.end()
-              }
+              return this.blobStore.get(blobKey, { type: 'json' })
             })
           })
 

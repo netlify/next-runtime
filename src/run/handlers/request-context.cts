@@ -1,16 +1,20 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 
 export type RequestContext = {
+  debug: boolean
   responseCacheGetLastModified?: number
   responseCacheKey?: string
   usedFsRead?: boolean
   didPagesRouterOnDemandRevalidate?: boolean
+  serverTiming?: string
 }
 
 type RequestContextAsyncLocalStorage = AsyncLocalStorage<RequestContext>
 
-export function createRequestContext(): RequestContext {
-  return {}
+export function createRequestContext(debug = false): RequestContext {
+  return {
+    debug,
+  }
 }
 
 const REQUEST_CONTEXT_GLOBAL_KEY = Symbol.for('nf-request-context-async-local-storage')

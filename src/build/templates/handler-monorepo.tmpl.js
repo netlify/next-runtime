@@ -1,4 +1,9 @@
-import tracing, { trace } from '{{cwd}}/.netlify/dist/run/handlers/tracing.js'
+import {
+  createRequestContext,
+  runWithRequestContext,
+} from '{{cwd}}/.netlify/dist/run/handlers/request-context.cjs'
+import { getTracer } from '{{cwd}}/.netlify/dist/run/handlers/tracer.cjs'
+import tracing from '{{cwd}}/.netlify/dist/run/handlers/tracing.js'
 
 process.chdir('{{cwd}}')
 
@@ -8,10 +13,11 @@ export default async function (req, context) {
     tracing.start()
   }
 
-  /** @type {import('@opentelemetry/api').Tracer} */
-  const tracer = trace.getTracer('Next.js Runtime')
-  return tracer.startActiveSpan('Next.js Server Handler', async (span) => {
-    try {
+  const requestContext = createRequestContext(req.headers.get('x-nf-debug-logging'))
+  const tracer = getTracer()
+
+  const handlerResponse = await runWithRequestContext(requestContext, () => {
+    return tracer.withActiveSpan('Next.js Server Handler', async (span) => {
       span.setAttributes({
         'account.id': context.account.id,
         'deploy.id': context.deploy.id,
@@ -31,16 +37,14 @@ export default async function (req, context) {
         'http.status_code': response.status,
       })
       return response
-    } catch (error) {
-      span.recordException(error)
-      if (error instanceof Error) {
-        span.addEvent({ name: error.name, message: error.message })
-      }
-      throw error
-    } finally {
-      span.end()
-    }
+    })
   })
+
+  if (requestContext.serverTiming) {
+    handlerResponse.headers.set('server-timing', requestContext.serverTiming)
+  }
+
+  return handlerResponse
 }
 
 export const config = {

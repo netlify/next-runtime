@@ -1,11 +1,12 @@
 import { getDeployStore } from '@netlify/blobs'
-import type { Span, Tracer } from '@opentelemetry/api'
+import type { Span } from '@opentelemetry/api'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
 import { encodeBlobKey } from '../shared/blobkey.js'
 
 import type { TagsManifest } from './config.js'
 import type { RequestContext } from './handlers/request-context.cjs'
+import type { RuntimeTracer } from './handlers/tracer.cjs'
 
 interface NetlifyVaryValues {
   headers: string[]
@@ -95,7 +96,7 @@ export const adjustDateHeader = async ({
   headers: Headers
   request: Request
   span: Span
-  tracer: Tracer
+  tracer: RuntimeTracer
   requestContext: RequestContext
 }) => {
   const cacheState = headers.get('x-nextjs-cache')
@@ -132,7 +133,7 @@ export const adjustDateHeader = async ({
     const blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt, consistency: 'strong' })
 
     // TODO: use metadata for this
-    lastModified = await tracer.startActiveSpan(
+    lastModified = await tracer.withActiveSpan(
       'get cache to calculate date header',
       async (getBlobForDateSpan) => {
         getBlobForDateSpan.setAttributes({
@@ -142,7 +143,6 @@ export const adjustDateHeader = async ({
         const blob = (await blobStore.get(blobKey, { type: 'json' })) ?? {}
 
         getBlobForDateSpan.addEvent(blob ? 'Cache hit' : 'Cache miss')
-        getBlobForDateSpan.end()
         return blob.lastModified
       },
     )

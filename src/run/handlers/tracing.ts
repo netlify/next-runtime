@@ -23,7 +23,6 @@ const sdk = new NodeSDK({
   ),
 })
 export default sdk
-export { trace } from '@opentelemetry/api'
 
 // gracefully shut down the SDK on process exit
 process.on('SIGTERM', () => {

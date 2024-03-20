@@ -2,20 +2,22 @@ import fs from 'fs/promises'
 import { relative, resolve } from 'path'
 
 import { getDeployStore } from '@netlify/blobs'
-import { trace } from '@opentelemetry/api'
 // @ts-expect-error no types installed
 import { patchFs } from 'fs-monkey'
-import type { getRequestHandlers } from 'next/dist/server/lib/start-server.js'
+import type { getRequestHandlers as GetRequestHandlersSignature } from 'next/dist/server/lib/start-server.js'
 
 import { getRequestContext } from './handlers/request-context.cjs'
+import { getTracer } from './handlers/tracer.cjs'
 
 type FS = typeof import('fs')
 
 const fetchBeforeNextPatchedIt = globalThis.fetch
 
-export async function getMockedRequestHandlers(...args: Parameters<typeof getRequestHandlers>) {
-  const tracer = trace.getTracer('Next.js Runtime')
-  return tracer.startActiveSpan('mocked request handler', async (span) => {
+export async function getMockedRequestHandlers(
+  ...args: Parameters<typeof GetRequestHandlersSignature>
+) {
+  const tracer = getTracer()
+  return tracer.withActiveSpan('mocked request handler', async () => {
     const ofs = { ...fs }
 
     const { encodeBlobKey } = await import('../shared/blobkey.js')
@@ -55,11 +57,11 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
       require('fs').promises,
     )
 
-    const importSpan = tracer.startSpan('import next server')
-    // eslint-disable-next-line no-shadow
-    const { getRequestHandlers } = await import('next/dist/server/lib/start-server.js')
-    importSpan.end()
-    span.end()
+    const { getRequestHandlers } = await tracer.withActiveSpan(
+      'import next server',
+      async () => import('next/dist/server/lib/start-server.js'),
+    )
+
     return getRequestHandlers(...args)
   })
 }

@@ -34,6 +34,23 @@ module.exports = {
   overrides: [
     ...overrides,
     {
+      files: ['src/run/**'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: [
+              {
+                name: '@opentelemetry/api',
+                importNames: ['trace'],
+                message: 'Please use `getTracer()` from `./handlers/tracer.cjs` instead',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
       files: ['src/run/handlers/**'],
       rules: {
         'max-statements': ['error', 30],
