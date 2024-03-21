@@ -4,18 +4,22 @@ import { relative, resolve } from 'path'
 import { getDeployStore } from '@netlify/blobs'
 // @ts-expect-error no types installed
 import { patchFs } from 'fs-monkey'
-import type { getRequestHandlers as GetRequestHandlersSignature } from 'next/dist/server/lib/start-server.js'
 
 import { getRequestContext } from './handlers/request-context.cjs'
 import { getTracer } from './handlers/tracer.cjs'
+
+console.time('import next server')
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { getRequestHandlers } = require('next/dist/server/lib/start-server.js')
+
+console.timeEnd('import next server')
 
 type FS = typeof import('fs')
 
 const fetchBeforeNextPatchedIt = globalThis.fetch
 
-export async function getMockedRequestHandlers(
-  ...args: Parameters<typeof GetRequestHandlersSignature>
-) {
+export async function getMockedRequestHandlers(...args: Parameters<typeof getRequestHandlers>) {
   const tracer = getTracer()
   return tracer.withActiveSpan('mocked request handler', async () => {
     const ofs = { ...fs }
@@ -55,11 +59,6 @@ export async function getMockedRequestHandlers(
       },
       // eslint-disable-next-line n/global-require, @typescript-eslint/no-var-requires
       require('fs').promises,
-    )
-
-    const { getRequestHandlers } = await tracer.withActiveSpan(
-      'import next server',
-      async () => import('next/dist/server/lib/start-server.js'),
     )
 
     return getRequestHandlers(...args)

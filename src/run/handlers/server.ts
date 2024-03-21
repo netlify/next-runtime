@@ -18,6 +18,8 @@ import { logger } from '../systemlog.js'
 import { createRequestContext, getRequestContext } from './request-context.cjs'
 import { getTracer } from './tracer.cjs'
 
+const nextImportPromise = import('../next.cjs')
+
 let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete, tagsManifest: TagsManifest
 
 /**
@@ -63,7 +65,7 @@ export default async (request: Request) => {
         ),
       )
 
-      const { getMockedRequestHandlers } = await import('../next.cjs')
+      const { getMockedRequestHandlers } = await nextImportPromise
       const url = new URL(request.url)
 
       ;[nextHandler] = await getMockedRequestHandlers({
