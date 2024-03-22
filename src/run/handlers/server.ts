@@ -80,6 +80,18 @@ export default async (request: Request) => {
   return await tracer.withActiveSpan('generate response', async (span) => {
     const { req, res } = toReqRes(request)
 
+    // Work around a bug in http-proxy in next@<14.0.2
+    Object.defineProperty(req, 'connection', {
+      get() {
+        return {}
+      },
+    })
+    Object.defineProperty(req, 'socket', {
+      get() {
+        return {}
+      },
+    })
+
     disableFaultyTransferEncodingHandling(res as unknown as ComputeJsOutgoingMessage)
 
     const requestContext = getRequestContext() ?? createRequestContext()
