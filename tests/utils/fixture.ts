@@ -63,6 +63,9 @@ async function installDependencies(cwd: string) {
   return execaCommand(`npm install --ignore-scripts --no-audit --progress=false`, { cwd })
 }
 
+export const getFixtureSourceDirectory = (fixture: string) =>
+  fileURLToPath(new URL(`../fixtures/${fixture}`, import.meta.url))
+
 /**
  * Copies a fixture to a temp folder on the system and runs the tests inside.
  * @param fixture name of the folder inside the fixtures folder
@@ -119,7 +122,7 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
   }
 
   try {
-    const src = fileURLToPath(new URL(`../fixtures/${fixture}`, import.meta.url))
+    const src = getFixtureSourceDirectory(fixture)
     const files = await glob('**/*', {
       cwd: src,
       dot: true,

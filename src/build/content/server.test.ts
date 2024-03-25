@@ -7,7 +7,7 @@ import { expect, test, vi, describe, beforeEach } from 'vitest'
 import { mockFileSystem } from '../../../tests/index.js'
 import { PluginContext, RequiredServerFilesManifest } from '../plugin-context.js'
 
-import { copyNextServerCode, verifyHandlerDirStructure } from './server.js'
+import { copyNextServerCode, getPatchesToApply, verifyHandlerDirStructure } from './server.js'
 
 vi.mock('node:fs', async () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, unicorn/no-await-expression-member
@@ -265,5 +265,113 @@ describe('verifyHandlerDirStructure', () => {
       )}".`,
       undefined,
     )
+  })
+})
+
+describe(`getPatchesToApply`, () => {
+  beforeEach(() => {
+    delete process.env.NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES
+  })
+  test('ongoing: false', () => {
+    const shouldPatchBeApplied = {
+      '13.4.1': false, // before supported next version
+      '13.5.1': true, // first stable supported version
+      '14.1.4-canary.1': true, // canary version before stable with maxStableVersion - should be applied
+      '14.1.4': true, // latest stable tested version
+      '14.2.0': false, // untested stable version
+      '14.2.0-canary.38': false, // not ongoing patch so should not be applied
+    }
+
+    const nextModule = 'test'
+
+    const patches = [
+      {
+        ongoing: false,
+        minVersion: '13.5.0-canary.0',
+        maxStableVersion: '14.1.4',
+        nextModule,
+        shimModule: 'not-used-in-test',
+      },
+    ]
+
+    for (const [nextVersion, telemetryShimShouldBeApplied] of Object.entries(
+      shouldPatchBeApplied,
+    )) {
+      const patchesToApply = getPatchesToApply(nextVersion, patches)
+      const hasTelemetryShim = patchesToApply.some((patch) => patch.nextModule === nextModule)
+      expect({ nextVersion, apply: hasTelemetryShim }).toEqual({
+        nextVersion,
+        apply: telemetryShimShouldBeApplied,
+      })
+    }
+  })
+
+  test('ongoing: true', () => {
+    const shouldPatchBeApplied = {
+      '13.4.1': false, // before supported next version
+      '13.5.1': true, // first stable supported version
+      '14.1.4-canary.1': true, // canary version before stable with maxStableVersion - should be applied
+      '14.1.4': true, // latest stable tested version
+      '14.2.0': false, // untested stable version
+      '14.2.0-canary.38': true, // ongoing patch so should be applied on prerelease versions
+    }
+
+    const nextModule = 'test'
+
+    const patches = [
+      {
+        ongoing: true,
+        minVersion: '13.5.0-canary.0',
+        maxStableVersion: '14.1.4',
+        nextModule,
+        shimModule: 'not-used-in-test',
+      },
+    ]
+
+    for (const [nextVersion, telemetryShimShouldBeApplied] of Object.entries(
+      shouldPatchBeApplied,
+    )) {
+      const patchesToApply = getPatchesToApply(nextVersion, patches)
+      const hasTelemetryShim = patchesToApply.some((patch) => patch.nextModule === nextModule)
+      expect({ nextVersion, apply: hasTelemetryShim }).toEqual({
+        nextVersion,
+        apply: telemetryShimShouldBeApplied,
+      })
+    }
+  })
+
+  test('ongoing: true + NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES', () => {
+    process.env.NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES = 'true'
+    const shouldPatchBeApplied = {
+      '13.4.1': false, // before supported next version
+      '13.5.1': true, // first stable supported version
+      '14.1.4-canary.1': true, // canary version before stable with maxStableVersion - should be applied
+      '14.1.4': true, // latest stable tested version
+      '14.2.0': true, // untested stable version but NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES is used
+      '14.2.0-canary.38': true, // ongoing patch so should be applied on prerelease versions
+    }
+
+    const nextModule = 'test'
+
+    const patches = [
+      {
+        ongoing: true,
+        minVersion: '13.5.0-canary.0',
+        maxStableVersion: '14.1.4',
+        nextModule,
+        shimModule: 'not-used-in-test',
+      },
+    ]
+
+    for (const [nextVersion, telemetryShimShouldBeApplied] of Object.entries(
+      shouldPatchBeApplied,
+    )) {
+      const patchesToApply = getPatchesToApply(nextVersion, patches)
+      const hasTelemetryShim = patchesToApply.some((patch) => patch.nextModule === nextModule)
+      expect({ nextVersion, apply: hasTelemetryShim }).toEqual({
+        nextVersion,
+        apply: telemetryShimShouldBeApplied,
+      })
+    }
   })
 })

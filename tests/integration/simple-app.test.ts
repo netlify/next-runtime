@@ -1,12 +1,17 @@
 import { load } from 'cheerio'
 import { getLogger } from 'lambda-local'
+import { cp } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { join } from 'node:path'
 import { gunzipSync } from 'node:zlib'
+import { gt, prerelease } from 'semver'
 import { v4 } from 'uuid'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { Mock, afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   createFixture,
   invokeFunction,
   runPlugin,
+  getFixtureSourceDirectory,
   type FixtureTestContext,
 } from '../utils/fixture.js'
 import {
@@ -15,6 +20,20 @@ import {
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
+import { getPatchesToApply } from '../../src/build/content/server.js'
+
+const mockedCp = cp as Mock<
+  Parameters<(typeof import('node:fs/promises'))['cp']>,
+  ReturnType<(typeof import('node:fs/promises'))['cp']>
+>
+
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const fsPromisesModule = (await importOriginal()) as typeof import('node:fs/promises')
+  return {
+    ...fsPromisesModule,
+    cp: vi.fn(fsPromisesModule.cp.bind(fsPromisesModule)),
+  }
+})
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -182,4 +201,79 @@ test<FixtureTestContext>('Test that a simple next app with PPR is working', asyn
   const home = await invokeFunction(ctx)
   expect(home.statusCode).toBe(200)
   expect(load(home.body)('h1').text()).toBe('Home')
+})
+
+describe('next patching', async () => {
+  const { cp: originalCp, appendFile } = (await vi.importActual(
+    'node:fs/promises',
+  )) as typeof import('node:fs/promises')
+
+  const { version: nextVersion } = createRequire(
+    `${getFixtureSourceDirectory('simple-next-app')}/:internal:`,
+  )('next/package.json')
+
+  beforeAll(() => {
+    process.env.NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES = 'true'
+  })
+
+  afterAll(() => {
+    delete process.env.NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES
+  })
+
+  beforeEach(() => {
+    mockedCp.mockClear()
+    mockedCp.mockRestore()
+  })
+
+  test<FixtureTestContext>(`expected patches are applied and used (next version: "${nextVersion}")`, async (ctx) => {
+    const patches = getPatchesToApply(nextVersion)
+
+    await createFixture('simple-next-app', ctx)
+
+    const fieldNamePrefix = `TEST_${Date.now()}`
+
+    mockedCp.mockImplementation(async (...args) => {
+      const returnValue = await originalCp(...args)
+      if (typeof args[1] === 'string') {
+        for (const patch of patches) {
+          if (args[1].includes(join(patch.nextModule))) {
+            // we append something to assert that patch file was actually used
+            await appendFile(
+              args[1],
+              `;globalThis['${fieldNamePrefix}_${patch.nextModule}'] = 'patched'`,
+            )
+          }
+        }
+      }
+
+      return returnValue
+    })
+
+    await runPlugin(ctx)
+
+    // patched files was not used before function invocation
+    for (const patch of patches) {
+      expect(globalThis[`${fieldNamePrefix}_${patch.nextModule}`]).not.toBeDefined()
+    }
+
+    const home = await invokeFunction(ctx)
+    // make sure the function does work
+    expect(home.statusCode).toBe(200)
+    expect(load(home.body)('h1').text()).toBe('Home')
+
+    let shouldUpdateUpperBoundMessage = ''
+
+    // file was used during function invocation
+    for (const patch of patches) {
+      expect(globalThis[`${fieldNamePrefix}_${patch.nextModule}`]).toBe('patched')
+
+      if (patch.ongoing && !prerelease(nextVersion) && gt(nextVersion, patch.maxStableVersion)) {
+        shouldUpdateUpperBoundMessage += `Ongoing ${shouldUpdateUpperBoundMessage ? '\n' : ''}"${patch.nextModule}" patch still works on "${nextVersion}" which is higher than currently set maxStableVersion ("${patch.maxStableVersion}"). Update maxStableVersion in "src/build/content/server.ts" for this patch to at least "${nextVersion}".`
+      }
+    }
+
+    if (shouldUpdateUpperBoundMessage) {
+      expect.fail(shouldUpdateUpperBoundMessage)
+    }
+  })
 })

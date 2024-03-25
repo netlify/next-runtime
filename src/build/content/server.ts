@@ -15,6 +15,7 @@ import { dirname, join, resolve, sep } from 'node:path'
 import { sep as posixSep, join as posixJoin } from 'node:path/posix'
 
 import glob from 'fast-glob'
+import { prerelease, lt as semverLowerThan, lte as semverLowerThanOrEqual } from 'semver'
 
 import { RUN_CONFIG } from '../../run/constants.js'
 import { PluginContext } from '../plugin-context.js'
@@ -149,6 +150,93 @@ async function recreateNodeModuleSymlinks(src: string, dest: string, org?: strin
   )
 }
 
+export type NextInternalModuleReplacement = {
+  /**
+   * Minimum Next.js version that this patch should be applied to
+   */
+  minVersion: string
+  /**
+   * Maximum Next.js version that this patch should be applied to, note that for ongoing patches
+   * we will continue to apply patch for prerelease versions also as canary versions are released
+   * very frequently and trying to target canary versions is not practical. If user is using
+   * canary next versions they should be aware of the risks
+   */
+  maxStableVersion: string
+  /**
+   * If the reason to patch was not addressed in Next.js we mark this as ongoing
+   * to continue to test latest versions to know wether we should bump `maxStableVersion`
+   */
+  ongoing?: boolean
+  /**
+   * Module that should be replaced
+   */
+  nextModule: string
+  /**
+   * Location of replacement module (relative to `<runtime>/dist/build/content`)
+   */
+  shimModule: string
+}
+
+const nextInternalModuleReplacements: NextInternalModuleReplacement[] = [
+  {
+    // standalone is loading expensive Telemetry module that is not actually used
+    // so this replace that module with lightweight no-op shim that doesn't load additional modules
+    // see https://github.com/vercel/next.js/pull/63574 that will remove need for this shim
+    ongoing: true,
+    minVersion: '13.5.0-canary.0',
+    maxStableVersion: '14.1.4',
+    nextModule: 'next/dist/telemetry/storage.js',
+    shimModule: './next-shims/telemetry-storage.cjs',
+  },
+]
+
+export function getPatchesToApply(
+  nextVersion: string,
+  patches: NextInternalModuleReplacement[] = nextInternalModuleReplacements,
+) {
+  return patches.filter(({ minVersion, maxStableVersion, ongoing }) => {
+    // don't apply patches for next versions below minVersion
+    if (semverLowerThan(nextVersion, minVersion)) {
+      return false
+    }
+
+    // apply ongoing patches when used next version is prerelease or NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES env var is used
+    if (
+      ongoing &&
+      (prerelease(nextVersion) || process.env.NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES)
+    ) {
+      return true
+    }
+
+    // apply patches for next versions below maxStableVersion
+    return semverLowerThanOrEqual(nextVersion, maxStableVersion)
+  })
+}
+
+async function patchNextModules(
+  ctx: PluginContext,
+  nextVersion: string,
+  serverHandlerRequireResolve: NodeRequire['resolve'],
+): Promise<void> {
+  // apply only those patches that target used Next version
+  const moduleReplacementsToApply = getPatchesToApply(nextVersion)
+
+  if (moduleReplacementsToApply.length !== 0) {
+    await Promise.all(
+      moduleReplacementsToApply.map(async ({ nextModule, shimModule }) => {
+        try {
+          const nextModulePath = serverHandlerRequireResolve(nextModule)
+          const shimModulePath = posixJoin(ctx.pluginDir, 'dist', 'build', 'content', shimModule)
+
+          await cp(shimModulePath, nextModulePath, { force: true })
+        } catch {
+          // this is perf optimization, so failing it shouldn't break the build
+        }
+      }),
+    )
+  }
+}
+
 export const copyNextDependencies = async (ctx: PluginContext): Promise<void> => {
   const entries = await readdir(ctx.standaloneDir)
   const promises: Promise<void>[] = entries.map(async (entry) => {
@@ -199,6 +287,8 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
 
   if (nextVersion) {
     verifyNextVersion(ctx, nextVersion)
+
+    await patchNextModules(ctx, nextVersion, serverHandlerRequire.resolve)
   }
 
   try {
