@@ -2,6 +2,8 @@ import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import { join as posixJoin } from 'node:path/posix'
 
+import { trace } from '@opentelemetry/api'
+import { wrapTracer } from '@opentelemetry/api/experimental'
 import { glob } from 'fast-glob'
 
 import {
@@ -12,45 +14,50 @@ import {
 } from '../content/server.js'
 import { PluginContext, SERVER_HANDLER_NAME } from '../plugin-context.js'
 
+const tracer = wrapTracer(trace.getTracer('Next runtime'))
+
 /** Copies the runtime dist folder to the lambda */
 const copyHandlerDependencies = async (ctx: PluginContext) => {
-  const promises: Promise<void>[] = []
-  const { included_files: includedFiles = [] } = ctx.netlifyConfig.functions?.['*'] || {}
-  // if the user specified some files to include in the lambda
-  // we need to copy them to the functions-internal folder
-  if (includedFiles.length !== 0) {
-    const resolvedFiles = await Promise.all(
-      includedFiles.map((globPattern) => glob(globPattern, { cwd: process.cwd() })),
-    )
-    for (const filePath of resolvedFiles.flat()) {
+  await tracer.withActiveSpan('copyHandlerDependencies', async (span) => {
+    const promises: Promise<void>[] = []
+    const { included_files: includedFiles = [] } = ctx.netlifyConfig.functions?.['*'] || {}
+    // if the user specified some files to include in the lambda
+    // we need to copy them to the functions-internal folder
+    span.setAttribute('next.includedFiles', includedFiles.join(','))
+    if (includedFiles.length !== 0) {
+      const resolvedFiles = await Promise.all(
+        includedFiles.map((globPattern) => glob(globPattern, { cwd: process.cwd() })),
+      )
+      for (const filePath of resolvedFiles.flat()) {
+        promises.push(
+          cp(
+            join(process.cwd(), filePath),
+            // the serverHandlerDir is aware of the dist dir.
+            // The distDir must not be the package path therefore we need to rely on the
+            // serverHandlerDir instead of the serverHandlerRootDir
+            // therefore we need to remove the package path from the filePath
+            join(ctx.serverHandlerDir, relative(ctx.relativeAppDir, filePath)),
+            {
+              recursive: true,
+              force: true,
+            },
+          ),
+        )
+      }
+    }
+
+    const fileList = await glob('dist/**/*', { cwd: ctx.pluginDir })
+
+    for (const filePath of fileList) {
       promises.push(
-        cp(
-          join(process.cwd(), filePath),
-          // the serverHandlerDir is aware of the dist dir.
-          // The distDir must not be the package path therefore we need to rely on the
-          // serverHandlerDir instead of the serverHandlerRootDir
-          // therefore we need to remove the package path from the filePath
-          join(ctx.serverHandlerDir, relative(ctx.relativeAppDir, filePath)),
-          {
-            recursive: true,
-            force: true,
-          },
-        ),
+        cp(join(ctx.pluginDir, filePath), join(ctx.serverHandlerDir, '.netlify', filePath), {
+          recursive: true,
+          force: true,
+        }),
       )
     }
-  }
-
-  const fileList = await glob('dist/**/*', { cwd: ctx.pluginDir })
-
-  for (const filePath of fileList) {
-    promises.push(
-      cp(join(ctx.pluginDir, filePath), join(ctx.serverHandlerDir, '.netlify', filePath), {
-        recursive: true,
-        force: true,
-      }),
-    )
-  }
-  await Promise.all(promises)
+    await Promise.all(promises)
+  })
 }
 
 const writeHandlerManifest = async (ctx: PluginContext) => {
@@ -104,18 +111,20 @@ const writeHandlerFile = async (ctx: PluginContext) => {
  * Create a Netlify function to run the Next.js server
  */
 export const createServerHandler = async (ctx: PluginContext) => {
-  await rm(ctx.serverFunctionsDir, { recursive: true, force: true })
-  await mkdir(join(ctx.serverHandlerDir, '.netlify'), { recursive: true })
+  await tracer.withActiveSpan('createServerHandler', async () => {
+    await rm(ctx.serverFunctionsDir, { recursive: true, force: true })
+    await mkdir(join(ctx.serverHandlerDir, '.netlify'), { recursive: true })
 
-  await Promise.all([
-    copyNextServerCode(ctx),
-    copyNextDependencies(ctx),
-    writeTagsManifest(ctx),
-    copyHandlerDependencies(ctx),
-    writeHandlerManifest(ctx),
-    writePackageMetadata(ctx),
-    writeHandlerFile(ctx),
-  ])
+    await Promise.all([
+      copyNextServerCode(ctx),
+      copyNextDependencies(ctx),
+      writeTagsManifest(ctx),
+      copyHandlerDependencies(ctx),
+      writeHandlerManifest(ctx),
+      writePackageMetadata(ctx),
+      writeHandlerFile(ctx),
+    ])
 
-  await verifyHandlerDirStructure(ctx)
+    await verifyHandlerDirStructure(ctx)
+  })
 }

@@ -2,6 +2,8 @@ import { existsSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
+import { trace } from '@opentelemetry/api'
+import { wrapTracer } from '@opentelemetry/api/experimental'
 import { glob } from 'fast-glob'
 import type { CacheHandlerValue } from 'next/dist/server/lib/incremental-cache/index.js'
 import type { IncrementalCacheValue } from 'next/dist/server/response-cache/types.js'
@@ -13,6 +15,8 @@ import type { PluginContext } from '../plugin-context.js'
 type CachedPageValue = Extract<IncrementalCacheValue, { kind: 'PAGE' }>
 type CachedRouteValue = Extract<IncrementalCacheValue, { kind: 'ROUTE' }>
 type CachedFetchValue = Extract<IncrementalCacheValue, { kind: 'FETCH' }>
+
+const tracer = wrapTracer(trace.getTracer('Next runtime'))
 
 /**
  * Write a cache entry to the blob upload directory.
@@ -79,61 +83,63 @@ const buildFetchCacheValue = async (path: string): Promise<CachedFetchValue> => 
  * Upload prerendered content to the blob store
  */
 export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> => {
-  try {
-    // ensure the blob directory exists
-    await mkdir(ctx.blobDir, { recursive: true })
-    // read prerendered content and build JSON key/values for the blob store
-    const manifest = await ctx.getPrerenderManifest()
+  return tracer.withActiveSpan('copyPrerenderedContent', async () => {
+    try {
+      // ensure the blob directory exists
+      await mkdir(ctx.blobDir, { recursive: true })
+      // read prerendered content and build JSON key/values for the blob store
+      const manifest = await ctx.getPrerenderManifest()
 
-    const limitConcurrentPrerenderContentHandling = pLimit(10)
+      const limitConcurrentPrerenderContentHandling = pLimit(10)
 
-    await Promise.all(
-      Object.entries(manifest.routes).map(
-        ([route, meta]): Promise<void> =>
-          limitConcurrentPrerenderContentHandling(async () => {
-            const lastModified = meta.initialRevalidateSeconds
-              ? Date.now() - 31536000000
-              : Date.now()
-            const key = routeToFilePath(route)
-            let value: IncrementalCacheValue
-            switch (true) {
-              // Parallel route default layout has no prerendered page
-              case meta.dataRoute?.endsWith('/default.rsc') &&
-                !existsSync(join(ctx.publishDir, 'server/app', `${key}.html`)):
-                return
-              case meta.dataRoute?.endsWith('.json'):
-                if (manifest.notFoundRoutes.includes(route)) {
-                  // if pages router returns 'notFound: true', build won't produce html and json files
+      await Promise.all(
+        Object.entries(manifest.routes).map(
+          ([route, meta]): Promise<void> =>
+            limitConcurrentPrerenderContentHandling(async () => {
+              const lastModified = meta.initialRevalidateSeconds
+                ? Date.now() - 31536000000
+                : Date.now()
+              const key = routeToFilePath(route)
+              let value: IncrementalCacheValue
+              switch (true) {
+                // Parallel route default layout has no prerendered page
+                case meta.dataRoute?.endsWith('/default.rsc') &&
+                  !existsSync(join(ctx.publishDir, 'server/app', `${key}.html`)):
                   return
-                }
-                value = await buildPagesCacheValue(join(ctx.publishDir, 'server/pages', key))
-                break
-              case meta.dataRoute?.endsWith('.rsc'):
-                value = await buildAppCacheValue(join(ctx.publishDir, 'server/app', key))
-                break
-              case meta.dataRoute === null:
-                value = await buildRouteCacheValue(join(ctx.publishDir, 'server/app', key))
-                break
-              default:
-                throw new Error(`Unrecognized content: ${route}`)
-            }
+                case meta.dataRoute?.endsWith('.json'):
+                  if (manifest.notFoundRoutes.includes(route)) {
+                    // if pages router returns 'notFound: true', build won't produce html and json files
+                    return
+                  }
+                  value = await buildPagesCacheValue(join(ctx.publishDir, 'server/pages', key))
+                  break
+                case meta.dataRoute?.endsWith('.rsc'):
+                  value = await buildAppCacheValue(join(ctx.publishDir, 'server/app', key))
+                  break
+                case meta.dataRoute === null:
+                  value = await buildRouteCacheValue(join(ctx.publishDir, 'server/app', key))
+                  break
+                default:
+                  throw new Error(`Unrecognized content: ${route}`)
+              }
 
-            await writeCacheEntry(key, value, lastModified, ctx)
-          }),
-      ),
-    )
+              await writeCacheEntry(key, value, lastModified, ctx)
+            }),
+        ),
+      )
 
-    // app router 404 pages are not in the prerender manifest
-    // so we need to check for them manually
-    if (existsSync(join(ctx.publishDir, `server/app/_not-found.html`))) {
-      const lastModified = Date.now()
-      const key = '/404'
-      const value = await buildAppCacheValue(join(ctx.publishDir, 'server/app/_not-found'))
-      await writeCacheEntry(key, value, lastModified, ctx)
+      // app router 404 pages are not in the prerender manifest
+      // so we need to check for them manually
+      if (existsSync(join(ctx.publishDir, `server/app/_not-found.html`))) {
+        const lastModified = Date.now()
+        const key = '/404'
+        const value = await buildAppCacheValue(join(ctx.publishDir, 'server/app/_not-found'))
+        await writeCacheEntry(key, value, lastModified, ctx)
+      }
+    } catch (error) {
+      ctx.failBuild('Failed assembling prerendered content for upload', error)
     }
-  } catch (error) {
-    ctx.failBuild('Failed assembling prerendered content for upload', error)
-  }
+  })
 }
 
 /**

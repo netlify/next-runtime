@@ -14,12 +14,16 @@ import { createRequire } from 'node:module'
 import { dirname, join, resolve, sep } from 'node:path'
 import { sep as posixSep, join as posixJoin } from 'node:path/posix'
 
+import { trace } from '@opentelemetry/api'
+import { wrapTracer } from '@opentelemetry/api/experimental'
 import glob from 'fast-glob'
 import { prerelease, lt as semverLowerThan, lte as semverLowerThanOrEqual } from 'semver'
 
 import { RUN_CONFIG } from '../../run/constants.js'
 import { PluginContext } from '../plugin-context.js'
 import { verifyNextVersion } from '../verification.js'
+
+const tracer = wrapTracer(trace.getTracer('Next runtime'))
 
 const toPosixPath = (path: string) => path.split(sep).join(posixSep)
 
@@ -31,86 +35,88 @@ function isError(error: unknown): error is NodeJS.ErrnoException {
  * Copy App/Pages Router Javascript needed by the server handler
  */
 export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
-  // update the dist directory inside the required-server-files.json to work with
-  // nx monorepos and other setups where the dist directory is modified
-  const reqServerFilesPath = join(
-    ctx.standaloneRootDir,
-    ctx.relativeAppDir,
-    ctx.requiredServerFiles.config.distDir,
-    'required-server-files.json',
-  )
-  try {
-    await access(reqServerFilesPath)
-  } catch (error) {
-    if (isError(error) && error.code === 'ENOENT') {
-      // this error at this point is problem in runtime and not user configuration
-      ctx.failBuild(
-        `Failed creating server handler. required-server-files.json file not found at expected location "${reqServerFilesPath}". Your repository setup is currently not yet supported.`,
-      )
-    } else {
-      throw error
+  await tracer.withActiveSpan('copyNextServerCode', async () => {
+    // update the dist directory inside the required-server-files.json to work with
+    // nx monorepos and other setups where the dist directory is modified
+    const reqServerFilesPath = join(
+      ctx.standaloneRootDir,
+      ctx.relativeAppDir,
+      ctx.requiredServerFiles.config.distDir,
+      'required-server-files.json',
+    )
+    try {
+      await access(reqServerFilesPath)
+    } catch (error) {
+      if (isError(error) && error.code === 'ENOENT') {
+        // this error at this point is problem in runtime and not user configuration
+        ctx.failBuild(
+          `Failed creating server handler. required-server-files.json file not found at expected location "${reqServerFilesPath}". Your repository setup is currently not yet supported.`,
+        )
+      } else {
+        throw error
+      }
     }
-  }
-  const reqServerFiles = JSON.parse(await readFile(reqServerFilesPath, 'utf-8'))
+    const reqServerFiles = JSON.parse(await readFile(reqServerFilesPath, 'utf-8'))
 
-  // if the resolved dist folder does not match the distDir of the required-server-files.json
-  // this means the path got altered by a plugin like nx and contained ../../ parts so we have to reset it
-  // to point to the correct lambda destination
-  if (
-    toPosixPath(ctx.distDir).replace(new RegExp(`^${ctx.relativeAppDir}/?`), '') !==
-    reqServerFiles.config.distDir
-  ) {
-    // set the distDir to the latest path portion of the publish dir
-    reqServerFiles.config.distDir = ctx.nextDistDir
-    await writeFile(reqServerFilesPath, JSON.stringify(reqServerFiles))
-  }
+    // if the resolved dist folder does not match the distDir of the required-server-files.json
+    // this means the path got altered by a plugin like nx and contained ../../ parts so we have to reset it
+    // to point to the correct lambda destination
+    if (
+      toPosixPath(ctx.distDir).replace(new RegExp(`^${ctx.relativeAppDir}/?`), '') !==
+      reqServerFiles.config.distDir
+    ) {
+      // set the distDir to the latest path portion of the publish dir
+      reqServerFiles.config.distDir = ctx.nextDistDir
+      await writeFile(reqServerFilesPath, JSON.stringify(reqServerFiles))
+    }
 
-  // ensure the directory exists before writing to it
-  await mkdir(ctx.serverHandlerDir, { recursive: true })
-  // write our run-config.json to the root dir so that we can easily get the runtime config of the required-server-files.json
-  // without the need to know about the monorepo or distDir configuration upfront.
-  await writeFile(
-    join(ctx.serverHandlerDir, RUN_CONFIG),
-    JSON.stringify(reqServerFiles.config),
-    'utf-8',
-  )
+    // ensure the directory exists before writing to it
+    await mkdir(ctx.serverHandlerDir, { recursive: true })
+    // write our run-config.json to the root dir so that we can easily get the runtime config of the required-server-files.json
+    // without the need to know about the monorepo or distDir configuration upfront.
+    await writeFile(
+      join(ctx.serverHandlerDir, RUN_CONFIG),
+      JSON.stringify(reqServerFiles.config),
+      'utf-8',
+    )
 
-  const srcDir = join(ctx.standaloneDir, ctx.nextDistDir)
-  // if the distDir got resolved and altered use the nextDistDir instead
-  const nextFolder =
-    toPosixPath(ctx.distDir) === toPosixPath(ctx.buildConfig.distDir)
-      ? ctx.distDir
-      : ctx.nextDistDir
-  const destDir = join(ctx.serverHandlerDir, nextFolder)
+    const srcDir = join(ctx.standaloneDir, ctx.nextDistDir)
+    // if the distDir got resolved and altered use the nextDistDir instead
+    const nextFolder =
+      toPosixPath(ctx.distDir) === toPosixPath(ctx.buildConfig.distDir)
+        ? ctx.distDir
+        : ctx.nextDistDir
+    const destDir = join(ctx.serverHandlerDir, nextFolder)
 
-  const paths = await glob(
-    [`*`, `server/*`, `server/chunks/*`, `server/edge-chunks/*`, `server/+(app|pages)/**/*.js`],
-    {
-      cwd: srcDir,
-      extglob: true,
-    },
-  )
+    const paths = await glob(
+      [`*`, `server/*`, `server/chunks/*`, `server/edge-chunks/*`, `server/+(app|pages)/**/*.js`],
+      {
+        cwd: srcDir,
+        extglob: true,
+      },
+    )
 
-  await Promise.all(
-    paths.map(async (path: string) => {
-      const srcPath = join(srcDir, path)
-      const destPath = join(destDir, path)
+    await Promise.all(
+      paths.map(async (path: string) => {
+        const srcPath = join(srcDir, path)
+        const destPath = join(destDir, path)
 
-      // If this is the middleware manifest file, replace it with an empty
-      // manifest to avoid running middleware again in the server handler.
-      if (path === 'server/middleware-manifest.json') {
-        try {
-          await replaceMiddlewareManifest(srcPath, destPath)
-        } catch (error) {
-          throw new Error('Could not patch middleware manifest file', { cause: error })
+        // If this is the middleware manifest file, replace it with an empty
+        // manifest to avoid running middleware again in the server handler.
+        if (path === 'server/middleware-manifest.json') {
+          try {
+            await replaceMiddlewareManifest(srcPath, destPath)
+          } catch (error) {
+            throw new Error('Could not patch middleware manifest file', { cause: error })
+          }
+
+          return
         }
 
-        return
-      }
-
-      await cp(srcPath, destPath, { recursive: true, force: true })
-    }),
-  )
+        await cp(srcPath, destPath, { recursive: true, force: true })
+      }),
+    )
+  })
 }
 
 /**
@@ -238,69 +244,71 @@ async function patchNextModules(
 }
 
 export const copyNextDependencies = async (ctx: PluginContext): Promise<void> => {
-  const entries = await readdir(ctx.standaloneDir)
-  const promises: Promise<void>[] = entries.map(async (entry) => {
-    // copy all except the package.json and distDir (.next) folder as this is handled in a separate function
-    // this will include the node_modules folder as well
-    if (entry === 'package.json' || entry === ctx.nextDistDir) {
-      return
-    }
-    const src = join(ctx.standaloneDir, entry)
-    const dest = join(ctx.serverHandlerDir, entry)
-    await cp(src, dest, { recursive: true, verbatimSymlinks: true, force: true })
+  await tracer.withActiveSpan('copyNextDependencies', async () => {
+    const entries = await readdir(ctx.standaloneDir)
+    const promises: Promise<void>[] = entries.map(async (entry) => {
+      // copy all except the package.json and distDir (.next) folder as this is handled in a separate function
+      // this will include the node_modules folder as well
+      if (entry === 'package.json' || entry === ctx.nextDistDir) {
+        return
+      }
+      const src = join(ctx.standaloneDir, entry)
+      const dest = join(ctx.serverHandlerDir, entry)
+      await cp(src, dest, { recursive: true, verbatimSymlinks: true, force: true })
 
-    if (entry === 'node_modules') {
-      await recreateNodeModuleSymlinks(ctx.resolveFromSiteDir('node_modules'), dest)
+      if (entry === 'node_modules') {
+        await recreateNodeModuleSymlinks(ctx.resolveFromSiteDir('node_modules'), dest)
+      }
+    })
+
+    // inside a monorepo there is a root `node_modules` folder that contains all the dependencies
+    const rootSrcDir = join(ctx.standaloneRootDir, 'node_modules')
+    const rootDestDir = join(ctx.serverHandlerRootDir, 'node_modules')
+
+    // use the node_modules tree from the process.cwd() and not the one from the standalone output
+    // as the standalone node_modules are already wrongly assembled by Next.js.
+    // see: https://github.com/vercel/next.js/issues/50072
+    if (existsSync(rootSrcDir) && ctx.standaloneRootDir !== ctx.standaloneDir) {
+      promises.push(
+        cp(rootSrcDir, rootDestDir, { recursive: true, verbatimSymlinks: true }).then(() =>
+          recreateNodeModuleSymlinks(resolve('node_modules'), rootDestDir),
+        ),
+      )
+    }
+
+    await Promise.all(promises)
+
+    // detect if it might lead to a runtime issue and throw an error upfront on build time instead of silently failing during runtime
+    const serverHandlerRequire = createRequire(posixJoin(ctx.serverHandlerDir, ':internal:'))
+
+    let nextVersion: string | undefined
+    try {
+      const { version } = serverHandlerRequire('next/package.json')
+      if (version) {
+        nextVersion = version as string
+      }
+    } catch {
+      // failed to resolve package.json - currently this is resolvable in all known next versions, but if next implements
+      // exports map it still might be a problem in the future, so we are not breaking here
+    }
+
+    if (nextVersion) {
+      verifyNextVersion(ctx, nextVersion)
+
+      await patchNextModules(ctx, nextVersion, serverHandlerRequire.resolve)
+    }
+
+    try {
+      const nextEntryAbsolutePath = serverHandlerRequire.resolve('next')
+      const nextRequire = createRequire(nextEntryAbsolutePath)
+      nextRequire.resolve('styled-jsx')
+    } catch {
+      throw new Error(
+        'node_modules are not installed correctly, if you are using pnpm please set the public hoist pattern to: `public-hoist-pattern[]=*`.\n' +
+          'Refer to your docs for more details: https://docs.netlify.com/integrations/frameworks/next-js/overview/#pnpm-support',
+      )
     }
   })
-
-  // inside a monorepo there is a root `node_modules` folder that contains all the dependencies
-  const rootSrcDir = join(ctx.standaloneRootDir, 'node_modules')
-  const rootDestDir = join(ctx.serverHandlerRootDir, 'node_modules')
-
-  // use the node_modules tree from the process.cwd() and not the one from the standalone output
-  // as the standalone node_modules are already wrongly assembled by Next.js.
-  // see: https://github.com/vercel/next.js/issues/50072
-  if (existsSync(rootSrcDir) && ctx.standaloneRootDir !== ctx.standaloneDir) {
-    promises.push(
-      cp(rootSrcDir, rootDestDir, { recursive: true, verbatimSymlinks: true }).then(() =>
-        recreateNodeModuleSymlinks(resolve('node_modules'), rootDestDir),
-      ),
-    )
-  }
-
-  await Promise.all(promises)
-
-  // detect if it might lead to a runtime issue and throw an error upfront on build time instead of silently failing during runtime
-  const serverHandlerRequire = createRequire(posixJoin(ctx.serverHandlerDir, ':internal:'))
-
-  let nextVersion: string | undefined
-  try {
-    const { version } = serverHandlerRequire('next/package.json')
-    if (version) {
-      nextVersion = version as string
-    }
-  } catch {
-    // failed to resolve package.json - currently this is resolvable in all known next versions, but if next implements
-    // exports map it still might be a problem in the future, so we are not breaking here
-  }
-
-  if (nextVersion) {
-    verifyNextVersion(ctx, nextVersion)
-
-    await patchNextModules(ctx, nextVersion, serverHandlerRequire.resolve)
-  }
-
-  try {
-    const nextEntryAbsolutePath = serverHandlerRequire.resolve('next')
-    const nextRequire = createRequire(nextEntryAbsolutePath)
-    nextRequire.resolve('styled-jsx')
-  } catch {
-    throw new Error(
-      'node_modules are not installed correctly, if you are using pnpm please set the public hoist pattern to: `public-hoist-pattern[]=*`.\n' +
-        'Refer to your docs for more details: https://docs.netlify.com/integrations/frameworks/next-js/overview/#pnpm-support',
-    )
-  }
 }
 
 export const writeTagsManifest = async (ctx: PluginContext): Promise<void> => {
