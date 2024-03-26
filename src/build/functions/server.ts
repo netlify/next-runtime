@@ -115,15 +115,13 @@ export const createServerHandler = async (ctx: PluginContext) => {
     await rm(ctx.serverFunctionsDir, { recursive: true, force: true })
     await mkdir(join(ctx.serverHandlerDir, '.netlify'), { recursive: true })
 
-    await Promise.all([
-      copyNextServerCode(ctx),
-      copyNextDependencies(ctx),
-      writeTagsManifest(ctx),
-      copyHandlerDependencies(ctx),
-      writeHandlerManifest(ctx),
-      writePackageMetadata(ctx),
-      writeHandlerFile(ctx),
-    ])
+    await copyNextServerCode(ctx)
+    await copyNextDependencies(ctx)
+    await writeTagsManifest(ctx)
+    await copyHandlerDependencies(ctx)
+    await writeHandlerManifest(ctx)
+    await writePackageMetadata(ctx)
+    await writeHandlerFile(ctx)
 
     await verifyHandlerDirStructure(ctx)
   })

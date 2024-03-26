@@ -4,6 +4,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    outputFileTracingIncludes: {
+      '/': ['public/**'],
+    },
+  },
   images: {
     remotePatterns: [
       {

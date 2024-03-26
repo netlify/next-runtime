@@ -1,3 +1,17 @@
 [functions]
 directory = "netlify/functions"
-included_files = ["static/**"]
+included_files = [
+  "static/**",
+  # this is setup for testing regressions on EEXIST error:
+  # next.config.js -> experimental.outputFileTracingIncludes makes next.js
+  # to add those files to .next/standalone directory and we again add those
+  # files to server handler with this configuration and this makes sure
+  # there is no errors happening
+  "public/**",
+  # this is setup for testing regressions on EEXIST error:
+  # next.js will output node_modules by default to .next/standalone
+  # this makes sure we test scenario when we additionally copy extra files
+  # to shared directory and make sure it's not causing EEXIST errors
+  # added package is not being outputted by next.js by default
+  "node_modules/js-tokens/**",
+]
