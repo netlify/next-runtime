@@ -162,17 +162,10 @@ export type NextInternalModuleReplacement = {
    */
   minVersion: string
   /**
-   * Maximum Next.js version that this patch should be applied to, note that for ongoing patches
-   * we will continue to apply patch for prerelease versions also as canary versions are released
-   * very frequently and trying to target canary versions is not practical. If user is using
-   * canary next versions they should be aware of the risks
-   */
-  maxStableVersion: string
-  /**
    * If the reason to patch was not addressed in Next.js we mark this as ongoing
    * to continue to test latest versions to know wether we should bump `maxStableVersion`
    */
-  ongoing?: boolean
+  ongoing: boolean
   /**
    * Module that should be replaced
    */
@@ -181,16 +174,36 @@ export type NextInternalModuleReplacement = {
    * Location of replacement module (relative to `<runtime>/dist/build/content`)
    */
   shimModule: string
-}
+} & (
+  | {
+      ongoing: true
+      /**
+       * Maximum Next.js version that this patch should be applied to, note that for ongoing patches
+       * we will continue to apply patch for prerelease versions also as canary versions are released
+       * very frequently and trying to target canary versions is not practical. If user is using
+       * canary next versions they should be aware of the risks
+       */
+      maxStableVersion: string
+    }
+  | {
+      ongoing: false
+      /**
+       * Maximum Next.js version that this patch should be applied to. This should be last released
+       * version of Next.js before version making the patch not needed anymore (can be canary version).
+       */
+      maxVersion: string
+    }
+)
 
 const nextInternalModuleReplacements: NextInternalModuleReplacement[] = [
   {
     // standalone is loading expensive Telemetry module that is not actually used
     // so this replace that module with lightweight no-op shim that doesn't load additional modules
-    // see https://github.com/vercel/next.js/pull/63574 that will remove need for this shim
-    ongoing: true,
+    // see https://github.com/vercel/next.js/pull/63574 that removed need for this shim
+    ongoing: false,
     minVersion: '13.5.0-canary.0',
-    maxStableVersion: '14.1.4',
+    // perf released in https://github.com/vercel/next.js/releases/tag/v14.2.0-canary.43
+    maxVersion: '14.2.0-canary.42',
     nextModule: 'next/dist/telemetry/storage.js',
     shimModule: './next-shims/telemetry-storage.cjs',
   },
@@ -200,22 +213,24 @@ export function getPatchesToApply(
   nextVersion: string,
   patches: NextInternalModuleReplacement[] = nextInternalModuleReplacements,
 ) {
-  return patches.filter(({ minVersion, maxStableVersion, ongoing }) => {
+  return patches.filter((patch) => {
     // don't apply patches for next versions below minVersion
-    if (semverLowerThan(nextVersion, minVersion)) {
+    if (semverLowerThan(nextVersion, patch.minVersion)) {
       return false
     }
 
-    // apply ongoing patches when used next version is prerelease or NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES env var is used
-    if (
-      ongoing &&
-      (prerelease(nextVersion) || process.env.NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES)
-    ) {
-      return true
+    if (patch.ongoing) {
+      // apply ongoing patches when used next version is prerelease or NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES env var is used
+      if (prerelease(nextVersion) || process.env.NETLIFY_NEXT_FORCE_APPLY_ONGOING_PATCHES) {
+        return true
+      }
+
+      // apply ongoing patches for stable next versions below or equal maxStableVersion
+      return semverLowerThanOrEqual(nextVersion, patch.maxStableVersion)
     }
 
-    // apply patches for next versions below maxStableVersion
-    return semverLowerThanOrEqual(nextVersion, maxStableVersion)
+    // apply patches for next versions below or equal maxVersion
+    return semverLowerThanOrEqual(nextVersion, patch.maxVersion)
   })
 }
 

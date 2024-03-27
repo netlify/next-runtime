@@ -7,7 +7,12 @@ import { expect, test, vi, describe, beforeEach } from 'vitest'
 import { mockFileSystem } from '../../../tests/index.js'
 import { PluginContext, RequiredServerFilesManifest } from '../plugin-context.js'
 
-import { copyNextServerCode, getPatchesToApply, verifyHandlerDirStructure } from './server.js'
+import {
+  NextInternalModuleReplacement,
+  copyNextServerCode,
+  getPatchesToApply,
+  verifyHandlerDirStructure,
+} from './server.js'
 
 vi.mock('node:fs', async () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, unicorn/no-await-expression-member
@@ -279,16 +284,17 @@ describe(`getPatchesToApply`, () => {
       '14.1.4-canary.1': true, // canary version before stable with maxStableVersion - should be applied
       '14.1.4': true, // latest stable tested version
       '14.2.0': false, // untested stable version
+      '14.2.0-canary.37': true, // maxVersion, should be applied
       '14.2.0-canary.38': false, // not ongoing patch so should not be applied
     }
 
     const nextModule = 'test'
 
-    const patches = [
+    const patches: NextInternalModuleReplacement[] = [
       {
         ongoing: false,
         minVersion: '13.5.0-canary.0',
-        maxStableVersion: '14.1.4',
+        maxVersion: '14.2.0-canary.37',
         nextModule,
         shimModule: 'not-used-in-test',
       },
@@ -318,7 +324,7 @@ describe(`getPatchesToApply`, () => {
 
     const nextModule = 'test'
 
-    const patches = [
+    const patches: NextInternalModuleReplacement[] = [
       {
         ongoing: true,
         minVersion: '13.5.0-canary.0',
@@ -353,7 +359,7 @@ describe(`getPatchesToApply`, () => {
 
     const nextModule = 'test'
 
-    const patches = [
+    const patches: NextInternalModuleReplacement[] = [
       {
         ongoing: true,
         minVersion: '13.5.0-canary.0',
