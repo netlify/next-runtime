@@ -1,0 +1,14 @@
+{
+  "sendResults": "on-failure",
+  "slackLogLevel": "debug",
+  "sendUsingBot": {
+    "channels": ["C020GQEKC13"]
+  },
+  "meta": [
+    { "key": "version", "value": "__ENV_RESULTS_VERSION" },
+    {
+      "key": "results",
+      "value": "__ENV_RESULTS_URL"
+    }
+  ]
+}

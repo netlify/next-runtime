@@ -119,7 +119,8 @@ export class NextDeployInstance extends NextInstance {
       this._url = data.deploy_url
       this._parsedUrl = new URL(this._url)
       this._deployId = data.deploy_id
-      require('console').log(`Deployment URL: ${this._url}`)
+      require('console').log(`Deployment URL: ${data.deploy_url}`)
+      require('console').log(`Logs: ${data.logs}`)
     } catch (err) {
       console.error(err)
       throw new Error(`Failed to parse deploy output: ${deployRes.stdout}`)

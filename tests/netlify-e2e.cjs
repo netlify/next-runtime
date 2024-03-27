@@ -2,18 +2,7 @@ module.exports = {
   version: 2,
   suites: {
     'test/e2e/app-dir/app-static/app-static.test.ts': {
-      failed: [
-        'app-dir static/dynamic handling usePathname should have values from canonical url on rewrite',
-        'app-dir static/dynamic handling should have correct prerender-manifest entries',
-        'app-dir static/dynamic handling should output HTML/RSC files for static paths',
-        'app-dir static/dynamic handling should output debug info for static bailouts',
-      ],
-    },
-    'test/e2e/app-dir/app-client-cache/client-cache.test.ts': {
-      failed: [
-        'app dir client cache semantics prefetch={undefined} - default should re-use the full cache for only 30 seconds',
-        'app dir client cache semantics prefetch={undefined} - default should refetch below the fold after 30 seconds',
-      ],
+      failed: ['app-dir static/dynamic handling should warn for too many cache tags'],
     },
     'test/e2e/app-dir/headers-static-bailout/headers-static-bailout.test.ts': {
       failed: [
@@ -24,12 +13,8 @@ module.exports = {
     'test/e2e/app-dir/parallel-routes-and-interception/parallel-routes-and-interception.test.ts': {
       failed: [],
       flakey: [
+        // Uses patch file
         'parallel-routes-and-interception parallel routes should gracefully handle when two page segments match the `children` parallel slot',
-      ],
-    },
-    'test/e2e/app-dir/error-boundary-navigation/override-node-env.test.ts': {
-      failed: [
-        'app dir - not found navigation - with overridden node env should be able to navigate to other page from root not-found page',
       ],
     },
     'test/e2e/opentelemetry/opentelemetry.test.ts': {
