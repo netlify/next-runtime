@@ -40,6 +40,8 @@ create it. These also run nightly and on release PRs.
 
 ### Integration testing
 
+> **Prerequisite** Run `npm run build` before running integration tests.
+
 How to add new integration test scenarios to the application:
 
 1. Create a new folder under `tests/fixtures/<your-name>`

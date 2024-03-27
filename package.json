@@ -15,7 +15,7 @@
   "scripts": {
     "prepack": "clean-package",
     "postpack": "clean-package restore",
-    "pretest": "node tests/prepare.mjs",
+    "pretest": "npm run build && node tests/prepare.mjs",
     "build": "node ./tools/build.js",
     "build:watch": "node ./tools/build.js --watch",
     "lint": "eslint --cache --format=codeframe --max-warnings=0 --ext .ts,.cts,.js src",
