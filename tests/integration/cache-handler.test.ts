@@ -313,6 +313,8 @@ describe('plugin', () => {
     expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
       '/404',
       '/api/revalidate-handler',
+      '/api/static/first',
+      '/api/static/second',
       '/index',
       '/revalidate-fetch',
       '/static-fetch-1',
@@ -443,5 +445,14 @@ describe('route', () => {
       'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
     ).toBe(1)
     ctx.blobServerGetSpy.mockClear()
+  })
+
+  test<FixtureTestContext>('cacheable route handler response not produced at build is served correctly', async (ctx) => {
+    await createFixture('server-components', ctx)
+    await runPlugin(ctx)
+
+    const call2 = await invokeFunction(ctx, { url: '/api/static/not-in-generateStaticParams' })
+
+    expect(call2.body).toBe('{"params":{"slug":"not-in-generateStaticParams"}}')
   })
 })

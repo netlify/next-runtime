@@ -159,14 +159,20 @@ export class NetlifyCacheHandler implements CacheHandler {
 
       console.debug(`[NetlifyCacheHandler.set]: ${key}`)
 
+      let value = data
+
       if (data?.kind === 'ROUTE') {
-        // @ts-expect-error gotta find a better solution for this
-        data.body = data.body.toString('base64')
+        // don't mutate data, as it's used for the initial response - instead create a new object
+        value = {
+          ...data,
+          // @ts-expect-error gotta find a better solution for this
+          body: data.body.toString('base64'),
+        }
       }
 
       await this.blobStore.setJSON(blobKey, {
         lastModified,
-        value: data,
+        value,
       })
 
       if (data?.kind === 'PAGE') {
