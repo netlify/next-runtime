@@ -129,6 +129,8 @@ test.describe('next/image is using Netlify Image CDN', () => {
 
     const nextImageResponse = await nextImageResponsePromise
     expect(nextImageResponse.request().url()).toContain('_next/image?url=%2Fsquirrel.jpg')
+
+    expect(nextImageResponse.status()).toBe(200)
     // ensure next/image is using Image CDN
     // source image is jpg, but when requesting it through Image CDN avif will be returned
     expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
@@ -152,8 +154,10 @@ test.describe('next/image is using Netlify Image CDN', () => {
       )}`,
     )
 
-    await expect(nextImageResponse?.status()).toBe(200)
-    await expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+    expect(nextImageResponse.status()).toBe(200)
+    expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+
+    await expectImageWasLoaded(page.locator('img'))
   })
 
   test('Remote images: remote patterns #2 (just hostname starting with wildcard)', async ({
@@ -172,8 +176,10 @@ test.describe('next/image is using Netlify Image CDN', () => {
       )}`,
     )
 
-    await expect(nextImageResponse?.status()).toBe(200)
-    await expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+    expect(nextImageResponse.status()).toBe(200)
+    expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+
+    await expectImageWasLoaded(page.locator('img'))
   })
 
   test('Remote images: domains', async ({ page, simpleNextApp }) => {
@@ -189,8 +195,30 @@ test.describe('next/image is using Netlify Image CDN', () => {
       )}`,
     )
 
-    await expect(nextImageResponse?.status()).toBe(200)
-    await expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+    expect(nextImageResponse?.status()).toBe(200)
+    expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+
+    await expectImageWasLoaded(page.locator('img'))
+  })
+
+  test('Handling of browser-cached Runtime v4 redirect', async ({ page, simpleNextApp }) => {
+    // Runtime v4 redirects for next/image are 301 and would be cached by browser
+    // So this test checks behavior when migrating from v4 to v5 for site visitors
+    // and ensure that images are still served through Image CDN
+    const nextImageResponsePromise = page.waitForResponse('**/_ipx/**')
+
+    await page.goto(`${simpleNextApp.url}/image/migration-from-v4-runtime`)
+
+    const nextImageResponse = await nextImageResponsePromise
+    // ensure fixture is replicating runtime v4 redirect
+    expect(nextImageResponse.request().url()).toContain(
+      '_ipx/w_384,q_75/%2Fsquirrel.jpg?url=%2Fsquirrel.jpg&w=384&q=75',
+    )
+
+    expect(nextImageResponse.status()).toEqual(200)
+    expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+
+    await expectImageWasLoaded(page.locator('img'))
   })
 })
 

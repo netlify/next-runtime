@@ -58,6 +58,7 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
   expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
     '/404',
     '/image/local',
+    '/image/migration-from-v4-runtime',
     '/image/remote-domain',
     '/image/remote-pattern-1',
     '/image/remote-pattern-2',

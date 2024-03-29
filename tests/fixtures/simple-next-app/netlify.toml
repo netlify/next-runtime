@@ -1,3 +1,12 @@
+[[redirects]]
+from = "/_nextRuntimeV4ImageHandler"
+# replicate runtime V4 image handler
+# https://github.com/netlify/next-runtime/blob/637e08c3f3437e5e302ec230b8c849bb61495566/packages/runtime/src/helpers/functions.ts#L254-L259
+query = { url = ":url", w = ":width", q = ":quality" }
+to = "/_ipx/w_:width,q_:quality/:url"
+status = 301
+
+
 [functions]
 directory = "netlify/functions"
 included_files = [
