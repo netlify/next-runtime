@@ -1,0 +1,387 @@
+{
+  "ignored": [
+    "test/e2e/test-template/{{ toFileName name }}/{{ toFileName name }}.test.ts",
+    "test/e2e/app-dir/app-validation/validation.test.ts",
+    "test/e2e/app-dir/app/standalone-gsp.test.ts",
+    "test/e2e/app-dir/app/standalone.test.ts",
+    "test/e2e/app-dir/ppr-errors/ppr-errors.test.ts",
+    "test/e2e/app-dir/interception-middleware-rewrite/interception-middleware-rewrite.test.ts",
+    "test/e2e/app-dir/app-compilation/index.test.ts",
+    "test/e2e/favicon-short-circuit/favicon-short-circuit.test.ts",
+    "test/e2e/app-dir/with-exported-function-config/with-exported-function-config.test.ts",
+    "test/e2e/app-dir/conflicting-page-segments/conflicting-page-segments.test.ts",
+    "test/e2e/404-page-router/index.test.ts",
+    "test/e2e/app-dir/app-fetch-deduping/app-fetch-deduping.test.ts",
+    "test/e2e/app-dir/app/experimental-compile.test.ts",
+    "test/e2e/app-dir/app/standalone-gsp.test.ts",
+    "test/e2e/app-dir/app/standalone.test.ts",
+    "test/e2e/app-dir/build-size/index.test.ts",
+    "test/e2e/app-dir/create-root-layout/create-root-layout.test.ts",
+    "test/e2e/app-dir/rewrites-redirects/rewrites-redirects.test.ts",
+    "test/e2e/edge-compiler-can-import-blob-assets/index.test.ts",
+    "test/e2e/i18n-data-fetching-redirect/index.test.ts",
+    "test/e2e/manual-client-base-path/index.test.ts",
+    "test/e2e/no-eslint-warn-with-no-eslint-config/index.test.ts",
+    "test/e2e/switchable-runtime/index.test.ts",
+    "test/e2e/trailingslash-with-rewrite/index.test.ts",
+    "test/e2e/transpile-packages/index.test.ts",
+    "test/e2e/typescript-version-no-warning/typescript-version-no-warning.test.ts",
+    "test/e2e/typescript-version-warning/typescript-version-warning.test.ts"
+  ],
+  "skipped": [
+    {
+      "file": "test/e2e/proxy-request-with-middleware/test/index.test.ts",
+      "reason": "Hard-coded localhost URL"
+    },
+    {
+      "file": "test/e2e/app-dir/ppr/**/*",
+      "reason": "Relies on local test server"
+    },
+    {
+      "file": "test/e2e/app-dir/ppr-*/**/*",
+      "reason": "Relies on local test server"
+    },
+    {
+      "file": "test/e2e/app-dir/app-prefetch-false-loading/app-prefetch-false-loading.test.ts",
+      "reason": "Uses CLI output"
+    },
+    {
+      "file": "test/e2e/cancel-request/stream-cancel.test.ts",
+      "reason": "Doesn't work for HTTPS URLs"
+    },
+    {
+      "file": "test/e2e/edge-pages-support/edge-document.test.ts",
+      "reason": "Tries to patch deployed files"
+    },
+    {
+      "file": "test/e2e/third-parties/index.test.ts",
+      "reason": "npm install doesn't work in this repo"
+    },
+    {
+      "file": "test/e2e/swc-warnings/index.test.ts",
+      "reason": "Uses CLI output"
+    },
+    {
+      "file": "test/e2e/repeated-forward-slashes-error/repeated-forward-slashes-error.test.ts",
+      "reason": "Uses CLI output"
+    },
+    {
+      "file": "test/e2e/app-dir/x-forwarded-headers/x-forwarded-headers.test.ts",
+      "reason": "Whitespace mismatch"
+    },
+    {
+      "file": "test/e2e/app-dir/third-parties/basic.test.ts",
+      "reason": "npm install doesn't work in this repo"
+    },
+    {
+      "file": "test/e2e/app-dir/app/vercel-speed-insights.test.ts",
+      "reason": "Vercel-specific"
+    },
+    {
+      "file": "test/e2e/app-dir/headers-static-bailout/headers-static-bailout.test.ts",
+      "reason": "Tries to patch deployed files"
+    },
+    {
+      "file": "test/e2e/app-dir/app/useReportWebVitals.test.ts",
+      "reason": "Vercel-specific"
+    },
+    {
+      "file": "test/e2e/app-dir/app-static/app-static-custom-handler.test.ts",
+      "reason": "Test not compatible"
+    },
+    {
+      "file": "test/e2e/app-dir/missing-suspense-with-csr-bailout/missing-suspense-with-csr-bailout.test.ts",
+      "reason": "Tries to patch deployed files"
+    },
+    {
+      "file": "test/e2e/module-layer/module-layer.test.ts",
+      "reason": "Tries to patch deployed files"
+    },
+    {
+      "file": "test/e2e/next-image/next-image-proxy.test.ts",
+      "reason": "Hard-coded localhost URL"
+    },
+    {
+      "file": "test/e2e/app-dir/next-image/next-image-proxy.test.ts",
+      "reason": "Hard-coded localhost URL"
+    },
+    {
+      "file": "test/e2e/edge-can-use-wasm-files/index.test.ts",
+      "reason": "Uses invalid WASM syntax"
+    },
+    {
+      "file": "test/e2e/i18n-data-route/i18n-data-route.test.ts",
+      "reason": "Expected behaviour does not match next start"
+    },
+    {
+      "file": "test/e2e/app-dir/app-static/app-static.test.ts",
+      "reason": "Uses CLI output",
+      "tests": ["app-dir static/dynamic handling should warn for too many cache tags"]
+    },
+    {
+      "file": "test/e2e/app-dir/parallel-routes-and-interception/parallel-routes-and-interception.test.ts",
+      "reason": "Tries to patch deployed files",
+      "tests": [
+        "parallel-routes-and-interception parallel routes should gracefully handle when two page segments match the `children` parallel slot"
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/rsc-basic/rsc-basic.test.ts",
+      "reason": "Tries to patch deployed files",
+      "tests": [
+        "app dir - rsc basics react@experimental should opt into the react@experimental when enabling ppr",
+        "app dir - rsc basics react@experimental should opt into the react@experimental when enabling taint"
+      ]
+    },
+    {
+      "file": "test/e2e/skip-trailing-slash-redirect/index.test.ts",
+      "reason": "Header whitespace mismatch",
+      "tests": [
+        "skip-trailing-slash-redirect should merge cookies from middleware and API routes correctly",
+        "skip-trailing-slash-redirect should merge cookies from middleware and edge API routes correctly",
+        "skip-trailing-slash-redirect should handle external rewrite correctly /chained-rewrite-ssr",
+        "skip-trailing-slash-redirect should handle external rewrite correctly /chained-rewrite-static",
+        "skip-trailing-slash-redirect should handle external rewrite correctly /chained-rewrite-ssg"
+      ]
+    },
+    {
+      "file": "test/e2e/module-layer/index.test.ts",
+      "reason": "Tries to patch deployed files",
+      "tests": [
+        "module layer no server-only in server targets should render routes marked with restriction marks without errors",
+        "module layer with server-only in server targets should render routes marked with restriction marks without errors"
+      ]
+    },
+    {
+      "file": "test/e2e/getserversideprops/test/index.test.ts",
+      "reason": "Header whitespace mismatch",
+      "tests": [
+        "getServerSideProps should set default caching header",
+        "getServerSideProps should respect custom caching header"
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/metadata-dynamic-routes/index.test.ts",
+      "reason": "Header whitespace mismatch",
+      "tests": [
+        "app dir - metadata dynamic routes text routes should handle robots.[ext] dynamic routes",
+        "app dir - metadata dynamic routes text routes should handle sitemap.[ext] dynamic routes",
+        "app dir - metadata dynamic routes social image routes should handle manifest.[ext] dynamic routes",
+        "app dir - metadata dynamic routes social image routes should render og image with opengraph-image dynamic routes",
+        "app dir - metadata dynamic routes social image routes should render og image with twitter-image dynamic routes",
+        "app dir - metadata dynamic routes icon image routes should render icon with dynamic routes",
+        "app dir - metadata dynamic routes icon image routes should render apple icon with dynamic routes",
+        "app dir - metadata dynamic routes should inject dynamic metadata properly to head",
+        "app dir - metadata dynamic routes should use localhost for local prod and fallback to deployment url when metadataBase is falsy"
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/metadata/metadata.test.ts",
+      "reason": "Hard-coded Vercel URL",
+      "tests": [
+        "app dir - metadata opengraph should pick up opengraph-image and twitter-image as static metadata files",
+        "app dir - metadata static routes should have /favicon.ico as route",
+        "app dir - metadata static routes should have icons as route"
+      ]
+    },
+    {
+      "file": "test/e2e/basepath.test.ts",
+      "reason": "Hard-coded Vercel error message",
+      "tests": [
+        "basePath should not update URL for a 404",
+        "basePath should handle 404 urls that start with basePath",
+        "basePath should show 404 for page not under the /docs prefix"
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/app/index.test.ts",
+      "reason": "Whitespace mismatch",
+      "tests": [
+        "app dir - basic should return the `vary` header from edge runtime",
+        "app dir - basic should return the `vary` header from pages for flight requests"
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/conflicting-page-segments/conflicting-page-segments.test.ts",
+      "reason": "Uses CLI output",
+      "tests": [
+        "conflicting-page-segments should throw an error when a route groups causes a conflict with a parallel segment"
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/actions-navigation/index.test.ts",
+      "reason": "Uses CLI output",
+      "tests": [
+        "app-dir action handling should handle actions correctly after following a relative link"
+      ]
+    },
+    {
+      "file": "test/e2e/middleware-general/test/index.test.ts",
+      "reason": "Uses CLI output",
+      "tests": [
+        "Middleware Runtime with i18n should redirect the same for direct visit and client-transition",
+        "Middleware Runtime without i18n should redirect the same for direct visit and client-transition",
+        {
+          "name": "Middleware Runtime with i18n should allow to abort a fetch request",
+          "reason": "Mismatched wording in runtime error message"
+        },
+        {
+          "name": "Middleware Runtime without i18n should allow to abort a fetch request",
+          "reason": "Mismatched wording in runtime error message"
+        },
+        {
+          "name": "Middleware Runtime with i18n with i18n allows to access env variables",
+          "reason": "Disabled for deploy tests"
+        },
+        {
+          "name": "Middleware Runtime without i18n with i18n allows to access env variables",
+          "reason": "Disabled for deploy tests"
+        }
+      ]
+    },
+    {
+      "file": "test/e2e/prerender.test.ts",
+      "reason": "Header whitespace mismatch",
+      "tests": [
+        "Prerender should handle on-demand revalidate for fallback: blocking",
+        "Prerender should use correct caching headers for a revalidate page",
+        "Prerender should use correct caching headers for a no-revalidate page",
+        {
+          "name": "Prerender should show warning when large amount of page data is returned",
+          "reason": "Uses CLI output"
+        }
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/app-routes/app-custom-route-base-path.test.ts",
+      "reason": "Uses CLI output",
+      "tests": [
+        "app-custom-routes no response returned should print an error when no response is returned",
+        "app-custom-routes error conditions responds with 400 (Bad Request) when the requested method is not a valid HTTP method"
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/app-routes/app-custom-routes.test.ts",
+      "reason": "Uses CLI output",
+      "tests": [
+        "app-custom-routes no response returned should print an error when no response is returned",
+        "app-custom-routes error conditions responds with 400 (Bad Request) when the requested method is not a valid HTTP method"
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/actions/app-action.test.ts",
+      "reason": "Uses CLI output",
+      "tests": [
+        "app-dir action handling should log a warning when a server action is not found but an id is provided",
+        "app-dir action handling should work with interception routes"
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "name": "Middleware Runtime without i18n should trigger middleware for data requests",
+      "reason": "Requests for page data on pages router sites with middleware return HTML unless x-nextjs-data header is set",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/380"
+    },
+    {
+      "name": "Middleware Runtime with i18n should trigger middleware for data requests",
+      "reason": "Requests for page data on pages router sites with middleware return HTML unless x-nextjs-data header is set",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/380"
+    },
+    {
+      "name": "app dir - basic bootstrap scripts should successfully bootstrap even when using CSP",
+      "reason": "Nonce not automatically set in script tags when using CSP",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/381"
+    },
+    {
+      "name": "Middleware Runtime with i18n should validate & parse request url from a dynamic route with params",
+      "reason": "Middleware in sites with i18n generating incorrect request.url pathname",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/382"
+    },
+    {
+      "name": "Middleware Runtime with i18n should validate & parse request url from a dynamic route with params and no query",
+      "reason": "Middleware in sites with i18n generating incorrect request.url pathname",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/382"
+    },
+    {
+      "name": "i18n-ignore-rewrite-source-locale with basepath get public file by skipping locale in rewrite, locale: ",
+      "reason": "Middleware on sites with i18n cannot rewrite to static files",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+    },
+    {
+      "name": "i18n-ignore-rewrite-source-locale with basepath get public file by skipping locale in rewrite, locale: /en",
+      "reason": "Middleware on sites with i18n cannot rewrite to static files",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+    },
+    {
+      "name": "i18n-ignore-rewrite-source-locale with basepath get public file by skipping locale in rewrite, locale: /nl",
+      "reason": "Middleware on sites with i18n cannot rewrite to static files",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+    },
+    {
+      "name": "i18n-ignore-rewrite-source-locale with basepath get public file by skipping locale in rewrite, locale: /sv",
+      "reason": "Middleware on sites with i18n cannot rewrite to static files",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+    },
+    {
+      "name": "i18n-ignore-rewrite-source-locale get public file by skipping locale in rewrite, locale: ",
+      "reason": "Middleware on sites with i18n cannot rewrite to static files",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+    },
+    {
+      "name": "i18n-ignore-rewrite-source-locale get public file by skipping locale in rewrite, locale: /en",
+      "reason": "Middleware on sites with i18n cannot rewrite to static files",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+    },
+    {
+      "name": "i18n-ignore-rewrite-source-locale get public file by skipping locale in rewrite, locale: /nl",
+      "reason": "Middleware on sites with i18n cannot rewrite to static files",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+    },
+    {
+      "name": "i18n-ignore-rewrite-source-locale get public file by skipping locale in rewrite, locale: /sv",
+      "reason": "Middleware on sites with i18n cannot rewrite to static files",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+    },
+    {
+      "name": "Middleware Runtime trailing slash should keep non data requests in their original shape",
+      "reason": "Middleware should not add trailing slashes to non-data requests in static dir",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/385"
+    },
+    {
+      "name": "Middleware Redirect should implement internal redirects",
+      "reason": "Pages router middleware should return 302 status for redirected data requests",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/386"
+    },
+    {
+      "name": "Middleware Redirect /fr should implement internal redirects",
+      "reason": "Pages router middleware should return 302 status for redirected data requests",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/386"
+    },
+    {
+      "name": "Middleware Redirect should redirect to api route with locale",
+      "reason": "Pages router middleware should return 302 status for redirected data requests",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/386"
+    },
+    {
+      "name": "Middleware Redirect /fr should redirect to api route with locale",
+      "reason": "Pages router middleware should return 302 status for redirected data requests",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/386"
+    },
+    {
+      "name": "getServerSideProps should handle throw ENOENT correctly",
+      "reason": "Server error pages return encoded data without content-encoding header if accept-encoding is gzip",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/387"
+    },
+    {
+      "name": "app-custom-routes works with generateStaticParams correctly responds correctly on /static/three/data.json",
+      "reason": "First request for generateStaticParams fallback route handler returns base64-encoded content",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/388"
+    },
+    {
+      "name": "app-custom-routes works with generateStaticParams correctly revalidates correctly on /revalidate-1/three/data.json",
+      "reason": "First request for generateStaticParams fallback route handler returns base64-encoded content",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/388"
+    }
+  ]
+}

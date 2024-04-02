@@ -241,7 +241,12 @@ jobs:
           echo "slackEvent<<NETLIFY_EOF" >> $GITHUB_OUTPUT
           deno run -A tools/deno/junit2slack.ts --dir artifacts --version ${{matrix.version}} --runUrl ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}} >> $GITHUB_OUTPUT
           echo "NETLIFY_EOF" >> $GITHUB_OUTPUT
-
+          deno run -A tools/deno/junit2json.ts artifacts > report/test-results.json
+      - name: Upload Test JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{matrix.version}}-test-results.json
+          path: report/test-results.json
       - name: Notify Slack
         if: success() || failure()
         uses: slackapi/slack-github-action@v1.24.0
