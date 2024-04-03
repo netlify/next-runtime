@@ -129,3 +129,47 @@ test.skipIf(platform === 'win32')<FixtureTestContext>(
     expect(response.headers?.['cache-control']).toBe('public, max-age=0, must-revalidate')
   },
 )
+
+test<FixtureTestContext>('Should serve correct locale-aware custom 404 pages', async (ctx) => {
+  await createFixture('page-router-base-path-i18n', ctx)
+  await runPlugin(ctx)
+
+  const responseImplicitDefaultLocale = await invokeFunction(ctx, {
+    url: '/base/path/not-existing-page',
+  })
+
+  expect(
+    responseImplicitDefaultLocale.statusCode,
+    'Response for not existing route if locale is not explicitly used in pathname (after basePath) should have 404 status',
+  ).toBe(404)
+  expect(
+    load(responseImplicitDefaultLocale.body)('[data-testid="locale"]').text(),
+    'Served 404 page content should use default locale if locale is not explicitly used in pathname (after basePath)',
+  ).toBe('en')
+
+  const responseExplicitDefaultLocale = await invokeFunction(ctx, {
+    url: '/base/path/en/not-existing-page',
+  })
+
+  expect(
+    responseExplicitDefaultLocale.statusCode,
+    'Response for not existing route if default locale is explicitly used in pathname (after basePath) should have 404 status',
+  ).toBe(404)
+  expect(
+    load(responseExplicitDefaultLocale.body)('[data-testid="locale"]').text(),
+    'Served 404 page content should use default locale if default locale is explicitly used in pathname (after basePath)',
+  ).toBe('en')
+
+  const responseNonDefaultLocale = await invokeFunction(ctx, {
+    url: '/base/path/fr/not-existing-page',
+  })
+
+  expect(
+    responseNonDefaultLocale.statusCode,
+    'Response for not existing route if non-default locale is explicitly used in pathname (after basePath) should have 404 status',
+  ).toBe(404)
+  expect(
+    load(responseNonDefaultLocale.body)('[data-testid="locale"]').text(),
+    'Served 404 page content should use non-default locale if non-default locale is explicitly used in pathname (after basePath)',
+  ).toBe('fr')
+})
