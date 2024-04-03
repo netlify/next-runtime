@@ -95,7 +95,7 @@ jobs:
           echo "version=$RESOLVED_VERSION" >> $GITHUB_OUTPUT
           echo "Resolved Next.js version for 'next@${{ matrix.version }}' is '$RESOLVED_VERSION'"
       - name: Run Playwright tests
-        run: npm run e2e:ci -- --shard=${{ matrix.shard }}/4
+        run: npm run test:ci:e2e -- --shard=${{ matrix.shard }}/4
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NEXT_VERSION: ${{ matrix.version }}
@@ -137,12 +137,6 @@ jobs:
         run: npm ci
       - name: 'Build'
         run: npm run build
-      - name: 'Netlify Login'
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
-        run: |
-          npm i -g netlify-cli
-          netlify login
       - name: Resolve Next.js version
         id: resolve-next-version
         shell: bash
@@ -172,13 +166,53 @@ jobs:
         env:
           NEXT_VERSION: ${{ matrix.version }}
           NEXT_RESOLVED_VERSION: ${{ steps.resolve-next-version.outputs.version }}
-      - name: 'Test'
-        run: npm run test:ci -- --shard=${{ matrix.shard }}/8
+      - name: 'Unit and integration tests'
+        run: npm run test:ci:unit-and-integration -- --shard=${{ matrix.shard }}/8
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NEXT_VERSION: ${{ matrix.version }}
           NEXT_RESOLVED_VERSION: ${{ steps.resolve-next-version.outputs.version }}
           TEMP: ${{ github.workspace }}/..
+
+  smoke:
+    if: always()
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ fromJson(needs.setup.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'Install Node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - name: setup pnpm/yarn
+        run: corepack enable
+        shell: bash
+      - name: Install Deno
+        uses: denoland/setup-deno@v1
+        with:
+          # Should match the `DENO_VERSION_RANGE` from https://github.com/netlify/edge-bundler/blob/main/node/bridge.ts#L17
+          deno-version: v1.37.0
+      - name: 'Install dependencies'
+        run: npm ci
+      - name: 'Build'
+        run: npm run build
+      - name: 'Netlify Login'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+        run: |
+          npm i -g netlify-cli
+          netlify login
+      - name: 'Smoke tests'
+        run: npm run test:ci:smoke
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+
   merge-reports:
     if: always()
     needs: [setup,e2e]

@@ -15,17 +15,22 @@
   "scripts": {
     "prepack": "clean-package",
     "postpack": "clean-package restore",
-    "pretest": "npm run build && node tests/prepare.mjs",
+    "pretest": "npm run pretest:integration",
+    "pretest:integration": "npm run build && node tests/prepare.mjs",
     "build": "node ./tools/build.js",
     "build:watch": "node ./tools/build.js --watch",
     "lint": "eslint --cache --format=codeframe --max-warnings=0 --ext .ts,.cts,.js src",
     "format:fix": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest",
-    "test:ci": "vitest run --reporter=default --retry=3",
-    "typecheck": "tsc --noEmit",
-    "e2e": "playwright test",
-    "e2e:ci": "playwright test"
+    "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:smoke": "vitest run --project smoke",
+    "test:e2e": "playwright test",
+    "test:ci:unit-and-integration": "vitest run --reporter=default --retry=3 --project=unit --project=integration",
+    "test:ci:smoke": "vitest run --reporter=default --retry=3 --project=smoke",
+    "test:ci:e2e": "playwright test",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -85,7 +90,7 @@
     "typescript": "^5.1.6",
     "unionfs": "^4.5.1",
     "uuid": "^9.0.1",
-    "vitest": "^1.2.2"
+    "vitest": "^1.4.0"
   },
   "clean-package": {
     "indent": 2,

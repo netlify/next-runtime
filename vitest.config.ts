@@ -1,5 +1,4 @@
 import { join, relative } from 'node:path'
-import { platform } from 'node:process'
 
 import { defineConfig } from 'vitest/config'
 import { BaseSequencer, WorkspaceSpec } from 'vitest/node'
@@ -12,10 +11,7 @@ const RUN_ISOLATED = new Set([
   join('tests', 'integration', 'revalidate-path.test.ts'),
   join('tests', 'integration', 'cache-handler.test.ts'),
   join('tests', 'integration', 'edge-handler.test.ts'),
-  join('tests', 'smoke', 'deploy.test.ts'),
 ])
-
-const SKIP = new Set(platform === 'win32' ? [join('tests', 'smoke', 'deploy.test.ts')] : [])
 
 class Sequencer extends BaseSequencer {
   async shard(projects: WorkspaceSpec[]): Promise<WorkspaceSpec[]> {
@@ -36,12 +32,10 @@ Increasing the node count of the sharding to --shard 1/${RUN_ISOLATED.size}`,
       )
     }
 
-    const notSkipped = projects.filter((project) => !SKIP.has(relative(process.cwd(), project[1])))
-
-    const specialTests = notSkipped.filter((project) =>
+    const specialTests = projects.filter((project) =>
       RUN_ISOLATED.has(relative(process.cwd(), project[1])),
     )
-    const regularTests = notSkipped.filter(
+    const regularTests = projects.filter(
       (project) => !RUN_ISOLATED.has(relative(process.cwd(), project[1])),
     )
 
@@ -66,7 +60,7 @@ Increasing the node count of the sharding to --shard 1/${RUN_ISOLATED.size}`,
 export default defineConfig({
   root: '.',
   test: {
-    include: ['{tests/integration,tests/smoke,src}/**/*.test.ts'],
+    include: [],
     globals: true,
     restoreMocks: true,
     clearMocks: true,
