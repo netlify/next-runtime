@@ -1,5 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 
+import type { NetlifyCachedRouteValue } from '../../shared/cache-types.cjs'
+
 export type RequestContext = {
   debug: boolean
   responseCacheGetLastModified?: number
@@ -7,6 +9,7 @@ export type RequestContext = {
   usedFsRead?: boolean
   didPagesRouterOnDemandRevalidate?: boolean
   serverTiming?: string
+  routeHandlerRevalidate?: NetlifyCachedRouteValue['revalidate']
 }
 
 type RequestContextAsyncLocalStorage = AsyncLocalStorage<RequestContext>

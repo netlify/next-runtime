@@ -179,6 +179,22 @@ export const setCacheControlHeaders = (
   request: Request,
   requestContext: RequestContext,
 ) => {
+  if (
+    typeof requestContext.routeHandlerRevalidate !== 'undefined' &&
+    ['GET', 'HEAD'].includes(request.method) &&
+    !headers.has('netlify-cdn-cache-control')
+  ) {
+    // handle CDN Cache Control on Route Handler responses
+    const cdnCacheControl =
+      // if we are serving already stale response, instruct edge to not attempt to cache that response
+      headers.get('x-nextjs-cache') === 'STALE'
+        ? 'public, max-age=0, must-revalidate'
+        : `s-maxage=${requestContext.routeHandlerRevalidate === false ? 31536000 : requestContext.routeHandlerRevalidate}, stale-while-revalidate=31536000`
+
+    headers.set('netlify-cdn-cache-control', cdnCacheControl)
+    return
+  }
+
   const cacheControl = headers.get('cache-control')
   if (
     cacheControl !== null &&
@@ -186,6 +202,7 @@ export const setCacheControlHeaders = (
     !headers.has('cdn-cache-control') &&
     !headers.has('netlify-cdn-cache-control')
   ) {
+    // handle CDN Cache Control on ISR and App Router page responses
     const browserCacheControl = omitHeaderValues(cacheControl, [
       's-maxage',
       'stale-while-revalidate',
@@ -200,6 +217,7 @@ export const setCacheControlHeaders = (
 
     headers.set('cache-control', browserCacheControl || 'public, max-age=0, must-revalidate')
     headers.set('netlify-cdn-cache-control', cdnCacheControl)
+    return
   }
 
   if (
@@ -208,6 +226,7 @@ export const setCacheControlHeaders = (
     !headers.has('netlify-cdn-cache-control') &&
     requestContext.usedFsRead
   ) {
+    // handle CDN Cache Control on static files
     headers.set('cache-control', 'public, max-age=0, must-revalidate')
     headers.set('netlify-cdn-cache-control', `max-age=31536000`)
   }

@@ -7,12 +7,15 @@ import { getDeployStore, Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
 import { type Span } from '@opentelemetry/api'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
+
 import type {
   CacheHandler,
   CacheHandlerContext,
-  CacheHandlerValue,
   IncrementalCache,
-} from 'next/dist/server/lib/incremental-cache/index.js'
+  NetlifyCachedRouteValue,
+  NetlifyCacheHandlerValue,
+  NetlifyIncrementalCacheValue,
+} from '../../shared/cache-types.cjs'
 
 import { getRequestContext } from './request-context.cjs'
 import { getTracer } from './tracer.cjs'
@@ -43,7 +46,7 @@ export class NetlifyCacheHandler implements CacheHandler {
   }
 
   private captureResponseCacheLastModified(
-    cacheValue: CacheHandlerValue,
+    cacheValue: NetlifyCacheHandlerValue,
     key: string,
     getCacheKeySpan: Span,
   ) {
@@ -90,6 +93,19 @@ export class NetlifyCacheHandler implements CacheHandler {
     }
   }
 
+  private captureRouteRevalidateAndRemoveFromObject(
+    cacheValue: NetlifyCachedRouteValue,
+  ): Omit<NetlifyCachedRouteValue, 'revalidate'> {
+    const { revalidate, ...restOfRouteValue } = cacheValue
+
+    const requestContext = getRequestContext()
+    if (requestContext) {
+      requestContext.routeHandlerRevalidate = revalidate
+    }
+
+    return restOfRouteValue
+  }
+
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
     return this.tracer.withActiveSpan('get cache key', async (span) => {
       const [key, ctx = {}] = args
@@ -103,7 +119,7 @@ export class NetlifyCacheHandler implements CacheHandler {
         return await this.blobStore.get(blobKey, {
           type: 'json',
         })
-      })) as CacheHandlerValue | null
+      })) as NetlifyCacheHandlerValue | null
 
       // if blob is null then we don't have a cache entry
       if (!blob) {
@@ -128,15 +144,19 @@ export class NetlifyCacheHandler implements CacheHandler {
             value: blob.value,
           }
 
-        case 'ROUTE':
+        case 'ROUTE': {
           span.addEvent('ROUTE', { lastModified: blob.lastModified, status: blob.value.status })
+
+          const valueWithoutRevalidate = this.captureRouteRevalidateAndRemoveFromObject(blob.value)
+
           return {
             lastModified: blob.lastModified,
             value: {
-              ...blob.value,
-              body: Buffer.from(blob.value.body as unknown as string, 'base64'),
+              ...valueWithoutRevalidate,
+              body: Buffer.from(valueWithoutRevalidate.body as unknown as string, 'base64'),
             },
           }
+        }
         case 'PAGE':
           span.addEvent('PAGE', { lastModified: blob.lastModified })
           return {
@@ -152,23 +172,22 @@ export class NetlifyCacheHandler implements CacheHandler {
 
   async set(...args: Parameters<IncrementalCache['set']>) {
     return this.tracer.withActiveSpan('set cache key', async (span) => {
-      const [key, data] = args
+      const [key, data, context] = args
       const blobKey = await this.encodeBlobKey(key)
       const lastModified = Date.now()
       span.setAttributes({ key, lastModified, blobKey })
 
       console.debug(`[NetlifyCacheHandler.set]: ${key}`)
 
-      let value = data
-
-      if (data?.kind === 'ROUTE') {
-        // don't mutate data, as it's used for the initial response - instead create a new object
-        value = {
-          ...data,
-          // @ts-expect-error gotta find a better solution for this
-          body: data.body.toString('base64'),
-        }
-      }
+      const value: NetlifyIncrementalCacheValue | null =
+        data?.kind === 'ROUTE'
+          ? // don't mutate data, as it's used for the initial response - instead create a new object
+            {
+              ...data,
+              revalidate: context.revalidate,
+              body: data.body.toString('base64'),
+            }
+          : data
 
       await this.blobStore.setJSON(blobKey, {
         lastModified,
@@ -217,7 +236,7 @@ export class NetlifyCacheHandler implements CacheHandler {
    * Checks if a cache entry is stale through on demand revalidated tags
    */
   private async checkCacheEntryStaleByTags(
-    cacheEntry: CacheHandlerValue,
+    cacheEntry: NetlifyCacheHandlerValue,
     tags: string[] = [],
     softTags: string[] = [],
   ) {

@@ -5,16 +5,17 @@ import { join } from 'node:path'
 import { trace } from '@opentelemetry/api'
 import { wrapTracer } from '@opentelemetry/api/experimental'
 import { glob } from 'fast-glob'
-import type { CacheHandlerValue } from 'next/dist/server/lib/incremental-cache/index.js'
-import type { IncrementalCacheValue } from 'next/dist/server/response-cache/types.js'
 import pLimit from 'p-limit'
 
 import { encodeBlobKey } from '../../shared/blobkey.js'
+import type {
+  CachedFetchValue,
+  CachedPageValue,
+  NetlifyCacheHandlerValue,
+  NetlifyCachedRouteValue,
+  NetlifyIncrementalCacheValue,
+} from '../../shared/cache-types.cjs'
 import type { PluginContext } from '../plugin-context.js'
-
-type CachedPageValue = Extract<IncrementalCacheValue, { kind: 'PAGE' }>
-type CachedRouteValue = Extract<IncrementalCacheValue, { kind: 'ROUTE' }>
-type CachedFetchValue = Extract<IncrementalCacheValue, { kind: 'FETCH' }>
 
 const tracer = wrapTracer(trace.getTracer('Next runtime'))
 
@@ -23,7 +24,7 @@ const tracer = wrapTracer(trace.getTracer('Next runtime'))
  */
 const writeCacheEntry = async (
   route: string,
-  value: IncrementalCacheValue,
+  value: NetlifyIncrementalCacheValue,
   lastModified: number,
   ctx: PluginContext,
 ): Promise<void> => {
@@ -31,7 +32,7 @@ const writeCacheEntry = async (
   const entry = JSON.stringify({
     lastModified,
     value,
-  } satisfies CacheHandlerValue)
+  } satisfies NetlifyCacheHandlerValue)
 
   await writeFile(path, entry, 'utf-8')
 }
@@ -68,10 +69,14 @@ const buildAppCacheValue = async (path: string): Promise<CachedPageValue> => {
   }
 }
 
-const buildRouteCacheValue = async (path: string): Promise<CachedRouteValue> => ({
+const buildRouteCacheValue = async (
+  path: string,
+  initialRevalidateSeconds: number | false,
+): Promise<NetlifyCachedRouteValue> => ({
   kind: 'ROUTE',
   body: await readFile(`${path}.body`, 'base64'),
   ...JSON.parse(await readFile(`${path}.meta`, 'utf-8')),
+  revalidate: initialRevalidateSeconds,
 })
 
 const buildFetchCacheValue = async (path: string): Promise<CachedFetchValue> => ({
@@ -100,7 +105,7 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
                 ? Date.now() - 31536000000
                 : Date.now()
               const key = routeToFilePath(route)
-              let value: IncrementalCacheValue
+              let value: NetlifyIncrementalCacheValue
               switch (true) {
                 // Parallel route default layout has no prerendered page
                 case meta.dataRoute?.endsWith('/default.rsc') &&
@@ -117,7 +122,10 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
                   value = await buildAppCacheValue(join(ctx.publishDir, 'server/app', key))
                   break
                 case meta.dataRoute === null:
-                  value = await buildRouteCacheValue(join(ctx.publishDir, 'server/app', key))
+                  value = await buildRouteCacheValue(
+                    join(ctx.publishDir, 'server/app', key),
+                    meta.initialRevalidateSeconds,
+                  )
                   break
                 default:
                   throw new Error(`Unrecognized content: ${route}`)

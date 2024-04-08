@@ -57,6 +57,8 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
   const blobEntries = await getBlobEntries(ctx)
   expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
     '/404',
+    '/api/cached-permanent',
+    '/api/cached-revalidate',
     '/image/local',
     '/image/migration-from-v4-runtime',
     '/image/remote-domain',
@@ -168,6 +170,35 @@ test<FixtureTestContext>('handlers can add cookies in route handlers with the co
   expect(setCookieHeader).toContain('foo=foo1; Path=/')
   expect(setCookieHeader).toContain('test1=value1; Path=/; Secure')
   expect(setCookieHeader).toContain('test2=value2; Path=/handler; HttpOnly')
+})
+
+test<FixtureTestContext>('cacheable route handler is cached on cdn (revalidate=false / permanent caching)', async (ctx) => {
+  await createFixture('simple-next-app', ctx)
+  await runPlugin(ctx)
+
+  const permanentlyCachedResponse = await invokeFunction(ctx, { url: '/api/cached-permanent' })
+  expect(permanentlyCachedResponse.headers['netlify-cdn-cache-control']).toBe(
+    's-maxage=31536000, stale-while-revalidate=31536000',
+  )
+})
+
+test<FixtureTestContext>('cacheable route handler is cached on cdn (revalidate=15)', async (ctx) => {
+  await createFixture('simple-next-app', ctx)
+  await runPlugin(ctx)
+
+  const firstTimeCachedResponse = await invokeFunction(ctx, { url: '/api/cached-revalidate' })
+  // this will be "stale" response from build
+  expect(firstTimeCachedResponse.headers['netlify-cdn-cache-control']).toBe(
+    'public, max-age=0, must-revalidate',
+  )
+
+  // allow server to regenerate fresh response in background
+  await new Promise((res) => setTimeout(res, 1_000))
+
+  const secondTimeCachedResponse = await invokeFunction(ctx, { url: '/api/cached-revalidate' })
+  expect(secondTimeCachedResponse.headers['netlify-cdn-cache-control']).toBe(
+    's-maxage=15, stale-while-revalidate=31536000',
+  )
 })
 
 // there's a bug where requests accept-encoding header
