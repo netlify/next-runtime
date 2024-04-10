@@ -1,5 +1,6 @@
 const { overrides } = require('@netlify/eslint-config-node')
 
+/** @type {import('eslint').Linter.Config} */
 module.exports = {
   extends: '@netlify/eslint-config-node',
   parserOptions: {
@@ -33,6 +34,18 @@ module.exports = {
   },
   overrides: [
     ...overrides,
+    {
+      files: ['*.cts', '*mts', '*.ts', '*.tsx'],
+      excludedFiles: ['*.test.ts'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        ecmaVersion: 'latest',
+        project: true,
+      },
+      rules: {
+        '@typescript-eslint/no-floating-promises': 'error',
+      },
+    },
     {
       files: ['src/run/**'],
       rules: {
