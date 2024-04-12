@@ -26,7 +26,8 @@
     "test/e2e/trailingslash-with-rewrite/index.test.ts",
     "test/e2e/transpile-packages/index.test.ts",
     "test/e2e/typescript-version-no-warning/typescript-version-no-warning.test.ts",
-    "test/e2e/typescript-version-warning/typescript-version-warning.test.ts"
+    "test/e2e/typescript-version-warning/typescript-version-warning.test.ts",
+    "/test/e2e/revalidate-reason/revalidate-reason.test.ts"
   ],
   "skipped": [
     {
