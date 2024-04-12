@@ -76,9 +76,17 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
   // invocations would not use fetch-cache at all - this restores the original fetch
   // and makes globalThis.fetch.__nextPatched falsy which will allow Next.js to apply
   // needed patch
-  // @ts-ignore fetch doesn't have __nextPatched property in types
-  if (globalThis.fetch.__nextPatched && globalThis._nextOriginalFetch) {
-    globalThis.fetch = globalThis._nextOriginalFetch
+  if (
+    // @ts-ignore fetch doesn't have __nextPatched property in types
+    globalThis.fetch.__nextPatched &&
+    // before https://github.com/vercel/next.js/pull/64088 original fetch was set on globalThis._nextOriginalFetch
+    // after it it is being set on globalThis.fetch._nextOriginalFetch
+    // so we check both to make sure tests continue to work regardless of next version
+    // @ts-ignore fetch doesn't have _nextOriginalFetch property in types
+    (globalThis._nextOriginalFetch || globalThis.fetch._nextOriginalFetch)
+  ) {
+    // @ts-ignore fetch doesn't have _nextOriginalFetch property in types
+    globalThis.fetch = globalThis._nextOriginalFetch || globalThis.fetch._nextOriginalFetch
   }
 
   ctx.cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
