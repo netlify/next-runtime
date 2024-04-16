@@ -15,7 +15,9 @@ import type {
   NetlifyCachedRouteValue,
   NetlifyIncrementalCacheValue,
 } from '../../shared/cache-types.cjs'
-import type { PluginContext } from '../plugin-context.js'
+import type { NetlifyForm, PluginContext } from '../plugin-context.js'
+
+import { detectForms } from './forms.js'
 
 const tracer = wrapTracer(trace.getTracer('Next runtime'))
 
@@ -132,9 +134,19 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
               }
 
               await writeCacheEntry(key, value, lastModified, ctx)
+              if (value.kind === 'PAGE' && value.html) {
+                const forms = detectForms(value.html)
+                if (forms?.size) {
+                  for (const [formName, form] of forms) {
+                    ctx.forms.set(formName, form)
+                  }
+                }
+              }
             }),
         ),
       )
+
+      console.log('forms', ctx.forms)
 
       // app router 404 pages are not in the prerender manifest
       // so we need to check for them manually

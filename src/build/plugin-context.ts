@@ -32,11 +32,20 @@ export interface RequiredServerFilesManifest {
   ignore: string[]
 }
 
+export interface NetlifyForm {
+  name: string
+  fields: Set<string>
+  action?: string
+  honeypotField?: string
+  recaptcha?: boolean
+}
+
 export class PluginContext {
   utils: NetlifyPluginUtils
   netlifyConfig: NetlifyPluginOptions['netlifyConfig']
   pluginName: string
   pluginVersion: string
+  forms: Map<string, NetlifyForm> = new Map()
 
   private constants: NetlifyPluginConstants
   private packageJSON: { name: string; version: string } & Record<string, unknown>

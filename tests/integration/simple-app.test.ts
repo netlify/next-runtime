@@ -309,3 +309,11 @@ describe('next patching', async () => {
     }
   })
 })
+
+describe('Netlify Forms', async () => {
+  test<FixtureTestContext>('Should detect Netlify Forms', async (ctx) => {
+    await createFixture('simple-next-app', ctx)
+    const result = await runPlugin(ctx)
+    console.log(result.netlifyConfig)
+  })
+})
