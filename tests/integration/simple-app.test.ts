@@ -59,6 +59,7 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
     '/404',
     '/api/cached-permanent',
     '/api/cached-revalidate',
+    '/form',
     '/image/local',
     '/image/migration-from-v4-runtime',
     '/image/remote-domain',
@@ -311,9 +312,17 @@ describe('next patching', async () => {
 })
 
 describe('Netlify Forms', async () => {
-  test<FixtureTestContext>('Should detect Netlify Forms', async (ctx) => {
+  test<FixtureTestContext>('Should detect Netlify Forms in generated pages', async (ctx) => {
     await createFixture('simple-next-app', ctx)
     const result = await runPlugin(ctx)
-    console.log(result.netlifyConfig)
+    expect((result.netlifyConfig as any).forms).toEqual([
+      {
+        name: 'pizzaOrder',
+        action: undefined,
+        fields: ['order'],
+        honeypotField: undefined,
+        recaptcha: false,
+      },
+    ])
   })
 })

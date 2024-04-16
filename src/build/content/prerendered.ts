@@ -98,7 +98,7 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
       const manifest = await ctx.getPrerenderManifest()
 
       const limitConcurrentPrerenderContentHandling = pLimit(10)
-
+      const forms = new Map<string, NetlifyForm>()
       await Promise.all(
         Object.entries(manifest.routes).map(
           ([route, meta]): Promise<void> =>
@@ -135,16 +135,19 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
 
               await writeCacheEntry(key, value, lastModified, ctx)
               if (value.kind === 'PAGE' && value.html) {
-                const forms = detectForms(value.html)
-                if (forms?.size) {
-                  for (const [formName, form] of forms) {
-                    ctx.forms.set(formName, form)
+                const detected = detectForms(value.html)
+                if (detected?.size) {
+                  // TODO: work out how to add paths to form config and deal with duplicates
+                  for (const [formName, form] of detected) {
+                    forms.set(formName, form)
                   }
                 }
               }
             }),
         ),
       )
+
+      ctx.netlifyConfig.forms = [...forms.values()]
 
       console.log('forms', ctx.forms)
 

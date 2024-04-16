@@ -34,7 +34,7 @@ export interface RequiredServerFilesManifest {
 
 export interface NetlifyForm {
   name: string
-  fields: Set<string>
+  fields: Array<string>
   action?: string
   honeypotField?: string
   recaptcha?: boolean
@@ -42,7 +42,7 @@ export interface NetlifyForm {
 
 export class PluginContext {
   utils: NetlifyPluginUtils
-  netlifyConfig: NetlifyPluginOptions['netlifyConfig']
+  netlifyConfig: NetlifyPluginOptions['netlifyConfig'] & { forms?: Array<NetlifyForm> }
   pluginName: string
   pluginVersion: string
   forms: Map<string, NetlifyForm> = new Map()

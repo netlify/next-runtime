@@ -17,7 +17,7 @@ export function detectForms(html: string): Map<string, NetlifyForm> | void {
         inForm = true
         currentForm = {
           name: attrs.name,
-          fields: new Set(),
+          fields: [],
           action: attrs.action,
           honeypotField: attrs['netlify-honeypot'],
           recaptcha: Boolean(attrs['data-netlify-recaptcha']),
@@ -29,13 +29,14 @@ export function detectForms(html: string): Map<string, NetlifyForm> | void {
       if (name === 'input' && attrs.type === 'hidden' && attrs.name === 'form-name') {
         currentForm.name = attrs.value
       } else if (formFieldTags.has(name) && attrs.name) {
-        currentForm.fields.add(attrs.name)
+        currentForm.fields.push(attrs.name)
       }
     },
     onclosetag(name) {
       if (name === 'form' && inForm) {
         inForm = false
         if (currentForm.name) {
+          currentForm.fields = [...new Set(currentForm.fields)]
           forms.set(currentForm.name, currentForm)
         } else {
           console.warn('Netlify Form detected with no name')
