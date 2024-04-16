@@ -318,6 +318,7 @@ export const fixtureFactories = {
       buildCommand: 'yarn build',
       publishDirectory: 'apps/site/.next',
       smoke: true,
+      runtimeInstallationPath: '',
     }),
   npmMonorepoEmptyBaseNoPackagePath: () =>
     createE2EFixture('npm-monorepo-empty-base', {

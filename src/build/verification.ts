@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 
 import { satisfies } from 'semver'
 
+import { ApiRouteType, getAPIRoutesConfigs } from './advanced-api-routes.js'
 import type { PluginContext } from './plugin-context.js'
 
 const SUPPORTED_NEXT_VERSIONS = '>=13.5.0'
@@ -63,6 +64,23 @@ export function verifyBuildConfig(ctx: PluginContext) {
   if (ctx.buildConfig.experimental.ppr) {
     console.log(
       `Partial prerendering is not yet fully supported on Netlify, see https://ntl.fyi/nextjs-ppr for details`,
+    )
+  }
+}
+
+export async function verifyNoAdvancedAPIRoutes(ctx: PluginContext) {
+  const apiRoutesConfigs = await getAPIRoutesConfigs(ctx)
+
+  const unsupportedAPIRoutes = apiRoutesConfigs.filter((apiRouteConfig) => {
+    return (
+      apiRouteConfig.config.type === ApiRouteType.BACKGROUND ||
+      apiRouteConfig.config.type === ApiRouteType.SCHEDULED
+    )
+  })
+
+  if (unsupportedAPIRoutes.length !== 0) {
+    ctx.failBuild(
+      `@netlify/plugin-next@5 does not support advanced API routes. The following API routes should be migrated to Netlify background or scheduled functions:\n${unsupportedAPIRoutes.map((apiRouteConfig) => ` - ${apiRouteConfig.apiRoute} (type: "${apiRouteConfig.config.type}")`).join('\n')}\n\nRefer to https://ntl.fyi/next-scheduled-bg-function-migration as migration example.`,
     )
   }
 }

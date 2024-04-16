@@ -15,7 +15,11 @@ import { createEdgeHandlers } from './build/functions/edge.js'
 import { createServerHandler } from './build/functions/server.js'
 import { setImageConfig } from './build/image-cdn.js'
 import { PluginContext } from './build/plugin-context.js'
-import { verifyBuildConfig, verifyPublishDir } from './build/verification.js'
+import {
+  verifyBuildConfig,
+  verifyNoAdvancedAPIRoutes,
+  verifyPublishDir,
+} from './build/verification.js'
 
 const tracer = wrapTracer(trace.getTracer('Next.js runtime'))
 
@@ -47,6 +51,8 @@ export const onBuild = async (options: NetlifyPluginOptions) => {
     if (ctx.buildConfig.output === 'export') {
       return copyStaticExport(ctx)
     }
+
+    await verifyNoAdvancedAPIRoutes(ctx)
 
     await Promise.all([
       copyStaticAssets(ctx),
