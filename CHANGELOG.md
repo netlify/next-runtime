@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.1.0](https://github.com/netlify/next-runtime-minimal/compare/v5.0.0...v5.1.0) (2024-04-16)
+
+
+### Features
+
+* add cdn-cache-control headers to cacheable route handler responses ([#399](https://github.com/netlify/next-runtime-minimal/issues/399)) ([f4c588c](https://github.com/netlify/next-runtime-minimal/commit/f4c588c2aa01bebf36a87e8a3800b775a638e543))
+* fail the build when advanced api routes are used ([#403](https://github.com/netlify/next-runtime-minimal/issues/403)) ([275f488](https://github.com/netlify/next-runtime-minimal/commit/275f488de53b4eb1041812dd813ca2528e48bc02))
+
 ## [5.0.0](https://github.com/netlify/next-runtime-minimal/compare/v5.0.0-alpha.25...v5.0.0) (2024-04-02)
 
 
