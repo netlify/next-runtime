@@ -21,7 +21,6 @@ import {
   startMockBlobStore,
 } from '../utils/helpers.js'
 import { getPatchesToApply } from '../../src/build/content/server.js'
-import { nextVersionSatisfies } from '../utils/next-version-helpers.mjs'
 
 const mockedCp = cp as Mock<
   Parameters<(typeof import('node:fs/promises'))['cp']>,
@@ -218,7 +217,7 @@ test<FixtureTestContext>('rewrites to external addresses dont use compression', 
   expect(gunzipSync(page.bodyBuffer).toString('utf-8')).toContain('<title>Example Domain</title>')
 })
 
-test.skipIf(!nextVersionSatisfies('canary'))<FixtureTestContext>(
+test.skipIf(process.env.NEXT_VERSION !== 'canary')<FixtureTestContext>(
   'Test that a simple next app with PPR is working',
   async (ctx) => {
     await createFixture('ppr', ctx)

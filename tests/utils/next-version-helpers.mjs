@@ -67,6 +67,7 @@ export async function setNextVersionInFixture(
         // We can't use semver to check "canary" or "latest", so we use a fake future minor version
         const checkVersion = isSemverVersion ? version : FUTURE_NEXT_PATCH_VERSION
         if (
+          operation === 'update' &&
           versionConstraint &&
           !satisfies(checkVersion, versionConstraint) &&
           version !== versionConstraint
