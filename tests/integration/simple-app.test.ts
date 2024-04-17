@@ -21,6 +21,7 @@ import {
   startMockBlobStore,
 } from '../utils/helpers.js'
 import { getPatchesToApply } from '../../src/build/content/server.js'
+import { nextVersionSatisfies } from '../utils/next-version-helpers.mjs'
 
 const mockedCp = cp as Mock<
   Parameters<(typeof import('node:fs/promises'))['cp']>,
@@ -51,7 +52,7 @@ beforeEach<FixtureTestContext>(async (ctx) => {
 })
 
 test<FixtureTestContext>('Test that the simple next app is working', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
+  await createFixture('simple', ctx)
   await runPlugin(ctx)
   // check if the blob entries where successful set on the build plugin
   const blobEntries = await getBlobEntries(ctx)
@@ -93,21 +94,21 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
 
 describe('verification', () => {
   test<FixtureTestContext>("Should warn if publish dir doesn't exist", async (ctx) => {
-    await createFixture('simple-next-app', ctx)
+    await createFixture('simple', ctx)
     expect(() => runPlugin(ctx, { PUBLISH_DIR: 'no-such-directory' })).rejects.toThrowError(
       /Your publish directory was not found at: \S+no-such-directory, please check your build settings/,
     )
   })
 
   test<FixtureTestContext>('Should warn if publish dir is root', async (ctx) => {
-    await createFixture('simple-next-app', ctx)
+    await createFixture('simple', ctx)
     expect(() => runPlugin(ctx, { PUBLISH_DIR: '.' })).rejects.toThrowError(
       'Your publish directory cannot be the same as the base directory of your site, please check your build settings',
     )
   })
 
   test<FixtureTestContext>('Should warn if publish dir is root (package path variant)', async (ctx) => {
-    await createFixture('simple-next-app', ctx)
+    await createFixture('simple', ctx)
     expect(() =>
       runPlugin(ctx, { PUBLISH_DIR: 'app/.', PACKAGE_PATH: 'app' }),
     ).rejects.toThrowError(
@@ -116,7 +117,7 @@ describe('verification', () => {
   })
 
   test<FixtureTestContext>('Should warn if publish dir is not set to Next.js output directory', async (ctx) => {
-    await createFixture('simple-next-app', ctx)
+    await createFixture('simple', ctx)
     expect(() => runPlugin(ctx, { PUBLISH_DIR: 'public' })).rejects.toThrowError(
       'Your publish directory does not contain expected Next.js build output, please check your build settings',
     )
@@ -124,7 +125,7 @@ describe('verification', () => {
 })
 
 test<FixtureTestContext>('Should add cache-tags to prerendered app pages', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
+  await createFixture('simple', ctx)
   await runPlugin(ctx)
 
   const staticFetch1 = await invokeFunction(ctx, { url: '/other' })
@@ -135,7 +136,7 @@ test<FixtureTestContext>('Should add cache-tags to prerendered app pages', async
 })
 
 test<FixtureTestContext>('index should be normalized within the cacheHandler and have cache-tags', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
+  await createFixture('simple', ctx)
   await runPlugin(ctx)
   const index = await invokeFunction(ctx, { url: '/' })
   expect(index.statusCode).toBe(200)
@@ -143,14 +144,14 @@ test<FixtureTestContext>('index should be normalized within the cacheHandler and
 })
 
 test<FixtureTestContext>('stale-while-revalidate headers should be normalized to include delta-seconds', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
+  await createFixture('simple', ctx)
   await runPlugin(ctx)
   const index = await invokeFunction(ctx, { url: '/' })
   expect(index.headers?.['netlify-cdn-cache-control']).toContain('stale-while-revalidate=31536000')
 })
 
 test<FixtureTestContext>('handlers receive correct site domain', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
+  await createFixture('simple', ctx)
   await runPlugin(ctx)
   const index = await invokeFunction(ctx, { url: '/api/url' })
   const data = JSON.parse(index.body)
@@ -160,7 +161,7 @@ test<FixtureTestContext>('handlers receive correct site domain', async (ctx) => 
 
 // adapted from https://github.com/vercel/next.js/blob/bd605245aae4c8545bdd38a597b89ad78ca3d978/test/e2e/app-dir/actions/app-action.test.ts#L119-L127
 test<FixtureTestContext>('handlers can add cookies in route handlers with the correct overrides', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
+  await createFixture('simple', ctx)
   await runPlugin(ctx)
   const index = await invokeFunction(ctx, { url: '/api/headers' })
   expect(index.headers['content-type']).toEqual('text/custom')
@@ -173,7 +174,7 @@ test<FixtureTestContext>('handlers can add cookies in route handlers with the co
 })
 
 test<FixtureTestContext>('cacheable route handler is cached on cdn (revalidate=false / permanent caching)', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
+  await createFixture('simple', ctx)
   await runPlugin(ctx)
 
   const permanentlyCachedResponse = await invokeFunction(ctx, { url: '/api/cached-permanent' })
@@ -183,7 +184,7 @@ test<FixtureTestContext>('cacheable route handler is cached on cdn (revalidate=f
 })
 
 test<FixtureTestContext>('cacheable route handler is cached on cdn (revalidate=15)', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
+  await createFixture('simple', ctx)
   await runPlugin(ctx)
 
   const firstTimeCachedResponse = await invokeFunction(ctx, { url: '/api/cached-revalidate' })
@@ -205,7 +206,7 @@ test<FixtureTestContext>('cacheable route handler is cached on cdn (revalidate=1
 // result in corrupted bodies
 // while that bug stands, we want to ignore accept-encoding
 test<FixtureTestContext>('rewrites to external addresses dont use compression', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
+  await createFixture('simple', ctx)
   await runPlugin(ctx)
   const page = await invokeFunction(ctx, {
     url: '/rewrite-no-basepath',
@@ -217,23 +218,26 @@ test<FixtureTestContext>('rewrites to external addresses dont use compression', 
   expect(gunzipSync(page.bodyBuffer).toString('utf-8')).toContain('<title>Example Domain</title>')
 })
 
-test<FixtureTestContext>('Test that a simple next app with PPR is working', async (ctx) => {
-  await createFixture('simple-next-app-ppr', ctx)
-  await runPlugin(ctx)
-  // check if the blob entries where successful set on the build plugin
-  const blobEntries = await getBlobEntries(ctx)
-  expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
-    '/404',
-    '/index',
-    '404.html',
-    '500.html',
-  ])
+test.skipIf(!nextVersionSatisfies('canary'))<FixtureTestContext>(
+  'Test that a simple next app with PPR is working',
+  async (ctx) => {
+    await createFixture('ppr', ctx)
+    await runPlugin(ctx)
+    // check if the blob entries where successful set on the build plugin
+    const blobEntries = await getBlobEntries(ctx)
+    expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
+      '/404',
+      '/index',
+      '404.html',
+      '500.html',
+    ])
 
-  // test the function call
-  const home = await invokeFunction(ctx)
-  expect(home.statusCode).toBe(200)
-  expect(load(home.body)('h1').text()).toBe('Home')
-})
+    // test the function call
+    const home = await invokeFunction(ctx)
+    expect(home.statusCode).toBe(200)
+    expect(load(home.body)('h1').text()).toBe('Home')
+  },
+)
 
 describe('next patching', async () => {
   const { cp: originalCp, appendFile } = (await vi.importActual(
@@ -241,7 +245,7 @@ describe('next patching', async () => {
   )) as typeof import('node:fs/promises')
 
   const { version: nextVersion } = createRequire(
-    `${getFixtureSourceDirectory('simple-next-app')}/:internal:`,
+    `${getFixtureSourceDirectory('simple')}/:internal:`,
   )('next/package.json')
 
   beforeAll(() => {
@@ -260,7 +264,7 @@ describe('next patching', async () => {
   test<FixtureTestContext>(`expected patches are applied and used (next version: "${nextVersion}")`, async (ctx) => {
     const patches = getPatchesToApply(nextVersion)
 
-    await createFixture('simple-next-app', ctx)
+    await createFixture('simple', ctx)
 
     const fieldNamePrefix = `TEST_${Date.now()}`
 

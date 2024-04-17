@@ -61,7 +61,7 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
 })
 
 test<FixtureTestContext>('linked static resources are placed in correct place in publish directory (no basePath)', async (ctx) => {
-  await createFixture('simple-next-app', ctx)
+  await createFixture('simple', ctx)
   const {
     constants: { PUBLISH_DIR },
   } = await runPlugin(ctx)
@@ -110,7 +110,7 @@ test<FixtureTestContext>('linked static resources are placed in correct place in
 })
 
 test<FixtureTestContext>('linked static resources are placed in correct place in publish directory (with basePath)', async (ctx) => {
-  await createFixture('simple-next-app-base-path', ctx)
+  await createFixture('base-path', ctx)
   const {
     constants: { PUBLISH_DIR },
   } = await runPlugin(ctx)

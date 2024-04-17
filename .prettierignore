@@ -7,7 +7,7 @@ package-lock.json
 package.json
 edge-runtime/vendor/
 deno.lock
-tests/fixtures/simple-next-app-dist-dir/cool/output
+tests/fixtures/dist-dir/cool/output
 .nx
 custom-dist-dir
 pnpm.lock

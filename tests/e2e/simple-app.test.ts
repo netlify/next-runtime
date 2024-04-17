@@ -6,8 +6,8 @@ const expectImageWasLoaded = async (locator: Locator) => {
   expect(await locator.evaluate((img: HTMLImageElement) => img.naturalHeight)).toBeGreaterThan(0)
 }
 
-test('Renders the Home page correctly', async ({ page, simpleNextApp }) => {
-  const response = await page.goto(simpleNextApp.url)
+test('Renders the Home page correctly', async ({ page, simple }) => {
+  const response = await page.goto(simple.url)
   const headers = response?.headers() || {}
 
   await expect(page).toHaveTitle('Simple Next App')
@@ -19,17 +19,14 @@ test('Renders the Home page correctly', async ({ page, simpleNextApp }) => {
 
   await expectImageWasLoaded(page.locator('img'))
 
-  await page.goto(`${simpleNextApp.url}/api/static`)
+  await page.goto(`${simple.url}/api/static`)
 
   const body = (await page.$('body').then((el) => el?.textContent())) || '{}'
   expect(body).toBe('{"words":"hello world"}')
 })
 
-test('Renders the Home page correctly with output export', async ({
-  page,
-  simpleNextAppExport,
-}) => {
-  const response = await page.goto(simpleNextAppExport.url)
+test('Renders the Home page correctly with output export', async ({ page, outputExport }) => {
+  const response = await page.goto(outputExport.url)
   const headers = response?.headers() || {}
 
   await expect(page).toHaveTitle('Simple Next App')
@@ -42,8 +39,8 @@ test('Renders the Home page correctly with output export', async ({
   await expectImageWasLoaded(page.locator('img'))
 })
 
-test('Renders the Home page correctly with distDir', async ({ page, simpleNextAppDistDir }) => {
-  await page.goto(simpleNextAppDistDir.url)
+test('Renders the Home page correctly with distDir', async ({ page, distDir }) => {
+  await page.goto(distDir.url)
 
   await expect(page).toHaveTitle('Simple Next App')
 
@@ -53,29 +50,29 @@ test('Renders the Home page correctly with distDir', async ({ page, simpleNextAp
   await expectImageWasLoaded(page.locator('img'))
 })
 
-test('Serves a static image correctly', async ({ page, simpleNextApp }) => {
-  const response = await page.goto(`${simpleNextApp.url}/next.svg`)
+test('Serves a static image correctly', async ({ page, simple }) => {
+  const response = await page.goto(`${simple.url}/next.svg`)
 
   expect(response?.status()).toBe(200)
   expect(response?.headers()['content-type']).toBe('image/svg+xml')
 })
 
-test('Redirects correctly', async ({ page, simpleNextApp }) => {
-  await page.goto(`${simpleNextApp.url}/redirect/response`)
+test('Redirects correctly', async ({ page, simple }) => {
+  await page.goto(`${simple.url}/redirect/response`)
   await expect(page).toHaveURL(`https://www.netlify.com/`)
 
-  await page.goto(`${simpleNextApp.url}/redirect`)
+  await page.goto(`${simple.url}/redirect`)
   await expect(page).toHaveURL(`https://www.netlify.com/`)
 })
 
 const waitFor = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // adaptation of https://github.com/vercel/next.js/blob/canary/test/e2e/app-dir/app-static/app-static.test.ts#L1716-L1755
-test.skip('streams stale responses', async ({ simpleNextApp }) => {
+test.skip('streams stale responses', async ({ simple }) => {
   // Introduced in https://github.com/vercel/next.js/pull/55978
   test.skip(!nextVersionSatisfies('>=13.5.4'), 'This test is only for Next.js 13.5.4+')
   // Prime the cache.
-  const path = `${simpleNextApp.url}/stale-cache-serving/app-page`
+  const path = `${simple.url}/stale-cache-serving/app-page`
   const res = await fetch(path)
   expect(res.status).toBe(200)
 
@@ -122,10 +119,10 @@ test.skip('streams stale responses', async ({ simpleNextApp }) => {
 })
 
 test.describe('next/image is using Netlify Image CDN', () => {
-  test('Local images', async ({ page, simpleNextApp }) => {
+  test('Local images', async ({ page, simple }) => {
     const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
 
-    await page.goto(`${simpleNextApp.url}/image/local`)
+    await page.goto(`${simple.url}/image/local`)
 
     const nextImageResponse = await nextImageResponsePromise
     expect(nextImageResponse.request().url()).toContain('_next/image?url=%2Fsquirrel.jpg')
@@ -140,11 +137,11 @@ test.describe('next/image is using Netlify Image CDN', () => {
 
   test('Remote images: remote patterns #1 (protocol, hostname, pathname set)', async ({
     page,
-    simpleNextApp,
+    simple,
   }) => {
     const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
 
-    await page.goto(`${simpleNextApp.url}/image/remote-pattern-1`)
+    await page.goto(`${simple.url}/image/remote-pattern-1`)
 
     const nextImageResponse = await nextImageResponsePromise
 
@@ -162,11 +159,11 @@ test.describe('next/image is using Netlify Image CDN', () => {
 
   test('Remote images: remote patterns #2 (just hostname starting with wildcard)', async ({
     page,
-    simpleNextApp,
+    simple,
   }) => {
     const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
 
-    await page.goto(`${simpleNextApp.url}/image/remote-pattern-2`)
+    await page.goto(`${simple.url}/image/remote-pattern-2`)
 
     const nextImageResponse = await nextImageResponsePromise
 
@@ -182,10 +179,10 @@ test.describe('next/image is using Netlify Image CDN', () => {
     await expectImageWasLoaded(page.locator('img'))
   })
 
-  test('Remote images: domains', async ({ page, simpleNextApp }) => {
+  test('Remote images: domains', async ({ page, simple }) => {
     const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
 
-    await page.goto(`${simpleNextApp.url}/image/remote-domain`)
+    await page.goto(`${simple.url}/image/remote-domain`)
 
     const nextImageResponse = await nextImageResponsePromise
 
@@ -201,13 +198,13 @@ test.describe('next/image is using Netlify Image CDN', () => {
     await expectImageWasLoaded(page.locator('img'))
   })
 
-  test('Handling of browser-cached Runtime v4 redirect', async ({ page, simpleNextApp }) => {
+  test('Handling of browser-cached Runtime v4 redirect', async ({ page, simple }) => {
     // Runtime v4 redirects for next/image are 301 and would be cached by browser
     // So this test checks behavior when migrating from v4 to v5 for site visitors
     // and ensure that images are still served through Image CDN
     const nextImageResponsePromise = page.waitForResponse('**/_ipx/**')
 
-    await page.goto(`${simpleNextApp.url}/image/migration-from-v4-runtime`)
+    await page.goto(`${simple.url}/image/migration-from-v4-runtime`)
 
     const nextImageResponse = await nextImageResponsePromise
     // ensure fixture is replicating runtime v4 redirect
@@ -224,9 +221,9 @@ test.describe('next/image is using Netlify Image CDN', () => {
 
 test('requesting a non existing page route that needs to be fetched from the blob store like 404.html', async ({
   page,
-  simpleNextApp,
+  simple,
 }) => {
-  const response = await page.goto(new URL('non-existing', simpleNextApp.url).href)
+  const response = await page.goto(new URL('non-existing', simple.url).href)
   const headers = response?.headers() || {}
   expect(response?.status()).toBe(404)
 
@@ -240,9 +237,9 @@ test('requesting a non existing page route that needs to be fetched from the blo
 
 test('requesting a non existing page route that needs to be fetched from the blob store like 404.html (notFound())', async ({
   page,
-  simpleNextApp,
+  simple,
 }) => {
-  const response = await page.goto(new URL('not-found', simpleNextApp.url).href)
+  const response = await page.goto(new URL('not-found', simple.url).href)
   const headers = response?.headers() || {}
   expect(response?.status()).toBe(404)
 
@@ -254,8 +251,8 @@ test('requesting a non existing page route that needs to be fetched from the blo
   expect(headers['cache-control']).toBe('public,max-age=0,must-revalidate')
 })
 
-test('Compressed rewrites are readable', async ({ simpleNextApp }) => {
-  const resp = await fetch(`${simpleNextApp.url}/rewrite-no-basepath`)
+test('Compressed rewrites are readable', async ({ simple }) => {
+  const resp = await fetch(`${simple.url}/rewrite-no-basepath`)
   expect(resp.headers.get('content-length')).toBeNull()
   expect(resp.headers.get('transfer-encoding')).toEqual('chunked')
   expect(resp.headers.get('content-encoding')).toEqual('br')

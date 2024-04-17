@@ -28,7 +28,7 @@ beforeEach<FixtureTestContext>(async (ctx) => {
 test.skipIf(platform === 'win32')<FixtureTestContext>(
   'that the runtime works correctly with the pnpm package manager',
   async (ctx) => {
-    await createFixture('simple-next-app-pnpm', ctx)
+    await createFixture('pnpm', ctx)
     await runPlugin(ctx)
 
     const home = await invokeFunction(ctx)

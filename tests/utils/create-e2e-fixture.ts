@@ -271,15 +271,15 @@ async function cleanup(dest: string, deployId?: string): Promise<void> {
 }
 
 export const fixtureFactories = {
-  simpleNextApp: () => createE2EFixture('simple-next-app'),
-  simpleNextAppExport: () => createE2EFixture('simple-next-app-export'),
-  simpleNextAppDistDir: () =>
-    createE2EFixture('simple-next-app-dist-dir', {
+  simple: () => createE2EFixture('simple'),
+  outputExport: () => createE2EFixture('output-export'),
+  distDir: () =>
+    createE2EFixture('dist-dir', {
       publishDirectory: 'cool/output',
     }),
-  simpleNextAppYarn: () => createE2EFixture('simple-next-app', { packageManger: 'yarn' }),
-  simpleNextAppPNPM: () => createE2EFixture('simple-next-app-pnpm', { packageManger: 'pnpm' }),
-  simpleNextAppBun: () => createE2EFixture('simple-next-app', { packageManger: 'bun' }),
+  yarn: () => createE2EFixture('simple', { packageManger: 'yarn' }),
+  pnpm: () => createE2EFixture('pnpm', { packageManger: 'pnpm' }),
+  bun: () => createE2EFixture('simple', { packageManger: 'bun' }),
   middleware: () => createE2EFixture('middleware'),
   middlewareOg: () => createE2EFixture('middleware-og'),
   pageRouter: () => createE2EFixture('page-router'),

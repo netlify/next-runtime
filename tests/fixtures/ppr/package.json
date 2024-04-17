@@ -1,5 +1,5 @@
 {
-  "name": "simple-next-app",
+  "name": "ppr",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,8 +8,13 @@
     "build": "next build"
   },
   "dependencies": {
-    "next": "^14.1.1-canary.66",
+    "next": "canary",
     "react": "18.2.0",
     "react-dom": "18.2.0"
+  },
+  "test": {
+    "dependencies": {
+      "next": "canary"
+    }
   }
 }

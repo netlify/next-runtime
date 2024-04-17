@@ -5,9 +5,9 @@ import { test } from '../utils/playwright-helpers.js'
 test.describe.configure({ mode: 'parallel' })
 
 test.describe('[Yarn] Package manager', () => {
-  test.describe('simple-next-app', () => {
-    test('Renders the Home page correctly', async ({ page, simpleNextAppYarn }) => {
-      await page.goto(simpleNextAppYarn.url)
+  test.describe('simple app', () => {
+    test('Renders the Home page correctly', async ({ page, yarn }) => {
+      await page.goto(yarn.url)
 
       await expect(page).toHaveTitle('Simple Next App')
 
@@ -18,9 +18,9 @@ test.describe('[Yarn] Package manager', () => {
 })
 
 test.describe('[PNPM] Package manager', () => {
-  test.describe('simple-next-app-pnpm', () => {
-    test('Renders the Home page correctly', async ({ page, simpleNextAppPNPM }) => {
-      await page.goto(simpleNextAppPNPM.url)
+  test.describe('pnpm', () => {
+    test('Renders the Home page correctly', async ({ page, pnpm }) => {
+      await page.goto(pnpm.url)
 
       await expect(page).toHaveTitle('Simple Next App')
 
@@ -30,9 +30,9 @@ test.describe('[PNPM] Package manager', () => {
   })
 })
 test.describe('[Bun] Package manager', () => {
-  test.describe('simple-next-app', () => {
-    test('Renders the Home page correctly', async ({ page, simpleNextAppBun }) => {
-      await page.goto(simpleNextAppBun.url)
+  test.describe('simple app', () => {
+    test('Renders the Home page correctly', async ({ page, bun }) => {
+      await page.goto(bun.url)
 
       await expect(page).toHaveTitle('Simple Next App')
 

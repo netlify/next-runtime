@@ -5,7 +5,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import fg from 'fast-glob'
 import { valid, satisfies } from 'semver'
 
-const FUTURE_NEXT_PATCH_VERSION = '14.999'
+const FUTURE_NEXT_PATCH_VERSION = '14.999.0'
 
 /**
  * Check if current next version satisfies a semver constraint
@@ -17,7 +17,7 @@ export function nextVersionSatisfies(condition) {
   const isSemverVersion = valid(version)
   const checkVersion = isSemverVersion ? version : FUTURE_NEXT_PATCH_VERSION
 
-  return satisfies(checkVersion, condition)
+  return satisfies(checkVersion, condition) || version === condition
 }
 
 /**
@@ -66,7 +66,11 @@ export async function setNextVersionInFixture(
         const versionConstraint = packageJson.test?.dependencies?.next
         // We can't use semver to check "canary" or "latest", so we use a fake future minor version
         const checkVersion = isSemverVersion ? version : FUTURE_NEXT_PATCH_VERSION
-        if (versionConstraint && !satisfies(checkVersion, versionConstraint)) {
+        if (
+          versionConstraint &&
+          !satisfies(checkVersion, versionConstraint) &&
+          version !== versionConstraint
+        ) {
           if (!silent) {
             console.log(
               `${logPrefix}⏩ Skipping '${packageJson.name}' because it requires next@${versionConstraint}`,
