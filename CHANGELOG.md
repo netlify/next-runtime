@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.1](https://github.com/netlify/next-runtime-minimal/compare/v5.1.0...v5.1.1) (2024-04-17)
+
+
+### Bug Fixes
+
+* honor user defined netlify-vary ([#410](https://github.com/netlify/next-runtime-minimal/issues/410)) ([57d8d26](https://github.com/netlify/next-runtime-minimal/commit/57d8d26d5a52103aa3919745e36a384047d6e596))
+
 ## [5.1.0](https://github.com/netlify/next-runtime-minimal/compare/v5.0.0...v5.1.0) (2024-04-16)
 
 
