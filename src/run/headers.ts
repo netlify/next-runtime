@@ -8,22 +8,48 @@ import type { TagsManifest } from './config.js'
 import type { RequestContext } from './handlers/request-context.cjs'
 import type { RuntimeTracer } from './handlers/tracer.cjs'
 
+const ALL_VARIATIONS = Symbol.for('ALL_VARIATIONS')
 interface NetlifyVaryValues {
-  headers: string[]
-  languages: string[]
-  cookies: string[]
+  header: string[]
+  language: string[]
+  cookie: string[]
+  /**
+   * Query variation can be without argument in which case all query combinations would create a new cache key
+   * This is represented by a ALL_VARIATIONS in the array.
+   */
+  query: (string | typeof ALL_VARIATIONS)[]
+  country: string[]
 }
 
-const generateNetlifyVaryValues = ({ headers, languages, cookies }: NetlifyVaryValues): string => {
+const NetlifyVaryKeys = new Set(['header', 'language', 'cookie', 'query', 'country'])
+const isNetlifyVaryKey = (key: string): key is keyof NetlifyVaryValues => NetlifyVaryKeys.has(key)
+
+const generateNetlifyVaryValues = ({
+  header,
+  language,
+  cookie,
+  query,
+  country,
+}: NetlifyVaryValues): string => {
   const values: string[] = []
-  if (headers.length !== 0) {
-    values.push(`header=${headers.join(`|`)}`)
+  if (query.length !== 0) {
+    if (query.includes(ALL_VARIATIONS)) {
+      values.push(`query`)
+    } else {
+      values.push(`query=${query.join(`|`)}`)
+    }
   }
-  if (languages.length !== 0) {
-    values.push(`language=${languages.join(`|`)}`)
+  if (header.length !== 0) {
+    values.push(`header=${header.join(`|`)}`)
   }
-  if (cookies.length !== 0) {
-    values.push(`cookie=${cookies.join(`|`)}`)
+  if (language.length !== 0) {
+    values.push(`language=${language.join(`|`)}`)
+  }
+  if (cookie.length !== 0) {
+    values.push(`cookie=${cookie.join(`|`)}`)
+  }
+  if (country.length !== 0) {
+    values.push(`country=${country.join(`|`)}`)
   }
   return values.join(',')
 }
@@ -56,22 +82,40 @@ export const setVaryHeaders = (
   { basePath, i18n }: Pick<NextConfigComplete, 'basePath' | 'i18n'>,
 ) => {
   const netlifyVaryValues: NetlifyVaryValues = {
-    headers: ['x-nextjs-data'],
-    languages: [],
-    cookies: ['__prerender_bypass', '__next_preview_data'],
+    header: ['x-nextjs-data'],
+    language: [],
+    cookie: ['__prerender_bypass', '__next_preview_data'],
+    query: [],
+    country: [],
   }
 
   const vary = headers.get('vary')
   if (vary !== null) {
-    netlifyVaryValues.headers.push(...getHeaderValueArray(vary))
+    netlifyVaryValues.header.push(...getHeaderValueArray(vary))
   }
 
   const path = new URL(request.url).pathname
   const locales = i18n && i18n.localeDetection !== false ? i18n.locales : []
 
   if (locales.length > 1 && (path === '/' || path === basePath)) {
-    netlifyVaryValues.languages.push(...locales)
-    netlifyVaryValues.cookies.push(`NEXT_LOCALE`)
+    netlifyVaryValues.language.push(...locales)
+    netlifyVaryValues.cookie.push(`NEXT_LOCALE`)
+  }
+
+  const userNetlifyVary = headers.get('netlify-vary')
+  if (userNetlifyVary) {
+    // respect user's header and append them
+    const directives = getHeaderValueArray(userNetlifyVary)
+    for (const directive of directives) {
+      const [key, value] = directive.split('=')
+
+      if (key === 'query' && !value) {
+        // query can have no "assignment" and then it should vary on all possible query combinations
+        netlifyVaryValues.query.push(ALL_VARIATIONS)
+      } else if (value && isNetlifyVaryKey(key)) {
+        netlifyVaryValues[key].push(...value.split('|'))
+      }
+    }
   }
 
   headers.set(`netlify-vary`, generateNetlifyVaryValues(netlifyVaryValues))
@@ -182,6 +226,7 @@ export const setCacheControlHeaders = (
   if (
     typeof requestContext.routeHandlerRevalidate !== 'undefined' &&
     ['GET', 'HEAD'].includes(request.method) &&
+    !headers.has('cdn-cache-control') &&
     !headers.has('netlify-cdn-cache-control')
   ) {
     // handle CDN Cache Control on Route Handler responses

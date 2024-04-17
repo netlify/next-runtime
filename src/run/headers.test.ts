@@ -140,6 +140,53 @@ describe('headers', () => {
           'header=x-nextjs-data,language=en|de|fr,cookie=__prerender_bypass|__next_preview_data|NEXT_LOCALE',
         )
       })
+
+      test('with user defined Netlify-Vary (catch-all query) being included', () => {
+        const headers = new Headers({
+          'Netlify-Vary': 'query,header=x-custom-header,language=es,country=es,cookie=ab_test',
+        })
+        const request = new Request(`${defaultUrl}/base/path`)
+        const config = {
+          ...defaultConfig,
+          basePath: '/base/path',
+          i18n: {
+            locales: ['en', 'de', 'fr'],
+            defaultLocale: 'default',
+          },
+        }
+        vi.spyOn(headers, 'set')
+
+        setVaryHeaders(headers, request, config)
+
+        expect(headers.set).toBeCalledWith(
+          'netlify-vary',
+          'query,header=x-nextjs-data|x-custom-header,language=en|de|fr|es,cookie=__prerender_bypass|__next_preview_data|NEXT_LOCALE|ab_test,country=es',
+        )
+      })
+
+      test('with user defined Netlify-Vary (manual query variation) being included', () => {
+        const headers = new Headers({
+          'Netlify-Vary':
+            'query=item_id|page|per_page,header=x-custom-header,language=es,country=es,cookie=ab_test',
+        })
+        const request = new Request(`${defaultUrl}/base/path`)
+        const config = {
+          ...defaultConfig,
+          basePath: '/base/path',
+          i18n: {
+            locales: ['en', 'de', 'fr'],
+            defaultLocale: 'default',
+          },
+        }
+        vi.spyOn(headers, 'set')
+
+        setVaryHeaders(headers, request, config)
+
+        expect(headers.set).toBeCalledWith(
+          'netlify-vary',
+          'query=item_id|page|per_page,header=x-nextjs-data|x-custom-header,language=en|de|fr|es,cookie=__prerender_bypass|__next_preview_data|NEXT_LOCALE|ab_test,country=es',
+        )
+      })
     })
   })
 
