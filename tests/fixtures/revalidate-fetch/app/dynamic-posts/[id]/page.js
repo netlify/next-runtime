@@ -30,4 +30,5 @@ export default async function Page({ params }) {
 }
 
 // make page dynamic, but still use fetch cache
+export const fetchCache = 'force-cache'
 export const dynamic = 'force-dynamic'
