@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { satisfies } from 'semver'
 
@@ -10,7 +11,7 @@ const SUPPORTED_NEXT_VERSIONS = '>=13.5.0'
 export function verifyPublishDir(ctx: PluginContext) {
   if (!existsSync(ctx.publishDir)) {
     ctx.failBuild(
-      `Your publish directory was not found at: ${ctx.publishDir}, please check your build settings`,
+      `Your publish directory was not found at: ${ctx.publishDir}. Please check your build settings`,
     )
   }
   // for next.js sites the publish directory should never equal the package path which should be
@@ -22,33 +23,40 @@ export function verifyPublishDir(ctx: PluginContext) {
   //    that directory will be above packagePath
   if (ctx.publishDir === ctx.resolveFromPackagePath('')) {
     ctx.failBuild(
-      `Your publish directory cannot be the same as the base directory of your site, please check your build settings`,
+      `Your publish directory cannot be the same as the base directory of your site. Please check your build settings`,
     )
   }
   try {
-    // `PluginContext.buildConfig` is getter and we only test wether it throws
+    // `PluginContext.buildConfig` is getter and we only test whether it throws
     // and don't actually need to use its value
     // eslint-disable-next-line no-unused-expressions
     ctx.buildConfig
   } catch {
     ctx.failBuild(
-      'Your publish directory does not contain expected Next.js build output, please check your build settings',
+      'Your publish directory does not contain expected Next.js build output. Please check your build settings',
     )
   }
-  if (
-    (ctx.buildConfig.output === 'standalone' || ctx.buildConfig.output === undefined) &&
-    !existsSync(ctx.standaloneRootDir)
-  ) {
-    ctx.failBuild(
-      `Your publish directory does not contain expected Next.js build output, please make sure you are using Next.js version (${SUPPORTED_NEXT_VERSIONS})`,
-    )
+  if (ctx.buildConfig.output === 'standalone' || ctx.buildConfig.output === undefined) {
+    if (!existsSync(join(ctx.publishDir, 'BUILD_ID'))) {
+      ctx.failBuild(
+        'Your publish directory does not contain expected Next.js build output. Please check your build settings',
+      )
+    }
+    if (!existsSync(ctx.standaloneRootDir)) {
+      ctx.failBuild(
+        `Your publish directory does not contain expected Next.js build output. Please make sure you are using Next.js version (${SUPPORTED_NEXT_VERSIONS})`,
+      )
+    }
   }
-  if (ctx.buildConfig.output === 'export' && !existsSync(ctx.resolveFromSiteDir('out'))) {
-    ctx.failBuild(
-      `Your export directory was not found at: ${ctx.resolveFromSiteDir(
-        'out',
-      )}, please check your build settings`,
-    )
+  if (ctx.buildConfig.output === 'export') {
+    if (!ctx.exportDetail?.success) {
+      ctx.failBuild(`Your export failed to build. Please check your build settings`)
+    }
+    if (!existsSync(ctx.exportDetail?.outDirectory)) {
+      ctx.failBuild(
+        `Your export directory was not found at: ${ctx.exportDetail?.outDirectory}. Please check your build settings`,
+      )
+    }
   }
 }
 

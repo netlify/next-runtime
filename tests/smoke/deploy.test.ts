@@ -56,7 +56,7 @@ describe('version check', () => {
     async () => {
       // we are not able to get far enough to extract concrete next version, so this error message lack used Next.js version
       await expect(selfCleaningFixtureFactories.next12_0_3()).rejects.toThrow(
-        /Your publish directory does not contain expected Next.js build output, please make sure you are using Next.js version \(>=13.5.0\)/,
+        /Your publish directory does not contain expected Next.js build output. Please make sure you are using Next.js version \(>=13.5.0\)/,
       )
     },
   )

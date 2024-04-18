@@ -95,14 +95,14 @@ describe('verification', () => {
   test<FixtureTestContext>("Should warn if publish dir doesn't exist", async (ctx) => {
     await createFixture('simple', ctx)
     expect(() => runPlugin(ctx, { PUBLISH_DIR: 'no-such-directory' })).rejects.toThrowError(
-      /Your publish directory was not found at: \S+no-such-directory, please check your build settings/,
+      /Your publish directory was not found at: \S+no-such-directory. Please check your build settings/,
     )
   })
 
   test<FixtureTestContext>('Should warn if publish dir is root', async (ctx) => {
     await createFixture('simple', ctx)
     expect(() => runPlugin(ctx, { PUBLISH_DIR: '.' })).rejects.toThrowError(
-      'Your publish directory cannot be the same as the base directory of your site, please check your build settings',
+      'Your publish directory cannot be the same as the base directory of your site. Please check your build settings',
     )
   })
 
@@ -111,15 +111,24 @@ describe('verification', () => {
     expect(() =>
       runPlugin(ctx, { PUBLISH_DIR: 'app/.', PACKAGE_PATH: 'app' }),
     ).rejects.toThrowError(
-      'Your publish directory cannot be the same as the base directory of your site, please check your build settings',
+      'Your publish directory cannot be the same as the base directory of your site. Please check your build settings',
     )
   })
 
   test<FixtureTestContext>('Should warn if publish dir is not set to Next.js output directory', async (ctx) => {
     await createFixture('simple', ctx)
     expect(() => runPlugin(ctx, { PUBLISH_DIR: 'public' })).rejects.toThrowError(
-      'Your publish directory does not contain expected Next.js build output, please check your build settings',
+      'Your publish directory does not contain expected Next.js build output. Please check your build settings',
     )
+  })
+  test<FixtureTestContext>('Should not warn if using "out" as publish dir when output is "export"', async (ctx) => {
+    await createFixture('output-export', ctx)
+    await expect(runPlugin(ctx, { PUBLISH_DIR: 'out' })).resolves.not.toThrow()
+  })
+
+  test<FixtureTestContext>('Should not throw when using custom distDir and output is "export', async (ctx) => {
+    await createFixture('output-export-custom-dist', ctx)
+    await expect(runPlugin(ctx, { PUBLISH_DIR: 'custom-dist' })).resolves.not.toThrow()
   })
 })
 

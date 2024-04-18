@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 // Here we need to actually import `resolve` from node:path as we want to resolve the paths
 // eslint-disable-next-line no-restricted-imports
@@ -30,6 +30,11 @@ export interface RequiredServerFilesManifest {
   relativeAppDir: string
   files: string[]
   ignore: string[]
+}
+
+export interface ExportDetail {
+  success: boolean
+  outDirectory: string
 }
 
 export class PluginContext {
@@ -201,6 +206,28 @@ export class PluginContext {
   }
 
   /**
+   * Uses various heuristics to try to find the .next dir.
+   * Works by looking for BUILD_ID, so requires the site to have been built
+   */
+  findDotNext(): string | false {
+    for (const dir of [
+      // The publish directory
+      this.publishDir,
+      // In the root
+      resolve(DEFAULT_PUBLISH_DIR),
+      // The sibling of the publish directory
+      resolve(this.publishDir, '..', DEFAULT_PUBLISH_DIR),
+      // In the package dir
+      resolve(this.constants.PACKAGE_PATH || '', DEFAULT_PUBLISH_DIR),
+    ]) {
+      if (existsSync(join(dir, 'BUILD_ID'))) {
+        return dir
+      }
+    }
+    return false
+  }
+
+  /**
    * Get Next.js middleware config from the build output
    */
   async getMiddlewareManifest(): Promise<MiddlewareManifest> {
@@ -215,11 +242,43 @@ export class PluginContext {
   /** Get RequiredServerFiles manifest from build output **/
   get requiredServerFiles(): RequiredServerFilesManifest {
     if (!this._requiredServerFiles) {
+      let requiredServerFilesJson = join(this.publishDir, 'required-server-files.json')
+
+      if (!existsSync(requiredServerFilesJson)) {
+        const dotNext = this.findDotNext()
+        if (dotNext) {
+          requiredServerFilesJson = join(dotNext, 'required-server-files.json')
+        }
+      }
+
       this._requiredServerFiles = JSON.parse(
-        readFileSync(join(this.publishDir, 'required-server-files.json'), 'utf-8'),
+        readFileSync(requiredServerFilesJson, 'utf-8'),
       ) as RequiredServerFilesManifest
     }
     return this._requiredServerFiles
+  }
+
+  #exportDetail: ExportDetail | null = null
+
+  /** Get metadata when output = export */
+  get exportDetail(): ExportDetail | null {
+    if (this.buildConfig.output !== 'export') {
+      return null
+    }
+    if (!this.#exportDetail) {
+      const detailFile = join(
+        this.requiredServerFiles.appDir,
+        this.buildConfig.distDir,
+        'export-detail.json',
+      )
+      if (!existsSync(detailFile)) {
+        return null
+      }
+      try {
+        this.#exportDetail = JSON.parse(readFileSync(detailFile, 'utf-8'))
+      } catch {}
+    }
+    return this.#exportDetail
   }
 
   /** Get Next Config from build output **/

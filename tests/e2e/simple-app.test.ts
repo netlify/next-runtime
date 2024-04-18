@@ -25,20 +25,6 @@ test('Renders the Home page correctly', async ({ page, simple }) => {
   expect(body).toBe('{"words":"hello world"}')
 })
 
-test('Renders the Home page correctly with output export', async ({ page, outputExport }) => {
-  const response = await page.goto(outputExport.url)
-  const headers = response?.headers() || {}
-
-  await expect(page).toHaveTitle('Simple Next App')
-
-  expect(headers['cache-status']).toBe('"Netlify Edge"; fwd=miss')
-
-  const h1 = page.locator('h1')
-  await expect(h1).toHaveText('Home')
-
-  await expectImageWasLoaded(page.locator('img'))
-})
-
 test('Renders the Home page correctly with distDir', async ({ page, distDir }) => {
   await page.goto(distDir.url)
 

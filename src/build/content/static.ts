@@ -68,9 +68,12 @@ export const copyStaticAssets = async (ctx: PluginContext): Promise<void> => {
 
 export const copyStaticExport = async (ctx: PluginContext): Promise<void> => {
   await tracer.withActiveSpan('copyStaticExport', async () => {
+    if (!ctx.exportDetail?.outDirectory) {
+      ctx.failBuild('Export directory not found')
+    }
     try {
       await rm(ctx.staticDir, { recursive: true, force: true })
-      await cp(ctx.resolveFromSiteDir('out'), ctx.staticDir, { recursive: true })
+      await cp(ctx.exportDetail.outDirectory, ctx.staticDir, { recursive: true })
     } catch (error) {
       ctx.failBuild('Failed copying static export', error)
     }

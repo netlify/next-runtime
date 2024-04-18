@@ -273,6 +273,14 @@ async function cleanup(dest: string, deployId?: string): Promise<void> {
 export const fixtureFactories = {
   simple: () => createE2EFixture('simple'),
   outputExport: () => createE2EFixture('output-export'),
+  ouputExportPublishOut: () =>
+    createE2EFixture('output-export', {
+      publishDirectory: 'out',
+    }),
+  outputExportCustomDist: () =>
+    createE2EFixture('output-export-custom-dist', {
+      publishDirectory: 'custom-dist',
+    }),
   distDir: () =>
     createE2EFixture('dist-dir', {
       publishDirectory: 'cool/output',
