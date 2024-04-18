@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.2](https://github.com/netlify/next-runtime-minimal/compare/v5.1.1...v5.1.2) (2024-04-18)
+
+
+### Bug Fixes
+
+* more robust handling of export output ([#418](https://github.com/netlify/next-runtime-minimal/issues/418)) ([d66e30b](https://github.com/netlify/next-runtime-minimal/commit/d66e30b8099971e4db10bd460433923d1b1e9e40))
+
 ## [5.1.1](https://github.com/netlify/next-runtime-minimal/compare/v5.1.0...v5.1.1) (2024-04-17)
 
 
