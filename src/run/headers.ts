@@ -1,4 +1,3 @@
-import { getDeployStore } from '@netlify/blobs'
 import type { Span } from '@opentelemetry/api'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
@@ -7,6 +6,7 @@ import { encodeBlobKey } from '../shared/blobkey.js'
 import type { TagsManifest } from './config.js'
 import type { RequestContext } from './handlers/request-context.cjs'
 import type { RuntimeTracer } from './handlers/tracer.cjs'
+import { getRegionalBlobStore } from './regional-blob-store.cjs'
 
 const ALL_VARIATIONS = Symbol.for('ALL_VARIATIONS')
 interface NetlifyVaryValues {
@@ -121,8 +121,6 @@ export const setVaryHeaders = (
   headers.set(`netlify-vary`, generateNetlifyVaryValues(netlifyVaryValues))
 }
 
-const fetchBeforeNextPatchedIt = globalThis.fetch
-
 /**
  * Change the date header to be the last-modified date of the blob. This means the CDN
  * will use the correct expiry time for the response. e.g. if the blob was last modified
@@ -173,8 +171,8 @@ export const adjustDateHeader = async ({
       warning: true,
     })
 
+    const blobStore = getRegionalBlobStore({ consistency: 'strong' })
     const blobKey = await encodeBlobKey(key)
-    const blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt, consistency: 'strong' })
 
     // TODO: use metadata for this
     lastModified = await tracer.withActiveSpan(

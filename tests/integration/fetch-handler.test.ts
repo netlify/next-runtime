@@ -4,13 +4,8 @@ import { HttpResponse, http, passthrough } from 'msw'
 import { setupServer } from 'msw/node'
 import { v4 } from 'uuid'
 import { afterAll, beforeAll, beforeEach, expect, test, vi } from 'vitest'
-import {
-  createFixture,
-  invokeFunction,
-  runPlugin,
-  runPluginStep,
-  type FixtureTestContext,
-} from '../utils/fixture.js'
+import { type FixtureTestContext } from '../utils/contexts.js'
+import { createFixture, invokeFunction, runPlugin, runPluginStep } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 
 // Disable the verbose logging of the lambda-local runtime

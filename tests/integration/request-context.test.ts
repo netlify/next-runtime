@@ -1,23 +1,19 @@
 import { getLogger } from 'lambda-local'
+import cjsMock from 'mock-require'
+import type { CacheHandler } from 'next/dist/server/lib/incremental-cache/index.js'
+import { realpathSync } from 'node:fs'
+import { join } from 'node:path'
 import { v4 } from 'uuid'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import {
-  createFixture,
-  invokeFunction,
-  runPlugin,
-  type FixtureTestContext,
-} from '../utils/fixture.js'
+import { SERVER_HANDLER_NAME } from '../../src/build/plugin-context.js'
+import { type FixtureTestContext } from '../utils/contexts.js'
+import { createFixture, invokeFunction, runPlugin } from '../utils/fixture.js'
 import {
   countOfBlobServerGetsForKey,
   encodeBlobKey,
   generateRandomObjectID,
   startMockBlobStore,
 } from '../utils/helpers.js'
-import cjsMock from 'mock-require'
-import type { CacheHandler } from 'next/dist/server/lib/incremental-cache/index.js'
-import { SERVER_HANDLER_NAME } from '../../src/build/plugin-context.js'
-import { realpathSync } from 'node:fs'
-import { join } from 'node:path'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'

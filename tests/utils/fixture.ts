@@ -1,6 +1,4 @@
-import { type getStore } from '@netlify/blobs'
-import { BlobsServer } from '@netlify/blobs/server'
-import { TestContext, assert, vi, MockInstance } from 'vitest'
+import { assert, vi } from 'vitest'
 
 import { type NetlifyPluginConstants, type NetlifyPluginOptions } from '@netlify/build'
 import { bundle, serve } from '@netlify/edge-bundler'
@@ -9,7 +7,7 @@ import { zipFunctions } from '@netlify/zip-it-and-ship-it'
 import { execaCommand } from 'execa'
 import getPort from 'get-port'
 import { execute } from 'lambda-local'
-import { createWriteStream, existsSync, type WriteStream } from 'node:fs'
+import { createWriteStream, existsSync } from 'node:fs'
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, parse, relative } from 'node:path'
@@ -25,24 +23,10 @@ import {
   PluginContext,
   SERVER_HANDLER_NAME,
 } from '../../src/build/plugin-context.js'
+import { BLOB_TOKEN } from './constants.js'
+import { type FixtureTestContext } from './contexts.js'
+import { createBlobContext } from './helpers.js'
 import { setNextVersionInFixture } from './next-version-helpers.mjs'
-
-export interface FixtureTestContext extends TestContext {
-  cwd: string
-  siteID: string
-  deployID: string
-  blobStoreHost: string
-  blobStorePort: number
-  blobServer: BlobsServer
-  blobServerGetSpy: MockInstance<Parameters<BlobsServer['get']>, ReturnType<BlobsServer['get']>>
-  blobStore: ReturnType<typeof getStore>
-  functionDist: string
-  edgeFunctionPort: number
-  edgeFunctionOutput: WriteStream
-  cleanup?: (() => Promise<void>)[]
-}
-
-export const BLOB_TOKEN = 'secret-token'
 
 const bootstrapURL = 'https://edge.netlify.com/bootstrap/index-combined.ts'
 const actualCwd = await vi.importActual<typeof import('process')>('process').then((p) => p.cwd())
@@ -373,15 +357,7 @@ export async function invokeFunction(
     // The environment variables available during execution
     const environment = {
       NODE_ENV: 'production',
-      NETLIFY_BLOBS_CONTEXT: Buffer.from(
-        JSON.stringify({
-          edgeURL: `http://${ctx.blobStoreHost}`,
-          uncachedEdgeURL: `http://${ctx.blobStoreHost}`,
-          token: BLOB_TOKEN,
-          siteID: ctx.siteID,
-          deployID: ctx.deployID,
-        }),
-      ).toString('base64'),
+      NETLIFY_BLOBS_CONTEXT: createBlobContext(ctx),
       ...(env || {}),
     }
     const response = (await execute({

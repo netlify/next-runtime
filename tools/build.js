@@ -27,8 +27,22 @@ async function bundle(entryPoints, format, watch) {
     platform: 'node',
     target: 'node18',
     format,
-    external: ['next', '*.cjs'], // don't try to bundle the cjs files as we are providing them separately
+    external: ['next'], // don't try to bundle next
     allowOverwrite: watch,
+    plugins: [
+      {
+        // runtime modules are all entrypoints, so importing them should mark them as external
+        // to avoid duplicating them in the bundle (which also can cause import path issues)
+        name: 'mark-runtime-modules-as-external',
+        setup(pluginBuild) {
+          pluginBuild.onResolve({ filter: /^\..*\.c?js$/ }, (args) => {
+            if (args.importer.includes(join('next-runtime-minimal', 'src'))) {
+              return { path: args.path, external: true }
+            }
+          })
+        },
+      },
+    ],
   }
 
   if (format === 'esm') {

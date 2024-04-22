@@ -5,13 +5,8 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { v4 } from 'uuid'
 import { beforeEach, expect, test, vi } from 'vitest'
-import {
-  createFixture,
-  invokeFunction,
-  runPlugin,
-  runPluginStep,
-  type FixtureTestContext,
-} from '../utils/fixture.js'
+import { type FixtureTestContext } from '../utils/contexts.js'
+import { createFixture, invokeFunction, runPlugin, runPluginStep } from '../utils/fixture.js'
 import {
   decodeBlobKey,
   generateRandomObjectID,

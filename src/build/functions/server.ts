@@ -97,6 +97,7 @@ const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
     return template
       .replaceAll('{{cwd}}', posixJoin(ctx.lambdaWorkingDirectory))
       .replace('{{nextServerHandler}}', posixJoin(ctx.nextServerHandler))
+      .replace('{{useRegionalBlobs}}', ctx.useRegionalBlobs.toString())
   }
 
   return await readFile(join(templatesDir, 'handler.tmpl.js'), 'utf-8')

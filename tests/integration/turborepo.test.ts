@@ -1,12 +1,12 @@
 import { getLogger } from 'lambda-local'
+import { existsSync } from 'node:fs'
+import { rm } from 'node:fs/promises'
+import { join } from 'node:path'
 import { v4 } from 'uuid'
 import { beforeEach, expect, test, vi } from 'vitest'
-import { createFixture, runPlugin, type FixtureTestContext } from '../utils/fixture.js'
+import { type FixtureTestContext } from '../utils/contexts.js'
+import { createFixture, runPlugin } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
-import { glob } from 'fast-glob'
-import { existsSync } from 'node:fs'
-import { join } from 'node:path'
-import { rm } from 'node:fs/promises'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'

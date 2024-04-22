@@ -7,7 +7,8 @@ import glob from 'fast-glob'
 import { Mock, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { mockFileSystem } from '../../../tests/index.js'
-import { FixtureTestContext, createFsFixture } from '../../../tests/utils/fixture.js'
+import { type FixtureTestContext } from '../../../tests/utils/contexts.js'
+import { createFsFixture } from '../../../tests/utils/fixture.js'
 import { PluginContext, RequiredServerFilesManifest } from '../plugin-context.js'
 
 import { copyStaticAssets, copyStaticContent } from './static.js'

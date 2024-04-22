@@ -7,6 +7,9 @@ import tracing from '{{cwd}}/.netlify/dist/run/handlers/tracing.js'
 
 process.chdir('{{cwd}}')
 
+// Set feature flag for regional blobs
+process.env.USE_REGIONAL_BLOBS = '{{useRegionalBlobs}}'
+
 let cachedHandler
 export default async function (req, context) {
   if (process.env.NETLIFY_OTLP_TRACE_EXPORTER_URL) {

@@ -1,12 +1,12 @@
 import fs from 'fs/promises'
 import { relative, resolve } from 'path'
 
-import { getDeployStore } from '@netlify/blobs'
 // @ts-expect-error no types installed
 import { patchFs } from 'fs-monkey'
 
 import { getRequestContext } from './handlers/request-context.cjs'
 import { getTracer } from './handlers/tracer.cjs'
+import { getRegionalBlobStore } from './regional-blob-store.cjs'
 
 console.time('import next server')
 
@@ -16,8 +16,6 @@ const { getRequestHandlers } = require('next/dist/server/lib/start-server.js')
 console.timeEnd('import next server')
 
 type FS = typeof import('fs')
-
-const fetchBeforeNextPatchedIt = globalThis.fetch
 
 export async function getMockedRequestHandlers(...args: Parameters<typeof getRequestHandlers>) {
   const tracer = getTracer()
@@ -35,7 +33,7 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
       } catch (error) {
         // only try to get .html files from the blob store
         if (typeof path === 'string' && path.endsWith('.html')) {
-          const store = getDeployStore({ fetch: fetchBeforeNextPatchedIt })
+          const store = getRegionalBlobStore()
           const relPath = relative(resolve('.next/server/pages'), path)
           const file = await store.get(await encodeBlobKey(relPath))
           if (file !== null) {

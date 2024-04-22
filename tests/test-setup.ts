@@ -1,6 +1,6 @@
-import { afterEach, vi } from 'vitest'
-import { FixtureTestContext } from './utils/fixture'
 import fs from 'node:fs'
+import { afterEach } from 'vitest'
+import { type FixtureTestContext } from './utils/contexts'
 
 // cleanup after each test as a fallback if someone forgot to call it
 afterEach<FixtureTestContext>(async ({ cleanup }) => {

@@ -3,7 +3,7 @@
 //
 import { Buffer } from 'node:buffer'
 
-import { getDeployStore, Store } from '@netlify/blobs'
+import { Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
 import { type Span } from '@opentelemetry/api'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
@@ -16,6 +16,7 @@ import type {
   NetlifyCacheHandlerValue,
   NetlifyIncrementalCacheValue,
 } from '../../shared/cache-types.cjs'
+import { getRegionalBlobStore } from '../regional-blob-store.cjs'
 
 import { getRequestContext } from './request-context.cjs'
 import { getTracer } from './tracer.cjs'
@@ -23,8 +24,6 @@ import { getTracer } from './tracer.cjs'
 type TagManifest = { revalidatedAt: number }
 
 type TagManifestBlobCache = Record<string, Promise<TagManifest>>
-
-const fetchBeforeNextPatchedIt = globalThis.fetch
 
 export class NetlifyCacheHandler implements CacheHandler {
   options: CacheHandlerContext
@@ -36,7 +35,7 @@ export class NetlifyCacheHandler implements CacheHandler {
   constructor(options: CacheHandlerContext) {
     this.options = options
     this.revalidatedTags = options.revalidatedTags
-    this.blobStore = getDeployStore({ fetch: fetchBeforeNextPatchedIt, consistency: 'strong' })
+    this.blobStore = getRegionalBlobStore({ consistency: 'strong' })
     this.tagManifestsFetchedFromBlobStoreInCurrentRequest = {}
   }
 

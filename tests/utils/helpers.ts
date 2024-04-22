@@ -1,5 +1,4 @@
 import getPort from 'get-port'
-import { BLOB_TOKEN, type FixtureTestContext } from './fixture.js'
 
 import { getDeployStore } from '@netlify/blobs'
 import { BlobsServer } from '@netlify/blobs/server'
@@ -10,6 +9,8 @@ import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assert, vi } from 'vitest'
+import { BLOB_TOKEN } from './constants'
+import { type FixtureTestContext } from './contexts'
 
 /**
  * Uses next.js incremental cache to compute the same cache key for a URL that is automatically generated
@@ -48,6 +49,7 @@ export const createBlobContext = (ctx: FixtureTestContext) =>
       token: BLOB_TOKEN,
       siteID: ctx.siteID,
       deployID: ctx.deployID,
+      primaryRegion: 'us-test-1',
     }),
   ).toString('base64')
 
@@ -74,6 +76,7 @@ export const startMockBlobStore = async (ctx: FixtureTestContext) => {
     deployID: ctx.deployID,
     siteID: ctx.siteID,
     token: BLOB_TOKEN,
+    experimentalRegion: 'context',
   })
 }
 
@@ -88,6 +91,7 @@ export const getBlobEntries = async (ctx: FixtureTestContext) => {
         deployID: ctx.deployID,
         siteID: ctx.siteID,
         token: BLOB_TOKEN,
+        experimentalRegion: 'context',
       })
 
   const { blobs } = await ctx.blobStore.list()
@@ -101,14 +105,17 @@ export function getBlobServerGets(ctx: FixtureTestContext, predicate?: (key: str
       if (typeof request.url !== 'string') {
         return undefined
       }
-      // request url is /:siteID/:deployID/:key for get
-      //                /:siteID/:deployID for list
-      // we only want gets
-      const urlSegments = request.url.split('/')
-      if (urlSegments.length === 4) {
-        return decodeBlobKey(urlSegments[3])
+
+      let urlSegments = request.url.split('/').slice(1)
+
+      // ignore region url component when using `experimentalRegion`
+      const REGION_PREFIX = 'region:'
+      if (urlSegments[0].startsWith(REGION_PREFIX)) {
+        urlSegments = urlSegments.slice(1)
       }
-      return undefined
+
+      const [_siteID, _deployID, key] = urlSegments
+      return key && decodeBlobKey(key)
     })
     .filter(isString)
     .filter((key) => !predicate || predicate(key))

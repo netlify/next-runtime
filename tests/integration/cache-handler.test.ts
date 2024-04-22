@@ -2,12 +2,8 @@ import { load } from 'cheerio'
 import { getLogger } from 'lambda-local'
 import { v4 } from 'uuid'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import {
-  createFixture,
-  invokeFunction,
-  runPlugin,
-  type FixtureTestContext,
-} from '../utils/fixture.js'
+import { type FixtureTestContext } from '../utils/contexts.js'
+import { createFixture, invokeFunction, runPlugin } from '../utils/fixture.js'
 import {
   countOfBlobServerGetsForKey,
   decodeBlobKey,

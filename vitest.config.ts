@@ -76,4 +76,7 @@ export default defineConfig({
       sequencer: Sequencer,
     },
   },
+  esbuild: {
+    include: ['**/*.ts', '**/*.cts'],
+  },
 })

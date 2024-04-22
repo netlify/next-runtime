@@ -2,16 +2,12 @@ import { load } from 'cheerio'
 import { getLogger } from 'lambda-local'
 import { HttpResponse, http, passthrough } from 'msw'
 import { setupServer } from 'msw/node'
+import { platform } from 'node:process'
 import { v4 } from 'uuid'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest'
-import {
-  createFixture,
-  invokeFunction,
-  runPlugin,
-  type FixtureTestContext,
-} from '../utils/fixture.js'
+import { type FixtureTestContext } from '../utils/contexts.js'
+import { createFixture, invokeFunction, runPlugin } from '../utils/fixture.js'
 import { encodeBlobKey, generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
-import { platform } from 'node:process'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'

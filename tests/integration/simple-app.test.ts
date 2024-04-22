@@ -7,12 +7,13 @@ import { gunzipSync } from 'node:zlib'
 import { gt, prerelease } from 'semver'
 import { v4 } from 'uuid'
 import { Mock, afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
+import { getPatchesToApply } from '../../src/build/content/server.js'
+import { type FixtureTestContext } from '../utils/contexts.js'
 import {
   createFixture,
+  getFixtureSourceDirectory,
   invokeFunction,
   runPlugin,
-  getFixtureSourceDirectory,
-  type FixtureTestContext,
 } from '../utils/fixture.js'
 import {
   decodeBlobKey,
@@ -20,7 +21,6 @@ import {
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
-import { getPatchesToApply } from '../../src/build/content/server.js'
 
 const mockedCp = cp as Mock<
   Parameters<(typeof import('node:fs/promises'))['cp']>,

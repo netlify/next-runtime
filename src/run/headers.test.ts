@@ -1,11 +1,12 @@
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import { v4 } from 'uuid'
-import { afterEach, describe, expect, test, vi, beforeEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { FixtureTestContext } from '../../tests/utils/fixture.js'
+import { type FixtureTestContext } from '../../tests/utils/contexts.js'
 import { generateRandomObjectID, startMockBlobStore } from '../../tests/utils/helpers.js'
 
-import { setVaryHeaders, setCacheControlHeaders } from './headers.js'
+import { createRequestContext } from './handlers/request-context.cjs'
+import { setCacheControlHeaders, setVaryHeaders } from './headers.js'
 
 beforeEach<FixtureTestContext>(async (ctx) => {
   // set for each test a new deployID and siteID
@@ -198,7 +199,7 @@ describe('headers', () => {
       const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers, request, {})
+      setCacheControlHeaders(headers, request, createRequestContext())
 
       expect(headers.set).toHaveBeenCalledTimes(0)
     })
@@ -208,7 +209,10 @@ describe('headers', () => {
       const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers, request, { usedFsRead: true })
+      const requestContext = createRequestContext()
+      requestContext.usedFsRead = true
+
+      setCacheControlHeaders(headers, request, requestContext)
 
       expect(headers.set).toHaveBeenNthCalledWith(
         1,
@@ -231,7 +235,7 @@ describe('headers', () => {
       const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers, request, {})
+      setCacheControlHeaders(headers, request, createRequestContext())
 
       expect(headers.set).toHaveBeenCalledTimes(0)
     })
@@ -245,7 +249,7 @@ describe('headers', () => {
       const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers, request, {})
+      setCacheControlHeaders(headers, request, createRequestContext())
 
       expect(headers.set).toHaveBeenCalledTimes(0)
     })
@@ -258,7 +262,7 @@ describe('headers', () => {
       const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers, request, {})
+      setCacheControlHeaders(headers, request, createRequestContext())
 
       expect(headers.set).toHaveBeenNthCalledWith(
         1,
@@ -280,7 +284,7 @@ describe('headers', () => {
       const request = new Request(defaultUrl, { method: 'HEAD' })
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers, request, {})
+      setCacheControlHeaders(headers, request, createRequestContext())
 
       expect(headers.set).toHaveBeenNthCalledWith(
         1,
@@ -302,7 +306,7 @@ describe('headers', () => {
       const request = new Request(defaultUrl, { method: 'POST' })
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers, request, {})
+      setCacheControlHeaders(headers, request, createRequestContext())
 
       expect(headers.set).toHaveBeenCalledTimes(0)
     })
@@ -315,7 +319,7 @@ describe('headers', () => {
       const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers, request, {})
+      setCacheControlHeaders(headers, request, createRequestContext())
 
       expect(headers.set).toHaveBeenNthCalledWith(1, 'cache-control', 'public')
       expect(headers.set).toHaveBeenNthCalledWith(
@@ -333,7 +337,7 @@ describe('headers', () => {
       const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers, request, {})
+      setCacheControlHeaders(headers, request, createRequestContext())
 
       expect(headers.set).toHaveBeenNthCalledWith(1, 'cache-control', 'max-age=604800')
       expect(headers.set).toHaveBeenNthCalledWith(
@@ -351,7 +355,7 @@ describe('headers', () => {
       const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
-      setCacheControlHeaders(headers, request, {})
+      setCacheControlHeaders(headers, request, createRequestContext())
 
       expect(headers.set).toHaveBeenNthCalledWith(
         1,

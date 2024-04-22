@@ -230,10 +230,17 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     expect(data3?.pageProps?.time).toBe(date3)
   })
 
-  test('requesting a non existing page route that needs to be fetched from the blob store like 404.html', async ({
+  test('should serve 404 page when requesting non existing page (no matching route)', async ({
     page,
     pageRouter,
   }) => {
+    // 404 page is built and uploaded to blobs at build time
+    // when Next.js serves 404 it will try to fetch it from the blob store
+    // if request handler function is unable to get from blob store it will
+    // fail request handling and serve 500 error.
+    // This implicitly tests that request handler function is able to read blobs
+    // that are uploaded as part of site deploy.
+
     const response = await page.goto(new URL('non-existing', pageRouter.url).href)
     const headers = response?.headers() || {}
     expect(response?.status()).toBe(404)
@@ -246,7 +253,7 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     expect(headers['cache-control']).toBe('no-cache,no-store,max-age=0,must-revalidate')
   })
 
-  test('requesting a non existing page route that needs to be fetched from the blob store like 404.html (notFound: true)', async ({
+  test('should serve 404 page when requesting non existing page (marked with notFound: true in getStaticProps)', async ({
     page,
     pageRouter,
   }) => {

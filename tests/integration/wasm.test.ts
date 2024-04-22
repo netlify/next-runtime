@@ -1,14 +1,8 @@
-import { load } from 'cheerio'
 import { getLogger } from 'lambda-local'
 import { v4 } from 'uuid'
-import { beforeEach, expect, test, vi, describe } from 'vitest'
-import {
-  createFixture,
-  invokeFunction,
-  runPlugin,
-  type FixtureTestContext,
-  invokeEdgeFunction,
-} from '../utils/fixture.js'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { type FixtureTestContext } from '../utils/contexts.js'
+import { createFixture, invokeEdgeFunction, invokeFunction, runPlugin } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 import { LocalServer } from '../utils/local-server.js'
 

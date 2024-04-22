@@ -3,10 +3,11 @@ import { join } from 'node:path'
 import { NetlifyPluginOptions } from '@netlify/build'
 import { expect, test } from 'vitest'
 
+import { readFile, readdir } from 'node:fs/promises'
 import { copyNextServerCode } from '../../../src/build/content/server.js'
 import { PluginContext, RequiredServerFilesManifest } from '../../../src/build/plugin-context.js'
-import { FixtureTestContext, createFsFixture } from '../../utils/fixture.js'
-import { readFile, readdir } from 'node:fs/promises'
+import { type FixtureTestContext } from '../../utils/contexts.js'
+import { createFsFixture } from '../../utils/fixture.js'
 
 test<FixtureTestContext>('should copy the next standalone folder correctly for a simple site', async (ctx) => {
   const reqServerFiles = JSON.stringify({

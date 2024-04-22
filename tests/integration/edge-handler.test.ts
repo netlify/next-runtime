@@ -1,11 +1,7 @@
 import { v4 } from 'uuid'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import {
-  createFixture,
-  invokeEdgeFunction,
-  runPlugin,
-  type FixtureTestContext,
-} from '../utils/fixture.js'
+import { type FixtureTestContext } from '../utils/contexts.js'
+import { createFixture, invokeEdgeFunction, runPlugin } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
 import { LocalServer } from '../utils/local-server.js'
 

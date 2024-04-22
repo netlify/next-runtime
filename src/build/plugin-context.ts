@@ -13,6 +13,7 @@ import type {
 import type { PrerenderManifest, RoutesManifest } from 'next/dist/build/index.js'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
+import { satisfies } from 'semver'
 
 const MODULE_DIR = fileURLToPath(new URL('.', import.meta.url))
 const PLUGIN_DIR = join(MODULE_DIR, '../..')
@@ -135,10 +136,25 @@ export class PluginContext {
 
   /**
    * Absolute path of the directory that will be deployed to the blob store
-   * `.netlify/blobs/deploy`
+   * region aware: `.netlify/deploy/v1/blobs/deploy`
+   * default: `.netlify/blobs/deploy`
    */
   get blobDir(): string {
+    if (this.useRegionalBlobs) {
+      return this.resolveFromPackagePath('.netlify/deploy/v1/blobs/deploy')
+    }
+
     return this.resolveFromPackagePath('.netlify/blobs/deploy')
+  }
+
+  get buildVersion(): string {
+    return this.constants.NETLIFY_BUILD_VERSION || 'v0.0.0'
+  }
+
+  get useRegionalBlobs(): boolean {
+    // Region-aware blobs are only available as of CLI v17.22.1 (i.e. Build v29.39.1)
+    const REQUIRED_BUILD_VERSION = '>=29.39.1'
+    return satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, { includePrerelease: true })
   }
 
   /**

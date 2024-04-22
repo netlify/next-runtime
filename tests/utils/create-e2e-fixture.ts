@@ -35,6 +35,10 @@ interface E2EConfig {
    * If runtime should be installed in a custom location and not in cwd / packagePath
    */
   runtimeInstallationPath?: string
+  /**
+   * Some fixtures might pin to non-latest CLI versions. This is used to verify the used CLI version matches expected one
+   */
+  expectedCliVersion?: string
 }
 
 /**
@@ -71,6 +75,8 @@ export const createE2EFixture = async (fixture: string, config: E2EConfig = {}) 
       await setNextVersionInFixture(isolatedFixtureRoot, NEXT_VERSION)
     }
     await installRuntime(packageName, isolatedFixtureRoot, config)
+    await verifyFixture(isolatedFixtureRoot, config)
+
     const result = await deploySite(isolatedFixtureRoot, config)
 
     console.log(`🌍 Deployed site is live: ${result.url}`)
@@ -226,6 +232,30 @@ async function installRuntime(
   }
 }
 
+async function verifyFixture(isolatedFixtureRoot: string, { expectedCliVersion }: E2EConfig) {
+  if (expectedCliVersion) {
+    const { stdout } = await execaCommand('npx ntl --version', { cwd: isolatedFixtureRoot })
+
+    const match = stdout.match(/netlify-cli\/(?<version>\S+)/)
+
+    if (!match) {
+      throw new Error(`Could not extract the Netlify CLI version from the build logs`)
+    }
+
+    const extractedVersion = match.groups?.version
+
+    if (!extractedVersion) {
+      throw new Error(`Could not extract the Netlify CLI version from the build logs`)
+    }
+
+    if (extractedVersion !== expectedCliVersion) {
+      throw new Error(
+        `Using unexpected CLI version "${extractedVersion}". Expected "${expectedCliVersion}"`,
+      )
+    }
+  }
+}
+
 async function deploySite(
   isolatedFixtureRoot: string,
   { packagePath, cwd = '' }: E2EConfig,
@@ -233,7 +263,7 @@ async function deploySite(
   console.log(`🚀 Building and deploying site...`)
 
   const outputFile = 'deploy-output.txt'
-  let cmd = `ntl deploy --build --site ${SITE_ID}`
+  let cmd = `npx ntl deploy --build --site ${SITE_ID}`
 
   if (packagePath) {
     cmd += ` --filter ${packagePath}`
@@ -318,6 +348,10 @@ export const fixtureFactories = {
       packagePath: 'apps/custom-dist-dir',
       buildCommand: 'nx run custom-dist-dir:build',
       publishDirectory: 'dist/apps/custom-dist-dir/dist',
+    }),
+  cliBeforeRegionalBlobsSupport: () =>
+    createE2EFixture('cli-before-regional-blobs-support', {
+      expectedCliVersion: '17.21.1',
     }),
   yarnMonorepoWithPnpmLinker: () =>
     createE2EFixture('yarn-monorepo-with-pnpm-linker', {
