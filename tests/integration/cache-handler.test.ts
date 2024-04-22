@@ -43,6 +43,7 @@ describe('page router', () => {
       '/static/revalidate-automatic',
       '/static/revalidate-manual',
       '/static/revalidate-slow',
+      '/static/revalidate-slow-data',
       '404.html',
       '500.html',
       'static/fully-static.html',

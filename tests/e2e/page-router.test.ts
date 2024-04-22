@@ -49,7 +49,11 @@ export async function check(
 }
 
 test.describe('Simple Page Router (no basePath, no i18n)', () => {
-  test('Static revalidate works correctly', async ({ page, pollUntilHeadersMatch, pageRouter }) => {
+  test('On-demand revalidate works correctly', async ({
+    page,
+    pollUntilHeadersMatch,
+    pageRouter,
+  }) => {
     // in case there is retry or some other test did hit that path before
     // we want to make sure that cdn cache is not warmed up
     const purgeCdnCache = await page.goto(
@@ -228,6 +232,70 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
 
     const data3 = (await response3Json?.json()) || {}
     expect(data3?.pageProps?.time).toBe(date3)
+  })
+
+  test('Time based revalidate works correctly', async ({
+    page,
+    pollUntilHeadersMatch,
+    pageRouter,
+  }) => {
+    // in case there is retry or some other test did hit that path before
+    // we want to make sure that cdn cache is not warmed up
+    const purgeCdnCache = await page.goto(
+      new URL('/api/purge-cdn?path=/static/revalidate-slow-data', pageRouter.url).href,
+    )
+    expect(purgeCdnCache?.status()).toBe(200)
+
+    // wait a bit until cdn cache purge propagates and make sure page gets stale (revalidate 10)
+    await page.waitForTimeout(10_000)
+
+    const beforeFetch = new Date().toISOString()
+
+    const response1 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-slow-data', pageRouter.url).href,
+      {
+        headersToMatch: {
+          // either first time hitting this route or we invalidated
+          // just CDN node in earlier step
+          // we will invoke function and see Next cache hit status \
+          // in the response because it was prerendered at build time
+          // or regenerated in previous attempt to run this test
+          'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit/m],
+        },
+        headersNotMatchedMessage:
+          'First request to tested page (html) should be a miss or stale on the Edge and stale in Next.js',
+      },
+    )
+    expect(response1?.status()).toBe(200)
+    const date1 = (await page.textContent('[data-testid="date-now"]')) ?? ''
+
+    // ensure response was produced before invocation (served from cache)
+    expect(date1.localeCompare(beforeFetch)).toBeLessThan(0)
+
+    // wait a bit to ensure background work has a chance to finish
+    // (page is fresh for 10 seconds and it should take at least 5 seconds to regenerate, so we should wait at least more than 15 seconds)
+    await page.waitForTimeout(20_000)
+
+    const response2 = await pollUntilHeadersMatch(
+      new URL('static/revalidate-slow-data', pageRouter.url).href,
+      {
+        headersToMatch: {
+          // either first time hitting this route or we invalidated
+          // just CDN node in earlier step
+          // we will invoke function and see Next cache hit status \
+          // in the response because it was prerendered at build time
+          // or regenerated in previous attempt to run this test
+          'cache-status': [/"Netlify Edge"; fwd=(miss|stale)/m, /"Next.js"; hit;/m],
+        },
+        headersNotMatchedMessage:
+          'Second request to tested page (html) should be a miss or stale on the Edge and hit or stale in Next.js',
+      },
+    )
+    expect(response2?.status()).toBe(200)
+    const date2 = (await page.textContent('[data-testid="date-now"]')) ?? ''
+
+    // ensure response was produced after initial invocation
+    expect(beforeFetch.localeCompare(date2)).toBeLessThan(0)
   })
 
   test('should serve 404 page when requesting non existing page (no matching route)', async ({

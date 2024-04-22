@@ -10,13 +10,29 @@ export type RequestContext = {
   didPagesRouterOnDemandRevalidate?: boolean
   serverTiming?: string
   routeHandlerRevalidate?: NetlifyCachedRouteValue['revalidate']
+  /**
+   * Track promise running in the background and need to be waited for
+   */
+  trackBackgroundWork: (promise: Promise<unknown>) => void
+  /**
+   * Promise that need to be executed even if response was already sent
+   */
+  backgroundWorkPromise: Promise<unknown>
 }
 
 type RequestContextAsyncLocalStorage = AsyncLocalStorage<RequestContext>
 
 export function createRequestContext(debug = false): RequestContext {
+  const backgroundWorkPromises: Promise<unknown>[] = []
+
   return {
     debug,
+    trackBackgroundWork: (promise) => {
+      backgroundWorkPromises.push(promise)
+    },
+    get backgroundWorkPromise() {
+      return Promise.allSettled(backgroundWorkPromises)
+    },
   }
 }
 

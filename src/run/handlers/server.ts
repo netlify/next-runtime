@@ -1,6 +1,7 @@
 import type { OutgoingHttpHeaders } from 'http'
 
 import { toComputeResponse, toReqRes, ComputeJsOutgoingMessage } from '@fastly/http-compute-js'
+import { Context } from '@netlify/functions'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
@@ -45,7 +46,13 @@ const disableFaultyTransferEncodingHandling = (res: ComputeJsOutgoingMessage) =>
   }
 }
 
-export default async (request: Request) => {
+// TODO: remove once https://github.com/netlify/serverless-functions-api/pull/219
+// is released and public types are updated
+interface FutureContext extends Context {
+  waitUntil?: (promise: Promise<unknown>) => void
+}
+
+export default async (request: Request, context: FutureContext) => {
   const tracer = getTracer()
 
   if (!nextHandler) {
@@ -133,11 +140,19 @@ export default async (request: Request) => {
       return new Response(body || null, response)
     }
 
+    if (context.waitUntil) {
+      context.waitUntil(requestContext.backgroundWorkPromise)
+    }
+
     const keepOpenUntilNextFullyRendered = new TransformStream({
-      flush() {
-        // it's important to keep the stream open until the next handler has finished,
-        // or otherwise the cache revalidates might not go through
-        return nextHandlerPromise
+      async flush() {
+        // it's important to keep the stream open until the next handler has finished
+        await nextHandlerPromise
+        if (!context.waitUntil) {
+          // if waitUntil is not available, we have to keep response stream open until background promises are resolved
+          // to ensure that all background work executes
+          await requestContext.backgroundWorkPromise
+        }
       },
     })
 

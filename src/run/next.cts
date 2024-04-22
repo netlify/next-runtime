@@ -12,6 +12,33 @@ console.time('import next server')
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { getRequestHandlers } = require('next/dist/server/lib/start-server.js')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const ResponseCache = require('next/dist/server/response-cache/index.js').default
+
+// Next.js standalone doesn't expose background work promises (such as generating fresh response
+// while stale one is being served) that we could use so we regrettably have to use hacks to
+// gain access to them so that we can explicitly track them to ensure they finish before function
+// execution stops
+const originalGet = ResponseCache.prototype.get
+ResponseCache.prototype.get = function get(...getArgs: unknown[]) {
+  if (!this.didAddBackgroundWorkTracking) {
+    const originalBatcherBatch = this.batcher.batch
+    this.batcher.batch = async (key: string, fn: (...args: unknown[]) => unknown) => {
+      const trackedFn = async (...workFnArgs: unknown[]) => {
+        const workPromise = fn(...workFnArgs)
+        const requestContext = getRequestContext()
+        if (requestContext && workPromise instanceof Promise) {
+          requestContext.trackBackgroundWork(workPromise)
+        }
+        return await workPromise
+      }
+
+      return originalBatcherBatch.call(this.batcher, key, trackedFn)
+    }
+    this.didAddBackgroundWorkTracking = true
+  }
+  return originalGet.apply(this, getArgs)
+}
 
 console.timeEnd('import next server')
 
