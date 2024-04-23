@@ -22,19 +22,46 @@ const ResponseCache = require('next/dist/server/response-cache/index.js').defaul
 const originalGet = ResponseCache.prototype.get
 ResponseCache.prototype.get = function get(...getArgs: unknown[]) {
   if (!this.didAddBackgroundWorkTracking) {
-    const originalBatcherBatch = this.batcher.batch
-    this.batcher.batch = async (key: string, fn: (...args: unknown[]) => unknown) => {
-      const trackedFn = async (...workFnArgs: unknown[]) => {
-        const workPromise = fn(...workFnArgs)
+    if (typeof this.batcher !== 'undefined') {
+      const originalBatcherBatch = this.batcher.batch
+      this.batcher.batch = async (key: string, fn: (...args: unknown[]) => unknown) => {
+        const trackedFn = async (...workFnArgs: unknown[]) => {
+          const workPromise = fn(...workFnArgs)
+          const requestContext = getRequestContext()
+          if (requestContext && workPromise instanceof Promise) {
+            requestContext.trackBackgroundWork(workPromise)
+          }
+          return await workPromise
+        }
+
+        return originalBatcherBatch.call(this.batcher, key, trackedFn)
+      }
+    } else if (typeof this.pendingResponses !== 'undefined') {
+      const backgroundWork = new Map<string, () => void>()
+
+      const originalPendingResponsesSet = this.pendingResponses.set
+      this.pendingResponses.set = async (key: string, value: unknown) => {
         const requestContext = getRequestContext()
-        if (requestContext && workPromise instanceof Promise) {
+        if (requestContext && !this.pendingResponses.has(key)) {
+          const workPromise = new Promise<void>((_resolve) => {
+            backgroundWork.set(key, _resolve)
+          })
+
           requestContext.trackBackgroundWork(workPromise)
         }
-        return await workPromise
+        return originalPendingResponsesSet.call(this.pendingResponses, key, value)
       }
 
-      return originalBatcherBatch.call(this.batcher, key, trackedFn)
+      const originalPendingResponsesDelete = this.pendingResponses.delete
+      this.pendingResponses.delete = async (key: string) => {
+        const _resolve = backgroundWork.get(key)
+        if (_resolve) {
+          _resolve()
+        }
+        return originalPendingResponsesDelete.call(this.pendingResponses, key)
+      }
     }
+
     this.didAddBackgroundWorkTracking = true
   }
   return originalGet.apply(this, getArgs)
