@@ -1,5 +1,5 @@
-import { expandGlob } from 'https://deno.land/std/fs/mod.ts'
-import { parse } from 'https://deno.land/x/xml/mod.ts'
+import { expandGlob } from 'https://deno.land/std@0.223.0/fs/mod.ts'
+import { parse } from 'https://deno.land/x/xml@2.1.3/mod.ts'
 
 interface TestCase {
   '@classname': string
