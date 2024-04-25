@@ -1,3 +1,5 @@
+import { rm } from 'fs/promises'
+
 import type { NetlifyPluginOptions } from '@netlify/build'
 import { trace } from '@opentelemetry/api'
 import { wrapTracer } from '@opentelemetry/api/experimental'
@@ -22,6 +24,15 @@ import {
 } from './build/verification.js'
 
 const tracer = wrapTracer(trace.getTracer('Next.js runtime'))
+
+export const onPreDev = async (options: NetlifyPluginOptions) => {
+  await tracer.withActiveSpan('onPreDev', async () => {
+    const context = new PluginContext(options)
+
+    // Blob files left over from `ntl build` interfere with `ntl dev` when working with regional blobs
+    await rm(context.blobDir, { recursive: true, force: true })
+  })
+}
 
 export const onPreBuild = async (options: NetlifyPluginOptions) => {
   await tracer.withActiveSpan('onPreBuild', async () => {
