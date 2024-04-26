@@ -85,22 +85,34 @@ const writePackageMetadata = async (ctx: PluginContext) => {
   )
 }
 
+const applyTemplateVariables = (template: string, variables: Record<string, string>) => {
+  return Object.entries(variables).reduce((acc, [key, value]) => {
+    return acc.replaceAll(key, value)
+  }, template)
+}
+
 /** Get's the content of the handler file that will be written to the lambda */
 const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
   const templatesDir = join(ctx.pluginDir, 'dist/build/templates')
 
+  const templateVariables: Record<string, string> = {
+    '{{useRegionalBlobs}}': ctx.useRegionalBlobs.toString(),
+  }
   // In this case it is a monorepo and we need to use a own template for it
   // as we have to change the process working directory
   if (ctx.relativeAppDir.length !== 0) {
     const template = await readFile(join(templatesDir, 'handler-monorepo.tmpl.js'), 'utf-8')
 
-    return template
-      .replaceAll('{{cwd}}', posixJoin(ctx.lambdaWorkingDirectory))
-      .replace('{{nextServerHandler}}', posixJoin(ctx.nextServerHandler))
-      .replace('{{useRegionalBlobs}}', ctx.useRegionalBlobs.toString())
+    templateVariables['{{cwd}}'] = posixJoin(ctx.lambdaWorkingDirectory)
+    templateVariables['{{nextServerHandler}}'] = posixJoin(ctx.nextServerHandler)
+
+    return applyTemplateVariables(template, templateVariables)
   }
 
-  return await readFile(join(templatesDir, 'handler.tmpl.js'), 'utf-8')
+  return applyTemplateVariables(
+    await readFile(join(templatesDir, 'handler.tmpl.js'), 'utf-8'),
+    templateVariables,
+  )
 }
 
 const writeHandlerFile = async (ctx: PluginContext) => {
