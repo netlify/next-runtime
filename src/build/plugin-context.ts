@@ -13,7 +13,6 @@ import type {
 import type { PrerenderManifest, RoutesManifest } from 'next/dist/build/index.js'
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
-import { satisfies } from 'semver'
 
 const MODULE_DIR = fileURLToPath(new URL('.', import.meta.url))
 const PLUGIN_DIR = join(MODULE_DIR, '../..')
@@ -152,9 +151,8 @@ export class PluginContext {
   }
 
   get useRegionalBlobs(): boolean {
-    // Region-aware blobs are only available as of CLI v17.22.1 (i.e. Build v29.39.1)
-    const REQUIRED_BUILD_VERSION = '>=29.39.1'
-    return satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, { includePrerelease: true })
+    // Disabling regional blobs until feature is ready for production (see FRA-436)
+    return false
   }
 
   /**

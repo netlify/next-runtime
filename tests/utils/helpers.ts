@@ -76,7 +76,6 @@ export const startMockBlobStore = async (ctx: FixtureTestContext) => {
     deployID: ctx.deployID,
     siteID: ctx.siteID,
     token: BLOB_TOKEN,
-    experimentalRegion: 'context',
   })
 }
 
@@ -91,7 +90,6 @@ export const getBlobEntries = async (ctx: FixtureTestContext) => {
         deployID: ctx.deployID,
         siteID: ctx.siteID,
         token: BLOB_TOKEN,
-        experimentalRegion: 'context',
       })
 
   const { blobs } = await ctx.blobStore.list()
