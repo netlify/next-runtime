@@ -206,4 +206,17 @@ test.describe('[NPM] Package manager', () => {
     const date3 = await page.textContent('[data-testid="date-now"]')
     expect(date3).not.toBe(date2)
   })
+
+  test('environment variables from .env files should be available for functions', async ({
+    turborepoNPM,
+  }) => {
+    const response = await fetch(`${turborepoNPM.url}/api/env`)
+    const data = await response.json()
+    expect(data).toEqual({
+      '.env': 'defined in .env',
+      '.env.local': 'defined in .env.local',
+      '.env.production': 'defined in .env.production',
+      '.env.production.local': 'defined in .env.production.local',
+    })
+  })
 })

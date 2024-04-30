@@ -379,6 +379,19 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     expect(headers['netlify-cdn-cache-control']).toBe('max-age=31536000')
     expect(headers['cache-control']).toBe('public,max-age=0,must-revalidate')
   })
+
+  test('environment variables from .env files should be available for functions', async ({
+    pageRouter,
+  }) => {
+    const response = await fetch(`${pageRouter.url}/api/env`)
+    const data = await response.json()
+    expect(data).toEqual({
+      '.env': 'defined in .env',
+      '.env.local': 'defined in .env.local',
+      '.env.production': 'defined in .env.production',
+      '.env.production.local': 'defined in .env.production.local',
+    })
+  })
 })
 
 test.describe('Page Router with basePath and i18n', () => {

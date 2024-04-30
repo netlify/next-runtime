@@ -29,3 +29,16 @@ test('Renders the Home page correctly with distDir', async ({ page, nxIntegrated
 
   await expectImageWasLoaded(page.locator('img'))
 })
+
+test('environment variables from .env files should be available for functions', async ({
+  nxIntegratedDistDir,
+}) => {
+  const response = await fetch(`${nxIntegratedDistDir.url}/api/env`)
+  const data = await response.json()
+  expect(data).toEqual({
+    '.env': 'defined in .env',
+    '.env.local': 'defined in .env.local',
+    '.env.production': 'defined in .env.production',
+    '.env.production.local': 'defined in .env.production.local',
+  })
+})

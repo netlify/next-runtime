@@ -20,30 +20,38 @@ const tracer = wrapTracer(trace.getTracer('Next runtime'))
 const copyHandlerDependencies = async (ctx: PluginContext) => {
   await tracer.withActiveSpan('copyHandlerDependencies', async (span) => {
     const promises: Promise<void>[] = []
-    const { included_files: includedFiles = [] } = ctx.netlifyConfig.functions?.['*'] || {}
     // if the user specified some files to include in the lambda
     // we need to copy them to the functions-internal folder
+    const { included_files: includedFiles = [] } = ctx.netlifyConfig.functions?.['*'] || {}
+
+    // we also force including the .env files to ensure those are available in the lambda
+    includedFiles.push(
+      posixJoin(ctx.relativeAppDir, '.env'),
+      posixJoin(ctx.relativeAppDir, '.env.production'),
+      posixJoin(ctx.relativeAppDir, '.env.local'),
+      posixJoin(ctx.relativeAppDir, '.env.production.local'),
+    )
+
     span.setAttribute('next.includedFiles', includedFiles.join(','))
-    if (includedFiles.length !== 0) {
-      const resolvedFiles = await Promise.all(
-        includedFiles.map((globPattern) => glob(globPattern, { cwd: process.cwd() })),
+
+    const resolvedFiles = await Promise.all(
+      includedFiles.map((globPattern) => glob(globPattern, { cwd: process.cwd() })),
+    )
+    for (const filePath of resolvedFiles.flat()) {
+      promises.push(
+        cp(
+          join(process.cwd(), filePath),
+          // the serverHandlerDir is aware of the dist dir.
+          // The distDir must not be the package path therefore we need to rely on the
+          // serverHandlerDir instead of the serverHandlerRootDir
+          // therefore we need to remove the package path from the filePath
+          join(ctx.serverHandlerDir, relative(ctx.relativeAppDir, filePath)),
+          {
+            recursive: true,
+            force: true,
+          },
+        ),
       )
-      for (const filePath of resolvedFiles.flat()) {
-        promises.push(
-          cp(
-            join(process.cwd(), filePath),
-            // the serverHandlerDir is aware of the dist dir.
-            // The distDir must not be the package path therefore we need to rely on the
-            // serverHandlerDir instead of the serverHandlerRootDir
-            // therefore we need to remove the package path from the filePath
-            join(ctx.serverHandlerDir, relative(ctx.relativeAppDir, filePath)),
-            {
-              recursive: true,
-              force: true,
-            },
-          ),
-        )
-      }
     }
 
     const fileList = await glob('dist/**/*', { cwd: ctx.pluginDir })
