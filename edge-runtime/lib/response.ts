@@ -118,11 +118,12 @@ export const buildResponse = async ({
 
   let rewrite = res.headers.get('x-middleware-rewrite')
   let redirect = res.headers.get('location')
+  let nextRedirect = res.headers.get('x-nextjs-redirect')
 
   // Data requests (i.e. requests for /_next/data ) need special handling
   const isDataReq = request.headers.has('x-nextjs-data')
   // Data requests need to be normalized to the route path
-  if (isDataReq && !redirect && !rewrite) {
+  if (isDataReq && !redirect && !rewrite && !nextRedirect) {
     const requestUrl = new URL(request.url)
     const normalizedDataUrl = normalizeDataUrl(requestUrl.pathname)
     // Don't rewrite unless the URL has changed
@@ -209,7 +210,7 @@ export const buildResponse = async ({
     res.headers.set('x-nextjs-redirect', relativizeURL(redirect, request.url))
   }
 
-  const nextRedirect = res.headers.get('x-nextjs-redirect')
+  nextRedirect = res.headers.get('x-nextjs-redirect')
 
   if (nextRedirect && isDataReq) {
     res.headers.set('x-nextjs-redirect', normalizeDataUrl(nextRedirect))
