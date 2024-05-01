@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.2.0](https://github.com/netlify/next-runtime-minimal/compare/v5.1.2...v5.2.0) (2024-04-30)
+
+
+### Features
+
+* support dotenv files ([#429](https://github.com/netlify/next-runtime-minimal/issues/429)) ([39f5ae1](https://github.com/netlify/next-runtime-minimal/commit/39f5ae1c408420b64835ab74344a185dac07b515))
+* Update to latest blob client (7.3.0) ([#398](https://github.com/netlify/next-runtime-minimal/issues/398)) ([8b3f65b](https://github.com/netlify/next-runtime-minimal/commit/8b3f65b438816c746b1ac07108d2c929b529b98e))
+
+
+### Bug Fixes
+
+* apply useRegionalBlobs replacement for non-monorepo template ([#431](https://github.com/netlify/next-runtime-minimal/issues/431)) ([d73a912](https://github.com/netlify/next-runtime-minimal/commit/d73a91269645891c271c059132717147b6a53b93))
+* disable regional blobs until feature is ready for release ([#433](https://github.com/netlify/next-runtime-minimal/issues/433)) ([9620588](https://github.com/netlify/next-runtime-minimal/commit/9620588ff1f2276fea9d0ffeb9d22a5c50b9f45e))
+* remove blob folder in pre-dev ([#430](https://github.com/netlify/next-runtime-minimal/issues/430)) ([3749c3c](https://github.com/netlify/next-runtime-minimal/commit/3749c3c8605e32b15cdf66c89f930e7104b76b3b))
+* track background work ([#407](https://github.com/netlify/next-runtime-minimal/issues/407)) ([296e8fe](https://github.com/netlify/next-runtime-minimal/commit/296e8fe9c7b4e0b0e3998884c418bea3073928f6))
+* track background work pre batchers ([#423](https://github.com/netlify/next-runtime-minimal/issues/423)) ([292331d](https://github.com/netlify/next-runtime-minimal/commit/292331d5519db3c0a312959a70cd4ef61b0ebcd2))
+
 ## [5.1.2](https://github.com/netlify/next-runtime-minimal/compare/v5.1.1...v5.1.2) (2024-04-18)
 
 
