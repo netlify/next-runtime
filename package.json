@@ -82,7 +82,7 @@
     "next": "^14.0.4",
     "os": "^0.1.2",
     "outdent": "^0.8.0",
-    "p-limit": "^4.0.0",
+    "p-limit": "^5.0.0",
     "path-to-regexp": "^6.2.1",
     "picomatch": "^4.0.0",
     "prettier": "^3.2.5",
