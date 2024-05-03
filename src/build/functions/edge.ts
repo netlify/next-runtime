@@ -1,26 +1,14 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
+import type { Manifest, ManifestFunction } from '@netlify/edge-functions'
 import { glob } from 'fast-glob'
 import type { EdgeFunctionDefinition as NextDefinition } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 import { pathToRegexp } from 'path-to-regexp'
 
 import { EDGE_HANDLER_NAME, PluginContext } from '../plugin-context.js'
 
-interface NetlifyDefinition {
-  function: string
-  name: string
-  pattern: string
-  cache?: 'manual'
-  generator: string
-}
-
-interface NetlifyManifest {
-  version: number
-  functions: NetlifyDefinition[]
-}
-
-const writeEdgeManifest = async (ctx: PluginContext, manifest: NetlifyManifest) => {
+const writeEdgeManifest = async (ctx: PluginContext, manifest: Manifest) => {
   await mkdir(ctx.edgeFunctionsDir, { recursive: true })
   await writeFile(join(ctx.edgeFunctionsDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
 }
@@ -157,7 +145,7 @@ const getHandlerName = ({ name }: Pick<NextDefinition, 'name'>): string =>
 const buildHandlerDefinition = (
   ctx: PluginContext,
   { name, matchers, page }: NextDefinition,
-): Array<NetlifyDefinition> => {
+): Array<ManifestFunction> => {
   const fun = getHandlerName({ name })
   const funName = name.endsWith('middleware')
     ? 'Next.js Middleware Handler'
@@ -185,7 +173,7 @@ export const createEdgeHandlers = async (ctx: PluginContext) => {
   await Promise.all(nextDefinitions.map((def) => createEdgeHandler(ctx, def)))
 
   const netlifyDefinitions = nextDefinitions.flatMap((def) => buildHandlerDefinition(ctx, def))
-  const netlifyManifest = {
+  const netlifyManifest: Manifest = {
     version: 1,
     functions: netlifyDefinitions,
   }
