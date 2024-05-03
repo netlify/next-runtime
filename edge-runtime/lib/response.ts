@@ -3,6 +3,8 @@ import { HTMLRewriter } from '../vendor/deno.land/x/html_rewriter@v0.1.0-pre.17/
 
 import { updateModifiedHeaders } from './headers.ts'
 import type { StructuredLogger } from './logging.ts'
+import { addMiddlewareHeaders, isMiddlewareRequest, isMiddlewareResponse } from './middleware.ts'
+import { RequestData } from './next-request.ts'
 import {
   addBasePath,
   normalizeDataUrl,
@@ -10,8 +12,6 @@ import {
   normalizeTrailingSlash,
   relativizeURL,
 } from './util.ts'
-import { addMiddlewareHeaders, isMiddlewareRequest, isMiddlewareResponse } from './middleware.ts'
-import { RequestData } from './next-request.ts'
 
 export interface FetchEventResult {
   response: Response
@@ -182,8 +182,11 @@ export const buildResponse = async ({
       // The rewrite target is a data request, but a middleware rewrite target is always for the page route,
       // so we need to tell the server this is a data request. Setting the `x-nextjs-data` header is not enough. 🤷
       rewriteUrl.searchParams.set('__nextDataReq', '1')
-      rewriteUrl.pathname = normalizeTrailingSlash(rewriteUrl.pathname, nextConfig?.trailingSlash)
     }
+
+    // respect trailing slash rules to prevent 308s
+    rewriteUrl.pathname = normalizeTrailingSlash(rewriteUrl.pathname, nextConfig?.trailingSlash)
+
     const target = normalizeLocalizedTarget({ target: rewriteUrl.toString(), request, nextConfig })
     if (target === request.url) {
       logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
