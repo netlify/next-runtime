@@ -47,7 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         version: ${{ fromJson(needs.setup.outputs.matrix) }}
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5]
 
     steps:
       - uses: actions/checkout@v4
@@ -95,7 +95,7 @@ jobs:
           echo "version=$RESOLVED_VERSION" >> $GITHUB_OUTPUT
           echo "Resolved Next.js version for 'next@${{ matrix.version }}' is '$RESOLVED_VERSION'"
       - name: Run Playwright tests
-        run: npm run test:ci:e2e -- --shard=${{ matrix.shard }}/4
+        run: npm run test:ci:e2e -- --shard=${{ matrix.shard }}/5
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NEXT_VERSION: ${{ matrix.version }}
@@ -239,9 +239,9 @@ jobs:
 
     - name: Merge reports
       run: |
-        npx playwright merge-reports --reporter html ./all-blob-reports 
+        npx playwright merge-reports --reporter html ./all-blob-reports
         npx playwright merge-reports --reporter json ./all-blob-reports > merged_reports.json
-        
+
     - name: Notify Slack
       if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
       run: npx playwright-slack-report -j merged_reports.json -c tests/playwright-slack-conf.json
