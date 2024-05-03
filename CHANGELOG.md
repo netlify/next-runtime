@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.2.1](https://github.com/netlify/next-runtime-minimal/compare/v5.2.0...v5.2.1) (2024-05-02)
+
+
+### Bug Fixes
+
+* don't normalize url if `x-nextjs-redirect` header is present ([#424](https://github.com/netlify/next-runtime-minimal/issues/424)) ([f23da82](https://github.com/netlify/next-runtime-minimal/commit/f23da8237144b0b575b07c2839883b2012fba502))
+
 ## [5.2.0](https://github.com/netlify/next-runtime-minimal/compare/v5.1.2...v5.2.0) (2024-04-30)
 
 
