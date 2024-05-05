@@ -1,33 +1,32 @@
 {
   "ignored": [
-    "test/e2e/test-template/{{ toFileName name }}/{{ toFileName name }}.test.ts",
-    "test/e2e/app-dir/app-validation/validation.test.ts",
-    "test/e2e/app-dir/app/standalone-gsp.test.ts",
-    "test/e2e/app-dir/app/standalone.test.ts",
-    "test/e2e/app-dir/ppr-errors/ppr-errors.test.ts",
-    "test/e2e/app-dir/interception-middleware-rewrite/interception-middleware-rewrite.test.ts",
-    "test/e2e/app-dir/app-compilation/index.test.ts",
-    "test/e2e/favicon-short-circuit/favicon-short-circuit.test.ts",
-    "test/e2e/app-dir/with-exported-function-config/with-exported-function-config.test.ts",
-    "test/e2e/app-dir/conflicting-page-segments/conflicting-page-segments.test.ts",
     "test/e2e/404-page-router/index.test.ts",
+    "test/e2e/app-dir/app-compilation/index.test.ts",
     "test/e2e/app-dir/app-fetch-deduping/app-fetch-deduping.test.ts",
+    "test/e2e/app-dir/app-validation/validation.test.ts",
     "test/e2e/app-dir/app/experimental-compile.test.ts",
     "test/e2e/app-dir/app/standalone-gsp.test.ts",
     "test/e2e/app-dir/app/standalone.test.ts",
     "test/e2e/app-dir/build-size/index.test.ts",
+    "test/e2e/app-dir/conflicting-page-segments/conflicting-page-segments.test.ts",
     "test/e2e/app-dir/create-root-layout/create-root-layout.test.ts",
+    "test/e2e/app-dir/interception-middleware-rewrite/interception-middleware-rewrite.test.ts",
+    "test/e2e/app-dir/ppr-errors/ppr-errors.test.ts",
     "test/e2e/app-dir/rewrites-redirects/rewrites-redirects.test.ts",
+    "test/e2e/app-dir/server-components-externals/index.test.ts",
+    "test/e2e/app-dir/with-exported-function-config/with-exported-function-config.test.ts",
     "test/e2e/edge-compiler-can-import-blob-assets/index.test.ts",
+    "test/e2e/favicon-short-circuit/favicon-short-circuit.test.ts",
     "test/e2e/i18n-data-fetching-redirect/index.test.ts",
     "test/e2e/manual-client-base-path/index.test.ts",
     "test/e2e/no-eslint-warn-with-no-eslint-config/index.test.ts",
+    "test/e2e/revalidate-reason/revalidate-reason.test.ts",
     "test/e2e/switchable-runtime/index.test.ts",
+    "test/e2e/test-template/{{ toFileName name }}/{{ toFileName name }}.test.ts",
     "test/e2e/trailingslash-with-rewrite/index.test.ts",
     "test/e2e/transpile-packages/index.test.ts",
     "test/e2e/typescript-version-no-warning/typescript-version-no-warning.test.ts",
-    "test/e2e/typescript-version-warning/typescript-version-warning.test.ts",
-    "/test/e2e/revalidate-reason/revalidate-reason.test.ts"
+    "test/e2e/typescript-version-warning/typescript-version-warning.test.ts"
   ],
   "skipped": [
     {
@@ -57,6 +56,14 @@
     {
       "file": "test/e2e/third-parties/index.test.ts",
       "reason": "npm install doesn't work in this repo"
+    },
+    {
+      "file": "test/e2e/next-phase/index.test.ts",
+      "reason": "Uses CLI output"
+    },
+    {
+      "file": "test/e2e/tsconfig-module-preserve/index.test.ts",
+      "reason": "Uses CLI output"
     },
     {
       "file": "test/e2e/swc-warnings/index.test.ts",
@@ -178,11 +185,13 @@
     },
     {
       "file": "test/e2e/app-dir/metadata/metadata.test.ts",
-      "reason": "Hard-coded Vercel URL",
+      "reason": "Hard-coded Vercel URL or env var",
       "tests": [
         "app dir - metadata opengraph should pick up opengraph-image and twitter-image as static metadata files",
         "app dir - metadata static routes should have /favicon.ico as route",
-        "app dir - metadata static routes should have icons as route"
+        "app dir - metadata static routes should have icons as route",
+        "app dir - metadata basic should support other basic tags",
+        "app dir - metadata basic should support other basic tags (edge)"
       ]
     },
     {
@@ -276,6 +285,35 @@
         "app-dir action handling should log a warning when a server action is not found but an id is provided",
         "app-dir action handling should work with interception routes"
       ]
+    },
+    {
+      "file": "test/e2e/app-dir/app-client-cache/client-cache.experimental.test.ts",
+      "reason": "Uses CLI output",
+      "tests": [
+        "app dir client cache semantics (experimental staleTimes) dynamic: 0 telemetry should send staleTimes feature usage event",
+        "app dir client cache semantics (experimental staleTimes) static: 180 telemetry should send staleTimes feature usage event"
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/app-static/app-static.test.ts",
+      "tests": [
+        {
+          "name": "app-dir static/dynamic handling new tags have been specified on subsequent fetch should not fetch from memory cache",
+          "reason": "Behavior matches next start and Vercel"
+        },
+        {
+          "name": "app-dir static/dynamic handling new tags have been specified on subsequent fetch should not fetch from memory cache after revalidateTag is used",
+          "reason": "Typo in test"
+        },
+        {
+          "name": "app-dir static/dynamic handling should properly revalidate a route handler that triggers dynamic usage with force-static",
+          "reason": "Behavior matches next start and Vercel"
+        },
+        {
+          "name": "app-dir static/dynamic handling should build dynamic param with edge runtime correctly",
+          "reason": "Error in test"
+        }
+      ]
     }
   ],
   "failures": [
@@ -291,6 +329,11 @@
     },
     {
       "name": "app dir - basic bootstrap scripts should successfully bootstrap even when using CSP",
+      "reason": "Nonce not automatically set in script tags when using CSP",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/381"
+    },
+    {
+      "name": "app dir - basic next/script should pass `nonce`",
       "reason": "Nonce not automatically set in script tags when using CSP",
       "link": "https://github.com/netlify/next-runtime-minimal/issues/381"
     },
@@ -383,6 +426,79 @@
       "name": "app-custom-routes works with generateStaticParams correctly revalidates correctly on /revalidate-1/three/data.json",
       "reason": "First request for generateStaticParams fallback route handler returns base64-encoded content",
       "link": "https://github.com/netlify/next-runtime-minimal/issues/388"
+    },
+    {
+      "name": "app-dir action handling fetch actions should store revalidation data in the prefetch cache",
+      "reason": "Fetch action prefetch cache test is flakey",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/444"
+    },
+    {
+      "name": "parallel-routes-and-interception parallel routes should support parallel route tab bars",
+      "reason": "Some parallel routes returning 404",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/445"
+    },
+    {
+      "name": "parallel-routes-and-interception parallel routes should throw a 404 when no matching parallel route is found",
+      "reason": "Some parallel routes returning 404",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/445"
+    },
+    {
+      "name": "parallel-routes-and-interception parallel routes should only scroll to the parallel route that was navigated to",
+      "reason": "Some parallel routes returning 404",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/445"
+    },
+    {
+      "name": "Middleware Responses should respond appending headers headers",
+      "reason": "Appending set-cookie header in middleware leads to duplicate header",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/447"
+    },
+    {
+      "name": "Middleware Responses /fr should respond appending headers headers",
+      "reason": "Appending set-cookie header in middleware leads to duplicate header",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/447"
+    },
+    {
+      "name": "app-dir revalidate-dynamic should revalidate the data with /api/revalidate-path",
+      "reason": "Not a fail: race condition when testing revalidation"
+    },
+    {
+      "name": "app-dir revalidate-dynamic should revalidate the data with /api/revalidate-tag",
+      "reason": "Not a fail: race condition when testing revalidation"
+    },
+    {
+      "name": "Middleware base tests router.query must exist when Link clicked page routing",
+      "reason": "Pages router data requests returning 404 when middleware is used",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/450"
+    },
+    {
+      "name": "Middleware Rewrite should handle catch-all rewrite correctly",
+      "reason": "TODO: correct behaviour is unclear. See link for implementation",
+      "link": "https://github.com/vercel/next.js/pull/63254"
+    },
+    {
+      "name": "Middleware Rewrite should allow to rewrite keeping the locale in pathname",
+      "reason": "Middleware rewrites should keep the locale in the pathname",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/451"
+    },
+    {
+      "name": "parallel-routes-revalidation should submit the action and revalidate the page data",
+      "reason": "Parallel route revalidation actions are intermittently failing",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/452"
+    },
+    {
+      "name": "Middleware custom matchers i18n should not match",
+      "reason": "Middleware matching is too broad when using i18n",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/453"
+    },
+    {
+      "name": "using a single matcher with i18n and basePath adds the header for a matched path",
+      "reason": "Middleware does not match when using basePath and default locale",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/454"
+    },
+    {
+      "name": "using a single matcher with i18n and basePath and trailingSlash adds the header for a matched path",
+      "reason": "Middleware does not match when using basePath and default locale",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/454"
     }
   ]
 }

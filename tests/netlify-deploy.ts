@@ -26,6 +26,13 @@ export class NextDeployInstance extends NextInstance {
   }
 
   public async setup(parentSpan: Span) {
+    if (process.env.SITE_URL && process.env.BUILD_ID) {
+      require('console').log('Using existing deployment: ' + process.env.SITE_URL)
+      this._url = process.env.SITE_URL
+      this._parsedUrl = new URL(this._url)
+      this._buildId = process.env.BUILD_ID
+      return
+    }
     // create the test site
     await super.createTestDir({ parentSpan, skipInstall: true })
 

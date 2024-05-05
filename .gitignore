@@ -18,3 +18,4 @@ tests/**/package-lock.json
 tests/**/pnpm-lock.yaml
 tests/**/yarn.lock
 tests/**/out/
+report/test-results.json

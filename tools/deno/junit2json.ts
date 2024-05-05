@@ -86,7 +86,7 @@ function junitToJson(xmlData: {
       name,
       file: testCases[0]?.['@file'],
       passed,
-      failed,
+      failed: Number(failed),
       skipped: 0,
       testCases: [],
     }
