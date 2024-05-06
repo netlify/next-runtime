@@ -15,7 +15,7 @@ export default defineConfig({
   workers: process.env.CI ? 3 : undefined,
   globalSetup: './tests/test-setup-e2e.ts',
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI ? 'blob' : 'list',
+  reporter: process.env.CI ? [['blob'], ['list']] : [['list']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
