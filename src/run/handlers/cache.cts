@@ -17,6 +17,7 @@ import type {
   NetlifyIncrementalCacheValue,
 } from '../../shared/cache-types.cjs'
 import { getRegionalBlobStore } from '../regional-blob-store.cjs'
+import { logger } from '../systemlog.cjs'
 
 import { getRequestContext } from './request-context.cjs'
 import { getTracer } from './tracer.cjs'
@@ -108,7 +109,7 @@ export class NetlifyCacheHandler implements CacheHandler {
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
     return this.tracer.withActiveSpan('get cache key', async (span) => {
       const [key, ctx = {}] = args
-      console.debug(`[NetlifyCacheHandler.get]: ${key}`)
+      logger.debug(`[NetlifyCacheHandler.get]: ${key}`)
 
       const blobKey = await this.encodeBlobKey(key)
       span.setAttributes({ key, blobKey })
@@ -176,7 +177,7 @@ export class NetlifyCacheHandler implements CacheHandler {
       const lastModified = Date.now()
       span.setAttributes({ key, lastModified, blobKey })
 
-      console.debug(`[NetlifyCacheHandler.set]: ${key}`)
+      logger.debug(`[NetlifyCacheHandler.set]: ${key}`)
 
       const value: NetlifyIncrementalCacheValue | null =
         data?.kind === 'ROUTE'
@@ -197,10 +198,12 @@ export class NetlifyCacheHandler implements CacheHandler {
         const requestContext = getRequestContext()
         if (requestContext?.didPagesRouterOnDemandRevalidate) {
           const tag = `_N_T_${key === '/index' ? '/' : key}`
-          console.debug('Purging CDN cache for:', [tag])
+          logger.debug(`Purging CDN cache for: [${tag}]`)
           purgeCache({ tags: [tag] }).catch((error) => {
             // TODO: add reporting here
-            console.error(`[NetlifyCacheHandler]: Purging the cache for tag ${tag} failed`, error)
+            logger
+              .withError(error)
+              .error(`[NetlifyCacheHandler]: Purging the cache for tag ${tag} failed`)
           })
         }
       }
@@ -209,7 +212,7 @@ export class NetlifyCacheHandler implements CacheHandler {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async revalidateTag(tagOrTags: string | string[], ...args: any) {
-    console.debug('NetlifyCacheHandler.revalidateTag', tagOrTags, args)
+    logger.withFields({ tagOrTags, args }).debug('NetlifyCacheHandler.revalidateTag')
 
     const tags = Array.isArray(tagOrTags) ? tagOrTags : [tagOrTags]
 
@@ -222,17 +225,16 @@ export class NetlifyCacheHandler implements CacheHandler {
         try {
           await this.blobStore.setJSON(await this.encodeBlobKey(tag), data)
         } catch (error) {
-          console.warn(`Failed to update tag manifest for ${tag}`, error)
+          logger.withError(error).log(`Failed to update tag manifest for ${tag}`)
         }
       }),
     )
 
     purgeCache({ tags }).catch((error) => {
       // TODO: add reporting here
-      console.error(
-        `[NetlifyCacheHandler]: Purging the cache for tags ${tags.join(', ')} failed`,
-        error,
-      )
+      logger
+        .withError(error)
+        .error(`[NetlifyCacheHandler]: Purging the cache for tags ${tags.join(', ')} failed`)
     })
   }
 

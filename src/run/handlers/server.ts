@@ -1,6 +1,6 @@
 import type { OutgoingHttpHeaders } from 'http'
 
-import { toComputeResponse, toReqRes, ComputeJsOutgoingMessage } from '@fastly/http-compute-js'
+import { ComputeJsOutgoingMessage, toComputeResponse, toReqRes } from '@fastly/http-compute-js'
 import { Context } from '@netlify/functions'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
@@ -8,13 +8,13 @@ import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 import { TagsManifest, getTagsManifest } from '../config.js'
 import {
   adjustDateHeader,
-  setCacheStatusHeader,
   setCacheControlHeaders,
+  setCacheStatusHeader,
   setCacheTagsHeaders,
   setVaryHeaders,
 } from '../headers.js'
 import { nextResponseProxy } from '../revalidate.js'
-import { logger } from '../systemlog.js'
+import { logger } from '../systemlog.cjs'
 
 import { createRequestContext, getRequestContext } from './request-context.cjs'
 import { getTracer } from './tracer.cjs'
