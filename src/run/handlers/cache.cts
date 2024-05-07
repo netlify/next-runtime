@@ -208,22 +208,31 @@ export class NetlifyCacheHandler implements CacheHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async revalidateTag(tag: string, ...args: any) {
-    console.debug('NetlifyCacheHandler.revalidateTag', tag, args)
+  async revalidateTag(tagOrTags: string | string[], ...args: any) {
+    console.debug('NetlifyCacheHandler.revalidateTag', tagOrTags, args)
+
+    const tags = Array.isArray(tagOrTags) ? tagOrTags : [tagOrTags]
 
     const data: TagManifest = {
       revalidatedAt: Date.now(),
     }
 
-    try {
-      await this.blobStore.setJSON(await this.encodeBlobKey(tag), data)
-    } catch (error) {
-      console.warn(`Failed to update tag manifest for ${tag}`, error)
-    }
+    await Promise.all(
+      tags.map(async (tag) => {
+        try {
+          await this.blobStore.setJSON(await this.encodeBlobKey(tag), data)
+        } catch (error) {
+          console.warn(`Failed to update tag manifest for ${tag}`, error)
+        }
+      }),
+    )
 
-    purgeCache({ tags: [tag] }).catch((error) => {
+    purgeCache({ tags }).catch((error) => {
       // TODO: add reporting here
-      console.error(`[NetlifyCacheHandler]: Purging the cache for tag ${tag} failed`, error)
+      console.error(
+        `[NetlifyCacheHandler]: Purging the cache for tags ${tags.join(', ')} failed`,
+        error,
+      )
     })
   }
 
