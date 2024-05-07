@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.2.2](https://github.com/netlify/next-runtime-minimal/compare/v5.2.1...v5.2.2) (2024-05-07)
+
+
+### Bug Fixes
+
+* normalize trailing slash when handling middleware rewrites ([#448](https://github.com/netlify/next-runtime-minimal/issues/448)) ([2012922](https://github.com/netlify/next-runtime-minimal/commit/2012922c91878af7d5008136e2dc4e6b59a6bc96))
+* separate response cache if debug logging header is used ([#384](https://github.com/netlify/next-runtime-minimal/issues/384)) ([68f8e79](https://github.com/netlify/next-runtime-minimal/commit/68f8e7917264e6fba13dbe2f0d9247a26a9b1bec))
+* support revalidating multiple tags at once ([#464](https://github.com/netlify/next-runtime-minimal/issues/464)) ([62ea699](https://github.com/netlify/next-runtime-minimal/commit/62ea69927233412ec369e0923a60109bf0a7b100))
+
 ## [5.2.1](https://github.com/netlify/next-runtime-minimal/compare/v5.2.0...v5.2.1) (2024-05-02)
 
 
