@@ -37,6 +37,7 @@ interface TestSuite {
   passed: number
   failed: number
   skipped: number
+  total: number
   testCases: TestCase[]
 }
 
@@ -88,6 +89,7 @@ function junitToJson(xmlData: {
       passed,
       failed: Number(failed),
       skipped: 0,
+      total: tests,
       testCases: [],
     }
     const skippedTests = testConfig.skipped.find(
@@ -163,6 +165,8 @@ async function processJUnitFiles(
 // Get the directory path from the command-line arguments
 const directoryPath = Deno.args[0]
 
+const nextVersion = Deno.args[1]
+
 // Check if the directory path is provided
 if (!directoryPath) {
   console.error('Please provide a directory path.')
@@ -176,6 +180,8 @@ const testResults = {
   ...testCount,
   total: testCount.passed + testCount.failed + testCount.skipped,
   passRate: ((testCount.passed / (testCount.passed + testCount.failed)) * 100).toFixed(2) + '%',
+  testDate: new Date().toLocaleDateString(),
+  nextVersion,
   results,
 }
 

@@ -240,7 +240,7 @@ jobs:
           echo "slackEvent<<NETLIFY_EOF" >> $GITHUB_OUTPUT
           deno run -A tools/deno/junit2slack.ts --dir artifacts --version ${{matrix.version}} --runUrl ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}} >> $GITHUB_OUTPUT
           echo "NETLIFY_EOF" >> $GITHUB_OUTPUT
-          deno run -A tools/deno/junit2json.ts artifacts > report/test-results.json
+          deno run -A tools/deno/junit2json.ts artifacts ${{ needs.e2e.outputs.tag }} > report/test-results.json
           deno run -A tools/deno/generate-md.ts >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Test JSON
