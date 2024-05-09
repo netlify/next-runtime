@@ -1,0 +1,25 @@
+name: 'Deploy e2e test page'
+on:
+  workflow_dispatch:
+
+env:
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+  NETLIFY_SITE_ID: ${{ secrets.E2E_PAGE_SITE_ID }}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get run id
+        id: get-run-id
+        run: |
+          E2E_RUN_ID='gh run list -w test-e2e.yml -e schedule --json databaseId --jq ".[0].databaseId"'
+          echo "runId=$E2E_RUN_ID" >> $GITHUB_OUTPUT
+      - name: Download latest e2e results
+        run: |
+          echo "Downloading latest test results from run https://github.com/netlify/next-runtime-minimal/actions/runs/${{ steps.get-run-id.outputs.runId }}"
+          gh run download ${{ steps.get-run-id.outputs.runId }} -n "latest-test-results.json" -D e2e-report/data/
+      - name: Deploy e2e page
+        if: success()
+        run: |
+          ntl deploy --build --cwd e2e-report
