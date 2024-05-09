@@ -8,13 +8,22 @@
     "build": "next build"
   },
   "dependencies": {
+    "@heroicons/react": "2.1.1",
+    "clsx": "2.1.0",
+    "date-fns": "3.1.0",
+    "dinero.js": "2.0.0-alpha.8",
+    "geist": "1.2.0",
     "next": "canary",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react": "canary",
+    "react-dom": "canary"
   },
-  "test": {
-    "dependencies": {
-      "next": "canary"
-    }
+  "devDependencies": {
+    "@tailwindcss/forms": "0.5.7",
+    "@tailwindcss/typography": "0.5.10",
+    "@types/react": "18.3.1",
+    "autoprefixer": "10.4.16",
+    "postcss": "8.4.33",
+    "tailwindcss": "3.4.1",
+    "typescript": "5.3.3"
   }
 }
