@@ -78,22 +78,24 @@ async function bundle(entryPoints, format, watch) {
 }
 
 async function vendorDeno() {
-  const vendorSource = resolve('edge-runtime/vendor.ts')
-  const vendorDest = resolve('edge-runtime/vendor')
+  for (const root of ['edge-ppr-handler', 'edge-runtime']) {
+    const vendorSource = resolve(`${root}/vendor.ts`)
+    const vendorDest = resolve(`${root}/vendor`)
 
-  try {
-    await execaCommand('deno --version')
-  } catch {
-    throw new Error('Could not check the version of Deno. Is it installed on your system?')
+    try {
+      await execaCommand('deno --version')
+    } catch {
+      throw new Error('Could not check the version of Deno. Is it installed on your system?')
+    }
+
+    console.log(`🧹 Deleting '${vendorDest}'...`)
+
+    await rm(vendorDest, { force: true, recursive: true })
+
+    console.log(`📦 Vendoring Deno modules into '${vendorDest}'...`)
+
+    await execaCommand(`deno vendor ${vendorSource} --output=${vendorDest} --force`)
   }
-
-  console.log(`🧹 Deleting '${vendorDest}'...`)
-
-  await rm(vendorDest, { force: true, recursive: true })
-
-  console.log(`📦 Vendoring Deno modules into '${vendorDest}'...`)
-
-  await execaCommand(`deno vendor ${vendorSource} --output=${vendorDest} --force`)
 }
 
 const args = new Set(process.argv.slice(2))

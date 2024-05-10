@@ -1,13 +1,10 @@
-// @ts-check
-import { getDeployStore } from '@netlify/blobs'
-import { encodeBase64 } from 'https://deno.land/std@0.223.0/encoding/base64.ts'
+import { getDeployStore } from './vendor/esm.sh/v135/@netlify/blobs@7.3.0/denonext/blobs.mjs'
+import { encodeBase64 } from './vendor/deno.land/std@0.223.0/encoding/base64.ts'
 
-const pathToBlobKey = (path) => encodeBase64(path === '/' ? '/index' : path).replaceAll('=', '')
+const pathToBlobKey = (path: string) =>
+  encodeBase64(path === '/' ? '/index' : path).replaceAll('=', '')
 
-/**
- * @param {Request} request
- */
-export default async function handler(request) {
+export default async function handler(request: Request) {
   const timing = []
   const start = Date.now()
   const url = new URL(request.url)
@@ -39,7 +36,7 @@ export default async function handler(request) {
   const postponedHeaders = new Headers(headers)
   postponedHeaders.set('x-matched-path', postponedURL.pathname)
   const encoder = new TextEncoder()
-  const combinedStream = new ReadableStream({
+  const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       // Start the request to the postponed URL, but don't await it yet
       const postponedResponse = fetch(postponedURL, {
@@ -79,7 +76,7 @@ export default async function handler(request) {
   console.log('Returning response for', url.pathname, 'after', Date.now() - start, 'ms')
   timing.push(`total;dur=${Date.now() - start};desc="total"`)
 
-  return new Response(combinedStream, {
+  return new Response(stream, {
     headers: {
       ...headers,
       'Content-Type': 'text/html',

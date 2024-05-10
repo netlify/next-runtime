@@ -202,11 +202,12 @@ export const createEdgeHandlers = async (ctx: PluginContext) => {
 
   if (pprDeclarations) {
     netlifyDefinitions.push(...pprDeclarations)
-    const destDir = join(ctx.edgeFunctionsDir, 'nextjs-ppr-handler')
-    await mkdir(destDir, { recursive: true })
     await cp(
-      join(ctx.pluginDir, 'dist/build/templates/nextjs-ppr-handler.js'),
-      join(destDir, 'index.js'),
+      join(ctx.pluginDir, 'edge-ppr-handler'),
+      join(ctx.edgeFunctionsDir, 'nextjs-ppr-handler'),
+      {
+        recursive: true,
+      },
     )
   }
   const netlifyManifest: Manifest = {

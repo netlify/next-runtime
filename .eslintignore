@@ -2,4 +2,5 @@ dist/
 demo/
 tests/
 edge-runtime
+edge-ppr-handler
 tools/deno

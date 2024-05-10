@@ -2,6 +2,7 @@ node_modules/
 dist/
 .next
 edge-runtime/vendor
+edge-ppr-handler/vendor
 
 # Local Netlify folder
 .netlify
