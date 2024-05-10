@@ -1,7 +1,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
-import type { Manifest, ManifestFunction } from '@netlify/edge-functions'
+import type { IntegrationsConfig, Manifest, ManifestFunction } from '@netlify/edge-functions'
 import { glob } from 'fast-glob'
 import type { EdgeFunctionDefinition as NextDefinition } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 import { pathToRegexp } from 'path-to-regexp'
@@ -162,17 +162,53 @@ const buildHandlerDefinition = (
   }))
 }
 
+const getPPRDeclarations = async (
+  ctx: PluginContext,
+): Promise<Array<IntegrationsConfig & ManifestFunction>> => {
+  const { routes } = await ctx.getPrerenderManifest()
+
+  const declarations: Array<IntegrationsConfig & ManifestFunction> = []
+
+  for (const [route, declaration] of Object.entries(routes)) {
+    // Skip routes that are not experimental PPR
+    if (!declaration.experimentalPPR) {
+      continue
+    }
+    declarations.push({
+      function: 'nextjs-ppr-handler',
+      name: 'Next.js PPR Handler',
+      path: route as `/${string}`,
+      generator: `${ctx.pluginName}@${ctx.pluginVersion}`,
+    })
+  }
+
+  return declarations
+}
+
 export const createEdgeHandlers = async (ctx: PluginContext) => {
   await rm(ctx.edgeFunctionsDir, { recursive: true, force: true })
 
   const nextManifest = await ctx.getMiddlewareManifest()
   const nextDefinitions = [
     ...Object.values(nextManifest.middleware),
+    // Add this back if we re-enable edge SSR
     // ...Object.values(nextManifest.functions)
   ]
   await Promise.all(nextDefinitions.map((def) => createEdgeHandler(ctx, def)))
 
   const netlifyDefinitions = nextDefinitions.flatMap((def) => buildHandlerDefinition(ctx, def))
+
+  const pprDeclarations = await getPPRDeclarations(ctx)
+
+  if (pprDeclarations) {
+    netlifyDefinitions.push(...pprDeclarations)
+    const destDir = join(ctx.edgeFunctionsDir, 'nextjs-ppr-handler')
+    await mkdir(destDir, { recursive: true })
+    await cp(
+      join(ctx.pluginDir, 'dist/build/templates/nextjs-ppr-handler.js'),
+      join(destDir, 'index.js'),
+    )
+  }
   const netlifyManifest: Manifest = {
     version: 1,
     functions: netlifyDefinitions,
