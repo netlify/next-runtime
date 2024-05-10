@@ -78,15 +78,15 @@ async function bundle(entryPoints, format, watch) {
 }
 
 async function vendorDeno() {
+  try {
+    await execaCommand('deno --version')
+  } catch {
+    throw new Error('Could not check the version of Deno. Is it installed on your system?')
+  }
+
   for (const root of ['edge-ppr-handler', 'edge-runtime']) {
     const vendorSource = resolve(`${root}/vendor.ts`)
     const vendorDest = resolve(`${root}/vendor`)
-
-    try {
-      await execaCommand('deno --version')
-    } catch {
-      throw new Error('Could not check the version of Deno. Is it installed on your system?')
-    }
 
     console.log(`🧹 Deleting '${vendorDest}'...`)
 
