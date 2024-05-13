@@ -5,22 +5,28 @@ import {
 import { getTracer } from '{{cwd}}/.netlify/dist/run/handlers/tracer.cjs'
 import tracing from '{{cwd}}/.netlify/dist/run/handlers/tracing.js'
 
-process.chdir('{{cwd}}')
+const monorepo = '{{cwd}}' !== '.'
+
+if (monorepo) {
+  process.chdir('{{cwd}}')
+}
 
 // Set feature flag for regional blobs
 process.env.USE_REGIONAL_BLOBS = '{{useRegionalBlobs}}'
 
+// PPR resume needs minimal mode
+process.env.NEXT_PRIVATE_MINIMAL_MODE = true
+
 let cachedHandler
-export default async function (req, context) {
+export default async function handler(req, context) {
   if (process.env.NETLIFY_OTLP_TRACE_EXPORTER_URL) {
     tracing.start()
   }
-
   const requestContext = createRequestContext(req.headers.get('x-next-debug-logging'))
   const tracer = getTracer()
 
   const handlerResponse = await runWithRequestContext(requestContext, () => {
-    return tracer.withActiveSpan('Next.js Server Handler', async (span) => {
+    return tracer.withActiveSpan('Next.js PPR Handler', async (span) => {
       span.setAttributes({
         'account.id': context.account.id,
         'deploy.id': context.deploy.id,
@@ -28,12 +34,12 @@ export default async function (req, context) {
         'site.id': context.site.id,
         'http.method': req.method,
         'http.target': req.url,
-        monorepo: true,
-        cwd: '{{cwd}}',
+        monorepo,
+        cwd: process.cwd(),
       })
       if (!cachedHandler) {
-        const { default: handler } = await import('{{nextServerHandler}}')
-        cachedHandler = handler
+        const { default: nextHandler } = await import('{{nextServerHandler}}')
+        cachedHandler = nextHandler
       }
       const response = await cachedHandler(req, context)
       span.setAttributes({
@@ -51,6 +57,5 @@ export default async function (req, context) {
 }
 
 export const config = {
-  path: '/*',
-  preferStatic: true,
+  path: '/_next/postponed/resume/*',
 }

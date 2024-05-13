@@ -1,14 +1,20 @@
 import {
   createRequestContext,
   runWithRequestContext,
-} from './.netlify/dist/run/handlers/request-context.cjs'
-import serverHandler from './.netlify/dist/run/handlers/server.js'
-import { getTracer } from './.netlify/dist/run/handlers/tracer.cjs'
-import tracing from './.netlify/dist/run/handlers/tracing.js'
+} from '{{cwd}}/.netlify/dist/run/handlers/request-context.cjs'
+import { getTracer } from '{{cwd}}/.netlify/dist/run/handlers/tracer.cjs'
+import tracing from '{{cwd}}/.netlify/dist/run/handlers/tracing.js'
+
+const monorepo = '{{cwd}}' !== '.'
+
+if (monorepo) {
+  process.chdir('{{cwd}}')
+}
 
 // Set feature flag for regional blobs
 process.env.USE_REGIONAL_BLOBS = '{{useRegionalBlobs}}'
 
+let cachedHandler
 export default async function handler(req, context) {
   if (process.env.NETLIFY_OTLP_TRACE_EXPORTER_URL) {
     tracing.start()
@@ -25,10 +31,14 @@ export default async function handler(req, context) {
         'site.id': context.site.id,
         'http.method': req.method,
         'http.target': req.url,
-        monorepo: false,
+        monorepo,
         cwd: process.cwd(),
       })
-      const response = await serverHandler(req, context)
+      if (!cachedHandler) {
+        const { default: nextHandler } = await import('{{nextServerHandler}}')
+        cachedHandler = nextHandler
+      }
+      const response = await cachedHandler(req, context)
       span.setAttributes({
         'http.status_code': response.status,
       })

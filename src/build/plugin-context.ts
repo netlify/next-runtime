@@ -19,6 +19,7 @@ const PLUGIN_DIR = join(MODULE_DIR, '../..')
 const DEFAULT_PUBLISH_DIR = '.next'
 
 export const SERVER_HANDLER_NAME = '___netlify-server-handler'
+export const PPR_HANDLER_NAME = '___netlify-ppr-handler'
 export const EDGE_HANDLER_NAME = '___netlify-edge-handler'
 
 // copied from https://github.com/vercel/next.js/blob/af5b4db98ac1acccc3f167cc6aba2f0c9e7094df/packages/next/src/build/index.ts#L388-L395
@@ -166,6 +167,10 @@ export class PluginContext {
   /** Absolute path of the server handler */
   get serverHandlerRootDir(): string {
     return join(this.serverFunctionsDir, SERVER_HANDLER_NAME)
+  }
+
+  get pprHandlerDir(): string {
+    return join(this.serverFunctionsDir, PPR_HANDLER_NAME)
   }
 
   get serverHandlerDir(): string {

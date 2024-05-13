@@ -12,7 +12,7 @@ import {
   verifyHandlerDirStructure,
   writeTagsManifest,
 } from '../content/server.js'
-import { PluginContext, SERVER_HANDLER_NAME } from '../plugin-context.js'
+import { PPR_HANDLER_NAME, PluginContext, SERVER_HANDLER_NAME } from '../plugin-context.js'
 
 const tracer = wrapTracer(trace.getTracer('Next runtime'))
 
@@ -86,6 +86,23 @@ const writeHandlerManifest = async (ctx: PluginContext) => {
   )
 }
 
+const writePPRHandlerManifest = async (ctx: PluginContext) => {
+  await writeFile(
+    join(ctx.pprHandlerDir, `${PPR_HANDLER_NAME}.json`),
+    JSON.stringify({
+      config: {
+        name: 'Next.js PPR Handler',
+        generator: `${ctx.pluginName}@${ctx.pluginVersion}`,
+        nodeBundler: 'none',
+        includedFiles: ['**'],
+        includedFilesBasePath: ctx.pprHandlerDir,
+      },
+      version: 1,
+    }),
+    'utf-8',
+  )
+}
+
 const writePackageMetadata = async (ctx: PluginContext) => {
   await writeFile(
     join(ctx.serverHandlerRootDir, 'package.json'),
@@ -100,25 +117,20 @@ const applyTemplateVariables = (template: string, variables: Record<string, stri
 }
 
 /** Get's the content of the handler file that will be written to the lambda */
-const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
+const getHandlerFile = async (
+  ctx: PluginContext,
+  template = 'handler.tmpl.js',
+): Promise<string> => {
   const templatesDir = join(ctx.pluginDir, 'dist/build/templates')
 
   const templateVariables: Record<string, string> = {
     '{{useRegionalBlobs}}': ctx.useRegionalBlobs.toString(),
-  }
-  // In this case it is a monorepo and we need to use a own template for it
-  // as we have to change the process working directory
-  if (ctx.relativeAppDir.length !== 0) {
-    const template = await readFile(join(templatesDir, 'handler-monorepo.tmpl.js'), 'utf-8')
-
-    templateVariables['{{cwd}}'] = posixJoin(ctx.lambdaWorkingDirectory)
-    templateVariables['{{nextServerHandler}}'] = posixJoin(ctx.nextServerHandler)
-
-    return applyTemplateVariables(template, templateVariables)
+    '{{cwd}}': ctx.relativeAppDir.length === 0 ? '.' : posixJoin(ctx.lambdaWorkingDirectory),
+    '{{nextServerHandler}}': ctx.nextServerHandler,
   }
 
   return applyTemplateVariables(
-    await readFile(join(templatesDir, 'handler.tmpl.js'), 'utf-8'),
+    await readFile(join(templatesDir, template), 'utf-8'),
     templateVariables,
   )
 }
@@ -126,6 +138,26 @@ const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
 const writeHandlerFile = async (ctx: PluginContext) => {
   const handler = await getHandlerFile(ctx)
   await writeFile(join(ctx.serverHandlerRootDir, `${SERVER_HANDLER_NAME}.mjs`), handler)
+}
+
+const generatePPRHandler = async (ctx: PluginContext) => {
+  const { routes } = await ctx.getPrerenderManifest()
+  if (!Object.values(routes).some((route) => route.experimentalPPR)) {
+    return
+  }
+
+  // Copy the regular handler to the PPR handler
+  await cp(ctx.serverHandlerRootDir, ctx.pprHandlerDir, {
+    recursive: true,
+    force: true,
+  })
+  // Remove the default server handler entrypoint
+  await rm(join(ctx.pprHandlerDir, `${SERVER_HANDLER_NAME}.mjs`))
+  // Write the PPR handler entrypoint
+  const handler = await getHandlerFile(ctx, 'handler-ppr.tmpl.js')
+  await writeFile(join(ctx.pprHandlerDir, `${PPR_HANDLER_NAME}.mjs`), handler)
+
+  await writePPRHandlerManifest(ctx)
 }
 
 /**
@@ -145,5 +177,7 @@ export const createServerHandler = async (ctx: PluginContext) => {
     await writeHandlerFile(ctx)
 
     await verifyHandlerDirStructure(ctx)
+
+    await generatePPRHandler(ctx)
   })
 }
