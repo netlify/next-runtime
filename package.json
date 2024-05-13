@@ -68,7 +68,7 @@
     "@types/node": "^20.12.7",
     "@types/picomatch": "^2.3.3",
     "@types/uuid": "^9.0.6",
-    "@vercel/nft": "^0.26.0",
+    "@vercel/nft": "^0.27.0",
     "cheerio": "^1.0.0-rc.12",
     "clean-package": "^2.2.0",
     "esbuild": "^0.21.0",
