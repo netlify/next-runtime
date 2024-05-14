@@ -195,3 +195,18 @@ test('nx monorepo with package path and different distDir', () => {
   expect(ctx.relPublishDir).toBe('dist/apps/my-app/.next')
   expect(ctx.publishDir).toBe(join(cwd, 'dist/apps/my-app/.next'))
 })
+
+test('should use deploy configuration blobs directory when @netlify/build version supports regional blob awareness', () => {
+  const { cwd } = mockFileSystem({
+    '.next/required-server-files.json': JSON.stringify({
+      config: { distDir: '.next' },
+      relativeAppDir: '',
+    } as RequiredServerFilesManifest),
+  })
+
+  const ctx = new PluginContext({
+    constants: { NETLIFY_BUILD_VERSION: '29.41.5' },
+  } as NetlifyPluginOptions)
+
+  expect(ctx.blobDir).toBe(join(cwd, '.netlify/deploy/v1/blobs/deploy'))
+})
