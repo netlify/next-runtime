@@ -150,6 +150,7 @@ const generatePPRHandler = async (ctx: PluginContext) => {
   await cp(ctx.serverHandlerRootDir, ctx.pprHandlerDir, {
     recursive: true,
     force: true,
+    verbatimSymlinks: true,
   })
   // Remove the default server handler entrypoint
   await rm(join(ctx.pprHandlerDir, `${SERVER_HANDLER_NAME}.mjs`))
