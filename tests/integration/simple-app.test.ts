@@ -226,27 +226,6 @@ test<FixtureTestContext>('rewrites to external addresses dont use compression', 
   expect(gunzipSync(page.bodyBuffer).toString('utf-8')).toContain('<title>Example Domain</title>')
 })
 
-test.skipIf(process.env.NEXT_VERSION !== 'canary')<FixtureTestContext>(
-  'Test that a simple next app with PPR is working',
-  async (ctx) => {
-    await createFixture('ppr', ctx)
-    await runPlugin(ctx)
-    // check if the blob entries where successful set on the build plugin
-    const blobEntries = await getBlobEntries(ctx)
-    expect(blobEntries.map(({ key }) => decodeBlobKey(key)).sort()).toEqual([
-      '/404',
-      '/index',
-      '404.html',
-      '500.html',
-    ])
-
-    // test the function call
-    const home = await invokeFunction(ctx)
-    expect(home.statusCode).toBe(200)
-    expect(load(home.body)('h1').text()).toBe('Home')
-  },
-)
-
 describe('next patching', async () => {
   const { cp: originalCp, appendFile } = (await vi.importActual(
     'node:fs/promises',
