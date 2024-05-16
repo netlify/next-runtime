@@ -39,10 +39,11 @@ export interface ExportDetail {
 }
 
 export class PluginContext {
-  utils: NetlifyPluginUtils
+  featureFlags: NetlifyPluginOptions['featureFlags']
   netlifyConfig: NetlifyPluginOptions['netlifyConfig']
   pluginName: string
   pluginVersion: string
+  utils: NetlifyPluginUtils
 
   private constants: NetlifyPluginConstants
   private packageJSON: { name: string; version: string } & Record<string, unknown>
@@ -152,6 +153,10 @@ export class PluginContext {
   }
 
   get useRegionalBlobs(): boolean {
+    if (!(this.featureFlags || {})['next-runtime-regional-blobs']) {
+      return false
+    }
+
     // Region-aware blobs are only available as of CLI v17.23.5 (i.e. Build v29.41.5)
     const REQUIRED_BUILD_VERSION = '>=29.41.5'
     return satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, { includePrerelease: true })
@@ -198,12 +203,13 @@ export class PluginContext {
   }
 
   constructor(options: NetlifyPluginOptions) {
+    this.constants = options.constants
+    this.featureFlags = options.featureFlags
+    this.netlifyConfig = options.netlifyConfig
     this.packageJSON = JSON.parse(readFileSync(join(PLUGIN_DIR, 'package.json'), 'utf-8'))
     this.pluginName = this.packageJSON.name
     this.pluginVersion = this.packageJSON.version
-    this.constants = options.constants
     this.utils = options.utils
-    this.netlifyConfig = options.netlifyConfig
   }
 
   /** Resolves a path correctly with mono repository awareness for .netlify directories mainly  */
