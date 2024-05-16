@@ -256,9 +256,3 @@ jobs:
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
         with:
           payload: ${{ steps.publish-test-results.outputs.slackEvent }}
-
-      - name: Publish test site
-        if: (success() || failure()) && matrix.version == 'latest' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
-        run: |
-          deno run -A tools/deno/junit2html.ts artifacts ${{needs.e2e.outputs.tag}} > report/index.html
-          npx --yes netlify-cli@latest deploy --prod --cwd report

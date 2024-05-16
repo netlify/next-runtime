@@ -1,0 +1,27 @@
+{
+  "name": "e2e-test-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@netlify/plugin-nextjs": "^5.2.2",
+    "chart.js": "^4.4.2",
+    "next": "^14.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.3",
+    "sass": "^1.77.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

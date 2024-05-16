@@ -3,22 +3,30 @@ on:
   workflow_dispatch:
 
 env:
-  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
   NETLIFY_SITE_ID: ${{ secrets.E2E_PAGE_SITE_ID }}
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Get run id
         id: get-run-id
         run: |
-          E2E_RUN_ID='gh run list -w test-e2e.yml -e schedule --json databaseId --jq ".[0].databaseId"'
+          E2E_RUN_ID=$(gh run list -w test-e2e.yml -e schedule --json databaseId --jq ".[0].databaseId" --repo $GITHUB_REPOSITORY)
           echo "runId=$E2E_RUN_ID" >> $GITHUB_OUTPUT
       - name: Download latest e2e results
         run: |
           echo "Downloading latest test results from run https://github.com/netlify/next-runtime-minimal/actions/runs/${{ steps.get-run-id.outputs.runId }}"
-          gh run download ${{ steps.get-run-id.outputs.runId }} -n "latest-test-results.json" -D e2e-report/data/
+          rm e2e-report/data/test-results.json
+          gh run download ${{ steps.get-run-id.outputs.runId }} -n "latest-test-results.json" -D e2e-report/data/ --repo $GITHUB_REPOSITORY
+      - name: Install site dependencies
+        if: success()
+        run: |
+          npm ci
+        working-directory: e2e-report
       - name: Deploy e2e page
         if: success()
         run: |
