@@ -46,7 +46,7 @@ export class NextDeployInstance extends NextInstance {
     }
 
     // install dependencies
-    await execa('npm', ['i'], {
+    await execa('npm', ['i', '--legacy-peer-deps'], {
       cwd: this.testDir,
       stdio: 'inherit',
     })
