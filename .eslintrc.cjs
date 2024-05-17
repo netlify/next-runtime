@@ -110,5 +110,11 @@ module.exports = {
         'func-names': 'off',
       },
     },
+    {
+      files: ['src/run/templates/**/*'],
+      rules: {
+        '@typescript-eslint/no-extra-semi': 'off',
+      },
+    },
   ],
 }
