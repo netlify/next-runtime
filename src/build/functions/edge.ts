@@ -170,6 +170,7 @@ const getPPRDeclarations = async (
   const declarations: Array<IntegrationsConfig & ManifestFunction> = []
 
   for (const [route, declaration] of Object.entries(routes)) {
+    continue
     // Skip routes that are not experimental PPR
     if (!declaration.experimentalPPR) {
       continue
