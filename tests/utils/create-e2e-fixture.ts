@@ -302,6 +302,7 @@ async function cleanup(dest: string, deployId?: string): Promise<void> {
 
 export const fixtureFactories = {
   simple: () => createE2EFixture('simple'),
+  ppr: () => createE2EFixture('ppr'),
   outputExport: () => createE2EFixture('output-export'),
   ouputExportPublishOut: () =>
     createE2EFixture('output-export', {
