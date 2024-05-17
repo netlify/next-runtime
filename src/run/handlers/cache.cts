@@ -2,6 +2,8 @@
 // (CJS format because Next.js doesn't support ESM yet)
 //
 import { Buffer } from 'node:buffer'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
@@ -21,6 +23,8 @@ import { logger } from '../systemlog.cjs'
 
 import { getRequestContext } from './request-context.cjs'
 import { getTracer } from './tracer.cjs'
+
+const pprResumer = readFileSync(join(__dirname, '../templates/ppr-resume.cjs'), 'utf8')
 
 type TagManifest = { revalidatedAt: number }
 
@@ -157,12 +161,27 @@ export class NetlifyCacheHandler implements CacheHandler {
             },
           }
         }
-        case 'PAGE':
+        case 'PAGE': {
           span.addEvent('PAGE', { lastModified: blob.lastModified })
+
+          const { html, postponed, ...rest } = blob.value
+
+          const htmlWithPostponed = html.replace(
+            '</head>',
+            `<script type="application/json" id="_ppr-data">${postponed}</script>
+             <script type="module">${pprResumer}</script>
+             </head>`,
+          )
+
           return {
             lastModified: blob.lastModified,
-            value: blob.value,
+            value: {
+              html: postponed ? htmlWithPostponed : html,
+              postponed: undefined,
+              ...rest,
+            },
           }
+        }
         default:
           span.recordException(new Error(`Unknown cache entry kind: ${blob.value?.kind}`))
       }
