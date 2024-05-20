@@ -3,9 +3,14 @@
 import { readFile, writeFile } from 'node:fs/promises'
 
 import fg from 'fast-glob'
-import { valid, satisfies } from 'semver'
+import { valid, satisfies, gte } from 'semver'
 
 const FUTURE_NEXT_PATCH_VERSION = '14.999.0'
+
+const NEXT_VERSION_REQUIRES_REACT_19 = '14.3.0-canary.45'
+// TODO: Update this when React 19 is released
+const REACT_19_VERSION = '19.0.0-rc-3f1436cca1-20240516'
+const REACT_18_VERSION = '18.2.0'
 
 /**
  * Check if current next version satisfies a semver constraint
@@ -21,6 +26,17 @@ export function nextVersionSatisfies(condition) {
 }
 
 /**
+ * Check if current next version requires React 19
+ * @param {string} version Next version
+ * @returns {boolean} True if current next version requires React 19
+ */
+
+export function nextVersionRequiresReact19(version) {
+  // @ts-expect-error Mistake in semver types
+  return gte(version, NEXT_VERSION_REQUIRES_REACT_19, { includePrerelease: true })
+}
+
+/**
  * Finds all package.json in fixture directory and updates 'next' version to a given version
  * If there is test.dependencies.next, it will only update if the version satisfies the constraint in that field
  * @param {string} cwd Directory of a fixture
@@ -29,12 +45,13 @@ export function nextVersionSatisfies(condition) {
  * @param {string} [options.logPrefix] Text to prefix logs with
  * @param {'update' | 'revert'} [options.operation] This just informs log output wording, otherwise it has no effect
  * @param {boolean} [options.silent] Doesn't produce any logs if truthy
+ * @param {boolean} [options.updateReact] Update React version to match Next version
  * @returns {Promise<void>}
  */
 export async function setNextVersionInFixture(
   cwd,
   version,
-  { logPrefix = '', operation = 'update', silent = false } = {},
+  { logPrefix = '', operation = 'update', silent = false, updateReact = true } = {},
 ) {
   // use NEXT_RESOLVED_VERSION env var if exists and if passed version matches version from NEXT_VERSION
   // otherwise use whatever is passed
@@ -65,7 +82,7 @@ export async function setNextVersionInFixture(
       if (packageJson.dependencies?.next) {
         const versionConstraint = packageJson.test?.dependencies?.next
         // We can't use semver to check "canary" or "latest", so we use a fake future minor version
-        const checkVersion = isSemverVersion ? version : FUTURE_NEXT_PATCH_VERSION
+        const checkVersion = isSemverVersion ? resolvedVersion : FUTURE_NEXT_PATCH_VERSION
         if (
           operation === 'update' &&
           versionConstraint &&
@@ -80,6 +97,12 @@ export async function setNextVersionInFixture(
           return
         }
         packageJson.dependencies.next = version
+        if (updateReact && nextVersionRequiresReact19(checkVersion)) {
+          const reactVersion = operation === 'update' ? REACT_19_VERSION : REACT_18_VERSION
+          packageJson.dependencies.react = reactVersion
+          packageJson.dependencies['react-dom'] = reactVersion
+        }
+
         await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n')
       }
     }),
