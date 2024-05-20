@@ -10,8 +10,44 @@
     },
     body: pprData,
   })
+  window.addEventListener('load', () => {
+    const navigationEntries = performance.getEntriesByType('navigation')
+    if (navigationEntries.length !== 0) {
+      const [navigationEntry] = navigationEntries as PerformanceNavigationTiming[]
+      const ttfb = navigationEntry.responseStart
+      console.log(`TTFB: ${ttfb}ms`)
+      window.performance.mark('ttfb', { startTime: ttfb })
+    }
+
+    const targetElementSelector = '#B\\:4'
+    const targetElement = document.querySelector(targetElementSelector)?.parentElement
+
+    if (targetElement) {
+      const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+          if (mutation.type === 'childList' && mutation.removedNodes.length !== 0) {
+            for (const node of mutation.removedNodes) {
+              if (node.nodeType === Node.ELEMENT_NODE && node.nodeName === 'TEMPLATE') {
+                console.log('PPR resume complete')
+                window.performance.mark('ppr.complete')
+                observer.disconnect()
+              }
+            }
+          }
+        }
+      })
+
+      observer.observe(targetElement, { childList: true, subtree: true })
+    } else {
+      console.error(`Element with selector "${targetElementSelector}" not found`)
+    }
+  })
   document.addEventListener('DOMContentLoaded', async () => {
+    console.log('DOMContentLoaded')
+    window.performance.mark('ppr.shell')
     await response.then(async ({ body }) => {
+      console.log('PPR resume started')
+      window.performance.mark('ppr.postponed')
       if (body === null) {
         console.log('Invalid PPR resume response')
         return
