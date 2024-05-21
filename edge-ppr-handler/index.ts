@@ -33,6 +33,8 @@ export default async function handler(request: Request) {
 
   const postponedURL = new URL(`/_next/postponed/resume${url.pathname}`, url)
 
+  const mark = (tag: string) => `<script>performance.mark(${JSON.stringify(tag)});</script>`
+
   const postponedHeaders = new Headers(headers)
   postponedHeaders.set('x-matched-path', postponedURL.pathname)
   const encoder = new TextEncoder()
@@ -51,7 +53,7 @@ export default async function handler(request: Request) {
       const shellTiming = `Shell sent in ${Date.now() - start}ms.`
       console.log(shellTiming)
 
-      controller.enqueue(new TextEncoder().encode(`\n<!-- ${shellTiming}  -->\n`))
+      controller.enqueue(encoder.encode(`\n${'ppr.shell'}\n<!-- ${shellTiming}  -->\n`))
 
       // Now, handle the postponed body stream
       const postponedResult = await postponedResponse
@@ -62,10 +64,13 @@ export default async function handler(request: Request) {
       const postponedReader = postponedResult.body.getReader()
       const postponedTiming = `Postponed started to stream after ${Date.now() - start}ms.`
       console.log(postponedTiming)
-      controller.enqueue(new TextEncoder().encode(`\n<!-- ${postponedTiming} -->\n`))
+      controller.enqueue(
+        encoder.encode(`\n${mark('ppr.postponed')}\n<!-- ${postponedTiming} -->\n`),
+      )
       while (true) {
         const { done, value } = await postponedReader.read()
         if (done) {
+          controller.enqueue(encoder.encode(mark('ppr.complete')))
           controller.close()
           break
         }
