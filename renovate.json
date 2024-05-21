@@ -1,13 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["local>netlify/renovate-config"],
+  "ignorePaths": ["**/node_modules/**"],
   "packageRules": [
     {
       "description": "Stable & unstable Next.js bumps in test fixtures (no automerge)",
       "matchFileNames": ["tests/**/fixtures/**/package.json"],
       "matchPackageNames": ["next"],
       "ignoreUnstable": false,
-      "labels": ["bump-framework-in-fixtures", "run-e2e-tests'))"],
+      "labels": ["bump-framework-in-fixtures", "run-e2e-tests"],
       "schedule": null,
       "automerge": false
     }
