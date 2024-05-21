@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.3.0](https://github.com/netlify/next-runtime-minimal/compare/v5.2.2...v5.3.0) (2024-05-20)
+
+
+### Features
+
+* Set experimentalRegion to 'context' in order to enable colocated blobs ([#488](https://github.com/netlify/next-runtime-minimal/issues/488)) ([a72a837](https://github.com/netlify/next-runtime-minimal/commit/a72a837f108acbe8187b1bfe3c457f6a3e61b2e8))
+
+
+### Bug Fixes
+
+* **deps:** update dependency chart.js to v4.4.3 ([ee6e185](https://github.com/netlify/next-runtime-minimal/commit/ee6e185ed3ee0707a16795cfdbed94eedf9aaa19))
+* leverage system logger for debug logs (instead of console) ([#467](https://github.com/netlify/next-runtime-minimal/issues/467)) ([b352d96](https://github.com/netlify/next-runtime-minimal/commit/b352d96fba5f1797427a4b71f41c4cd190cedab3))
+
 ## [5.2.2](https://github.com/netlify/next-runtime-minimal/compare/v5.2.1...v5.2.2) (2024-05-07)
 
 
