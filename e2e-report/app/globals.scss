@@ -1,0 +1,452 @@
+$card-bg-img: url('../public/noise.png');
+$base-card-width: 300px;
+$card-width: clamp($base-card-width, 65%, 35%);
+$base-font-size: clamp(1rem, 0.8764rem + 0.4121vw, 1.34rem);
+$netlify-blue: rgb(30 58 138);
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+* {
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+html {
+  font-size: 12px;
+}
+
+body {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1rem, -0.5782rem + 5.2606vw, 4rem);
+  margin: 2% 0;
+  text-align: center;
+}
+
+h2 {
+  font-size: clamp(1rem, -0.0909rem + 3.6364vw, 3.25rem);
+  margin-bottom: 0;
+}
+
+h3 {
+  font-size: clamp(1rem, 0.2727rem + 2.4242vw, 2.25rem);
+}
+
+h4 {
+  font-size: clamp(1rem, 0.5127rem + 1.6242vw, 2rem);
+  font-weight: 700;
+  margin: 1% 2%;
+}
+
+li {
+  list-style: none;
+}
+
+span {
+  font-size: 2.3vw;
+}
+
+p {
+  font-size: $base-font-size;
+  font-weight: bold;
+}
+
+img {
+  width: 15%;
+  height: auto;
+}
+
+a {
+  text-decoration: none;
+  font-size: $base-font-size;
+}
+
+td,
+th {
+  text-align: left;
+  width: 30%;
+  font-size: $base-font-size;
+}
+
+th {
+  font-weight: 400;
+}
+
+tr {
+  font-weight: bold;
+}
+
+a:visited,
+a:link {
+  color: white;
+}
+
+button {
+  font-size: clamp(1rem, 0.6364rem + 1.2121vw, 1.34rem);
+  background-image: $card-bg-img;
+  background-color: #060b10;
+  color: white;
+  border-radius: 5px;
+  width: clamp(15vw, 20vw, 25vw);
+  box-shadow: -3px 3px 5px #0000004f;
+  border: none;
+  a {
+    font-weight: bold;
+  }
+}
+
+.arrow {
+  height: auto;
+  width: 5%;
+  margin: 1.5%;
+  fill: black;
+}
+
+.logo {
+  text-align: center;
+  padding: 2%;
+}
+
+.filterList {
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+button.github {
+  padding: 1.5%;
+  margin: 1%;
+  width: clamp(150px, 100px, 150px);
+}
+
+button.nav {
+  padding: 8% 2%;
+  width: clamp(150px, 200px, 250px);
+}
+
+.testResults {
+  padding: 2%;
+  background-size: cover;
+  flex-flow: column;
+}
+
+.testResults {
+  .resultData {
+    justify-content: space-evenly;
+    display: flex;
+    h3 {
+      text-align: center;
+    }
+  }
+}
+
+.hero {
+  color: white;
+  font-weight: 600;
+  padding: 0 6%;
+  background: $netlify-blue;
+  background-image: $card-bg-img;
+  background-attachment: fixed;
+  margin-bottom: 2%;
+}
+
+.title {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  text-align: center;
+}
+
+.chart {
+  margin: 0 auto;
+  width: 70px;
+  height: 70px;
+  flex-basis: 15%;
+  @media (max-width: 450px) {
+    display: none;
+  }
+}
+
+.card .chart {
+  margin: 0;
+}
+
+.card.issues {
+  width: 40%;
+  h3 {
+    margin: 0;
+  }
+}
+
+.grid {
+  padding: 1% 5% 5% 5%;
+  ul li {
+    padding: 2%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #00000052;
+  }
+
+  ul li:last-child {
+    border-bottom: none;
+  }
+
+  a {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  button a {
+    justify-content: center;
+    color: white;
+  }
+
+  h2 {
+    text-align: center;
+  }
+}
+
+.testGroup {
+  display: none;
+}
+
+.testGroup.open {
+  display: block;
+  width: clamp(350px, 60%, 1100px);
+  height: 70vh;
+  overflow: scroll;
+  overflow-x: hidden;
+}
+
+.skipped.card:hover {
+  background-color: initial;
+  color: initial;
+}
+
+.testCases {
+  display: none;
+  // background: $netlify-blue;
+  padding: 0.5% 2%;
+  box-shadow: inset -1px 4px 10px #00000047;
+  border-radius: 11px;
+  width: 60vw;
+  font-size: 1vw;
+  margin: 0 0 2% 0;
+
+  a {
+    max-width: 90%;
+    font-weight: 600;
+    color: black;
+  }
+
+  p {
+    color: $netlify-blue;
+  }
+
+  li:hover {
+    background: $netlify-blue;
+    background-image: $card-bg-img;
+    background-blend-mode: screen;
+    a {
+      color: white;
+    }
+    p {
+      color: #2bdcd2;
+    }
+  }
+}
+
+.status {
+  display: inline-block;
+  height: 15px;
+  width: 15px;
+  border-radius: 25px;
+  padding: 1px;
+  box-shadow: -2px 1px 2px #0000004a;
+  border: 1px solid #ffffffad;
+  margin: 1%;
+}
+
+.testCases.open {
+  display: block;
+  position: relative;
+  width: 85%;
+}
+
+.wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  flex-flow: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+
+  .card.issues {
+    padding: 0;
+    width: 65%;
+    li {
+      flex-flow: column;
+      align-items: normal;
+    }
+  }
+
+  .card.skipped {
+    display: none;
+    width: clamp(350px, 55%, 1000px);
+    cursor: default;
+    height: 70vh;
+    overflow: scroll;
+  }
+
+  .card.skipped.open {
+    display: block;
+  }
+}
+
+.testSuite {
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  align-items: center;
+
+  .card {
+    width: 90%;
+    margin: clamp(0.5%, 2%, 10px);
+    td,
+    th {
+      text-align: center;
+    }
+  }
+
+  td h4 {
+    font-size: clamp(1rem, 0.5127rem + 1.6242vw, 1.4rem);
+  }
+}
+
+.card {
+  padding: 1%;
+  box-shadow: -4px 3px 7px #00000014;
+  width: clamp(350px, 60%, 1100px);
+  background: #8080800a;
+  border-radius: 11px;
+  margin: clamp(0.5%, 1%, 20px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-bottom: 3px solid #00000017;
+  border-left: 3px solid #00000017;
+
+  i {
+    font-weight: 400;
+  }
+}
+
+.card:hover:not(.skipped) {
+  background-color: $netlify-blue;
+  background-image: $card-bg-img;
+  background-blend-mode: screen;
+  color: white;
+  .arrow {
+    fill: white;
+  }
+}
+
+span[data-status='passed'] {
+  background-color: #2ecc71;
+  background-image: $card-bg-img;
+}
+
+span[data-status='failed'] {
+  background-color: #e74c3c;
+  background-image: $card-bg-img;
+}
+
+span[data-status='skipped'] {
+  background-color: #ffeb3b;
+  background-image: $card-bg-img;
+}
+
+.reason {
+  background: #394146cc;
+  color: white;
+  border-radius: 25px;
+  text-align: center;
+  padding: 2%;
+  margin: 0;
+  width: 35vw;
+}
+
+.skipped {
+  td,
+  th {
+    padding: 0.5% 2%;
+    border-bottom: 1px solid #00000047;
+  }
+
+  td {
+    p {
+      font-size: clamp(1rem, 0.8764rem + 0.4121vw, 1.16rem);
+    }
+  }
+
+  a {
+    color: black;
+    font-weight: bold;
+    display: flex;
+    flex-flow: column;
+  }
+  :hover a {
+    color: white;
+  }
+}
+
+.skipped .card {
+  display: flex;
+  justify-content: space-between;
+  padding: 4%;
+  p {
+    color: $netlify-blue;
+  }
+}
+
+.skipped .card:hover {
+  p {
+    color: #2bdcd2;
+  }
+}
+
+table {
+  width: 100%;
+  padding: 2%;
+}
+
+table.testCases {
+  display: block;
+  width: 80%;
+  box-shadow: none;
+  border-collapse: collapse;
+}

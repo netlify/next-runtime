@@ -172,8 +172,8 @@
       "file": "test/e2e/app-dir/metadata-dynamic-routes/index.test.ts",
       "reason": "Header whitespace mismatch",
       "tests": [
-        "app dir - metadata dynamic routes text routes should handle robots.[ext] dynamic routes",
-        "app dir - metadata dynamic routes text routes should handle sitemap.[ext] dynamic routes",
+        "app dir - metadata dynamic routes robots.txt should handle robots.[ext] dynamic routes",
+        "app dir - metadata dynamic routes robots.txt should handle sitemap.[ext] dynamic routes",
         "app dir - metadata dynamic routes social image routes should handle manifest.[ext] dynamic routes",
         "app dir - metadata dynamic routes social image routes should render og image with opengraph-image dynamic routes",
         "app dir - metadata dynamic routes social image routes should render og image with twitter-image dynamic routes",

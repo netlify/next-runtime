@@ -44,7 +44,10 @@ async function installDependencies(cwd: string) {
       cwd,
     })
   }
-  return execaCommand(`npm install --ignore-scripts --no-audit --progress=false`, { cwd })
+  return execaCommand(
+    `npm install --ignore-scripts --no-audit --progress=false --legacy-peer-deps`,
+    { cwd },
+  )
 }
 
 export const getFixtureSourceDirectory = (fixture: string) =>

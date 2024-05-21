@@ -45,7 +45,7 @@ const promises = fixtures.map((fixture) =>
     }
 
     // npm is the default
-    let cmd = `npm install --no-audit --progress=false --prefer-offline `
+    let cmd = `npm install --no-audit --progress=false --prefer-offline --legacy-peer-deps`
     const { packageManager } = JSON.parse(await readFile(join(cwd, 'package.json'), 'utf8'))
     if (packageManager?.startsWith('pnpm')) {
       // We disable frozen-lockfile because we may have changed the version of Next.js
