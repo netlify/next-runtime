@@ -7,7 +7,7 @@
     "build": "next build"
   },
   "dependencies": {
-    "@netlify/functions": "^2.5.1",
+    "@netlify/functions": "^2.7.0",
     "@repo/ui": "*",
     "next": "latest",
     "react": "^18.2.0",
