@@ -1,0 +1,9 @@
+{
+  "packages": {
+    ".": {
+      "exclude-paths": ["e2e-report"],
+      "include-component-in-tag": false
+    }
+  },
+  "plugins": ["node-workspace"]
+}
