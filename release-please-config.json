@@ -1,7 +1,7 @@
 {
   "packages": {
     ".": {
-      "exclude-paths": ["e2e-report"],
+      "exclude-paths": ["e2e-report", "tests", "tools", "turbofan"],
       "include-component-in-tag": false
     }
   },
