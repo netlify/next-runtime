@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.3.1](https://github.com/netlify/next-runtime-minimal/compare/v5.3.0...v5.3.1) (2024-05-22)
+
+
+### Bug Fixes
+
+* don't warn about PPR ([#506](https://github.com/netlify/next-runtime-minimal/issues/506)) ([f62c009](https://github.com/netlify/next-runtime-minimal/commit/f62c009703ecd24da0a5213e83fafae296d295fd))
+
 ## [5.3.0](https://github.com/netlify/next-runtime-minimal/compare/v5.2.2...v5.3.0) (2024-05-20)
 
 
