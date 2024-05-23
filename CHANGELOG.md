@@ -5,6 +5,8 @@
 
 ### Bug Fixes
 
+* **deps:** update dependency @netlify/functions to ^2.7.0 ([964ef13](https://github.com/netlify/next-runtime-minimal/commit/964ef13ad87c90356149b50b2e523462bc928564))
+* **deps:** update dependency @netlify/plugin-nextjs to ^5.3.0 ([014be75](https://github.com/netlify/next-runtime-minimal/commit/014be7581f9571823843572b096d3d602f42f4ca))
 * don't warn about PPR ([#506](https://github.com/netlify/next-runtime-minimal/issues/506)) ([f62c009](https://github.com/netlify/next-runtime-minimal/commit/f62c009703ecd24da0a5213e83fafae296d295fd))
 
 ## [5.3.0](https://github.com/netlify/next-runtime-minimal/compare/v5.2.2...v5.3.0) (2024-05-20)
