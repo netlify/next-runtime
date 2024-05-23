@@ -255,5 +255,7 @@
   "test/e2e/undici-fetch/index.test.ts",
   "test/e2e/yarn-pnp/test/with-eslint.test.ts",
   "test/e2e/yarn-pnp/test/with-mdx.test.ts",
-  "test/e2e/yarn-pnp/test/with-next-sass.test.ts"
+  "test/e2e/yarn-pnp/test/with-next-sass.test.ts",
+  "test/e2e/react-compiler/react-compiler.test.ts",
+  "test/e2e/app-dir/next-after-app/index.test.ts"
 ]

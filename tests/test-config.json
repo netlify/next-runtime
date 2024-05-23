@@ -314,6 +314,18 @@
           "reason": "Error in test"
         }
       ]
+    },
+    {
+      "file": "test/e2e/app-dir/next-after-app/index.test.ts",
+      "reason": "Tries to patch deployed files"
+    },
+    {
+      "file": "test/e2e/react-compiler/react-compiler.test.ts",
+      "tests": [
+        "react-compiler default should show an experimental warning",
+        "react-compiler babelrc should show an experimental warning"
+      ],
+      "reason": "Uses CLI output"
     }
   ],
   "failures": [
