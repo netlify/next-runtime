@@ -55,6 +55,10 @@ interface FutureContext extends Context {
 export default async (request: Request, context: FutureContext) => {
   const tracer = getTracer()
 
+  const withPerfDebugSpan = process.env.NETLIFY_NEXT_PERF_DEBUG
+    ? tracer.withActiveSpan.bind(tracer)
+    : <T>(_name: string, fn: () => T): T => fn()
+
   if (!nextHandler) {
     await tracer.withActiveSpan('initialize next server', async (span) => {
       // set the server config
@@ -147,12 +151,16 @@ export default async (request: Request, context: FutureContext) => {
     const keepOpenUntilNextFullyRendered = new TransformStream({
       async flush() {
         // it's important to keep the stream open until the next handler has finished
-        await nextHandlerPromise
-        span.addEvent('next handler finished')
+        await withPerfDebugSpan('awaiting next handler', async () => {
+          await nextHandlerPromise
+        })
+
         if (!context.waitUntil) {
-          // if waitUntil is not available, we have to keep response stream open until background promises are resolved
-          // to ensure that all background work executes
-          await requestContext.backgroundWorkPromise
+          await withPerfDebugSpan('awaiting background work', async () => {
+            // if waitUntil is not available, we have to keep response stream open until background promises are resolved
+            // to ensure that all background work executes
+            await requestContext.backgroundWorkPromise
+          })
         }
       },
     })
