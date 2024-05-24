@@ -127,6 +127,11 @@ export class NetlifyCacheHandler implements CacheHandler {
         return null
       }
 
+      if (process.env.NETLIFY_NEXT_PERF_DEBUG) {
+        const blobSize = JSON.stringify(blob).length
+        span.addEvent(`Blob size ${blobSize}`)
+      }
+
       const staleByTags = await this.checkCacheEntryStaleByTags(blob, ctx.tags, ctx.softTags)
 
       if (staleByTags) {
