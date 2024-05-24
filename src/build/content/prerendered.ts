@@ -57,7 +57,7 @@ const buildAppCacheValue = async (path: string): Promise<CachedPageValue> => {
     readFile(`${path}.prefetch.rsc`, 'utf-8'),
   )
 
-  if (!meta.status && rsc.includes('NEXT_NOT_FOUND')) {
+  if (!meta.status && meta.headers['x-next-cache-tags'].includes('_N_T_/not-found/layout')) {
     meta.status = 404
   }
 

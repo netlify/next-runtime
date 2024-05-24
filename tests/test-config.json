@@ -130,7 +130,8 @@
       "file": "test/e2e/app-dir/parallel-routes-and-interception/parallel-routes-and-interception.test.ts",
       "reason": "Tries to patch deployed files",
       "tests": [
-        "parallel-routes-and-interception parallel routes should gracefully handle when two page segments match the `children` parallel slot"
+        "parallel-routes-and-interception parallel routes should gracefully handle when two page segments match the `children` parallel slot",
+        "parallel-routes-and-interception with patching should gracefully handle when two page segments match the `children` parallel slot"
       ]
     },
     {
@@ -173,6 +174,7 @@
       "reason": "Header whitespace mismatch",
       "tests": [
         "app dir - metadata dynamic routes robots.txt should handle robots.[ext] dynamic routes",
+        "app dir - metadata dynamic routes sitemap should handle sitemap.[ext] dynamic routes",
         "app dir - metadata dynamic routes robots.txt should handle sitemap.[ext] dynamic routes",
         "app dir - metadata dynamic routes social image routes should handle manifest.[ext] dynamic routes",
         "app dir - metadata dynamic routes social image routes should render og image with opengraph-image dynamic routes",
@@ -314,6 +316,27 @@
           "reason": "Error in test"
         }
       ]
+    },
+    {
+      "file": "test/e2e/app-dir/next-after-app/index.test.ts",
+      "reason": "Tries to patch deployed files"
+    },
+    {
+      "file": "test/e2e/react-compiler/react-compiler.test.ts",
+      "tests": [
+        "react-compiler default should show an experimental warning",
+        "react-compiler babelrc should show an experimental warning"
+      ],
+      "reason": "Uses CLI output"
+    },
+    {
+      "file": "test/e2e/edge-async-local-storage/index.test.ts",
+      "reason": "Test is incompatible with serverless because it relies on shared state between requests"
+    },
+    {
+      "file": "test/e2e/app-dir/parallel-routes-revalidation/parallel-routes-revalidation.test.ts",
+      "reason": "Test is incompatible with serverless because it relies on shared state between requests",
+      "tests": ["should refresh the correct page when a server action triggers a redirect"]
     }
   ],
   "failures": [
@@ -334,6 +357,11 @@
     },
     {
       "name": "app dir - basic next/script should pass `nonce`",
+      "reason": "Nonce not automatically set in script tags when using CSP",
+      "link": "https://github.com/netlify/next-runtime-minimal/issues/381"
+    },
+    {
+      "name": "app dir - basic next/script should pass nonce when using next/font",
       "reason": "Nonce not automatically set in script tags when using CSP",
       "link": "https://github.com/netlify/next-runtime-minimal/issues/381"
     },
