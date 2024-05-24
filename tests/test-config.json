@@ -332,6 +332,11 @@
     {
       "file": "test/e2e/edge-async-local-storage/index.test.ts",
       "reason": "Test is incompatible with serverless because it relies on shared state between requests"
+    },
+    {
+      "file": "test/e2e/app-dir/parallel-routes-revalidation/parallel-routes-revalidation.test.ts",
+      "reason": "Test is incompatible with serverless because it relies on shared state between requests",
+      "tests": ["should refresh the correct page when a server action triggers a redirect"]
     }
   ],
   "failures": [
