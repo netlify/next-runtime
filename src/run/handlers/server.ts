@@ -148,6 +148,7 @@ export default async (request: Request, context: FutureContext) => {
       async flush() {
         // it's important to keep the stream open until the next handler has finished
         await nextHandlerPromise
+        span.addEvent('next handler finished')
         if (!context.waitUntil) {
           // if waitUntil is not available, we have to keep response stream open until background promises are resolved
           // to ensure that all background work executes
