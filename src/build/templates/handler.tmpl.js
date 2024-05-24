@@ -1,3 +1,4 @@
+import { enableModuleImportTracing } from './.netlify/dist/run/handlers/import-time-debug.cjs'
 import {
   createRequestContext,
   runWithRequestContext,
@@ -9,10 +10,15 @@ import tracing from './.netlify/dist/run/handlers/tracing.js'
 // Set feature flag for regional blobs
 process.env.USE_REGIONAL_BLOBS = '{{useRegionalBlobs}}'
 
+if (process.env.NETLIFY_OTLP_TRACE_EXPORTER_URL || process.env.NETLIFY_NEXT_PERF_DEBUG) {
+  tracing.start()
+}
+
+if (process.env.NETLIFY_NEXT_PERF_DEBUG) {
+  enableModuleImportTracing()
+}
+
 export default async function handler(req, context) {
-  if (process.env.NETLIFY_OTLP_TRACE_EXPORTER_URL) {
-    tracing.start()
-  }
   const requestContext = createRequestContext(req.headers.get('x-next-debug-logging'))
   const tracer = getTracer()
 
