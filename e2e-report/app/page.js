@@ -7,13 +7,13 @@ export default function Home() {
   const { results, passed, failed, total, passRate, skipped, testDate, nextVersion } = testData
   const skippedTests = []
   results.forEach((suite) => {
-    if (suite.skipped) {
+    if (suite.skipped === true) {
       skippedTests.push(suite)
     }
 
     const { testCases } = suite
     testCases?.forEach((testCase) => {
-      if (testCase.link) {
+      if (testCase.status === 'failed') {
         skippedTests.push(testCase)
       }
     })
