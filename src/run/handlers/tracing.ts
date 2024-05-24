@@ -30,8 +30,6 @@ if (process.env.NETLIFY_OTLP_TRACE_EXPORTER_URL) {
 }
 
 if (process.env.NETLIFY_NEXT_PERF_DEBUG) {
-  process.env.NEXT_OTEL_VERBOSE = '1'
-
   class CompactConsoleExporter implements SpanExporter {
     export(spans: ReadableSpan[], resultCallback: Parameters<SpanExporter['export']>[1]) {
       return this._sendSpans(spans, resultCallback)
