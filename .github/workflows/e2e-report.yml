@@ -1,6 +1,10 @@
 name: 'Deploy e2e test page'
 on:
   workflow_dispatch:
+    inputs:
+      use-branch:
+        description: 'Enable if you want to test data from your selected branch instead of the scheduled test runs from Main'
+        type: boolean
 
 env:
   NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
@@ -15,9 +19,14 @@ jobs:
       - name: Get run id
         id: get-run-id
         run: |
-          E2E_RUN_ID=$(gh run list -w test-e2e.yml -e schedule --json databaseId --jq ".[0].databaseId" --repo $GITHUB_REPOSITORY)
+          if [ "${{ inputs.use-branch }}" == "true" ]; then
+            E2E_RUN_ID=$(gh run list -w test-e2e.yml -e workflow_dispatch -b $GITHUB_REF_NAME --json databaseId --jq ".[0].databaseId" --repo $GITHUB_REPOSITORY)
+          else
+            E2E_RUN_ID=$(gh run list -w test-e2e.yml -e schedule --json databaseId --jq ".[0].databaseId" --repo $GITHUB_REPOSITORY)
+          fi
           echo "runId=$E2E_RUN_ID" >> $GITHUB_OUTPUT
       - name: Download latest e2e results
+        if: ${{ steps.get-run-id.outputs.runId }}
         run: |
           echo "Downloading latest test results from run https://github.com/netlify/next-runtime-minimal/actions/runs/${{ steps.get-run-id.outputs.runId }}"
           rm e2e-report/data/test-results.json
