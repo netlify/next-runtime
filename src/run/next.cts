@@ -89,7 +89,11 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
         if (typeof path === 'string' && path.endsWith('.html')) {
           const store = getRegionalBlobStore()
           const relPath = relative(resolve('.next/server/pages'), path)
-          const file = await store.get(await encodeBlobKey(relPath))
+
+          const file = await getTracer().withActiveSpan(`blob readFile ${relPath}`, async () => {
+            return await store.get(await encodeBlobKey(relPath))
+          })
+
           if (file !== null) {
             const requestContext = getRequestContext()
             if (requestContext) {
