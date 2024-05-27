@@ -1,9 +1,6 @@
 {
+  "exclude-paths": ["e2e-report", "tests", "tools", "turbofan"],
   "packages": {
-    ".": {
-      "exclude-paths": ["e2e-report", "tests", "tools", "turbofan"],
-      "include-component-in-tag": false
-    }
-  },
-  "plugins": ["node-workspace"]
+    ".": {}
+  }
 }
