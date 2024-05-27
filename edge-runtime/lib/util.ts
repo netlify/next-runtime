@@ -1,5 +1,3 @@
-import type { RequestData } from './next-request.ts'
-
 /**
  * Normalize a data URL into a route path.
  * @see https://github.com/vercel/next.js/blob/25e0988e7c9033cb1503cbe0c62ba5de2e97849c/packages/next/src/shared/lib/router/utils/get-next-pathname-info.ts#L69-L76

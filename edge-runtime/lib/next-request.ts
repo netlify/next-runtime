@@ -1,6 +1,6 @@
 import type { Context } from '@netlify/edge-functions'
 
-import { normalizeDataUrl, removeBasePath, normalizeLocalePath, addBasePath } from './util.ts'
+import { addBasePath, normalizeDataUrl, normalizeLocalePath, removeBasePath } from './util.ts'
 
 interface I18NConfig {
   defaultLocale: string
@@ -74,6 +74,11 @@ const normalizeRequestURL = (
     url.pathname = addBasePath(url.pathname, nextConfig?.basePath)
   }
 
+  // keep the locale in the url for request.nextUrl object
+  if (detectedLocale) {
+    url.pathname = `/${detectedLocale}${url.pathname}`
+  }
+
   return {
     url: url.toString(),
     detectedLocale,
@@ -88,9 +93,9 @@ export const buildNextRequest = (
   const { url, method, body, headers } = request
   const { country, subdivision, city, latitude, longitude, timezone } = context.geo
   const geo: RequestData['geo'] = {
+    city,
     country: country?.code,
     region: subdivision?.code,
-    city,
     latitude: latitude?.toString(),
     longitude: longitude?.toString(),
     timezone,

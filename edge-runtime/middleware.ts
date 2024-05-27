@@ -6,12 +6,11 @@ import nextConfig from './next.config.json' assert { type: 'json' }
 import { InternalHeaders } from './lib/headers.ts'
 import { logger, LogLevel } from './lib/logging.ts'
 import { buildNextRequest, RequestData } from './lib/next-request.ts'
-import { buildResponse } from './lib/response.ts'
-import { FetchEventResult } from './lib/response.ts'
+import { buildResponse, FetchEventResult } from './lib/response.ts'
 import {
-  type MiddlewareRouteMatch,
   getMiddlewareRouteMatcher,
   searchParamsToUrlQuery,
+  type MiddlewareRouteMatch,
 } from './lib/routing.ts'
 
 type NextHandler = (params: { request: RequestData }) => Promise<FetchEventResult>

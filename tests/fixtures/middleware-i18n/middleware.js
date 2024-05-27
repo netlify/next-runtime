@@ -80,4 +80,8 @@ export async function middleware(request) {
     console.log(String(new URL('/new-home#fragment', url)))
     return Response.redirect(new URL('/new-home#fragment', url))
   }
+
+  if (url.pathname.includes('/json')) {
+    return NextResponse.json({ url: request.nextUrl.href, locale: request.nextUrl.locale })
+  }
 }

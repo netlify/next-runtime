@@ -499,4 +499,30 @@ describe('page router', () => {
     expect(url.pathname).toBe('/fr/new-home')
     expect(response.status).toBe(302)
   })
+
+  test<FixtureTestContext>('should preserve locale in request.nextUrl', async (ctx) => {
+    await createFixture('middleware-i18n', ctx)
+    await runPlugin(ctx)
+    const origin = await LocalServer.run(async (req, res) => {
+      res.write(
+        JSON.stringify({
+          url: req.url,
+          headers: req.headers,
+        }),
+      )
+      res.end()
+    })
+    ctx.cleanup?.push(() => origin.stop())
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      url: `/fr/json`,
+    })
+    expect(response.status).toBe(200)
+
+    const body = await response.json()
+    const bodyUrl = new URL(body.url)
+    expect(bodyUrl.pathname).toBe('/fr/json')
+    expect(body.locale).toBe('fr')
+  })
 })
