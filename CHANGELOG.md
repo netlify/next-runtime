@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.3.2](https://github.com/netlify/next-runtime-minimal/compare/v5.3.1...v5.3.2) (2024-05-28)
+
+
+### Bug Fixes
+
+* allow parallel routes to resolve without routing to a 404 page ([#516](https://github.com/netlify/next-runtime-minimal/issues/516)) ([04dc3ec](https://github.com/netlify/next-runtime-minimal/commit/04dc3ecb4c6723e235f42e0ae305229497bdac03))
+* ensure locale is in next response url to allow page locale to inferred downstream ([#533](https://github.com/netlify/next-runtime-minimal/issues/533)) ([59b575e](https://github.com/netlify/next-runtime-minimal/commit/59b575e5ce3db1aac6777648ede245f5358de070))
+* manually triggered notFound pages in page-router for older versions of next ([#541](https://github.com/netlify/next-runtime-minimal/issues/541)) ([30ef981](https://github.com/netlify/next-runtime-minimal/commit/30ef98119d5d8a7deb48c90454e0983526246f18))
+
 ## [5.3.1](https://github.com/netlify/next-runtime-minimal/compare/v5.3.0...v5.3.1) (2024-05-22)
 
 
