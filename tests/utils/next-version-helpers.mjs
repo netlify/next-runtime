@@ -3,13 +3,13 @@
 import { readFile, writeFile } from 'node:fs/promises'
 
 import fg from 'fast-glob'
-import { valid, satisfies, gte } from 'semver'
+import { gte, satisfies, valid } from 'semver'
 
 const FUTURE_NEXT_PATCH_VERSION = '14.999.0'
 
 const NEXT_VERSION_REQUIRES_REACT_19 = '14.3.0-canary.45'
 // TODO: Update this when React 19 is released
-const REACT_19_VERSION = '19.0.0-rc-3f1436cca1-20240516'
+const REACT_19_VERSION = '19.0.0-rc-f994737d14-20240522'
 const REACT_18_VERSION = '18.2.0'
 
 /**

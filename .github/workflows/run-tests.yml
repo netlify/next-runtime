@@ -208,10 +208,19 @@ jobs:
         run: |
           npm i -g netlify-cli
           netlify login
+      - name: Resolve Next.js version
+        id: resolve-next-version
+        shell: bash
+        run: |
+          RESOLVED_VERSION=$(npm view next@${{ matrix.version }} version)
+          echo "version=$RESOLVED_VERSION" >> $GITHUB_OUTPUT
+          echo "Resolved Next.js version for 'next@${{ matrix.version }}' is '$RESOLVED_VERSION'"
       - name: 'Smoke tests'
         run: npm run test:ci:smoke
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NEXT_VERSION: ${{ matrix.version }}
+          NEXT_RESOLVED_VERSION: ${{ steps.resolve-next-version.outputs.version }}
 
   merge-reports:
     if: always()
