@@ -66,8 +66,6 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
     '/image/remote-pattern-2',
     '/index',
     '/other',
-    '/redirect',
-    '/redirect/response',
     '/route-resolves-to-not-found',
     '404.html',
     '500.html',

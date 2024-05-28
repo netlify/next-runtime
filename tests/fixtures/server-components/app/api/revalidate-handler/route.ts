@@ -8,3 +8,5 @@ export async function GET() {
 
   return NextResponse.json({ data, time: new Date().toISOString() })
 }
+
+export const dynamic = 'force-static'

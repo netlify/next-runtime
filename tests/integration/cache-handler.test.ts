@@ -326,7 +326,7 @@ describe('plugin', () => {
 })
 
 describe('route', () => {
-  test<FixtureTestContext>('route handler with revalidate', async (ctx) => {
+  test<FixtureTestContext>('route handler with cacheable response', async (ctx) => {
     await createFixture('server-components', ctx)
     await runPlugin(ctx)
 
