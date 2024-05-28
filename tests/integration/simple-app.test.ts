@@ -65,10 +65,10 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
     '/image/remote-pattern-1',
     '/image/remote-pattern-2',
     '/index',
-    '/not-found',
     '/other',
     '/redirect',
     '/redirect/response',
+    '/route-resolves-to-not-found',
     '404.html',
     '500.html',
   ])
@@ -82,13 +82,13 @@ test<FixtureTestContext>('Test that the simple next app is working', async (ctx)
   expect(other.statusCode).toBe(200)
   expect(load(other.body)('h1').text()).toBe('Other')
 
-  const notFound = await invokeFunction(ctx, { url: 'not-found' })
+  const notFound = await invokeFunction(ctx, { url: 'route-resolves-to-not-found' })
   expect(notFound.statusCode).toBe(404)
   expect(notFound.body).toContain('NEXT_NOT_FOUND')
 
   const notExisting = await invokeFunction(ctx, { url: 'non-exisitng' })
   expect(notExisting.statusCode).toBe(404)
-  expect(load(notExisting.body)('h1').text()).toBe('404')
+  expect(load(notExisting.body)('h1').text()).toBe('404 Not Found')
 })
 
 describe('verification', () => {

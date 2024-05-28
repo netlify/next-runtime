@@ -57,7 +57,13 @@ const buildAppCacheValue = async (path: string): Promise<CachedPageValue> => {
     readFile(`${path}.prefetch.rsc`, 'utf-8'),
   )
 
-  if (!meta.status && meta.headers['x-next-cache-tags'].includes('_N_T_/not-found/layout')) {
+  // Next < v14.2.0 does not set meta.status when notFound() is called directly on a page
+  // Exclude Parallel routes, they are 404s when visited directly
+  if (
+    !meta.status &&
+    rsc.includes('NEXT_NOT_FOUND') &&
+    !meta.headers['x-next-cache-tags'].includes('/@')
+  ) {
     meta.status = 404
   }
 

@@ -213,7 +213,7 @@ test('requesting a non existing page route that needs to be fetched from the blo
   const headers = response?.headers() || {}
   expect(response?.status()).toBe(404)
 
-  expect(await page.textContent('h1')).toBe('404')
+  expect(await page.textContent('h1')).toBe('404 Not Found')
 
   expect(headers['netlify-cdn-cache-control']).toBe(
     'private, no-cache, no-store, max-age=0, must-revalidate',
@@ -225,11 +225,11 @@ test('requesting a non existing page route that needs to be fetched from the blo
   page,
   simple,
 }) => {
-  const response = await page.goto(new URL('not-found', simple.url).href)
+  const response = await page.goto(new URL('route-resolves-to-not-found', simple.url).href)
   const headers = response?.headers() || {}
   expect(response?.status()).toBe(404)
 
-  expect(await page.textContent('h1')).toBe('404')
+  expect(await page.textContent('h1')).toBe('404 Not Found')
 
   expect(headers['netlify-cdn-cache-control']).toBe(
     's-maxage=31536000, stale-while-revalidate=31536000',
