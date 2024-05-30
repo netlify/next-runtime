@@ -10,7 +10,7 @@ import type { Key } from '../vendor/deno.land/x/path_to_regexp@v6.2.1/index.ts'
 import { compile, pathToRegexp } from '../vendor/deno.land/x/path_to_regexp@v6.2.1/index.ts'
 import { getCookies } from '../vendor/deno.land/std@0.175.0/http/cookie.ts'
 
-/* 
+/*
   ┌─────────────────────────────────────────────────────────────────────────┐
   │ Inlined/re-implemented types                                            │
   └─────────────────────────────────────────────────────────────────────────┘
@@ -86,7 +86,7 @@ export type RoutesManifest = {
   dynamicRoutes: DynamicRoute[]
 }
 
-/* 
+/*
   ┌─────────────────────────────────────────────────────────────────────────┐
   │ packages/next/src/shared/lib/escape-regexp.ts                           │
   └─────────────────────────────────────────────────────────────────────────┘
@@ -104,7 +104,7 @@ export function escapeStringRegexp(str: string) {
   return str
 }
 
-/* 
+/*
   ┌─────────────────────────────────────────────────────────────────────────┐
   │ packages/next/src/shared/lib/router/utils/querystring.ts                │
   └─────────────────────────────────────────────────────────────────────────┘
@@ -125,7 +125,7 @@ export function searchParamsToUrlQuery(searchParams: URLSearchParams): ParsedUrl
   return query
 }
 
-/* 
+/*
   ┌─────────────────────────────────────────────────────────────────────────┐
   │ packages/next/src/shared/lib/router/utils/parse-url.ts                  │
   └─────────────────────────────────────────────────────────────────────────┘
@@ -156,7 +156,7 @@ export function parseUrl(url: string): ParsedUrl {
   }
 }
 
-/* 
+/*
   ┌─────────────────────────────────────────────────────────────────────────┐
   │ packages/next/src/shared/lib/router/utils/prepare-destination.ts        │
   │ — Changed to use WHATWG Fetch `Request` instead of                      │
@@ -392,7 +392,7 @@ function unescapeSegments(str: string) {
   return str.replace(/__ESC_COLON_/gi, ':')
 }
 
-/* 
+/*
   ┌─────────────────────────────────────────────────────────────────────────┐
   │ packages/next/src/shared/lib/router/utils/is-dynamic.ts                 │
   └─────────────────────────────────────────────────────────────────────────┘
@@ -404,7 +404,7 @@ export function isDynamicRoute(route: string): boolean {
   return TEST_ROUTE.test(route)
 }
 
-/* 
+/*
   ┌─────────────────────────────────────────────────────────────────────────┐
   │ packages/next/shared/lib/router/utils/middleware-route-matcher.ts       │
   └─────────────────────────────────────────────────────────────────────────┘

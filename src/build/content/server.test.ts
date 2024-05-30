@@ -2,15 +2,15 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 import { NetlifyPluginOptions } from '@netlify/build'
-import { expect, test, vi, describe, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { mockFileSystem } from '../../../tests/index.js'
 import { PluginContext, RequiredServerFilesManifest } from '../plugin-context.js'
 
 import {
-  NextInternalModuleReplacement,
   copyNextServerCode,
   getPatchesToApply,
+  NextInternalModuleReplacement,
   verifyHandlerDirStructure,
 } from './server.js'
 

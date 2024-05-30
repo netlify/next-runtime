@@ -5,7 +5,7 @@ import { Context } from '@netlify/functions'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
-import { TagsManifest, getTagsManifest } from '../config.js'
+import { getTagsManifest, TagsManifest } from '../config.js'
 import {
   adjustDateHeader,
   setCacheControlHeaders,

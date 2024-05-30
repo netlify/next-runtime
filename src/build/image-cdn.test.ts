@@ -1,7 +1,6 @@
-/* eslint-disable id-length */
 import type { NetlifyPluginOptions } from '@netlify/build'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
-import { TestContext, beforeEach, describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test, TestContext } from 'vitest'
 
 import { setImageConfig } from './image-cdn.js'
 import { PluginContext, type RequiredServerFilesManifest } from './plugin-context.js'
@@ -35,11 +34,8 @@ describe('Image CDN', () => {
       expect.arrayContaining([
         {
           from: '/_next/image',
-          query: {
-            q: ':quality',
-            url: ':url',
-            w: ':width',
-          },
+          // eslint-disable-next-line id-length
+          query: { q: ':quality', url: ':url', w: ':width' },
           to: '/.netlify/images?url=:url&w=:width&q=:quality',
           status: 200,
         },
@@ -64,11 +60,8 @@ describe('Image CDN', () => {
       expect.arrayContaining([
         {
           from: '/_next/image',
-          query: {
-            q: ':quality',
-            url: ':url',
-            w: ':width',
-          },
+          // eslint-disable-next-line id-length
+          query: { q: ':quality', url: ':url', w: ':width' },
           to: '/.netlify/images?url=:url&w=:width&q=:quality',
           status: 200,
         },
@@ -97,11 +90,8 @@ describe('Image CDN', () => {
       expect.arrayContaining([
         {
           from: '/base/path/_custom/image/endpoint',
-          query: {
-            q: ':quality',
-            url: ':url',
-            w: ':width',
-          },
+          // eslint-disable-next-line id-length
+          query: { q: ':quality', url: ':url', w: ':width' },
           to: '/.netlify/images?url=:url&w=:width&q=:quality',
           status: 200,
         },
@@ -109,4 +99,3 @@ describe('Image CDN', () => {
     )
   })
 })
-/* eslint-enable id-length */

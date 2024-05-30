@@ -4,7 +4,7 @@ import { inspect } from 'node:util'
 
 import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
-import { Mock, beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, Mock, test, vi } from 'vitest'
 
 import { mockFileSystem } from '../../../tests/index.js'
 import { type FixtureTestContext } from '../../../tests/utils/contexts.js'

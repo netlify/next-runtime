@@ -3,14 +3,13 @@ import {
   access,
   cp,
   mkdir,
-  readFile,
   readdir,
+  readFile,
   readlink,
   symlink,
   writeFile,
 } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-// eslint-disable-next-line no-restricted-imports
 import { dirname, join, resolve, sep } from 'node:path'
 import { join as posixJoin, sep as posixSep } from 'node:path/posix'
 

@@ -1,7 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
-// Here we need to actually import `resolve` from node:path as we want to resolve the paths
-// eslint-disable-next-line no-restricted-imports
 import { join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 

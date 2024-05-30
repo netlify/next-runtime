@@ -11,8 +11,8 @@ import { encodeBlobKey } from '../../shared/blobkey.js'
 import type {
   CachedFetchValue,
   CachedPageValue,
-  NetlifyCacheHandlerValue,
   NetlifyCachedRouteValue,
+  NetlifyCacheHandlerValue,
   NetlifyIncrementalCacheValue,
 } from '../../shared/cache-types.cjs'
 import type { PluginContext } from '../plugin-context.js'

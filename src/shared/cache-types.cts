@@ -3,8 +3,8 @@ import type {
   IncrementalCache,
 } from 'next/dist/server/lib/incremental-cache/index.js'
 import type {
-  IncrementalCacheValue,
   CachedRouteValue,
+  IncrementalCacheValue,
 } from 'next/dist/server/response-cache/types.js'
 
 export type {

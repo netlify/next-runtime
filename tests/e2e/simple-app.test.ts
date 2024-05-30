@@ -81,7 +81,6 @@ test.skip('streams stale responses', async ({ simple }) => {
 
     const res = await fetch(path)
 
-    // eslint-disable-next-line no-loop-func
     await new Promise<void>((resolve) => {
       res.body?.pipeTo(
         new WritableStream({
