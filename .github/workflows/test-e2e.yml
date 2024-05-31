@@ -38,6 +38,7 @@ env:
   NEXT_TEST_CONTINUE_ON_ERROR: 1
   next-path: next.js
   runtime-path: next-runtime-minimal
+  GH_TOKEN: ${{ github.token }}
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -236,6 +237,12 @@ jobs:
         with:
           pattern: test-result-${{matrix.version_spec.selector}}-*
           path: artifacts
+
+      - name: Get and format Github issues
+        if: success() || failure()
+        run: |
+          gh issue list --label "Next.js e2e test failure" --json number,body > report/issues.json
+          deno run -A tools/deno/ghIssues2json.ts tests/test-config.json report/issues.json
 
       - name: Publish Test Report
         id: publish-test-results

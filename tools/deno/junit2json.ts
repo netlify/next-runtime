@@ -109,7 +109,9 @@ function junitToJson(xmlData: {
         status,
       }
       if (status === 'failed') {
-        const failure = testConfig.failures.find((conf) => conf.name === test.name)
+        const failure = testConfig.failures.find(
+          (conf) => conf.name === test.name || conf.name === testSuite.file,
+        )
         if (failure) {
           test.reason = failure.reason
           test.link = failure.link
