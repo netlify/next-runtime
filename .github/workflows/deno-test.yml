@@ -12,5 +12,9 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: vx.x.x
+      - name: Typecheck
+        run: npm run typecheck:deno
+      - name: Lint
+        run: npm run lint:deno
       - name: Test
-        run: deno test -A edge-runtime/
+        run: npm run test:deno
