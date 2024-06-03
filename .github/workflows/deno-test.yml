@@ -12,6 +12,14 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: vx.x.x
+      - name: Vendor Deno Dependencies
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { vendorDeno } = await import('${{ github.workspace }}/tools/build.js')
+
+            await vendorDeno('edge-runtime')
+            await vendorDeno('tools/deno')
       - name: Typecheck
         run: npm run typecheck:deno
       - name: Lint
