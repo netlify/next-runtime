@@ -43,7 +43,8 @@ interface TestSuite {
 
 interface SkippedTestSuite {
   file: string
-  reason: string
+  /** reason is required either on the suite or on all tests */
+  reason?: string
   skipped: true
 }
 
@@ -92,11 +93,13 @@ function junitToJson(xmlData: {
       total: tests,
       testCases: [],
     }
-    const skippedTests = testConfig.skipped.find(
+    const skippedTestsForFile = testConfig.skipped.find(
       (skippedTest) => skippedTest.file === testSuite.file,
     )
 
-    testSuite.skipped = skippedTests?.tests?.length ?? 0
+    // If the skipped file has no `tests`, all tests in the file are skipped
+    testSuite.skipped =
+      skippedTestsForFile != null ? (skippedTestsForFile.tests ?? testCases).length : 0
 
     for (const testCase of testCases) {
       if ('skipped' in testCase) {
@@ -120,15 +123,15 @@ function junitToJson(xmlData: {
       testSuite.testCases.push(test)
     }
 
-    if (skippedTests?.tests) {
-      testCount.skipped += skippedTests.tests.length
+    if (skippedTestsForFile?.tests) {
+      testCount.skipped += skippedTestsForFile.tests.length
       testSuite.testCases.push(
-        ...skippedTests.tests.map((test): TestCase => {
+        ...skippedTestsForFile.tests.map((test): TestCase => {
           if (typeof test === 'string') {
             return {
               name: test,
               status: 'skipped',
-              reason: skippedTests.reason,
+              reason: skippedTestsForFile.reason,
             }
           }
           return {
@@ -138,6 +141,9 @@ function junitToJson(xmlData: {
           }
         }),
       )
+    } else if (skippedTestsForFile != null) {
+      // If `tests` is omitted, all tests in the file are skipped
+      testCount.skipped += testSuite.total
     }
     return testSuite
   })
@@ -146,21 +152,26 @@ function junitToJson(xmlData: {
 async function processJUnitFiles(
   directoryPath: string,
 ): Promise<Array<TestSuite | SkippedTestSuite>> {
-  const results = []
+  const results: (TestSuite | SkippedTestSuite)[] = []
   for await (const file of expandGlob(`${directoryPath}/**/*.xml`)) {
     const xmlData = await parseXMLFile(file.path)
     results.push(...junitToJson(xmlData))
   }
-  const skippedSuites = testConfig.skipped.map(
-    ({ file, reason }): SkippedTestSuite => ({
-      file,
-      reason,
-      skipped: true,
-    }),
-  )
 
-  testCount.skipped += skippedSuites.length
+  // We've configured the Next.js e2e test runner to *actually* skip entire test
+  // suites that are marked as skipped in `test-config.json`, so this appends those
+  // to the results (but NOT partially skipped suites, as these are already included).
+  const skippedSuites = testConfig.skipped
+    .filter(({ tests }) => tests == null)
+    .map(
+      ({ file, reason }): SkippedTestSuite => ({
+        file,
+        reason,
+        skipped: true,
+      }),
+    )
   results.push(...skippedSuites)
+
   return results
 }
 

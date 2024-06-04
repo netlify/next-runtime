@@ -1,4 +1,4 @@
-import { exec } from 'child_process'
+import { exec } from 'node:child_process'
 import { SITE_ID, deleteDeploy } from '../../tests/utils/create-e2e-fixture.js'
 
 const runCommand = (cmd: string) =>

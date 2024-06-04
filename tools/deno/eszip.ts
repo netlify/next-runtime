@@ -2,7 +2,6 @@
 
 import { build, Parser } from 'https://deno.land/x/eszip@v0.55.4/mod.ts'
 import { dirname, join } from 'https://deno.land/std@0.127.0/path/mod.ts'
-import { assertStrictEquals } from 'https://deno.land/std@0.127.0/testing/asserts.ts'
 
 interface ESZIP {
   extract(dest: string): Promise<void>

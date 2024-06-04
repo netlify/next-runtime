@@ -1,11 +1,7 @@
 import Table from './table.js'
 
 export default function TestSuites({ suite, slider, handleSelect, arrows }) {
-  const { name, file, passed, failed, skipped, testCases } = suite
-  // TODO: There are some suites coming through that have no status and some repeats
-  if (skipped === true || (passed === 0 && failed === 0 && skipped === 0)) {
-    return
-  }
+  const { name, file, passed, failed, testCases } = suite
 
   return (
     <>

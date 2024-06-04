@@ -173,6 +173,8 @@
       "file": "test/e2e/app-dir/metadata-dynamic-routes/index.test.ts",
       "reason": "Header whitespace mismatch",
       "tests": [
+        "app dir - metadata dynamic routes text routes should handle robots.[ext] dynamic routes",
+        "app dir - metadata dynamic routes text routes should handle sitemap.[ext] dynamic routes",
         "app dir - metadata dynamic routes robots.txt should handle robots.[ext] dynamic routes",
         "app dir - metadata dynamic routes sitemap should handle sitemap.[ext] dynamic routes",
         "app dir - metadata dynamic routes robots.txt should handle sitemap.[ext] dynamic routes",
@@ -336,7 +338,25 @@
     {
       "file": "test/e2e/app-dir/parallel-routes-revalidation/parallel-routes-revalidation.test.ts",
       "reason": "Test is incompatible with serverless because it relies on shared state between requests",
-      "tests": ["should refresh the correct page when a server action triggers a redirect"]
+      "tests": [
+        "parallel-routes-revalidation should refresh the correct page when a server action triggers a redirect",
+        "parallel-routes-revalidation should submit the action and revalidate the page data"
+      ]
+    },
+    {
+      "file": "test/e2e/app-dir/revalidate-dynamic/revalidate-dynamic.test.ts",
+      "reason": "Race condition when testing revalidation",
+      "tests": [
+        "app-dir revalidate-dynamic should revalidate the data with /api/revalidate-path",
+        "app-dir revalidate-dynamic should revalidate the data with /api/revalidate-tag"
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "name": "This is an example for the json import to infer the right type",
+      "reason": "(This is because for some reason we inject the `failures` key at runtime)",
+      "link": "https://example.com"
     }
   ]
 }

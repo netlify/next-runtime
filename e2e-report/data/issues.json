@@ -1,0 +1,46 @@
+[
+  {
+    "body": "I'm not quite sure exactly what the scope of this is, but the failing tests here have a fixture site that enables `skipMiddlewareUrlNormalize` and a user middleware that redirects any other casing of `/en/*` to `/en/*` (and so on), but when `/EN` is fetched it redirects to `/en/en` instead of `/en`:\r\n\r\n```\r\n  ● skip-trailing-slash-redirect › should be able to redirect locale casing $1\r\n\r\n    expect(received).toBe(expected) // Object.is equality\r\n\r\n    Expected: \"/en\"\r\n    Received: \"/en/en\"\r\n\r\n      155 |       const res = await next.fetch(`/${locale}`, { redirect: 'manual' })\r\n      156 |       expect(res.status).toBe(307)\r\n    > 157 |       expect(new URL(res.headers.get('location'), 'http://n').pathname).toBe(\r\n          |                                                                         ^\r\n      158 |         `/${locale.toLowerCase()}`\r\n      159 |       )\r\n      160 |     }\r\n\r\n      at toBe (e2e/skip-trailing-slash-redirect/index.test.ts:157:73)\r\n\r\n  ● skip-trailing-slash-redirect › should be able to redirect locale casing $1\r\n\r\n    expect(received).toBe(expected) // Object.is equality\r\n\r\n    Expected: \"/ja-jp\"\r\n    Received: \"/ja-jp/ja-jp\"\r\n\r\n      155 |       const res = await next.fetch(`/${locale}`, { redirect: 'manual' })\r\n      156 |       expect(res.status).toBe(307)\r\n    > 157 |       expect(new URL(res.headers.get('location'), 'http://n').pathname).toBe(\r\n          |                                                                         ^\r\n      158 |         `/${locale.toLowerCase()}`\r\n      159 |       )\r\n      160 |     }\r\n\r\n      at toBe (e2e/skip-trailing-slash-redirect/index.test.ts:157:73)\r\n```\r\n\r\nIt looks like we [previously claimed to have fixed this in FRA-332](https://github.com/netlify/next-runtime-minimal/pull/287), but it must have regressed at some point.\r\n\r\ntest: test/e2e/skip-trailing-slash-redirect/index.test.ts\r\nreason: does not correctly handle user middleware that redirects to path with canonical locale casing when app enables `skipMiddlewareUrlNormalize` and path contains locale slug with non-canonical casing",
+    "number": 564
+  },
+  {
+    "body": "A pages router site with both basepath and i18n enabled does not match middleware targeted at the root unless a locale is in the URL. It should match when using the default locale\r\n\r\nDemo: \r\n- https://6634b69452829cd391cab206--next-e2e-tests.netlify.app/root/ does not have `x-from-middleware` header\r\n- https://6634b69452829cd391cab206--next-e2e-tests.netlify.app/root/en/ does have `x-from-middleware` header\r\n\r\ntest: test/e2e/middleware-matcher/index.test.ts\r\nreason: Middleware does not match when using basePath and default locale",
+    "number": 454
+  },
+  {
+    "body": "There are a few scenarios where our the custom matchers from middleware are not correctly being transformed when using i18n and default locales, as they're either matching too broadly or too narrowly. See the two linked GH issues for details:\r\n\r\n[https://github.com/netlify/next-runtime-minimal/issues/453](https://github.com/netlify/next-runtime-minimal/issues/453)<br>[https://github.com/netlify/next-runtime-minimal/issues/454](https://github.com/netlify/next-runtime-minimal/issues/454)\r\n\r\ntest: Middleware custom matchers i18n should not match\r\nreason: Middleware matching is too broad when using i18n",
+    "number": 453
+  },
+  {
+    "body": "On sites that use pages router and have middleware, loading a page using next/link will attempt to load a JSON file, which will return a 404. If there is no middleware then it works fine. This applies even if the middleware does nothing.\r\n\r\ntest: test/e2e/middleware-base-path/test/index.test.ts\r\nreason: Pages router data requests returning 404 when middleware is used\r\ntest case: \"Middleware base tests router.query must exist when Link clicked page routing\"",
+    "number": 450
+  },
+  {
+    "body": "When appending a `set-cookie` header, the server returns two copies of the header. e.g. \r\n\r\n```ts\r\nexport async function middleware(request, ev) {\r\n  const next = NextResponse.next()\r\n  next.headers.append('set-cookie', 'bar=chocochip')\r\n  return next\r\n}\r\n```\r\n\r\nLeads to: \r\n\r\n![image](https://github.com/netlify/next-runtime-minimal/assets/213306/22c51860-fbde-4b70-b9aa-18172ee0d6e2)\r\n\r\ntest: test/e2e/middleware-responses/test/index.test.ts\r\nreason: Appending set-cookie header in middleware leads to duplicate header\r\n",
+    "number": 447
+  },
+  {
+    "body": "The test [\"app-dir action handling fetch actions should store revalidation data in the prefetch cache\"](https://github.com/vercel/next.js/blob/6475431a4cbbf2b71c38158e0e722183779faf4f/test/e2e/app-dir/actions/app-action.test.ts#L980) fails when running tests, but seems to work fine when testing manually. It may be a first-run issue, which needs investigation.\r\n\r\ntest: test/e2e/app-dir/actions/app-action.test.ts\r\nreason: Fetch action prefetch cache test is flakey",
+    "number": 444
+  },
+  {
+    "body": "If a Next.js page returns a 500 error and the browser sent accept-encoding gzip, it seems the returned data _is_ encoded, but no encoding header is set, so the browser cannot decode it.\r\n\r\n`curl --request GET --url https://66056f2be8186e00aaea53d3--next-e2e-tests.netlify.app/enoent --header 'Accept-Encoding: gzip'`\r\n\r\ntest case: https://github.com/vercel/next.js/blob/canary/test/e2e/getserversideprops/test/index.test.ts#L367\r\ntest: test/e2e/getserversideprops/test/index.test.ts\r\nreason: Server error pages return encoded data without content-encoding header if accept-encoding is gzip",
+    "number": 387
+  },
+  {
+    "body": "When redirecting a data request, middleware returns a response with `x-nextjs-redirect`, rather than a `location` header. We handle this correctly. However Next.js expects us to directly return and empty response with a 302 response code (without the location header), whereas we're currently passing the request on to the origin and returning the body with 404 code. I'm unsure if it's legal to return a 302 with no location, but it's what next start does, and the router expects.\r\n\r\ntest case: https://github.com/vercel/next.js/blob/canary/test/e2e/middleware-redirects/test/index.test.ts#L100\r\ntest: test/e2e/middleware-redirects/test/index.test.ts\r\nreason: Pages router middleware should return 302 status for redirected data requests",
+    "number": 386
+  },
+  {
+    "body": "In sites with trailing slashes enabled, requests should not add a trailing slash when they're for non-data static files.\r\n\r\ntest case: https://github.com/vercel/next.js/blob/canary/test/e2e/middleware-trailing-slash/test/index.test.ts#L436-L437\r\ntest: test/e2e/middleware-trailing-slash/test/index.test.ts\r\nreason: Middleware should not add trailing slashes to non-data requests in static dir",
+    "number": 385
+  },
+  {
+    "body": "Rewrites in middleware on i18n sites add the locale to the target automatically. However it is supposed to skip this if the target is a static file. This does not currently work, as the middleware doesn't know if a static file exists. This is documented as a known issue.\r\n\r\ntest: test/e2e/i18n-ignore-rewrite-source-locale/rewrites-with-basepath.test.ts, test/e2e/i18n-ignore-rewrite-source-locale/rewrites.test.ts\r\nreason: Middleware on sites with i18n cannot rewrite to static files",
+    "number": 383
+  },
+  {
+    "body": "It doesn't seem to be documented, but the e2e test and fixture here expects a CSP to be automatically applied to scripts in the head. The docs show manually setting it, but [the fixture](https://github.com/vercel/next.js/blob/canary/test/e2e/app-dir/app/middleware.js#L30) seems to only set it in the response. Nevertheless, running `next start` does seem to set it automatically, but when deployed it doesn't. I think this is low priority because it seems to be undocumented behaviour.\r\n\r\ntest case: https://github.com/vercel/next.js/blob/canary/test/e2e/app-dir/app/index.test.ts#L1711\r\ntest: test/e2e/app-dir/app/index.test.ts\r\nreason: Nonce not automatically set in script tags when using CSP",
+    "number": 381
+  }
+]

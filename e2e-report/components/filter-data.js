@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import Down from '../public/down.svg'
 import Up from '../public/up.svg'
+import ExternalLinkIcon from '../public/arrow-up-right-from-square-solid.svg'
 
 export const groupDefinitions = [
   {
@@ -58,7 +59,60 @@ export const groupTests = (testSuites) => {
   )
 }
 
-export const SkippedTests = ({ testSuites }) => {
+export const OpenIssues = ({ testCases }) => {
+  const [slider, setSlider] = useState({})
+
+  function handleSelect(el) {
+    setSlider({
+      ...slider,
+      [el]: !slider[el],
+    })
+  }
+
+  return (
+    <div className="wrapper">
+      <div className="card" onClick={() => handleSelect('openIssues')}>
+        <h4>Open Issues</h4>
+        <p>Total: {testCases.length}</p>
+        {slider.openIssues ? (
+          <Up className="arrow" width={200} height={150} />
+        ) : (
+          <Down className="arrow" width={200} height={150} />
+        )}
+      </div>
+      <table className={`testSuite card open-issues ${slider.openIssues ? 'open' : 'close'}`}>
+        <tbody>
+          <tr>
+            <th>Test</th>
+            <th>Reason</th>
+          </tr>
+          {testCases.map((testCase, index) => {
+            const { name, link, reason = 'Reason not yet assigned' } = testCase
+            return (
+              <tr key={index}>
+                <td>{name}</td>
+                <td>
+                  <p>
+                    {link ? (
+                      <a href={link} target="_blank">
+                        <ExternalLinkIcon className="github-link-icon" />
+                        {reason}
+                      </a>
+                    ) : (
+                      reason
+                    )}
+                  </p>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+export const SkippedTests = ({ testCases, testSuites }) => {
   const [slider, setSlider] = useState({})
 
   function handleSelect(el) {
@@ -71,8 +125,10 @@ export const SkippedTests = ({ testSuites }) => {
   return (
     <div className="wrapper">
       <div className="card" onClick={() => handleSelect('skipped')}>
-        <h4>Open Issues + Skipped Tests</h4>
-        <p>Total: {testSuites.length}</p>
+        <h4>Skipped Tests</h4>
+        <p>
+          Total: {testSuites.length} suites + {testCases.length} tests
+        </p>
         {slider.skipped ? (
           <Up className="arrow" width={200} height={150} />
         ) : (
@@ -85,21 +141,24 @@ export const SkippedTests = ({ testSuites }) => {
             <th>Test</th>
             <th>Reason</th>
           </tr>
-          {testSuites?.map((testCase, index) => {
-            const { name, link, reason, file } = testCase
+          {testSuites.map((testCase, index) => {
+            const { file, reason } = testCase
             return (
-              <tr key={`${index}`}>
-                <td>{file || name}</td>
+              <tr key={index}>
+                <td>{file}</td>
                 <td>
                   <p>{reason}</p>
-                  {link && (
-                    <button className="github">
-                      <a href={link} target="_blank">
-                        {' '}
-                        Github Issue
-                      </a>
-                    </button>
-                  )}
+                </td>
+              </tr>
+            )
+          })}
+          {testCases.map((testCase, index) => {
+            const { name, reason } = testCase
+            return (
+              <tr key={index}>
+                <td>{name}</td>
+                <td>
+                  <p>{reason}</p>
                 </td>
               </tr>
             )

@@ -68,7 +68,6 @@ span {
 
 p {
   font-size: $base-font-size;
-  font-weight: bold;
 }
 
 img {
@@ -90,10 +89,6 @@ th {
 
 th {
   font-weight: 400;
-}
-
-tr {
-  font-weight: bold;
 }
 
 a:visited,
@@ -241,14 +236,14 @@ button.nav {
   overflow-x: hidden;
 }
 
-.skipped.card:hover {
+.skipped.card:hover,
+.open-issue.card:hover {
   background-color: initial;
   color: initial;
 }
 
 .testCases {
   display: none;
-  // background: $netlify-blue;
   padding: 0.5% 2%;
   box-shadow: inset -1px 4px 10px #00000047;
   border-radius: 11px;
@@ -313,7 +308,8 @@ button.nav {
     }
   }
 
-  .card.skipped {
+  .card.skipped,
+  .card.open-issues {
     display: none;
     width: clamp(350px, 55%, 1000px);
     cursor: default;
@@ -321,7 +317,8 @@ button.nav {
     overflow: scroll;
   }
 
-  .card.skipped.open {
+  .card.skipped.open,
+  .card.open-issues.open {
     display: block;
   }
 }
@@ -365,7 +362,7 @@ button.nav {
   }
 }
 
-.card:hover:not(.skipped) {
+.card.test-group:hover {
   background-color: $netlify-blue;
   background-image: $card-bg-img;
   background-blend-mode: screen;
@@ -400,7 +397,8 @@ span[data-status='skipped'] {
   width: 35vw;
 }
 
-.skipped {
+.skipped,
+.open-issues {
   td,
   th {
     padding: 0.5% 2%;
@@ -412,19 +410,26 @@ span[data-status='skipped'] {
       font-size: clamp(1rem, 0.8764rem + 0.4121vw, 1.16rem);
     }
   }
+}
 
+.open-issues {
   a {
     color: black;
     font-weight: bold;
-    display: flex;
-    flex-flow: column;
+    display: inline;
   }
-  :hover a {
-    color: white;
+  a:hover {
+    color: $netlify-blue;
+  }
+  .github-link-icon {
+    width: 0.75em;
+    height: auto;
+    margin: 0 0.5em;
   }
 }
 
-.skipped .card {
+.skipped .card,
+.open-issues .card {
   display: flex;
   justify-content: space-between;
   padding: 4%;
@@ -433,7 +438,8 @@ span[data-status='skipped'] {
   }
 }
 
-.skipped .card:hover {
+.skipped .card:hover,
+.open-issues .card:hover {
   p {
     color: #2bdcd2;
   }

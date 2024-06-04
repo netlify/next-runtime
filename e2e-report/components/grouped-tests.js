@@ -35,7 +35,7 @@ export default function GroupedTests({ testData }) {
         const groupTotal = (testGroup.passed ?? 0) + (testGroup.failed ?? 0)
         return (
           <div key={testGroup.id} className="wrapper">
-            <div className="card" onClick={() => handleSelect(testGroup.id)}>
+            <div className="card test-group" onClick={() => handleSelect(testGroup.id)}>
               <Table
                 th={['Test suite type:', '# of suites:', '# of tests:', 'Passing:']}
                 name={testGroup.title}

@@ -5,6 +5,7 @@ edge-runtime/vendor
 
 # Local Netlify folder
 .netlify
+
 /test-results/
 /playwright-report/
 /blob-report/
@@ -12,10 +13,8 @@ edge-runtime/vendor
 
 deno.lock
 .eslintcache
-/report/index.html
 .DS_Store
 tests/**/package-lock.json
 tests/**/pnpm-lock.yaml
 tests/**/yarn.lock
 tests/**/out/
-report/test-results.json

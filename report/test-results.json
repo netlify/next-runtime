@@ -963,9 +963,7 @@
         },
         {
           "name": "app-dir action handling fetch actions should store revalidation data in the prefetch cache",
-          "status": "failed",
-          "reason": "Fetch action prefetch cache test is flakey",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/444"
+          "status": "failed"
         },
         {
           "name": "app-dir action handling fetch actions should revalidate when cookies.set is called",
@@ -2760,27 +2758,19 @@
       "testCases": [
         {
           "name": "i18n-ignore-rewrite-source-locale with basepath get public file by skipping locale in rewrite, locale: ",
-          "status": "failed",
-          "reason": "Middleware on sites with i18n cannot rewrite to static files",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+          "status": "failed"
         },
         {
           "name": "i18n-ignore-rewrite-source-locale with basepath get public file by skipping locale in rewrite, locale: /en",
-          "status": "failed",
-          "reason": "Middleware on sites with i18n cannot rewrite to static files",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+          "status": "failed"
         },
         {
           "name": "i18n-ignore-rewrite-source-locale with basepath get public file by skipping locale in rewrite, locale: /sv",
-          "status": "failed",
-          "reason": "Middleware on sites with i18n cannot rewrite to static files",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+          "status": "failed"
         },
         {
           "name": "i18n-ignore-rewrite-source-locale with basepath get public file by skipping locale in rewrite, locale: /nl",
-          "status": "failed",
-          "reason": "Middleware on sites with i18n cannot rewrite to static files",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+          "status": "failed"
         },
         {
           "name": "i18n-ignore-rewrite-source-locale with basepath call api by skipping locale in rewrite, locale: ",
@@ -3544,9 +3534,7 @@
         },
         {
           "name": "using a single matcher with i18n and basePath adds the header for a matched path",
-          "status": "failed",
-          "reason": "Middleware does not match when using basePath and default locale",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/454"
+          "status": "failed"
         },
         {
           "name": "using a single matcher with i18n and basePath adds the header for a mathed root path with /index",
@@ -3562,9 +3550,7 @@
         },
         {
           "name": "using a single matcher with i18n and basePath and trailingSlash adds the header for a matched path",
-          "status": "failed",
-          "reason": "Middleware does not match when using basePath and default locale",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/454"
+          "status": "failed"
         },
         {
           "name": "using a single matcher with i18n and basePath and trailingSlash adds the header for a mathed root path with /index",
@@ -4024,9 +4010,7 @@
         },
         {
           "name": "app dir - basic next/script should pass `nonce`",
-          "status": "failed",
-          "reason": "Nonce not automatically set in script tags when using CSP",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/381"
+          "status": "failed"
         },
         {
           "name": "app dir - basic data fetch with response over 16KB with chunked encoding should load page when fetching a large amount of data",
@@ -4038,9 +4022,7 @@
         },
         {
           "name": "app dir - basic bootstrap scripts should successfully bootstrap even when using CSP",
-          "status": "failed",
-          "reason": "Nonce not automatically set in script tags when using CSP",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/381"
+          "status": "failed"
         },
         {
           "name": "app dir - basic should return the `vary` header from edge runtime",
@@ -5188,9 +5170,7 @@
         },
         {
           "name": "Middleware base tests router.query must exist when Link clicked page routing",
-          "status": "failed",
-          "reason": "Pages router data requests returning 404 when middleware is used",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/450"
+          "status": "failed"
         }
       ]
     },
@@ -6379,9 +6359,7 @@
         },
         {
           "name": "getServerSideProps should handle throw ENOENT correctly",
-          "status": "failed",
-          "reason": "Server error pages return encoded data without content-encoding header if accept-encoding is gzip",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/387"
+          "status": "failed"
         },
         {
           "name": "getServerSideProps should have gssp in __NEXT_DATA__",
@@ -6575,9 +6553,7 @@
         },
         {
           "name": "Middleware Responses should respond appending headers headers",
-          "status": "failed",
-          "reason": "Appending set-cookie header in middleware leads to duplicate header",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/447"
+          "status": "failed"
         },
         {
           "name": "Middleware Responses /fr responds with multiple cookies",
@@ -6605,9 +6581,7 @@
         },
         {
           "name": "Middleware Responses /fr should respond appending headers headers",
-          "status": "failed",
-          "reason": "Appending set-cookie header in middleware leads to duplicate header",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/447"
+          "status": "failed"
         }
       ]
     },
@@ -7069,15 +7043,11 @@
         },
         {
           "name": "skip-trailing-slash-redirect should be able to redirect locale casing $1",
-          "status": "failed",
-          "reason": "does not correctly handle user middleware that redirects to path with canonical locale casing when app enables `skipMiddlewareUrlNormalize` and path contains locale slug with non-canonical casing",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/564"
+          "status": "failed"
         },
         {
           "name": "skip-trailing-slash-redirect should be able to redirect locale casing $1",
-          "status": "failed",
-          "reason": "does not correctly handle user middleware that redirects to path with canonical locale casing when app enables `skipMiddlewareUrlNormalize` and path contains locale slug with non-canonical casing",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/564"
+          "status": "failed"
         },
         {
           "name": "skip-trailing-slash-redirect should handle external rewrite correctly /docs/first",
@@ -7716,27 +7686,19 @@
       "testCases": [
         {
           "name": "i18n-ignore-rewrite-source-locale get public file by skipping locale in rewrite, locale: ",
-          "status": "failed",
-          "reason": "Middleware on sites with i18n cannot rewrite to static files",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+          "status": "failed"
         },
         {
           "name": "i18n-ignore-rewrite-source-locale get public file by skipping locale in rewrite, locale: /en",
-          "status": "failed",
-          "reason": "Middleware on sites with i18n cannot rewrite to static files",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+          "status": "failed"
         },
         {
           "name": "i18n-ignore-rewrite-source-locale get public file by skipping locale in rewrite, locale: /sv",
-          "status": "failed",
-          "reason": "Middleware on sites with i18n cannot rewrite to static files",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+          "status": "failed"
         },
         {
           "name": "i18n-ignore-rewrite-source-locale get public file by skipping locale in rewrite, locale: /nl",
-          "status": "failed",
-          "reason": "Middleware on sites with i18n cannot rewrite to static files",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/383"
+          "status": "failed"
         },
         {
           "name": "i18n-ignore-rewrite-source-locale call api by skipping locale in rewrite, locale: ",
@@ -7782,9 +7744,7 @@
         },
         {
           "name": "Middleware custom matchers i18n should not match",
-          "status": "failed",
-          "reason": "Middleware matching is too broad when using i18n",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/453"
+          "status": "failed"
         },
         {
           "name": "Middleware custom matchers i18n should not match",
@@ -7908,9 +7868,7 @@
         },
         {
           "name": "Middleware Runtime trailing slash should keep non data requests in their original shape",
-          "status": "failed",
-          "reason": "Middleware should not add trailing slashes to non-data requests in static dir",
-          "link": "https://github.com/netlify/next-runtime-minimal/issues/385"
+          "status": "failed"
         },
         {
           "name": "Middleware Runtime trailing slash should add a rewrite header on data requests for rewrites",
