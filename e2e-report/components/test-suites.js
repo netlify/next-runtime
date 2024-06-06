@@ -1,7 +1,7 @@
 import Table from './table.js'
 
 export default function TestSuites({ suite, slider, handleSelect, arrows }) {
-  const { name, file, passed, failed, testCases } = suite
+  const { name, file, passed, failed, testCases, retries } = suite
 
   return (
     <>
@@ -11,16 +11,13 @@ export default function TestSuites({ suite, slider, handleSelect, arrows }) {
           name={name}
           passed={passed}
           total={passed + failed}
+          retries={retries}
         />
         {arrows(slider[name])}
       </div>
       <ul className={`testCases ${slider[name] ? 'open' : 'close'}`}>
         {testCases?.map((testCase, index) => {
           const { status, link, reason } = testCase
-
-          if (status === 'skipped') {
-            return
-          }
 
           return (
             <li key={`${name}${index}`}>

@@ -341,6 +341,11 @@ button.nav {
   td h4 {
     font-size: clamp(1rem, 0.5127rem + 1.6242vw, 1.4rem);
   }
+
+  .retries {
+    font-style: italic;
+    font-size: inherit;
+  }
 }
 
 .card {

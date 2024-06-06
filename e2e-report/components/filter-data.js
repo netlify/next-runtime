@@ -87,10 +87,13 @@ export const OpenIssues = ({ testCases }) => {
             <th>Reason</th>
           </tr>
           {testCases.map((testCase, index) => {
-            const { name, link, reason = 'Reason not yet assigned' } = testCase
+            const { name, link, reason = 'Reason not yet assigned', retries } = testCase
             return (
               <tr key={index}>
-                <td>{name}</td>
+                <td>
+                  {name}
+                  {retries > 0 ? ` (🔁 retries: ${retries})` : null}
+                </td>
                 <td>
                   <p>
                     {link ? (

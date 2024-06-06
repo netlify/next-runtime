@@ -9,9 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       versions:
-        description: 'The versions of Next.js to test against (quoted and comma separated)'
+        description: 'The versions of Next.js to test against (escape-quoted and comma separated)'
         required: false
-        default: "\"latest\""
+        # TODO(serhalp) Ideally this would simply accept bare quotes but we're having trouble
+        # parsing that so this will do for now.
+        default: "\\\"latest\\\""
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true

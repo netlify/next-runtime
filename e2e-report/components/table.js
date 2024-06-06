@@ -1,4 +1,4 @@
-export default function Table({ th, name, suitesTotal, total, passed }) {
+export default function Table({ th, name, suitesTotal, total, passed, retries }) {
   return (
     <table>
       <tbody>
@@ -21,6 +21,7 @@ export default function Table({ th, name, suitesTotal, total, passed }) {
           </td>
           <td>
             <h4>{Math.round((passed / total) * 100)}%</h4>
+            {retries > 0 ? <span className="retries"> (⚠️ retries: {retries})</span> : null}
           </td>
         </tr>
       </tbody>

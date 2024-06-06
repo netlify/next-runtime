@@ -48,6 +48,12 @@ export default function GroupedTests({ testData }) {
             </div>
             <div className={`testGroup ${slider[testGroup.id] ? 'open' : 'close'}`}>
               {testGroup.results
+                // We don't want to show skipped tests in this section
+                .map((suite) => ({
+                  ...suite,
+                  testCases: suite.testCases?.filter(({ status }) => status !== 'skipped'),
+                }))
+                .filter((suite) => suite.testCases?.length > 0)
                 .sort(
                   (aa, bb) =>
                     (bb.passed || 0) + (bb.failed || 0) - ((aa.passed || 0) + (aa.failed || 0)),
