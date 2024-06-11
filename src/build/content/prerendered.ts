@@ -10,7 +10,7 @@ import pLimit from 'p-limit'
 import { encodeBlobKey } from '../../shared/blobkey.js'
 import type {
   CachedFetchValue,
-  CachedPageValue,
+  NetlifyCachedPageValue,
   NetlifyCachedRouteValue,
   NetlifyCacheHandlerValue,
   NetlifyIncrementalCacheValue,
@@ -42,7 +42,7 @@ const writeCacheEntry = async (
  */
 const routeToFilePath = (path: string) => (path === '/' ? '/index' : path)
 
-const buildPagesCacheValue = async (path: string): Promise<CachedPageValue> => ({
+const buildPagesCacheValue = async (path: string): Promise<NetlifyCachedPageValue> => ({
   kind: 'PAGE',
   html: await readFile(`${path}.html`, 'utf-8'),
   pageData: JSON.parse(await readFile(`${path}.json`, 'utf-8')),
@@ -51,7 +51,7 @@ const buildPagesCacheValue = async (path: string): Promise<CachedPageValue> => (
   status: undefined,
 })
 
-const buildAppCacheValue = async (path: string): Promise<CachedPageValue> => {
+const buildAppCacheValue = async (path: string): Promise<NetlifyCachedPageValue> => {
   const meta = JSON.parse(await readFile(`${path}.meta`, 'utf-8'))
   const rsc = await readFile(`${path}.rsc`, 'utf-8').catch(() =>
     readFile(`${path}.prefetch.rsc`, 'utf-8'),
