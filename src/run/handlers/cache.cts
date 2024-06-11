@@ -115,11 +115,11 @@ export class NetlifyCacheHandler implements CacheHandler {
     key: string,
     revalidate: NetlifyCachedPageValue['revalidate'],
   ) {
-    const prerenderManifest = loadManifest(
-      join(process.cwd(), '.next', 'prerender-manifest.json'),
-    ) as PrerenderManifest
+    if (this.options.serverDistDir && (typeof revalidate === 'number' || revalidate === false)) {
+      const prerenderManifest = loadManifest(
+        join(this.options.serverDistDir, '..', 'prerender-manifest.json'),
+      ) as PrerenderManifest
 
-    if (typeof revalidate === 'number' || revalidate === false) {
       prerenderManifest.routes[key] = {
         experimentalPPR: undefined,
         dataRoute: join('/_next/data', `${normalizePagePath(key)}.json`),
