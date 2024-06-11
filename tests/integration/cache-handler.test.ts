@@ -3,7 +3,12 @@ import { getLogger } from 'lambda-local'
 import { v4 } from 'uuid'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { type FixtureTestContext } from '../utils/contexts.js'
-import { createFixture, invokeFunction, runPlugin } from '../utils/fixture.js'
+import {
+  createFixture,
+  invokeFunction,
+  invokeSandboxedFunction,
+  runPlugin,
+} from '../utils/fixture.js'
 import {
   countOfBlobServerGetsForKey,
   decodeBlobKey,
@@ -298,6 +303,46 @@ describe('app router', () => {
       'should only try to get value once from blob store (date calculation should not trigger additional blobs.get)',
     ).toBe(1)
     ctx.blobServerGetSpy.mockClear()
+  })
+
+  test<FixtureTestContext>("not-prerendered pages should be permanently cached when produced by sandboxed invocations that don't share memory", async (ctx) => {
+    await createFixture('server-components', ctx)
+    await runPlugin(ctx)
+
+    const blobEntries = await getBlobEntries(ctx)
+    // dynamic route that is not pre-rendered should NOT be in the blob store (this is to ensure that test setup is correct)
+    expect(blobEntries.map(({ key }) => decodeBlobKey(key))).not.toContain('/static-fetch/3')
+
+    // there is no pre-rendered page for this route, so it should result in a cache miss and blocking render
+    const call1 = await invokeSandboxedFunction(ctx, { url: '/static-fetch/3' })
+    expect(
+      call1.headers['cache-status'],
+      'Page should not be in cache yet as this is first time it is being generated',
+    ).toBe('"Next.js"; fwd=miss')
+
+    const call1Date = load(call1.body)('[data-testid="date-now"]').text()
+
+    await new Promise((res) => setTimeout(res, 5000))
+
+    const call2 = await invokeSandboxedFunction(ctx, { url: '/static-fetch/3' })
+    expect(
+      call2.headers['cache-status'],
+      'Page should be permanently cached after initial render',
+    ).toBe('"Next.js"; hit')
+
+    const call2Date = load(call2.body)('[data-testid="date-now"]').text()
+    expect(call2Date, 'Content of response should match').toBe(call1Date)
+
+    await new Promise((res) => setTimeout(res, 5000))
+
+    const call3 = await invokeSandboxedFunction(ctx, { url: '/static-fetch/3' })
+    expect(
+      call3.headers['cache-status'],
+      'Page should be permanently cached after initial render',
+    ).toBe('"Next.js"; hit')
+    const call3Date = load(call3.body)('[data-testid="date-now"]').text()
+
+    expect(call3Date, 'Content of response should match').toBe(call2Date)
   })
 })
 
