@@ -2,7 +2,8 @@
 // (CJS format because Next.js doesn't support ESM yet)
 //
 import { Buffer } from 'node:buffer'
-import { join } from 'node:path/posix'
+import { join } from 'node:path'
+import { join as posixJoin } from 'node:path/posix'
 
 import { Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
@@ -122,7 +123,7 @@ export class NetlifyCacheHandler implements CacheHandler {
 
       prerenderManifest.routes[key] = {
         experimentalPPR: undefined,
-        dataRoute: join('/_next/data', `${normalizePagePath(key)}.json`),
+        dataRoute: posixJoin('/_next/data', `${normalizePagePath(key)}.json`),
         srcRoute: null, // FIXME: provide actual source route, however, when dynamically appending it doesn't really matter
         initialRevalidateSeconds: revalidate,
         // Pages routes do not have a prefetch data route.

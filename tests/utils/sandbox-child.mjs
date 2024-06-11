@@ -39,7 +39,7 @@ process.on('message', async (msg) => {
       const { httpMethod, headers, body, url, env } = options
 
       const { handler } = await import(
-        join(ctx.functionDist, SERVER_HANDLER_NAME, '___netlify-entry-point.mjs')
+        'file:///' + join(ctx.functionDist, SERVER_HANDLER_NAME, '___netlify-entry-point.mjs')
       )
 
       const environment = {
