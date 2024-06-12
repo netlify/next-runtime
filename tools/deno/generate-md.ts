@@ -8,7 +8,7 @@ console.log(`|     | Tests |`)
 console.log(`| --- | ----- |`)
 console.log(`| ✅ Passed  | ${results.passed} |`)
 console.log(`| ❌ Failed  | ${results.failed} |`)
-console.log(`| ⏭️ Skipped | ${results.skipped} |`)
+console.log(`| ⏭️ Skipped | ${results.skipped.tests} tests + ${results.skipped.suites} suites |`)
 
 console.log(`Pass rate: **${results.passRate}**`)
 console.log('\n## Failures\n')

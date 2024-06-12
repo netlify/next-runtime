@@ -4,7 +4,7 @@ import Hero from '../components/hero.js'
 import testData from '../data/test-results.json'
 
 export default function Home() {
-  const { results, passed, failed, total, passRate, skipped, testDate, nextVersion } = testData
+  const { results, passed, failed, passRate, testDate, nextVersion } = testData
   const skippedSuites = results.filter(({ skipped }) => skipped === true)
   const skippedTestCases = results.flatMap(
     ({ testCases }) => testCases?.filter(({ status }) => status === 'skipped') ?? [],
@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <>
       <header className="hero">
-        <Hero passed={passed} failed={failed} total={total} passRate={passRate} skipped={skipped} />
+        <Hero passed={passed} failed={failed} passRate={passRate} />
       </header>
       <div className="title">
         <h2>E2E Test Results</h2>

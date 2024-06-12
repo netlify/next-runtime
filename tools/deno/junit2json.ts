@@ -62,12 +62,6 @@ async function parseXMLFile(filePath: string): Promise<{ testsuites: JUnitTestSu
   return parse(xmlContent) as unknown as { testsuites: JUnitTestSuites }
 }
 
-const testCount = {
-  failed: 0,
-  skipped: 0,
-  passed: 0,
-}
-
 function junitToJson(xmlData: { testsuites: JUnitTestSuites }): Array<TestSuite> {
   if (!xmlData.testsuites) {
     return []
@@ -124,7 +118,6 @@ function junitToJson(xmlData: { testsuites: JUnitTestSuites }): Array<TestSuite>
         continue
       }
       const status = testCase.failure ? 'failed' : 'passed'
-      testCount[status]++
       const test: TestCase = {
         name: testCase['@name'],
         status,
@@ -143,7 +136,6 @@ function junitToJson(xmlData: { testsuites: JUnitTestSuites }): Array<TestSuite>
     }
 
     if (!isEntireSuiteSkipped && skippedTestsForFile.length > 0) {
-      testCount.skipped += skippedTestsForFile.length
       testSuite.testCases.push(
         ...skippedTestsForFile.map(
           (test): TestCase => ({
@@ -154,9 +146,8 @@ function junitToJson(xmlData: { testsuites: JUnitTestSuites }): Array<TestSuite>
           }),
         ),
       )
-    } else if (isEntireSuiteSkipped) {
-      testCount.skipped += testSuite.total
     }
+
     return testSuite
   })
 }
@@ -194,6 +185,18 @@ function mergeTestResults(result1: TestSuite, result2: TestSuite): TestSuite {
 // When a test is run multiple times (due to retries), the test runner outputs a separate entry
 // for each run. Merge them into a single entry.
 function dedupeTestResults(results: Array<TestSuite>): Array<TestSuite> {
+  // For some reason, with some older versions of next.js (e.g. 13.5.1) the `file` field is not
+  // present in the XML output. Since `name` is not reliable as a unique identifier, we have no
+  // choice but to skip deduping in this case.
+  // TODO(serhalp) Change this to throw when we stop testing against 13.5.1.
+  const allResultsHaveFile = results.every((result) => result.file != null)
+  if (!allResultsHaveFile) {
+    console.warn(
+      'Skipping deduping of test results because some results are missing the `file` field',
+    )
+    return results
+  }
+
   const resultsByFile = new Map<string, TestSuite>()
   for (const result of results) {
     const existingResult = resultsByFile.get(result.file)
@@ -231,6 +234,50 @@ async function processJUnitFiles(
   return [...dedupeTestResults(results), ...skippedSuites]
 }
 
+function summarizeResults(results: Array<TestSuite | SkippedTestSuite>): {
+  passed: number
+  failed: number
+  skippedSuites: number
+  skippedTests: number
+} {
+  return {
+    passed: results.reduce(
+      (acc, result) =>
+        acc +
+        (result.skipped === true
+          ? 0
+          : result.testCases.reduce(
+              (acc, testCase) => acc + (testCase.status === 'passed' ? 1 : 0),
+              0,
+            )),
+      0,
+    ),
+    failed: results.reduce(
+      (acc, result) =>
+        acc +
+        (result.skipped === true
+          ? 0
+          : result.testCases.reduce(
+              (acc, testCase) => acc + (testCase.status === 'failed' ? 1 : 0),
+              0,
+            )),
+      0,
+    ),
+    skippedSuites: results.filter((result) => result.skipped === true).length,
+    skippedTests: results.reduce(
+      (acc, result) =>
+        acc +
+        (result.skipped === true
+          ? 0
+          : result.testCases.reduce(
+              (acc, testCase) => acc + (testCase.status === 'skipped' ? 1 : 0),
+              0,
+            )),
+      0,
+    ),
+  }
+}
+
 // Get the directory path from the command-line arguments
 const directoryPath = Deno.args[0]
 
@@ -245,10 +292,15 @@ if (!directoryPath) {
 // Process the JUnit files in the provided directory
 const results = await processJUnitFiles(directoryPath)
 
+const { passed, failed, skippedSuites, skippedTests } = summarizeResults(results)
 const testResults = {
-  ...testCount,
-  total: testCount.passed + testCount.failed + testCount.skipped,
-  passRate: ((testCount.passed / (testCount.passed + testCount.failed)) * 100).toFixed(2) + '%',
+  failed,
+  skipped: {
+    suites: skippedSuites,
+    tests: skippedTests,
+  },
+  passed,
+  passRate: ((passed / (passed + failed)) * 100).toFixed(2) + '%',
   testDate: new Date().toLocaleDateString(),
   nextVersion,
   results,

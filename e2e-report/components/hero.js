@@ -1,7 +1,7 @@
 import Image from 'next/image.js'
 
-export default function Hero({ passed, failed, total, passRate, skipped }) {
-  const totalWithoutSkipped = total - skipped
+export default function Hero({ passed, failed, passRate }) {
+  const total = passed + failed
   return (
     <>
       <div className="testResults">
@@ -19,8 +19,7 @@ export default function Hero({ passed, failed, total, passRate, skipped }) {
             <br /> Pass rate
           </h3>
           <h3>
-            <span>{passed.toLocaleString()}</span> of{' '}
-            <span>{totalWithoutSkipped.toLocaleString()}</span>
+            <span>{passed.toLocaleString()}</span> of <span>{total.toLocaleString()}</span>
             <br /> Next.js tests passing
           </h3>
           <h3>
