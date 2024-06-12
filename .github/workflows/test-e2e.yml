@@ -179,9 +179,6 @@ jobs:
         run: npm run build
         working-directory: ${{ env.runtime-path }}
 
-      - name: add netlify cli
-        run: npm install -g netlify-cli
-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
         working-directory: ${{ env.next-path }}
