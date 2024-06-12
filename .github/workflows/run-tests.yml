@@ -70,7 +70,7 @@ jobs:
         run: npm ci
       - name: 'Netlify Login'
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
           # TODO(serhalp) Unpin version once
           # https://netlify.slack.com/archives/C07686YAY13/p1718139257978049 is resolved.
@@ -99,7 +99,7 @@ jobs:
       - name: Run Playwright tests
         run: npm run test:ci:e2e -- --shard=${{ matrix.shard }}/5
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NEXT_VERSION: ${{ matrix.version }}
           NEXT_RESOLVED_VERSION: ${{ steps.resolve-next-version.outputs.version }}
       - name: Upload blob report to GitHub Actions Artifacts
@@ -171,7 +171,7 @@ jobs:
       - name: 'Unit and integration tests'
         run: npm run test:ci:unit-and-integration -- --shard=${{ matrix.shard }}/8
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NEXT_VERSION: ${{ matrix.version }}
           NEXT_RESOLVED_VERSION: ${{ steps.resolve-next-version.outputs.version }}
           TEMP: ${{ github.workspace }}/..
@@ -206,7 +206,7 @@ jobs:
         run: npm run build
       - name: 'Netlify Login'
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
           # TODO(serhalp) Unpin version once
           # https://netlify.slack.com/archives/C07686YAY13/p1718139257978049 is resolved.
@@ -222,7 +222,7 @@ jobs:
       - name: 'Smoke tests'
         run: npm run test:ci:smoke
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NEXT_VERSION: ${{ matrix.version }}
           NEXT_RESOLVED_VERSION: ${{ steps.resolve-next-version.outputs.version }}
 

@@ -9,8 +9,8 @@ on:
         type: boolean
 
 env:
-  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
-  NETLIFY_SITE_ID: ${{ secrets.E2E_PAGE_SITE_ID }}
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+  NETLIFY_SITE_ID: ${{ vars.E2E_PAGE_SITE_ID }}
   GH_TOKEN: ${{ github.token }}
 
 jobs:
