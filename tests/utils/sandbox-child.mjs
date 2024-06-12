@@ -3,6 +3,8 @@ import { join } from 'node:path'
 
 import { execute, getLogger } from 'lambda-local'
 
+import { streamToBuffer } from './stream-to-buffer.mjs'
+
 const SERVER_HANDLER_NAME = '___netlify-server-handler'
 const BLOB_TOKEN = 'secret-token'
 
@@ -19,16 +21,6 @@ const createBlobContext = (ctx) =>
       primaryRegion: 'us-test-1',
     }),
   ).toString('base64')
-
-function streamToBuffer(stream) {
-  const chunks = []
-
-  return new Promise((resolve, reject) => {
-    stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
-    stream.on('error', (err) => reject(err))
-    stream.on('end', () => resolve(Buffer.concat(chunks)))
-  })
-}
 
 process.on('message', async (msg) => {
   if (msg?.action === 'exit') {

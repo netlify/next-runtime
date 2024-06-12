@@ -16,7 +16,7 @@ import { env } from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { v4 } from 'uuid'
 import { LocalServer } from './local-server.js'
-import { streamToBuffer } from './stream-to-buffer.js'
+import { streamToBuffer } from './stream-to-buffer.mjs'
 
 import { glob } from 'fast-glob'
 import {
