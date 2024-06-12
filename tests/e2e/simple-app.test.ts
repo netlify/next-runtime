@@ -214,10 +214,17 @@ test('requesting a non existing page route that needs to be fetched from the blo
 
   expect(await page.textContent('h1')).toBe('404 Not Found')
 
+  // https://github.com/vercel/next.js/pull/66674 made changes to returned cache-control header,
+  // before that 404 page would have `private` directive, after that it would not
+  const shouldHavePrivateDirective = !nextVersionSatisfies('>=14.2.4 <15.0.0 || >=15.0.0-canary.24')
+
   expect(headers['netlify-cdn-cache-control']).toBe(
-    'private, no-cache, no-store, max-age=0, must-revalidate',
+    (shouldHavePrivateDirective ? 'private, ' : '') +
+      'no-cache, no-store, max-age=0, must-revalidate',
   )
-  expect(headers['cache-control']).toBe('private,no-cache,no-store,max-age=0,must-revalidate')
+  expect(headers['cache-control']).toBe(
+    (shouldHavePrivateDirective ? 'private,' : '') + 'no-cache,no-store,max-age=0,must-revalidate',
+  )
 })
 
 test('requesting a non existing page route that needs to be fetched from the blob store like 404.html (notFound())', async ({
