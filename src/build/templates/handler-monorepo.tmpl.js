@@ -16,7 +16,7 @@ export default async function (req, context) {
     tracing.start()
   }
 
-  const requestContext = createRequestContext(req.headers.get('x-next-debug-logging'))
+  const requestContext = createRequestContext(req)
   const tracer = getTracer()
 
   const handlerResponse = await runWithRequestContext(requestContext, () => {

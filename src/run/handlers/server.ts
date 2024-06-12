@@ -14,9 +14,8 @@ import {
   setVaryHeaders,
 } from '../headers.js'
 import { nextResponseProxy } from '../revalidate.js'
-import { logger } from '../systemlog.cjs'
 
-import { createRequestContext, getRequestContext } from './request-context.cjs'
+import { createRequestContext, getLogger, getRequestContext } from './request-context.cjs'
 import { getTracer } from './tracer.cjs'
 
 const nextImportPromise = import('../next.cjs')
@@ -107,7 +106,7 @@ export default async (request: Request, context: FutureContext) => {
 
     // We don't await this here, because it won't resolve until the response is finished.
     const nextHandlerPromise = nextHandler(req, resProxy).catch((error) => {
-      logger.withError(error).error('next handler error')
+      getLogger().withError(error).error('next handler error')
       console.error(error)
       resProxy.statusCode = 500
       span.setAttribute('http.status_code', 500)

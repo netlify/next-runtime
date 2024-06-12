@@ -7,7 +7,7 @@ import {
   SEMRESATTRS_SERVICE_VERSION,
 } from '@opentelemetry/semantic-conventions'
 
-import { logger } from '../systemlog.cjs'
+import { getLogger } from './request-context.cjs'
 
 const {
   default: { version, name },
@@ -33,7 +33,8 @@ process.on('SIGTERM', () => {
     .then(
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       () => {},
-      (error: unknown) => logger.withError(error).log('Error shutting down OpenTelemetry NodeSDK'),
+      (error: unknown) =>
+        getLogger().withError(error).log('Error shutting down OpenTelemetry NodeSDK'),
     )
     // eslint-disable-next-line n/no-process-exit
     .finally(() => process.exit(0))

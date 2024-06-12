@@ -1,9 +1,13 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 
+import { LogLevel, systemLogger } from '@netlify/functions/internal'
+
 import type { NetlifyCachedRouteValue } from '../../shared/cache-types.cjs'
 
+type SystemLogger = typeof systemLogger
+
 export type RequestContext = {
-  debug: boolean
+  captureServerTiming: boolean
   responseCacheGetLastModified?: number
   responseCacheKey?: string
   usedFsRead?: boolean
@@ -18,21 +22,27 @@ export type RequestContext = {
    * Promise that need to be executed even if response was already sent
    */
   backgroundWorkPromise: Promise<unknown>
+  logger: SystemLogger
 }
 
 type RequestContextAsyncLocalStorage = AsyncLocalStorage<RequestContext>
 
-export function createRequestContext(debug = false): RequestContext {
+export function createRequestContext(request?: Request): RequestContext {
   const backgroundWorkPromises: Promise<unknown>[] = []
 
   return {
-    debug,
+    captureServerTiming: request?.headers.has('x-next-debug-logging') ?? false,
     trackBackgroundWork: (promise) => {
       backgroundWorkPromises.push(promise)
     },
     get backgroundWorkPromise() {
       return Promise.allSettled(backgroundWorkPromises)
     },
+    logger: systemLogger.withLogLevel(
+      request?.headers.has('x-nf-debug-logging') || request?.headers.has('x-next-debug-logging')
+        ? LogLevel.Debug
+        : LogLevel.Log,
+    ),
   }
 }
 
@@ -65,4 +75,8 @@ export const getRequestContext = () => getRequestContextAsyncLocalStorage().getS
 
 export function runWithRequestContext<T>(requestContext: RequestContext, fn: () => T): T {
   return getRequestContextAsyncLocalStorage().run(requestContext, fn)
+}
+
+export function getLogger(): SystemLogger {
+  return getRequestContext()?.logger ?? systemLogger
 }

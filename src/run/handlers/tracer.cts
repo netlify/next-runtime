@@ -18,7 +18,7 @@ function spanHook(span: Span): Span {
     const meta = spanMeta.get(span)
     if (meta) {
       const requestContext = getRequestContext()
-      if (requestContext?.debug) {
+      if (requestContext?.captureServerTiming) {
         const duration = (typeof endTime === 'number' ? endTime : performance.now()) - meta.start
 
         const serverTiming = requestContext.serverTiming ?? ''

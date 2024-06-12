@@ -19,7 +19,6 @@ import glob from 'fast-glob'
 import { prerelease, lt as semverLowerThan, lte as semverLowerThanOrEqual } from 'semver'
 
 import { RUN_CONFIG } from '../../run/constants.js'
-import { logger } from '../../run/systemlog.cjs'
 import { PluginContext } from '../plugin-context.js'
 import { verifyNextVersion } from '../verification.js'
 
@@ -342,7 +341,7 @@ export const writeTagsManifest = async (ctx: PluginContext): Promise<void> => {
       } catch {
         // Parallel route default layout has no prerendered page, so don't warn about it
         if (!definition.dataRoute?.endsWith('/default.rsc')) {
-          logger.log(`Unable to read cache tags for: ${path}`)
+          console.log(`Unable to read cache tags for: ${path}`)
         }
       }
     }
