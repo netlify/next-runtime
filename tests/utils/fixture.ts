@@ -24,9 +24,9 @@ import {
   PluginContext,
   SERVER_HANDLER_NAME,
 } from '../../src/build/plugin-context.js'
-import { BLOB_TOKEN } from './constants.js'
+import { BLOB_TOKEN } from './constants.mjs'
 import { type FixtureTestContext } from './contexts.js'
-import { createBlobContext } from './helpers.js'
+import { createBlobContext } from './create-blob-context.mjs'
 import { setNextVersionInFixture } from './next-version-helpers.mjs'
 
 const bootstrapURL = 'https://edge.netlify.com/bootstrap/index-combined.ts'

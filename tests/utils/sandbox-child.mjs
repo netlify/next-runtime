@@ -1,26 +1,13 @@
-import { Buffer } from 'node:buffer'
 import { join } from 'node:path'
 
 import { execute, getLogger } from 'lambda-local'
 
 import { streamToBuffer } from './stream-to-buffer.mjs'
+import { createBlobContext } from './create-blob-context.mjs'
 
 const SERVER_HANDLER_NAME = '___netlify-server-handler'
-const BLOB_TOKEN = 'secret-token'
 
 getLogger().level = 'alert'
-
-const createBlobContext = (ctx) =>
-  Buffer.from(
-    JSON.stringify({
-      edgeURL: `http://${ctx.blobStoreHost}`,
-      uncachedEdgeURL: `http://${ctx.blobStoreHost}`,
-      token: BLOB_TOKEN,
-      siteID: ctx.siteID,
-      deployID: ctx.deployID,
-      primaryRegion: 'us-test-1',
-    }),
-  ).toString('base64')
 
 process.on('message', async (msg) => {
   if (msg?.action === 'exit') {

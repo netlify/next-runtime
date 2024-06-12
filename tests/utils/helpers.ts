@@ -9,8 +9,9 @@ import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assert, vi } from 'vitest'
-import { BLOB_TOKEN } from './constants'
+import { BLOB_TOKEN } from './constants.mjs'
 import { type FixtureTestContext } from './contexts'
+import { createBlobContext } from './create-blob-context.mjs'
 
 /**
  * Uses next.js incremental cache to compute the same cache key for a URL that is automatically generated
@@ -40,18 +41,6 @@ export const generateRandomObjectID = () => {
 
   return objectId
 }
-
-export const createBlobContext = (ctx: FixtureTestContext) =>
-  Buffer.from(
-    JSON.stringify({
-      edgeURL: `http://${ctx.blobStoreHost}`,
-      uncachedEdgeURL: `http://${ctx.blobStoreHost}`,
-      token: BLOB_TOKEN,
-      siteID: ctx.siteID,
-      deployID: ctx.deployID,
-      primaryRegion: 'us-test-1',
-    }),
-  ).toString('base64')
 
 /**
  * Starts a new mock blob storage
