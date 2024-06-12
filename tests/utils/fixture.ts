@@ -7,6 +7,7 @@ import { zipFunctions } from '@netlify/zip-it-and-ship-it'
 import { execaCommand } from 'execa'
 import getPort from 'get-port'
 import { execute } from 'lambda-local'
+import { spawn } from 'node:child_process'
 import { createWriteStream, existsSync } from 'node:fs'
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -447,5 +448,51 @@ export async function invokeEdgeFunction(
       'x-nf-request-id': v4(),
       ...options.headers,
     },
+  })
+}
+
+export async function invokeSandboxedFunction(
+  ctx: FixtureTestContext,
+  options: Parameters<typeof invokeFunction>[1] = {},
+) {
+  return new Promise<ReturnType<typeof invokeFunction>>((resolve, reject) => {
+    const childProcess = spawn(process.execPath, [import.meta.dirname + '/sandbox-child.mjs'], {
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+      cwd: process.cwd(),
+    })
+
+    childProcess.stdout?.on('data', (data) => {
+      console.log(data.toString())
+    })
+
+    childProcess.stderr?.on('data', (data) => {
+      console.error(data.toString())
+    })
+
+    childProcess.on('message', (msg: any) => {
+      if (msg?.action === 'invokeFunctionResult') {
+        resolve(msg.result)
+        childProcess.send({ action: 'exit' })
+      }
+    })
+
+    childProcess.on('exit', () => {
+      reject(new Error('worker exited before returning result'))
+    })
+
+    childProcess.send({
+      action: 'invokeFunction',
+      args: [
+        // context object is not serializable so we create serializable object
+        // containing required properties to invoke lambda
+        {
+          functionDist: ctx.functionDist,
+          blobStoreHost: ctx.blobStoreHost,
+          siteID: ctx.siteID,
+          deployID: ctx.deployID,
+        },
+        options,
+      ],
+    })
   })
 }

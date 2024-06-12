@@ -2,16 +2,22 @@
 // (CJS format because Next.js doesn't support ESM yet)
 //
 import { Buffer } from 'node:buffer'
+import { join } from 'node:path'
+import { join as posixJoin } from 'node:path/posix'
 
 import { Store } from '@netlify/blobs'
 import { purgeCache } from '@netlify/functions'
 import { type Span } from '@opentelemetry/api'
+import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
+import { loadManifest } from 'next/dist/server/load-manifest.js'
+import { normalizePagePath } from 'next/dist/shared/lib/page-path/normalize-page-path.js'
 
 import type {
   CacheHandler,
   CacheHandlerContext,
   IncrementalCache,
+  NetlifyCachedPageValue,
   NetlifyCachedRouteValue,
   NetlifyCacheHandlerValue,
   NetlifyIncrementalCacheValue,
@@ -105,6 +111,26 @@ export class NetlifyCacheHandler implements CacheHandler {
     return restOfRouteValue
   }
 
+  private injectEntryToPrerenderManifest(
+    key: string,
+    revalidate: NetlifyCachedPageValue['revalidate'],
+  ) {
+    if (this.options.serverDistDir && (typeof revalidate === 'number' || revalidate === false)) {
+      const prerenderManifest = loadManifest(
+        join(this.options.serverDistDir, '..', 'prerender-manifest.json'),
+      ) as PrerenderManifest
+
+      prerenderManifest.routes[key] = {
+        experimentalPPR: undefined,
+        dataRoute: posixJoin('/_next/data', `${normalizePagePath(key)}.json`),
+        srcRoute: null, // FIXME: provide actual source route, however, when dynamically appending it doesn't really matter
+        initialRevalidateSeconds: revalidate,
+        // Pages routes do not have a prefetch data route.
+        prefetchDataRoute: undefined,
+      }
+    }
+  }
+
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
     return this.tracer.withActiveSpan('get cache key', async (span) => {
       const [key, ctx = {}] = args
@@ -156,17 +182,45 @@ export class NetlifyCacheHandler implements CacheHandler {
             },
           }
         }
-        case 'PAGE':
+        case 'PAGE': {
           span.addEvent('PAGE', { lastModified: blob.lastModified })
+
+          const { revalidate, ...restOfPageValue } = blob.value
+
+          this.injectEntryToPrerenderManifest(key, revalidate)
+
           return {
             lastModified: blob.lastModified,
-            value: blob.value,
+            value: restOfPageValue,
           }
+        }
         default:
           span.recordException(new Error(`Unknown cache entry kind: ${blob.value?.kind}`))
       }
       return null
     })
+  }
+
+  private transformToStorableObject(
+    data: Parameters<IncrementalCache['set']>[1],
+    context: Parameters<IncrementalCache['set']>[2],
+  ): NetlifyIncrementalCacheValue | null {
+    if (data?.kind === 'ROUTE') {
+      return {
+        ...data,
+        revalidate: context.revalidate,
+        body: data.body.toString('base64'),
+      }
+    }
+
+    if (data?.kind === 'PAGE') {
+      return {
+        ...data,
+        revalidate: context.revalidate,
+      }
+    }
+
+    return data
   }
 
   async set(...args: Parameters<IncrementalCache['set']>) {
@@ -178,15 +232,7 @@ export class NetlifyCacheHandler implements CacheHandler {
 
       getLogger().debug(`[NetlifyCacheHandler.set]: ${key}`)
 
-      const value: NetlifyIncrementalCacheValue | null =
-        data?.kind === 'ROUTE'
-          ? // don't mutate data, as it's used for the initial response - instead create a new object
-            {
-              ...data,
-              revalidate: context.revalidate,
-              body: data.body.toString('base64'),
-            }
-          : data
+      const value = this.transformToStorableObject(data, context)
 
       await this.blobStore.setJSON(blobKey, {
         lastModified,

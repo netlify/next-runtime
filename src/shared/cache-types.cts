@@ -21,14 +21,24 @@ export type NetlifyCachedRouteValue = Omit<CachedRouteValue, 'body'> & {
   revalidate: Parameters<IncrementalCache['set']>[2]['revalidate']
 }
 
-export type CachedPageValue = Extract<IncrementalCacheValue, { kind: 'PAGE' }>
+type CachedPageValue = Extract<IncrementalCacheValue, { kind: 'PAGE' }>
+
+export type NetlifyCachedPageValue = CachedPageValue & {
+  revalidate?: Parameters<IncrementalCache['set']>[2]['revalidate']
+}
+
 export type CachedFetchValue = Extract<IncrementalCacheValue, { kind: 'FETCH' }>
 
 export type NetlifyIncrementalCacheValue =
-  | Exclude<IncrementalCacheValue, CachedRouteValue>
+  | Exclude<IncrementalCacheValue, CachedRouteValue | CachedPageValue>
   | NetlifyCachedRouteValue
+  | NetlifyCachedPageValue
 
-type CachedRouteValueToNetlify<T> = T extends CachedRouteValue ? NetlifyCachedRouteValue : T
+type CachedRouteValueToNetlify<T> = T extends CachedRouteValue
+  ? NetlifyCachedRouteValue
+  : T extends CachedPageValue
+    ? NetlifyCachedPageValue
+    : T
 type MapCachedRouteValueToNetlify<T> = { [K in keyof T]: CachedRouteValueToNetlify<T[K]> }
 
 export type NetlifyCacheHandlerValue = MapCachedRouteValueToNetlify<CacheHandlerValue>
