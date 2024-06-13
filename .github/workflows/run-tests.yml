@@ -255,13 +255,14 @@ jobs:
         npx playwright merge-reports --reporter html ./all-blob-reports
         npx playwright merge-reports --reporter json ./all-blob-reports > merged_reports.json
 
-    - name: Notify Slack
-      if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
-      run: npx playwright-slack-report -j merged_reports.json -c tests/playwright-slack-conf.json
-      env:
-        SLACK_BOT_USER_OAUTH_TOKEN: ${{ secrets.SLACK_BOT_USER_OAUTH_TOKEN }}
-        RESULTS_VERSION: ${{ matrix.version }}
-        RESULTS_URL: ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}
+    # FIXME(serhalp) Once we recover access to the SquidlifyBot Slack App, reenable this.
+    # - name: Notify Slack
+    #   if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
+    #   run: npx playwright-slack-report -j merged_reports.json -c tests/playwright-slack-conf.json
+    #   env:
+    #     SLACK_BOT_USER_OAUTH_TOKEN: ${{ secrets.SLACK_BOT_USER_OAUTH_TOKEN }}
+    #     RESULTS_VERSION: ${{ matrix.version }}
+    #     RESULTS_URL: ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}
 
     - name: Upload HTML report
       uses: actions/upload-artifact@v4
