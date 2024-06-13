@@ -25,6 +25,8 @@ export const setRunConfig = (config: NextConfigComplete) => {
   // set the path to the cache handler
   config.experimental = {
     ...config.experimental,
+    // @ts-expect-error incrementalCacheHandlerPath was removed from config type
+    // but we still need to set it for older Next.js versions
     incrementalCacheHandlerPath: cacheHandler,
   }
 
