@@ -14,17 +14,17 @@ async function writeToConfig(
 }
 
 async function formatIssues(file: string) {
-  const issues = JSON.parse(await Deno.readTextFile(file))
+  const issues = JSON.parse(await Deno.readTextFile(file)) as { body: string; url: string }[]
   const annotations: Annotation[] = []
 
-  issues.forEach((issue: { body: string; number: number }) => {
-    const name = issue.body.match(/^test: (.+)$/m) || []
-    const reason = issue.body.match(/^reason: (.+)$/m) || []
+  issues.forEach(({ url, body }) => {
+    const name = body.match(/^test: (.+)$/m) || []
+    const reason = body.match(/^reason: (.+)$/m) || []
     const testNames = name[1]?.split(',')
 
     testNames?.forEach((name) => {
       annotations.push({
-        link: `https://github.com/netlify/next-runtime-minimal/issues/${issue.number}`,
+        link: url,
         reason: reason[1],
         name: name.trim(),
       })

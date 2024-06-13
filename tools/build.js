@@ -36,7 +36,7 @@ async function bundle(entryPoints, format, watch) {
         name: 'mark-runtime-modules-as-external',
         setup(pluginBuild) {
           pluginBuild.onResolve({ filter: /^\..*\.c?js$/ }, (args) => {
-            if (args.importer.includes(join('next-runtime-minimal', 'src'))) {
+            if (args.importer.includes(join('next-runtime', 'src'))) {
               return { path: args.path, external: true }
             }
           })

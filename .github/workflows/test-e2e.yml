@@ -39,7 +39,7 @@ env:
   NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
   NEXT_TEST_CONTINUE_ON_ERROR: 1
   next-path: next.js
-  runtime-path: next-runtime-minimal
+  runtime-path: next-runtime
   GH_TOKEN: ${{ github.token }}
 jobs:
   setup:
@@ -143,7 +143,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.npm-cache.outputs.PATH }}
-          key: node-cache-${{ hashFiles('next-runtime-minimal/package-lock.json') }}
+          key: node-cache-${{ hashFiles('next-runtime/package-lock.json') }}
           restore-keys: |
             node-cache-
 
@@ -191,11 +191,11 @@ jobs:
         run: |
           # This is when the manifest version was changed
           if [ `npx semver -p -r ">=14.0.4-canary.26" ${{ matrix.version_spec.version }}` ]; then
-            echo "filters=../next-runtime-minimal/tests/netlify-e2e.cjs" >> $GITHUB_OUTPUT
-            echo "skip-retry=../next-runtime-minimal/tests/e2e-skip-retry.json" >> $GITHUB_OUTPUT
+            echo "filters=../next-runtime/tests/netlify-e2e.cjs" >> $GITHUB_OUTPUT
+            echo "skip-retry=../next-runtime/tests/e2e-skip-retry.json" >> $GITHUB_OUTPUT
           else
-            echo "filters=../next-runtime-minimal/tests/netlify-e2e-legacy.json" >> $GITHUB_OUTPUT
-            echo "skip-retry=../next-runtime-minimal/tests/e2e-skip-retry-legacy.json" >> $GITHUB_OUTPUT
+            echo "filters=../next-runtime/tests/netlify-e2e-legacy.json" >> $GITHUB_OUTPUT
+            echo "skip-retry=../next-runtime/tests/e2e-skip-retry-legacy.json" >> $GITHUB_OUTPUT
           fi
 
       - name: run tests
@@ -243,7 +243,7 @@ jobs:
       - name: Get and format Github issues
         if: success() || failure()
         run: |
-          gh issue list --label "Next.js e2e test failure" --json number,body > report/issues.json
+          gh issue list --label "Next.js e2e test failure" --json url,body > report/issues.json
           deno run -A tools/deno/ghIssues2json.ts tests/test-config.json report/issues.json
 
       - name: Publish Test Report

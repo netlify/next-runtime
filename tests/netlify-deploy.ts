@@ -66,11 +66,11 @@ export class NextDeployInstance extends NextInstance {
           [build]
           command = "npm run build"
           publish = ".next"
-          
+
           [[plugins]]
           package = "${path.relative(
             this.testDir,
-            process.env.RUNTIME_DIR || `${process.cwd()}/../next-runtime-minimal`,
+            process.env.RUNTIME_DIR || `${process.cwd()}/../next-runtime`,
           )}"
           `
 
@@ -83,7 +83,7 @@ export class NextDeployInstance extends NextInstance {
       require('console').log(`Using Netlify CLI version:`, res.stdout)
     } catch (_) {
       require('console').log(`You need to have netlify-cli installed.
-      
+
       You can do this by running: "npm install -g netlify-cli@latest" or "yarn global add netlify-cli@latest"`)
     }
 

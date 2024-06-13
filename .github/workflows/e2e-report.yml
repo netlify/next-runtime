@@ -30,7 +30,7 @@ jobs:
       - name: Download latest e2e results
         if: ${{ steps.get-run-id.outputs.runId }}
         run: |
-          echo "Downloading latest test results from run https://github.com/netlify/next-runtime-minimal/actions/runs/${{ steps.get-run-id.outputs.runId }}"
+          echo "Downloading latest test results from run https://github.com/netlify/next-runtime/actions/runs/${{ steps.get-run-id.outputs.runId }}"
           rm e2e-report/data/test-results.json
           gh run download ${{ steps.get-run-id.outputs.runId }} -n "latest-test-results.json" -D e2e-report/data/ --repo $GITHUB_REPOSITORY
       - name: Install site dependencies
