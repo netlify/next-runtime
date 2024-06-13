@@ -338,7 +338,11 @@ export class NetlifyCacheHandler implements CacheHandler {
 
     if (cacheEntry.value?.kind === 'FETCH') {
       cacheTags = [...tags, ...softTags]
-    } else if (cacheEntry.value?.kind === 'PAGE' || cacheEntry.value?.kind === 'ROUTE') {
+    } else if (
+      cacheEntry.value?.kind === 'PAGE' ||
+      cacheEntry.value?.kind === 'APP_PAGE' ||
+      cacheEntry.value?.kind === 'ROUTE'
+    ) {
       cacheTags = (cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER] as string)?.split(',') || []
     } else {
       return false
