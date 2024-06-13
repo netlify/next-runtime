@@ -10,6 +10,7 @@ import pLimit from 'p-limit'
 import { encodeBlobKey } from '../../shared/blobkey.js'
 import type {
   CachedFetchValue,
+  NetlifyCachedAppPageValue,
   NetlifyCachedPageValue,
   NetlifyCachedRouteValue,
   NetlifyCacheHandlerValue,
@@ -46,31 +47,45 @@ const buildPagesCacheValue = async (path: string): Promise<NetlifyCachedPageValu
   kind: 'PAGE',
   html: await readFile(`${path}.html`, 'utf-8'),
   pageData: JSON.parse(await readFile(`${path}.json`, 'utf-8')),
-  postponed: undefined,
   headers: undefined,
   status: undefined,
 })
 
-const buildAppCacheValue = async (path: string): Promise<NetlifyCachedPageValue> => {
+const buildAppCacheValue = async (
+  path: string,
+): Promise<NetlifyCachedAppPageValue | NetlifyCachedPageValue> => {
   const meta = JSON.parse(await readFile(`${path}.meta`, 'utf-8'))
-  const rsc = await readFile(`${path}.rsc`, 'utf-8').catch(() =>
-    readFile(`${path}.prefetch.rsc`, 'utf-8'),
-  )
+  const html = await readFile(`${path}.html`, 'utf-8')
 
-  // Next < v14.2.0 does not set meta.status when notFound() is called directly on a page
-  // Exclude Parallel routes, they are 404s when visited directly
-  if (
-    !meta.status &&
-    rsc.includes('NEXT_NOT_FOUND') &&
-    !meta.headers['x-next-cache-tags'].includes('/@')
-  ) {
-    meta.status = 404
+  // TODO: check actual next version and not rely on env var set by tests
+  const useOldStuff = process.env.NEXT_VERSION !== 'canary'
+  if (useOldStuff) {
+    const rsc = await readFile(`${path}.rsc`, 'utf-8').catch(() =>
+      readFile(`${path}.prefetch.rsc`, 'utf-8'),
+    )
+
+    // Next < v14.2.0 does not set meta.status when notFound() is called directly on a page
+    // Exclude Parallel routes, they are 404s when visited directly
+    if (
+      !meta.status &&
+      rsc.includes('NEXT_NOT_FOUND') &&
+      !meta.headers['x-next-cache-tags'].includes('/@')
+    ) {
+      meta.status = 404
+    }
+    return {
+      kind: 'PAGE',
+      html,
+      pageData: rsc,
+      ...meta,
+    }
   }
 
+  // use new stuff
   return {
-    kind: 'PAGE',
-    html: await readFile(`${path}.html`, 'utf-8'),
-    pageData: rsc,
+    kind: 'APP_PAGE',
+    html,
+    rscData: await readFile(`${path}.rsc`, 'base64'),
     ...meta,
   }
 }
