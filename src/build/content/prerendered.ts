@@ -85,7 +85,9 @@ const buildAppCacheValue = async (
   return {
     kind: 'APP_PAGE',
     html,
-    rscData: await readFile(`${path}.rsc`, 'base64'),
+    rscData: await readFile(`${path}.rsc`, 'base64').catch(() =>
+      readFile(`${path}.prefetch.rsc`, 'base64'),
+    ),
     ...meta,
   }
 }
