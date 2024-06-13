@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.41.4](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.41.3...plugin-nextjs-v4.41.4) (2024-06-13)
+
+
+### Bug Fixes
+
+* don't follow redirects for rewrites ([#2423](https://github.com/netlify/next-runtime/issues/2423)) ([e59c617](https://github.com/netlify/next-runtime/commit/e59c617b29db7647e81dcdaf7788644521dc6636))
+
 ## [4.41.3](https://github.com/netlify/next-runtime/compare/plugin-nextjs-v4.41.2...plugin-nextjs-v4.41.3) (2023-12-08)
 
 
