@@ -551,7 +551,7 @@ describe('page router', () => {
     expect(bodyFr.nextUrlLocale).toBe('fr')
   })
 
-  test.only<FixtureTestContext>('should preserve locale in request.nextUrl with skipMiddlewareUrlNormalize', async (ctx) => {
+  test<FixtureTestContext>('should preserve locale in request.nextUrl with skipMiddlewareUrlNormalize', async (ctx) => {
     await createFixture('middleware-i18n-skip-normalize', ctx)
     await runPlugin(ctx)
     const origin = await LocalServer.run(async (req, res) => {
