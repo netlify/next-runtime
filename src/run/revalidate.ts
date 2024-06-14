@@ -1,4 +1,5 @@
 import type { ServerResponse } from 'node:http'
+import { isPromise } from 'node:util/types'
 
 import type { RequestContext } from './handlers/request-context.cjs'
 
@@ -12,7 +13,13 @@ export const nextResponseProxy = (res: ServerResponse, requestContext: RequestCo
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return async function newRevalidate(...args: any[]) {
           requestContext.didPagesRouterOnDemandRevalidate = true
-          return originalValue?.apply(target, args)
+
+          const result = originalValue?.apply(target, args)
+          if (result && isPromise(result)) {
+            requestContext.trackBackgroundWork(result)
+          }
+
+          return result
         }
       }
       return originalValue
