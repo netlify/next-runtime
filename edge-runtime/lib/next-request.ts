@@ -46,14 +46,11 @@ const normalizeRequestURL = (
   nextConfig?: RequestData['nextConfig'],
 ): { url: string; detectedLocale?: string } => {
   const url = new URL(originalURL)
-  let detectedLocale: string | undefined
 
   let pathname = removeBasePath(url.pathname, nextConfig?.basePath)
 
-  // If the i18n config is present, remove the locale from the URL and store it
-  if (nextConfig?.i18n) {
-    ;({ detectedLocale } = normalizeLocalePath(pathname, nextConfig?.i18n?.locales))
-  }
+  // If it exists, remove the locale from the URL and store it
+  const { detectedLocale } = normalizeLocalePath(pathname, nextConfig?.i18n?.locales)
 
   if (!nextConfig?.skipMiddlewareUrlNormalize) {
     // We want to run middleware for data requests and expose the URL of the
