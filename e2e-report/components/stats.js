@@ -4,13 +4,6 @@ export default function StatsRow({ testData }) {
   const testsRun = testData.passed + testData.failed
   const passRate = ((testData.passed / testsRun) * 100).toFixed(1)
 
-  const allFailures = testData.results
-    .flatMap((suite) => {
-      return suite.testCases?.filter((t) => t.status === 'failed')
-    })
-    .filter(Boolean)
-  const knownFailuesCount = allFailures.filter((t) => !!t.reason).length
-
   return (
     <div className="stats stats-vertical lg:stats-horizontal border-b rounded w-full">
       <div className="stat">
@@ -40,7 +33,7 @@ export default function StatsRow({ testData }) {
           <div className="size-6">
             <InfoIcon />
           </div>
-          <span>{knownFailuesCount}</span>
+          <span>{testData.knownFailuresCount}</span>
         </div>
         <div className="stat-desc">mapped to GitHub issues</div>
       </div>
@@ -51,7 +44,7 @@ export default function StatsRow({ testData }) {
           <div className="size-6">
             <ErrorIcon />
           </div>
-          <span>{allFailures.length - knownFailuesCount}</span>
+          <span>{testData.unknownFailuresCount}</span>
         </div>
         <div className="stat-desc">not mapped to issues</div>
       </div>

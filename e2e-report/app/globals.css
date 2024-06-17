@@ -19,7 +19,7 @@
   }
 
   .table.issues-table :where(td:nth-last-child(-n + 4)) {
-    @apply text-center;
+    @apply text-center p-1 md:p-4;
   }
 
   .table.issues-table :where(td:nth-last-child(-n + 3)) {

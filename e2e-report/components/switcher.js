@@ -10,7 +10,7 @@ export default function ComponentSwitcher({ components, defaultLabel }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
+      <div className="flex justify-center md:justify-end">
         <ToggleButtonGroup
           labels={labels}
           selectedLabel={selectedLabel}
@@ -28,7 +28,7 @@ function ToggleButtonGroup({ labels, selectedLabel, setSelectedLabel }) {
       {labels.map((label) => {
         return (
           <input
-            className="join-item btn btn-sm rounded"
+            className="join-item btn text-base md:btn-sm rounded"
             name="optionsGroup"
             key={label}
             type="radio"

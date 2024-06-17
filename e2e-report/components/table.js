@@ -3,16 +3,16 @@ import { GithubIcon } from './icons'
 
 // Show test suites and non-passing cases per each
 export default function Table({ suites }) {
-  const countColumns = ['Pass', 'Fail', 'Known fail', 'Skip']
+  const countColumns = ['Pass', 'Fail', 'Known', 'Skip']
 
   return (
     <table className="table issues-table text-base w-full">
       <thead>
         <tr>
-          <th>Test suite name</th>
+          <th className="p-2 md:p-4">Test suite name</th>
           {countColumns.map((col) => {
             return (
-              <th className="w-16 p-2 text-center" key={col}>
+              <th className="md:w-16 p-0 md:p-2 text-center" key={col}>
                 {col}
               </th>
             )
@@ -32,9 +32,11 @@ function TestSuiteRow({ suite, idx }) {
   const badgeClasses = 'badge font-bold rounded '
   return (
     <>
-      <tr key={'tr-' + idx}>
-        <td>
-          <Link href={suite.file}>{suite.name}</Link>
+      <tr key={'tr-' + idx} className="text-sm md:text-base">
+        <td className="p-2 md:p-4">
+          <Link href={suite.file} className="text-sm md:text-base">
+            {suite.name}
+          </Link>
         </td>
         <td>{suite.passed}</td>
         <td>
@@ -76,8 +78,8 @@ function IssueRow({ test }) {
 
   return (
     <tr>
-      <td colSpan={5} className="border bg-base-200/[.4] pl-6">
-        <div key={test.name} className="flex flex-col gap-1 text-neutral">
+      <td colSpan={5} className="border bg-base-200/[.4] md:pl-6">
+        <div key={test.name} className="flex flex-col gap-1 text-neutral text-left">
           <div className="flex gap-2 items-center py-1">
             {test.status == 'failed' ? (
               !!test.reason ? (
@@ -88,15 +90,18 @@ function IssueRow({ test }) {
             ) : (
               <div className="badge badge-accent rounded">Skipped</div>
             )}
-            <span className="flex gap-1 opacity-90">
-              <span className="font-bold">Test:</span>
-              {shorten(test.name)}
+            <span className="opacity-90 text-sm md:text-base">
+              <span className="font-bold">Test:</span> {shorten(test.name)}
             </span>
           </div>
           {!!test.reason && (
             <div className="flex justify-start text-neutral font-bold opacity-90">
               {test.link ? (
-                <Link href={test.link} target="_blank" className="flex gap-1 items-center">
+                <Link
+                  href={test.link}
+                  target="_blank"
+                  className="flex gap-1 items-center text-sm md:text-base"
+                >
                   <GithubIcon className="w-4" />
                   <span>{shorten(test.reason)}</span>
                 </Link>
