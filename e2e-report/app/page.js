@@ -1,36 +1,49 @@
-import { OpenIssues, SkippedTests } from '../components/filter-data.js'
-import GroupedTests from '../components/grouped-tests.js'
-import Hero from '../components/hero.js'
-import testData from '../data/test-results.json'
+import Image from 'next/image'
+import Table from '@/components/table'
+import ComponentSwitcher from '@/components/switcher'
+import StatsRow from '@/components/stats'
+
+import testData from '@/data/test-results.json'
 
 export default function Home() {
-  const { results, passed, failed, passRate, testDate, nextVersion } = testData
-  const skippedSuites = results.filter(({ skipped }) => skipped === true)
-  const skippedTestCases = results.flatMap(
-    ({ testCases }) => testCases?.filter(({ status }) => status === 'skipped') ?? [],
-  )
-  const failedTestCases = results.flatMap(
-    ({ testCases }) => testCases?.filter(({ status }) => status === 'failed') ?? [],
-  )
+  const tableComponents = createTableComponents(testData)
 
   return (
-    <>
-      <header className="hero">
-        <Hero passed={passed} failed={failed} passRate={passRate} />
-      </header>
-      <div className="title">
-        <h2>E2E Test Results</h2>
-        <p>
-          Next.js {nextVersion}
-          <br />
-          Last updated: {testDate}
-        </p>
+    <div className="flex flex-col w-full items-center font-primary">
+      <Header />
+      <StatsRow testData={testData} />
+      <div className="max-w-5xl w-full p-8">
+        <ComponentSwitcher components={tableComponents} />
       </div>
-      <div className="grid">
-        <GroupedTests testData={results} />
-        <OpenIssues testCases={failedTestCases} />
-        <SkippedTests testSuites={skippedSuites} testCases={skippedTestCases} />
-      </div>
-    </>
+    </div>
+  )
+}
+
+// User can switch between two test suite tables: one with all non-empty suites,
+// and another showing only suites with failed tests (and the failed cases in them)
+function createTableComponents(testData) {
+  testData.results.forEach((suite) => {
+    suite.failedKnown =
+      suite.testCases?.filter((t) => t.status === 'failed' && t.reason).length || 0
+    suite.failedUnknown = suite.failed - suite.failedKnown
+  })
+  const nonEmptySuites = testData.results.filter((suite) => suite.testCases?.length > 0)
+  const suitesWithIssues = nonEmptySuites.filter((suite) => suite.failed > 0)
+  suitesWithIssues.forEach((suite) => {
+    suite.testCases = suite.testCases.filter((t) => t.status === 'failed')
+  })
+
+  return {
+    'All suites': <Table suites={nonEmptySuites} />,
+    'Failed tests only': <Table suites={suitesWithIssues} />,
+  }
+}
+
+function Header() {
+  return (
+    <div className="flex w-full items-center gap-4 bg-primary text-base-100 p-4">
+      <Image alt="netlify logo" src="/logo.svg" width={97} height={40} />
+      <span className="text-lg font-bold uppercase">Next.js E2E Tests on Netlify Runtime v5</span>
+    </div>
   )
 }
