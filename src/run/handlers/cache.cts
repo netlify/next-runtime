@@ -283,12 +283,14 @@ export class NetlifyCacheHandler implements CacheHandler {
         if (requestContext?.didPagesRouterOnDemandRevalidate) {
           const tag = `_N_T_${key === '/index' ? '/' : key}`
           getLogger().debug(`Purging CDN cache for: [${tag}]`)
-          purgeCache({ tags: [tag] }).catch((error) => {
-            // TODO: add reporting here
-            getLogger()
-              .withError(error)
-              .error(`[NetlifyCacheHandler]: Purging the cache for tag ${tag} failed`)
-          })
+          requestContext.trackBackgroundWork(
+            purgeCache({ tags: [tag] }).catch((error) => {
+              // TODO: add reporting here
+              getLogger()
+                .withError(error)
+                .error(`[NetlifyCacheHandler]: Purging the cache for tag ${tag} failed`)
+            }),
+          )
         }
       }
     })
@@ -296,6 +298,18 @@ export class NetlifyCacheHandler implements CacheHandler {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async revalidateTag(tagOrTags: string | string[], ...args: any) {
+    const revalidateTagPromise = this.doRevalidateTag(tagOrTags, ...args)
+
+    const requestContext = getRequestContext()
+    if (requestContext) {
+      requestContext.trackBackgroundWork(revalidateTagPromise)
+    }
+
+    return revalidateTagPromise
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async doRevalidateTag(tagOrTags: string | string[], ...args: any) {
     getLogger().withFields({ tagOrTags, args }).debug('NetlifyCacheHandler.revalidateTag')
 
     const tags = Array.isArray(tagOrTags) ? tagOrTags : [tagOrTags]
@@ -314,7 +328,7 @@ export class NetlifyCacheHandler implements CacheHandler {
       }),
     )
 
-    purgeCache({ tags }).catch((error) => {
+    await purgeCache({ tags }).catch((error) => {
       // TODO: add reporting here
       getLogger()
         .withError(error)

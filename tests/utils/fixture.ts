@@ -364,14 +364,24 @@ export async function invokeFunction(
       NETLIFY_BLOBS_CONTEXT: createBlobContext(ctx),
       ...(env || {}),
     }
+
+    const envVarsToRestore = {}
+
+    // We are not using lambda-local's environment variable setting because it cleans up
+    // environment vars to early (before stream is closed)
+    Object.keys(environment).forEach(function (key) {
+      if (typeof process.env[key] !== 'undefined') {
+        envVarsToRestore[key] = process.env[key]
+      }
+      process.env[key] = environment[key]
+    })
+
     const response = (await execute({
       event: {
         headers: headers || {},
         httpMethod: httpMethod || 'GET',
         rawUrl: new URL(url || '/', 'https://example.netlify').href,
       },
-      environment,
-      envdestroy: true,
       lambdaFunc: { handler },
       timeoutMs: 4_000,
     })) as LambdaResponse
@@ -385,6 +395,14 @@ export async function invokeFunction(
     )
 
     const bodyBuffer = await streamToBuffer(response.body)
+
+    Object.keys(environment).forEach(function (key) {
+      if (typeof envVarsToRestore[key] !== 'undefined') {
+        process.env[key] = envVarsToRestore[key]
+      } else {
+        delete process.env[key]
+      }
+    })
 
     return {
       statusCode: response.statusCode,
