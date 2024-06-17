@@ -1,8 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 import Image from 'next/image'
 import Table from '@/components/table'
 import ComponentSwitcher from '@/components/switcher'
 import StatsRow from '@/components/stats'
 import testData from '@/utils/data'
+import { CopyIcon } from '@/components/icons'
+import CopyBadgeButton from '@/components/copy-badge'
 
 export default function Home() {
   // User can switch between two test suite tables: one with all non-empty suites,
@@ -25,16 +28,22 @@ export default function Home() {
 
 function Header() {
   return (
-    <div className="flex w-full items-center gap-4 bg-primary text-base-100 p-2 md:p-4 justify-center">
-      <Image
-        alt="netlify logo"
-        src="/logo.svg"
-        width={97}
-        height={40}
-        className="hidden md:block"
-      />
-      <span className="md:text-lg font-bold uppercase">
-        Next.js E2E Tests on Netlify Runtime v5
+    <div className="flex w-full items-center gap-4 bg-primary text-base-100 p-2 md:p-4 justify-center md:justify-between">
+      <span className="flex gap-4 items-center">
+        <Image
+          alt="netlify logo"
+          src="/logo.svg"
+          width={97}
+          height={40}
+          className="hidden md:block"
+        />
+        <span className="md:text-lg font-bold">Next.js E2E Tests on Netlify Runtime v5</span>
+      </span>
+      <span className="hidden md:flex gap-2 items-center">
+        <a href="/" target="_blank">
+          <img src="/badge" width="200" height="30" alt="Netlify Next.js runtime v5 test status" />
+        </a>
+        <CopyBadgeButton />
       </span>
     </div>
   )
