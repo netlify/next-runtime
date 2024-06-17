@@ -1,6 +1,12 @@
 import type { Context } from '@netlify/edge-functions'
 
-import { addBasePath, normalizeDataUrl, normalizeLocalePath, removeBasePath } from './util.ts'
+import {
+  addBasePath,
+  addTrailingSlash,
+  normalizeDataUrl,
+  normalizeLocalePath,
+  removeBasePath,
+} from './util.ts'
 
 interface I18NConfig {
   defaultLocale: string
@@ -41,43 +47,25 @@ const normalizeRequestURL = (
 ): { url: string; detectedLocale?: string } => {
   const url = new URL(originalURL)
 
-  url.pathname = removeBasePath(url.pathname, nextConfig?.basePath)
-  const didRemoveBasePath = url.toString() !== originalURL
+  let pathname = removeBasePath(url.pathname, nextConfig?.basePath)
 
-  let detectedLocale: string | undefined
-
-  if (nextConfig?.i18n) {
-    const { pathname, detectedLocale: detected } = normalizeLocalePath(
-      url.pathname,
-      nextConfig?.i18n?.locales,
-    )
-    if (!nextConfig?.skipMiddlewareUrlNormalize) {
-      url.pathname = pathname || '/'
-    }
-    detectedLocale = detected
-  }
+  // If it exists, remove the locale from the URL and store it
+  const { detectedLocale } = normalizeLocalePath(pathname, nextConfig?.i18n?.locales)
 
   if (!nextConfig?.skipMiddlewareUrlNormalize) {
     // We want to run middleware for data requests and expose the URL of the
     // corresponding pages, so we have to normalize the URLs before running
     // the handler.
-    url.pathname = normalizeDataUrl(url.pathname)
+    pathname = normalizeDataUrl(pathname)
 
     // Normalizing the trailing slash based on the `trailingSlash` configuration
     // property from the Next.js config.
-    if (nextConfig?.trailingSlash && url.pathname !== '/' && !url.pathname.endsWith('/')) {
-      url.pathname = `${url.pathname}/`
+    if (nextConfig?.trailingSlash) {
+      pathname = addTrailingSlash(pathname)
     }
   }
 
-  if (didRemoveBasePath) {
-    url.pathname = addBasePath(url.pathname, nextConfig?.basePath)
-  }
-
-  // keep the locale in the url for request.nextUrl object
-  if (detectedLocale) {
-    url.pathname = `/${detectedLocale}${url.pathname}`
-  }
+  url.pathname = addBasePath(pathname, nextConfig?.basePath)
 
   return {
     url: url.toString(),
