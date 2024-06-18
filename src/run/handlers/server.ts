@@ -5,7 +5,6 @@ import { Context } from '@netlify/functions'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import type { WorkerRequestHandler } from 'next/dist/server/lib/types.js'
 
-import { getTagsManifest, TagsManifest } from '../config.js'
 import {
   adjustDateHeader,
   setCacheControlHeaders,
@@ -20,7 +19,7 @@ import { getTracer } from './tracer.cjs'
 
 const nextImportPromise = import('../next.cjs')
 
-let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete, tagsManifest: TagsManifest
+let nextHandler: WorkerRequestHandler, nextConfig: NextConfigComplete
 
 /**
  * When Next.js proxies requests externally, it writes the response back as-is.
@@ -55,21 +54,11 @@ export default async (request: Request, context: FutureContext) => {
   const tracer = getTracer()
 
   if (!nextHandler) {
-    await tracer.withActiveSpan('initialize next server', async (span) => {
+    await tracer.withActiveSpan('initialize next server', async () => {
       // set the server config
       const { getRunConfig, setRunConfig } = await import('../config.js')
       nextConfig = await getRunConfig()
       setRunConfig(nextConfig)
-      tagsManifest = await getTagsManifest()
-      span.setAttributes(
-        Object.entries(tagsManifest).reduce(
-          (acc, [key, value]) => {
-            acc[`tagsManifest.${key}`] = value
-            return acc
-          },
-          {} as Record<string, string>,
-        ),
-      )
 
       const { getMockedRequestHandlers } = await nextImportPromise
       const url = new URL(request.url)
@@ -124,7 +113,7 @@ export default async (request: Request, context: FutureContext) => {
     await adjustDateHeader({ headers: response.headers, request, span, tracer, requestContext })
 
     setCacheControlHeaders(response.headers, request, requestContext)
-    setCacheTagsHeaders(response.headers, request, tagsManifest, requestContext)
+    setCacheTagsHeaders(response.headers, requestContext)
     setVaryHeaders(response.headers, request, nextConfig)
     setCacheStatusHeader(response.headers)
 
