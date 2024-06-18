@@ -20,7 +20,6 @@ import { prerelease, lt as semverLowerThan, lte as semverLowerThanOrEqual } from
 
 import { RUN_CONFIG } from '../../run/constants.js'
 import { PluginContext } from '../plugin-context.js'
-import { verifyNextVersion } from '../verification.js'
 
 const tracer = wrapTracer(trace.getTracer('Next runtime'))
 
@@ -292,26 +291,13 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
 
     await Promise.all(promises)
 
-    // detect if it might lead to a runtime issue and throw an error upfront on build time instead of silently failing during runtime
     const serverHandlerRequire = createRequire(posixJoin(ctx.serverHandlerDir, ':internal:'))
 
-    let nextVersion: string | undefined
-    try {
-      const { version } = serverHandlerRequire('next/package.json')
-      if (version) {
-        nextVersion = version as string
-      }
-    } catch {
-      // failed to resolve package.json - currently this is resolvable in all known next versions, but if next implements
-      // exports map it still might be a problem in the future, so we are not breaking here
+    if (ctx.nextVersion) {
+      await patchNextModules(ctx, ctx.nextVersion, serverHandlerRequire.resolve)
     }
 
-    if (nextVersion) {
-      verifyNextVersion(ctx, nextVersion)
-
-      await patchNextModules(ctx, nextVersion, serverHandlerRequire.resolve)
-    }
-
+    // detect if it might lead to a runtime issue and throw an error upfront on build time instead of silently failing during runtime
     try {
       const nextEntryAbsolutePath = serverHandlerRequire.resolve('next')
       const nextRequire = createRequire(nextEntryAbsolutePath)

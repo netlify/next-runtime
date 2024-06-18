@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { join, relative, resolve } from 'node:path'
+import { join as posixJoin } from 'node:path/posix'
 import { fileURLToPath } from 'node:url'
 
 import type {
@@ -311,6 +313,25 @@ export class PluginContext {
    */
   async getRoutesManifest(): Promise<RoutesManifest> {
     return JSON.parse(await readFile(join(this.publishDir, 'routes-manifest.json'), 'utf-8'))
+  }
+
+  #nextVersion: string | null | undefined = undefined
+
+  /**
+   * Get Next.js version that was used to build the site
+   */
+  get nextVersion(): string | null {
+    if (this.#nextVersion === undefined) {
+      try {
+        const serverHandlerRequire = createRequire(posixJoin(this.standaloneRootDir, ':internal:'))
+        const { version } = serverHandlerRequire('next/package.json')
+        this.#nextVersion = version as string
+      } catch {
+        this.#nextVersion = null
+      }
+    }
+
+    return this.#nextVersion
   }
 
   /** Fails a build with a message and an optional error */

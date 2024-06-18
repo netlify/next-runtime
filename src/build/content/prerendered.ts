@@ -6,10 +6,12 @@ import { trace } from '@opentelemetry/api'
 import { wrapTracer } from '@opentelemetry/api/experimental'
 import { glob } from 'fast-glob'
 import pLimit from 'p-limit'
+import { satisfies } from 'semver'
 
 import { encodeBlobKey } from '../../shared/blobkey.js'
 import type {
   CachedFetchValue,
+  NetlifyCachedAppPageValue,
   NetlifyCachedPageValue,
   NetlifyCachedRouteValue,
   NetlifyCacheHandlerValue,
@@ -46,13 +48,29 @@ const buildPagesCacheValue = async (path: string): Promise<NetlifyCachedPageValu
   kind: 'PAGE',
   html: await readFile(`${path}.html`, 'utf-8'),
   pageData: JSON.parse(await readFile(`${path}.json`, 'utf-8')),
-  postponed: undefined,
   headers: undefined,
   status: undefined,
 })
 
-const buildAppCacheValue = async (path: string): Promise<NetlifyCachedPageValue> => {
+const buildAppCacheValue = async (
+  path: string,
+  shouldUseAppPageKind: boolean,
+): Promise<NetlifyCachedAppPageValue | NetlifyCachedPageValue> => {
   const meta = JSON.parse(await readFile(`${path}.meta`, 'utf-8'))
+  const html = await readFile(`${path}.html`, 'utf-8')
+
+  // supporting both old and new cache kind for App Router pages - https://github.com/vercel/next.js/pull/65988
+  if (shouldUseAppPageKind) {
+    return {
+      kind: 'APP_PAGE',
+      html,
+      rscData: await readFile(`${path}.rsc`, 'base64').catch(() =>
+        readFile(`${path}.prefetch.rsc`, 'base64'),
+      ),
+      ...meta,
+    }
+  }
+
   const rsc = await readFile(`${path}.rsc`, 'utf-8').catch(() =>
     readFile(`${path}.prefetch.rsc`, 'utf-8'),
   )
@@ -66,10 +84,9 @@ const buildAppCacheValue = async (path: string): Promise<NetlifyCachedPageValue>
   ) {
     meta.status = 404
   }
-
   return {
     kind: 'PAGE',
-    html: await readFile(`${path}.html`, 'utf-8'),
+    html,
     pageData: rsc,
     ...meta,
   }
@@ -103,6 +120,18 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
 
       const limitConcurrentPrerenderContentHandling = pLimit(10)
 
+      // https://github.com/vercel/next.js/pull/65988 introduced Cache kind specific to pages in App Router (`APP_PAGE`).
+      // Before this change there was common kind for both Pages router and App router pages
+      // so we check Next.js version to decide how to generate cache values for App Router pages.
+      // Note: at time of writing this code, released 15@rc uses old kind for App Router pages, while 15.0.0@canary.13 and newer canaries use new kind.
+      // Looking at 15@rc release branch it was merging `canary` branch in, so the version constraint assumes that future 15@rc (and 15@latest) versions
+      // will use new kind for App Router pages.
+      const shouldUseAppPageKind = ctx.nextVersion
+        ? satisfies(ctx.nextVersion, '>=15.0.0-canary.13 <15.0.0-d || >15.0.0-rc.0', {
+            includePrerelease: true,
+          })
+        : false
+
       await Promise.all(
         Object.entries(manifest.routes).map(
           ([route, meta]): Promise<void> =>
@@ -125,7 +154,10 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
                   value = await buildPagesCacheValue(join(ctx.publishDir, 'server/pages', key))
                   break
                 case meta.dataRoute?.endsWith('.rsc'):
-                  value = await buildAppCacheValue(join(ctx.publishDir, 'server/app', key))
+                  value = await buildAppCacheValue(
+                    join(ctx.publishDir, 'server/app', key),
+                    shouldUseAppPageKind,
+                  )
                   break
                 case meta.dataRoute === null:
                   value = await buildRouteCacheValue(
@@ -147,7 +179,10 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
       if (existsSync(join(ctx.publishDir, `server/app/_not-found.html`))) {
         const lastModified = Date.now()
         const key = '/404'
-        const value = await buildAppCacheValue(join(ctx.publishDir, 'server/app/_not-found'))
+        const value = await buildAppCacheValue(
+          join(ctx.publishDir, 'server/app/_not-found'),
+          shouldUseAppPageKind,
+        )
         await writeCacheEntry(key, value, lastModified, ctx)
       }
     } catch (error) {
