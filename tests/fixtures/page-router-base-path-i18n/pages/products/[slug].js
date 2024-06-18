@@ -22,13 +22,15 @@ export const getStaticPaths = () => {
     paths: [
       {
         params: {
-          slug: 'an-incredibly-long-product-name-thats-impressively-repetetively-needlessly-overdimensioned-and-should-be-shortened-to-less-than-255-characters-for-the-sake-of-seo-and-ux-and-first-and-foremost-for-gods-sake-but-nobody-wont-ever-read-this-anyway',
+          slug: 'prerendered',
         },
+        locale: 'en',
       },
       {
         params: {
           slug: 'prerendered',
         },
+        locale: 'de',
       },
     ],
     fallback: 'blocking', // false or "blocking"
