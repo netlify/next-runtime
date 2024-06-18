@@ -10,8 +10,6 @@ import { purgeCache } from '@netlify/functions'
 import { type Span } from '@opentelemetry/api'
 import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
-import { loadManifest } from 'next/dist/server/load-manifest.js'
-import { normalizePagePath } from 'next/dist/shared/lib/page-path/normalize-page-path.js'
 
 import type {
   CacheHandler,
@@ -111,23 +109,41 @@ export class NetlifyCacheHandler implements CacheHandler {
     return restOfRouteValue
   }
 
-  private injectEntryToPrerenderManifest(
+  private async injectEntryToPrerenderManifest(
     key: string,
     revalidate: NetlifyCachedPageValue['revalidate'],
   ) {
     if (this.options.serverDistDir && (typeof revalidate === 'number' || revalidate === false)) {
-      const prerenderManifest = loadManifest(
-        join(this.options.serverDistDir, '..', 'prerender-manifest.json'),
-      ) as PrerenderManifest
+      try {
+        const { loadManifest } = await import('next/dist/server/load-manifest.js')
+        const prerenderManifest = loadManifest(
+          join(this.options.serverDistDir, '..', 'prerender-manifest.json'),
+        ) as PrerenderManifest
 
-      prerenderManifest.routes[key] = {
-        experimentalPPR: undefined,
-        dataRoute: posixJoin('/_next/data', `${normalizePagePath(key)}.json`),
-        srcRoute: null, // FIXME: provide actual source route, however, when dynamically appending it doesn't really matter
-        initialRevalidateSeconds: revalidate,
-        // Pages routes do not have a prefetch data route.
-        prefetchDataRoute: undefined,
-      }
+        try {
+          const { normalizePagePath } = await import(
+            'next/dist/shared/lib/page-path/normalize-page-path.js'
+          )
+
+          prerenderManifest.routes[key] = {
+            experimentalPPR: undefined,
+            dataRoute: posixJoin('/_next/data', `${normalizePagePath(key)}.json`),
+            srcRoute: null, // FIXME: provide actual source route, however, when dynamically appending it doesn't really matter
+            initialRevalidateSeconds: revalidate,
+            // Pages routes do not have a prefetch data route.
+            prefetchDataRoute: undefined,
+          }
+        } catch {
+          // depending on Next.js version - prerender manifest might not be mutable
+          // https://github.com/vercel/next.js/pull/64313
+          // if it's not mutable we will try to use SharedRevalidateTimings ( https://github.com/vercel/next.js/pull/64370) instead
+          const { SharedRevalidateTimings } = await import(
+            'next/dist/server/lib/incremental-cache/shared-revalidate-timings.js'
+          )
+          const sharedRevalidateTimings = new SharedRevalidateTimings(prerenderManifest)
+          sharedRevalidateTimings.set(key, revalidate)
+        }
+      } catch {}
     }
   }
 
@@ -178,7 +194,7 @@ export class NetlifyCacheHandler implements CacheHandler {
             lastModified: blob.lastModified,
             value: {
               ...valueWithoutRevalidate,
-              body: Buffer.from(valueWithoutRevalidate.body as unknown as string, 'base64'),
+              body: Buffer.from(valueWithoutRevalidate.body, 'base64'),
             },
           }
         }
@@ -187,11 +203,26 @@ export class NetlifyCacheHandler implements CacheHandler {
 
           const { revalidate, ...restOfPageValue } = blob.value
 
-          this.injectEntryToPrerenderManifest(key, revalidate)
+          await this.injectEntryToPrerenderManifest(key, revalidate)
 
           return {
             lastModified: blob.lastModified,
             value: restOfPageValue,
+          }
+        }
+        case 'APP_PAGE': {
+          span.addEvent('APP_PAGE', { lastModified: blob.lastModified })
+
+          const { revalidate, rscData, ...restOfPageValue } = blob.value
+
+          await this.injectEntryToPrerenderManifest(key, revalidate)
+
+          return {
+            lastModified: blob.lastModified,
+            value: {
+              ...restOfPageValue,
+              rscData: rscData ? Buffer.from(rscData, 'base64') : undefined,
+            },
           }
         }
         default:
@@ -217,6 +248,14 @@ export class NetlifyCacheHandler implements CacheHandler {
       return {
         ...data,
         revalidate: context.revalidate,
+      }
+    }
+
+    if (data?.kind === 'APP_PAGE') {
+      return {
+        ...data,
+        revalidate: context.revalidate,
+        rscData: data.rscData?.toString('base64'),
       }
     }
 
@@ -313,7 +352,11 @@ export class NetlifyCacheHandler implements CacheHandler {
 
     if (cacheEntry.value?.kind === 'FETCH') {
       cacheTags = [...tags, ...softTags]
-    } else if (cacheEntry.value?.kind === 'PAGE' || cacheEntry.value?.kind === 'ROUTE') {
+    } else if (
+      cacheEntry.value?.kind === 'PAGE' ||
+      cacheEntry.value?.kind === 'APP_PAGE' ||
+      cacheEntry.value?.kind === 'ROUTE'
+    ) {
       cacheTags = (cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER] as string)?.split(',') || []
     } else {
       return false

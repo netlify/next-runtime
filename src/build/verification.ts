@@ -47,6 +47,15 @@ export function verifyPublishDir(ctx: PluginContext) {
         `Your publish directory does not contain expected Next.js build output. Please make sure you are using Next.js version (${SUPPORTED_NEXT_VERSIONS})`,
       )
     }
+
+    if (
+      ctx.nextVersion &&
+      !satisfies(ctx.nextVersion, SUPPORTED_NEXT_VERSIONS, { includePrerelease: true })
+    ) {
+      ctx.failBuild(
+        `@netlify/plugin-next@5 requires Next.js version ${SUPPORTED_NEXT_VERSIONS}, but found ${ctx.nextVersion}. Please upgrade your project's Next.js version.`,
+      )
+    }
   }
   if (ctx.buildConfig.output === 'export') {
     if (!ctx.exportDetail?.success) {
@@ -57,14 +66,6 @@ export function verifyPublishDir(ctx: PluginContext) {
         `Your export directory was not found at: ${ctx.exportDetail?.outDirectory}. Please check your build settings`,
       )
     }
-  }
-}
-
-export function verifyNextVersion(ctx: PluginContext, nextVersion: string): void | never {
-  if (!satisfies(nextVersion, SUPPORTED_NEXT_VERSIONS, { includePrerelease: true })) {
-    ctx.failBuild(
-      `@netlify/plugin-next@5 requires Next.js version ${SUPPORTED_NEXT_VERSIONS}, but found ${nextVersion}. Please upgrade your project's Next.js version.`,
-    )
   }
 }
 
