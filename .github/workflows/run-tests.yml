@@ -254,6 +254,7 @@ jobs:
       run: |
         npx playwright merge-reports --reporter html ./all-blob-reports
         npx playwright merge-reports --reporter json ./all-blob-reports > merged_reports.json
+        npx playwright merge-reports --reporter list ./all-blob-reports
 
     # FIXME(serhalp) Once we recover access to the SquidlifyBot Slack App, reenable this.
     # - name: Notify Slack
