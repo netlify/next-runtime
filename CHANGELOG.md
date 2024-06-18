@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.3.3](https://github.com/netlify/next-runtime/compare/v5.3.2...v5.3.3) (2024-06-18)
+
+
+### Bug Fixes
+
+* middleware i18n normalization ([#2483](https://github.com/netlify/next-runtime/issues/2483)) ([a9efa9c](https://github.com/netlify/next-runtime/commit/a9efa9c91f3796760ed8acdf0d3340dbe66ea329))
+* set systemlogger debug log level for debug requests ([#571](https://github.com/netlify/next-runtime/issues/571)) ([a6d09f3](https://github.com/netlify/next-runtime/commit/a6d09f3994bffdb40ef3bf3e5882e9195c1fff4a))
+* update cache handler to accomodate changes in next@canary ([#2480](https://github.com/netlify/next-runtime/issues/2480)) ([f4eeaa2](https://github.com/netlify/next-runtime/commit/f4eeaa2eb41180409b41fcd44e0c2ebc05025a49))
+* update in-memory prerender manifest with information from full route cache ([#579](https://github.com/netlify/next-runtime/issues/579)) ([c91e257](https://github.com/netlify/next-runtime/commit/c91e2575dd5b5faee6d9cb67f92def5171462015))
+
 ## [5.3.2](https://github.com/netlify/next-runtime/compare/v5.3.1...v5.3.2) (2024-05-28)
 
 ### Bug Fixes
