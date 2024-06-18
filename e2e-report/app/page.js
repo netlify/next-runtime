@@ -6,6 +6,7 @@ import StatsRow from '@/components/stats'
 import testData from '@/utils/data'
 import { CopyIcon } from '@/components/icons'
 import CopyBadgeButton from '@/components/copy-badge'
+import { badgeSettings } from '@/utils/consts'
 
 export default function Home() {
   // User can switch between two test suite tables: one with all non-empty suites,
@@ -41,7 +42,12 @@ function Header() {
       </span>
       <span className="hidden md:flex gap-2 items-center">
         <a href="/" target="_blank">
-          <img src="/badge" width="200" height="30" alt="Netlify Next.js runtime v5 test status" />
+          <img
+            src="/badge"
+            width={badgeSettings.displaySize.width}
+            height={badgeSettings.displaySize.height}
+            alt={badgeSettings.alt}
+          />
         </a>
         <CopyBadgeButton />
       </span>

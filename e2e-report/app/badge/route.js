@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import testData from '@/utils/data'
+import { badgeSettings, badgeSize } from '@/utils/consts'
 
 export const dynamic = 'force-static'
 
@@ -21,21 +22,20 @@ export async function GET(request) {
 
   const badge = (
     <Badge
-      label="Next.js runtime v5"
+      label={badgeSettings.label}
       labelStyle={labelStyle}
       value={testData.nextVersion}
       valueStyle={valueStyle}
     />
   )
   return new ImageResponse(badge, {
-    width: 400,
-    height: 60,
+    ...badgeSettings.imageSize,
   })
 }
 
 function Badge({ label, labelStyle, value, valueStyle }) {
   return (
-    <div tw="flex items-center w-full h-full text-[28px] rounded-md overflow-hidden bg-transparent">
+    <div tw="flex items-center w-full h-full text-[26px] rounded-md overflow-hidden bg-transparent">
       <span tw="items-center h-full p-3.5" style={labelStyle}>
         {label}
       </span>
