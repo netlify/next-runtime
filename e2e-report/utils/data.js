@@ -14,8 +14,8 @@ nonEmptySuites.forEach((suite) => {
   suite.failedUnknown = suite.failed - suite.failedKnown
 })
 
-const suitesWithIssues = nonEmptySuites.filter((suite) => suite.failed > 0)
-suitesWithIssues.forEach((suite) => {
+const suitesWithFailures = nonEmptySuites.filter((suite) => suite.failed > 0)
+suitesWithFailures.forEach((suite) => {
   suite.testCases = suite.testCases.filter((t) => t.status === 'failed')
 })
 
@@ -34,7 +34,7 @@ const testData = {
   nextVersion: fileData.nextVersion,
   testDate: fileData.testDate,
   nonEmptySuites,
-  suitesWithIssues,
+  suitesWithFailures,
   knownFailuresCount,
   unknownFailuresCount,
 }

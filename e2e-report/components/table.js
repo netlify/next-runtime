@@ -65,51 +65,100 @@ function TestSuiteRow({ suite, idx }) {
       {suite.testCases
         .filter((t) => t.status != 'passed')
         .map((t) => {
-          return <IssueRow key={suite.name + t.name} test={t} />
+          return <TestCaseRow key={suite.name + t.name} test={t} />
         })}
     </>
   )
 }
 
-function IssueRow({ test }) {
-  function shorten(text) {
-    return text?.length > 100 ? text.slice(0, 45) + '[.....]' + text.slice(-45) : text
+const maxLength = 100
+
+// Simple utility not meant to cover all types of texts/lengths/cases
+function shorten(text) {
+  if (!text || text.length <= maxLength) return text
+
+  // Slice text in two at the first whitespace after the middle of the text
+  const ellipsis = ' [....]'
+  const midIdx = (maxLength - ellipsis.length) / 2
+  const sliceInx = text.indexOf(' ', midIdx)
+  const beforeSlice = text.slice(0, sliceInx) + ellipsis
+  let afterSlice = text.slice(sliceInx)
+
+  // As long the full text is too long, trim more full words
+  while (beforeSlice.length + afterSlice.length > maxLength) {
+    afterSlice = afterSlice.replace(/[^\s]+\s+/, '')
+  }
+  return beforeSlice + afterSlice
+}
+
+function TestCaseRow({ test }) {
+  const fullName = test.name + (test.retries > 0 ? ` (${test.retries} retries)` : '')
+  const displayName = shorten(fullName)
+  const nameHasTooltip = displayName != fullName
+
+  const displayReason = shorten(test.reason)
+  const reasonHasTooltip = displayReason != test.reason
+
+  function StatusBadge() {
+    let badgeClasses = 'badge rounded '
+    let label = ''
+
+    if (test.status == 'failed') {
+      label = 'Failed'
+      badgeClasses += test.reason ? 'badge-warning' : 'badge-error text-white'
+    } else {
+      label = 'Skipped'
+      badgeClasses += 'badge-accent'
+    }
+
+    return <div className={badgeClasses}>{label}</div>
+  }
+
+  function NameLine() {
+    return (
+      <div className="flex gap-2 items-center py-1">
+        <StatusBadge />
+        <div
+          className={'opacity-90 text-sm md:text-base' + (nameHasTooltip ? ' tooltip' : '')}
+          data-tip={nameHasTooltip ? fullName : undefined}
+        >
+          <span className="font-bold">Test:</span> {displayName}
+        </div>
+      </div>
+    )
+  }
+
+  function ReasonLine() {
+    return (
+      <div
+        className={
+          'flex justify-start text-neutral font-bold opacity-90' +
+          (reasonHasTooltip ? ' tooltip' : '')
+        }
+        data-tip={reasonHasTooltip ? test.reason : undefined}
+      >
+        {test.link ? (
+          <Link
+            href={test.link}
+            target="_blank"
+            className="flex gap-1 items-center text-sm md:text-base"
+          >
+            <GithubIcon className="w-4" />
+            <span>{displayReason}</span>
+          </Link>
+        ) : (
+          <span>{displayReason}</span>
+        )}
+      </div>
+    )
   }
 
   return (
     <tr>
       <td colSpan={5} className="border bg-base-200/[.4] md:pl-6">
-        <div key={test.name} className="flex flex-col gap-1 text-neutral text-left">
-          <div className="flex gap-2 items-center py-1">
-            {test.status == 'failed' ? (
-              !!test.reason ? (
-                <div className="badge badge-warning rounded">Failed</div>
-              ) : (
-                <div className="badge badge-error rounded text-white">Failed</div>
-              )
-            ) : (
-              <div className="badge badge-accent rounded">Skipped</div>
-            )}
-            <span className="opacity-90 text-sm md:text-base">
-              <span className="font-bold">Test:</span> {shorten(test.name)}
-            </span>
-          </div>
-          {!!test.reason && (
-            <div className="flex justify-start text-neutral font-bold opacity-90">
-              {test.link ? (
-                <Link
-                  href={test.link}
-                  target="_blank"
-                  className="flex gap-1 items-center text-sm md:text-base"
-                >
-                  <GithubIcon className="w-4" />
-                  <span>{shorten(test.reason)}</span>
-                </Link>
-              ) : (
-                <span>{shorten(test.reason)}</span>
-              )}
-            </div>
-          )}
+        <div className="flex flex-col gap-1 text-neutral text-left">
+          <NameLine />
+          {!!test.reason && <ReasonLine />}
         </div>
       </td>
     </tr>

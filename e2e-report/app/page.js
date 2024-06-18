@@ -4,7 +4,6 @@ import Table from '@/components/table'
 import ComponentSwitcher from '@/components/switcher'
 import StatsRow from '@/components/stats'
 import testData from '@/utils/data'
-import { CopyIcon } from '@/components/icons'
 import CopyBadgeButton from '@/components/copy-badge'
 import { badgeSettings } from '@/utils/consts'
 
@@ -13,7 +12,7 @@ export default function Home() {
   // and another showing only suites with failed tests (and the failed cases in them)
   const tableComponents = {
     'All suites': <Table suites={testData.nonEmptySuites} />,
-    'Failed tests only': <Table suites={testData.suitesWithIssues} />,
+    'Failed tests only': <Table suites={testData.suitesWithFailures} />,
   }
 
   return (
