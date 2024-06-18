@@ -72,9 +72,6 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          # TODO(serhalp) Unpin version once
-          # https://netlify.slack.com/archives/C07686YAY13/p1718139257978049 is resolved.
-          npm i -g netlify-cli@17.26.0
           netlify login
       - name: Get installed Playwright version
         id: playwright-version
@@ -208,9 +205,6 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          # TODO(serhalp) Unpin version once
-          # https://netlify.slack.com/archives/C07686YAY13/p1718139257978049 is resolved.
-          npm i -g netlify-cli@17.26.0
           netlify login
       - name: Resolve Next.js version
         id: resolve-next-version
