@@ -48,6 +48,9 @@ const disableFaultyTransferEncodingHandling = (res: ComputeJsOutgoingMessage) =>
 // TODO: remove once https://github.com/netlify/serverless-functions-api/pull/219
 // is released and public types are updated
 interface FutureContext extends Context {
+  flags: {
+    get: (name: string) => boolean
+  },
   waitUntil?: (promise: Promise<unknown>) => void
 }
 
@@ -123,7 +126,9 @@ export default async (request: Request, context: FutureContext) => {
 
     await adjustDateHeader({ headers: response.headers, request, span, tracer, requestContext })
 
-    setCacheControlHeaders(response.headers, request, requestContext)
+    const useCentralCache = context.flags.get("serverless_functions_nextjs_central_cache")
+
+    setCacheControlHeaders(response.headers, request, requestContext, useCentralCache)
     setCacheTagsHeaders(response.headers, request, tagsManifest, requestContext)
     setVaryHeaders(response.headers, request, nextConfig)
     setCacheStatusHeader(response.headers)

@@ -220,7 +220,10 @@ export const setCacheControlHeaders = (
   headers: Headers,
   request: Request,
   requestContext: RequestContext,
+  useCentralCache: boolean
 ) => {
+  const centralCacheDirective = useCentralCache ? ', persist' : ''
+
   if (
     typeof requestContext.routeHandlerRevalidate !== 'undefined' &&
     ['GET', 'HEAD'].includes(request.method) &&
@@ -232,7 +235,7 @@ export const setCacheControlHeaders = (
       // if we are serving already stale response, instruct edge to not attempt to cache that response
       headers.get('x-nextjs-cache') === 'STALE'
         ? 'public, max-age=0, must-revalidate'
-        : `s-maxage=${requestContext.routeHandlerRevalidate === false ? 31536000 : requestContext.routeHandlerRevalidate}, stale-while-revalidate=31536000`
+        : `s-maxage=${requestContext.routeHandlerRevalidate === false ? 31536000 : requestContext.routeHandlerRevalidate}, stale-while-revalidate=31536000${centralCacheDirective}`
 
     headers.set('netlify-cdn-cache-control', cdnCacheControl)
     return
@@ -259,7 +262,7 @@ export const setCacheControlHeaders = (
           )
 
     headers.set('cache-control', browserCacheControl || 'public, max-age=0, must-revalidate')
-    headers.set('netlify-cdn-cache-control', cdnCacheControl)
+    headers.set('netlify-cdn-cache-control', cdnCacheControl + centralCacheDirective)
     return
   }
 
