@@ -220,7 +220,7 @@ export const setCacheControlHeaders = (
   headers: Headers,
   request: Request,
   requestContext: RequestContext,
-  useCentralCache: boolean
+  useCentralCache: boolean,
 ) => {
   const centralCacheDirective = useCentralCache ? ', persist' : ''
 

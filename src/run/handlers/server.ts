@@ -50,7 +50,7 @@ const disableFaultyTransferEncodingHandling = (res: ComputeJsOutgoingMessage) =>
 interface FutureContext extends Context {
   flags: {
     get: (name: string) => boolean
-  },
+  }
   waitUntil?: (promise: Promise<unknown>) => void
 }
 
@@ -126,7 +126,7 @@ export default async (request: Request, context: FutureContext) => {
 
     await adjustDateHeader({ headers: response.headers, request, span, tracer, requestContext })
 
-    const useCentralCache = context.flags.get("serverless_functions_nextjs_central_cache")
+    const useCentralCache = context.flags.get('serverless_functions_nextjs_central_cache')
 
     setCacheControlHeaders(response.headers, request, requestContext, useCentralCache)
     setCacheTagsHeaders(response.headers, request, tagsManifest, requestContext)
