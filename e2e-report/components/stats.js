@@ -14,7 +14,7 @@ export default function StatsRow({ testData }) {
 
       <div className="stat">
         <div className="stat-title">Tests Run</div>
-        <div className="stat-value">{testsRun}</div>
+        <div className="stat-value">{testsRun.toLocaleString()}</div>
         <div className="stat-desc">exc. skipped tests</div>
       </div>
 
