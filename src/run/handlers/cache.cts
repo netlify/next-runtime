@@ -312,7 +312,7 @@ export class NetlifyCacheHandler implements CacheHandler {
 
       const value = this.transformToStorableObject(data, context)
 
-      // if previous CacheHandler.get call returned null (page was either never rendered on was on-demand revalidated)
+      // if previous CacheHandler.get call returned null (page was either never rendered or was on-demand revalidated)
       // and we didn't yet capture cache tags, we try to get cache tags from freshly produced cache value
       this.captureCacheTags(value, key)
 
