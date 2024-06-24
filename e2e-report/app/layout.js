@@ -1,17 +1,13 @@
-import './globals.scss'
+import './globals.css'
 
 export const metadata = {
-  title: 'Next E2E Tests Report',
+  title: 'Netlify - Next.js E2E Tests',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
-        <div>
-          <section>{children}</section>
-        </div>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
