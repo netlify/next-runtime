@@ -3,7 +3,6 @@ import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 
 import { encodeBlobKey } from '../shared/blobkey.js'
 
-import type { TagsManifest } from './config.js'
 import type { RequestContext } from './handlers/request-context.cjs'
 import type { RuntimeTracer } from './handlers/tracer.cjs'
 import { getRegionalBlobStore } from './regional-blob-store.cjs'
@@ -275,21 +274,9 @@ export const setCacheControlHeaders = (
   }
 }
 
-function getCanonicalPathFromCacheKey(cacheKey: string | undefined): string | undefined {
-  return cacheKey === '/index' ? '/' : cacheKey
-}
-
-export const setCacheTagsHeaders = (
-  headers: Headers,
-  request: Request,
-  manifest: TagsManifest,
-  requestContext: RequestContext,
-) => {
-  const path =
-    getCanonicalPathFromCacheKey(requestContext.responseCacheKey) ?? new URL(request.url).pathname
-  const tags = manifest[path]
-  if (tags !== undefined) {
-    headers.set('netlify-cache-tag', tags)
+export const setCacheTagsHeaders = (headers: Headers, requestContext: RequestContext) => {
+  if (requestContext.responseCacheTags) {
+    headers.set('netlify-cache-tag', requestContext.responseCacheTags.join(','))
   }
 }
 

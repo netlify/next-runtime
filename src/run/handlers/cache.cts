@@ -109,6 +109,44 @@ export class NetlifyCacheHandler implements CacheHandler {
     return restOfRouteValue
   }
 
+  private captureCacheTags(cacheValue: NetlifyIncrementalCacheValue | null, key: string) {
+    if (!cacheValue) {
+      return
+    }
+
+    const requestContext = getRequestContext()
+    // Bail if we can't get request context
+    if (!requestContext) {
+      return
+    }
+
+    // Bail if we already have cache tags - `captureCacheTags()` is called on both `CacheHandler.get` and `CacheHandler.set`
+    // that's because `CacheHandler.get` might not have a cache value (cache miss or on-demand revalidation) in which case
+    // response is generated in blocking way and we need to capture cache tags from the cache value we are setting.
+    // If both `CacheHandler.get` and `CacheHandler.set` are called in the same request, we want to use cache tags from
+    // first `CacheHandler.get` and not from following `CacheHandler.set` as this is pattern for Stale-while-revalidate behavior
+    // and stale response is served while new one is generated.
+    if (requestContext.responseCacheTags) {
+      return
+    }
+
+    if (
+      cacheValue.kind === 'PAGE' ||
+      cacheValue.kind === 'APP_PAGE' ||
+      cacheValue.kind === 'ROUTE'
+    ) {
+      if (cacheValue.headers?.[NEXT_CACHE_TAGS_HEADER]) {
+        const cacheTags = (cacheValue.headers[NEXT_CACHE_TAGS_HEADER] as string).split(',')
+        requestContext.responseCacheTags = cacheTags
+      } else if (cacheValue.kind === 'PAGE' && typeof cacheValue.pageData === 'object') {
+        // pages router doesn't have cache tags headers in PAGE cache value
+        // so we need to generate appropriate cache tags for it
+        const cacheTags = [`_N_T_${key === '/index' ? '/' : key}`]
+        requestContext.responseCacheTags = cacheTags
+      }
+    }
+  }
+
   private async injectEntryToPrerenderManifest(
     key: string,
     revalidate: NetlifyCachedPageValue['revalidate'],
@@ -176,6 +214,7 @@ export class NetlifyCacheHandler implements CacheHandler {
       }
 
       this.captureResponseCacheLastModified(blob, key, span)
+      this.captureCacheTags(blob.value, key)
 
       switch (blob.value?.kind) {
         case 'FETCH':
@@ -272,6 +311,10 @@ export class NetlifyCacheHandler implements CacheHandler {
       getLogger().debug(`[NetlifyCacheHandler.set]: ${key}`)
 
       const value = this.transformToStorableObject(data, context)
+
+      // if previous CacheHandler.get call returned null (page was either never rendered or was on-demand revalidated)
+      // and we didn't yet capture cache tags, we try to get cache tags from freshly produced cache value
+      this.captureCacheTags(value, key)
 
       await this.blobStore.setJSON(blobKey, {
         lastModified,
