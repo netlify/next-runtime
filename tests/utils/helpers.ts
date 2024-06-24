@@ -3,7 +3,6 @@ import getPort from 'get-port'
 import { getDeployStore } from '@netlify/blobs'
 import { BlobsServer } from '@netlify/blobs/server'
 import type { NetlifyPluginUtils } from '@netlify/build'
-import IncrementalCache from 'next/dist/server/lib/incremental-cache/index.js'
 import { Buffer } from 'node:buffer'
 import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -11,20 +10,6 @@ import { join } from 'node:path'
 import { assert, vi } from 'vitest'
 import { BLOB_TOKEN } from './constants'
 import { type FixtureTestContext } from './contexts'
-
-/**
- * Uses next.js incremental cache to compute the same cache key for a URL that is automatically generated
- * This is needed for mocking out fetch calls to test them
- */
-export const getFetchCacheKey = async (url: string) => {
-  const incCache = new IncrementalCache.IncrementalCache({
-    requestHeaders: {},
-    getPrerenderManifest: () => ({}),
-  } as any)
-
-  const key = await incCache.fetchCacheKey(url)
-  return key
-}
 
 /**
  * Generates a 24char deploy ID (this is validated in the blob storage so we cant use a uuidv4)

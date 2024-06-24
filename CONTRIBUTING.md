@@ -38,7 +38,6 @@ For a simple next.js app
 ```
 /___netlify-server-handler
 ├── .netlify
-│   ├── tags-manifest.json
 │   └── dist // the compiled runtime code
 │       └── run
 │           ├── handlers

@@ -38,9 +38,3 @@ export const setRunConfig = (config: NextConfigComplete) => {
   // set config
   process.env.__NEXT_PRIVATE_STANDALONE_CONFIG = JSON.stringify(config)
 }
-
-export type TagsManifest = Record<string, string>
-
-export const getTagsManifest = async (): Promise<TagsManifest> => {
-  return JSON.parse(await readFile(resolve(PLUGIN_DIR, '.netlify/tags-manifest.json'), 'utf-8'))
-}

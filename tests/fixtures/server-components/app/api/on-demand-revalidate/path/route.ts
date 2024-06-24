@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 
 export async function GET(request: NextRequest) {
-  revalidatePath('/static-fetch/[id]', 'page')
+  const url = new URL(request.url)
+  const pathToRevalidate = url.searchParams.get('path') ?? '/static-fetch/[id]/page'
+
+  revalidatePath(pathToRevalidate)
   return NextResponse.json({ revalidated: true, now: new Date().toISOString() })
 }
 

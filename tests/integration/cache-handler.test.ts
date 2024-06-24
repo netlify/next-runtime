@@ -45,6 +45,7 @@ describe('page router', () => {
     expect(blobEntries.map(({ key }) => decodeBlobKey(key.substring(0, 50))).sort()).toEqual([
       // the real key is much longer and ends in a hash, but we only assert on the first 50 chars to make it easier
       '/products/an-incredibly-long-product-',
+      '/products/prerendered',
       '/static/revalidate-automatic',
       '/static/revalidate-manual',
       '/static/revalidate-slow',
