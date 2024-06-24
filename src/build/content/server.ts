@@ -311,47 +311,6 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
   })
 }
 
-export const writeTagsManifest = async (ctx: PluginContext): Promise<void> => {
-  const manifest = await ctx.getPrerenderManifest()
-
-  const routes = Object.entries(manifest.routes).map(async ([route, definition]) => {
-    let tags
-
-    // app router
-    if (definition.dataRoute?.endsWith('.rsc')) {
-      const path = join(ctx.publishDir, `server/app/${route === '/' ? '/index' : route}.meta`)
-      try {
-        const file = await readFile(path, 'utf-8')
-        const meta = JSON.parse(file)
-        tags = meta.headers['x-next-cache-tags']
-      } catch {
-        // Parallel route default layout has no prerendered page, so don't warn about it
-        if (!definition.dataRoute?.endsWith('/default.rsc')) {
-          console.log(`Unable to read cache tags for: ${path}`)
-        }
-      }
-    }
-
-    // pages router
-    if (definition.dataRoute?.endsWith('.json')) {
-      tags = `_N_T_${route}`
-    }
-
-    // route handler
-    if (definition.dataRoute === null) {
-      tags = definition.initialHeaders?.['x-next-cache-tags']
-    }
-
-    return [route, tags]
-  })
-
-  await writeFile(
-    join(ctx.serverHandlerDir, '.netlify/tags-manifest.json'),
-    JSON.stringify(Object.fromEntries(await Promise.all(routes))),
-    'utf-8',
-  )
-}
-
 /**
  * Generates a copy of the middleware manifest without any middleware in it. We
  * do this because we'll run middleware in an edge function, and we don't want

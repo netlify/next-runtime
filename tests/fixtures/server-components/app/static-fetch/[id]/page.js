@@ -3,7 +3,11 @@ export async function generateStaticParams() {
 }
 
 async function getData(params) {
-  const res = await fetch(`https://api.tvmaze.com/shows/${params.id}`)
+  const res = await fetch(`https://api.tvmaze.com/shows/${params.id}`, {
+    next: {
+      tags: [`show-${params.id}`],
+    },
+  })
   return res.json()
 }
 

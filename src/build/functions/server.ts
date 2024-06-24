@@ -10,7 +10,6 @@ import {
   copyNextDependencies,
   copyNextServerCode,
   verifyHandlerDirStructure,
-  writeTagsManifest,
 } from '../content/server.js'
 import { PluginContext, SERVER_HANDLER_NAME } from '../plugin-context.js'
 
@@ -138,7 +137,6 @@ export const createServerHandler = async (ctx: PluginContext) => {
 
     await copyNextServerCode(ctx)
     await copyNextDependencies(ctx)
-    await writeTagsManifest(ctx)
     await copyHandlerDependencies(ctx)
     await writeHandlerManifest(ctx)
     await writePackageMetadata(ctx)

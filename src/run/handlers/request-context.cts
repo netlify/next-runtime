@@ -10,6 +10,7 @@ export type RequestContext = {
   captureServerTiming: boolean
   responseCacheGetLastModified?: number
   responseCacheKey?: string
+  responseCacheTags?: string[]
   usedFsRead?: boolean
   didPagesRouterOnDemandRevalidate?: boolean
   serverTiming?: string
