@@ -12,6 +12,7 @@ nonEmptySuites.forEach((suite) => {
 
   suite.failedKnown = actualFailed.filter((t) => !!t.reason).length || 0
   suite.failedUnknown = suite.failed - suite.failedKnown
+  suite.sourceUrl = `https://github.com/vercel/next.js/blob/${fileData.nextVersion}/${suite.file}`
 })
 
 const suitesWithFailures = nonEmptySuites.filter((suite) => suite.failed > 0)

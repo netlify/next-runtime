@@ -34,7 +34,7 @@ function TestSuiteRow({ suite, idx }) {
     <>
       <tr key={'tr-' + idx} className="text-sm md:text-base">
         <td className="p-2 md:p-4">
-          <Link href={suite.file} className="text-sm md:text-base">
+          <Link href={suite.sourceUrl} className="text-sm md:text-base">
             {suite.name}
           </Link>
         </td>
