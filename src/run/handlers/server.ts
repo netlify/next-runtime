@@ -112,7 +112,10 @@ export default async (request: Request, context: FutureContext) => {
 
     await adjustDateHeader({ headers: response.headers, request, span, tracer, requestContext })
 
-    setCacheControlHeaders(response.headers, request, requestContext)
+    const useDurableCache = context.flags.get('serverless_functions_nextjs_durable_cache') as
+      | boolean
+      | undefined
+    setCacheControlHeaders(response.headers, request, requestContext, useDurableCache)
     setCacheTagsHeaders(response.headers, requestContext)
     setVaryHeaders(response.headers, request, nextConfig)
     setCacheStatusHeader(response.headers)
