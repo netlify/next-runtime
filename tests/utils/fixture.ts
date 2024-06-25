@@ -322,6 +322,9 @@ export async function uploadBlobs(ctx: FixtureTestContext, blobsDir: string) {
   )
 }
 
+const DEFAULT_FLAGS = {
+  serverless_functions_nextjs_durable_cache_disable: true,
+}
 /**
  * Execute the function with the provided parameters
  * @param ctx
@@ -346,9 +349,11 @@ export async function invokeFunction(
     body?: unknown
     /** Environment variables that should be set during the invocation */
     env?: Record<string, string | number>
+    /** Feature flags that should be set during the invocation */
+    flags?: Record<string, unknown>
   } = {},
 ) {
-  const { httpMethod, headers, body, url, env } = options
+  const { httpMethod, headers, flags, url, env } = options
   // now for the execution set the process working directory to the dist entry point
   const cwdMock = vi
     .spyOn(process, 'cwd')
@@ -381,6 +386,7 @@ export async function invokeFunction(
         headers: headers || {},
         httpMethod: httpMethod || 'GET',
         rawUrl: new URL(url || '/', 'https://example.netlify').href,
+        flags: flags ?? DEFAULT_FLAGS,
       },
       lambdaFunc: { handler },
       timeoutMs: 4_000,
