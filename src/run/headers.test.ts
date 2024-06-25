@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { type FixtureTestContext } from '../../tests/utils/contexts.js'
 import { generateRandomObjectID, startMockBlobStore } from '../../tests/utils/helpers.js'
 
-import { createRequestContext } from './handlers/request-context.cjs'
+import { createRequestContext, type RequestContext } from './handlers/request-context.cjs'
 import { setCacheControlHeaders, setVaryHeaders } from './headers.js'
 
 beforeEach<FixtureTestContext>(async (ctx) => {
@@ -194,6 +194,133 @@ describe('headers', () => {
   describe('setCacheControlHeaders', () => {
     const defaultUrl = 'https://example.com'
 
+    describe('route handler responses with a specified `revalidate` value', () => {
+      test('should not set any headers if "cdn-cache-control" is present', () => {
+        const givenHeaders = {
+          'cdn-cache-control': 'public, max-age=0, must-revalidate',
+        }
+        const headers = new Headers(givenHeaders)
+        const request = new Request(defaultUrl)
+        vi.spyOn(headers, 'set')
+
+        const ctx: RequestContext = { ...createRequestContext(), routeHandlerRevalidate: false }
+        setCacheControlHeaders(headers, request, ctx)
+
+        expect(headers.set).toHaveBeenCalledTimes(0)
+      })
+
+      test('should not set any headers if "netlify-cdn-cache-control" is present', () => {
+        const givenHeaders = {
+          'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate',
+        }
+        const headers = new Headers(givenHeaders)
+        const request = new Request(defaultUrl)
+        vi.spyOn(headers, 'set')
+
+        const ctx: RequestContext = { ...createRequestContext(), routeHandlerRevalidate: false }
+        setCacheControlHeaders(headers, request, ctx)
+
+        expect(headers.set).toHaveBeenCalledTimes(0)
+      })
+
+      test('should mark content as stale if "{netlify-,}cdn-cache-control" is not present and "x-nextjs-cache" is "STALE" (GET)', () => {
+        const givenHeaders = {
+          'x-nextjs-cache': 'STALE',
+        }
+        const headers = new Headers(givenHeaders)
+        const request = new Request(defaultUrl)
+        vi.spyOn(headers, 'set')
+
+        const ctx: RequestContext = { ...createRequestContext(), routeHandlerRevalidate: false }
+        setCacheControlHeaders(headers, request, ctx)
+
+        expect(headers.set).toHaveBeenCalledTimes(1)
+        expect(headers.set).toHaveBeenNthCalledWith(
+          1,
+          'netlify-cdn-cache-control',
+          'public, max-age=0, must-revalidate',
+        )
+      })
+
+      test('should mark content as stale if "{netlify-,}cdn-cache-control" is not present and "x-nextjs-cache" is "STALE" (HEAD)', () => {
+        const givenHeaders = {
+          'x-nextjs-cache': 'STALE',
+        }
+        const headers = new Headers(givenHeaders)
+        const request = new Request(defaultUrl)
+        vi.spyOn(headers, 'set')
+
+        const ctx: RequestContext = { ...createRequestContext(), routeHandlerRevalidate: false }
+        setCacheControlHeaders(headers, request, ctx)
+
+        expect(headers.set).toHaveBeenCalledTimes(1)
+        expect(headers.set).toHaveBeenNthCalledWith(
+          1,
+          'netlify-cdn-cache-control',
+          'public, max-age=0, must-revalidate',
+        )
+      })
+
+      test('should set durable SWC=1yr with 1yr TTL if "{netlify-,}cdn-cache-control" is not present and `revalidate` is `false` (HEAD)', () => {
+        const headers = new Headers()
+        const request = new Request(defaultUrl, { method: 'HEAD' })
+        vi.spyOn(headers, 'set')
+
+        const ctx: RequestContext = { ...createRequestContext(), routeHandlerRevalidate: false }
+        setCacheControlHeaders(headers, request, ctx)
+
+        expect(headers.set).toHaveBeenCalledTimes(1)
+        expect(headers.set).toHaveBeenNthCalledWith(
+          1,
+          'netlify-cdn-cache-control',
+          's-maxage=31536000, stale-while-revalidate=31536000, durable',
+        )
+      })
+
+      test('should set durable SWC=1yr with given TTL if "{netlify-,}cdn-cache-control" is not present and `revalidate` is a number (GET)', () => {
+        const headers = new Headers()
+        const request = new Request(defaultUrl)
+        vi.spyOn(headers, 'set')
+
+        const ctx: RequestContext = { ...createRequestContext(), routeHandlerRevalidate: 7200 }
+        setCacheControlHeaders(headers, request, ctx)
+
+        expect(headers.set).toHaveBeenCalledTimes(1)
+        expect(headers.set).toHaveBeenNthCalledWith(
+          1,
+          'netlify-cdn-cache-control',
+          's-maxage=7200, stale-while-revalidate=31536000, durable',
+        )
+      })
+
+      test('should set durable SWC=1yr with 1yr TTL if "{netlify-,}cdn-cache-control" is not present and `revalidate` is a number (HEAD)', () => {
+        const headers = new Headers()
+        const request = new Request(defaultUrl, { method: 'HEAD' })
+        vi.spyOn(headers, 'set')
+
+        const ctx: RequestContext = { ...createRequestContext(), routeHandlerRevalidate: 7200 }
+        setCacheControlHeaders(headers, request, ctx)
+
+        expect(headers.set).toHaveBeenCalledTimes(1)
+        expect(headers.set).toHaveBeenNthCalledWith(
+          1,
+          'netlify-cdn-cache-control',
+          's-maxage=7200, stale-while-revalidate=31536000, durable',
+        )
+      })
+
+      test('should not set any headers on POST request', () => {
+        const headers = new Headers()
+        const request = new Request(defaultUrl, { method: 'POST' })
+        vi.spyOn(headers, 'set')
+
+        const ctx: RequestContext = { ...createRequestContext(), routeHandlerRevalidate: false }
+        setCacheControlHeaders(headers, request, ctx)
+
+        expect(headers.set).toHaveBeenCalledTimes(0)
+      })
+    })
+
     test('should not set any headers if "cache-control" is not set and "requestContext.usedFsRead" is not truthy', () => {
       const headers = new Headers()
       const request = new Request(defaultUrl)
@@ -347,7 +474,7 @@ describe('headers', () => {
       )
     })
 
-    test('should set default "cache-control" header if it contains only "s-maxage" and "stale-whie-revalidate"', () => {
+    test('should set default "cache-control" header if it contains only "s-maxage" and "stale-while-revalidate"', () => {
       const givenHeaders = {
         'cache-control': 's-maxage=604800, stale-while-revalidate=86400',
       }
