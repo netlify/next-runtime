@@ -21,24 +21,11 @@ beforeEach<FixtureTestContext>(async (ctx) => {
 })
 
 it<FixtureTestContext>('test', async (ctx) => {
-  await createFixture('advanced-api-routes', ctx)
+  await createFixture('netlify-forms', ctx)
 
   const runPluginPromise = runPlugin(ctx)
 
   await expect(runPluginPromise).rejects.toThrow(
-    '@netlify/plugin-next@5 does not support advanced API routes. The following API routes should be migrated to Netlify background or scheduled functions:',
-  )
-
-  // list API routes to migrate
-  await expect(runPluginPromise).rejects.toThrow(
-    '/api/hello-scheduled (type: "experimental-scheduled")',
-  )
-  await expect(runPluginPromise).rejects.toThrow(
-    '/api/hello-background (type: "experimental-background")',
-  )
-
-  // links to migration example
-  await expect(runPluginPromise).rejects.toThrow(
-    'Refer to https://ntl.fyi/next-scheduled-bg-function-migration as migration example.',
+    '@netlify/plugin-next@5 does not support Netlify Forms',
   )
 })
