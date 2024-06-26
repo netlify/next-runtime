@@ -1,5 +1,5 @@
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { dirname, join, parse as parsePath } from 'node:path'
 
 import type { Manifest, ManifestFunction } from '@netlify/edge-functions'
 import { glob } from 'fast-glob'
@@ -8,9 +8,21 @@ import { pathToRegexp } from 'path-to-regexp'
 
 import { EDGE_HANDLER_NAME, PluginContext } from '../plugin-context.js'
 
+type ManifestFunctionWithGenerator = ManifestFunction & { generator?: string }
+
+const getEdgeManifestPath = (ctx: PluginContext) => join(ctx.edgeFunctionsDir, 'manifest.json')
+
 const writeEdgeManifest = async (ctx: PluginContext, manifest: Manifest) => {
   await mkdir(ctx.edgeFunctionsDir, { recursive: true })
-  await writeFile(join(ctx.edgeFunctionsDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
+  await writeFile(getEdgeManifestPath(ctx), JSON.stringify(manifest, null, 2))
+}
+
+const readEdgeManifest = async (ctx: PluginContext) => {
+  try {
+    return JSON.parse(await readFile(getEdgeManifestPath(ctx), 'utf-8')) as Manifest
+  } catch {
+    return null
+  }
 }
 
 const copyRuntime = async (ctx: PluginContext, handlerDirectory: string): Promise<void> => {
@@ -145,7 +157,7 @@ const getHandlerName = ({ name }: Pick<NextDefinition, 'name'>): string =>
 const buildHandlerDefinition = (
   ctx: PluginContext,
   { name, matchers, page }: NextDefinition,
-): Array<ManifestFunction> => {
+): Array<ManifestFunctionWithGenerator> => {
   const fun = getHandlerName({ name })
   const funName = name.endsWith('middleware')
     ? 'Next.js Middleware Handler'
@@ -162,8 +174,39 @@ const buildHandlerDefinition = (
   }))
 }
 
+const clearStaleEdgeHandlers = async (ctx: PluginContext) => {
+  const previousManifest = await readEdgeManifest(ctx)
+  if (!previousManifest) {
+    return []
+  }
+
+  const uniqueNextRuntimeFunctions = new Set<string>()
+  const nonNextRuntimeFunctions: ManifestFunctionWithGenerator[] = []
+
+  for (const fn of previousManifest.functions as ManifestFunctionWithGenerator[]) {
+    if (fn?.generator?.startsWith(ctx.pluginName)) {
+      uniqueNextRuntimeFunctions.add(fn.function)
+    } else {
+      nonNextRuntimeFunctions.push(fn)
+    }
+  }
+
+  if (uniqueNextRuntimeFunctions.size === 0) {
+    return nonNextRuntimeFunctions
+  }
+
+  for (const fileOrDir of await readdir(ctx.edgeFunctionsDir, { withFileTypes: true })) {
+    const nameWithoutExtension = parsePath(fileOrDir.name).name
+
+    if (uniqueNextRuntimeFunctions.has(nameWithoutExtension)) {
+      await rm(join(ctx.edgeFunctionsDir, fileOrDir.name), { recursive: true, force: true })
+    }
+  }
+  return nonNextRuntimeFunctions
+}
+
 export const createEdgeHandlers = async (ctx: PluginContext) => {
-  await rm(ctx.edgeFunctionsDir, { recursive: true, force: true })
+  const nonNextRuntimeFunctions = await clearStaleEdgeHandlers(ctx)
 
   const nextManifest = await ctx.getMiddlewareManifest()
   const nextDefinitions = [
@@ -175,7 +218,7 @@ export const createEdgeHandlers = async (ctx: PluginContext) => {
   const netlifyDefinitions = nextDefinitions.flatMap((def) => buildHandlerDefinition(ctx, def))
   const netlifyManifest: Manifest = {
     version: 1,
-    functions: netlifyDefinitions,
+    functions: [...nonNextRuntimeFunctions, ...netlifyDefinitions],
   }
   await writeEdgeManifest(ctx, netlifyManifest)
 }
