@@ -50,24 +50,34 @@ export async function check(
 
 test.describe('Simple Page Router (no basePath, no i18n)', () => {
   test.describe('On-demand revalidate works correctly', () => {
-    for (const { label, prerendered, pagePath, expectedH1Content } of [
+    for (const { label, prerendered, pagePath, revalidateApiBasePath, expectedH1Content } of [
       {
-        label: 'prerendered page with static path',
+        label: 'prerendered page with static path and awaited res.revalidate()',
         prerendered: true,
         pagePath: '/static/revalidate-manual',
+        revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Show #71',
       },
       {
-        label: 'prerendered page with dynamic path',
+        label: 'prerendered page with dynamic path and awaited res.revalidate()',
         prerendered: true,
         pagePath: '/products/prerendered',
+        revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Product prerendered',
       },
       {
-        label: 'not prerendered page with dynamic path',
+        label: 'not prerendered page with dynamic path and awaited res.revalidate()',
         prerendered: false,
         pagePath: '/products/not-prerendered',
+        revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Product not-prerendered',
+      },
+      {
+        label: 'not prerendered page with dynamic path and not awaited res.revalidate()',
+        prerendered: false,
+        pagePath: '/products/not-prerendered-and-not-awaited-revalidation',
+        revalidateApiBasePath: '/api/revalidate-no-await',
+        expectedH1Content: 'Product not-prerendered-and-not-awaited-revalidation',
       },
     ]) {
       test(label, async ({ page, pollUntilHeadersMatch, pageRouter }) => {
@@ -192,7 +202,7 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
         expect(data2?.pageProps?.time).toBe(date1)
 
         const revalidate = await page.goto(
-          new URL(`/api/revalidate?path=${pagePath}`, pageRouter.url).href,
+          new URL(`${revalidateApiBasePath}?path=${pagePath}`, pageRouter.url).href,
         )
         expect(revalidate?.status()).toBe(200)
 
@@ -411,24 +421,34 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
 
 test.describe('Page Router with basePath and i18n', () => {
   test.describe('Static revalidate works correctly', () => {
-    for (const { label, prerendered, pagePath, expectedH1Content } of [
+    for (const { label, prerendered, pagePath, revalidateApiBasePath, expectedH1Content } of [
       {
-        label: 'prerendered page with static path',
+        label: 'prerendered page with static path and awaited res.revalidate()',
         prerendered: true,
         pagePath: '/static/revalidate-manual',
+        revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Show #71',
       },
       {
-        label: 'prerendered page with dynamic path',
+        label: 'prerendered page with dynamic path and awaited res.revalidate()',
         prerendered: true,
         pagePath: '/products/prerendered',
+        revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Product prerendered',
       },
       {
-        label: 'not prerendered page with dynamic path',
+        label: 'not prerendered page with dynamic path and awaited res.revalidate()',
         prerendered: false,
         pagePath: '/products/not-prerendered',
+        revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Product not-prerendered',
+      },
+      {
+        label: 'not prerendered page with dynamic path and not awaited res.revalidate()',
+        prerendered: false,
+        pagePath: '/products/not-prerendered-and-not-awaited-revalidation',
+        revalidateApiBasePath: '/api/revalidate-no-await',
+        expectedH1Content: 'Product not-prerendered-and-not-awaited-revalidation',
       },
     ]) {
       test.describe(label, () => {
@@ -622,7 +642,10 @@ test.describe('Page Router with basePath and i18n', () => {
 
           // revalidate implicit locale path
           const revalidateImplicit = await page.goto(
-            new URL(`/base/path/api/revalidate?path=${pagePath}`, pageRouterBasePathI18n.url).href,
+            new URL(
+              `/base/path${revalidateApiBasePath}?path=${pagePath}`,
+              pageRouterBasePathI18n.url,
+            ).href,
           )
           expect(revalidateImplicit?.status()).toBe(200)
 
@@ -713,8 +736,10 @@ test.describe('Page Router with basePath and i18n', () => {
 
           // revalidate implicit locale path
           const revalidateExplicit = await page.goto(
-            new URL(`/base/path/api/revalidate?path=/en${pagePath}`, pageRouterBasePathI18n.url)
-              .href,
+            new URL(
+              `/base/path${revalidateApiBasePath}?path=/en${pagePath}`,
+              pageRouterBasePathI18n.url,
+            ).href,
           )
           expect(revalidateExplicit?.status()).toBe(200)
 
@@ -934,8 +959,10 @@ test.describe('Page Router with basePath and i18n', () => {
           expect(data2?.pageProps?.time).toBe(date1)
 
           const revalidate = await page.goto(
-            new URL(`/base/path/api/revalidate?path=/de${pagePath}`, pageRouterBasePathI18n.url)
-              .href,
+            new URL(
+              `/base/path${revalidateApiBasePath}?path=/de${pagePath}`,
+              pageRouterBasePathI18n.url,
+            ).href,
           )
           expect(revalidate?.status()).toBe(200)
 
