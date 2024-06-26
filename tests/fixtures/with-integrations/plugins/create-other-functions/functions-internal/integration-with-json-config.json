@@ -1,0 +1,7 @@
+{
+  "config": {
+    "name": "Some integration",
+    "generator": "@netlify/some-integration@1.0.0"
+  },
+  "version": 1
+}

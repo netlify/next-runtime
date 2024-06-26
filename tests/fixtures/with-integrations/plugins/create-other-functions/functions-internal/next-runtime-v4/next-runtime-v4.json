@@ -1,0 +1,6 @@
+{
+  "config": {
+    "generator": "@netlify/plugin-nextjs@4.41.3"
+  },
+  "version": 1
+}
