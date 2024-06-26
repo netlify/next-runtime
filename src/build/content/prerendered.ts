@@ -18,6 +18,7 @@ import type {
   NetlifyIncrementalCacheValue,
 } from '../../shared/cache-types.cjs'
 import type { PluginContext } from '../plugin-context.js'
+import { verifyNoNetlifyForms } from '../verification.js'
 
 const tracer = wrapTracer(trace.getTracer('Next runtime'))
 
@@ -167,6 +168,11 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
                   break
                 default:
                   throw new Error(`Unrecognized content: ${route}`)
+              }
+
+              // Netlify Forms are not support and require a workaround
+              if (value.kind === 'PAGE') {
+                verifyNoNetlifyForms(ctx, value.html)
               }
 
               await writeCacheEntry(key, value, lastModified, ctx)

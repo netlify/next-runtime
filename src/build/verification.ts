@@ -85,3 +85,11 @@ export async function verifyNoAdvancedAPIRoutes(ctx: PluginContext) {
     )
   }
 }
+
+export function verifyNoNetlifyForms(ctx: PluginContext, html: string) {
+  if (/<form[^>]*?\s(netlify|data-netlify)[=>\s]/.test(html)) {
+    ctx.failBuild(
+      `@netlify/plugin-next@5 does not support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.`,
+    )
+  }
+}
