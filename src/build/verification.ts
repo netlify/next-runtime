@@ -8,6 +8,8 @@ import type { PluginContext } from './plugin-context.js'
 
 const SUPPORTED_NEXT_VERSIONS = '>=13.5.0'
 
+const warnings = new Set<string>()
+
 export function verifyPublishDir(ctx: PluginContext) {
   if (!existsSync(ctx.publishDir)) {
     ctx.failBuild(
@@ -83,5 +85,14 @@ export async function verifyNoAdvancedAPIRoutes(ctx: PluginContext) {
     ctx.failBuild(
       `@netlify/plugin-next@5 does not support advanced API routes. The following API routes should be migrated to Netlify background or scheduled functions:\n${unsupportedAPIRoutes.map((apiRouteConfig) => ` - ${apiRouteConfig.apiRoute} (type: "${apiRouteConfig.config.type}")`).join('\n')}\n\nRefer to https://ntl.fyi/next-scheduled-bg-function-migration as migration example.`,
     )
+  }
+}
+
+export function verifyNoNetlifyForms(ctx: PluginContext, html: string) {
+  if (!warnings.has('netlifyForms') && /<form[^>]*?\s(netlify|data-netlify)[=>\s]/.test(html)) {
+    console.warn(
+      '@netlify/plugin-next@5 does not support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
+    )
+    warnings.add('netlifyForms')
   }
 }

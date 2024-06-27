@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { cp, mkdir, rename, rm } from 'node:fs/promises'
+import { cp, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { basename, join } from 'node:path'
 
 import { trace } from '@opentelemetry/api'
@@ -8,6 +8,7 @@ import glob from 'fast-glob'
 
 import { encodeBlobKey } from '../../shared/blobkey.js'
 import { PluginContext } from '../plugin-context.js'
+import { verifyNoNetlifyForms } from '../verification.js'
 
 const tracer = wrapTracer(trace.getTracer('Next runtime'))
 
@@ -25,14 +26,14 @@ export const copyStaticContent = async (ctx: PluginContext): Promise<void> => {
     })
 
     try {
+      await mkdir(destDir, { recursive: true })
       await Promise.all(
         paths
           .filter((path) => !paths.includes(`${path.slice(0, -5)}.json`))
           .map(async (path): Promise<void> => {
-            await cp(join(srcDir, path), join(destDir, await encodeBlobKey(path)), {
-              recursive: true,
-              force: true,
-            })
+            const html = await readFile(join(srcDir, path), 'utf-8')
+            verifyNoNetlifyForms(ctx, html)
+            await writeFile(join(destDir, await encodeBlobKey(path)), html, 'utf-8')
           }),
       )
     } catch (error) {
