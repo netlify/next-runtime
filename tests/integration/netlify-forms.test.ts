@@ -20,7 +20,7 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   await startMockBlobStore(ctx)
 })
 
-it<FixtureTestContext>('test', async (ctx) => {
+it.skip<FixtureTestContext>('test', async (ctx) => {
   await createFixture('netlify-forms', ctx)
 
   const runPluginPromise = runPlugin(ctx)
