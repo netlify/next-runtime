@@ -171,7 +171,7 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
               }
 
               // Netlify Forms are not support and require a workaround
-              if (value.kind === 'PAGE') {
+              if (value.kind === 'PAGE' || value.kind === 'APP_PAGE') {
                 verifyNoNetlifyForms(ctx, value.html)
               }
 
