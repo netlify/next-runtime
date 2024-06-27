@@ -8,6 +8,8 @@ import type { PluginContext } from './plugin-context.js'
 
 const SUPPORTED_NEXT_VERSIONS = '>=13.5.0'
 
+const warnings = new Set<string>()
+
 export function verifyPublishDir(ctx: PluginContext) {
   if (!existsSync(ctx.publishDir)) {
     ctx.failBuild(
@@ -87,9 +89,10 @@ export async function verifyNoAdvancedAPIRoutes(ctx: PluginContext) {
 }
 
 export function verifyNoNetlifyForms(ctx: PluginContext, html: string) {
-  if (/<form[^>]*?\s(netlify|data-netlify)[=>\s]/.test(html)) {
-    ctx.failBuild(
-      `@netlify/plugin-next@5 does not support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.`,
+  if (!warnings.has('netlifyForms') && /<form[^>]*?\s(netlify|data-netlify)[=>\s]/.test(html)) {
+    console.warn(
+      '@netlify/plugin-next@5 does not support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
     )
+    warnings.add('netlifyForms')
   }
 }
