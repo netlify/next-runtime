@@ -20,7 +20,8 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   await startMockBlobStore(ctx)
 })
 
-it.skip<FixtureTestContext>('test', async (ctx) => {
+// test skipped until we actually start failing builds - right now we are just showing a warning
+it.skip<FixtureTestContext>('should fail build when netlify forms are used', async (ctx) => {
   await createFixture('netlify-forms', ctx)
 
   const runPluginPromise = runPlugin(ctx)
