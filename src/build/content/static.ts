@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { cp, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
-import { basename, join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 
 import { trace } from '@opentelemetry/api'
 import { wrapTracer } from '@opentelemetry/api/experimental'
@@ -33,7 +33,9 @@ export const copyStaticContent = async (ctx: PluginContext): Promise<void> => {
           .map(async (path): Promise<void> => {
             const html = await readFile(join(srcDir, path), 'utf-8')
             verifyNoNetlifyForms(ctx, html)
-            await writeFile(join(destDir, await encodeBlobKey(path)), html, 'utf-8')
+            const blobPath = join(destDir, await encodeBlobKey(path), 'blob')
+            await mkdir(dirname(blobPath), { recursive: true })
+            await writeFile(blobPath, html, 'utf-8')
           }),
       )
     } catch (error) {
