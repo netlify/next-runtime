@@ -168,7 +168,7 @@ export class PluginContext {
    * `.netlify/functions-internal`
    */
   get serverFunctionsDir(): string {
-    return this.resolveFromPackagePath('.netlify/functions-internal')
+    return this.resolveFromPackagePath('.netlify/v1/functions')
   }
 
   /** Absolute path of the server handler */

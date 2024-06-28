@@ -67,23 +67,23 @@ const copyHandlerDependencies = async (ctx: PluginContext) => {
   })
 }
 
-const writeHandlerManifest = async (ctx: PluginContext) => {
-  await writeFile(
-    join(ctx.serverHandlerRootDir, `${SERVER_HANDLER_NAME}.json`),
-    JSON.stringify({
-      config: {
-        name: 'Next.js Server Handler',
-        generator: `${ctx.pluginName}@${ctx.pluginVersion}`,
-        nodeBundler: 'none',
-        // the folders can vary in monorepos based on the folder structure of the user so we have to glob all
-        includedFiles: ['**'],
-        includedFilesBasePath: ctx.serverHandlerRootDir,
-      },
-      version: 1,
-    }),
-    'utf-8',
-  )
-}
+// const writeHandlerManifest = async (ctx: PluginContext) => {
+//   await writeFile(
+//     join(ctx.serverHandlerRootDir, `${SERVER_HANDLER_NAME}.json`),
+//     JSON.stringify({
+//       config: {
+//         name: 'Next.js Server Handler',
+//         generator: `${ctx.pluginName}@${ctx.pluginVersion}`,
+//         nodeBundler: 'none',
+//         // the folders can vary in monorepos based on the folder structure of the user so we have to glob all
+//         includedFiles: ['**'],
+//         includedFilesBasePath: ctx.serverHandlerRootDir,
+//       },
+//       version: 1,
+//     }),
+//     'utf-8',
+//   )
+// }
 
 const writePackageMetadata = async (ctx: PluginContext) => {
   await writeFile(
@@ -104,6 +104,8 @@ const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
 
   const templateVariables: Record<string, string> = {
     '{{useRegionalBlobs}}': ctx.useRegionalBlobs.toString(),
+    '{{generator}}': `${ctx.pluginName}@${ctx.pluginVersion}`,
+    '{{serverHandlerRootDir}}': ctx.serverHandlerRootDir,
   }
   // In this case it is a monorepo and we need to use a own template for it
   // as we have to change the process working directory
@@ -141,7 +143,7 @@ export const createServerHandler = async (ctx: PluginContext) => {
     await copyNextServerCode(ctx)
     await copyNextDependencies(ctx)
     await copyHandlerDependencies(ctx)
-    await writeHandlerManifest(ctx)
+    // await writeHandlerManifest(ctx)
     await writePackageMetadata(ctx)
     await writeHandlerFile(ctx)
 
