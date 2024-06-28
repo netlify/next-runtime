@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 
 import { trace } from '@opentelemetry/api'
 import { wrapTracer } from '@opentelemetry/api/experimental'
@@ -31,12 +31,12 @@ const writeCacheEntry = async (
   lastModified: number,
   ctx: PluginContext,
 ): Promise<void> => {
-  const path = join(ctx.blobDir, await encodeBlobKey(route))
+  const path = join(ctx.blobDir, await encodeBlobKey(route), 'blob')
   const entry = JSON.stringify({
     lastModified,
     value,
   } satisfies NetlifyCacheHandlerValue)
-
+  await mkdir(dirname(path), { recursive: true })
   await writeFile(path, entry, 'utf-8')
 }
 

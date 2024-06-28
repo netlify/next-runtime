@@ -141,11 +141,12 @@ export class PluginContext {
    * default: `.netlify/blobs/deploy`
    */
   get blobDir(): string {
-    if (this.useRegionalBlobs) {
-      return this.resolveFromPackagePath('.netlify/deploy/v1/blobs/deploy')
-    }
+    return this.resolveFromPackagePath('.netlify/v1/blobs/deploy')
+    // if (this.useRegionalBlobs) {
+    //   return this.resolveFromPackagePath('.netlify/deploy/v1/blobs/deploy')
+    // }
 
-    return this.resolveFromPackagePath('.netlify/blobs/deploy')
+    // return this.resolveFromPackagePath('.netlify/blobs/deploy')
   }
 
   get buildVersion(): string {
