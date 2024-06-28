@@ -117,9 +117,10 @@ following:
 
 ### Next.js tests
 
-There is a script `run-local-test.sh` and GitHub workflow that runs the e2e tests from the Next.js
-repo against this repo. It requires that `next.js` is checked out in the same parent directory as
-this repo, and is run from this repo with `./run-local-test.sh your-test-pattern-here`.
+There is a GitHub workflow that runs the e2e tests from the Next.js repo against this repo. There is
+also a script to run these tests locally that is run from this repo with
+`./run-local-test.sh your-test-pattern-here`. It requires that `next.js` is checked out in the same
+parent directory as this repo and built with `pnpm run build`.
 
 #### cleanup old deploys
 
