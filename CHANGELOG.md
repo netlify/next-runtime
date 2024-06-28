@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.4.0](https://github.com/netlify/next-runtime/compare/v5.3.3...v5.4.0) (2024-06-28)
+
+
+### Features
+
+* warn when netlify form detected ([195b8b2](https://github.com/netlify/next-runtime/commit/195b8b265d1593ede9b6a4d770eade7f6bc4f462))
+
+
+### Bug Fixes
+
+* set netlify-cache-tag for not prerendered content ([#2495](https://github.com/netlify/next-runtime/issues/2495)) ([8fe6676](https://github.com/netlify/next-runtime/commit/8fe6676905829de292ed9082348b7220f9fc5259))
+* track revalidate / cdn purge to ensure it finishes execution and is not suspended mid-execution ([#2490](https://github.com/netlify/next-runtime/issues/2490)) ([5a0fec5](https://github.com/netlify/next-runtime/commit/5a0fec519ac4023c047fcbe03f61ed3a8a82be54))
+
 ## [5.3.3](https://github.com/netlify/next-runtime/compare/v5.3.2...v5.3.3) (2024-06-18)
 
 
