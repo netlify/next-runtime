@@ -353,6 +353,7 @@ export const fixtureFactories = {
     createE2EFixture('cli-before-regional-blobs-support', {
       expectedCliVersion: '17.21.1',
     }),
+  withIntegrations: () => createE2EFixture('with-integrations'),
   yarnMonorepoWithPnpmLinker: () =>
     createE2EFixture('yarn-monorepo-with-pnpm-linker', {
       packageManger: 'berry',

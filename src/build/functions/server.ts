@@ -1,5 +1,5 @@
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { join, relative } from 'node:path'
+import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { join, parse as parsePath, relative } from 'node:path'
 import { join as posixJoin } from 'node:path/posix'
 
 import { trace } from '@opentelemetry/api'
@@ -127,12 +127,52 @@ const writeHandlerFile = async (ctx: PluginContext) => {
   await writeFile(join(ctx.serverHandlerRootDir, `${SERVER_HANDLER_NAME}.mjs`), handler)
 }
 
+const clearStaleServerHandlers = async (ctx: PluginContext) => {
+  const potentialServerlessFunctionConfigFiles = await glob('**/*.json', {
+    deep: 2,
+    cwd: ctx.serverFunctionsDir,
+  })
+
+  const toRemove = new Set<string>()
+
+  for (const potentialServerlessFunctionConfigFile of potentialServerlessFunctionConfigFiles) {
+    try {
+      const functionConfig = JSON.parse(
+        await readFile(
+          join(ctx.serverFunctionsDir, potentialServerlessFunctionConfigFile),
+          'utf-8',
+        ),
+      )
+
+      if (functionConfig?.config?.generator?.startsWith(ctx.pluginName)) {
+        const parsedPath = parsePath(potentialServerlessFunctionConfigFile)
+
+        toRemove.add(parsedPath.dir || parsedPath.name)
+      }
+    } catch {
+      // this might be malformatted json or json that doesn't represent function configuration
+      // so we just skip it in case of errors
+    }
+  }
+
+  if (toRemove.size === 0) {
+    return
+  }
+
+  for (const fileOrDir of await readdir(ctx.serverFunctionsDir, { withFileTypes: true })) {
+    const nameWithoutExtension = parsePath(fileOrDir.name).name
+
+    if (toRemove.has(nameWithoutExtension)) {
+      await rm(join(ctx.serverFunctionsDir, fileOrDir.name), { recursive: true, force: true })
+    }
+  }
+}
 /**
  * Create a Netlify function to run the Next.js server
  */
 export const createServerHandler = async (ctx: PluginContext) => {
   await tracer.withActiveSpan('createServerHandler', async () => {
-    await rm(ctx.serverFunctionsDir, { recursive: true, force: true })
+    await clearStaleServerHandlers(ctx)
     await mkdir(join(ctx.serverHandlerDir, '.netlify'), { recursive: true })
 
     await copyNextServerCode(ctx)

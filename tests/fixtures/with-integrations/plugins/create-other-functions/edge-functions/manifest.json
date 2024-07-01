@@ -1,0 +1,24 @@
+{
+  "functions": [
+    {
+      "function": "next-runtime-v4",
+      "name": "next-runtime-v4",
+      "path": "/test/edge/v4",
+      "generator": "@netlify/plugin-nextjs@4.41.3"
+    },
+    {
+      "function": "next-runtime-v5",
+      "name": "next-runtime-v5",
+      "path": "/test/edge/v5",
+      "generator": "@netlify/plugin-nextjs@5.3.3"
+    },
+    {
+      "function": "integration-in-manifest",
+      "name": "integration-in-manifest",
+      "path": "/test/edge/integration-in-manifest",
+      "generator": "@netlify/some-integration@1.0.0"
+    }
+  ],
+  "layers": [],
+  "version": 1
+}
