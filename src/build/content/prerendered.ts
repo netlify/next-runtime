@@ -18,7 +18,7 @@ import type {
   NetlifyIncrementalCacheValue,
 } from '../../shared/cache-types.cjs'
 import type { PluginContext } from '../plugin-context.js'
-import { verifyNoNetlifyForms } from '../verification.js'
+import { verifyNetlifyForms } from '../verification.js'
 
 const tracer = wrapTracer(trace.getTracer('Next runtime'))
 
@@ -172,7 +172,7 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
 
               // Netlify Forms are not support and require a workaround
               if (value.kind === 'PAGE' || value.kind === 'APP_PAGE') {
-                verifyNoNetlifyForms(ctx, value.html)
+                verifyNetlifyForms(ctx, value.html)
               }
 
               await writeCacheEntry(key, value, lastModified, ctx)

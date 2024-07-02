@@ -1,6 +1,8 @@
 import { existsSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
+import { glob } from 'fast-glob'
 import { satisfies } from 'semver'
 
 import { ApiRouteType, getAPIRoutesConfigs } from './advanced-api-routes.js'
@@ -8,7 +10,7 @@ import type { PluginContext } from './plugin-context.js'
 
 const SUPPORTED_NEXT_VERSIONS = '>=13.5.0'
 
-const warnings = new Set<string>()
+const verifications = new Set<string>()
 
 export function verifyPublishDir(ctx: PluginContext) {
   if (!existsSync(ctx.publishDir)) {
@@ -71,7 +73,7 @@ export function verifyPublishDir(ctx: PluginContext) {
   }
 }
 
-export async function verifyNoAdvancedAPIRoutes(ctx: PluginContext) {
+export async function verifyAdvancedAPIRoutes(ctx: PluginContext) {
   const apiRoutesConfigs = await getAPIRoutesConfigs(ctx)
 
   const unsupportedAPIRoutes = apiRoutesConfigs.filter((apiRouteConfig) => {
@@ -88,11 +90,33 @@ export async function verifyNoAdvancedAPIRoutes(ctx: PluginContext) {
   }
 }
 
-export function verifyNoNetlifyForms(ctx: PluginContext, html: string) {
-  if (!warnings.has('netlifyForms') && /<form[^>]*?\s(netlify|data-netlify)[=>\s]/.test(html)) {
+const formDetectionRegex = /<form[^>]*?\s(netlify|data-netlify)[=>\s]/
+
+export async function verifyNetlifyFormsWorkaround(ctx: PluginContext) {
+  const srcDir = ctx.resolveFromSiteDir('public')
+  const paths = await glob(join(srcDir, '**/*.html'))
+  try {
+    const hasWorkaround = await paths.some(async (path): Promise<boolean> => {
+      const html = await readFile(path, 'utf-8')
+      return formDetectionRegex.test(html)
+    })
+    if (hasWorkaround) {
+      verifications.add('netlifyFormsWorkaround')
+    }
+  } catch (error) {
+    ctx.failBuild('Failed verifying public files', error)
+  }
+}
+
+export function verifyNetlifyForms(ctx: PluginContext, html: string) {
+  if (
+    !verifications.has('netlifyForms') &&
+    !verifications.has('netlifyFormsWorkaround') &&
+    formDetectionRegex.test(html)
+  ) {
     console.warn(
       '@netlify/plugin-next@5 does not support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
     )
-    warnings.add('netlifyForms')
+    verifications.add('netlifyForms')
   }
 }
