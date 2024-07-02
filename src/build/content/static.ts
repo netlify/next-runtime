@@ -8,7 +8,7 @@ import glob from 'fast-glob'
 
 import { encodeBlobKey } from '../../shared/blobkey.js'
 import { PluginContext } from '../plugin-context.js'
-import { verifyNoNetlifyForms } from '../verification.js'
+import { verifyNetlifyForms } from '../verification.js'
 
 const tracer = wrapTracer(trace.getTracer('Next runtime'))
 
@@ -32,7 +32,7 @@ export const copyStaticContent = async (ctx: PluginContext): Promise<void> => {
           .filter((path) => !paths.includes(`${path.slice(0, -5)}.json`))
           .map(async (path): Promise<void> => {
             const html = await readFile(join(srcDir, path), 'utf-8')
-            verifyNoNetlifyForms(ctx, html)
+            verifyNetlifyForms(ctx, html)
             await writeFile(join(destDir, await encodeBlobKey(path)), html, 'utf-8')
           }),
       )

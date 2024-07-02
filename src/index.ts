@@ -17,7 +17,11 @@ import { createEdgeHandlers } from './build/functions/edge.js'
 import { createServerHandler } from './build/functions/server.js'
 import { setImageConfig } from './build/image-cdn.js'
 import { PluginContext } from './build/plugin-context.js'
-import { verifyNoAdvancedAPIRoutes, verifyPublishDir } from './build/verification.js'
+import {
+  verifyAdvancedAPIRoutes,
+  verifyNetlifyFormsWorkaround,
+  verifyPublishDir,
+} from './build/verification.js'
 
 const tracer = wrapTracer(trace.getTracer('Next.js runtime'))
 
@@ -58,7 +62,8 @@ export const onBuild = async (options: NetlifyPluginOptions) => {
       return copyStaticExport(ctx)
     }
 
-    await verifyNoAdvancedAPIRoutes(ctx)
+    await verifyAdvancedAPIRoutes(ctx)
+    await verifyNetlifyFormsWorkaround(ctx)
 
     await Promise.all([
       copyStaticAssets(ctx),
