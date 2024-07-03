@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { readFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { join, relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 import { join as posixJoin } from 'node:path/posix'
 import { fileURLToPath } from 'node:url'
 
@@ -14,6 +14,8 @@ import type { PrerenderManifest, RoutesManifest } from 'next/dist/build/index.js
 import type { MiddlewareManifest } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 import type { NextConfigComplete } from 'next/dist/server/config-shared.js'
 import { satisfies } from 'semver'
+
+import { encodeBlobKey } from '../shared/blobkey.js'
 
 const MODULE_DIR = fileURLToPath(new URL('.', import.meta.url))
 const PLUGIN_DIR = join(MODULE_DIR, '../..')
@@ -137,30 +139,62 @@ export class PluginContext {
 
   /**
    * Absolute path of the directory that will be deployed to the blob store
+   * frameworks api: `.netlify/v1/blobs/deploy`
    * region aware: `.netlify/deploy/v1/blobs/deploy`
    * default: `.netlify/blobs/deploy`
    */
   get blobDir(): string {
-    return this.resolveFromPackagePath('.netlify/v1/blobs/deploy')
-    // if (this.useRegionalBlobs) {
-    //   return this.resolveFromPackagePath('.netlify/deploy/v1/blobs/deploy')
-    // }
+    switch (this.blobsStrategy) {
+      case 'frameworks-api':
+        return this.resolveFromPackagePath('.netlify/v1/blobs/deploy')
+      case 'regional':
+        return this.resolveFromPackagePath('.netlify/deploy/v1/blobs/deploy')
+      case 'legacy':
+      default:
+        return this.resolveFromPackagePath('.netlify/blobs/deploy')
+    }
+  }
 
-    // return this.resolveFromPackagePath('.netlify/blobs/deploy')
+  async setBlob(key: string, value: string) {
+    switch (this.blobsStrategy) {
+      case 'frameworks-api': {
+        const path = join(this.blobDir, await encodeBlobKey(key), 'blob')
+        await mkdir(dirname(path), { recursive: true })
+        await writeFile(path, value, 'utf-8')
+        return
+      }
+      case 'regional':
+      case 'legacy':
+      default: {
+        const path = join(this.blobDir, await encodeBlobKey(key))
+        await writeFile(path, value, 'utf-8')
+      }
+    }
   }
 
   get buildVersion(): string {
     return this.constants.NETLIFY_BUILD_VERSION || 'v0.0.0'
   }
 
-  get useRegionalBlobs(): boolean {
+  get useFrameworksAPI(): boolean {
+    // TODO: make this conditional
+    return true
+  }
+
+  get blobsStrategy(): 'legacy' | 'regional' | 'frameworks-api' {
+    if (this.useFrameworksAPI) {
+      return 'frameworks-api'
+    }
+
     if (!(this.featureFlags || {})['next-runtime-regional-blobs']) {
-      return false
+      return 'legacy'
     }
 
     // Region-aware blobs are only available as of CLI v17.23.5 (i.e. Build v29.41.5)
     const REQUIRED_BUILD_VERSION = '>=29.41.5'
     return satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, { includePrerelease: true })
+      ? 'regional'
+      : 'legacy'
   }
 
   /**
