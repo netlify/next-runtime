@@ -1,17 +1,17 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
-import type { Manifest, ManifestFunction } from '@netlify/edge-functions'
+import type { IntegrationsConfig } from '@netlify/edge-functions'
 import { glob } from 'fast-glob'
 import type { EdgeFunctionDefinition as NextDefinition } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 import { pathToRegexp } from 'path-to-regexp'
 
 import { EDGE_HANDLER_NAME, PluginContext } from '../plugin-context.js'
 
-const writeEdgeManifest = async (ctx: PluginContext, manifest: Manifest) => {
-  await mkdir(ctx.edgeFunctionsDir, { recursive: true })
-  await writeFile(join(ctx.edgeFunctionsDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
-}
+// const writeEdgeManifest = async (ctx: PluginContext, manifest: Manifest) => {
+//   await mkdir(ctx.edgeFunctionsDir, { recursive: true })
+//   await writeFile(join(ctx.edgeFunctionsDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
+// }
 
 const copyRuntime = async (ctx: PluginContext, handlerDirectory: string): Promise<void> => {
   const files = await glob('edge-runtime/**/*', {
@@ -53,7 +53,7 @@ const augmentMatchers = (
   })
 }
 
-const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefinition) => {
+const writeHandlerFile = async (ctx: PluginContext, { matchers, name, page }: NextDefinition) => {
   const nextConfig = ctx.buildConfig
   const handlerName = getHandlerName({ name })
   const handlerDirectory = join(ctx.edgeFunctionsDir, handlerName)
@@ -63,12 +63,11 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
   // Netlify Edge Functions and the Next.js edge runtime.
   await copyRuntime(ctx, handlerDirectory)
 
+  const augmentedMatchers = augmentMatchers(matchers, ctx)
+
   // Writing a file with the matchers that should trigger this function. We'll
   // read this file from the function at runtime.
-  await writeFile(
-    join(handlerRuntimeDirectory, 'matchers.json'),
-    JSON.stringify(augmentMatchers(matchers, ctx)),
-  )
+  await writeFile(join(handlerRuntimeDirectory, 'matchers.json'), JSON.stringify(augmentedMatchers))
 
   // The config is needed by the edge function to match and normalize URLs. To
   // avoid shipping and parsing a large file at runtime, let's strip it down to
@@ -93,6 +92,15 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
     import {handleMiddleware} from './edge-runtime/middleware.ts';
     import handler from './server/${name}.js';
     export default (req, context) => handleMiddleware(req, context, handler);
+
+    export const config = ${JSON.stringify({
+      name: name.endsWith('middleware')
+        ? 'Next.js Middleware Handler'
+        : `Next.js Edge Handler: ${page}`,
+      pattern: augmentedMatchers.map((matcher) => matcher.regexp),
+      cache: name.endsWith('middleware') ? undefined : 'manual',
+      generator: `${ctx.pluginName}@${ctx.pluginVersion}`,
+    } satisfies IntegrationsConfig)};
     `,
   )
 }
@@ -142,25 +150,25 @@ const createEdgeHandler = async (ctx: PluginContext, definition: NextDefinition)
 const getHandlerName = ({ name }: Pick<NextDefinition, 'name'>): string =>
   `${EDGE_HANDLER_NAME}-${name.replace(/\W/g, '-')}`
 
-const buildHandlerDefinition = (
-  ctx: PluginContext,
-  { name, matchers, page }: NextDefinition,
-): Array<ManifestFunction> => {
-  const fun = getHandlerName({ name })
-  const funName = name.endsWith('middleware')
-    ? 'Next.js Middleware Handler'
-    : `Next.js Edge Handler: ${page}`
-  const cache = name.endsWith('middleware') ? undefined : ('manual' as const)
-  const generator = `${ctx.pluginName}@${ctx.pluginVersion}`
+// const buildHandlerDefinition = (
+//   ctx: PluginContext,
+//   { name, matchers, page }: NextDefinition,
+// ): Array<ManifestFunction> => {
+//   const fun = getHandlerName({ name })
+//   const funName = name.endsWith('middleware')
+//     ? 'Next.js Middleware Handler'
+//     : `Next.js Edge Handler: ${page}`
+//   const cache = name.endsWith('middleware') ? undefined : ('manual' as const)
+//   const generator = `${ctx.pluginName}@${ctx.pluginVersion}`
 
-  return augmentMatchers(matchers, ctx).map((matcher) => ({
-    function: fun,
-    name: funName,
-    pattern: matcher.regexp,
-    cache,
-    generator,
-  }))
-}
+//   return augmentMatchers(matchers, ctx).map((matcher) => ({
+//     function: fun,
+//     name: funName,
+//     pattern: matcher.regexp,
+//     cache,
+//     generator,
+//   }))
+// }
 
 export const createEdgeHandlers = async (ctx: PluginContext) => {
   await rm(ctx.edgeFunctionsDir, { recursive: true, force: true })
@@ -172,10 +180,10 @@ export const createEdgeHandlers = async (ctx: PluginContext) => {
   ]
   await Promise.all(nextDefinitions.map((def) => createEdgeHandler(ctx, def)))
 
-  const netlifyDefinitions = nextDefinitions.flatMap((def) => buildHandlerDefinition(ctx, def))
-  const netlifyManifest: Manifest = {
-    version: 1,
-    functions: netlifyDefinitions,
-  }
-  await writeEdgeManifest(ctx, netlifyManifest)
+  // const netlifyDefinitions = nextDefinitions.flatMap((def) => buildHandlerDefinition(ctx, def))
+  // const netlifyManifest: Manifest = {
+  //   version: 1,
+  //   functions: netlifyDefinitions,
+  // }
+  // await writeEdgeManifest(ctx, netlifyManifest)
 }
