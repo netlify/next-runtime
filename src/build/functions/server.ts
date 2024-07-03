@@ -103,7 +103,7 @@ const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
   const templatesDir = join(ctx.pluginDir, 'dist/build/templates')
 
   const templateVariables: Record<string, string> = {
-    '{{useRegionalBlobs}}': ctx.useRegionalBlobs.toString(),
+    '{{useRegionalBlobs}}': (ctx.blobsStrategy !== 'legacy').toString(),
     '{{generator}}': `${ctx.pluginName}@${ctx.pluginVersion}`,
     '{{serverHandlerRootDir}}': ctx.serverHandlerRootDir,
   }
