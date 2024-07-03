@@ -96,12 +96,12 @@ export async function verifyNetlifyFormsWorkaround(ctx: PluginContext) {
   const srcDir = ctx.resolveFromSiteDir('public')
   const paths = await glob(join(srcDir, '**/*.html'))
   try {
-    const hasWorkaround = await paths.some(async (path): Promise<boolean> => {
+    for (const path of paths) {
       const html = await readFile(path, 'utf-8')
-      return formDetectionRegex.test(html)
-    })
-    if (hasWorkaround) {
-      verifications.add('netlifyFormsWorkaround')
+      if (formDetectionRegex.test(html)) {
+        verifications.add('netlifyFormsWorkaround')
+        return
+      }
     }
   } catch (error) {
     ctx.failBuild('Failed verifying public files', error)
