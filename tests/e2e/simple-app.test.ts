@@ -12,7 +12,9 @@ test('Renders the Home page correctly', async ({ page, simple }) => {
 
   await expect(page).toHaveTitle('Simple Next App')
 
-  expect(headers['cache-status']).toBe('"Next.js"; hit\n"Netlify Edge"; fwd=miss')
+  expect(headers['cache-status']).toBe(
+    '"Next.js"; hit\n"Netlify Durable"; fwd=miss\n"Netlify Edge"; fwd=miss',
+  )
 
   const h1 = page.locator('h1')
   await expect(h1).toHaveText('Home')
