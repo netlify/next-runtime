@@ -195,7 +195,7 @@ export class PluginContext {
    * `.netlify/edge-functions`
    */
   get edgeFunctionsDir(): string {
-    return this.resolveFromPackagePath('.netlify/edge-functions')
+    return this.resolveFromPackagePath('.netlify/v1/edge-functions')
   }
 
   /** Absolute path of the edge handler */
