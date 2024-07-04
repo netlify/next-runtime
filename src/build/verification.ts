@@ -95,7 +95,6 @@ const formDetectionRegex = /<form[^>]*?\s(netlify|data-netlify)[=>\s]/
 export async function verifyNetlifyFormsWorkaround(ctx: PluginContext) {
   const srcDir = ctx.resolveFromSiteDir('public')
   const paths = await glob(join(srcDir, '**/*.html'))
-  console.log(join(srcDir, '**/*.html'), paths)
   try {
     for (const path of paths) {
       const html = await readFile(path, 'utf-8')
@@ -116,7 +115,7 @@ export function verifyNetlifyForms(ctx: PluginContext, html: string) {
     formDetectionRegex.test(html)
   ) {
     console.warn(
-      '@netlify/plugin-next@5 does not support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
+      '@netlify/plugin-next@5 requires migration steps to support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
     )
     verifications.add('netlifyForms')
   }
