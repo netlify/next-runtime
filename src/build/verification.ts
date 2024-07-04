@@ -94,10 +94,13 @@ const formDetectionRegex = /<form[^>]*?\s(netlify|data-netlify)[=>\s]/
 
 export async function verifyNetlifyFormsWorkaround(ctx: PluginContext) {
   const srcDir = ctx.resolveFromSiteDir('public')
-  const paths = await glob(join(srcDir, '**/*.html'))
+  const paths = await glob('**/*.html', {
+    cwd: srcDir,
+    dot: true,
+  })
   try {
     for (const path of paths) {
-      const html = await readFile(path, 'utf-8')
+      const html = await readFile(join(srcDir, path), 'utf-8')
       if (formDetectionRegex.test(html)) {
         verifications.add('netlifyFormsWorkaround')
         return
