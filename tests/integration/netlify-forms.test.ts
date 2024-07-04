@@ -14,19 +14,29 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   vi.stubEnv('SITE_ID', ctx.siteID)
   vi.stubEnv('DEPLOY_ID', ctx.deployID)
   vi.stubEnv('NETLIFY_PURGE_API_TOKEN', 'fake-token')
-  // hide debug logs in tests
-  // vi.spyOn(console, 'debug').mockImplementation(() => {})
+  vi.resetModules()
 
   await startMockBlobStore(ctx)
 })
 
-// test skipped until we actually start failing builds - right now we are just showing a warning
-it.skip<FixtureTestContext>('should fail build when netlify forms are used', async (ctx) => {
+it<FixtureTestContext>('should warn when netlify forms are used', async (ctx) => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
   await createFixture('netlify-forms', ctx)
 
-  const runPluginPromise = runPlugin(ctx)
+  const runPluginPromise = await runPlugin(ctx)
 
-  await expect(runPluginPromise).rejects.toThrow(
-    '@netlify/plugin-next@5 does not support Netlify Forms',
+  expect(warn).toBeCalledWith(
+    '@netlify/plugin-nextjs@5 requires migration steps to support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
   )
+})
+
+it<FixtureTestContext>('should not warn when netlify forms are used with workaround', async (ctx) => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+  await createFixture('netlify-forms-workaround', ctx)
+
+  const runPluginPromise = await runPlugin(ctx)
+
+  expect(warn).not.toBeCalled()
 })

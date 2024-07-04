@@ -1,6 +1,8 @@
 import { existsSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
+import { glob } from 'fast-glob'
 import { satisfies } from 'semver'
 
 import { ApiRouteType, getAPIRoutesConfigs } from './advanced-api-routes.js'
@@ -8,7 +10,7 @@ import type { PluginContext } from './plugin-context.js'
 
 const SUPPORTED_NEXT_VERSIONS = '>=13.5.0'
 
-const warnings = new Set<string>()
+const verifications = new Set<string>()
 
 export function verifyPublishDir(ctx: PluginContext) {
   if (!existsSync(ctx.publishDir)) {
@@ -55,7 +57,7 @@ export function verifyPublishDir(ctx: PluginContext) {
       !satisfies(ctx.nextVersion, SUPPORTED_NEXT_VERSIONS, { includePrerelease: true })
     ) {
       ctx.failBuild(
-        `@netlify/plugin-next@5 requires Next.js version ${SUPPORTED_NEXT_VERSIONS}, but found ${ctx.nextVersion}. Please upgrade your project's Next.js version.`,
+        `@netlify/plugin-nextjs@5 requires Next.js version ${SUPPORTED_NEXT_VERSIONS}, but found ${ctx.nextVersion}. Please upgrade your project's Next.js version.`,
       )
     }
   }
@@ -71,7 +73,7 @@ export function verifyPublishDir(ctx: PluginContext) {
   }
 }
 
-export async function verifyNoAdvancedAPIRoutes(ctx: PluginContext) {
+export async function verifyAdvancedAPIRoutes(ctx: PluginContext) {
   const apiRoutesConfigs = await getAPIRoutesConfigs(ctx)
 
   const unsupportedAPIRoutes = apiRoutesConfigs.filter((apiRouteConfig) => {
@@ -83,16 +85,41 @@ export async function verifyNoAdvancedAPIRoutes(ctx: PluginContext) {
 
   if (unsupportedAPIRoutes.length !== 0) {
     ctx.failBuild(
-      `@netlify/plugin-next@5 does not support advanced API routes. The following API routes should be migrated to Netlify background or scheduled functions:\n${unsupportedAPIRoutes.map((apiRouteConfig) => ` - ${apiRouteConfig.apiRoute} (type: "${apiRouteConfig.config.type}")`).join('\n')}\n\nRefer to https://ntl.fyi/next-scheduled-bg-function-migration as migration example.`,
+      `@netlify/plugin-nextjs@5 does not support advanced API routes. The following API routes should be migrated to Netlify background or scheduled functions:\n${unsupportedAPIRoutes.map((apiRouteConfig) => ` - ${apiRouteConfig.apiRoute} (type: "${apiRouteConfig.config.type}")`).join('\n')}\n\nRefer to https://ntl.fyi/next-scheduled-bg-function-migration as migration example.`,
     )
   }
 }
 
-export function verifyNoNetlifyForms(ctx: PluginContext, html: string) {
-  if (!warnings.has('netlifyForms') && /<form[^>]*?\s(netlify|data-netlify)[=>\s]/.test(html)) {
+const formDetectionRegex = /<form[^>]*?\s(netlify|data-netlify)[=>\s]/
+
+export async function verifyNetlifyFormsWorkaround(ctx: PluginContext) {
+  const srcDir = ctx.resolveFromSiteDir('public')
+  const paths = await glob('**/*.html', {
+    cwd: srcDir,
+    dot: true,
+  })
+  try {
+    for (const path of paths) {
+      const html = await readFile(join(srcDir, path), 'utf-8')
+      if (formDetectionRegex.test(html)) {
+        verifications.add('netlifyFormsWorkaround')
+        return
+      }
+    }
+  } catch (error) {
+    ctx.failBuild('Failed verifying public files', error)
+  }
+}
+
+export function verifyNetlifyForms(ctx: PluginContext, html: string) {
+  if (
+    !verifications.has('netlifyForms') &&
+    !verifications.has('netlifyFormsWorkaround') &&
+    formDetectionRegex.test(html)
+  ) {
     console.warn(
-      '@netlify/plugin-next@5 does not support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
+      '@netlify/plugin-nextjs@5 requires migration steps to support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
     )
-    warnings.add('netlifyForms')
+    verifications.add('netlifyForms')
   }
 }
