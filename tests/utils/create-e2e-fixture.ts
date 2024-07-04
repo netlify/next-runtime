@@ -11,8 +11,9 @@ import { cpus } from 'os'
 import pLimit from 'p-limit'
 import { setNextVersionInFixture } from './next-version-helpers.mjs'
 
-// This is the netlify testing application
-export const SITE_ID = process.env.NETLIFY_SITE_ID ?? 'ee859ce9-44a7-46be-830b-ead85e445e53'
+// https://app.netlify.com/sites/next-runtime-testing
+const DEFAULT_SITE_ID = 'ee859ce9-44a7-46be-830b-ead85e445e53'
+export const SITE_ID = process.env.NETLIFY_SITE_ID ?? DEFAULT_SITE_ID
 const NEXT_VERSION = process.env.NEXT_VERSION || 'latest'
 
 export interface DeployResult {
@@ -39,6 +40,10 @@ interface E2EConfig {
    * Some fixtures might pin to non-latest CLI versions. This is used to verify the used CLI version matches expected one
    */
   expectedCliVersion?: string
+  /**
+   * Site ID to deploy to. Defaults to the `NETLIFY_SITE_ID` environment variable or a default site.
+   */
+  siteId?: string
 }
 
 /**
@@ -258,12 +263,12 @@ async function verifyFixture(isolatedFixtureRoot: string, { expectedCliVersion }
 
 async function deploySite(
   isolatedFixtureRoot: string,
-  { packagePath, cwd = '' }: E2EConfig,
+  { packagePath, cwd = '', siteId = SITE_ID }: E2EConfig,
 ): Promise<DeployResult> {
   console.log(`🚀 Building and deploying site...`)
 
   const outputFile = 'deploy-output.txt'
-  let cmd = `npx ntl deploy --build --site ${SITE_ID}`
+  let cmd = `npx ntl deploy --build --site ${siteId}`
 
   if (packagePath) {
     cmd += ` --filter ${packagePath}`
@@ -273,7 +278,7 @@ async function deploySite(
   await execaCommand(cmd, { cwd: siteDir, all: true }).pipeAll?.(join(siteDir, outputFile))
   const output = await readFile(join(siteDir, outputFile), 'utf-8')
 
-  const [url] = new RegExp(/https:.+runtime-testing\.netlify\.app/gm).exec(output) || []
+  const [url] = new RegExp(/https:.+\.netlify\.app/gm).exec(output) || []
   if (!url) {
     throw new Error('Could not extract the URL from the build logs')
   }
@@ -422,5 +427,11 @@ export const fixtureFactories = {
       buildCommand: 'cd apps/site && npm install && npm run build',
       publishDirectory: 'apps/site/.next',
       smoke: true,
+    }),
+  durableCache: () =>
+    createE2EFixture('simple', {
+      // https://app.netlify.com/sites/next-runtime-testing-durable-cache
+      // This site has all the Durable Cache feature flags enabled.
+      siteId: 'a8ceaa01-86fd-4c9a-8563-3769560d452a',
     }),
 }

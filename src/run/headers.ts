@@ -65,12 +65,6 @@ const omitHeaderValues = (header: string, values: string[]): string => {
   return filteredValues.join(', ')
 }
 
-const mapHeaderValues = (header: string, callback: (value: string) => string): string => {
-  const headerValues = getHeaderValueArray(header)
-  const mappedValues = headerValues.map(callback)
-  return mappedValues.join(', ')
-}
-
 /**
  * Ensure the Netlify CDN varies on things that Next.js varies on,
  * e.g. i18n, preview mode, etc.
@@ -219,7 +213,9 @@ export const setCacheControlHeaders = (
   headers: Headers,
   request: Request,
   requestContext: RequestContext,
+  useDurableCache: boolean,
 ) => {
+  const durableCacheDirective = useDurableCache ? ', durable' : ''
   if (
     typeof requestContext.routeHandlerRevalidate !== 'undefined' &&
     ['GET', 'HEAD'].includes(request.method) &&
@@ -231,7 +227,7 @@ export const setCacheControlHeaders = (
       // if we are serving already stale response, instruct edge to not attempt to cache that response
       headers.get('x-nextjs-cache') === 'STALE'
         ? 'public, max-age=0, must-revalidate'
-        : `s-maxage=${requestContext.routeHandlerRevalidate === false ? 31536000 : requestContext.routeHandlerRevalidate}, stale-while-revalidate=31536000`
+        : `s-maxage=${requestContext.routeHandlerRevalidate === false ? 31536000 : requestContext.routeHandlerRevalidate}, stale-while-revalidate=31536000${durableCacheDirective}`
 
     headers.set('netlify-cdn-cache-control', cdnCacheControl)
     return
@@ -253,9 +249,12 @@ export const setCacheControlHeaders = (
       // if we are serving already stale response, instruct edge to not attempt to cache that response
       headers.get('x-nextjs-cache') === 'STALE'
         ? 'public, max-age=0, must-revalidate'
-        : mapHeaderValues(cacheControl, (value) =>
-            value === 'stale-while-revalidate' ? 'stale-while-revalidate=31536000' : value,
-          )
+        : [
+            ...getHeaderValueArray(cacheControl).map((value) =>
+              value === 'stale-while-revalidate' ? 'stale-while-revalidate=31536000' : value,
+            ),
+            ...(useDurableCache ? ['durable'] : []),
+          ].join(', ')
 
     headers.set('cache-control', browserCacheControl || 'public, max-age=0, must-revalidate')
     headers.set('netlify-cdn-cache-control', cdnCacheControl)
@@ -270,7 +269,7 @@ export const setCacheControlHeaders = (
   ) {
     // handle CDN Cache Control on static files
     headers.set('cache-control', 'public, max-age=0, must-revalidate')
-    headers.set('netlify-cdn-cache-control', `max-age=31536000`)
+    headers.set('netlify-cdn-cache-control', `max-age=31536000${durableCacheDirective}`)
   }
 }
 
