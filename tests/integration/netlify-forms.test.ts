@@ -27,7 +27,7 @@ it<FixtureTestContext>('should warn when netlify forms are used', async (ctx) =>
   const runPluginPromise = await runPlugin(ctx)
 
   expect(warn).toBeCalledWith(
-    '@netlify/plugin-next@5 requires migration steps to support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
+    '@netlify/plugin-nextjs@5 requires migration steps to support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
   )
 })
 

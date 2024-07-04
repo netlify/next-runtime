@@ -1,4 +1,4 @@
-import { expect, test, describe, afterEach } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
 import { Fixture, fixtureFactories } from '../utils/create-e2e-fixture'
 
 const usedFixtures = new Set<Fixture>()
@@ -66,7 +66,7 @@ describe('version check', () => {
     async () => {
       await expect(selfCleaningFixtureFactories.next12_1_0()).rejects.toThrow(
         new RegExp(
-          `@netlify/plugin-next@5 requires Next.js version >=13.5.0, but found 12.1.0. Please upgrade your project's Next.js version.`,
+          `@netlify/plugin-nextjs@5 requires Next.js version >=13.5.0, but found 12.1.0. Please upgrade your project's Next.js version.`,
         ),
       )
     },
@@ -83,7 +83,7 @@ describe('version check', () => {
         selfCleaningFixtureFactories.yarnMonorepoMultipleNextVersionsSiteIncompatible(),
       ).rejects.toThrow(
         new RegExp(
-          `@netlify/plugin-next@5 requires Next.js version >=13.5.0, but found 13.4.1. Please upgrade your project's Next.js version.`,
+          `@netlify/plugin-nextjs@5 requires Next.js version >=13.5.0, but found 13.4.1. Please upgrade your project's Next.js version.`,
         ),
       )
     },
@@ -101,7 +101,7 @@ describe('version check', () => {
         fixtureFactories.npmNestedSiteMultipleNextVersionsIncompatible(),
       ).rejects.toThrow(
         new RegExp(
-          `@netlify/plugin-next@5 requires Next.js version >=13.5.0, but found 13.4.1. Please upgrade your project's Next.js version.`,
+          `@netlify/plugin-nextjs@5 requires Next.js version >=13.5.0, but found 13.4.1. Please upgrade your project's Next.js version.`,
         ),
       )
     },
