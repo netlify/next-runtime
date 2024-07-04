@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.5.0](https://github.com/netlify/next-runtime/compare/v5.4.0...v5.5.0) (2024-07-04)
+
+
+### Features
+
+* check for netlify forms workaround ([#2523](https://github.com/netlify/next-runtime/issues/2523)) ([b1a8620](https://github.com/netlify/next-runtime/commit/b1a8620b20e9a407f1c5234b81a15311fbd13b21))
+* use Netlify Durable Cache ([#2510](https://github.com/netlify/next-runtime/issues/2510)) ([233fc2f](https://github.com/netlify/next-runtime/commit/233fc2f0526467264995e586ab4c2ec1facdd5df))
+
 ## [5.4.0](https://github.com/netlify/next-runtime/compare/v5.3.3...v5.4.0) (2024-06-28)
 
 
