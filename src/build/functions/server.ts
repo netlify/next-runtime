@@ -127,12 +127,15 @@ const writeHandlerFile = async (ctx: PluginContext) => {
   await writeFile(join(ctx.serverHandlerRootDir, `${SERVER_HANDLER_NAME}.mjs`), handler)
 }
 
+export const clearStaleServerHandlers = async (ctx: PluginContext) => {
+  await rm(ctx.serverFunctionsDir, { recursive: true, force: true })
+}
+
 /**
  * Create a Netlify function to run the Next.js server
  */
 export const createServerHandler = async (ctx: PluginContext) => {
   await tracer.withActiveSpan('createServerHandler', async () => {
-    await rm(ctx.serverFunctionsDir, { recursive: true, force: true })
     await mkdir(join(ctx.serverHandlerDir, '.netlify'), { recursive: true })
 
     await copyNextServerCode(ctx)

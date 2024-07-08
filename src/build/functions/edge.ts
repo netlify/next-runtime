@@ -162,9 +162,11 @@ const buildHandlerDefinition = (
   }))
 }
 
-export const createEdgeHandlers = async (ctx: PluginContext) => {
+export const clearStaleEdgeHandlers = async (ctx: PluginContext) => {
   await rm(ctx.edgeFunctionsDir, { recursive: true, force: true })
+}
 
+export const createEdgeHandlers = async (ctx: PluginContext) => {
   const nextManifest = await ctx.getMiddlewareManifest()
   const nextDefinitions = [
     ...Object.values(nextManifest.middleware),
