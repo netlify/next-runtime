@@ -13,8 +13,8 @@ import {
   publishStaticDir,
   unpublishStaticDir,
 } from './build/content/static.js'
-import { createEdgeHandlers } from './build/functions/edge.js'
-import { createServerHandler } from './build/functions/server.js'
+import { clearStaleEdgeHandlers, createEdgeHandlers } from './build/functions/edge.js'
+import { clearStaleServerHandlers, createServerHandler } from './build/functions/server.js'
 import { setImageConfig } from './build/image-cdn.js'
 import { PluginContext } from './build/plugin-context.js'
 import {
@@ -38,8 +38,15 @@ export const onPreBuild = async (options: NetlifyPluginOptions) => {
   await tracer.withActiveSpan('onPreBuild', async () => {
     // Enable Next.js standalone mode at build time
     process.env.NEXT_PRIVATE_STANDALONE = 'true'
-    if (!options.constants.IS_LOCAL) {
-      await restoreBuildCache(new PluginContext(options))
+    const ctx = new PluginContext(options)
+    if (options.constants.IS_LOCAL) {
+      // Only clear directory if we are running locally as then we might have stale functions from previous
+      // local builds. Directory clearing interferes with other integrations by deleting functions produced by them
+      // so ideally this is completely avoided.
+      await clearStaleServerHandlers(ctx)
+      await clearStaleEdgeHandlers(ctx)
+    } else {
+      await restoreBuildCache(ctx)
     }
   })
 }
