@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.5.1](https://github.com/netlify/next-runtime/compare/v5.5.0...v5.5.1) (2024-07-08)
+
+
+### Bug Fixes
+
+* only clear stale functions with build through CLI ([#2536](https://github.com/netlify/next-runtime/issues/2536)) ([3266808](https://github.com/netlify/next-runtime/commit/32668082c1225afe365e4b7c75b847d722e9e775))
+
 ## [5.5.0](https://github.com/netlify/next-runtime/compare/v5.4.0...v5.5.0) (2024-07-04)
 
 
