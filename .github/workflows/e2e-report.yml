@@ -7,6 +7,14 @@ on:
       use-branch:
         description: 'Enable if you want to test data from your selected branch instead of the scheduled test runs from Main'
         type: boolean
+      version:
+        description: 'Version of Next.js (most recent test run must have included this version)'
+        type: choice
+        options:
+          - 'latest'
+          - 'canary'
+          - '13.5.1'
+        default: 'latest'
 
 env:
   NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -27,12 +35,19 @@ jobs:
             E2E_RUN_ID=$(gh run list -w test-e2e.yml -e schedule -s success --json databaseId --jq ".[0].databaseId" --repo $GITHUB_REPOSITORY)
           fi
           echo "runId=$E2E_RUN_ID" >> $GITHUB_OUTPUT
-      - name: Download latest e2e results
+      - name: Download e2e results
         if: ${{ steps.get-run-id.outputs.runId }}
         run: |
-          echo "Downloading latest test results from run https://github.com/netlify/next-runtime/actions/runs/${{ steps.get-run-id.outputs.runId }}"
-          rm e2e-report/data/test-results.json
-          gh run download ${{ steps.get-run-id.outputs.runId }} -n "latest-test-results.json" -D e2e-report/data/ --repo $GITHUB_REPOSITORY
+          version="${{ inputs.version }}"
+          version=${version:-latest}
+          OUTPUT_DIR="e2e-report/data"
+          OUTPUT_FILENAME="test-results.json"
+          echo "Downloading ${version} test results from run https://github.com/netlify/next-runtime/actions/runs/${{ steps.get-run-id.outputs.runId }}"
+          rm "${OUTPUT_DIR}/${OUTPUT_FILENAME}"
+          artifact_name="${version}-test-results.json"
+          # NOTE: The artifact name is not necessarily the artifact *file* name. The file name here
+          # must be `test-results.json`, but this is defined at the artifact upload step.
+          gh run download ${{ steps.get-run-id.outputs.runId }} -n "${artifact_name}" -D "${OUTPUT_DIR}" --repo $GITHUB_REPOSITORY
       - name: Install site dependencies
         if: success()
         run: |
