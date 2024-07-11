@@ -265,6 +265,13 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
       if (entry === 'package.json' || entry === ctx.nextDistDir) {
         return
       }
+      if (entry === '.netlify') {
+        console.warn('---\n\nYou are bundling entire world, have fun.\n\n---', {
+          entry,
+          standaloneDir: ctx.standaloneDir,
+          standaloneRootDir: ctx.standaloneRootDir,
+        })
+      }
       const src = join(ctx.standaloneDir, entry)
       const dest = join(ctx.serverHandlerDir, entry)
       await cp(src, dest, { recursive: true, verbatimSymlinks: true, force: true })
