@@ -259,6 +259,9 @@ jobs:
       - name: Upload Test JSON
         uses: actions/upload-artifact@v4
         with:
+          # TODO(serhalp) Consider renaming this. It's misleading, since it's just an identifier,
+          # but it's formatted like a filename, and happens to be almost - but not quite - the
+          # actual filename.
           name: ${{matrix.version_spec.selector}}-test-results.json
           path: report/test-results.json
 
