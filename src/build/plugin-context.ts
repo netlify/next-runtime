@@ -176,8 +176,7 @@ export class PluginContext {
     return this.constants.NETLIFY_BUILD_VERSION || 'v0.0.0'
   }
 
-  // eslint-disable-next-line no-invalid-this
-  #useFrameworksAPI: typeof this.useFrameworksAPI | null = null
+  #useFrameworksAPI: PluginContext['useFrameworksAPI'] | null = null
   get useFrameworksAPI(): boolean {
     if (this.#useFrameworksAPI === null) {
       // Defining RegExp pattern in edge function inline config is only supported since Build 29.50.5 / CLI 17.32.1
@@ -190,8 +189,7 @@ export class PluginContext {
     return this.#useFrameworksAPI
   }
 
-  // eslint-disable-next-line no-invalid-this
-  #blobsStrategy: typeof this.blobsStrategy | null = null
+  #blobsStrategy: PluginContext['blobsStrategy'] | null = null
   get blobsStrategy(): 'legacy' | 'regional' | 'frameworks-api' {
     if (this.#blobsStrategy === null) {
       if (this.useFrameworksAPI) {
@@ -205,7 +203,6 @@ export class PluginContext {
           ? 'regional'
           : 'legacy'
       }
-      //
     }
 
     return this.#blobsStrategy
