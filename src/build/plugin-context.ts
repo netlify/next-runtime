@@ -141,7 +141,7 @@ export class PluginContext {
    * Absolute path of the directory that will be deployed to the blob store
    * frameworks api: `.netlify/v1/blobs/deploy`
    * region aware: `.netlify/deploy/v1/blobs/deploy`
-   * default: `.netlify/blobs/deploy`
+   * legacy/default: `.netlify/blobs/deploy`
    */
   get blobDir(): string {
     switch (this.blobsStrategy) {
@@ -210,7 +210,8 @@ export class PluginContext {
 
   /**
    * Absolute path of the directory containing the files for the serverless lambda function
-   * `.netlify/functions-internal`
+   * frameworks api: `.netlify/v1/functions`
+   * legacy/default: `.netlify/functions-internal`
    */
   get serverFunctionsDir(): string {
     if (this.useFrameworksAPI) {
@@ -241,7 +242,8 @@ export class PluginContext {
 
   /**
    * Absolute path of the directory containing the files for deno edge functions
-   * `.netlify/edge-functions`
+   * frameworks api: `.netlify/v1/edge-functions`
+   * legacy/default: `.netlify/edge-functions`
    */
   get edgeFunctionsDir(): string {
     if (this.useFrameworksAPI) {
