@@ -180,7 +180,7 @@ export class PluginContext {
   #useFrameworksAPI: typeof this.useFrameworksAPI | null = null
   get useFrameworksAPI(): boolean {
     if (this.#useFrameworksAPI === null) {
-      // Defining RegExp pattern in edge function inline config is only supported since 29.50.5
+      // Defining RegExp pattern in edge function inline config is only supported since Build 29.50.5 / CLI 17.32.1
       const REQUIRED_BUILD_VERSION = '>=29.50.5'
       this.#useFrameworksAPI = satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, {
         includePrerelease: true,
