@@ -211,3 +211,20 @@ test('should use deploy configuration blobs directory when @netlify/build versio
 
   expect(ctx.blobDir).toBe(join(cwd, '.netlify/deploy/v1/blobs/deploy'))
 })
+
+test('should use frameworks API directories when @netlify/build version supports it', () => {
+  const { cwd } = mockFileSystem({
+    '.next/required-server-files.json': JSON.stringify({
+      config: { distDir: '.next' },
+      relativeAppDir: '',
+    } as RequiredServerFilesManifest),
+  })
+
+  const ctx = new PluginContext({
+    constants: { NETLIFY_BUILD_VERSION: '29.50.5' },
+  } as unknown as NetlifyPluginOptions)
+
+  expect(ctx.blobDir).toBe(join(cwd, '.netlify/v1/blobs/deploy'))
+  expect(ctx.edgeFunctionsDir).toBe(join(cwd, '.netlify/v1/edge-functions'))
+  expect(ctx.serverFunctionsDir).toBe(join(cwd, '.netlify/v1/functions'))
+})
