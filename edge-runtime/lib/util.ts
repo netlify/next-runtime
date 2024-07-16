@@ -29,6 +29,13 @@ export const addBasePath = (path: string, basePath?: string) => {
   return path
 }
 
+export const addLocale = (path: string, locale?: string) => {
+  if (locale && path !== `/${locale}` && !path.startsWith(`/${locale}/`)) {
+    return `/${locale}${path}`
+  }
+  return path
+}
+
 // https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/i18n/normalize-locale-path.ts
 
 export interface PathLocale {

@@ -5,7 +5,7 @@ import nextConfig from './next.config.json' with { type: 'json' }
 
 import { InternalHeaders } from './lib/headers.ts'
 import { logger, LogLevel } from './lib/logging.ts'
-import { buildNextRequest, RequestData } from './lib/next-request.ts'
+import { buildNextRequest, NetlifyNextRequest } from './lib/next-request.ts'
 import { buildResponse, FetchEventResult } from './lib/response.ts'
 import {
   getMiddlewareRouteMatcher,
@@ -13,7 +13,7 @@ import {
   type MiddlewareRouteMatch,
 } from './lib/routing.ts'
 
-type NextHandler = (params: { request: RequestData }) => Promise<FetchEventResult>
+type NextHandler = (params: { request: NetlifyNextRequest }) => Promise<FetchEventResult>
 
 const matchesMiddleware: MiddlewareRouteMatch = getMiddlewareRouteMatcher(matchers || [])
 
@@ -31,7 +31,6 @@ export async function handleMiddleware(
   context: Context,
   nextHandler: NextHandler,
 ) {
-  const nextRequest = buildNextRequest(request, context, nextConfig)
   const url = new URL(request.url)
   const reqLogger = logger
     .withLogLevel(
@@ -40,13 +39,15 @@ export async function handleMiddleware(
     .withFields({ url_path: url.pathname })
     .withRequestID(request.headers.get(InternalHeaders.NFRequestID))
 
+  const { nextRequest, nextContext } = buildNextRequest(request, context, nextConfig)
+  const localizedPath = new URL(nextContext.localizedUrl).pathname
+
   // While we have already checked the path when mapping to the edge function,
   // Next.js supports extra rules that we need to check here too, because we
   // might be running an edge function for a path we should not. If we find
   // that's the case, short-circuit the execution.
-  if (!matchesMiddleware(url.pathname, request, searchParamsToUrlQuery(url.searchParams))) {
+  if (!matchesMiddleware(localizedPath, request, searchParamsToUrlQuery(url.searchParams))) {
     reqLogger.debug('Aborting middleware due to runtime rules')
-
     return
   }
 
@@ -54,11 +55,10 @@ export async function handleMiddleware(
     const result = await nextHandler({ request: nextRequest })
     const response = await buildResponse({
       context,
-      logger: reqLogger,
+      nextContext,
       request,
       result,
-      requestLocale: nextRequest.detectedLocale,
-      nextConfig,
+      logger: reqLogger,
     })
 
     return response

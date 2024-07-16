@@ -7,8 +7,8 @@
 
 import type { Key } from '../vendor/deno.land/x/path_to_regexp@v6.2.1/index.ts'
 
-import { compile, pathToRegexp } from '../vendor/deno.land/x/path_to_regexp@v6.2.1/index.ts'
 import { getCookies } from '../vendor/deno.land/std@0.175.0/http/cookie.ts'
+import { compile, pathToRegexp } from '../vendor/deno.land/x/path_to_regexp@v6.2.1/index.ts'
 
 /*
   ┌─────────────────────────────────────────────────────────────────────────┐

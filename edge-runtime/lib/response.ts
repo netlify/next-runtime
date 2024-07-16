@@ -4,7 +4,7 @@ import { HTMLRewriter } from '../vendor/deno.land/x/html_rewriter@v0.1.0-pre.17/
 import { updateModifiedHeaders } from './headers.ts'
 import type { StructuredLogger } from './logging.ts'
 import { addMiddlewareHeaders, isMiddlewareRequest, isMiddlewareResponse } from './middleware.ts'
-import { RequestData } from './next-request.ts'
+import { NetlifyNextContext } from './next-request.ts'
 import {
   addBasePath,
   normalizeDataUrl,
@@ -20,20 +20,18 @@ export interface FetchEventResult {
 
 interface BuildResponseOptions {
   context: Context
-  logger: StructuredLogger
+  nextContext?: NetlifyNextContext
   request: Request
   result: FetchEventResult
-  nextConfig?: RequestData['nextConfig']
-  requestLocale?: string
+  logger: StructuredLogger
 }
 
 export const buildResponse = async ({
   context,
-  logger,
+  nextContext,
   request,
   result,
-  nextConfig,
-  requestLocale,
+  logger,
 }: BuildResponseOptions): Promise<Response | void> => {
   logger
     .withFields({ is_nextresponse_next: result.response.headers.has('x-middleware-next') })
@@ -185,9 +183,9 @@ export const buildResponse = async ({
     }
 
     // respect trailing slash rules to prevent 308s
-    rewriteUrl.pathname = normalizeTrailingSlash(rewriteUrl.pathname, nextConfig?.trailingSlash)
+    rewriteUrl.pathname = normalizeTrailingSlash(rewriteUrl.pathname, nextContext?.trailingSlash)
 
-    const target = normalizeLocalizedTarget({ target: rewriteUrl.toString(), request, nextConfig })
+    const target = normalizeLocalizedTarget({ target: rewriteUrl.toString(), request, nextContext })
     if (target === request.url) {
       logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
       return
@@ -198,8 +196,8 @@ export const buildResponse = async ({
   }
 
   // If we are redirecting a request that had a locale in the URL, we need to add it back in
-  if (redirect && requestLocale) {
-    redirect = normalizeLocalizedTarget({ target: redirect, request, nextConfig, requestLocale })
+  if (redirect && nextContext?.detectedLocale) {
+    redirect = normalizeLocalizedTarget({ target: redirect, request, nextContext })
     if (redirect === request.url) {
       logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
       return
@@ -233,28 +231,26 @@ export const buildResponse = async ({
 function normalizeLocalizedTarget({
   target,
   request,
-  nextConfig,
-  requestLocale,
+  nextContext,
 }: {
   target: string
   request: Request
-  nextConfig?: RequestData['nextConfig']
-  requestLocale?: string
+  nextContext?: NetlifyNextContext
 }) {
   const targetUrl = new URL(target, request.url)
 
-  const normalizedTarget = normalizeLocalePath(targetUrl.pathname, nextConfig?.i18n?.locales)
+  const normalizedTarget = normalizeLocalePath(targetUrl.pathname, nextContext?.i18n?.locales)
 
-  const locale = normalizedTarget.detectedLocale ?? requestLocale
+  const locale = normalizedTarget.detectedLocale ?? nextContext?.detectedLocale
   if (
     locale &&
     !normalizedTarget.pathname.startsWith(`/api/`) &&
     !normalizedTarget.pathname.startsWith(`/_next/static/`)
   ) {
     targetUrl.pathname =
-      addBasePath(`/${locale}${normalizedTarget.pathname}`, nextConfig?.basePath) || `/`
+      addBasePath(`/${locale}${normalizedTarget.pathname}`, nextContext?.basePath) || `/`
   } else {
-    targetUrl.pathname = addBasePath(normalizedTarget.pathname, nextConfig?.basePath) || `/`
+    targetUrl.pathname = addBasePath(normalizedTarget.pathname, nextContext?.basePath) || `/`
   }
   return targetUrl.toString()
 }

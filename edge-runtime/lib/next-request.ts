@@ -2,73 +2,66 @@ import type { Context } from '@netlify/edge-functions'
 
 import {
   addBasePath,
-  addTrailingSlash,
+  addLocale,
   normalizeDataUrl,
   normalizeLocalePath,
+  normalizeTrailingSlash,
   removeBasePath,
 } from './util.ts'
 
-interface I18NConfig {
-  defaultLocale: string
-  localeDetection?: false
-  locales: string[]
-}
+import type { NextConfig } from 'next/dist/server/config-shared'
+import type { NextRequest } from 'next/server'
 
-export interface RequestData {
-  geo?: {
-    city?: string
-    country?: string
-    region?: string
-    latitude?: string
-    longitude?: string
-    timezone?: string
-  }
-  headers: Record<string, string>
-  ip?: string
-  method: string
-  nextConfig?: {
-    basePath?: string
-    i18n?: I18NConfig | null
-    trailingSlash?: boolean
-    skipMiddlewareUrlNormalize?: boolean
-  }
-  page?: {
-    name?: string
-    params?: { [key: string]: string }
-  }
-  url: string
-  body?: ReadableStream<Uint8Array>
+export type NetlifyNextRequest = Pick<
+  NextRequest,
+  'url' | 'headers' | 'geo' | 'ip' | 'method' | 'body'
+>
+
+export type NetlifyNextContext = {
+  localizedUrl: string
   detectedLocale?: string
+  i18n?: NextConfig['i18n']
+  basePath?: NextConfig['basePath']
+  trailingSlash?: NextConfig['trailingSlash']
 }
 
-const normalizeRequestURL = (
-  originalURL: string,
-  nextConfig?: RequestData['nextConfig'],
-): { url: string; detectedLocale?: string } => {
+const normalizeRequestURL = (originalURL: string, nextConfig?: NextConfig): string => {
   const url = new URL(originalURL)
 
-  let pathname = removeBasePath(url.pathname, nextConfig?.basePath)
+  url.pathname = removeBasePath(url.pathname, nextConfig?.basePath)
 
-  // If it exists, remove the locale from the URL and store it
-  const { detectedLocale } = normalizeLocalePath(pathname, nextConfig?.i18n?.locales)
+  // We want to run middleware for data requests and expose the URL of the
+  // corresponding pages, so we have to normalize the URLs before running
+  // the handler.
+  url.pathname = normalizeDataUrl(url.pathname)
 
-  if (!nextConfig?.skipMiddlewareUrlNormalize) {
-    // We want to run middleware for data requests and expose the URL of the
-    // corresponding pages, so we have to normalize the URLs before running
-    // the handler.
-    pathname = normalizeDataUrl(pathname)
+  // Normalizing the trailing slash based on the `trailingSlash` configuration
+  // property from the Next.js config.
+  url.pathname = normalizeTrailingSlash(url.pathname, nextConfig?.trailingSlash)
 
-    // Normalizing the trailing slash based on the `trailingSlash` configuration
-    // property from the Next.js config.
-    if (nextConfig?.trailingSlash) {
-      pathname = addTrailingSlash(pathname)
-    }
-  }
+  url.pathname = addBasePath(url.pathname, nextConfig?.basePath)
 
-  url.pathname = addBasePath(pathname, nextConfig?.basePath)
+  return url.toString()
+}
+
+const localizeRequestURL = (
+  originalURL: string,
+  nextConfig?: NextConfig,
+): { localizedUrl: string; detectedLocale?: string } => {
+  const url = new URL(originalURL)
+
+  url.pathname = removeBasePath(url.pathname, nextConfig?.basePath)
+
+  // Detect the locale from the URL
+  const { detectedLocale } = normalizeLocalePath(url.pathname, nextConfig?.i18n?.locales)
+
+  // Add the locale to the URL if not already present
+  url.pathname = addLocale(url.pathname, detectedLocale ?? nextConfig?.i18n?.defaultLocale)
+
+  url.pathname = addBasePath(url.pathname, nextConfig?.basePath)
 
   return {
-    url: url.toString(),
+    localizedUrl: url.toString(),
     detectedLocale,
   }
 }
@@ -76,29 +69,43 @@ const normalizeRequestURL = (
 export const buildNextRequest = (
   request: Request,
   context: Context,
-  nextConfig?: RequestData['nextConfig'],
-): RequestData => {
+  nextConfig?: NextConfig,
+): { nextRequest: NetlifyNextRequest; nextContext: NetlifyNextContext } => {
   const { url, method, body, headers } = request
-  const { country, subdivision, city, latitude, longitude, timezone } = context.geo
-  const geo: RequestData['geo'] = {
-    city,
-    country: country?.code,
-    region: subdivision?.code,
-    latitude: latitude?.toString(),
-    longitude: longitude?.toString(),
-    timezone,
+  const { country, subdivision, city, latitude, longitude } = context.geo
+  const { i18n, basePath, trailingSlash } = nextConfig ?? {}
+
+  const normalizedUrl = nextConfig?.skipMiddlewareUrlNormalize
+    ? url
+    : normalizeRequestURL(url, nextConfig)
+
+  const { localizedUrl, detectedLocale } = localizeRequestURL(normalizedUrl, nextConfig)
+
+  const nextRequest: NetlifyNextRequest = {
+    url: normalizedUrl,
+    headers,
+    geo: {
+      city,
+      country: country?.code,
+      region: subdivision?.code,
+      latitude: latitude?.toString(),
+      longitude: longitude?.toString(),
+    },
+    ip: context.ip,
+    method,
+    body,
   }
 
-  const { detectedLocale, url: normalizedUrl } = normalizeRequestURL(url, nextConfig)
+  const nextContext = {
+    localizedUrl,
+    detectedLocale,
+    i18n,
+    trailingSlash,
+    basePath,
+  }
 
   return {
-    headers: Object.fromEntries(headers.entries()),
-    geo,
-    url: normalizedUrl,
-    method,
-    ip: context.ip,
-    body: body ?? undefined,
-    nextConfig,
-    detectedLocale,
+    nextRequest,
+    nextContext,
   }
 }
