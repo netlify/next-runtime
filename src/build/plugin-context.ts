@@ -177,17 +177,14 @@ export class PluginContext {
   }
 
   get useFrameworksAPI(): boolean {
-    // TODO: make this conditional
-    return true
+    // Defining RegExp pattern in edge function inline config is only supported since 29.50.5
+    const REQUIRED_BUILD_VERSION = '>=29.50.5'
+    return satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, { includePrerelease: true })
   }
 
   get blobsStrategy(): 'legacy' | 'regional' | 'frameworks-api' {
     if (this.useFrameworksAPI) {
       return 'frameworks-api'
-    }
-
-    if (!(this.featureFlags || {})['next-runtime-regional-blobs']) {
-      return 'legacy'
     }
 
     // Region-aware blobs are only available as of CLI v17.23.5 (i.e. Build v29.41.5)
@@ -202,7 +199,11 @@ export class PluginContext {
    * `.netlify/functions-internal`
    */
   get serverFunctionsDir(): string {
-    return this.resolveFromPackagePath('.netlify/v1/functions')
+    if (this.useFrameworksAPI) {
+      return this.resolveFromPackagePath('.netlify/v1/functions')
+    }
+
+    return this.resolveFromPackagePath('.netlify/functions-internal')
   }
 
   /** Absolute path of the server handler */
@@ -229,7 +230,11 @@ export class PluginContext {
    * `.netlify/edge-functions`
    */
   get edgeFunctionsDir(): string {
-    return this.resolveFromPackagePath('.netlify/v1/edge-functions')
+    if (this.useFrameworksAPI) {
+      return this.resolveFromPackagePath('.netlify/v1/edge-functions')
+    }
+
+    return this.resolveFromPackagePath('.netlify/edge-functions')
   }
 
   /** Absolute path of the edge handler */
