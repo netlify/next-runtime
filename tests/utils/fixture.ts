@@ -184,7 +184,7 @@ export async function runPluginStep(
       // EDGE_FUNCTIONS_DIST: '.netlify/edge-functions-dist/',
       // CACHE_DIR: '.netlify/cache',
       // IS_LOCAL: true,
-      // NETLIFY_BUILD_VERSION: '29.23.4',
+      NETLIFY_BUILD_VERSION: '29.50.5',
       // INTERNAL_FUNCTIONS_SRC: '.netlify/functions-internal',
       // INTERNAL_EDGE_FUNCTIONS_SRC: '.netlify/edge-functions',
     },
