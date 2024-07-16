@@ -298,28 +298,54 @@ export async function runPlugin(
     )
   }
 
-  await Promise.all([bundleEdgeFunctions(), bundleFunctions(), uploadBlobs(ctx, base.blobDir)])
+  await Promise.all([bundleEdgeFunctions(), bundleFunctions(), uploadBlobs(ctx, base)])
 
   return options
 }
 
-export async function uploadBlobs(ctx: FixtureTestContext, blobsDir: string) {
-  const files = await glob('**/*', {
-    dot: true,
-    cwd: blobsDir,
-  })
+export async function uploadBlobs(ctx: FixtureTestContext, pluginContext: PluginContext) {
+  if (pluginContext.blobsStrategy === 'frameworks-api') {
+    const files = await glob('**/blob', {
+      dot: true,
+      cwd: pluginContext.blobDir,
+    })
 
-  const keys = files.filter((file) => !basename(file).startsWith('$'))
-  await Promise.all(
-    keys.map(async (key) => {
-      const { dir, base } = parse(key)
-      const metaFile = join(blobsDir, dir, `$${base}.json`)
-      const metadata = await readFile(metaFile, 'utf-8')
-        .then((meta) => JSON.parse(meta))
-        .catch(() => ({}))
-      await ctx.blobStore.set(key, await readFile(join(blobsDir, key), 'utf-8'), { metadata })
-    }),
-  )
+    await Promise.all(
+      files.map(async (blobFilePath) => {
+        const { dir: key } = parse(blobFilePath)
+        const metaFile = join(pluginContext.blobDir, key, `blob.meta.json`)
+        const metadata = await readFile(metaFile, 'utf-8')
+          .then((meta) => JSON.parse(meta))
+          .catch(() => ({}))
+        await ctx.blobStore.set(
+          key,
+          await readFile(join(pluginContext.blobDir, blobFilePath), 'utf-8'),
+          {
+            metadata,
+          },
+        )
+      }),
+    )
+  } else {
+    const files = await glob('**/*', {
+      dot: true,
+      cwd: pluginContext.blobDir,
+    })
+
+    const keys = files.filter((file) => !basename(file).startsWith('$'))
+    await Promise.all(
+      keys.map(async (key) => {
+        const { dir, base } = parse(key)
+        const metaFile = join(pluginContext.blobDir, dir, `$${base}.json`)
+        const metadata = await readFile(metaFile, 'utf-8')
+          .then((meta) => JSON.parse(meta))
+          .catch(() => ({}))
+        await ctx.blobStore.set(key, await readFile(join(pluginContext.blobDir, key), 'utf-8'), {
+          metadata,
+        })
+      }),
+    )
+  }
 }
 
 const DEFAULT_FLAGS = {
