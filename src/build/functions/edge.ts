@@ -53,6 +53,9 @@ const augmentMatchers = (
   })
 }
 
+const getHandlerName = ({ name }: Pick<NextDefinition, 'name'>): string =>
+  `${EDGE_HANDLER_NAME}-${name.replace(/\W/g, '-')}`
+
 const writeHandlerFile = async (ctx: PluginContext, { matchers, name, page }: NextDefinition) => {
   const nextConfig = ctx.buildConfig
   const handlerName = getHandlerName({ name })
@@ -148,9 +151,6 @@ const createEdgeHandler = async (ctx: PluginContext, definition: NextDefinition)
   await copyHandlerDependencies(ctx, definition)
   await writeHandlerFile(ctx, definition)
 }
-
-const getHandlerName = ({ name }: Pick<NextDefinition, 'name'>): string =>
-  `${EDGE_HANDLER_NAME}-${name.replace(/\W/g, '-')}`
 
 const buildHandlerDefinition = (
   ctx: PluginContext,
