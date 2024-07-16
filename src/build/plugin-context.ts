@@ -176,22 +176,39 @@ export class PluginContext {
     return this.constants.NETLIFY_BUILD_VERSION || 'v0.0.0'
   }
 
+  // eslint-disable-next-line no-invalid-this
+  #useFrameworksAPI: typeof this.useFrameworksAPI | null = null
   get useFrameworksAPI(): boolean {
-    // Defining RegExp pattern in edge function inline config is only supported since 29.50.5
-    const REQUIRED_BUILD_VERSION = '>=29.50.5'
-    return satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, { includePrerelease: true })
-  }
-
-  get blobsStrategy(): 'legacy' | 'regional' | 'frameworks-api' {
-    if (this.useFrameworksAPI) {
-      return 'frameworks-api'
+    if (this.#useFrameworksAPI === null) {
+      // Defining RegExp pattern in edge function inline config is only supported since 29.50.5
+      const REQUIRED_BUILD_VERSION = '>=29.50.5'
+      this.#useFrameworksAPI = satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, {
+        includePrerelease: true,
+      })
     }
 
-    // Region-aware blobs are only available as of CLI v17.23.5 (i.e. Build v29.41.5)
-    const REQUIRED_BUILD_VERSION = '>=29.41.5'
-    return satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, { includePrerelease: true })
-      ? 'regional'
-      : 'legacy'
+    return this.#useFrameworksAPI
+  }
+
+  // eslint-disable-next-line no-invalid-this
+  #blobsStrategy: typeof this.blobsStrategy | null = null
+  get blobsStrategy(): 'legacy' | 'regional' | 'frameworks-api' {
+    if (this.#blobsStrategy === null) {
+      if (this.useFrameworksAPI) {
+        this.#blobsStrategy = 'frameworks-api'
+      } else {
+        // Region-aware blobs are only available as of CLI v17.23.5 (i.e. Build v29.41.5)
+        const REQUIRED_BUILD_VERSION = '>=29.41.5'
+        this.#blobsStrategy = satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, {
+          includePrerelease: true,
+        })
+          ? 'regional'
+          : 'legacy'
+      }
+      //
+    }
+
+    return this.#blobsStrategy
   }
 
   /**
