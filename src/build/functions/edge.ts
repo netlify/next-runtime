@@ -56,6 +56,19 @@ const augmentMatchers = (
 const getHandlerName = ({ name }: Pick<NextDefinition, 'name'>): string =>
   `${EDGE_HANDLER_NAME}-${name.replace(/\W/g, '-')}`
 
+const getEdgeFunctionSharedConfig = (
+  ctx: PluginContext,
+  { name, page }: Pick<NextDefinition, 'name' | 'page'>,
+) => {
+  return {
+    name: name.endsWith('middleware')
+      ? 'Next.js Middleware Handler'
+      : `Next.js Edge Handler: ${page}`,
+    cache: name.endsWith('middleware') ? undefined : ('manual' as const),
+    generator: `${ctx.pluginName}@${ctx.pluginVersion}`,
+  }
+}
+
 const writeHandlerFile = async (ctx: PluginContext, { matchers, name, page }: NextDefinition) => {
   const nextConfig = ctx.buildConfig
   const handlerName = getHandlerName({ name })
@@ -87,16 +100,13 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name, page }: Ne
     JSON.stringify(minimalNextConfig),
   )
 
-  const isc = ctx.useFrameworksAPI
-    ? `export const config = ${JSON.stringify({
-        name: name.endsWith('middleware')
-          ? 'Next.js Middleware Handler'
-          : `Next.js Edge Handler: ${page}`,
-        pattern: augmentedMatchers.map((matcher) => matcher.regexp),
-        cache: name.endsWith('middleware') ? undefined : 'manual',
-        generator: `${ctx.pluginName}@${ctx.pluginVersion}`,
-      } satisfies IntegrationsConfig)};`
-    : ``
+  const isc =
+    ctx.edgeFunctionsConfigStrategy === 'inline'
+      ? `export const config = ${JSON.stringify({
+          ...getEdgeFunctionSharedConfig(ctx, { name, page }),
+          pattern: augmentedMatchers.map((matcher) => matcher.regexp),
+        } satisfies IntegrationsConfig)};`
+      : ``
 
   // Writing the function entry file. It wraps the middleware code with the
   // compatibility layer mentioned above.
@@ -157,18 +167,11 @@ const buildHandlerDefinition = (
   { name, matchers, page }: NextDefinition,
 ): Array<ManifestFunction> => {
   const fun = getHandlerName({ name })
-  const funName = name.endsWith('middleware')
-    ? 'Next.js Middleware Handler'
-    : `Next.js Edge Handler: ${page}`
-  const cache = name.endsWith('middleware') ? undefined : ('manual' as const)
-  const generator = `${ctx.pluginName}@${ctx.pluginVersion}`
 
   return augmentMatchers(matchers, ctx).map((matcher) => ({
+    ...getEdgeFunctionSharedConfig(ctx, { name, page }),
     function: fun,
-    name: funName,
     pattern: matcher.regexp,
-    cache,
-    generator,
   }))
 }
 
@@ -184,7 +187,7 @@ export const createEdgeHandlers = async (ctx: PluginContext) => {
   ]
   await Promise.all(nextDefinitions.map((def) => createEdgeHandler(ctx, def)))
 
-  if (!ctx.useFrameworksAPI) {
+  if (ctx.edgeFunctionsConfigStrategy === 'manifest') {
     const netlifyDefinitions = nextDefinitions.flatMap((def) => buildHandlerDefinition(ctx, def))
     const netlifyManifest: Manifest = {
       version: 1,

@@ -253,6 +253,10 @@ export class PluginContext {
     return this.resolveFromPackagePath('.netlify/edge-functions')
   }
 
+  get edgeFunctionsConfigStrategy(): 'manifest' | 'inline' {
+    return this.useFrameworksAPI ? 'inline' : 'manifest'
+  }
+
   /** Absolute path of the edge handler */
   get edgeHandlerDir(): string {
     return join(this.edgeFunctionsDir, EDGE_HANDLER_NAME)
