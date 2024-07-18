@@ -30,7 +30,11 @@ export const addBasePath = (path: string, basePath?: string) => {
 }
 
 export const addLocale = (path: string, locale?: string) => {
-  if (locale && path !== `/${locale}` && !path.startsWith(`/${locale}/`)) {
+  if (
+    locale &&
+    path.toLowerCase() !== `/${locale.toLowerCase()}` &&
+    !path.toLowerCase().startsWith(`/${locale.toLowerCase()}/`)
+  ) {
     return `/${locale}${path}`
   }
   return path
@@ -54,18 +58,27 @@ export interface PathLocale {
  */
 export function normalizeLocalePath(pathname: string, locales?: string[]): PathLocale {
   let detectedLocale: string | undefined
-  // first item will be empty string from splitting at first char
-  const pathnameParts = pathname.split('/')
 
-  ;(locales || []).some((locale) => {
-    if (pathnameParts[1] && pathnameParts[1].toLowerCase() === locale.toLowerCase()) {
-      detectedLocale = locale
-      pathnameParts.splice(1, 1)
-      pathname = pathnameParts.join('/')
-      return true
+  // normalize the locales to lowercase
+  const normalizedLocales = locales?.map((loc) => loc.toLowerCase())
+
+  // split the pathname into parts, removing the leading slash
+  const pathnameParts = pathname.substring(1).split('/')
+
+  // split the first part of the pathname to check if it's a locale
+  const localeParts = pathnameParts[0].toLowerCase().split('-')
+
+  // check if the first part of the pathname is a locale
+  // by matching the given locales, with decreasing specificity
+  for (let i = localeParts.length; i > 0; i--) {
+    const localePart = localeParts.slice(0, i).join('-')
+    if (normalizedLocales?.includes(localePart)) {
+      detectedLocale = localeParts.join('-')
+      pathname = `/${pathnameParts.slice(1).join('/')}`
+      break
     }
-    return false
-  })
+  }
+
   return {
     pathname,
     detectedLocale,
