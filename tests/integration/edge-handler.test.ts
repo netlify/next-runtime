@@ -267,7 +267,10 @@ describe("aborts middleware execution when the matcher conditions don't match th
         origin,
         url: path,
       })
-      expect(response.headers.has('x-hello-from-middleware-res'), `does match ${path}`).toBeTruthy()
+      expect(
+        response.headers.has('x-hello-from-middleware-res'),
+        `does not match ${path}`,
+      ).toBeTruthy()
       expect(await response.text()).toBe('Hello from origin!')
       expect(response.status).toBe(200)
     }
