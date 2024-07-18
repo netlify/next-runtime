@@ -40,7 +40,7 @@ export async function handleMiddleware(
     .withRequestID(request.headers.get(InternalHeaders.NFRequestID))
 
   const { nextRequest, nextContext } = buildNextRequest(request, context, nextConfig)
-  const localizedPath = new URL(nextContext.localizedUrl).pathname
+  const { pathname: localizedPath } = new URL(nextContext.localizedUrl)
 
   // While we have already checked the path when mapping to the edge function,
   // Next.js supports extra rules that we need to check here too, because we
