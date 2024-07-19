@@ -29,11 +29,13 @@ export const addBasePath = (path: string, basePath?: string) => {
   return path
 }
 
+// add locale prefix if not present, allowing for locale fallbacks
 export const addLocale = (path: string, locale?: string) => {
   if (
     locale &&
     path.toLowerCase() !== `/${locale.toLowerCase()}` &&
-    !path.toLowerCase().startsWith(`/${locale.toLowerCase()}/`)
+    !path.toLowerCase().startsWith(`/${locale.toLowerCase()}/`) &&
+    !path.toLowerCase().startsWith(`/${locale.toLowerCase()}-`)
   ) {
     return `/${locale}${path}`
   }
