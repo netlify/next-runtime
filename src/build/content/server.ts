@@ -284,9 +284,9 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
   await tracer.withActiveSpan('copyNextDependencies', async () => {
     const entries = await readdir(ctx.standaloneDir)
     const promises: Promise<void>[] = entries.map(async (entry) => {
-      // copy all except the package.json and distDir (.next) folder as this is handled in a separate function
+      // copy all except the distDir (.next) folder as this is handled in a separate function
       // this will include the node_modules folder as well
-      if (entry === 'package.json' || entry === ctx.nextDistDir) {
+      if (entry === ctx.nextDistDir) {
         return
       }
       const src = join(ctx.standaloneDir, entry)

@@ -53,11 +53,20 @@ const copyHandlerDependencies = async (ctx: PluginContext) => {
       )
     }
 
+    // We need to create a package.json file with type: module to make sure that the runtime modules
+    // are handled correctly as ESM modules
+    promises.push(
+      writeFile(
+        join(ctx.serverHandlerRuntimeModulesDir, 'package.json'),
+        JSON.stringify({ type: 'module' }),
+      ),
+    )
+
     const fileList = await glob('dist/**/*', { cwd: ctx.pluginDir })
 
     for (const filePath of fileList) {
       promises.push(
-        cp(join(ctx.pluginDir, filePath), join(ctx.serverHandlerDir, '.netlify', filePath), {
+        cp(join(ctx.pluginDir, filePath), join(ctx.serverHandlerRuntimeModulesDir, filePath), {
           recursive: true,
           force: true,
         }),
@@ -82,13 +91,6 @@ const writeHandlerManifest = async (ctx: PluginContext) => {
       version: 1,
     }),
     'utf-8',
-  )
-}
-
-const writePackageMetadata = async (ctx: PluginContext) => {
-  await writeFile(
-    join(ctx.serverHandlerRootDir, 'package.json'),
-    JSON.stringify({ type: 'module' }),
   )
 }
 
@@ -138,7 +140,7 @@ export const clearStaleServerHandlers = async (ctx: PluginContext) => {
  */
 export const createServerHandler = async (ctx: PluginContext) => {
   await tracer.withActiveSpan('createServerHandler', async () => {
-    await mkdir(join(ctx.serverHandlerDir, '.netlify'), { recursive: true })
+    await mkdir(join(ctx.serverHandlerRuntimeModulesDir), { recursive: true })
 
     await copyNextServerCode(ctx)
     await copyNextDependencies(ctx)
@@ -146,7 +148,6 @@ export const createServerHandler = async (ctx: PluginContext) => {
     if (!ctx.useFrameworksAPI) {
       await writeHandlerManifest(ctx)
     }
-    await writePackageMetadata(ctx)
     await writeHandlerFile(ctx)
 
     await verifyHandlerDirStructure(ctx)
