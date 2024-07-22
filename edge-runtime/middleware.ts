@@ -5,7 +5,7 @@ import nextConfig from './next.config.json' with { type: 'json' }
 
 import { InternalHeaders } from './lib/headers.ts'
 import { logger, LogLevel } from './lib/logging.ts'
-import { buildNextRequest, NetlifyNextRequest } from './lib/next-request.ts'
+import { buildNextRequest, localizeRequest, NetlifyNextRequest } from './lib/next-request.ts'
 import { buildResponse, FetchEventResult } from './lib/response.ts'
 import {
   getMiddlewareRouteMatcher,
@@ -39,14 +39,15 @@ export async function handleMiddleware(
     .withFields({ url_path: url.pathname })
     .withRequestID(request.headers.get(InternalHeaders.NFRequestID))
 
-  const { nextRequest, nextContext } = buildNextRequest(request, context, nextConfig)
-  const { pathname: localizedPath } = new URL(nextContext.localizedUrl)
+  const nextRequest = buildNextRequest(request, context, nextConfig)
+  const { localizedUrl, locale } = localizeRequest(url, nextConfig)
+  const query = searchParamsToUrlQuery(url.searchParams)
 
   // While we have already checked the path when mapping to the edge function,
   // Next.js supports extra rules that we need to check here too, because we
   // might be running an edge function for a path we should not. If we find
   // that's the case, short-circuit the execution.
-  if (!matchesMiddleware(localizedPath, request, searchParamsToUrlQuery(url.searchParams))) {
+  if (!matchesMiddleware(localizedUrl.pathname, request, query)) {
     reqLogger.debug('Aborting middleware due to runtime rules')
     return
   }
@@ -55,7 +56,8 @@ export async function handleMiddleware(
     const result = await nextHandler({ request: nextRequest })
     const response = await buildResponse({
       context,
-      nextContext,
+      config: nextRequest.nextConfig,
+      locale,
       request,
       result,
       logger: reqLogger,

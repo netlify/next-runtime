@@ -10,24 +10,12 @@ import {
 } from './util.ts'
 
 import type { NextConfig } from 'next/dist/server/config-shared'
-import type { NextRequest } from 'next/server'
+import type { NextRequest, RequestInit } from 'next/dist/server/web/spec-extension/request.js'
 
-export type NetlifyNextRequest = Pick<
-  NextRequest,
-  'url' | 'headers' | 'geo' | 'ip' | 'method' | 'body'
->
+export type NetlifyNextRequest = RequestInit &
+  Pick<NextRequest, 'url' | 'headers' | 'geo' | 'ip' | 'method' | 'body'>
 
-export type NetlifyNextContext = {
-  localizedUrl: string
-  detectedLocale?: string
-  i18n?: NextConfig['i18n']
-  basePath?: NextConfig['basePath']
-  trailingSlash?: NextConfig['trailingSlash']
-}
-
-const normalizeRequestURL = (originalURL: string, nextConfig?: NextConfig): string => {
-  const url = new URL(originalURL)
-
+const normalizeRequest = (url: URL, nextConfig?: NextConfig): URL => {
   url.pathname = removeBasePath(url.pathname, nextConfig?.basePath)
 
   // We want to run middleware for data requests and expose the URL of the
@@ -41,15 +29,13 @@ const normalizeRequestURL = (originalURL: string, nextConfig?: NextConfig): stri
 
   url.pathname = addBasePath(url.pathname, nextConfig?.basePath)
 
-  return url.toString()
+  return url
 }
 
-const localizeRequestURL = (
-  originalURL: string,
+export const localizeRequest = (
+  url: URL,
   nextConfig?: NextConfig,
-): { localizedUrl: string; detectedLocale?: string } => {
-  const url = new URL(originalURL)
-
+): { localizedUrl: URL; locale?: string } => {
   url.pathname = removeBasePath(url.pathname, nextConfig?.basePath)
 
   // Detect the locale from the URL
@@ -61,8 +47,8 @@ const localizeRequestURL = (
   url.pathname = addBasePath(url.pathname, nextConfig?.basePath)
 
   return {
-    localizedUrl: url.toString(),
-    detectedLocale,
+    localizedUrl: url,
+    locale: detectedLocale,
   }
 }
 
@@ -70,19 +56,18 @@ export const buildNextRequest = (
   request: Request,
   context: Context,
   nextConfig?: NextConfig,
-): { nextRequest: NetlifyNextRequest; nextContext: NetlifyNextContext } => {
-  const { url, method, body, headers } = request
+): NetlifyNextRequest => {
+  const { method, body, headers } = request
   const { country, subdivision, city, latitude, longitude } = context.geo
   const { i18n, basePath, trailingSlash } = nextConfig ?? {}
 
+  const url = new URL(request.url)
   const normalizedUrl = nextConfig?.skipMiddlewareUrlNormalize
     ? url
-    : normalizeRequestURL(url, nextConfig)
+    : normalizeRequest(url, nextConfig)
 
-  const { localizedUrl, detectedLocale } = localizeRequestURL(normalizedUrl, nextConfig)
-
-  const nextRequest: NetlifyNextRequest = {
-    url: normalizedUrl,
+  return {
+    url: normalizedUrl.toString(),
     headers,
     geo: {
       city,
@@ -94,18 +79,10 @@ export const buildNextRequest = (
     ip: context.ip,
     method,
     body,
-  }
-
-  const nextContext = {
-    localizedUrl,
-    detectedLocale,
-    i18n,
-    trailingSlash,
-    basePath,
-  }
-
-  return {
-    nextRequest,
-    nextContext,
+    nextConfig: {
+      i18n,
+      basePath,
+      trailingSlash,
+    },
   }
 }
