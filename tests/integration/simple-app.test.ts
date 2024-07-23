@@ -245,6 +245,20 @@ test.skipIf(process.env.NEXT_VERSION !== 'canary')<FixtureTestContext>(
   },
 )
 
+test<FixtureTestContext>('can require CJS module that is not bundled', async (ctx) => {
+  await createFixture('simple', ctx)
+  await runPlugin(ctx)
+
+  const response = await invokeFunction(ctx, { url: '/api/cjs-file-with-js-extension' })
+
+  expect(response.statusCode).toBe(200)
+
+  const parsedBody = JSON.parse(response.body)
+
+  expect(parsedBody.notBundledCJSModule.isBundled).toEqual(false)
+  expect(parsedBody.bundledCJSModule.isBundled).toEqual(true)
+})
+
 describe('next patching', async () => {
   const { cp: originalCp, appendFile } = (await vi.importActual(
     'node:fs/promises',

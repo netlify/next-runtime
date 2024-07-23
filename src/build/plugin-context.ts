@@ -182,6 +182,10 @@ export class PluginContext {
     return join(this.serverHandlerRootDir, this.distDirParent)
   }
 
+  get serverHandlerRuntimeModulesDir(): string {
+    return join(this.serverHandlerDir, '.netlify')
+  }
+
   get nextServerHandler(): string {
     if (this.relativeAppDir.length !== 0) {
       return join(this.lambdaWorkingDirectory, '.netlify/dist/run/handlers/server.js')
