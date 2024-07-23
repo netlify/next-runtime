@@ -248,7 +248,7 @@ describe("aborts middleware execution when the matcher conditions don't match th
     expect(origin.calls).toBe(2)
   })
 
-  test.only<FixtureTestContext>('should handle locale matching correctly', async (ctx) => {
+  test<FixtureTestContext>('should handle locale matching correctly', async (ctx) => {
     await createFixture('middleware-conditions', ctx)
     await runPlugin(ctx)
 
