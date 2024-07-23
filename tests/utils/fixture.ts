@@ -54,6 +54,20 @@ async function installDependencies(cwd: string) {
 export const getFixtureSourceDirectory = (fixture: string) =>
   fileURLToPath(new URL(`../fixtures/${fixture}`, import.meta.url))
 
+// https://github.com/vercel/next.js/pull/67539 added more imports to "globals" modules which does have a side effect at import time
+// that defines NOT configurable global property ( https://github.com/vercel/next.js/blob/ba3959bb46f4d0e92403304579b8fb30d3ecc3d1/packages/next/src/server/web/globals.ts#L87-L107 ).
+// Running multiple fixtures in the same process then would evaluate copy of that module
+// and attempt to redefine that not configurable property which result in an error. We can't delete that property either, so
+// this "patch" to Object.defineProperty is making that property configurable when running our tests to avoid that error.
+const originalDefineProperty = Object.defineProperty
+Object.defineProperty = function (target, property, descriptor) {
+  if (property === '__import_unsupported' && descriptor?.configurable === false) {
+    descriptor.configurable = true
+  }
+
+  return originalDefineProperty.call(this, target, property, descriptor)
+}
+
 /**
  * Copies a fixture to a temp folder on the system and runs the tests inside.
  * @param fixture name of the folder inside the fixtures folder
