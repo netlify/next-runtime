@@ -244,6 +244,10 @@ export class PluginContext {
     return './.netlify/dist/run/handlers/server.js'
   }
 
+  get serverHandlerConfigStrategy(): 'manifest' | 'inline' {
+    return this.useFrameworksAPI ? 'inline' : 'manifest'
+  }
+
   /**
    * Absolute path of the directory containing the files for deno edge functions
    * frameworks api: `.netlify/v1/edge-functions`

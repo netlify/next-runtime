@@ -145,7 +145,7 @@ export const createServerHandler = async (ctx: PluginContext) => {
     await copyNextServerCode(ctx)
     await copyNextDependencies(ctx)
     await copyHandlerDependencies(ctx)
-    if (!ctx.useFrameworksAPI) {
+    if (ctx.serverHandlerConfigStrategy === 'manifest') {
       await writeHandlerManifest(ctx)
     }
     await writeHandlerFile(ctx)
