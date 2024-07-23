@@ -252,3 +252,14 @@ test('Compressed rewrites are readable', async ({ simple }) => {
   expect(resp.headers.get('content-encoding')).toEqual('br')
   expect(await resp.text()).toContain('<title>Example Domain</title>')
 })
+
+test('can require CJS module that is not bundled', async ({ simple }) => {
+  const resp = await fetch(`${simple.url}/api/cjs-file-with-js-extension`)
+
+  expect(resp.status).toBe(200)
+
+  const parsedBody = await resp.json()
+
+  expect(parsedBody.notBundledCJSModule.isBundled).toEqual(false)
+  expect(parsedBody.bundledCJSModule.isBundled).toEqual(true)
+})
