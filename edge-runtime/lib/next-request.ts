@@ -12,8 +12,8 @@ import {
 import type { NextConfig } from 'next/dist/server/config-shared'
 import type { NextRequest, RequestInit } from 'next/dist/server/web/spec-extension/request.js'
 
-export type NetlifyNextRequest = RequestInit &
-  Pick<NextRequest, 'url' | 'geo' | 'ip' | 'method' | 'body'> & {
+export type NetlifyNextRequest = Partial<Omit<NextRequest, 'headers'>> &
+  RequestInit & {
     headers: HeadersInit
   }
 
