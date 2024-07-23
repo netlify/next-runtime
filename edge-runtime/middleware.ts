@@ -32,6 +32,8 @@ export async function handleMiddleware(
   nextHandler: NextHandler,
 ) {
   const url = new URL(request.url)
+  const query = searchParamsToUrlQuery(url.searchParams)
+  const { localizedUrl, locale } = localizeRequest(url, nextConfig)
   const reqLogger = logger
     .withLogLevel(
       request.headers.has(InternalHeaders.NFDebugLogging) ? LogLevel.Debug : LogLevel.Log,
@@ -39,9 +41,10 @@ export async function handleMiddleware(
     .withFields({ url_path: url.pathname })
     .withRequestID(request.headers.get(InternalHeaders.NFRequestID))
 
+  // Convert the incoming request to a Next.js request, which includes
+  // normalizing the URL, adding geo and IP information and converting
+  // the headers to a plain object, among other things.
   const nextRequest = buildNextRequest(request, context, nextConfig)
-  const { localizedUrl, locale } = localizeRequest(url, nextConfig)
-  const query = searchParamsToUrlQuery(url.searchParams)
 
   // While we have already checked the path when mapping to the edge function,
   // Next.js supports extra rules that we need to check here too, because we
@@ -56,7 +59,7 @@ export async function handleMiddleware(
     const result = await nextHandler({ request: nextRequest })
     const response = await buildResponse({
       context,
-      config: nextRequest.nextConfig,
+      nextConfig: nextRequest.nextConfig,
       locale,
       request,
       result,

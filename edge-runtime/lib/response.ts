@@ -20,7 +20,7 @@ export interface FetchEventResult {
 
 interface BuildResponseOptions {
   context: Context
-  config?: NetlifyNextRequest['nextConfig']
+  nextConfig?: NetlifyNextRequest['nextConfig']
   locale?: string
   request: Request
   result: FetchEventResult
@@ -29,7 +29,7 @@ interface BuildResponseOptions {
 
 export const buildResponse = async ({
   context,
-  config,
+  nextConfig,
   locale,
   request,
   result,
@@ -185,9 +185,9 @@ export const buildResponse = async ({
     }
 
     // respect trailing slash rules to prevent 308s
-    rewriteUrl.pathname = normalizeTrailingSlash(rewriteUrl.pathname, config?.trailingSlash)
+    rewriteUrl.pathname = normalizeTrailingSlash(rewriteUrl.pathname, nextConfig?.trailingSlash)
 
-    const target = normalizeLocalizedTarget({ target: rewriteUrl.toString(), request, config })
+    const target = normalizeLocalizedTarget({ target: rewriteUrl.toString(), request, nextConfig })
     if (target === request.url) {
       logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
       return
@@ -199,7 +199,7 @@ export const buildResponse = async ({
 
   // If we are redirecting a request that had a locale in the URL, we need to add it back in
   if (redirect && locale) {
-    redirect = normalizeLocalizedTarget({ target: redirect, request, config })
+    redirect = normalizeLocalizedTarget({ target: redirect, request, nextConfig })
     if (redirect === request.url) {
       logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
       return
@@ -233,16 +233,16 @@ export const buildResponse = async ({
 function normalizeLocalizedTarget({
   target,
   request,
-  config,
+  nextConfig,
   locale,
 }: {
   target: string
   request: Request
-  config?: NetlifyNextRequest['nextConfig']
+  nextConfig?: NetlifyNextRequest['nextConfig']
   locale?: string
 }) {
   const targetUrl = new URL(target, request.url)
-  const normalizedTarget = normalizeLocalePath(targetUrl.pathname, config?.i18n?.locales)
+  const normalizedTarget = normalizeLocalePath(targetUrl.pathname, nextConfig?.i18n?.locales)
   const targetPathname = normalizedTarget.pathname
   const targetLocale = normalizedTarget.detectedLocale ?? locale
 
@@ -251,9 +251,10 @@ function normalizeLocalizedTarget({
     !targetPathname.startsWith(`/api/`) &&
     !targetPathname.startsWith(`/_next/static/`)
   ) {
-    targetUrl.pathname = addBasePath(`/${targetLocale}${targetPathname}`, config?.basePath) || `/`
+    targetUrl.pathname =
+      addBasePath(`/${targetLocale}${targetPathname}`, nextConfig?.basePath) || `/`
   } else {
-    targetUrl.pathname = addBasePath(targetPathname, config?.basePath) || `/`
+    targetUrl.pathname = addBasePath(targetPathname, nextConfig?.basePath) || `/`
   }
   return targetUrl.toString()
 }
