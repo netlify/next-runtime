@@ -261,7 +261,7 @@ describe("aborts middleware execution when the matcher conditions don't match th
 
     ctx.cleanup?.push(() => origin.stop())
 
-    for (const path of ['/hello', '/en/hello', '/nl-NL/about']) {
+    for (const path of ['/hello', '/en/hello', '/es/hello', '/nl/about']) {
       const response = await invokeEdgeFunction(ctx, {
         functions: ['___netlify-edge-handler-middleware'],
         origin,
@@ -275,7 +275,7 @@ describe("aborts middleware execution when the matcher conditions don't match th
       expect(response.status).toBe(200)
     }
 
-    for (const path of ['/hello/invalid', '/invalid/hello', '/about', '/en/about']) {
+    for (const path of ['/hello/invalid', '/invalid/hello', '/about', '/en/about', '/es/about']) {
       const response = await invokeEdgeFunction(ctx, {
         functions: ['___netlify-edge-handler-middleware'],
         origin,
