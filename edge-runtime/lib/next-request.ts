@@ -13,7 +13,9 @@ import type { NextConfig } from 'next/dist/server/config-shared'
 import type { NextRequest, RequestInit } from 'next/dist/server/web/spec-extension/request.js'
 
 export type NetlifyNextRequest = RequestInit &
-  Pick<NextRequest, 'url' | 'headers' | 'geo' | 'ip' | 'method' | 'body'>
+  Pick<NextRequest, 'url' | 'geo' | 'ip' | 'method' | 'body'> & {
+    headers: HeadersInit
+  }
 
 const normalizeRequest = (url: URL, nextConfig?: NextConfig): URL => {
   url.pathname = removeBasePath(url.pathname, nextConfig?.basePath)
@@ -68,7 +70,7 @@ export const buildNextRequest = (
 
   return {
     url: normalizedUrl.toString(),
-    headers,
+    headers: Object.fromEntries(headers.entries()),
     geo: {
       city,
       country: country?.code,
