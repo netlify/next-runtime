@@ -35,7 +35,8 @@ export const addLocale = (path: string, locale?: string) => {
     locale &&
     path.toLowerCase() !== `/${locale.toLowerCase()}` &&
     !path.toLowerCase().startsWith(`/${locale.toLowerCase()}/`) &&
-    !path.toLowerCase().startsWith(`/${locale.toLowerCase()}-`)
+    !path.startsWith(`/api/`) &&
+    !path.startsWith(`/_next/static/`)
   ) {
     return `/${locale}${path}`
   }

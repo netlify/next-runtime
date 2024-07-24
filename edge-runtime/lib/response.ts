@@ -5,13 +5,7 @@ import { updateModifiedHeaders } from './headers.ts'
 import type { StructuredLogger } from './logging.ts'
 import { addMiddlewareHeaders, isMiddlewareRequest, isMiddlewareResponse } from './middleware.ts'
 import { NetlifyNextRequest } from './next-request.ts'
-import {
-  addBasePath,
-  normalizeDataUrl,
-  normalizeLocalePath,
-  normalizeTrailingSlash,
-  relativizeURL,
-} from './util.ts'
+import { normalizeDataUrl, normalizeTrailingSlash, relativizeURL } from './util.ts'
 
 export interface FetchEventResult {
   response: Response
@@ -187,24 +181,10 @@ export const buildResponse = async ({
     // respect trailing slash rules to prevent 308s
     rewriteUrl.pathname = normalizeTrailingSlash(rewriteUrl.pathname, nextConfig?.trailingSlash)
 
-    const target = normalizeLocalizedTarget({ target: rewriteUrl.toString(), request, nextConfig })
-    if (target === request.url) {
-      logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
-      return
-    }
+    const target = rewriteUrl.toString()
     res.headers.set('x-middleware-rewrite', relativeUrl)
     request.headers.set('x-middleware-rewrite', target)
     return addMiddlewareHeaders(context.rewrite(target), res)
-  }
-
-  // If we are redirecting a request that had a locale in the URL, we need to add it back in
-  if (redirect && locale) {
-    redirect = normalizeLocalizedTarget({ target: redirect, request, nextConfig })
-    if (redirect === request.url) {
-      logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
-      return
-    }
-    res.headers.set('location', redirect)
   }
 
   // Data requests shouldn't automatically redirect in the browser (they might be HTML pages): they're handled by the router
@@ -225,36 +205,4 @@ export const buildResponse = async ({
   }
 
   return res
-}
-
-/**
- * Normalizes the locale in a URL.
- */
-function normalizeLocalizedTarget({
-  target,
-  request,
-  nextConfig,
-  locale,
-}: {
-  target: string
-  request: Request
-  nextConfig?: NetlifyNextRequest['nextConfig']
-  locale?: string
-}) {
-  const targetUrl = new URL(target, request.url)
-  const normalizedTarget = normalizeLocalePath(targetUrl.pathname, nextConfig?.i18n?.locales)
-  const targetPathname = normalizedTarget.pathname
-  const targetLocale = normalizedTarget.detectedLocale ?? locale
-
-  if (
-    targetLocale &&
-    !targetPathname.startsWith(`/api/`) &&
-    !targetPathname.startsWith(`/_next/static/`)
-  ) {
-    targetUrl.pathname =
-      addBasePath(`/${targetLocale}${targetPathname}`, nextConfig?.basePath) || `/`
-  } else {
-    targetUrl.pathname = addBasePath(targetPathname, nextConfig?.basePath) || `/`
-  }
-  return targetUrl.toString()
 }
