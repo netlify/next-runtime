@@ -93,8 +93,8 @@ given prefix, run `npm run pretest -- <prefix>`.
 > Needs the `netlify-cli` installed and being logged in having access to Netlify Testing
 > Organization or providing your own site ID with NETLIFY_SITE_ID environment variable.
 
-The e2e tests can be invoked with `npm run e2e` and perform a full e2e test. This means they do the
-following:
+The e2e tests can be invoked with `npm run test:e2e` and perform a full e2e test. This means they do
+the following:
 
 1. Building the next-runtime (just running `npm run build` in the repository)
 2. Creating a temp directory and copying the provided fixture over to the directory.
@@ -113,7 +113,7 @@ following:
    purposes.
 
 > [!TIP] If you'd like to always keep the deployment and the local fixture around for
-> troubleshooting, run `E2E_PERSIST=1 npm run e2e`.
+> troubleshooting, run `E2E_PERSIST=1 npm run test:e2e`.
 
 ### Next.js tests
 
