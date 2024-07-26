@@ -2,6 +2,7 @@
 import execa from 'execa'
 import fs from 'fs-extra'
 import { Span } from 'next/src/trace'
+import { tmpdir } from 'node:os'
 import path from 'path'
 import { NextInstance } from './base'
 
@@ -12,6 +13,31 @@ type NetlifyDeployResponse = {
   deploy_id: string
   deploy_url: string
   logs: string
+}
+
+async function packNextRuntimeImpl() {
+  const runtimePackDir = await fs.mkdtemp(path.join(tmpdir(), 'next-runtime-pack'))
+
+  const { stdout } = await execa(
+    'npm',
+    ['pack', '--json', '--ignore-scripts', `--pack-destination=${runtimePackDir}`],
+    { cwd: process.env.RUNTIME_DIR || `${process.cwd()}/../next-runtime` },
+  )
+  const [{ filename, name }] = JSON.parse(stdout)
+
+  return {
+    runtimePackageName: name,
+    runtimePackageTarballPath: path.join(runtimePackDir, filename),
+  }
+}
+
+let packNextRuntimePromise: ReturnType<typeof packNextRuntimeImpl> | null = null
+function packNextRuntime() {
+  if (!packNextRuntimePromise) {
+    packNextRuntimePromise = packNextRuntimeImpl()
+  }
+
+  return packNextRuntimePromise
 }
 
 export class NextDeployInstance extends NextInstance {
@@ -45,8 +71,10 @@ export class NextDeployInstance extends NextInstance {
       await fs.rename(nodeModules, nodeModulesBak)
     }
 
+    const { runtimePackageName, runtimePackageTarballPath } = await packNextRuntime()
+
     // install dependencies
-    await execa('npm', ['i', '--legacy-peer-deps'], {
+    await execa('npm', ['i', runtimePackageTarballPath, '--legacy-peer-deps'], {
       cwd: this.testDir,
       stdio: 'inherit',
     })
@@ -68,10 +96,7 @@ export class NextDeployInstance extends NextInstance {
           publish = ".next"
 
           [[plugins]]
-          package = "${path.relative(
-            this.testDir,
-            process.env.RUNTIME_DIR || `${process.cwd()}/../next-runtime`,
-          )}"
+          package = "${runtimePackageName}"
           `
 
       await fs.writeFile(path.join(this.testDir, 'netlify.toml'), toml)
