@@ -261,18 +261,7 @@ describe("aborts middleware execution when the matcher conditions don't match th
 
     ctx.cleanup?.push(() => origin.stop())
 
-    for (const path of ['/hello', '/en/hello', '/nl-NL/hello', '/nl-NL/about']) {
-      const response = await invokeEdgeFunction(ctx, {
-        functions: ['___netlify-edge-handler-middleware'],
-        origin,
-        url: path,
-      })
-      expect(response.headers.has('x-hello-from-middleware-res'), `does match ${path}`).toBeTruthy()
-      expect(await response.text()).toBe('Hello from origin!')
-      expect(response.status).toBe(200)
-    }
-
-    for (const path of ['/hello/invalid', '/about', '/en/about']) {
+    for (const path of ['/hello', '/en/hello', '/nl/hello', '/nl/about']) {
       const response = await invokeEdgeFunction(ctx, {
         functions: ['___netlify-edge-handler-middleware'],
         origin,
@@ -280,7 +269,21 @@ describe("aborts middleware execution when the matcher conditions don't match th
       })
       expect(
         response.headers.has('x-hello-from-middleware-res'),
-        `does not match ${path}`,
+        `should match ${path}`,
+      ).toBeTruthy()
+      expect(await response.text()).toBe('Hello from origin!')
+      expect(response.status).toBe(200)
+    }
+
+    for (const path of ['/invalid/hello', '/hello/invalid', '/about', '/en/about']) {
+      const response = await invokeEdgeFunction(ctx, {
+        functions: ['___netlify-edge-handler-middleware'],
+        origin,
+        url: path,
+      })
+      expect(
+        response.headers.has('x-hello-from-middleware-res'),
+        `should not match ${path}`,
       ).toBeFalsy()
       expect(await response.text()).toBe('Hello from origin!')
       expect(response.status).toBe(200)
