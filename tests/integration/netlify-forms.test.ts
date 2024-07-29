@@ -38,5 +38,5 @@ it<FixtureTestContext>('should not fail build when netlify forms are used with w
 
   const runPluginPromise = runPlugin(ctx)
 
-  await expect(runPluginPromise).resolves
+  await expect(runPluginPromise).resolves.not.toThrow()
 })
