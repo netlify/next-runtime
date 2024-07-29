@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.6.0](https://github.com/netlify/next-runtime/compare/v5.5.1...v5.6.0) (2024-07-29)
+
+
+### Features
+
+* fail build when netlify forms detected without workaround ([#2539](https://github.com/netlify/next-runtime/issues/2539)) ([56fef5f](https://github.com/netlify/next-runtime/commit/56fef5fac626bf0e7fc44014b085f759be00dd40))
+
+
+### Bug Fixes
+
+* apply type: module only to runtime modules ([#2549](https://github.com/netlify/next-runtime/issues/2549)) ([325968d](https://github.com/netlify/next-runtime/commit/325968d9fceb925d4972c242aea446f5a1cb2f8d))
+* edge-middleware i18n matching ([#2555](https://github.com/netlify/next-runtime/issues/2555)) ([f02ef88](https://github.com/netlify/next-runtime/commit/f02ef880f27bdc28f9e699757e8df9d2a1203438))
+
 ## [5.5.1](https://github.com/netlify/next-runtime/compare/v5.5.0...v5.5.1) (2024-07-08)
 
 
