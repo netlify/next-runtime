@@ -20,8 +20,6 @@ beforeEach<FixtureTestContext>(async (ctx) => {
 })
 
 it<FixtureTestContext>('should fail build when netlify forms are used', async (ctx) => {
-  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
   await createFixture('netlify-forms', ctx)
 
   const runPluginPromise = runPlugin(ctx)
@@ -32,11 +30,9 @@ it<FixtureTestContext>('should fail build when netlify forms are used', async (c
 })
 
 it<FixtureTestContext>('should not fail build when netlify forms are used with workaround', async (ctx) => {
-  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
   await createFixture('netlify-forms-workaround', ctx)
 
   const runPluginPromise = runPlugin(ctx)
 
-  await expect(runPluginPromise).resolves
+  await expect(runPluginPromise).resolves.not.toThrow()
 })
