@@ -46,4 +46,9 @@ export default async function handler(req, context) {
 export const config = {
   path: '/*',
   preferStatic: true,
+  name: 'Next.js Server Handler',
+  generator: '{{generator}}',
+  nodeBundler: 'none',
+  includedFiles: ['**'],
+  includedFilesBasePath: '{{serverHandlerRootDir}}',
 }

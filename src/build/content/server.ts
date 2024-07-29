@@ -30,6 +30,30 @@ function isError(error: unknown): error is NodeJS.ErrnoException {
 }
 
 /**
+ * Generates a copy of the middleware manifest without any middleware in it. We
+ * do this because we'll run middleware in an edge function, and we don't want
+ * to run it again in the server handler.
+ */
+const replaceMiddlewareManifest = async (sourcePath: string, destPath: string) => {
+  await mkdir(dirname(destPath), { recursive: true })
+
+  const data = await readFile(sourcePath, 'utf8')
+  const manifest = JSON.parse(data)
+
+  // TODO: Check for `manifest.version` and write an error to the system log
+  // when we find a value that is not equal to 2. This will alert us in case
+  // Next.js starts using a new format for the manifest and we're writing
+  // one with the old version.
+  const newManifest = {
+    ...manifest,
+    middleware: {},
+  }
+  const newData = JSON.stringify(newManifest)
+
+  await writeFile(destPath, newData)
+}
+
+/**
  * Copy App/Pages Router Javascript needed by the server handler
  */
 export const copyNextServerCode = async (ctx: PluginContext): Promise<void> => {
@@ -309,30 +333,6 @@ export const copyNextDependencies = async (ctx: PluginContext): Promise<void> =>
       )
     }
   })
-}
-
-/**
- * Generates a copy of the middleware manifest without any middleware in it. We
- * do this because we'll run middleware in an edge function, and we don't want
- * to run it again in the server handler.
- */
-const replaceMiddlewareManifest = async (sourcePath: string, destPath: string) => {
-  await mkdir(dirname(destPath), { recursive: true })
-
-  const data = await readFile(sourcePath, 'utf8')
-  const manifest = JSON.parse(data)
-
-  // TODO: Check for `manifest.version` and write an error to the system log
-  // when we find a value that is not equal to 2. This will alert us in case
-  // Next.js starts using a new format for the manifest and we're writing
-  // one with the old version.
-  const newManifest = {
-    ...manifest,
-    middleware: {},
-  }
-  const newData = JSON.stringify(newManifest)
-
-  await writeFile(destPath, newData)
 }
 
 export const verifyHandlerDirStructure = async (ctx: PluginContext) => {

@@ -35,49 +35,6 @@ interface ApiBackgroundConfig {
 
 type ApiConfig = ApiStandardConfig | ApiScheduledConfig | ApiBackgroundConfig
 
-export async function getAPIRoutesConfigs(ctx: PluginContext) {
-  const functionsConfigManifestPath = join(
-    ctx.publishDir,
-    'server',
-    'functions-config-manifest.json',
-  )
-  if (!existsSync(functionsConfigManifestPath)) {
-    // before https://github.com/vercel/next.js/pull/60163 this file might not have been produced if there were no API routes at all
-    return []
-  }
-
-  const functionsConfigManifest = JSON.parse(
-    await readFile(functionsConfigManifestPath, 'utf-8'),
-  ) as FunctionsConfigManifest
-
-  const appDir = ctx.resolveFromSiteDir('.')
-  const pagesDir = join(appDir, 'pages')
-  const srcPagesDir = join(appDir, 'src', 'pages')
-  const { pageExtensions } = ctx.requiredServerFiles.config
-
-  return Promise.all(
-    Object.keys(functionsConfigManifest.functions).map(async (apiRoute) => {
-      const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir], pageExtensions)
-
-      const sharedFields = {
-        apiRoute,
-        filePath,
-        config: {} as ApiConfig,
-      }
-
-      if (filePath) {
-        const config = await extractConfigFromFile(filePath, appDir)
-        return {
-          ...sharedFields,
-          config,
-        }
-      }
-
-      return sharedFields
-    }),
-  )
-}
-
 // Next.js already defines a default `pageExtensions` array in its `required-server-files.json` file
 // In case it gets `undefined`, this is a fallback
 const SOURCE_FILE_EXTENSIONS = ['js', 'jsx', 'ts', 'tsx']
@@ -185,4 +142,47 @@ const extractConfigFromFile = async (apiFilePath: string, appDir: string): Promi
   } catch {
     return {}
   }
+}
+
+export async function getAPIRoutesConfigs(ctx: PluginContext) {
+  const functionsConfigManifestPath = join(
+    ctx.publishDir,
+    'server',
+    'functions-config-manifest.json',
+  )
+  if (!existsSync(functionsConfigManifestPath)) {
+    // before https://github.com/vercel/next.js/pull/60163 this file might not have been produced if there were no API routes at all
+    return []
+  }
+
+  const functionsConfigManifest = JSON.parse(
+    await readFile(functionsConfigManifestPath, 'utf-8'),
+  ) as FunctionsConfigManifest
+
+  const appDir = ctx.resolveFromSiteDir('.')
+  const pagesDir = join(appDir, 'pages')
+  const srcPagesDir = join(appDir, 'src', 'pages')
+  const { pageExtensions } = ctx.requiredServerFiles.config
+
+  return Promise.all(
+    Object.keys(functionsConfigManifest.functions).map(async (apiRoute) => {
+      const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir], pageExtensions)
+
+      const sharedFields = {
+        apiRoute,
+        filePath,
+        config: {} as ApiConfig,
+      }
+
+      if (filePath) {
+        const config = await extractConfigFromFile(filePath, appDir)
+        return {
+          ...sharedFields,
+          config,
+        }
+      }
+
+      return sharedFields
+    }),
+  )
 }

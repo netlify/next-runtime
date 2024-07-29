@@ -105,7 +105,9 @@ const getHandlerFile = async (ctx: PluginContext): Promise<string> => {
   const templatesDir = join(ctx.pluginDir, 'dist/build/templates')
 
   const templateVariables: Record<string, string> = {
-    '{{useRegionalBlobs}}': ctx.useRegionalBlobs.toString(),
+    '{{useRegionalBlobs}}': (ctx.blobsStrategy !== 'legacy').toString(),
+    '{{generator}}': `${ctx.pluginName}@${ctx.pluginVersion}`,
+    '{{serverHandlerRootDir}}': ctx.serverHandlerRootDir,
   }
   // In this case it is a monorepo and we need to use a own template for it
   // as we have to change the process working directory
@@ -143,7 +145,9 @@ export const createServerHandler = async (ctx: PluginContext) => {
     await copyNextServerCode(ctx)
     await copyNextDependencies(ctx)
     await copyHandlerDependencies(ctx)
-    await writeHandlerManifest(ctx)
+    if (ctx.serverHandlerConfigStrategy === 'manifest') {
+      await writeHandlerManifest(ctx)
+    }
     await writeHandlerFile(ctx)
 
     await verifyHandlerDirStructure(ctx)
