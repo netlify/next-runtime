@@ -64,9 +64,9 @@ export const onBuild = async (options: NetlifyPluginOptions) => {
       await saveBuildCache(ctx)
     }
 
-    // static exports only need to be uploaded to the CDN
+    // static exports only need to be uploaded to the CDN and setup /_next/image handler
     if (ctx.buildConfig.output === 'export') {
-      return copyStaticExport(ctx)
+      return Promise.all([copyStaticExport(ctx), setImageConfig(ctx)])
     }
 
     await verifyAdvancedAPIRoutes(ctx)

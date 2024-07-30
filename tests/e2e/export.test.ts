@@ -52,3 +52,21 @@ test('Renders the Home page correctly with output export and custom dist dir', a
 
   await expectImageWasLoaded(page.locator('img'))
 })
+
+test.describe('next/image is using Netlify Image CDN', () => {
+  test('Local images', async ({ page, outputExport }) => {
+    const nextImageResponsePromise = page.waitForResponse('**/_next/image**')
+
+    await page.goto(`${outputExport.url}/image/local`)
+
+    const nextImageResponse = await nextImageResponsePromise
+    expect(nextImageResponse.request().url()).toContain('_next/image?url=%2Fsquirrel.jpg')
+
+    expect(nextImageResponse.status()).toBe(200)
+    // ensure next/image is using Image CDN
+    // source image is jpg, but when requesting it through Image CDN avif will be returned
+    expect(await nextImageResponse.headerValue('content-type')).toEqual('image/avif')
+
+    await expectImageWasLoaded(page.locator('img'))
+  })
+})
