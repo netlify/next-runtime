@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.7.0](https://github.com/netlify/next-runtime/compare/v5.6.0...v5.7.0) (2024-08-05)
+
+
+### Features
+
+* support next/image with static exports ([#2563](https://github.com/netlify/next-runtime/issues/2563)) ([b000c43](https://github.com/netlify/next-runtime/commit/b000c430ce486279178f3aa5f275c66a508fb1c8))
+
 ## [5.6.0](https://github.com/netlify/next-runtime/compare/v5.5.1...v5.6.0) (2024-07-29)
 
 
