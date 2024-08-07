@@ -20,6 +20,7 @@ const PLUGIN_DIR = join(MODULE_DIR, '../..')
 const DEFAULT_PUBLISH_DIR = '.next'
 
 export const SERVER_HANDLER_NAME = '___netlify-server-handler'
+export const IPX_HANDLER_NAME = '_ipx'
 export const EDGE_HANDLER_NAME = '___netlify-edge-handler'
 
 // copied from https://github.com/vercel/next.js/blob/af5b4db98ac1acccc3f167cc6aba2f0c9e7094df/packages/next/src/build/index.ts#L388-L395
@@ -162,6 +163,16 @@ export class PluginContext {
     return satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, { includePrerelease: true })
   }
 
+  get imageService(): 'image-cdn' | 'ipx' {
+    return 'ipx'
+    // uncomment if/when feature flag is set up
+    // if ((this.featureFlags || {})['next-runtime-use-ipx']) {
+    //   return 'ipx'
+    // }
+
+    // return 'image-cdn'
+  }
+
   /**
    * Absolute path of the directory containing the files for the serverless lambda function
    * `.netlify/functions-internal`
@@ -173,6 +184,11 @@ export class PluginContext {
   /** Absolute path of the server handler */
   get serverHandlerRootDir(): string {
     return join(this.serverFunctionsDir, SERVER_HANDLER_NAME)
+  }
+
+  /** Absolute path of the ipx handler */
+  get ipxHandlerRootDir(): string {
+    return join(this.serverFunctionsDir, IPX_HANDLER_NAME)
   }
 
   get serverHandlerDir(): string {
@@ -204,6 +220,11 @@ export class PluginContext {
   /** Absolute path of the edge handler */
   get edgeHandlerDir(): string {
     return join(this.edgeFunctionsDir, EDGE_HANDLER_NAME)
+  }
+
+  /** Absolute path of the ipx edge handler */
+  get ipxEdgeHandlerRootDir(): string {
+    return join(this.edgeFunctionsDir, IPX_HANDLER_NAME)
   }
 
   constructor(options: NetlifyPluginOptions) {

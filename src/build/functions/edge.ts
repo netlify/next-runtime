@@ -8,6 +8,8 @@ import { pathToRegexp } from 'path-to-regexp'
 
 import { EDGE_HANDLER_NAME, PluginContext } from '../plugin-context.js'
 
+import { createIpxEdgeAcceptHandler } from './ipx.js'
+
 const writeEdgeManifest = async (ctx: PluginContext, manifest: Manifest) => {
   await mkdir(ctx.edgeFunctionsDir, { recursive: true })
   await writeFile(join(ctx.edgeFunctionsDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
@@ -176,5 +178,10 @@ export const createEdgeHandlers = async (ctx: PluginContext) => {
     version: 1,
     functions: netlifyDefinitions,
   }
+
+  if (ctx.imageService === 'ipx') {
+    await createIpxEdgeAcceptHandler(ctx, netlifyManifest)
+  }
+
   await writeEdgeManifest(ctx, netlifyManifest)
 }

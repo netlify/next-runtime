@@ -47,6 +47,9 @@
     "url": "https://github.com/netlify/next-runtime/issues"
   },
   "homepage": "https://github.com/netlify/next-runtime#readme",
+  "dependencies": {
+    "@netlify/ipx": "^1.4.6"
+  },
   "devDependencies": {
     "@fastly/http-compute-js": "1.1.4",
     "@netlify/blobs": "^7.3.0",
@@ -96,7 +99,6 @@
     "indent": 2,
     "remove": [
       "clean-package",
-      "dependencies",
       "devDependencies",
       "scripts"
     ]
