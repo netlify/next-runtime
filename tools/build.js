@@ -8,7 +8,7 @@ import glob from 'fast-glob'
 const OUT_DIR = 'dist'
 await rm(OUT_DIR, { force: true, recursive: true })
 
-const entryPointsESM = await glob('src/**/*.ts', { ignore: ['**/*.test.ts'] })
+const entryPointsESM = await glob('src/**/*.ts', { ignore: ['**/*.test.ts', '**/templates/*.ts'] })
 const entryPointsCJS = await glob('src/**/*.cts')
 
 /**
