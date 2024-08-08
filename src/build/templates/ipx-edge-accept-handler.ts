@@ -6,4 +6,4 @@ import { getHandler } from 'https://ipx-edge-function-layer.netlify.app/mod.ts'
 // @ts-ignore Injected at build time
 import imageconfig from './imageconfig.json' assert { type: 'json' }
 
-export default getHandler({ formats: imageconfig?.formats })
+export default getHandler({ formats: imageconfig?.formats, basePath: imageconfig?.basePath })
