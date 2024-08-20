@@ -52,7 +52,7 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
   expect(load(call1.body)('h1').text()).toBe('404')
   expect(call1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
     expect.objectContaining({
-      'netlify-cdn-cache-control': 'no-cache, no-store, max-age=0, must-revalidate',
+      'netlify-cdn-cache-control': 'no-cache, no-store, max-age=0, must-revalidate, durable',
     }),
   )
 })

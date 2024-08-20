@@ -229,7 +229,7 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   ).toEqual(
     expect.objectContaining({
       'cache-status': '"Next.js"; hit',
-      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000, durable',
     }),
   )
 
@@ -295,7 +295,7 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   ).toEqual(
     expect.objectContaining({
       'cache-status': '"Next.js"; hit',
-      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000, durable',
     }),
   )
 })
