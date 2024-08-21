@@ -336,9 +336,7 @@ export async function uploadBlobs(ctx: FixtureTestContext, blobsDir: string) {
   )
 }
 
-const DEFAULT_FLAGS = {
-  serverless_functions_nextjs_durable_cache_disable: true,
-}
+const DEFAULT_FLAGS = {}
 /**
  * Execute the function with the provided parameters
  * @param ctx

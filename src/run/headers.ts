@@ -213,9 +213,7 @@ export const setCacheControlHeaders = (
   headers: Headers,
   request: Request,
   requestContext: RequestContext,
-  useDurableCache: boolean,
 ) => {
-  const durableCacheDirective = useDurableCache ? ', durable' : ''
   if (
     typeof requestContext.routeHandlerRevalidate !== 'undefined' &&
     ['GET', 'HEAD'].includes(request.method) &&
@@ -227,7 +225,7 @@ export const setCacheControlHeaders = (
       // if we are serving already stale response, instruct edge to not attempt to cache that response
       headers.get('x-nextjs-cache') === 'STALE'
         ? 'public, max-age=0, must-revalidate'
-        : `s-maxage=${requestContext.routeHandlerRevalidate === false ? 31536000 : requestContext.routeHandlerRevalidate}, stale-while-revalidate=31536000${durableCacheDirective}`
+        : `s-maxage=${requestContext.routeHandlerRevalidate === false ? 31536000 : requestContext.routeHandlerRevalidate}, stale-while-revalidate=31536000, durable`
 
     headers.set('netlify-cdn-cache-control', cdnCacheControl)
     return
@@ -253,7 +251,7 @@ export const setCacheControlHeaders = (
             ...getHeaderValueArray(cacheControl).map((value) =>
               value === 'stale-while-revalidate' ? 'stale-while-revalidate=31536000' : value,
             ),
-            ...(useDurableCache ? ['durable'] : []),
+            'durable',
           ].join(', ')
 
     headers.set('cache-control', browserCacheControl || 'public, max-age=0, must-revalidate')
@@ -269,7 +267,7 @@ export const setCacheControlHeaders = (
   ) {
     // handle CDN Cache Control on static files
     headers.set('cache-control', 'public, max-age=0, must-revalidate')
-    headers.set('netlify-cdn-cache-control', `max-age=31536000${durableCacheDirective}`)
+    headers.set('netlify-cdn-cache-control', `max-age=31536000, durable`)
   }
 }
 

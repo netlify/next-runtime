@@ -428,10 +428,4 @@ export const fixtureFactories = {
       publishDirectory: 'apps/site/.next',
       smoke: true,
     }),
-  durableCache: () =>
-    createE2EFixture('simple', {
-      // https://app.netlify.com/sites/next-runtime-testing-durable-cache
-      // This site has all the Durable Cache feature flags enabled.
-      siteId: 'a8ceaa01-86fd-4c9a-8563-3769560d452a',
-    }),
 }

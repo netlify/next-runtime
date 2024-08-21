@@ -12,9 +12,12 @@ test('Renders the Home page correctly', async ({ page, simple }) => {
 
   await expect(page).toHaveTitle('Simple Next App')
 
-  expect(headers['cache-status']).toBe(
-    '"Next.js"; hit\n"Netlify Durable"; fwd=miss\n"Netlify Edge"; fwd=miss',
-  )
+  expect(headers['cache-status']).toMatch(/^"Next.js"; hit$/m)
+  expect(headers['cache-status']).toMatch(/^"Netlify Edge"; fwd=miss$/m)
+  // "Netlify Durable" assertion is skipped because we are asserting index page and there are possible that something else is making similar request to it
+  // and as a result we can see many possible statuses for it: `fwd=miss`, `fwd=miss; stored`, `hit; ttl=<ttl>` so there is no point in asserting on that
+  // "Netlify Edge" status suffers from similar issue, but is less likely to manifest (only if those requests would be handled by same CDN node) and retries
+  // usually allow to pass the test
 
   const h1 = page.locator('h1')
   await expect(h1).toHaveText('Home')
@@ -222,7 +225,7 @@ test('requesting a non existing page route that needs to be fetched from the blo
 
   expect(headers['netlify-cdn-cache-control']).toBe(
     (shouldHavePrivateDirective ? 'private, ' : '') +
-      'no-cache, no-store, max-age=0, must-revalidate',
+      'no-cache, no-store, max-age=0, must-revalidate, durable',
   )
   expect(headers['cache-control']).toBe(
     (shouldHavePrivateDirective ? 'private,' : '') + 'no-cache,no-store,max-age=0,must-revalidate',
@@ -240,7 +243,7 @@ test('requesting a non existing page route that needs to be fetched from the blo
   expect(await page.textContent('h1')).toBe('404 Not Found')
 
   expect(headers['netlify-cdn-cache-control']).toBe(
-    's-maxage=31536000, stale-while-revalidate=31536000',
+    's-maxage=31536000, stale-while-revalidate=31536000, durable',
   )
   expect(headers['cache-control']).toBe('public,max-age=0,must-revalidate')
 })
