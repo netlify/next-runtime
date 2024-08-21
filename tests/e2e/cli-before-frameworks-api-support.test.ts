@@ -20,7 +20,7 @@ test('should serve 404 page when requesting non existing page (no matching route
   expect(await page.textContent('h1')).toBe('404')
 
   expect(headers['netlify-cdn-cache-control']).toBe(
-    'no-cache, no-store, max-age=0, must-revalidate',
+    'no-cache, no-store, max-age=0, must-revalidate, durable',
   )
   expect(headers['cache-control']).toBe('no-cache,no-store,max-age=0,must-revalidate')
 
