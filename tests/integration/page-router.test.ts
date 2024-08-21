@@ -121,7 +121,7 @@ test.skipIf(platform === 'win32')<FixtureTestContext>(
       url: '/static/fully-static',
     })
 
-    expect(response.headers?.['netlify-cdn-cache-control']).toBe('max-age=31536000')
+    expect(response.headers?.['netlify-cdn-cache-control']).toBe('max-age=31536000, durable')
     expect(response.headers?.['cache-control']).toBe('public, max-age=0, must-revalidate')
   },
 )

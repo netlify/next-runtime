@@ -29,6 +29,20 @@ export const addBasePath = (path: string, basePath?: string) => {
   return path
 }
 
+// add locale prefix if not present, allowing for locale fallbacks
+export const addLocale = (path: string, locale?: string) => {
+  if (
+    locale &&
+    path.toLowerCase() !== `/${locale.toLowerCase()}` &&
+    !path.toLowerCase().startsWith(`/${locale.toLowerCase()}/`) &&
+    !path.startsWith(`/api/`) &&
+    !path.startsWith(`/_next/`)
+  ) {
+    return `/${locale}${path}`
+  }
+  return path
+}
+
 // https://github.com/vercel/next.js/blob/canary/packages/next/src/shared/lib/i18n/normalize-locale-path.ts
 
 export interface PathLocale {

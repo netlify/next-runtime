@@ -153,7 +153,9 @@ test<FixtureTestContext>('stale-while-revalidate headers should be normalized to
   await createFixture('simple', ctx)
   await runPlugin(ctx)
   const index = await invokeFunction(ctx, { url: '/' })
-  expect(index.headers?.['netlify-cdn-cache-control']).toContain('stale-while-revalidate=31536000')
+  expect(index.headers?.['netlify-cdn-cache-control']).toContain(
+    'stale-while-revalidate=31536000, durable',
+  )
 })
 
 test<FixtureTestContext>('handlers receive correct site domain', async (ctx) => {
@@ -185,7 +187,7 @@ test<FixtureTestContext>('cacheable route handler is cached on cdn (revalidate=f
 
   const permanentlyCachedResponse = await invokeFunction(ctx, { url: '/api/cached-permanent' })
   expect(permanentlyCachedResponse.headers['netlify-cdn-cache-control']).toBe(
-    's-maxage=31536000, stale-while-revalidate=31536000',
+    's-maxage=31536000, stale-while-revalidate=31536000, durable',
   )
 })
 
@@ -204,7 +206,7 @@ test<FixtureTestContext>('cacheable route handler is cached on cdn (revalidate=1
 
   const secondTimeCachedResponse = await invokeFunction(ctx, { url: '/api/cached-revalidate' })
   expect(secondTimeCachedResponse.headers['netlify-cdn-cache-control']).toBe(
-    's-maxage=15, stale-while-revalidate=31536000',
+    's-maxage=15, stale-while-revalidate=31536000, durable',
   )
 })
 

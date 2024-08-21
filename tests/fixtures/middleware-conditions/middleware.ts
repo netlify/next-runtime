@@ -19,7 +19,7 @@ export const config = {
       source: '/hello',
     },
     {
-      source: '/nl-NL/about',
+      source: '/nl/about',
       locale: false,
     },
   ],

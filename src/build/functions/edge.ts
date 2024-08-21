@@ -83,7 +83,7 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name, page }: Ne
 
   // Writing a file with the matchers that should trigger this function. We'll
   // read this file from the function at runtime.
-  await writeFile(join(handlerRuntimeDirectory, 'matchers.json'), JSON.stringify(augmentedMatchers))
+  await writeFile(join(handlerRuntimeDirectory, 'matchers.json'), JSON.stringify(matchers))
 
   // The config is needed by the edge function to match and normalize URLs. To
   // avoid shipping and parsing a large file at runtime, let's strip it down to

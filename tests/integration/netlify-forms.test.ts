@@ -19,24 +19,20 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   await startMockBlobStore(ctx)
 })
 
-it<FixtureTestContext>('should warn when netlify forms are used', async (ctx) => {
-  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
+it<FixtureTestContext>('should fail build when netlify forms are used', async (ctx) => {
   await createFixture('netlify-forms', ctx)
 
-  const runPluginPromise = await runPlugin(ctx)
+  const runPluginPromise = runPlugin(ctx)
 
-  expect(warn).toBeCalledWith(
+  await expect(runPluginPromise).rejects.toThrow(
     '@netlify/plugin-nextjs@5 requires migration steps to support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
   )
 })
 
-it<FixtureTestContext>('should not warn when netlify forms are used with workaround', async (ctx) => {
-  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
+it<FixtureTestContext>('should not fail build when netlify forms are used with workaround', async (ctx) => {
   await createFixture('netlify-forms-workaround', ctx)
 
-  const runPluginPromise = await runPlugin(ctx)
+  const runPluginPromise = runPlugin(ctx)
 
-  expect(warn).not.toBeCalled()
+  await expect(runPluginPromise).resolves.not.toThrow()
 })

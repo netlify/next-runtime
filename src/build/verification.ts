@@ -113,13 +113,13 @@ export async function verifyNetlifyFormsWorkaround(ctx: PluginContext) {
 
 export function verifyNetlifyForms(ctx: PluginContext, html: string) {
   if (
-    !verifications.has('netlifyForms') &&
+    process.env.NETLIFY_NEXT_VERIFY_FORMS !== '0' &&
+    process.env.NETLIFY_NEXT_VERIFY_FORMS?.toUpperCase() !== 'FALSE' &&
     !verifications.has('netlifyFormsWorkaround') &&
     formDetectionRegex.test(html)
   ) {
-    console.warn(
+    ctx.failBuild(
       '@netlify/plugin-nextjs@5 requires migration steps to support Netlify Forms. Refer to https://ntl.fyi/next-runtime-forms-migration for migration example.',
     )
-    verifications.add('netlifyForms')
   }
 }

@@ -88,7 +88,7 @@ describe('page router', () => {
     ).toEqual(
       expect.objectContaining({
         'cache-status': '"Next.js"; hit',
-        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000',
+        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000, durable',
       }),
     )
     expect(
@@ -239,7 +239,7 @@ describe('app router', () => {
       // It will be hit instead of stale
       expect.objectContaining({
         'cache-status': '"Next.js"; hit',
-        'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000',
+        'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000, durable',
       }),
     )
     expect(

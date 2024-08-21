@@ -2,6 +2,7 @@ import type { Context } from '@netlify/edge-functions'
 
 import {
   addBasePath,
+  addLocale,
   addTrailingSlash,
   normalizeDataUrl,
   normalizeLocalePath,
@@ -70,6 +71,33 @@ const normalizeRequestURL = (
   return {
     url: url.toString(),
     detectedLocale,
+  }
+}
+
+export const localizeRequest = (
+  url: URL,
+  nextConfig?: {
+    basePath?: string
+    i18n?: I18NConfig | null
+  },
+): { localizedUrl: URL; locale?: string } => {
+  const localizedUrl = new URL(url)
+  localizedUrl.pathname = removeBasePath(localizedUrl.pathname, nextConfig?.basePath)
+
+  // Detect the locale from the URL
+  const { detectedLocale } = normalizeLocalePath(localizedUrl.pathname, nextConfig?.i18n?.locales)
+
+  // Add the locale to the URL if not already present
+  localizedUrl.pathname = addLocale(
+    localizedUrl.pathname,
+    detectedLocale ?? nextConfig?.i18n?.defaultLocale,
+  )
+
+  localizedUrl.pathname = addBasePath(localizedUrl.pathname, nextConfig?.basePath)
+
+  return {
+    localizedUrl,
+    locale: detectedLocale,
   }
 }
 
