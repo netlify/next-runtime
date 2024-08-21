@@ -58,6 +58,15 @@ export const onBuild = async (options: NetlifyPluginOptions) => {
     verifyPublishDir(ctx)
 
     span.setAttribute('next.buildConfig', JSON.stringify(ctx.buildConfig))
+    span.setAttribute(
+      'next.deployStrategy',
+      JSON.stringify({
+        useFrameworksAPI: ctx.useFrameworksAPI,
+        blobsStrategy: ctx.blobsStrategy,
+        edgeFunctionsConfigStrategy: ctx.edgeFunctionsConfigStrategy,
+        serverHandlerConfigStrategy: ctx.serverHandlerConfigStrategy,
+      }),
+    )
 
     // only save the build cache if not run via the CLI
     if (!options.constants.IS_LOCAL) {
