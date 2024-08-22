@@ -24,6 +24,16 @@ export interface DeployResult {
 
 type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun' | 'berry'
 
+const defaultValidateDeployOutput = async (siteAbsDir: string) => {
+  // by default we expect Frameworks API to be used in the build
+  const serverHandlerDir = join(siteAbsDir, '.netlify/functions/___netlify-server-handler')
+  if (!existsSync(serverHandlerDir)) {
+    throw new Error(`Server handler not found at ${siteAbsDir}`)
+  }
+}
+
+const staticExportValidateDeployOutput = defaultValidateDeployOutput //() => {}
+
 interface E2EConfig {
   packageManger?: PackageManager
   packagePath?: string
@@ -44,6 +54,10 @@ interface E2EConfig {
    * Site ID to deploy to. Defaults to the `NETLIFY_SITE_ID` environment variable or a default site.
    */
   siteId?: string
+  /**
+   *
+   */
+  validateDeployFiles?: typeof defaultValidateDeployOutput
 }
 
 /**
@@ -83,6 +97,14 @@ export const createE2EFixture = async (fixture: string, config: E2EConfig = {}) 
     await verifyFixture(isolatedFixtureRoot, config)
 
     const result = await deploySite(isolatedFixtureRoot, config)
+
+    {
+      const validateOutput = config.validateDeployFiles ?? defaultValidateDeployOutput
+
+      const siteRelDir = config.cwd ?? config.packagePath ?? ''
+
+      await validateOutput(join(isolatedFixtureRoot, siteRelDir))
+    }
 
     console.log(`🌍 Deployed site is live: ${result.url}`)
     deployID = result.deployID
@@ -307,14 +329,17 @@ async function cleanup(dest: string, deployId?: string): Promise<void> {
 
 export const fixtureFactories = {
   simple: () => createE2EFixture('simple'),
-  outputExport: () => createE2EFixture('output-export'),
+  outputExport: () =>
+    createE2EFixture('output-export', { validateDeployFiles: staticExportValidateDeployOutput }),
   ouputExportPublishOut: () =>
     createE2EFixture('output-export', {
       publishDirectory: 'out',
+      validateDeployFiles: staticExportValidateDeployOutput,
     }),
   outputExportCustomDist: () =>
     createE2EFixture('output-export-custom-dist', {
       publishDirectory: 'custom-dist',
+      validateDeployFiles: staticExportValidateDeployOutput,
     }),
   distDir: () =>
     createE2EFixture('dist-dir', {
