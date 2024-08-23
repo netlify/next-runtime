@@ -4,6 +4,9 @@ import { LogLevel, systemLogger } from '@netlify/functions/internal'
 
 import type { NetlifyCachedRouteValue } from '../../shared/cache-types.cjs'
 
+// hacks?
+process.env.NODE_ENV = 'production'
+
 type SystemLogger = typeof systemLogger
 
 export type RequestContext = {
