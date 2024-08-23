@@ -132,13 +132,18 @@ export class NetlifyCacheHandler implements CacheHandler {
 
     if (
       cacheValue.kind === 'PAGE' ||
+      cacheValue.kind === 'PAGES' ||
       cacheValue.kind === 'APP_PAGE' ||
-      cacheValue.kind === 'ROUTE'
+      cacheValue.kind === 'ROUTE' ||
+      cacheValue.kind === 'APP_ROUTE'
     ) {
       if (cacheValue.headers?.[NEXT_CACHE_TAGS_HEADER]) {
         const cacheTags = (cacheValue.headers[NEXT_CACHE_TAGS_HEADER] as string).split(',')
         requestContext.responseCacheTags = cacheTags
-      } else if (cacheValue.kind === 'PAGE' && typeof cacheValue.pageData === 'object') {
+      } else if (
+        (cacheValue.kind === 'PAGE' || cacheValue.kind === 'PAGES') &&
+        typeof cacheValue.pageData === 'object'
+      ) {
         // pages router doesn't have cache tags headers in PAGE cache value
         // so we need to generate appropriate cache tags for it
         const cacheTags = [`_N_T_${key === '/index' ? '/' : key}`]
@@ -186,6 +191,7 @@ export class NetlifyCacheHandler implements CacheHandler {
   }
 
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
+    debugger
     return this.tracer.withActiveSpan('get cache key', async (span) => {
       const [key, ctx = {}] = args
       getLogger().debug(`[NetlifyCacheHandler.get]: ${key}`)
@@ -224,8 +230,9 @@ export class NetlifyCacheHandler implements CacheHandler {
             value: blob.value,
           }
 
-        case 'ROUTE': {
-          span.addEvent('ROUTE', { lastModified: blob.lastModified, status: blob.value.status })
+        case 'ROUTE':
+        case 'APP_ROUTE': {
+          span.addEvent('APP_ROUTE', { lastModified: blob.lastModified, status: blob.value.status })
 
           const valueWithoutRevalidate = this.captureRouteRevalidateAndRemoveFromObject(blob.value)
 
@@ -237,7 +244,8 @@ export class NetlifyCacheHandler implements CacheHandler {
             },
           }
         }
-        case 'PAGE': {
+        case 'PAGE':
+        case 'PAGES': {
           span.addEvent('PAGE', { lastModified: blob.lastModified })
 
           const { revalidate, ...restOfPageValue } = blob.value
@@ -275,7 +283,7 @@ export class NetlifyCacheHandler implements CacheHandler {
     data: Parameters<IncrementalCache['set']>[1],
     context: Parameters<IncrementalCache['set']>[2],
   ): NetlifyIncrementalCacheValue | null {
-    if (data?.kind === 'ROUTE') {
+    if (data?.kind === 'ROUTE' || data?.kind === 'APP_ROUTE') {
       return {
         ...data,
         revalidate: context.revalidate,
@@ -283,7 +291,7 @@ export class NetlifyCacheHandler implements CacheHandler {
       }
     }
 
-    if (data?.kind === 'PAGE') {
+    if (data?.kind === 'PAGE' || data?.kind === 'PAGES') {
       return {
         ...data,
         revalidate: context.revalidate,
@@ -397,8 +405,10 @@ export class NetlifyCacheHandler implements CacheHandler {
       cacheTags = [...tags, ...softTags]
     } else if (
       cacheEntry.value?.kind === 'PAGE' ||
+      cacheEntry.value?.kind === 'PAGES' ||
       cacheEntry.value?.kind === 'APP_PAGE' ||
-      cacheEntry.value?.kind === 'ROUTE'
+      cacheEntry.value?.kind === 'ROUTE' ||
+      cacheEntry.value?.kind === 'APP_ROUTE'
     ) {
       cacheTags = (cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER] as string)?.split(',') || []
     } else {

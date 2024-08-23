@@ -28,7 +28,7 @@ export type NetlifyCachedAppPageValue = Omit<IncrementalCachedAppPageValue, 'rsc
   revalidate?: Parameters<IncrementalCache['set']>[2]['revalidate']
 }
 
-type CachedPageValue = Extract<IncrementalCacheValue, { kind: 'PAGE' }>
+type CachedPageValue = Extract<IncrementalCacheValue, { kind: 'PAGES' }>
 
 export type NetlifyCachedPageValue = CachedPageValue & {
   revalidate?: Parameters<IncrementalCache['set']>[2]['revalidate']

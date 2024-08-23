@@ -46,7 +46,7 @@ const writeCacheEntry = async (
 const routeToFilePath = (path: string) => (path === '/' ? '/index' : path)
 
 const buildPagesCacheValue = async (path: string): Promise<NetlifyCachedPageValue> => ({
-  kind: 'PAGE',
+  kind: 'PAGES',
   html: await readFile(`${path}.html`, 'utf-8'),
   pageData: JSON.parse(await readFile(`${path}.json`, 'utf-8')),
   headers: undefined,
@@ -97,7 +97,7 @@ const buildRouteCacheValue = async (
   path: string,
   initialRevalidateSeconds: number | false,
 ): Promise<NetlifyCachedRouteValue> => ({
-  kind: 'ROUTE',
+  kind: 'APP_ROUTE',
   body: await readFile(`${path}.body`, 'base64'),
   ...JSON.parse(await readFile(`${path}.meta`, 'utf-8')),
   revalidate: initialRevalidateSeconds,
@@ -171,7 +171,7 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
               }
 
               // Netlify Forms are not support and require a workaround
-              if (value.kind === 'PAGE' || value.kind === 'APP_PAGE') {
+              if (value.kind === 'PAGE' || value.kind === 'PAGES' || value.kind === 'APP_PAGE') {
                 verifyNetlifyForms(ctx, value.html)
               }
 
