@@ -329,7 +329,7 @@ export class NetlifyCacheHandler implements CacheHandler {
         value,
       })
 
-      if (data?.kind === 'PAGE') {
+      if (data?.kind === 'PAGE' || data?.kind === 'PAGES') {
         const requestContext = getRequestContext()
         if (requestContext?.didPagesRouterOnDemandRevalidate) {
           const tag = `_N_T_${key === '/index' ? '/' : key}`
