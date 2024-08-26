@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.7.0](https://github.com/netlify/next-runtime/compare/v5.6.0...v5.7.0) (2024-08-26)
+
+
+### Features
+
+* support next/image with static exports ([#2563](https://github.com/netlify/next-runtime/issues/2563)) ([b000c43](https://github.com/netlify/next-runtime/commit/b000c430ce486279178f3aa5f275c66a508fb1c8))
+
+
+### Bug Fixes
+
+* handle cases of chunked middleware ([#2574](https://github.com/netlify/next-runtime/issues/2574)) ([666fe5a](https://github.com/netlify/next-runtime/commit/666fe5a6f54c1134fe80054adcf6aac4aec1ec58))
+
 ## [5.6.0](https://github.com/netlify/next-runtime/compare/v5.5.1...v5.6.0) (2024-07-29)
 
 
