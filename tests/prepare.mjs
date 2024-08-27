@@ -44,14 +44,17 @@ const promises = fixtures.map((fixture) =>
       })
     }
 
-    // npm is the default
-    let cmd = `npm install --no-audit --progress=false --prefer-offline --legacy-peer-deps`
+    let cmd = ``
     const { packageManager } = JSON.parse(await readFile(join(cwd, 'package.json'), 'utf8'))
     if (packageManager?.startsWith('pnpm')) {
       // We disable frozen-lockfile because we may have changed the version of Next.js
       cmd = `pnpm install --frozen-lockfile=false ${
         process.env.DEBUG || NEXT_VERSION !== 'latest' ? '' : '--reporter silent'
       }`
+    } else {
+      // npm is the default
+      cmd = `npm install --no-audit --progress=false --prefer-offline --legacy-peer-deps`
+      await rm(join(cwd, 'package-lock.json'), { force: true })
     }
 
     const addPrefix = new Transform({
