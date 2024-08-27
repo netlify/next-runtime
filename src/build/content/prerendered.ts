@@ -45,8 +45,11 @@ const writeCacheEntry = async (
  */
 const routeToFilePath = (path: string) => (path === '/' ? '/index' : path)
 
-const buildPagesCacheValue = async (path: string): Promise<NetlifyCachedPageValue> => ({
-  kind: 'PAGES',
+const buildPagesCacheValue = async (
+  path: string,
+  shouldUseEnumKind: boolean,
+): Promise<NetlifyCachedPageValue> => ({
+  kind: shouldUseEnumKind ? 'PAGES' : 'PAGE',
   html: await readFile(`${path}.html`, 'utf-8'),
   pageData: JSON.parse(await readFile(`${path}.json`, 'utf-8')),
   headers: undefined,
@@ -96,8 +99,9 @@ const buildAppCacheValue = async (
 const buildRouteCacheValue = async (
   path: string,
   initialRevalidateSeconds: number | false,
+  shouldUseEnumKind: boolean,
 ): Promise<NetlifyCachedRouteValue> => ({
-  kind: 'APP_ROUTE',
+  kind: shouldUseEnumKind ? 'APP_ROUTE' : 'ROUTE',
   body: await readFile(`${path}.body`, 'base64'),
   ...JSON.parse(await readFile(`${path}.meta`, 'utf-8')),
   revalidate: initialRevalidateSeconds,
@@ -133,6 +137,12 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
           })
         : false
 
+      const shouldUseEnumKind = ctx.nextVersion
+        ? satisfies(ctx.nextVersion, '>=15.0.0-canary.114 <15.0.0-d || >15.0.0-rc.0', {
+            includePrerelease: true,
+          })
+        : false
+
       await Promise.all(
         Object.entries(manifest.routes).map(
           ([route, meta]): Promise<void> =>
@@ -152,7 +162,10 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
                     // if pages router returns 'notFound: true', build won't produce html and json files
                     return
                   }
-                  value = await buildPagesCacheValue(join(ctx.publishDir, 'server/pages', key))
+                  value = await buildPagesCacheValue(
+                    join(ctx.publishDir, 'server/pages', key),
+                    shouldUseEnumKind,
+                  )
                   break
                 case meta.dataRoute?.endsWith('.rsc'):
                   value = await buildAppCacheValue(
@@ -164,6 +177,7 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
                   value = await buildRouteCacheValue(
                     join(ctx.publishDir, 'server/app', key),
                     meta.initialRevalidateSeconds,
+                    shouldUseEnumKind,
                   )
                   break
                 default:
