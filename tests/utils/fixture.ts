@@ -89,6 +89,7 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
   ) {
     // @ts-ignore fetch doesn't have _nextOriginalFetch property in types
     globalThis.fetch = globalThis._nextOriginalFetch || globalThis.fetch._nextOriginalFetch
+    delete globalThis[Symbol.for('next-patch')]
   }
 
   ctx.cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
