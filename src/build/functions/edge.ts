@@ -125,7 +125,7 @@ const copyHandlerDependencies = async (
     const entrypoint = await readFile(join(srcDir, file), 'utf8')
     parts.push(`;// Concatenated file: ${file} \n`, entrypoint)
   }
-  const exports = `export default _ENTRIES["middleware_${name}"].default;`
+  const exports = `const middlewareEntryKey = Object.keys(_ENTRIES).find(entryKey => entryKey.startsWith("middleware_${name}")); export default _ENTRIES[middlewareEntryKey].default;`
   await mkdir(dirname(join(destDir, `server/${name}.js`)), { recursive: true })
 
   await writeFile(join(destDir, `server/${name}.js`), [...parts, exports].join('\n'))
