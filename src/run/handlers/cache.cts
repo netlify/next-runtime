@@ -11,14 +11,15 @@ import { type Span } from '@opentelemetry/api'
 import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { NEXT_CACHE_TAGS_HEADER } from 'next/dist/lib/constants.js'
 
-import type {
-  CacheHandler,
-  CacheHandlerContext,
-  IncrementalCache,
-  NetlifyCachedPageValue,
-  NetlifyCachedRouteValue,
-  NetlifyCacheHandlerValue,
-  NetlifyIncrementalCacheValue,
+import {
+  type CacheHandlerContext,
+  type CacheHandlerForMultipleVersions,
+  isCachedPageValue,
+  isCachedRouteValue,
+  type NetlifyCachedPageValue,
+  type NetlifyCachedRouteValue,
+  type NetlifyCacheHandlerValue,
+  type NetlifyIncrementalCacheValue,
 } from '../../shared/cache-types.cjs'
 import { getRegionalBlobStore } from '../regional-blob-store.cjs'
 
@@ -29,7 +30,7 @@ type TagManifest = { revalidatedAt: number }
 
 type TagManifestBlobCache = Record<string, Promise<TagManifest>>
 
-export class NetlifyCacheHandler implements CacheHandler {
+export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
   options: CacheHandlerContext
   revalidatedTags: string[]
   blobStore: Store
@@ -190,7 +191,9 @@ export class NetlifyCacheHandler implements CacheHandler {
     }
   }
 
-  async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
+  async get(
+    ...args: Parameters<CacheHandlerForMultipleVersions['get']>
+  ): ReturnType<CacheHandlerForMultipleVersions['get']> {
     return this.tracer.withActiveSpan('get cache key', async (span) => {
       const [key, ctx = {}] = args
       getLogger().debug(`[NetlifyCacheHandler.get]: ${key}`)
@@ -282,10 +285,14 @@ export class NetlifyCacheHandler implements CacheHandler {
   }
 
   private transformToStorableObject(
-    data: Parameters<IncrementalCache['set']>[1],
-    context: Parameters<IncrementalCache['set']>[2],
+    data: Parameters<CacheHandlerForMultipleVersions['set']>[1],
+    context: Parameters<CacheHandlerForMultipleVersions['set']>[2],
   ): NetlifyIncrementalCacheValue | null {
-    if (data?.kind === 'ROUTE' || data?.kind === 'APP_ROUTE') {
+    if (!data) {
+      return null
+    }
+
+    if (isCachedRouteValue(data)) {
       return {
         ...data,
         revalidate: context.revalidate,
@@ -293,7 +300,7 @@ export class NetlifyCacheHandler implements CacheHandler {
       }
     }
 
-    if (data?.kind === 'PAGE' || data?.kind === 'PAGES') {
+    if (isCachedPageValue(data)) {
       return {
         ...data,
         revalidate: context.revalidate,
@@ -311,7 +318,7 @@ export class NetlifyCacheHandler implements CacheHandler {
     return data
   }
 
-  async set(...args: Parameters<IncrementalCache['set']>) {
+  async set(...args: Parameters<CacheHandlerForMultipleVersions['set']>) {
     return this.tracer.withActiveSpan('set cache key', async (span) => {
       const [key, data, context] = args
       const blobKey = await this.encodeBlobKey(key)

@@ -10,7 +10,7 @@ import { satisfies } from 'semver'
 
 import { encodeBlobKey } from '../../shared/blobkey.js'
 import type {
-  CachedFetchValue,
+  CachedFetchValueForMultipleVersions,
   NetlifyCachedAppPageValue,
   NetlifyCachedPageValue,
   NetlifyCachedRouteValue,
@@ -107,7 +107,9 @@ const buildRouteCacheValue = async (
   revalidate: initialRevalidateSeconds,
 })
 
-const buildFetchCacheValue = async (path: string): Promise<CachedFetchValue> => ({
+const buildFetchCacheValue = async (
+  path: string,
+): Promise<CachedFetchValueForMultipleVersions> => ({
   kind: 'FETCH',
   ...JSON.parse(await readFile(path, 'utf-8')),
 })
