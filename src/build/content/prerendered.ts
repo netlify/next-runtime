@@ -137,6 +137,7 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
           })
         : false
 
+      // https://github.com/vercel/next.js/pull/68602 changed the cache kind for Pages router pages from `PAGE` to `PAGES` and from `ROUTE` to `APP_ROUTE`.
       const shouldUseEnumKind = ctx.nextVersion
         ? satisfies(ctx.nextVersion, '>=15.0.0-canary.114 <15.0.0-d || >15.0.0-rc.0', {
             includePrerelease: true,

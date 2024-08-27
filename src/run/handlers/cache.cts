@@ -191,7 +191,6 @@ export class NetlifyCacheHandler implements CacheHandler {
   }
 
   async get(...args: Parameters<CacheHandler['get']>): ReturnType<CacheHandler['get']> {
-    debugger
     return this.tracer.withActiveSpan('get cache key', async (span) => {
       const [key, ctx = {}] = args
       getLogger().debug(`[NetlifyCacheHandler.get]: ${key}`)
@@ -232,7 +231,10 @@ export class NetlifyCacheHandler implements CacheHandler {
 
         case 'ROUTE':
         case 'APP_ROUTE': {
-          span.addEvent('APP_ROUTE', { lastModified: blob.lastModified, status: blob.value.status })
+          span.addEvent(blob.value?.kind, {
+            lastModified: blob.lastModified,
+            status: blob.value.status,
+          })
 
           const valueWithoutRevalidate = this.captureRouteRevalidateAndRemoveFromObject(blob.value)
 
@@ -246,7 +248,7 @@ export class NetlifyCacheHandler implements CacheHandler {
         }
         case 'PAGE':
         case 'PAGES': {
-          span.addEvent('PAGE', { lastModified: blob.lastModified })
+          span.addEvent(blob.value?.kind, { lastModified: blob.lastModified })
 
           const { revalidate, ...restOfPageValue } = blob.value
 
@@ -258,7 +260,7 @@ export class NetlifyCacheHandler implements CacheHandler {
           }
         }
         case 'APP_PAGE': {
-          span.addEvent('APP_PAGE', { lastModified: blob.lastModified })
+          span.addEvent(blob.value?.kind, { lastModified: blob.lastModified })
 
           const { revalidate, rscData, ...restOfPageValue } = blob.value
 
