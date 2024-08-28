@@ -6,7 +6,7 @@ import type { NetlifyCachedRouteValue } from '../../shared/cache-types.cjs'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - last remaining bit to fix
-process.env.NODE_ENV = 'production'
+// process.env.NODE_ENV = 'production'
 
 type SystemLogger = typeof systemLogger
 
