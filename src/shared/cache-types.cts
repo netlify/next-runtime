@@ -118,7 +118,7 @@ export const isCachedRouteValue = (
 ): value is CachedRouteValueForMultipleVersions =>
   value.kind === 'ROUTE' || value.kind === 'APP_ROUTE'
 
-type MapArgsOrReturn<T> = T extends readonly any[]
+type MapArgsOrReturn<T> = T extends readonly unknown[]
   ? { [K in keyof T]: MapArgsOrReturn<T[K]> }
   : T extends Promise<infer P>
     ? Promise<MapArgsOrReturn<P>>
