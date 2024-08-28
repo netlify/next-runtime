@@ -90,7 +90,6 @@ export type NetlifyCacheHandlerValue = MapCachedRouteValueToNetlify<CacheHandler
  */
 export type NetlifyIncrementalCacheValue = NetlifyCacheHandlerValue['value']
 
-// type IncrementalCacheValueToMultipleVersions<T> = T extends CachedRouteValue ?
 type IncrementalCacheValueToMultipleVersions<T> = T extends CachedRouteValue
   ? CachedRouteValueForMultipleVersions
   : T extends IncrementalCachedPageValue
