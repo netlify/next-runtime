@@ -89,6 +89,9 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
   ) {
     // @ts-ignore fetch doesn't have _nextOriginalFetch property in types
     globalThis.fetch = globalThis._nextOriginalFetch || globalThis.fetch._nextOriginalFetch
+    // https://github.com/vercel/next.js/pull/68193/files#diff-4c54e369ddb9a2db1eed95fe1d678f94c8e82c540204475d42c78e49bf4f223aR37-R40
+    // above changed the way Next.js checks wether fetch was already patched. It still sets `__nextPatched` and `_nextOriginalFetch`
+    // properties we check above and use to get original fetch back
     delete globalThis[Symbol.for('next-patch')]
   }
 
