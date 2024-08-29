@@ -8,6 +8,15 @@ import { getRequestContext } from './handlers/request-context.cjs'
 import { getTracer } from './handlers/tracer.cjs'
 import { getRegionalBlobStore } from './regional-blob-store.cjs'
 
+// https://github.com/vercel/next.js/pull/68193/files#diff-37243d614f1f5d3f7ea50bbf2af263f6b1a9a4f70e84427977781e07b02f57f1R49
+// This import resulted in importing unbundled React which depending if NODE_ENV is `production` or not would use
+// either development or production version of React. When not set to `production` it would use development version
+// which later cause mismatching problems when both development and production versions of React were loaded causing
+// react errors.
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore ignoring readonly NODE_ENV
+process.env.NODE_ENV = 'production'
+
 console.time('import next server')
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
