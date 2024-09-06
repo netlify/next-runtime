@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.7.1](https://github.com/netlify/next-runtime/compare/v5.7.0...v5.7.1) (2024-09-06)
+
+
+### Bug Fixes
+
+* generate correct import path when 'src' directory is used and middleware imports wasm module ([#2583](https://github.com/netlify/next-runtime/issues/2583)) ([b54b682](https://github.com/netlify/next-runtime/commit/b54b682db7fb92242175482c5d9fc201c9899d63))
+* update cache handler to accommodate changes in next@canary ([#2572](https://github.com/netlify/next-runtime/issues/2572)) ([83f685e](https://github.com/netlify/next-runtime/commit/83f685e15552cee1c8a4d6c68251c01ff1cfe3fb))
+
 ## [5.7.0](https://github.com/netlify/next-runtime/compare/v5.6.0...v5.7.0) (2024-08-26)
 
 
