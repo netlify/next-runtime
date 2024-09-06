@@ -1,5 +1,6 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { dirname, join, relative, sep } from 'node:path'
+import { sep as posixSep } from 'node:path/posix'
 
 import type { Manifest, ManifestFunction } from '@netlify/edge-functions'
 import { glob } from 'fast-glob'
@@ -7,6 +8,8 @@ import type { EdgeFunctionDefinition as NextDefinition } from 'next/dist/build/w
 import { pathToRegexp } from 'path-to-regexp'
 
 import { EDGE_HANDLER_NAME, PluginContext } from '../plugin-context.js'
+
+const toPosixPath = (path: string) => path.split(sep).join(posixSep)
 
 const writeEdgeManifest = async (ctx: PluginContext, manifest: Manifest) => {
   await mkdir(ctx.edgeFunctionsDir, { recursive: true })
@@ -107,10 +110,19 @@ const copyHandlerDependencies = async (
 
   const parts = [shim]
 
+  const outputFile = join(destDir, `server/${name}.js`)
+
   if (wasm?.length) {
-    parts.push(
-      `import { decode as _base64Decode } from "../edge-runtime/vendor/deno.land/std@0.175.0/encoding/base64.ts";`,
+    const base64ModulePath = join(
+      destDir,
+      'edge-runtime/vendor/deno.land/std@0.175.0/encoding/base64.ts',
     )
+
+    const base64ModulePathRelativeToOutputFile = toPosixPath(
+      relative(dirname(outputFile), base64ModulePath),
+    )
+
+    parts.push(`import { decode as _base64Decode } from "${base64ModulePathRelativeToOutputFile}";`)
     for (const wasmChunk of wasm ?? []) {
       const data = await readFile(join(srcDir, wasmChunk.filePath))
       parts.push(
@@ -126,9 +138,9 @@ const copyHandlerDependencies = async (
     parts.push(`;// Concatenated file: ${file} \n`, entrypoint)
   }
   const exports = `const middlewareEntryKey = Object.keys(_ENTRIES).find(entryKey => entryKey.startsWith("middleware_${name}")); export default _ENTRIES[middlewareEntryKey].default;`
-  await mkdir(dirname(join(destDir, `server/${name}.js`)), { recursive: true })
+  await mkdir(dirname(outputFile), { recursive: true })
 
-  await writeFile(join(destDir, `server/${name}.js`), [...parts, exports].join('\n'))
+  await writeFile(outputFile, [...parts, exports].join('\n'))
 }
 
 const createEdgeHandler = async (ctx: PluginContext, definition: NextDefinition): Promise<void> => {
