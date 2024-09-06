@@ -1,0 +1,16 @@
+{
+  "name": "og-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "next build",
+    "dev": "next dev",
+    "build": "next build"
+  },
+  "dependencies": {
+    "@vercel/og": "latest",
+    "next": "latest",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}

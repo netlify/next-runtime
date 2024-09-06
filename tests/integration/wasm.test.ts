@@ -21,7 +21,10 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   await startMockBlobStore(ctx)
 })
 
-describe('WASM', () => {
+describe.each([
+  { fixture: 'wasm', edgeHandlerFunction: '___netlify-edge-handler-middleware' },
+  { fixture: 'wasm-src', edgeHandlerFunction: '___netlify-edge-handler-src-middleware' },
+])('$fixture', ({ fixture, edgeHandlerFunction }) => {
   beforeEach<FixtureTestContext>(async (ctx) => {
     // set for each test a new deployID and siteID
     ctx.deployID = generateRandomObjectID()
@@ -33,7 +36,7 @@ describe('WASM', () => {
 
     await startMockBlobStore(ctx)
 
-    await createFixture('wasm', ctx)
+    await createFixture(fixture, ctx)
     await runPlugin(ctx)
   })
 
@@ -58,7 +61,7 @@ describe('WASM', () => {
   test<FixtureTestContext>('should work in middleware', async (ctx) => {
     const origin = new LocalServer()
     const response = await invokeEdgeFunction(ctx, {
-      functions: ['___netlify-edge-handler-middleware'],
+      functions: [edgeHandlerFunction],
       origin,
       url: '/wasm?input=3',
     })
