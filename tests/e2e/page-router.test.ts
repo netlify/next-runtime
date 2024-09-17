@@ -344,9 +344,7 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     // https://github.com/vercel/next.js/pull/69802 made changes to returned cache-control header,
     // after that (14.2.10 and canary.147) 404 pages would have `private` directive, before that
     // it would not
-    const shouldHavePrivateDirective = nextVersionSatisfies(
-      '>=14.2.10 <15.0.0 || >=15.0.0-canary.147',
-    )
+    const shouldHavePrivateDirective = nextVersionSatisfies('^14.2.10 || >=15.0.0-canary.147')
     expect(headers['netlify-cdn-cache-control']).toBe(
       (shouldHavePrivateDirective ? 'private, ' : '') +
         'no-cache, no-store, max-age=0, must-revalidate, durable',
@@ -1052,9 +1050,7 @@ test.describe('Page Router with basePath and i18n', () => {
 
     // https://github.com/vercel/next.js/pull/69802 made changes to returned cache-control header,
     // after that 404 pages would have `private` directive, before that it would not
-    const shouldHavePrivateDirective = nextVersionSatisfies(
-      '>=14.2.10 <15.0.0 || >=15.0.0-canary.147',
-    )
+    const shouldHavePrivateDirective = nextVersionSatisfies('^14.2.10 || >=15.0.0-canary.147')
     expect(headers['netlify-cdn-cache-control']).toBe(
       (shouldHavePrivateDirective ? 'private, ' : '') +
         'no-cache, no-store, max-age=0, must-revalidate, durable',
