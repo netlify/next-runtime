@@ -65,7 +65,7 @@ describe('page router', () => {
     expect(call1.headers, 'a stale page served with swr').toEqual(
       expect.objectContaining({
         'cache-status': '"Next.js"; hit; fwd=stale',
-        'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate',
+        'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate, durable',
       }),
     )
 
@@ -223,7 +223,7 @@ describe('app router', () => {
       // It will be stale instead of hit
       expect.objectContaining({
         'cache-status': '"Next.js"; hit; fwd=stale',
-        'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate',
+        'netlify-cdn-cache-control': 'public, max-age=0, must-revalidate, durable',
       }),
     )
     expect(

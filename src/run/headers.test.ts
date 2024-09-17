@@ -238,7 +238,7 @@ describe('headers', () => {
         expect(headers.set).toHaveBeenNthCalledWith(
           1,
           'netlify-cdn-cache-control',
-          'public, max-age=0, must-revalidate',
+          'public, max-age=0, must-revalidate, durable',
         )
       })
 
@@ -257,7 +257,7 @@ describe('headers', () => {
         expect(headers.set).toHaveBeenNthCalledWith(
           1,
           'netlify-cdn-cache-control',
-          'public, max-age=0, must-revalidate',
+          'public, max-age=0, must-revalidate, durable',
         )
       })
 
