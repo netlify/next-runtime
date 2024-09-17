@@ -198,7 +198,7 @@ test<FixtureTestContext>('cacheable route handler is cached on cdn (revalidate=1
   const firstTimeCachedResponse = await invokeFunction(ctx, { url: '/api/cached-revalidate' })
   // this will be "stale" response from build
   expect(firstTimeCachedResponse.headers['netlify-cdn-cache-control']).toBe(
-    'public, max-age=0, must-revalidate',
+    'public, max-age=0, must-revalidate, durable',
   )
 
   // allow server to regenerate fresh response in background
