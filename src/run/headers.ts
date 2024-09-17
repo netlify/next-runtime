@@ -224,7 +224,7 @@ export const setCacheControlHeaders = (
     const cdnCacheControl =
       // if we are serving already stale response, instruct edge to not attempt to cache that response
       headers.get('x-nextjs-cache') === 'STALE'
-        ? 'public, max-age=0, must-revalidate'
+        ? 'public, max-age=0, must-revalidate, durable'
         : `s-maxage=${requestContext.routeHandlerRevalidate === false ? 31536000 : requestContext.routeHandlerRevalidate}, stale-while-revalidate=31536000, durable`
 
     headers.set('netlify-cdn-cache-control', cdnCacheControl)
@@ -246,7 +246,7 @@ export const setCacheControlHeaders = (
     const cdnCacheControl =
       // if we are serving already stale response, instruct edge to not attempt to cache that response
       headers.get('x-nextjs-cache') === 'STALE'
-        ? 'public, max-age=0, must-revalidate'
+        ? 'public, max-age=0, must-revalidate, durable'
         : [
             ...getHeaderValueArray(cacheControl).map((value) =>
               value === 'stale-while-revalidate' ? 'stale-while-revalidate=31536000' : value,
