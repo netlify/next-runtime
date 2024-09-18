@@ -59,7 +59,6 @@ export const startMockBlobStore = async (ctx: FixtureTestContext) => {
   ctx.blobStore = getDeployStore({
     apiURL: `http://${ctx.blobStoreHost}`,
     deployID: ctx.deployID,
-    experimentalRegion: 'context',
     siteID: ctx.siteID,
     token: BLOB_TOKEN,
   })
@@ -74,7 +73,6 @@ export const getBlobEntries = async (ctx: FixtureTestContext) => {
     : getDeployStore({
         apiURL: `http://${ctx.blobStoreHost}`,
         deployID: ctx.deployID,
-        experimentalRegion: 'context',
         siteID: ctx.siteID,
         token: BLOB_TOKEN,
       })
