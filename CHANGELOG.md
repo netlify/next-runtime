@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.7.2](https://github.com/netlify/next-runtime/compare/v5.7.1...v5.7.2) (2024-09-17)
+
+
+### Bug Fixes
+
+* use durable cache when serving stale response ([#2591](https://github.com/netlify/next-runtime/issues/2591)) ([79e2a2c](https://github.com/netlify/next-runtime/commit/79e2a2cef15a6e14835ec831ae6fa2faa6139b6d))
+
 ## [5.7.1](https://github.com/netlify/next-runtime/compare/v5.7.0...v5.7.1) (2024-09-06)
 
 
