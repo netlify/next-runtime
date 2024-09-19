@@ -1,13 +1,11 @@
-import { getDeployStore, Store } from '@netlify/blobs'
+import { getDeployStore, GetWithMetadataOptions, Store } from '@netlify/blobs'
 
 const fetchBeforeNextPatchedIt = globalThis.fetch
 
-export const getRegionalBlobStore = (args: Parameters<typeof getDeployStore>[0] = {}): Store => {
-  const options = typeof args === 'string' ? { name: args } : args
+export const getRegionalBlobStore = (args: GetWithMetadataOptions = {}): Store => {
   return getDeployStore({
-    ...options,
+    ...args,
     fetch: fetchBeforeNextPatchedIt,
-    experimentalRegion:
-      process.env.USE_REGIONAL_BLOBS?.toUpperCase() === 'TRUE' ? 'context' : undefined,
+    region: process.env.USE_REGIONAL_BLOBS?.toUpperCase() === 'TRUE' ? undefined : 'us-east-2',
   })
 }

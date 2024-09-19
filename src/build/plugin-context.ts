@@ -153,10 +153,6 @@ export class PluginContext {
   }
 
   get useRegionalBlobs(): boolean {
-    if (!(this.featureFlags || {})['next-runtime-regional-blobs']) {
-      return false
-    }
-
     // Region-aware blobs are only available as of CLI v17.23.5 (i.e. Build v29.41.5)
     const REQUIRED_BUILD_VERSION = '>=29.41.5'
     return satisfies(this.buildVersion, REQUIRED_BUILD_VERSION, { includePrerelease: true })
