@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 import { trace } from '@opentelemetry/api'
@@ -8,7 +8,6 @@ import { glob } from 'fast-glob'
 import pLimit from 'p-limit'
 import { satisfies } from 'semver'
 
-import { encodeBlobKey } from '../../shared/blobkey.js'
 import type {
   CachedFetchValueForMultipleVersions,
   NetlifyCachedAppPageValue,
@@ -31,13 +30,11 @@ const writeCacheEntry = async (
   lastModified: number,
   ctx: PluginContext,
 ): Promise<void> => {
-  const path = join(ctx.blobDir, await encodeBlobKey(route))
   const entry = JSON.stringify({
     lastModified,
     value,
   } satisfies NetlifyCacheHandlerValue)
-
-  await writeFile(path, entry, 'utf-8')
+  await ctx.setBlob(route, entry)
 }
 
 /**

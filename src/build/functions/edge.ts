@@ -2,7 +2,7 @@ import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, relative, sep } from 'node:path'
 import { sep as posixSep } from 'node:path/posix'
 
-import type { Manifest, ManifestFunction } from '@netlify/edge-functions'
+import type { IntegrationsConfig, Manifest, ManifestFunction } from '@netlify/edge-functions'
 import { glob } from 'fast-glob'
 import type { EdgeFunctionDefinition as NextDefinition } from 'next/dist/build/webpack/plugins/middleware-plugin.js'
 import { pathToRegexp } from 'path-to-regexp'
@@ -56,7 +56,23 @@ const augmentMatchers = (
   })
 }
 
-const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefinition) => {
+const getHandlerName = ({ name }: Pick<NextDefinition, 'name'>): string =>
+  `${EDGE_HANDLER_NAME}-${name.replace(/\W/g, '-')}`
+
+const getEdgeFunctionSharedConfig = (
+  ctx: PluginContext,
+  { name, page }: Pick<NextDefinition, 'name' | 'page'>,
+) => {
+  return {
+    name: name.endsWith('middleware')
+      ? 'Next.js Middleware Handler'
+      : `Next.js Edge Handler: ${page}`,
+    cache: name.endsWith('middleware') ? undefined : ('manual' as const),
+    generator: `${ctx.pluginName}@${ctx.pluginVersion}`,
+  }
+}
+
+const writeHandlerFile = async (ctx: PluginContext, { matchers, name, page }: NextDefinition) => {
   const nextConfig = ctx.buildConfig
   const handlerName = getHandlerName({ name })
   const handlerDirectory = join(ctx.edgeFunctionsDir, handlerName)
@@ -65,6 +81,8 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
   // Copying the runtime files. These are the compatibility layer between
   // Netlify Edge Functions and the Next.js edge runtime.
   await copyRuntime(ctx, handlerDirectory)
+
+  const augmentedMatchers = augmentMatchers(matchers, ctx)
 
   // Writing a file with the matchers that should trigger this function. We'll
   // read this file from the function at runtime.
@@ -85,6 +103,14 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
     JSON.stringify(minimalNextConfig),
   )
 
+  const isc =
+    ctx.edgeFunctionsConfigStrategy === 'inline'
+      ? `export const config = ${JSON.stringify({
+          ...getEdgeFunctionSharedConfig(ctx, { name, page }),
+          pattern: augmentedMatchers.map((matcher) => matcher.regexp),
+        } satisfies IntegrationsConfig)};`
+      : ``
+
   // Writing the function entry file. It wraps the middleware code with the
   // compatibility layer mentioned above.
   await writeFile(
@@ -93,7 +119,7 @@ const writeHandlerFile = async (ctx: PluginContext, { matchers, name }: NextDefi
     import {handleMiddleware} from './edge-runtime/middleware.ts';
     import handler from './server/${name}.js';
     export default (req, context) => handleMiddleware(req, context, handler);
-    `,
+    ${isc}`,
   )
 }
 
@@ -148,26 +174,16 @@ const createEdgeHandler = async (ctx: PluginContext, definition: NextDefinition)
   await writeHandlerFile(ctx, definition)
 }
 
-const getHandlerName = ({ name }: Pick<NextDefinition, 'name'>): string =>
-  `${EDGE_HANDLER_NAME}-${name.replace(/\W/g, '-')}`
-
 const buildHandlerDefinition = (
   ctx: PluginContext,
   { name, matchers, page }: NextDefinition,
 ): Array<ManifestFunction> => {
   const fun = getHandlerName({ name })
-  const funName = name.endsWith('middleware')
-    ? 'Next.js Middleware Handler'
-    : `Next.js Edge Handler: ${page}`
-  const cache = name.endsWith('middleware') ? undefined : ('manual' as const)
-  const generator = `${ctx.pluginName}@${ctx.pluginVersion}`
 
   return augmentMatchers(matchers, ctx).map((matcher) => ({
+    ...getEdgeFunctionSharedConfig(ctx, { name, page }),
     function: fun,
-    name: funName,
     pattern: matcher.regexp,
-    cache,
-    generator,
   }))
 }
 
@@ -183,10 +199,12 @@ export const createEdgeHandlers = async (ctx: PluginContext) => {
   ]
   await Promise.all(nextDefinitions.map((def) => createEdgeHandler(ctx, def)))
 
-  const netlifyDefinitions = nextDefinitions.flatMap((def) => buildHandlerDefinition(ctx, def))
-  const netlifyManifest: Manifest = {
-    version: 1,
-    functions: netlifyDefinitions,
+  if (ctx.edgeFunctionsConfigStrategy === 'manifest') {
+    const netlifyDefinitions = nextDefinitions.flatMap((def) => buildHandlerDefinition(ctx, def))
+    const netlifyManifest: Manifest = {
+      version: 1,
+      functions: netlifyDefinitions,
+    }
+    await writeEdgeManifest(ctx, netlifyManifest)
   }
-  await writeEdgeManifest(ctx, netlifyManifest)
 }
