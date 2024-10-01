@@ -3,7 +3,7 @@
 import { readFile, writeFile } from 'node:fs/promises'
 
 import fg from 'fast-glob'
-import { gte, satisfies, valid } from 'semver'
+import { coerce, gt, gte, satisfies, valid } from 'semver'
 import { execaCommand } from 'execa'
 
 const FUTURE_NEXT_PATCH_VERSION = '14.999.0'
@@ -105,10 +105,36 @@ export async function setNextVersionInFixture(
         const nextPeerDependencies = JSON.parse(stdout)
 
         if (updateReact && nextVersionRequiresReact19(checkVersion)) {
+          // canaries started reporting peerDependencies as `^18.2.0 || 19.0.0-rc-<hash>-<date>`
+          // with https://github.com/vercel/next.js/pull/70219 which is valid range for package managers
+          // but not for @nx/next which checks dependencies and tries to assure that at least React 18 is used
+          // but the check doesn't handle the alternative in version selector which thinks it's not valid:
+          // https://github.com/nrwl/nx/blob/8fa7065cf14df6a90896442f90659b00baa1b5b9/packages/next/src/executors/build/build.impl.ts#L48
+          // https://github.com/nrwl/nx/blob/8fa7065cf14df6a90896442f90659b00baa1b5b9/packages/devkit/src/utils/semver.ts#L17
+          // so to workaround this nx/next issue we modify next peerDeps to extract highest version alternative to use
+          const nextReactPeerDependency = nextPeerDependencies['react'] ?? '^18.2.0'
+          const highestNextReactPeerDependencySelector = nextReactPeerDependency
+            .split('||')
+            .map((alternative) => {
+              const selector = alternative.trim()
+              const coerced = coerce(selector)?.format()
+              return {
+                selector,
+                coerced,
+              }
+            })
+            .sort((a, b) => {
+              return gt(a.coerced, b.coerced) ? -1 : 1
+            })[0].selector
+
           const reactVersion =
-            operation === 'update' ? nextPeerDependencies['react'] : REACT_18_VERSION
+            operation === 'update' ? highestNextReactPeerDependencySelector : REACT_18_VERSION
           packageJson.dependencies.react = reactVersion
           packageJson.dependencies['react-dom'] = reactVersion
+
+          if (!silent) {
+            console.log(`${logPrefix}▲ Setting react(-dom)@${reactVersion}`)
+          }
         }
 
         await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n')
