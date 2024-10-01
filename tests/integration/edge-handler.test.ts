@@ -503,6 +503,30 @@ describe('page router', () => {
     expect(response.status).toBe(302)
   })
 
+  test<FixtureTestContext>('should support redirects to default locale without changing path', async (ctx) => {
+    await createFixture('middleware-i18n', ctx)
+    await runPlugin(ctx)
+    const origin = await LocalServer.run(async (req, res) => {
+      res.write(
+        JSON.stringify({
+          url: req.url,
+          headers: req.headers,
+        }),
+      )
+      res.end()
+    })
+    ctx.cleanup?.push(() => origin.stop())
+    const response = await invokeEdgeFunction(ctx, {
+      functions: ['___netlify-edge-handler-middleware'],
+      origin,
+      url: `/fr/redirect-to-same-page-but-default-locale`,
+      redirect: 'manual',
+    })
+    const url = new URL(response.headers.get('location') ?? '', 'http://n/')
+    expect(url.pathname).toBe('/redirect-to-same-page-but-default-locale')
+    expect(response.status).toBe(302)
+  })
+
   test<FixtureTestContext>('should preserve locale in request.nextUrl', async (ctx) => {
     await createFixture('middleware-i18n', ctx)
     await runPlugin(ctx)

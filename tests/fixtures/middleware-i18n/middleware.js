@@ -81,6 +81,11 @@ export async function middleware(request) {
     return Response.redirect(new URL('/new-home#fragment', url))
   }
 
+  if (url.locale !== 'en' && url.pathname === '/redirect-to-same-page-but-default-locale') {
+    url.locale = 'en'
+    return Response.redirect(url)
+  }
+
   if (url.pathname.includes('/json')) {
     return NextResponse.json({
       requestUrlPathname: new URL(request.url).pathname,
