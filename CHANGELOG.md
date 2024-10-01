@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.7.3](https://github.com/netlify/next-runtime/compare/v5.7.2...v5.7.3) (2024-10-01)
+
+
+### Bug Fixes
+
+* handle middleware redirects to default locale and same path ([#2636](https://github.com/netlify/next-runtime/issues/2636)) ([f0fa7d0](https://github.com/netlify/next-runtime/commit/f0fa7d0f6829265c04b7b1c90f24c1815c988648))
+
 ## [5.7.2](https://github.com/netlify/next-runtime/compare/v5.7.1...v5.7.2) (2024-09-17)
 
 
