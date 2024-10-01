@@ -61,7 +61,6 @@ export async function handleMiddleware(
       logger: reqLogger,
       request,
       result,
-      requestLocale: nextRequest.detectedLocale,
       nextConfig,
     })
 

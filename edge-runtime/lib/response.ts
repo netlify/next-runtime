@@ -24,7 +24,6 @@ interface BuildResponseOptions {
   request: Request
   result: FetchEventResult
   nextConfig?: RequestData['nextConfig']
-  requestLocale?: string
 }
 
 export const buildResponse = async ({
@@ -33,7 +32,6 @@ export const buildResponse = async ({
   request,
   result,
   nextConfig,
-  requestLocale,
 }: BuildResponseOptions): Promise<Response | void> => {
   logger
     .withFields({ is_nextresponse_next: result.response.headers.has('x-middleware-next') })
@@ -197,11 +195,10 @@ export const buildResponse = async ({
     return addMiddlewareHeaders(context.rewrite(target), res)
   }
 
-  // If we are redirecting a request that had a locale in the URL, we need to add it back in
-  if (redirect && requestLocale) {
-    redirect = normalizeLocalizedTarget({ target: redirect, request, nextConfig, requestLocale })
+  if (redirect) {
+    redirect = normalizeLocalizedTarget({ target: redirect, request, nextConfig })
     if (redirect === request.url) {
-      logger.withFields({ rewrite_url: rewrite }).debug('Rewrite url is same as original url')
+      logger.withFields({ redirect_url: redirect }).debug('Redirect url is same as original url')
       return
     }
     res.headers.set('location', redirect)
@@ -234,25 +231,25 @@ function normalizeLocalizedTarget({
   target,
   request,
   nextConfig,
-  requestLocale,
 }: {
   target: string
   request: Request
   nextConfig?: RequestData['nextConfig']
-  requestLocale?: string
-}) {
+}): string {
   const targetUrl = new URL(target, request.url)
 
   const normalizedTarget = normalizeLocalePath(targetUrl.pathname, nextConfig?.i18n?.locales)
 
-  const locale = normalizedTarget.detectedLocale ?? requestLocale
   if (
-    locale &&
+    normalizedTarget.detectedLocale &&
     !normalizedTarget.pathname.startsWith(`/api/`) &&
     !normalizedTarget.pathname.startsWith(`/_next/static/`)
   ) {
     targetUrl.pathname =
-      addBasePath(`/${locale}${normalizedTarget.pathname}`, nextConfig?.basePath) || `/`
+      addBasePath(
+        `/${normalizedTarget.detectedLocale}${normalizedTarget.pathname}`,
+        nextConfig?.basePath,
+      ) || `/`
   } else {
     targetUrl.pathname = addBasePath(normalizedTarget.pathname, nextConfig?.basePath) || `/`
   }
