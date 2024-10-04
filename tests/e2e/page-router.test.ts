@@ -80,12 +80,28 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
         revalidateApiBasePath: '/api/revalidate-no-await',
         expectedH1Content: 'Product not-prerendered-and-not-awaited-revalidation',
       },
+      {
+        label:
+          'prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
+        prerendered: true,
+        pagePath: '/products/事前レンダリング',
+        revalidateApiBasePath: '/api/revalidate',
+        expectedH1Content: 'Product 事前レンダリング',
+      },
+      {
+        label:
+          'not prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
+        prerendered: false,
+        pagePath: '/products/事前レンダリングされていない',
+        revalidateApiBasePath: '/api/revalidate',
+        expectedH1Content: 'Product 事前レンダリングされていない',
+      },
     ]) {
       test(label, async ({ page, pollUntilHeadersMatch, pageRouter }) => {
         // in case there is retry or some other test did hit that path before
         // we want to make sure that cdn cache is not warmed up
         const purgeCdnCache = await page.goto(
-          new URL(`/api/purge-cdn?path=${pagePath}`, pageRouter.url).href,
+          new URL(`/api/purge-cdn?path=${encodeURI(pagePath)}`, pageRouter.url).href,
         )
         expect(purgeCdnCache?.status()).toBe(200)
 
@@ -110,7 +126,7 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
         const headers1 = response1?.headers() || {}
         expect(response1?.status()).toBe(200)
         expect(headers1['x-nextjs-cache']).toBeUndefined()
-        expect(headers1['netlify-cache-tag']).toBe(`_n_t_${pagePath}`)
+        expect(headers1['netlify-cache-tag']).toBe(`_n_t_${encodeURI(pagePath).toLowerCase()}`)
         expect(headers1['netlify-cdn-cache-control']).toBe(
           's-maxage=31536000, stale-while-revalidate=31536000, durable',
         )
@@ -138,7 +154,7 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
         const headers1Json = response1Json?.headers() || {}
         expect(response1Json?.status()).toBe(200)
         expect(headers1Json['x-nextjs-cache']).toBeUndefined()
-        expect(headers1Json['netlify-cache-tag']).toBe(`_n_t_${pagePath}`)
+        expect(headers1Json['netlify-cache-tag']).toBe(`_n_t_${encodeURI(pagePath).toLowerCase()}`)
         expect(headers1Json['netlify-cdn-cache-control']).toBe(
           's-maxage=31536000, stale-while-revalidate=31536000, durable',
         )
@@ -459,14 +475,32 @@ test.describe('Page Router with basePath and i18n', () => {
         revalidateApiBasePath: '/api/revalidate-no-await',
         expectedH1Content: 'Product not-prerendered-and-not-awaited-revalidation',
       },
+      {
+        label:
+          'prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
+        prerendered: true,
+        pagePath: '/products/事前レンダリング',
+        revalidateApiBasePath: '/api/revalidate',
+        expectedH1Content: 'Product 事前レンダリング',
+      },
+      {
+        label:
+          'not prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
+        prerendered: false,
+        pagePath: '/products/事前レンダリングされていない',
+        revalidateApiBasePath: '/api/revalidate',
+        expectedH1Content: 'Product 事前レンダリングされていない',
+      },
     ]) {
       test.describe(label, () => {
         test(`default locale`, async ({ page, pollUntilHeadersMatch, pageRouterBasePathI18n }) => {
           // in case there is retry or some other test did hit that path before
           // we want to make sure that cdn cache is not warmed up
           const purgeCdnCache = await page.goto(
-            new URL(`/base/path/api/purge-cdn?path=/en${pagePath}`, pageRouterBasePathI18n.url)
-              .href,
+            new URL(
+              `/base/path/api/purge-cdn?path=/en${encodeURI(pagePath)}`,
+              pageRouterBasePathI18n.url,
+            ).href,
           )
           expect(purgeCdnCache?.status()).toBe(200)
 
@@ -494,7 +528,9 @@ test.describe('Page Router with basePath and i18n', () => {
           const headers1ImplicitLocale = response1ImplicitLocale?.headers() || {}
           expect(response1ImplicitLocale?.status()).toBe(200)
           expect(headers1ImplicitLocale['x-nextjs-cache']).toBeUndefined()
-          expect(headers1ImplicitLocale['netlify-cache-tag']).toBe(`_n_t_/en${pagePath}`)
+          expect(headers1ImplicitLocale['netlify-cache-tag']).toBe(
+            `_n_t_/en${encodeURI(pagePath).toLowerCase()}`,
+          )
           expect(headers1ImplicitLocale['netlify-cdn-cache-control']).toBe(
             's-maxage=31536000, stale-while-revalidate=31536000, durable',
           )
@@ -520,7 +556,9 @@ test.describe('Page Router with basePath and i18n', () => {
           const headers1ExplicitLocale = response1ExplicitLocale?.headers() || {}
           expect(response1ExplicitLocale?.status()).toBe(200)
           expect(headers1ExplicitLocale['x-nextjs-cache']).toBeUndefined()
-          expect(headers1ExplicitLocale['netlify-cache-tag']).toBe(`_n_t_/en${pagePath}`)
+          expect(headers1ExplicitLocale['netlify-cache-tag']).toBe(
+            `_n_t_/en${encodeURI(pagePath).toLowerCase()}`,
+          )
           expect(headers1ExplicitLocale['netlify-cdn-cache-control']).toBe(
             's-maxage=31536000, stale-while-revalidate=31536000, durable',
           )
@@ -552,7 +590,9 @@ test.describe('Page Router with basePath and i18n', () => {
           const headers1Json = response1Json?.headers() || {}
           expect(response1Json?.status()).toBe(200)
           expect(headers1Json['x-nextjs-cache']).toBeUndefined()
-          expect(headers1Json['netlify-cache-tag']).toBe(`_n_t_/en${pagePath}`)
+          expect(headers1Json['netlify-cache-tag']).toBe(
+            `_n_t_/en${encodeURI(pagePath).toLowerCase()}`,
+          )
           expect(headers1Json['netlify-cdn-cache-control']).toBe(
             's-maxage=31536000, stale-while-revalidate=31536000, durable',
           )
@@ -870,7 +910,7 @@ test.describe('Page Router with basePath and i18n', () => {
           const headers1 = response1?.headers() || {}
           expect(response1?.status()).toBe(200)
           expect(headers1['x-nextjs-cache']).toBeUndefined()
-          expect(headers1['netlify-cache-tag']).toBe(`_n_t_/de${pagePath}`)
+          expect(headers1['netlify-cache-tag']).toBe(`_n_t_/de${encodeURI(pagePath).toLowerCase()}`)
           expect(headers1['netlify-cdn-cache-control']).toBe(
             's-maxage=31536000, stale-while-revalidate=31536000, durable',
           )
@@ -899,7 +939,9 @@ test.describe('Page Router with basePath and i18n', () => {
           const headers1Json = response1Json?.headers() || {}
           expect(response1Json?.status()).toBe(200)
           expect(headers1Json['x-nextjs-cache']).toBeUndefined()
-          expect(headers1Json['netlify-cache-tag']).toBe(`_n_t_/de${pagePath}`)
+          expect(headers1Json['netlify-cache-tag']).toBe(
+            `_n_t_/de${encodeURI(pagePath).toLowerCase()}`,
+          )
           expect(headers1Json['netlify-cdn-cache-control']).toBe(
             's-maxage=31536000, stale-while-revalidate=31536000, durable',
           )

@@ -17,22 +17,22 @@ export async function getStaticProps({ params }) {
   }
 }
 
-export const getStaticPaths = () => {
+/** @type {import('next').GetStaticPaths} */
+export const getStaticPaths = ({ locales }) => {
   return {
     paths: [
       {
         params: {
           slug: 'prerendered',
         },
-        locale: 'en',
       },
       {
         params: {
-          slug: 'prerendered',
+          // Japanese prerendered (non-ascii)
+          slug: '事前レンダリング',
         },
-        locale: 'de',
       },
-    ],
+    ].flatMap((pathDescription) => locales.map((locale) => ({ ...pathDescription, locale }))),
     fallback: 'blocking', // false or "blocking"
   }
 }
