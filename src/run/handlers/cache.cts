@@ -147,7 +147,9 @@ export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
       ) {
         // pages router doesn't have cache tags headers in PAGE cache value
         // so we need to generate appropriate cache tags for it
-        const cacheTags = [`_N_T_${key === '/index' ? '/' : key}`]
+        // encode here to deal with non ASCII characters in the key
+
+        const cacheTags = [`_N_T_${key === '/index' ? '/' : encodeURI(key)}`]
         requestContext.responseCacheTags = cacheTags
       }
     }
@@ -341,7 +343,8 @@ export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
       if (data?.kind === 'PAGE' || data?.kind === 'PAGES') {
         const requestContext = getRequestContext()
         if (requestContext?.didPagesRouterOnDemandRevalidate) {
-          const tag = `_N_T_${key === '/index' ? '/' : key}`
+          // encode here to deal with non ASCII characters in the key
+          const tag = `_N_T_${key === '/index' ? '/' : encodeURI(key)}`
           getLogger().debug(`Purging CDN cache for: [${tag}]`)
           requestContext.trackBackgroundWork(
             purgeCache({ tags: [tag] }).catch((error) => {
