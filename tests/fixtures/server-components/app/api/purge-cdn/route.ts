@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     )
   }
   try {
-    await purgeCache({ tags: [`_N_T_${pathToPurge}`] })
+    await purgeCache({ tags: [`_N_T_${encodeURI(pathToPurge)}`] })
     return NextResponse.json(
       {
         status: 'ok',

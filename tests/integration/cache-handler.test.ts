@@ -360,6 +360,7 @@ describe('plugin', () => {
       '/api/static/first',
       '/api/static/second',
       '/index',
+      '/product/事前レンダリング',
       '/revalidate-fetch',
       '/static-fetch-1',
       '/static-fetch-2',
