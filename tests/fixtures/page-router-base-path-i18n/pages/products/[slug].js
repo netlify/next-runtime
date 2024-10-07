@@ -28,8 +28,8 @@ export const getStaticPaths = ({ locales }) => {
       },
       {
         params: {
-          // Japanese prerendered (non-ascii)
-          slug: '事前レンダリング',
+          // Japanese prerendered (non-ascii) and comma
+          slug: '事前レンダリング,test',
         },
       },
     ].flatMap((pathDescription) => locales.map((locale) => ({ ...pathDescription, locale }))),

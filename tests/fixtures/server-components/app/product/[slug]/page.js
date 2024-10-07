@@ -1,6 +1,6 @@
 const Product = ({ params }) => (
   <div>
-    <h1>Product {decodeURI(params.slug)}</h1>
+    <h1>Product {decodeURIComponent(params.slug)}</h1>
     <p>
       This page uses generateStaticParams() to prerender a Product
       <span data-testid="date-now">{new Date().toISOString()}</span>
@@ -11,8 +11,8 @@ const Product = ({ params }) => (
 export async function generateStaticParams() {
   return [
     {
-      // Japanese prerendered (non-ascii)
-      slug: '事前レンダリング',
+      // Japanese prerendered (non-ascii) and comma
+      slug: '事前レンダリング,test',
     },
   ]
 }

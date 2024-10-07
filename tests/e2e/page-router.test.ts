@@ -84,17 +84,17 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
         label:
           'prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
         prerendered: true,
-        pagePath: '/products/事前レンダリング',
+        pagePath: '/products/事前レンダリング,test',
         revalidateApiBasePath: '/api/revalidate',
-        expectedH1Content: 'Product 事前レンダリング',
+        expectedH1Content: 'Product 事前レンダリング,test',
       },
       {
         label:
           'not prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
         prerendered: false,
-        pagePath: '/products/事前レンダリングされていない',
+        pagePath: '/products/事前レンダリングされていない,test',
         revalidateApiBasePath: '/api/revalidate',
-        expectedH1Content: 'Product 事前レンダリングされていない',
+        expectedH1Content: 'Product 事前レンダリングされていない,test',
       },
     ]) {
       test(label, async ({ page, pollUntilHeadersMatch, pageRouter }) => {
@@ -479,17 +479,17 @@ test.describe('Page Router with basePath and i18n', () => {
         label:
           'prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
         prerendered: true,
-        pagePath: '/products/事前レンダリング',
+        pagePath: '/products/事前レンダリング,test',
         revalidateApiBasePath: '/api/revalidate',
-        expectedH1Content: 'Product 事前レンダリング',
+        expectedH1Content: 'Product 事前レンダリング,test',
       },
       {
         label:
           'not prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
         prerendered: false,
-        pagePath: '/products/事前レンダリングされていない',
+        pagePath: '/products/事前レンダリングされていない,test',
         revalidateApiBasePath: '/api/revalidate',
-        expectedH1Content: 'Product 事前レンダリングされていない',
+        expectedH1Content: 'Product 事前レンダリングされていない,test',
       },
     ]) {
       test.describe(label, () => {

@@ -48,16 +48,16 @@ test.describe('app router on-demand revalidation', () => {
     {
       label: 'revalidatePath (prerendered page with dynamic path) - non-ASCII variant',
       prerendered: true,
-      pagePath: '/product/事前レンダリング',
-      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリング`,
-      expectedH1Content: 'Product 事前レンダリング',
+      pagePath: '/product/事前レンダリング,test',
+      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリング,test`,
+      expectedH1Content: 'Product 事前レンダリング,test',
     },
     {
       label: 'revalidatePath (not prerendered page with dynamic path) - non-ASCII variant',
       prerendered: false,
-      pagePath: '/product/事前レンダリングされていない',
-      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリングされていない`,
-      expectedH1Content: 'Product 事前レンダリングされていない',
+      pagePath: '/product/事前レンダリングされていない,test',
+      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリングされていない,test`,
+      expectedH1Content: 'Product 事前レンダリングされていない,test',
     },
   ]) {
     test(label, async ({ page, pollUntilHeadersMatch, serverComponents }) => {

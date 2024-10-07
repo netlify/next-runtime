@@ -37,7 +37,7 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
   expect(entries.map(({ key }) => decodeBlobKey(key.substring(0, 50))).sort()).toEqual([
     '/products/an-incredibly-long-product-',
     '/products/prerendered',
-    '/products/事前レンダリング',
+    '/products/事前レンダリング,te',
     '/static/revalidate-automatic',
     '/static/revalidate-manual',
     '/static/revalidate-slow',

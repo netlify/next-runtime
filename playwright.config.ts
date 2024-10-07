@@ -25,6 +25,7 @@ export default defineConfig({
     extraHTTPHeaders: {
       /* Add debug logging for netlify cache headers */
       'x-nf-debug-logging': '1',
+      'x-next-debug-logging': '1',
     },
   },
   timeout: 10 * 60 * 1000,

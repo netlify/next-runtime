@@ -139,7 +139,7 @@ export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
       cacheValue.kind === 'APP_ROUTE'
     ) {
       if (cacheValue.headers?.[NEXT_CACHE_TAGS_HEADER]) {
-        const cacheTags = (cacheValue.headers[NEXT_CACHE_TAGS_HEADER] as string).split(',')
+        const cacheTags = (cacheValue.headers[NEXT_CACHE_TAGS_HEADER] as string).split(/,|%2c/gi)
         requestContext.responseCacheTags = cacheTags
       } else if (
         (cacheValue.kind === 'PAGE' || cacheValue.kind === 'PAGES') &&
@@ -347,7 +347,7 @@ export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
           const tag = `_N_T_${key === '/index' ? '/' : encodeURI(key)}`
           getLogger().debug(`Purging CDN cache for: [${tag}]`)
           requestContext.trackBackgroundWork(
-            purgeCache({ tags: [tag] }).catch((error) => {
+            purgeCache({ tags: tag.split(/,|%2c/gi) }).catch((error) => {
               // TODO: add reporting here
               getLogger()
                 .withError(error)
@@ -375,7 +375,9 @@ export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
   private async doRevalidateTag(tagOrTags: string | string[], ...args: any) {
     getLogger().withFields({ tagOrTags, args }).debug('NetlifyCacheHandler.revalidateTag')
 
-    const tags = Array.isArray(tagOrTags) ? tagOrTags : [tagOrTags]
+    const tags = (Array.isArray(tagOrTags) ? tagOrTags : [tagOrTags]).flatMap((tag) =>
+      tag.split(/,|%2c/gi),
+    )
 
     const data: TagManifest = {
       revalidatedAt: Date.now(),
@@ -422,7 +424,8 @@ export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
       cacheEntry.value?.kind === 'ROUTE' ||
       cacheEntry.value?.kind === 'APP_ROUTE'
     ) {
-      cacheTags = (cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER] as string)?.split(',') || []
+      cacheTags =
+        (cacheEntry.value.headers?.[NEXT_CACHE_TAGS_HEADER] as string)?.split(/,|%2c/gi) || []
     } else {
       return false
     }
