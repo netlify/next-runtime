@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.7.4](https://github.com/netlify/next-runtime/compare/v5.7.3...v5.7.4) (2024-10-09)
+
+
+### Bug Fixes
+
+* handle non ASCII characters in cache-tag headers ([#2645](https://github.com/netlify/next-runtime/issues/2645)) ([fcf2414](https://github.com/netlify/next-runtime/commit/fcf241443cd10dac36e0466c4192bed19b853f00))
+
 ## [5.7.3](https://github.com/netlify/next-runtime/compare/v5.7.2...v5.7.3) (2024-10-01)
 
 
