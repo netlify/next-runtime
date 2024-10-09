@@ -9,6 +9,8 @@ import { glob } from 'fast-glob'
 import pLimit from 'p-limit'
 import { satisfies } from 'semver'
 
+import { FS_BLOBS_MANIFEST } from '../../run/constants.js'
+import { type FSBlobsManifest } from '../../run/next.cjs'
 import { encodeBlobKey } from '../../shared/blobkey.js'
 import type {
   CachedFetchValueForMultipleVersions,
@@ -158,6 +160,11 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
           })
         : false
 
+      const fsBlobsManifest: FSBlobsManifest = {
+        fallbackPaths: [],
+        outputRoot: ctx.distDir,
+      }
+
       await Promise.all([
         ...Object.entries(manifest.routes).map(
           ([route, meta]): Promise<void> =>
@@ -237,6 +244,8 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
                 }
 
                 await writeCacheEntry(key, value, lastModified, ctx)
+
+                fsBlobsManifest.fallbackPaths.push(`${key}.html`)
               }
             })
           }
@@ -254,6 +263,10 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
         )
         await writeCacheEntry(key, value, lastModified, ctx)
       }
+      await writeFile(
+        join(ctx.serverHandlerDir, FS_BLOBS_MANIFEST),
+        JSON.stringify(fsBlobsManifest),
+      )
     } catch (error) {
       ctx.failBuild('Failed assembling prerendered content for upload', error)
     }

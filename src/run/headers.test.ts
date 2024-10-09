@@ -321,7 +321,7 @@ describe('headers', () => {
       })
     })
 
-    test('should not set any headers if "cache-control" is not set and "requestContext.usedFsRead" is not truthy', () => {
+    test('should not set any headers if "cache-control" is not set and "requestContext.usedFsReadForNonFallback" is not truthy', () => {
       const headers = new Headers()
       const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
@@ -331,15 +331,15 @@ describe('headers', () => {
       expect(headers.set).toHaveBeenCalledTimes(0)
     })
 
-    test('should set permanent, durable "netlify-cdn-cache-control" if "cache-control" is not set and "requestContext.usedFsRead" is truthy', () => {
+    test('should set permanent, durable "netlify-cdn-cache-control" if "cache-control" is not set and "requestContext.usedFsReadForNonFallback" is truthy', () => {
       const headers = new Headers()
       const request = new Request(defaultUrl)
       vi.spyOn(headers, 'set')
 
       const requestContext = createRequestContext()
-      requestContext.usedFsRead = true
+      requestContext.usedFsReadForNonFallback = true
 
-      setCacheControlHeaders(headers, request, requestContext, true)
+      setCacheControlHeaders(headers, request, requestContext)
 
       expect(headers.set).toHaveBeenNthCalledWith(
         1,
