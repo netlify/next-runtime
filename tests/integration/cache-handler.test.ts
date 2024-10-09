@@ -43,6 +43,8 @@ describe('page router', () => {
     // check if the blob entries where successful set on the build plugin
     const blobEntries = await getBlobEntries(ctx)
     expect(blobEntries.map(({ key }) => decodeBlobKey(key.substring(0, 50))).sort()).toEqual([
+      '/fallback-true/[slug]',
+      '/fallback-true/prerendered',
       // the real key is much longer and ends in a hash, but we only assert on the first 50 chars to make it easier
       '/products/an-incredibly-long-product-',
       '/products/prerendered',
@@ -53,6 +55,7 @@ describe('page router', () => {
       '/static/revalidate-slow-data',
       '404.html',
       '500.html',
+      'fallback-true/[slug].html',
       'static/fully-static.html',
     ])
 

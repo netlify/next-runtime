@@ -35,6 +35,8 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
 
   const entries = await getBlobEntries(ctx)
   expect(entries.map(({ key }) => decodeBlobKey(key.substring(0, 50))).sort()).toEqual([
+    '/fallback-true/[slug]',
+    '/fallback-true/prerendered',
     '/products/an-incredibly-long-product-',
     '/products/prerendered',
     '/products/事前レンダリング,te',
@@ -44,6 +46,7 @@ test<FixtureTestContext>('requesting a non existing page route that needs to be 
     '/static/revalidate-slow-data',
     '404.html',
     '500.html',
+    'fallback-true/[slug].html',
     'static/fully-static.html',
     // the real key is much longer and ends in a hash, but we only assert on the first 50 chars to make it easier
   ])

@@ -51,30 +51,41 @@ export async function check(
 
 test.describe('Simple Page Router (no basePath, no i18n)', () => {
   test.describe('On-demand revalidate works correctly', () => {
-    for (const { label, prerendered, pagePath, revalidateApiBasePath, expectedH1Content } of [
+    for (const {
+      label,
+      useFallback,
+      prerendered,
+      pagePath,
+      revalidateApiBasePath,
+      expectedH1Content,
+    } of [
       {
-        label: 'prerendered page with static path and awaited res.revalidate()',
+        label:
+          'prerendered page with static path with fallback: blocking and awaited res.revalidate()',
         prerendered: true,
         pagePath: '/static/revalidate-manual',
         revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Show #71',
       },
       {
-        label: 'prerendered page with dynamic path and awaited res.revalidate()',
+        label:
+          'prerendered page with dynamic path with fallback: blocking and awaited res.revalidate()',
         prerendered: true,
         pagePath: '/products/prerendered',
         revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Product prerendered',
       },
       {
-        label: 'not prerendered page with dynamic path and awaited res.revalidate()',
+        label:
+          'not prerendered page with dynamic path with fallback: blocking and awaited res.revalidate()',
         prerendered: false,
         pagePath: '/products/not-prerendered',
         revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Product not-prerendered',
       },
       {
-        label: 'not prerendered page with dynamic path and not awaited res.revalidate()',
+        label:
+          'not prerendered page with dynamic path with fallback: blocking and not awaited res.revalidate()',
         prerendered: false,
         pagePath: '/products/not-prerendered-and-not-awaited-revalidation',
         revalidateApiBasePath: '/api/revalidate-no-await',
@@ -82,7 +93,7 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
       },
       {
         label:
-          'prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
+          'prerendered page with dynamic path with fallback: blocking and awaited res.revalidate() - non-ASCII variant',
         prerendered: true,
         pagePath: '/products/事前レンダリング,test',
         revalidateApiBasePath: '/api/revalidate',
@@ -90,11 +101,28 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
       },
       {
         label:
-          'not prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
+          'not prerendered page with dynamic path with fallback: blocking and awaited res.revalidate() - non-ASCII variant',
         prerendered: false,
         pagePath: '/products/事前レンダリングされていない,test',
         revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Product 事前レンダリングされていない,test',
+      },
+      {
+        label:
+          'prerendered page with dynamic path with fallback: true and awaited res.revalidate()',
+        prerendered: true,
+        pagePath: '/fallback-true/prerendered',
+        revalidateApiBasePath: '/api/revalidate',
+        expectedH1Content: 'Product prerendered',
+      },
+      {
+        label:
+          'not prerendered page with dynamic path with fallback: true and awaited res.revalidate()',
+        prerendered: false,
+        useFallback: true,
+        pagePath: '/fallback-true/not-prerendered',
+        revalidateApiBasePath: '/api/revalidate',
+        expectedH1Content: 'Product not-prerendered',
       },
     ]) {
       test(label, async ({ page, pollUntilHeadersMatch, pageRouter }) => {
@@ -126,10 +154,22 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
         const headers1 = response1?.headers() || {}
         expect(response1?.status()).toBe(200)
         expect(headers1['x-nextjs-cache']).toBeUndefined()
-        expect(headers1['netlify-cache-tag']).toBe(`_n_t_${encodeURI(pagePath).toLowerCase()}`)
-        expect(headers1['netlify-cdn-cache-control']).toBe(
-          's-maxage=31536000, stale-while-revalidate=31536000, durable',
+
+        const fallbackWasServed =
+          useFallback && headers1['cache-status'].includes('"Next.js"; fwd=miss')
+        expect(headers1['netlify-cache-tag']).toBe(
+          fallbackWasServed ? undefined : `_n_t_${encodeURI(pagePath).toLowerCase()}`,
         )
+        expect(headers1['netlify-cdn-cache-control']).toBe(
+          fallbackWasServed
+            ? undefined
+            : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
+        )
+
+        if (fallbackWasServed) {
+          const loading = await page.textContent('[data-testid="loading"]')
+          expect(loading, 'Fallback should be shown').toBe('Loading...')
+        }
 
         const date1 = await page.textContent('[data-testid="date-now"]')
         const h1 = await page.textContent('h1')
@@ -446,7 +486,14 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
 
 test.describe('Page Router with basePath and i18n', () => {
   test.describe('Static revalidate works correctly', () => {
-    for (const { label, prerendered, pagePath, revalidateApiBasePath, expectedH1Content } of [
+    for (const {
+      label,
+      useFallback,
+      prerendered,
+      pagePath,
+      revalidateApiBasePath,
+      expectedH1Content,
+    } of [
       {
         label: 'prerendered page with static path and awaited res.revalidate()',
         prerendered: true,
@@ -455,21 +502,24 @@ test.describe('Page Router with basePath and i18n', () => {
         expectedH1Content: 'Show #71',
       },
       {
-        label: 'prerendered page with dynamic path and awaited res.revalidate()',
+        label:
+          'prerendered page with dynamic path with fallback: blocking and awaited res.revalidate()',
         prerendered: true,
         pagePath: '/products/prerendered',
         revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Product prerendered',
       },
       {
-        label: 'not prerendered page with dynamic path and awaited res.revalidate()',
+        label:
+          'not prerendered page with dynamic path with fallback: blocking and awaited res.revalidate()',
         prerendered: false,
         pagePath: '/products/not-prerendered',
         revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Product not-prerendered',
       },
       {
-        label: 'not prerendered page with dynamic path and not awaited res.revalidate()',
+        label:
+          'not prerendered page with dynamic path with fallback: blocking and not awaited res.revalidate()',
         prerendered: false,
         pagePath: '/products/not-prerendered-and-not-awaited-revalidation',
         revalidateApiBasePath: '/api/revalidate-no-await',
@@ -477,7 +527,7 @@ test.describe('Page Router with basePath and i18n', () => {
       },
       {
         label:
-          'prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
+          'prerendered page with dynamic path with fallback: blocking and awaited res.revalidate() - non-ASCII variant',
         prerendered: true,
         pagePath: '/products/事前レンダリング,test',
         revalidateApiBasePath: '/api/revalidate',
@@ -485,11 +535,28 @@ test.describe('Page Router with basePath and i18n', () => {
       },
       {
         label:
-          'not prerendered page with dynamic path and awaited res.revalidate() - non-ASCII variant',
+          'not prerendered page with dynamic path with fallback: blocking and awaited res.revalidate() - non-ASCII variant',
         prerendered: false,
         pagePath: '/products/事前レンダリングされていない,test',
         revalidateApiBasePath: '/api/revalidate',
         expectedH1Content: 'Product 事前レンダリングされていない,test',
+      },
+      {
+        label:
+          'prerendered page with dynamic path with fallback: true and awaited res.revalidate()',
+        prerendered: true,
+        pagePath: '/fallback-true/prerendered',
+        revalidateApiBasePath: '/api/revalidate',
+        expectedH1Content: 'Product prerendered',
+      },
+      {
+        label:
+          'not prerendered page with dynamic path with fallback: true and awaited res.revalidate()',
+        prerendered: false,
+        useFallback: true,
+        pagePath: '/fallback-true/not-prerendered',
+        revalidateApiBasePath: '/api/revalidate',
+        expectedH1Content: 'Product not-prerendered',
       },
     ]) {
       test.describe(label, () => {
@@ -528,12 +595,25 @@ test.describe('Page Router with basePath and i18n', () => {
           const headers1ImplicitLocale = response1ImplicitLocale?.headers() || {}
           expect(response1ImplicitLocale?.status()).toBe(200)
           expect(headers1ImplicitLocale['x-nextjs-cache']).toBeUndefined()
+
+          const fallbackWasServedImplicitLocale =
+            useFallback && headers1ImplicitLocale['cache-status'].includes('"Next.js"; fwd=miss')
+
           expect(headers1ImplicitLocale['netlify-cache-tag']).toBe(
-            `_n_t_/en${encodeURI(pagePath).toLowerCase()}`,
+            fallbackWasServedImplicitLocale
+              ? undefined
+              : `_n_t_/en${encodeURI(pagePath).toLowerCase()}`,
           )
           expect(headers1ImplicitLocale['netlify-cdn-cache-control']).toBe(
-            's-maxage=31536000, stale-while-revalidate=31536000, durable',
+            fallbackWasServedImplicitLocale
+              ? undefined
+              : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
           )
+
+          if (fallbackWasServedImplicitLocale) {
+            const loading = await page.textContent('[data-testid="loading"]')
+            expect(loading, 'Fallback should be shown').toBe('Loading...')
+          }
 
           const date1ImplicitLocale = await page.textContent('[data-testid="date-now"]')
           const h1ImplicitLocale = await page.textContent('h1')
@@ -556,12 +636,24 @@ test.describe('Page Router with basePath and i18n', () => {
           const headers1ExplicitLocale = response1ExplicitLocale?.headers() || {}
           expect(response1ExplicitLocale?.status()).toBe(200)
           expect(headers1ExplicitLocale['x-nextjs-cache']).toBeUndefined()
+
+          const fallbackWasServedExplicitLocale =
+            useFallback && headers1ExplicitLocale['cache-status'].includes('"Next.js"; fwd=miss')
           expect(headers1ExplicitLocale['netlify-cache-tag']).toBe(
-            `_n_t_/en${encodeURI(pagePath).toLowerCase()}`,
+            fallbackWasServedExplicitLocale
+              ? undefined
+              : `_n_t_/en${encodeURI(pagePath).toLowerCase()}`,
           )
           expect(headers1ExplicitLocale['netlify-cdn-cache-control']).toBe(
-            's-maxage=31536000, stale-while-revalidate=31536000, durable',
+            fallbackWasServedExplicitLocale
+              ? undefined
+              : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
           )
+
+          if (fallbackWasServedExplicitLocale) {
+            const loading = await page.textContent('[data-testid="loading"]')
+            expect(loading, 'Fallback should be shown').toBe('Loading...')
+          }
 
           const date1ExplicitLocale = await page.textContent('[data-testid="date-now"]')
           const h1ExplicitLocale = await page.textContent('h1')
@@ -910,10 +1002,22 @@ test.describe('Page Router with basePath and i18n', () => {
           const headers1 = response1?.headers() || {}
           expect(response1?.status()).toBe(200)
           expect(headers1['x-nextjs-cache']).toBeUndefined()
-          expect(headers1['netlify-cache-tag']).toBe(`_n_t_/de${encodeURI(pagePath).toLowerCase()}`)
-          expect(headers1['netlify-cdn-cache-control']).toBe(
-            's-maxage=31536000, stale-while-revalidate=31536000, durable',
+
+          const fallbackWasServed =
+            useFallback && headers1['cache-status'].includes('"Next.js"; fwd=miss')
+          expect(headers1['netlify-cache-tag']).toBe(
+            fallbackWasServed ? undefined : `_n_t_/de${encodeURI(pagePath).toLowerCase()}`,
           )
+          expect(headers1['netlify-cdn-cache-control']).toBe(
+            fallbackWasServed
+              ? undefined
+              : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
+          )
+
+          if (fallbackWasServed) {
+            const loading = await page.textContent('[data-testid="loading"]')
+            expect(loading, 'Fallback should be shown').toBe('Loading...')
+          }
 
           const date1 = await page.textContent('[data-testid="date-now"]')
           const h1 = await page.textContent('h1')
