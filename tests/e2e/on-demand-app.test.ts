@@ -45,6 +45,20 @@ test.describe('app router on-demand revalidation', () => {
       revalidateApiPath: '/api/on-demand-revalidate/tag?tag=show-4',
       expectedH1Content: 'Hello, Statically fetched show 4',
     },
+    {
+      label: 'revalidatePath (prerendered page with dynamic path) - non-ASCII variant',
+      prerendered: true,
+      pagePath: '/product/事前レンダリング,test',
+      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリング,test`,
+      expectedH1Content: 'Product 事前レンダリング,test',
+    },
+    {
+      label: 'revalidatePath (not prerendered page with dynamic path) - non-ASCII variant',
+      prerendered: false,
+      pagePath: '/product/事前レンダリングされていない,test',
+      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリングされていない,test`,
+      expectedH1Content: 'Product 事前レンダリングされていない,test',
+    },
   ]) {
     test(label, async ({ page, pollUntilHeadersMatch, serverComponents }) => {
       // in case there is retry or some other test did hit that path before

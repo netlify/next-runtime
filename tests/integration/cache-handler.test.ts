@@ -46,6 +46,7 @@ describe('page router', () => {
       // the real key is much longer and ends in a hash, but we only assert on the first 50 chars to make it easier
       '/products/an-incredibly-long-product-',
       '/products/prerendered',
+      '/products/事前レンダリング,te',
       '/static/revalidate-automatic',
       '/static/revalidate-manual',
       '/static/revalidate-slow',
@@ -359,6 +360,7 @@ describe('plugin', () => {
       '/api/static/first',
       '/api/static/second',
       '/index',
+      '/product/事前レンダリング,test',
       '/revalidate-fetch',
       '/static-fetch-1',
       '/static-fetch-2',
