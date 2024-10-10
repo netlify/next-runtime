@@ -36,19 +36,38 @@ interface ApiBackgroundConfig {
 type ApiConfig = ApiStandardConfig | ApiScheduledConfig | ApiBackgroundConfig
 
 export async function getAPIRoutesConfigs(ctx: PluginContext) {
+  const uniqueApiRoutes = new Set<string>()
+
   const functionsConfigManifestPath = join(
     ctx.publishDir,
     'server',
     'functions-config-manifest.json',
   )
-  if (!existsSync(functionsConfigManifestPath)) {
+  if (existsSync(functionsConfigManifestPath)) {
     // before https://github.com/vercel/next.js/pull/60163 this file might not have been produced if there were no API routes at all
-    return []
+    const functionsConfigManifest = JSON.parse(
+      await readFile(functionsConfigManifestPath, 'utf-8'),
+    ) as FunctionsConfigManifest
+
+    for (const apiRoute of Object.keys(functionsConfigManifest.functions)) {
+      uniqueApiRoutes.add(apiRoute)
+    }
   }
 
-  const functionsConfigManifest = JSON.parse(
-    await readFile(functionsConfigManifestPath, 'utf-8'),
-  ) as FunctionsConfigManifest
+  const pagesManifestPath = join(ctx.publishDir, 'server', 'pages-manifest.json')
+  if (existsSync(pagesManifestPath)) {
+    const pagesManifest = JSON.parse(await readFile(pagesManifestPath, 'utf-8'))
+    for (const route of Object.keys(pagesManifest)) {
+      if (route.startsWith('/api/')) {
+        uniqueApiRoutes.add(route)
+      }
+    }
+  }
+
+  // no routes to analyze
+  if (uniqueApiRoutes.size === 0) {
+    return []
+  }
 
   const appDir = ctx.resolveFromSiteDir('.')
   const pagesDir = join(appDir, 'pages')
@@ -56,7 +75,7 @@ export async function getAPIRoutesConfigs(ctx: PluginContext) {
   const { pageExtensions } = ctx.requiredServerFiles.config
 
   return Promise.all(
-    Object.keys(functionsConfigManifest.functions).map(async (apiRoute) => {
+    [...uniqueApiRoutes].map(async (apiRoute) => {
       const filePath = getSourceFileForPage(apiRoute, [pagesDir, srcPagesDir], pageExtensions)
 
       const sharedFields = {
