@@ -7,6 +7,7 @@ import { afterAll, beforeAll, beforeEach, expect, test, vi } from 'vitest'
 import { type FixtureTestContext } from '../utils/contexts.js'
 import { createFixture, invokeFunction, runPlugin, runPluginStep } from '../utils/fixture.js'
 import { generateRandomObjectID, startMockBlobStore } from '../utils/helpers.js'
+import { nextVersionSatisfies } from '../utils/next-version-helpers.mjs'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -229,7 +230,9 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   ).toEqual(
     expect.objectContaining({
       'cache-status': '"Next.js"; hit',
-      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000, durable',
+      'netlify-cdn-cache-control': nextVersionSatisfies('>=15.0.0-canary.187')
+        ? `s-maxage=5, stale-while-revalidate=${31536000 - 5}, durable`
+        : 's-maxage=5, stale-while-revalidate=31536000, durable',
     }),
   )
 
@@ -295,7 +298,9 @@ test<FixtureTestContext>('if the fetch call is cached correctly (cached page res
   ).toEqual(
     expect.objectContaining({
       'cache-status': '"Next.js"; hit',
-      'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000, durable',
+      'netlify-cdn-cache-control': nextVersionSatisfies('>=15.0.0-canary.187')
+        ? `s-maxage=5, stale-while-revalidate=${31536000 - 5}, durable`
+        : 's-maxage=5, stale-while-revalidate=31536000, durable',
     }),
   )
 })

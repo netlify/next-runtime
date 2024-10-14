@@ -247,7 +247,9 @@ test('requesting a non existing page route that needs to be fetched from the blo
   expect(await page.textContent('h1')).toBe('404 Not Found')
 
   expect(headers['netlify-cdn-cache-control']).toBe(
-    's-maxage=31536000, stale-while-revalidate=31536000, durable',
+    nextVersionSatisfies('>=15.0.0-canary.187')
+      ? 's-maxage=31536000, durable'
+      : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
   )
   expect(headers['cache-control']).toBe('public,max-age=0,must-revalidate')
 })

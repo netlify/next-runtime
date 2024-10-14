@@ -21,6 +21,7 @@ import {
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
+import { nextVersionSatisfies } from '../utils/next-version-helpers.mjs'
 
 const mockedCp = cp as Mock<
   Parameters<(typeof import('node:fs/promises'))['cp']>,
@@ -149,14 +150,19 @@ test<FixtureTestContext>('index should be normalized within the cacheHandler and
   expect(index.headers?.['netlify-cache-tag']).toBe('_N_T_/layout,_N_T_/page,_N_T_/')
 })
 
-test<FixtureTestContext>('stale-while-revalidate headers should be normalized to include delta-seconds', async (ctx) => {
-  await createFixture('simple', ctx)
-  await runPlugin(ctx)
-  const index = await invokeFunction(ctx, { url: '/' })
-  expect(index.headers?.['netlify-cdn-cache-control']).toContain(
-    'stale-while-revalidate=31536000, durable',
-  )
-})
+// with 15.0.0-canary.187 and later Next.js no longer produce `stale-while-revalidate` directive
+// for permanently cached response
+test.skipIf(nextVersionSatisfies('>=15.0.0-canary.187'))<FixtureTestContext>(
+  'stale-while-revalidate headers should be normalized to include delta-seconds',
+  async (ctx) => {
+    await createFixture('simple', ctx)
+    await runPlugin(ctx)
+    const index = await invokeFunction(ctx, { url: '/' })
+    expect(index.headers?.['netlify-cdn-cache-control']).toContain(
+      'stale-while-revalidate=31536000, durable',
+    )
+  },
+)
 
 test<FixtureTestContext>('handlers receive correct site domain', async (ctx) => {
   await createFixture('simple', ctx)
