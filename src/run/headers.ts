@@ -211,6 +211,7 @@ export const adjustDateHeader = async ({
  */
 export const setCacheControlHeaders = (
   headers: Headers,
+  status: number,
   request: Request,
   requestContext: RequestContext,
 ) => {
@@ -229,6 +230,12 @@ export const setCacheControlHeaders = (
 
     headers.set('netlify-cdn-cache-control', cdnCacheControl)
     return
+  }
+
+  if (status === 404 && request.url.endsWith('.php')) {
+    // temporary CDN Cache Control handling for bot probes
+    headers.set('cache-control', 'public, max-age=0, must-revalidate')
+    headers.set('netlify-cdn-cache-control', `max-age=31536000, durable`)
   }
 
   const cacheControl = headers.get('cache-control')
