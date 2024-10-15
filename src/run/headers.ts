@@ -213,7 +213,7 @@ export const adjustDateHeader = async ({
  * assume the user knows what they are doing if CDN cache controls are set
  */
 export const setCacheControlHeaders = (
-  headers: Headers,
+  { headers, status }: Response,
   request: Request,
   requestContext: RequestContext,
 ) => {
@@ -232,6 +232,13 @@ export const setCacheControlHeaders = (
 
     headers.set('netlify-cdn-cache-control', cdnCacheControl)
     return
+  }
+
+  if (status === 404 && request.url.endsWith('.php')) {
+    // temporary CDN Cache Control handling for bot probes on PHP files
+    // https://linear.app/netlify/issue/FRB-1344/prevent-excessive-ssr-invocations-due-to-404-routes
+    headers.set('cache-control', 'public, max-age=0, must-revalidate')
+    headers.set('netlify-cdn-cache-control', `max-age=31536000, durable`)
   }
 
   const cacheControl = headers.get('cache-control')
