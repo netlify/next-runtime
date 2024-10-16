@@ -239,7 +239,7 @@ async function installRuntime(
 
 async function verifyFixture(isolatedFixtureRoot: string, { expectedCliVersion }: E2EConfig) {
   if (expectedCliVersion) {
-    const { stdout } = await execaCommand('npx ntl --version', { cwd: isolatedFixtureRoot })
+    const { stdout } = await execaCommand('npx netlify --version', { cwd: isolatedFixtureRoot })
 
     const match = stdout.match(/netlify-cli\/(?<version>\S+)/)
 
@@ -268,7 +268,7 @@ async function deploySite(
   console.log(`🚀 Building and deploying site...`)
 
   const outputFile = 'deploy-output.txt'
-  let cmd = `npx ntl deploy --build --site ${siteId}`
+  let cmd = `npx netlify deploy --build --site ${siteId}`
 
   if (packagePath) {
     cmd += ` --filter ${packagePath}`
@@ -291,7 +291,7 @@ export async function deleteDeploy(deployID?: string): Promise<void> {
     return
   }
 
-  const cmd = `ntl api deleteDeploy --data='{"deploy_id":"${deployID}"}'`
+  const cmd = `npx netlify api deleteDeploy --data='{"deploy_id":"${deployID}"}'`
   // execa mangles around with the json so let's use exec here
   return new Promise<void>((resolve, reject) => exec(cmd, (err) => (err ? reject(err) : resolve())))
 }
