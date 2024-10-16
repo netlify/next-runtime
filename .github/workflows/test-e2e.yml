@@ -183,6 +183,7 @@ jobs:
       - name: Prepare Netlify CLI
         # Control netlify-cli as a regular dev dep but expose it globally for test fixtures to use
         run: npm install -g "netlify-cli@$(npm list --json --depth=0 netlify-cli | jq -r ".dependencies[\"netlify-cli\"].version")"
+        working-directory: ${{ env.runtime-path }}
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
