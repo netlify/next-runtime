@@ -44,7 +44,7 @@ const writeCacheEntry = async (
 }
 
 /**
- * Normalize routes by ensuring leading slashes and ensuring root path is index
+ * Normalize routes by ensuring leading slashes and ensuring root path is /index
  */
 const routeToFilePath = (path: string) => {
   if (path === '/') {
