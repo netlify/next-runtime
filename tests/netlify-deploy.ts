@@ -102,19 +102,19 @@ export class NextDeployInstance extends NextInstance {
       await fs.writeFile(path.join(this.testDir, 'netlify.toml'), toml)
     }
 
-    // ensure netlify cli is installed
+    // ensure netlify-cli is installed
     try {
-      const res = await execa('netlify', ['--version'])
+      const res = await execa('npx', ['netlify', '--version'])
       require('console').log(`Using Netlify CLI version:`, res.stdout)
     } catch (_) {
-      require('console').log(`You need to have netlify-cli installed.
+      require('console').log(`netlify-cli is not installed.
 
-      You can do this by running: "npm install -g netlify-cli@latest" or "yarn global add netlify-cli@latest"`)
+      Something went wrong. Try running \`npm install\`.`)
     }
 
     // ensure project is linked
     try {
-      await execa('ntl', ['status', '--json'])
+      await execa('npx', ['netlify', 'status', '--json'])
     } catch (err) {
       if (err.message.includes("You don't appear to be in a folder that is linked to a site")) {
         throw new Error(`Site is not linked. Please set "NETLIFY_AUTH_TOKEN" and "NETLIFY_SITE_ID"`)
@@ -132,8 +132,8 @@ export class NextDeployInstance extends NextInstance {
       : testName
 
     const deployRes = await execa(
-      'ntl',
-      ['deploy', '--build', '--json', '--message', deployTitle ?? ''],
+      'npx',
+      ['netlify', 'deploy', '--build', '--json', '--message', deployTitle ?? ''],
       {
         cwd: this.testDir,
         reject: false,

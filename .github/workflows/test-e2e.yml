@@ -180,8 +180,9 @@ jobs:
         run: npm run build
         working-directory: ${{ env.runtime-path }}
 
-      - name: add netlify cli
-        run: npm install -g netlify-cli
+      - name: Prepare Netlify CLI
+        # Control netlify-cli as a regular dev dep but expose it globally for test fixtures to use
+        run: npm install -g "netlify-cli@$(npm list --json --depth=0 netlify-cli | jq -r ".dependencies[\"netlify-cli\"].version")"
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
