@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test'
 import { test } from '../utils/playwright-helpers.js'
+import { nextVersionSatisfies } from '../utils/next-version-helpers.mjs'
 
 // those tests have different fixtures and can run in parallel
 test.describe.configure({ mode: 'parallel' })
@@ -35,7 +36,9 @@ test.describe('[PNPM] Package manager', () => {
     expect(response1?.status()).toBe(200)
     expect(headers1['x-nextjs-cache']).toBeUndefined()
     expect(headers1['netlify-cdn-cache-control']).toBe(
-      's-maxage=31536000, stale-while-revalidate=31536000, durable',
+      nextVersionSatisfies('>=15.0.0-canary.187')
+        ? 's-maxage=31536000, durable'
+        : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
     )
 
     const date1 = await page.textContent('[data-testid="date-now"]')
@@ -65,7 +68,9 @@ test.describe('[PNPM] Package manager', () => {
       expect(headers2['cache-status']).toMatch(/"Next.js"; hit/m)
     }
     expect(headers2['netlify-cdn-cache-control']).toBe(
-      's-maxage=31536000, stale-while-revalidate=31536000, durable',
+      nextVersionSatisfies('>=15.0.0-canary.187')
+        ? 's-maxage=31536000, durable'
+        : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
     )
 
     // the page is cached
@@ -139,7 +144,9 @@ test.describe('[NPM] Package manager', () => {
     expect(response1?.status()).toBe(200)
     expect(headers1['x-nextjs-cache']).toBeUndefined()
     expect(headers1['netlify-cdn-cache-control']).toBe(
-      's-maxage=31536000, stale-while-revalidate=31536000, durable',
+      nextVersionSatisfies('>=15.0.0-canary.187')
+        ? 's-maxage=31536000, durable'
+        : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
     )
 
     const date1 = await page.textContent('[data-testid="date-now"]')
@@ -169,7 +176,9 @@ test.describe('[NPM] Package manager', () => {
       expect(headers2['cache-status']).toMatch(/"Next.js"; hit/m)
     }
     expect(headers2['netlify-cdn-cache-control']).toBe(
-      's-maxage=31536000, stale-while-revalidate=31536000, durable',
+      nextVersionSatisfies('>=15.0.0-canary.187')
+        ? 's-maxage=31536000, durable'
+        : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
     )
 
     // the page is cached

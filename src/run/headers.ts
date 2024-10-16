@@ -54,7 +54,10 @@ const generateNetlifyVaryValues = ({
 }
 
 const getHeaderValueArray = (header: string): string[] => {
-  return header.split(',').map((value) => value.trim())
+  return header
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean)
 }
 
 const omitHeaderValues = (header: string, values: string[]): string => {

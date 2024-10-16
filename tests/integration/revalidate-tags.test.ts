@@ -10,6 +10,7 @@ import {
   getBlobServerGets,
   startMockBlobStore,
 } from '../utils/helpers.js'
+import { nextVersionSatisfies } from '../utils/next-version-helpers.mjs'
 
 function isTagManifest(key: string) {
   return key.startsWith('_N_T_')
@@ -67,7 +68,9 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   expect(post1.headers, 'a cache hit on the first invocation of a prerendered page').toEqual(
     expect.objectContaining({
       'cache-status': expect.stringMatching(/"Next.js"; hit/),
-      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000, durable',
+      'netlify-cdn-cache-control': nextVersionSatisfies('>=15.0.0-canary.187')
+        ? 's-maxage=31536000, durable'
+        : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
     }),
   )
 
@@ -94,7 +97,9 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   expect(post2.headers, 'a cache miss on the on demand revalidated page').toEqual(
     expect.objectContaining({
       'cache-status': '"Next.js"; fwd=miss',
-      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000, durable',
+      'netlify-cdn-cache-control': nextVersionSatisfies('>=15.0.0-canary.187')
+        ? 's-maxage=31536000, durable'
+        : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
     }),
   )
   expect(post2Date).not.toBe(post1Date)
@@ -117,7 +122,9 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   expect(post3.headers, 'a cache hit on the revalidated and regenerated page').toEqual(
     expect.objectContaining({
       'cache-status': expect.stringMatching(/"Next.js"; hit/),
-      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000, durable',
+      'netlify-cdn-cache-control': nextVersionSatisfies('>=15.0.0-canary.187')
+        ? 's-maxage=31536000, durable'
+        : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
     }),
   )
   expect(post3Date).toBe(post2Date)
@@ -146,7 +153,9 @@ test<FixtureTestContext>('should revalidate a route by tag', async (ctx) => {
   expect(post4.headers, 'a cache miss on the on demand revalidated page').toEqual(
     expect.objectContaining({
       'cache-status': '"Next.js"; fwd=miss',
-      'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000, durable',
+      'netlify-cdn-cache-control': nextVersionSatisfies('>=15.0.0-canary.187')
+        ? 's-maxage=31536000, durable'
+        : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
     }),
   )
   expect(post4Date).not.toBe(post3Date)
