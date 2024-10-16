@@ -273,7 +273,7 @@ export const setCacheControlHeaders = (
     cacheControl === null &&
     !headers.has('cdn-cache-control') &&
     !headers.has('netlify-cdn-cache-control') &&
-    requestContext.usedFsRead
+    requestContext.usedFsReadForNonFallback
   ) {
     // handle CDN Cache Control on static files
     headers.set('cache-control', 'public, max-age=0, must-revalidate')
@@ -282,7 +282,10 @@ export const setCacheControlHeaders = (
 }
 
 export const setCacheTagsHeaders = (headers: Headers, requestContext: RequestContext) => {
-  if (requestContext.responseCacheTags) {
+  if (
+    requestContext.responseCacheTags &&
+    (headers.has('cache-control') || headers.has('netlify-cdn-cache-control'))
+  ) {
     headers.set('netlify-cache-tag', requestContext.responseCacheTags.join(','))
   }
 }

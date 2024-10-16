@@ -6,6 +6,7 @@ import { trace } from '@opentelemetry/api'
 import { wrapTracer } from '@opentelemetry/api/experimental'
 import glob from 'fast-glob'
 
+import type { HtmlBlob } from '../../run/next.cjs'
 import { encodeBlobKey } from '../../shared/blobkey.js'
 import { PluginContext } from '../plugin-context.js'
 import { verifyNetlifyForms } from '../verification.js'
@@ -25,6 +26,8 @@ export const copyStaticContent = async (ctx: PluginContext): Promise<void> => {
       extglob: true,
     })
 
+    const fallbacks = ctx.getFallbacks(await ctx.getPrerenderManifest())
+
     try {
       await mkdir(destDir, { recursive: true })
       await Promise.all(
@@ -33,7 +36,14 @@ export const copyStaticContent = async (ctx: PluginContext): Promise<void> => {
           .map(async (path): Promise<void> => {
             const html = await readFile(join(srcDir, path), 'utf-8')
             verifyNetlifyForms(ctx, html)
-            await writeFile(join(destDir, await encodeBlobKey(path)), html, 'utf-8')
+
+            const isFallback = fallbacks.includes(path.slice(0, -5))
+
+            await writeFile(
+              join(destDir, await encodeBlobKey(path)),
+              JSON.stringify({ html, isFallback } satisfies HtmlBlob),
+              'utf-8',
+            )
           }),
       )
     } catch (error) {

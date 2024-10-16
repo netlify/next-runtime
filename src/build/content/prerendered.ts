@@ -41,17 +41,28 @@ const writeCacheEntry = async (
 }
 
 /**
- * Normalize routes by stripping leading slashes and ensuring root path is index
+ * Normalize routes by ensuring leading slashes and ensuring root path is /index
  */
-const routeToFilePath = (path: string) => (path === '/' ? '/index' : path)
+const routeToFilePath = (path: string) => {
+  if (path === '/') {
+    return '/index'
+  }
+
+  if (path.startsWith('/')) {
+    return path
+  }
+
+  return `/${path}`
+}
 
 const buildPagesCacheValue = async (
   path: string,
   shouldUseEnumKind: boolean,
+  shouldSkipJson = false,
 ): Promise<NetlifyCachedPageValue> => ({
   kind: shouldUseEnumKind ? 'PAGES' : 'PAGE',
   html: await readFile(`${path}.html`, 'utf-8'),
-  pageData: JSON.parse(await readFile(`${path}.json`, 'utf-8')),
+  pageData: shouldSkipJson ? {} : JSON.parse(await readFile(`${path}.json`, 'utf-8')),
   headers: undefined,
   status: undefined,
 })
@@ -146,8 +157,8 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
           })
         : false
 
-      await Promise.all(
-        Object.entries(manifest.routes).map(
+      await Promise.all([
+        ...Object.entries(manifest.routes).map(
           ([route, meta]): Promise<void> =>
             limitConcurrentPrerenderContentHandling(async () => {
               const lastModified = meta.initialRevalidateSeconds
@@ -195,7 +206,17 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
               await writeCacheEntry(key, value, lastModified, ctx)
             }),
         ),
-      )
+        ...ctx.getFallbacks(manifest).map(async (route) => {
+          const key = routeToFilePath(route)
+          const value = await buildPagesCacheValue(
+            join(ctx.publishDir, 'server/pages', key),
+            shouldUseEnumKind,
+            true, // there is no corresponding json file for fallback, so we are skipping it for this entry
+          )
+
+          await writeCacheEntry(key, value, Date.now(), ctx)
+        }),
+      ])
 
       // app router 404 pages are not in the prerender manifest
       // so we need to check for them manually

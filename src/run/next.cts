@@ -80,6 +80,11 @@ console.timeEnd('import next server')
 
 type FS = typeof import('fs')
 
+export type HtmlBlob = {
+  html: string
+  isFallback: boolean
+}
+
 export async function getMockedRequestHandlers(...args: Parameters<typeof getRequestHandlers>) {
   const tracer = getTracer()
   return tracer.withActiveSpan('mocked request handler', async () => {
@@ -98,14 +103,18 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
         if (typeof path === 'string' && path.endsWith('.html')) {
           const store = getRegionalBlobStore()
           const relPath = relative(resolve('.next/server/pages'), path)
-          const file = await store.get(await encodeBlobKey(relPath))
+          const file = (await store.get(await encodeBlobKey(relPath), {
+            type: 'json',
+          })) as HtmlBlob | null
           if (file !== null) {
-            const requestContext = getRequestContext()
-            if (requestContext) {
-              requestContext.usedFsRead = true
+            if (!file.isFallback) {
+              const requestContext = getRequestContext()
+              if (requestContext) {
+                requestContext.usedFsReadForNonFallback = true
+              }
             }
 
-            return file
+            return file.html
           }
         }
 

@@ -11,7 +11,7 @@ export type RequestContext = {
   responseCacheGetLastModified?: number
   responseCacheKey?: string
   responseCacheTags?: string[]
-  usedFsRead?: boolean
+  usedFsReadForNonFallback?: boolean
   didPagesRouterOnDemandRevalidate?: boolean
   serverTiming?: string
   routeHandlerRevalidate?: NetlifyCachedRouteValue['revalidate']
