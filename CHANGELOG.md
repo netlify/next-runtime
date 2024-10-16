@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.8.0](https://github.com/netlify/next-runtime/compare/v5.7.4...v5.8.0) (2024-10-16)
+
+
+### Features
+
+* cache 404s indefinitely for bot probes ([#2668](https://github.com/netlify/next-runtime/issues/2668)) ([60885d2](https://github.com/netlify/next-runtime/commit/60885d2725de5d1c465a4405fdf86f1808c8434c))
+
+
+### Bug Fixes
+
+* adjust cache-control handling for next@15.0.0-canary.187 ([#2666](https://github.com/netlify/next-runtime/issues/2666)) ([7e5253d](https://github.com/netlify/next-runtime/commit/7e5253dfa63f46b96abe8bf17df1602319445602))
+* use alternative way of gathering api functions to anaylze ([#2654](https://github.com/netlify/next-runtime/issues/2654)) ([e4916da](https://github.com/netlify/next-runtime/commit/e4916da94ec12ad47792f16e5f3098337fa33f36))
+
 ## [5.7.4](https://github.com/netlify/next-runtime/compare/v5.7.3...v5.7.4) (2024-10-09)
 
 
