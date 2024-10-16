@@ -1,12 +1,13 @@
-import { Buffer } from 'node:buffer'
+import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { inspect } from 'node:util'
 
 import type { NetlifyPluginOptions } from '@netlify/build'
 import glob from 'fast-glob'
+import type { PrerenderManifest } from 'next/dist/build/index.js'
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest'
 
-import { mockFileSystem } from '../../../tests/index.js'
+import { decodeBlobKey, encodeBlobKey, mockFileSystem } from '../../../tests/index.js'
 import { type FixtureTestContext } from '../../../tests/utils/contexts.js'
 import { createFsFixture } from '../../../tests/utils/fixture.js'
 import { PluginContext, RequiredServerFilesManifest } from '../plugin-context.js'
@@ -21,11 +22,22 @@ type Context = FixtureTestContext & {
 const createFsFixtureWithBasePath = (
   fixture: Record<string, string>,
   ctx: Omit<Context, 'pluginContext'>,
-  basePath = '',
+
+  {
+    basePath = '',
+    // eslint-disable-next-line unicorn/no-useless-undefined
+    i18n = undefined,
+    dynamicRoutes = {},
+  }: {
+    basePath?: string
+    i18n?: Pick<NonNullable<RequiredServerFilesManifest['config']['i18n']>, 'locales'>
+    dynamicRoutes?: {
+      [route: string]: Pick<PrerenderManifest['dynamicRoutes'][''], 'fallback'>
+    }
+  } = {},
 ) => {
   return createFsFixture(
     {
-      [join(ctx.publishDir, 'prerender-manifest.json')]: JSON.stringify({ dynamicRoutes: [] }),
       ...fixture,
       [join(ctx.publishDir, 'routes-manifest.json')]: JSON.stringify({ basePath }),
       [join(ctx.publishDir, 'required-server-files.json')]: JSON.stringify({
@@ -33,8 +45,10 @@ const createFsFixtureWithBasePath = (
         appDir: ctx.relativeAppDir,
         config: {
           distDir: ctx.publishDir,
+          i18n,
         },
       } as Pick<RequiredServerFilesManifest, 'relativeAppDir' | 'appDir'>),
+      [join(ctx.publishDir, 'prerender-manifest.json')]: JSON.stringify({ dynamicRoutes }),
     },
     ctx,
   )
@@ -122,7 +136,7 @@ describe('Regular Repository layout', () => {
         '.next/static/sub-dir/test2.js': '',
       },
       ctx,
-      '/base/path',
+      { basePath: '/base/path' },
     )
 
     await copyStaticAssets(pluginContext)
@@ -169,7 +183,7 @@ describe('Regular Repository layout', () => {
         'public/another-asset.json': '',
       },
       ctx,
-      '/base/path',
+      { basePath: '/base/path' },
     )
 
     await copyStaticAssets(pluginContext)
@@ -183,26 +197,100 @@ describe('Regular Repository layout', () => {
     )
   })
 
-  test<Context>('should copy the static pages to the publish directory if there are no corresponding JSON files', async ({
-    pluginContext,
-    ...ctx
-  }) => {
-    await createFsFixtureWithBasePath(
-      {
-        '.next/server/pages/test.html': '',
-        '.next/server/pages/test2.html': '',
-        '.next/server/pages/test3.json': '',
-      },
-      ctx,
-    )
+  describe('should copy the static pages to the publish directory if there are no corresponding JSON files and mark wether html file is a fallback', () => {
+    test<Context>('no i18n', async ({ pluginContext, ...ctx }) => {
+      await createFsFixtureWithBasePath(
+        {
+          '.next/server/pages/test.html': '',
+          '.next/server/pages/test2.html': '',
+          '.next/server/pages/test3.json': '',
+          '.next/server/pages/blog/[slug].html': '',
+        },
+        ctx,
+        {
+          dynamicRoutes: {
+            '/blog/[slug]': {
+              fallback: '/blog/[slug].html',
+            },
+          },
+        },
+      )
 
-    await copyStaticContent(pluginContext)
-    const files = await glob('**/*', { cwd: pluginContext.blobDir, dot: true })
+      await copyStaticContent(pluginContext)
+      const files = await glob('**/*', { cwd: pluginContext.blobDir, dot: true })
 
-    expect(files.map((path) => Buffer.from(path, 'base64').toString('utf-8')).sort()).toEqual([
-      'test.html',
-      'test2.html',
-    ])
+      const expectedStaticPages = ['blog/[slug].html', 'test.html', 'test2.html']
+      const expectedFallbacks = new Set(['blog/[slug].html'])
+
+      expect(files.map((path) => decodeBlobKey(path)).sort()).toEqual(expectedStaticPages)
+
+      for (const page of expectedStaticPages) {
+        const expectedIsFallback = expectedFallbacks.has(page)
+
+        const blob = JSON.parse(
+          await readFile(join(pluginContext.blobDir, await encodeBlobKey(page)), 'utf-8'),
+        )
+
+        expect(blob, `${page} should ${expectedIsFallback ? '' : 'not '}be a fallback`).toEqual({
+          html: '',
+          isFallback: expectedIsFallback,
+        })
+      }
+    })
+
+    test<Context>('with i18n', async ({ pluginContext, ...ctx }) => {
+      await createFsFixtureWithBasePath(
+        {
+          '.next/server/pages/de/test.html': '',
+          '.next/server/pages/de/test2.html': '',
+          '.next/server/pages/de/test3.json': '',
+          '.next/server/pages/de/blog/[slug].html': '',
+          '.next/server/pages/en/test.html': '',
+          '.next/server/pages/en/test2.html': '',
+          '.next/server/pages/en/test3.json': '',
+          '.next/server/pages/en/blog/[slug].html': '',
+        },
+        ctx,
+        {
+          dynamicRoutes: {
+            '/blog/[slug]': {
+              fallback: '/blog/[slug].html',
+            },
+          },
+          i18n: {
+            locales: ['en', 'de'],
+          },
+        },
+      )
+
+      await copyStaticContent(pluginContext)
+      const files = await glob('**/*', { cwd: pluginContext.blobDir, dot: true })
+
+      const expectedStaticPages = [
+        'de/blog/[slug].html',
+        'de/test.html',
+        'de/test2.html',
+        'en/blog/[slug].html',
+        'en/test.html',
+        'en/test2.html',
+      ]
+      const expectedFallbacks = new Set(['en/blog/[slug].html', 'de/blog/[slug].html'])
+
+      expect(files.map((path) => decodeBlobKey(path)).sort()).toEqual(expectedStaticPages)
+
+      for (const page of expectedStaticPages) {
+        const expectedIsFallback = expectedFallbacks.has(page)
+
+        const blob = JSON.parse(
+          await readFile(join(pluginContext.blobDir, await encodeBlobKey(page)), 'utf-8'),
+        )
+
+        expect(blob, `${page} should ${expectedIsFallback ? '' : 'not '}be a fallback`).toEqual({
+          html: '',
+          isFallback: expectedIsFallback,
+        })
+      }
+    })
   })
 
   test<Context>('should not copy the static pages to the publish directory if there are corresponding JSON files', async ({
@@ -270,7 +358,7 @@ describe('Mono Repository', () => {
         'apps/app-1/.next/static/sub-dir/test2.js': '',
       },
       ctx,
-      '/base/path',
+      { basePath: '/base/path' },
     )
 
     await copyStaticAssets(pluginContext)
@@ -317,7 +405,7 @@ describe('Mono Repository', () => {
         'apps/app-1/public/another-asset.json': '',
       },
       ctx,
-      '/base/path',
+      { basePath: '/base/path' },
     )
 
     await copyStaticAssets(pluginContext)
@@ -331,26 +419,100 @@ describe('Mono Repository', () => {
     )
   })
 
-  test<Context>('should copy the static pages to the publish directory if there are no corresponding JSON files', async ({
-    pluginContext,
-    ...ctx
-  }) => {
-    await createFsFixtureWithBasePath(
-      {
-        'apps/app-1/.next/server/pages/test.html': '',
-        'apps/app-1/.next/server/pages/test2.html': '',
-        'apps/app-1/.next/server/pages/test3.json': '',
-      },
-      ctx,
-    )
+  describe('should copy the static pages to the publish directory if there are no corresponding JSON files and mark wether html file is a fallback', () => {
+    test<Context>('no i18n', async ({ pluginContext, ...ctx }) => {
+      await createFsFixtureWithBasePath(
+        {
+          'apps/app-1/.next/server/pages/test.html': '',
+          'apps/app-1/.next/server/pages/test2.html': '',
+          'apps/app-1/.next/server/pages/test3.json': '',
+          'apps/app-1/.next/server/pages/blog/[slug].html': '',
+        },
+        ctx,
+        {
+          dynamicRoutes: {
+            '/blog/[slug]': {
+              fallback: '/blog/[slug].html',
+            },
+          },
+        },
+      )
 
-    await copyStaticContent(pluginContext)
-    const files = await glob('**/*', { cwd: pluginContext.blobDir, dot: true })
+      await copyStaticContent(pluginContext)
+      const files = await glob('**/*', { cwd: pluginContext.blobDir, dot: true })
 
-    expect(files.map((path) => Buffer.from(path, 'base64').toString('utf-8')).sort()).toEqual([
-      'test.html',
-      'test2.html',
-    ])
+      const expectedStaticPages = ['blog/[slug].html', 'test.html', 'test2.html']
+      const expectedFallbacks = new Set(['blog/[slug].html'])
+
+      expect(files.map((path) => decodeBlobKey(path)).sort()).toEqual(expectedStaticPages)
+
+      for (const page of expectedStaticPages) {
+        const expectedIsFallback = expectedFallbacks.has(page)
+
+        const blob = JSON.parse(
+          await readFile(join(pluginContext.blobDir, await encodeBlobKey(page)), 'utf-8'),
+        )
+
+        expect(blob, `${page} should ${expectedIsFallback ? '' : 'not '}be a fallback`).toEqual({
+          html: '',
+          isFallback: expectedIsFallback,
+        })
+      }
+    })
+
+    test<Context>('with i18n', async ({ pluginContext, ...ctx }) => {
+      await createFsFixtureWithBasePath(
+        {
+          'apps/app-1/.next/server/pages/de/test.html': '',
+          'apps/app-1/.next/server/pages/de/test2.html': '',
+          'apps/app-1/.next/server/pages/de/test3.json': '',
+          'apps/app-1/.next/server/pages/de/blog/[slug].html': '',
+          'apps/app-1/.next/server/pages/en/test.html': '',
+          'apps/app-1/.next/server/pages/en/test2.html': '',
+          'apps/app-1/.next/server/pages/en/test3.json': '',
+          'apps/app-1/.next/server/pages/en/blog/[slug].html': '',
+        },
+        ctx,
+        {
+          dynamicRoutes: {
+            '/blog/[slug]': {
+              fallback: '/blog/[slug].html',
+            },
+          },
+          i18n: {
+            locales: ['en', 'de'],
+          },
+        },
+      )
+
+      await copyStaticContent(pluginContext)
+      const files = await glob('**/*', { cwd: pluginContext.blobDir, dot: true })
+
+      const expectedStaticPages = [
+        'de/blog/[slug].html',
+        'de/test.html',
+        'de/test2.html',
+        'en/blog/[slug].html',
+        'en/test.html',
+        'en/test2.html',
+      ]
+      const expectedFallbacks = new Set(['en/blog/[slug].html', 'de/blog/[slug].html'])
+
+      expect(files.map((path) => decodeBlobKey(path)).sort()).toEqual(expectedStaticPages)
+
+      for (const page of expectedStaticPages) {
+        const expectedIsFallback = expectedFallbacks.has(page)
+
+        const blob = JSON.parse(
+          await readFile(join(pluginContext.blobDir, await encodeBlobKey(page)), 'utf-8'),
+        )
+
+        expect(blob, `${page} should ${expectedIsFallback ? '' : 'not '}be a fallback`).toEqual({
+          html: '',
+          isFallback: expectedIsFallback,
+        })
+      }
+    })
   })
 
   test<Context>('should not copy the static pages to the publish directory if there are corresponding JSON files', async ({
