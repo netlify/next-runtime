@@ -334,6 +334,42 @@ export class PluginContext {
     return this.#nextVersion
   }
 
+  #fallbacks: string[] | null = null
+  /**
+   * Get an array of localized fallback routes
+   *
+   * Example return value for non-i18n site: `['blog/[slug]']`
+   *
+   * Example return value for i18n site: `['en/blog/[slug]', 'fr/blog/[slug]']`
+   */
+  getFallbacks(prerenderManifest: PrerenderManifest): string[] {
+    if (!this.#fallbacks) {
+      // dynamic routes don't have entries for each locale so we have to generate them
+      // ourselves. If i18n is not used we use empty string as "locale" to be able to use
+      // same handling wether i18n is used or not
+      const locales = this.buildConfig.i18n?.locales ?? ['']
+
+      this.#fallbacks = Object.entries(prerenderManifest.dynamicRoutes).reduce(
+        (fallbacks, [route, meta]) => {
+          // fallback can be `string | false | null`
+          //  - `string` - when user use pages router with `fallback: true`, and then it's html file path
+          //  - `null` - when user use pages router with `fallback: 'block'` or app router with `export const dynamicParams = true`
+          //  - `false` - when user use pages router with `fallback: false` or app router with `export const dynamicParams = false`
+          if (typeof meta.fallback === 'string') {
+            for (const locale of locales) {
+              const localizedRoute = posixJoin(locale, route.replace(/^\/+/g, ''))
+              fallbacks.push(localizedRoute)
+            }
+          }
+          return fallbacks
+        },
+        [] as string[],
+      )
+    }
+
+    return this.#fallbacks
+  }
+
   /** Fails a build with a message and an optional error */
   failBuild(message: string, error?: unknown): never {
     return this.utils.build.failBuild(message, error instanceof Error ? { error } : undefined)

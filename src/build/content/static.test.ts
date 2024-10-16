@@ -25,6 +25,7 @@ const createFsFixtureWithBasePath = (
 ) => {
   return createFsFixture(
     {
+      [join(ctx.publishDir, 'prerender-manifest.json')]: JSON.stringify({ dynamicRoutes: [] }),
       ...fixture,
       [join(ctx.publishDir, 'routes-manifest.json')]: JSON.stringify({ basePath }),
       [join(ctx.publishDir, 'required-server-files.json')]: JSON.stringify({

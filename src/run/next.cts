@@ -1,5 +1,5 @@
-import fs, { readFile } from 'fs/promises'
-import { join, relative, resolve } from 'path'
+import fs from 'fs/promises'
+import { relative, resolve } from 'path'
 
 // @ts-expect-error no types installed
 import { patchFs } from 'fs-monkey'
@@ -80,25 +80,9 @@ console.timeEnd('import next server')
 
 type FS = typeof import('fs')
 
-export type FSBlobsManifest = {
-  fallbackPaths: string[]
-  outputRoot: string
-}
-
-function normalizeStaticAssetPath(path: string) {
-  return path.startsWith('/') ? path : `/${path}`
-}
-
-let fsBlobsManifestPromise: Promise<FSBlobsManifest> | undefined
-const getFSBlobsManifest = (): Promise<FSBlobsManifest> => {
-  if (!fsBlobsManifestPromise) {
-    fsBlobsManifestPromise = (async () => {
-      const { FS_BLOBS_MANIFEST, PLUGIN_DIR } = await import('./constants.js')
-      return JSON.parse(await readFile(resolve(PLUGIN_DIR, FS_BLOBS_MANIFEST), 'utf-8'))
-    })()
-  }
-
-  return fsBlobsManifestPromise
+export type HtmlBlob = {
+  html: string
+  isFallback: boolean
 }
 
 export async function getMockedRequestHandlers(...args: Parameters<typeof getRequestHandlers>) {
@@ -117,20 +101,20 @@ export async function getMockedRequestHandlers(...args: Parameters<typeof getReq
       } catch (error) {
         // only try to get .html files from the blob store
         if (typeof path === 'string' && path.endsWith('.html')) {
-          const fsBlobsManifest = await getFSBlobsManifest()
-
           const store = getRegionalBlobStore()
-          const relPath = relative(resolve(join(fsBlobsManifest.outputRoot, '/server/pages')), path)
-          const file = await store.get(await encodeBlobKey(relPath))
+          const relPath = relative(resolve('.next/server/pages'), path)
+          const file = (await store.get(await encodeBlobKey(relPath), {
+            type: 'json',
+          })) as HtmlBlob | null
           if (file !== null) {
-            if (!fsBlobsManifest.fallbackPaths.includes(normalizeStaticAssetPath(relPath))) {
+            if (!file.isFallback) {
               const requestContext = getRequestContext()
               if (requestContext) {
                 requestContext.usedFsReadForNonFallback = true
               }
             }
 
-            return file
+            return file.html
           }
         }
 

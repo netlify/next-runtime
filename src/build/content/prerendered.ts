@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { join as posixJoin } from 'node:path/posix'
 
 import { trace } from '@opentelemetry/api'
 import { wrapTracer } from '@opentelemetry/api/experimental'
@@ -9,8 +8,6 @@ import { glob } from 'fast-glob'
 import pLimit from 'p-limit'
 import { satisfies } from 'semver'
 
-import { FS_BLOBS_MANIFEST } from '../../run/constants.js'
-import { type FSBlobsManifest } from '../../run/next.cjs'
 import { encodeBlobKey } from '../../shared/blobkey.js'
 import type {
   CachedFetchValueForMultipleVersions,
@@ -160,11 +157,6 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
           })
         : false
 
-      const fsBlobsManifest: FSBlobsManifest = {
-        fallbackPaths: [],
-        outputRoot: ctx.distDir,
-      }
-
       await Promise.all([
         ...Object.entries(manifest.routes).map(
           ([route, meta]): Promise<void> =>
@@ -214,41 +206,15 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
               await writeCacheEntry(key, value, lastModified, ctx)
             }),
         ),
-        ...Object.entries(manifest.dynamicRoutes).map(async ([route, meta]) => {
-          // fallback can be `string | false | null`
-          //  - `string` - when user use pages router with `fallback: true`, and then it's html file path
-          //  - `null` - when user use pages router with `fallback: 'block'` or app router with `export const dynamicParams = true`
-          //  - `false` - when user use pages router with `fallback: false` or app router with `export const dynamicParams = false`
-          if (typeof meta.fallback === 'string') {
-            // https://github.com/vercel/next.js/pull/68603 started using route cache to serve fallbacks
-            // so we have to seed blobs with fallback entries
+        ...ctx.getFallbacks(manifest).map(async (route) => {
+          const key = routeToFilePath(route)
+          const value = await buildPagesCacheValue(
+            join(ctx.publishDir, 'server/pages', key),
+            shouldUseEnumKind,
+            true, // there is no corresponding json file for fallback, so we are skipping it for this entry
+          )
 
-            // create cache entry for pages router with `fallback: true` case
-            await limitConcurrentPrerenderContentHandling(async () => {
-              // dynamic routes don't have entries for each locale so we have to generate them
-              // ourselves. If i18n is not used we use empty string as "locale" to be able to use
-              // same handling wether i18n is used or not
-              const locales = ctx.buildConfig.i18n?.locales ?? ['']
-
-              const lastModified = Date.now()
-              for (const locale of locales) {
-                const key = routeToFilePath(posixJoin(locale, route))
-                const value = await buildPagesCacheValue(
-                  join(ctx.publishDir, 'server/pages', key),
-                  shouldUseEnumKind,
-                  true, // there is no corresponding json file for fallback, so we are skipping it for this entry
-                )
-                // Netlify Forms are not support and require a workaround
-                if (value.kind === 'PAGE' || value.kind === 'PAGES' || value.kind === 'APP_PAGE') {
-                  verifyNetlifyForms(ctx, value.html)
-                }
-
-                await writeCacheEntry(key, value, lastModified, ctx)
-
-                fsBlobsManifest.fallbackPaths.push(`${key}.html`)
-              }
-            })
-          }
+          await writeCacheEntry(key, value, Date.now(), ctx)
         }),
       ])
 
@@ -263,10 +229,6 @@ export const copyPrerenderedContent = async (ctx: PluginContext): Promise<void> 
         )
         await writeCacheEntry(key, value, lastModified, ctx)
       }
-      await writeFile(
-        join(ctx.serverHandlerDir, FS_BLOBS_MANIFEST),
-        JSON.stringify(fsBlobsManifest),
-      )
     } catch (error) {
       ctx.failBuild('Failed assembling prerendered content for upload', error)
     }
