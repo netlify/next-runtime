@@ -6,7 +6,7 @@ const runCommand = (cmd: string) =>
     exec(cmd, (err, stdout) => (err ? reject(err) : resolve(stdout))),
   )
 
-const output = await runCommand(`ntl api listSiteDeploys --data='{"site_id":"${SITE_ID}"}'`)
+const output = await runCommand(`npx netlify api listSiteDeploys --data='{"site_id":"${SITE_ID}"}'`)
 const deploys = JSON.parse(output)
 
 await Promise.allSettled(deploys.map((deploy) => deleteDeploy(deploy.id)))

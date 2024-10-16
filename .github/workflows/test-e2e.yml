@@ -180,6 +180,8 @@ jobs:
         run: npm run build
         working-directory: ${{ env.runtime-path }}
 
+      # TODO(serhalp) Use the netlify-cli dev dep? It's a bit trickier here because we're running in
+      # the next.js directory, not the next-runtime directory. See https://github.com/netlify/next-runtime/pull/2484.
       - name: add netlify cli
         run: npm install -g netlify-cli
 

@@ -40,6 +40,7 @@ jobs:
           else
             echo "matrix=[\"latest\"]" >> $GITHUB_OUTPUT
           fi
+
   e2e:
     needs: setup
     runs-on: ubuntu-latest
@@ -68,14 +69,13 @@ jobs:
           deno-version: v1.37.0
       - name: 'Install dependencies'
         run: npm ci
-      - name: 'Netlify Login'
+      - name: 'Prepare Netlify CLI'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          # TODO(serhalp) Unpin version once
-          # https://netlify.slack.com/archives/C07686YAY13/p1718139257978049 is resolved.
-          npm i -g netlify-cli@17.26.0
-          netlify login
+          # Control netlify-cli as a regular dev dep but expose it globally for test fixtures to use
+          npm install -g "netlify-cli@$(npm list --json | jq -r ".devDependencies[\"netlify-cli\"].version")"
+          npx netlify login
       - name: Get installed Playwright version
         id: playwright-version
         run: echo "version=$(npm view @playwright/test version)" >> $GITHUB_OUTPUT
@@ -204,14 +204,13 @@ jobs:
         run: npm ci
       - name: 'Build'
         run: npm run build
-      - name: 'Netlify Login'
+      - name: 'Prepare Netlify CLI'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          # TODO(serhalp) Unpin version once
-          # https://netlify.slack.com/archives/C07686YAY13/p1718139257978049 is resolved.
-          npm i -g netlify-cli@17.26.0
-          netlify login
+          # Control netlify-cli as a regular dev dep but expose it globally for test fixtures to use
+          npm install -g "netlify-cli@$(npm list --json | jq -r ".devDependencies[\"netlify-cli\"].version")"
+          npx netlify login
       - name: Resolve Next.js version
         id: resolve-next-version
         shell: bash
