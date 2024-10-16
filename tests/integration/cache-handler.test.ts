@@ -17,6 +17,7 @@ import {
   getBlobEntries,
   startMockBlobStore,
 } from '../utils/helpers.js'
+import { nextVersionSatisfies } from '../utils/next-version-helpers.mjs'
 
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
@@ -92,7 +93,9 @@ describe('page router', () => {
     ).toEqual(
       expect.objectContaining({
         'cache-status': '"Next.js"; hit',
-        'netlify-cdn-cache-control': 's-maxage=5, stale-while-revalidate=31536000, durable',
+        'netlify-cdn-cache-control': nextVersionSatisfies('>=15.0.0-canary.187')
+          ? `s-maxage=5, stale-while-revalidate=${31536000 - 5}, durable`
+          : 's-maxage=5, stale-while-revalidate=31536000, durable',
       }),
     )
     expect(
@@ -243,7 +246,9 @@ describe('app router', () => {
       // It will be hit instead of stale
       expect.objectContaining({
         'cache-status': '"Next.js"; hit',
-        'netlify-cdn-cache-control': 's-maxage=31536000, stale-while-revalidate=31536000, durable',
+        'netlify-cdn-cache-control': nextVersionSatisfies('>=15.0.0-canary.187')
+          ? 's-maxage=31536000, durable'
+          : 's-maxage=31536000, stale-while-revalidate=31536000, durable',
       }),
     )
     expect(
