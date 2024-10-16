@@ -49,7 +49,7 @@
   "homepage": "https://github.com/netlify/next-runtime#readme",
   "devDependencies": {
     "@fastly/http-compute-js": "1.1.4",
-    "@netlify/blobs": "^8.0.1",
+    "@netlify/blobs": "^8.1.0",
     "@netlify/build": "^29.55.2",
     "@netlify/edge-bundler": "^12.2.3",
     "@netlify/edge-functions": "^2.11.0",
@@ -79,6 +79,7 @@
     "memfs": "^4.9.2",
     "mock-require": "^3.0.3",
     "msw": "^2.0.7",
+    "netlify-cli": "^17.37.0",
     "next": "^15.0.0-canary.28",
     "os": "^0.1.2",
     "outdent": "^0.8.0",
