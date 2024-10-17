@@ -350,6 +350,14 @@
         "app-dir revalidate-dynamic should revalidate the data with /api/revalidate-path",
         "app-dir revalidate-dynamic should revalidate the data with /api/revalidate-tag"
       ]
+    },
+    {
+      "file": "test/e2e/app-dir/dynamic-io-errors/dynamic-io-errors.prospective-errors.test.ts",
+      "reason": "Uses CLI output"
+    },
+    {
+      "file": "test/e2e/app-dir/dynamic-io-request-apis/dynamic-io-request-apis.test",
+      "reason": "Uses CLI output"
     }
   ],
   "failures": [
