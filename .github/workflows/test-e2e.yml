@@ -245,9 +245,6 @@ jobs:
         id: publish-test-results
         if: success() || failure()
         run: |
-          echo "slackEvent<<NETLIFY_EOF" >> $GITHUB_OUTPUT
-          deno run -A tools/deno/junit2slack.ts --dir artifacts --version ${{matrix.version_spec.selector}} --runUrl ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}} >> $GITHUB_OUTPUT
-          echo "NETLIFY_EOF" >> $GITHUB_OUTPUT
           deno run -A tools/deno/junit2json.ts artifacts ${{ matrix.version_spec.tag }} > report/test-results.json
           deno run -A tools/deno/generate-md.ts >> $GITHUB_STEP_SUMMARY
 
@@ -259,13 +256,3 @@ jobs:
           # actual filename.
           name: ${{matrix.version_spec.selector}}-test-results.json
           path: report/test-results.json
-
-      # FIXME(serhalp) Once we recover access to the SquidlifyBot Slack App, reenable this.
-      # - name: Notify Slack
-      #   if: ${{ (success() || failure()) && github.event_name == 'schedule' }}
-      #   uses: slackapi/slack-github-action@v1.26.0
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      #     SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-      #   with:
-      #     payload: ${{ steps.publish-test-results.outputs.slackEvent }}
