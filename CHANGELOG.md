@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.8.1](https://github.com/netlify/next-runtime/compare/v5.8.0...v5.8.1) (2024-10-21)
+
+
+### Bug Fixes
+
+* create cache entries for fallback pages to support next@canary ([#2649](https://github.com/netlify/next-runtime/issues/2649)) ([8ab259a](https://github.com/netlify/next-runtime/commit/8ab259a95cdb8712661ab9c1cbb65206b2f9d5ae))
+
 ## [5.8.0](https://github.com/netlify/next-runtime/compare/v5.7.4...v5.8.0) (2024-10-16)
 
 
