@@ -74,19 +74,11 @@ jobs:
             if [ "${VERSION_SPEC}" != "[" ]; then
               VERSION_SPEC+=","
             fi
-            VERSION_SPEC+="{\"selector\":\"$SELECTOR\""
 
-            if [ "$SELECTOR" == "latest" ]; then
-              VERSION_SPEC+=",\"tag\":\"$(curl -s https://api.github.com/repos/vercel/next.js/releases/latest | jq -r .tag_name)\""
-            elif [ "$SELECTOR" == "canary" ]; then
-              VERSION_SPEC+=",\"tag\":\"$(curl -s https://api.github.com/repos/vercel/next.js/releases | jq -r '.[] | select(.prerelease == true) | .tag_name' | head -n 1)\""
-            else
-              VERSION_SPEC+=",\"tag\":\"v$SELECTOR\""
-            fi
+            VERSION=$(npm view next@$SELECTOR version)
+            TAG="v$VERSION"
 
-            VERSION_SPEC+=",\"version\":\"$(npm view next@$SELECTOR version)\""
-
-            VERSION_SPEC+="}"
+            VERSION_SPEC+="{\"selector\":\"$SELECTOR\",\"tag\":\"$TAG\",\"version\":\"$VERSION\"}"
           done
           VERSION_SPEC+="]"
           echo "version_spec=$VERSION_SPEC" >> $GITHUB_OUTPUT
@@ -253,9 +245,6 @@ jobs:
         id: publish-test-results
         if: success() || failure()
         run: |
-          echo "slackEvent<<NETLIFY_EOF" >> $GITHUB_OUTPUT
-          deno run -A tools/deno/junit2slack.ts --dir artifacts --version ${{matrix.version_spec.selector}} --runUrl ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}} >> $GITHUB_OUTPUT
-          echo "NETLIFY_EOF" >> $GITHUB_OUTPUT
           deno run -A tools/deno/junit2json.ts artifacts ${{ matrix.version_spec.tag }} > report/test-results.json
           deno run -A tools/deno/generate-md.ts >> $GITHUB_STEP_SUMMARY
 
@@ -267,13 +256,3 @@ jobs:
           # actual filename.
           name: ${{matrix.version_spec.selector}}-test-results.json
           path: report/test-results.json
-
-      # FIXME(serhalp) Once we recover access to the SquidlifyBot Slack App, reenable this.
-      # - name: Notify Slack
-      #   if: ${{ (success() || failure()) && github.event_name == 'schedule' }}
-      #   uses: slackapi/slack-github-action@v1.26.0
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      #     SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-      #   with:
-      #     payload: ${{ steps.publish-test-results.outputs.slackEvent }}
