@@ -63,8 +63,8 @@ tests against a specific version, set the `NEXT_VERSION` environment variable to
 version.
 
 By default, PRs will run the tests against the latest version of Next.js. To run tests against
-`latest`, `canary` and `13.5.1`, apply the `test all versions` label to the PR when you create it.
-These also run nightly and on release PRs.
+`latest`, `canary`, `14.2.15`,`and`13.5.1`, apply the`test all versions` label to the PR when you
+create it. These also run nightly and on release PRs.
 
 ### Integration testing
 
