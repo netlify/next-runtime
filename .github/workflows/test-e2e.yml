@@ -63,7 +63,7 @@ jobs:
             echo "group=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]" >> $GITHUB_OUTPUT
             echo "total=12" >> $GITHUB_OUTPUT
           else
-            VERSION_SELECTORS=[\"latest\",\"canary\","\14.2.15\",\"13.5.1\"]
+            VERSION_SELECTORS=[\"latest\",\"canary\",\"14.2.15\",\"13.5.1\"]
             echo "group=[1, 2, 3, 4]" >> $GITHUB_OUTPUT
             echo "total=4" >> $GITHUB_OUTPUT
           fi
