@@ -21,7 +21,7 @@ export function nextVersionSatisfies(condition) {
   const isSemverVersion = valid(version)
   const checkVersion = isSemverVersion ? version : FUTURE_NEXT_PATCH_VERSION
 
-  return satisfies(checkVersion, condition) || version === condition
+  return satisfies(checkVersion, condition, { includePrerelease: true }) || version === condition
 }
 
 /**
