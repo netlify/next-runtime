@@ -95,7 +95,7 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
     delete globalThis[Symbol.for('next-patch')]
   }
 
-  ctx.cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
+  ctx.cwd = await mkdtemp(join(tmpdir(), 'opennextjs-netlify-'))
   vi.spyOn(process, 'cwd').mockReturnValue(ctx.cwd)
 
   ctx.cleanup = []
@@ -156,7 +156,7 @@ export const createFixture = async (fixture: string, ctx: FixtureTestContext) =>
 }
 
 export const createFsFixture = async (fixture: Record<string, string>, ctx: FixtureTestContext) => {
-  ctx.cwd = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
+  ctx.cwd = await mkdtemp(join(tmpdir(), 'opennextjs-netlify-'))
   vi.spyOn(process, 'cwd').mockReturnValue(ctx.cwd)
   ctx.cleanup = [
     async () => {
@@ -261,7 +261,7 @@ export async function runPlugin(
     }
     // create zip location in a new temp folder to avoid leaking node_modules through nodes resolve algorithm
     // that always looks up a parent directory for node_modules
-    ctx.functionDist = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-dist'))
+    ctx.functionDist = await mkdtemp(join(tmpdir(), 'opennextjs-netlify-dist'))
     // bundle the function to get the bootstrap layer and all the important parts
     await zipFunctions([internalSrcFolder], ctx.functionDist, {
       basePath: ctx.cwd,

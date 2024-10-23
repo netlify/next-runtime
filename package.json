@@ -34,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/netlify/next-runtime.git"
+    "url": "git+https://github.com/opennextjs/opennextjs-netlify.git"
   },
   "keywords": [
     "nextjs",
@@ -44,9 +44,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/netlify/next-runtime/issues"
+    "url": "https://github.com/opennextjs/opennextjs-netlify/issues"
   },
-  "homepage": "https://github.com/netlify/next-runtime#readme",
+  "homepage": "https://opennext.js.org/netlify",
   "devDependencies": {
     "@fastly/http-compute-js": "1.1.4",
     "@netlify/blobs": "^8.1.0",
