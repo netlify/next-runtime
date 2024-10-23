@@ -140,6 +140,7 @@ export default async (request: Request, context: FutureContext) => {
         // it's important to keep the stream open until the next handler has finished
         await nextHandlerPromise
         if (!context.waitUntil) {
+          res.emit('close')
           // if waitUntil is not available, we have to keep response stream open until background promises are resolved
           // to ensure that all background work executes
           await requestContext.backgroundWorkPromise
