@@ -43,7 +43,7 @@ jobs:
           version=${version:-latest}
           OUTPUT_DIR="e2e-report/data"
           OUTPUT_FILENAME="test-results.json"
-          echo "Downloading ${version} test results from run https://github.com/netlify/next-runtime/actions/runs/${{ steps.get-run-id.outputs.runId }}"
+          echo "Downloading ${version} test results from run https://github.com/opennextjs/opennextjs-netlify/actions/runs/${{ steps.get-run-id.outputs.runId }}"
           rm "${OUTPUT_DIR}/${OUTPUT_FILENAME}"
           artifact_name="${version}-test-results.json"
           # NOTE: The artifact name is not necessarily the artifact *file* name. The file name here

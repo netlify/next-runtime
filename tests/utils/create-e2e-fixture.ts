@@ -51,7 +51,7 @@ interface E2EConfig {
  * @param fixture name of the folder inside the fixtures folder
  */
 export const createE2EFixture = async (fixture: string, config: E2EConfig = {}) => {
-  const isolatedFixtureRoot = await mkdtemp(join(tmpdir(), 'netlify-next-runtime-'))
+  const isolatedFixtureRoot = await mkdtemp(join(tmpdir(), 'opennextjs-netlify-'))
   let deployID: string
   let logs: string
   const _cleanup = (failure: boolean = false) => {

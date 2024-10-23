@@ -72,7 +72,8 @@ To upgrade from v4 to v5, please visit
 ## Feedback
 
 If you think you have found a bug in Next.js on Netlify,
-[please open an issue](https://github.com/netlify/next-runtime/issues). If you have comments or
-feature requests, [see the discussion board](https://github.com/netlify/next-runtime/discussions)
+[please open an issue](https://github.com/opennextjs/opennextjs-netlify/issues). If you have
+comments or feature requests,
+[see the discussion board](https://github.com/opennextjs/opennextjs-netlify/discussions)
 
 Please note that v4 will only receive security fixes and critical bug fixes.

@@ -39,7 +39,7 @@ env:
   NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
   NEXT_TEST_CONTINUE_ON_ERROR: 1
   next-path: next.js
-  runtime-path: next-runtime
+  runtime-path: opennextjs-netlify
   GH_TOKEN: ${{ github.token }}
 jobs:
   setup:
@@ -136,7 +136,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.npm-cache.outputs.PATH }}
-          key: node-cache-${{ hashFiles('next-runtime/package-lock.json') }}
+          key: node-cache-${{ hashFiles('opennextjs-netlify/package-lock.json') }}
           restore-keys: |
             node-cache-
 
@@ -186,11 +186,11 @@ jobs:
         run: |
           # This is when the manifest version was changed
           if [ `npx semver -p -r ">=14.0.4-canary.26" ${{ matrix.version_spec.version }}` ]; then
-            echo "filters=../next-runtime/tests/netlify-e2e.cjs" >> $GITHUB_OUTPUT
-            echo "skip-retry=../next-runtime/tests/e2e-skip-retry.json" >> $GITHUB_OUTPUT
+            echo "filters=../opennextjs-netlify/tests/netlify-e2e.cjs" >> $GITHUB_OUTPUT
+            echo "skip-retry=../opennextjs-netlify/tests/e2e-skip-retry.json" >> $GITHUB_OUTPUT
           else
-            echo "filters=../next-runtime/tests/netlify-e2e-legacy.json" >> $GITHUB_OUTPUT
-            echo "skip-retry=../next-runtime/tests/e2e-skip-retry-legacy.json" >> $GITHUB_OUTPUT
+            echo "filters=../opennextjs-netlify/tests/netlify-e2e-legacy.json" >> $GITHUB_OUTPUT
+            echo "skip-retry=../opennextjs-netlify/tests/e2e-skip-retry-legacy.json" >> $GITHUB_OUTPUT
           fi
 
       - name: run tests

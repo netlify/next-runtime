@@ -3,8 +3,8 @@
 🎉 Thanks for considering contributing to this project! 🎉
 
 When contributing to this repository, please first discuss the change you wish to make via an
-[issue](https://github.com/netlify/next-runtime/issues/new/choose). Please use the issue templates.
-They are there to help you and to help the maintainers gather information.
+[issue](https://github.com/opennextjs/opennextjs-netlify/issues/new/choose). Please use the issue
+templates. They are there to help you and to help the maintainers gather information.
 
 Before working on an issue, ask to be assigned to it. This makes it clear to other potential
 contributors that someone is working on the issue.
@@ -31,7 +31,7 @@ Make sure everything is correctly setup with:
 npm test
 ```
 
-## Lambda Folder structure:
+## Lambda Folder structure
 
 For a simple next.js app
 
@@ -96,7 +96,7 @@ given prefix, run `npm run pretest -- <prefix>`.
 The e2e tests can be invoked with `npm run e2e` and perform a full e2e test. This means they do the
 following:
 
-1. Building the next-runtime (just running `npm run build` in the repository)
+1. Building the adapter (just running `npm run build` in the repository)
 2. Creating a temp directory and copying the provided fixture over to the directory.
 3. Packing the runtime with `npm pack` to the temp directory.
 4. Installing the runtime from the created zip artifact of `npm pack` (this is like installing a
@@ -147,8 +147,8 @@ Most common commit message prefixes are:
 ## How to make a minimal reproduction
 
 A reproducible test case is a small Next.js site built to demonstrate a problem - often this problem
-is caused by a bug in Next.js, next-runtime or user code. Your reproducible test case should contain
-the bare minimum features needed to clearly demonstrate the bug.
+is caused by a bug in Next.js, @opennextjs/netlify or user code. Your reproducible test case should
+contain the bare minimum features needed to clearly demonstrate the bug.
 
 Steps to create a reproducible test case:
 

@@ -48,7 +48,7 @@ export const startMockBlobStore = async (ctx: FixtureTestContext) => {
   ctx.blobServer = new BlobsServer({
     port,
     token: BLOB_TOKEN,
-    directory: await mkdtemp(join(tmpdir(), 'netlify-next-runtime-blob-')),
+    directory: await mkdtemp(join(tmpdir(), 'opennextjs-netlify-blob-')),
   })
   await ctx.blobServer.start()
   ctx.blobServerGetSpy = vi.spyOn(ctx.blobServer, 'get')

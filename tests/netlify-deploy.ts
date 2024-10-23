@@ -16,12 +16,12 @@ type NetlifyDeployResponse = {
 }
 
 async function packNextRuntimeImpl() {
-  const runtimePackDir = await fs.mkdtemp(path.join(tmpdir(), 'next-runtime-pack'))
+  const runtimePackDir = await fs.mkdtemp(path.join(tmpdir(), 'opennextjs-netlify-pack'))
 
   const { stdout } = await execa(
     'npm',
     ['pack', '--json', '--ignore-scripts', `--pack-destination=${runtimePackDir}`],
-    { cwd: process.env.RUNTIME_DIR || `${process.cwd()}/../next-runtime` },
+    { cwd: process.env.RUNTIME_DIR || `${process.cwd()}/../opennextjs-netlify` },
   )
   const [{ filename, name }] = JSON.parse(stdout)
 
