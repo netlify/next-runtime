@@ -124,7 +124,9 @@
     {
       "file": "test/e2e/app-dir/app-static/app-static.test.ts",
       "reason": "Uses CLI output",
-      "tests": ["app-dir static/dynamic handling should warn for too many cache tags"]
+      "tests": [
+        "app-dir static/dynamic handling should warn for too many cache tags"
+      ]
     },
     {
       "file": "test/e2e/app-dir/parallel-routes-and-interception/parallel-routes-and-interception.test.ts",
@@ -357,6 +359,10 @@
     },
     {
       "file": "test/e2e/app-dir/dynamic-io-request-apis/dynamic-io-request-apis.test",
+      "reason": "Uses CLI output"
+    },
+    {
+      "file": "test/e2e/next-config-warnings/esm-externals-false/esm-externals-false.test.ts",
       "reason": "Uses CLI output"
     }
   ],
