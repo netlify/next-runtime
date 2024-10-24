@@ -146,7 +146,7 @@ export class NextDeployInstance extends NextInstance {
       this._url = url
       this._parsedUrl = new URL(this._url)
       this._deployId = deployID
-      this._cliOutput = deployRes.stdout + deployRes.stdout
+      this._cliOutput = deployRes.stdout + deployRes.stderr
       require('console').log(`Deployment URL: ${this._url}`)
 
       const [buildLogsUrl] =
