@@ -117,6 +117,13 @@ function junitToJson(xmlData: { testsuites: JUnitTestSuites }): Array<TestSuite>
       if (skippedTestsForFile?.some(({ name }) => name === testCase['@name'])) {
         continue
       }
+
+      // skip reporting on tests that even fail to deploy because they rely on experiments not available
+      // in currently tested version
+      if (testCase.failure?.includes('CanaryOnlyError')) {
+        continue
+      }
+
       const status = testCase.failure ? 'failed' : 'passed'
       const test: TestCase = {
         name: testCase['@name'],

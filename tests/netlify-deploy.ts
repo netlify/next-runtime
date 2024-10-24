@@ -6,15 +6,6 @@ import { tmpdir } from 'node:os'
 import path from 'path'
 import { NextInstance } from './base'
 
-type NetlifyDeployResponse = {
-  name: string
-  site_id: string
-  site_name: string
-  deploy_id: string
-  deploy_url: string
-  logs: string
-}
-
 async function packNextRuntimeImpl() {
   const runtimePackDir = await fs.mkdtemp(path.join(tmpdir(), 'opennextjs-netlify-pack'))
 
@@ -133,7 +124,7 @@ export class NextDeployInstance extends NextInstance {
 
     const deployRes = await execa(
       'npx',
-      ['netlify', 'deploy', '--build', '--json', '--message', deployTitle ?? ''],
+      ['netlify', 'deploy', '--build', '--message', deployTitle ?? ''],
       {
         cwd: this.testDir,
         reject: false,
@@ -142,17 +133,29 @@ export class NextDeployInstance extends NextInstance {
 
     if (deployRes.exitCode !== 0) {
       throw new Error(
-        `Failed to deploy project ${deployRes.stdout} ${deployRes.stderr} (${deployRes.exitCode})`,
+        `Failed to deploy project (${deployRes.exitCode}) ${deployRes.stdout} ${deployRes.stderr} `,
       )
     }
 
     try {
-      const data: NetlifyDeployResponse = JSON.parse(deployRes.stdout)
-      this._url = data.deploy_url
+      const [url] = new RegExp(/https:.+\.netlify\.app/gm).exec(deployRes.stdout) || []
+      if (!url) {
+        throw new Error('Could not extract the URL from the build logs')
+      }
+      const [deployID] = new URL(url).host.split('--')
+      this._url = url
       this._parsedUrl = new URL(this._url)
-      this._deployId = data.deploy_id
-      require('console').log(`Deployment URL: ${data.deploy_url}`)
-      require('console').log(`Logs: ${data.logs}`)
+      this._deployId = deployID
+      this._cliOutput = deployRes.stdout + deployRes.stderr
+      require('console').log(`Deployment URL: ${this._url}`)
+
+      const [buildLogsUrl] =
+        new RegExp(/https:\/\/app\.netlify\.com\/sites\/.+\/deploys\/[0-9a-f]+/gm).exec(
+          deployRes.stdout,
+        ) || []
+      if (buildLogsUrl) {
+        require('console').log(`Logs: ${buildLogsUrl}`)
+      }
     } catch (err) {
       console.error(err)
       throw new Error(`Failed to parse deploy output: ${deployRes.stdout}`)
