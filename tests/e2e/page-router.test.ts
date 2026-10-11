@@ -433,9 +433,12 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
     await page.waitForTimeout(61_000)
 
     const response2 = await page.goto(new URL(pathname, pageRouter.url).href)
+    // a revalidated cached copy is reported as 200 too
     expect(response2?.status()).toBe(200)
     expect(response2?.headers()['cache-status']).toMatch(
-      /("Netlify Edge"; fwd=stale|"Netlify Durable"; hit; ttl=-[0-9]+)/m,
+      // the browser revalidates its cached copy, and as the stale content didn't change, the CDN
+      // may answer with a 304 that carries only its own cache-status entry
+      /("Netlify Edge"; fwd=(stale|miss)|"Netlify Durable"; hit; ttl=-[0-9]+)/m,
     )
     expect(response2?.headers()['debug-netlify-cdn-cache-control']).toMatch(
       /(max-age|s-maxage)=60, stale-while-revalidate=[0-9]+, durable/,
