@@ -8,13 +8,13 @@ import { pathToFileURL } from 'node:url'
 import type { RequestMeta } from 'next-with-adapters/dist/server/request-meta.js'
 
 import { PLUGIN_DIR } from '../../constants.js'
-import { toComputeResponse, toReqRes } from '../../fetch-api-to-req-res.js'
 import { invokeEdgeRuntimeOutput } from '../edge-runtime-sandbox.js'
 import { getLogger } from '../request-context.cjs'
 import { getTracer, withActiveSpan } from '../tracer.cjs'
 
 import { type InvokeHandlerArg, manifest } from './manifest.js'
-import type { InvokeOptions, Produced, ProduceRequest } from './types.js'
+import type { Outcome, ResponseSink } from './sink.js'
+import type { InvokeOptions, ProduceRequest } from './types.js'
 
 type NodeHandlerFn = (
   req: IncomingMessage,
@@ -79,12 +79,14 @@ export async function invokeHandler(
     invokeStatus,
     nextCallbacks,
   }: ProduceRequest,
-  { invocationId, raw, resume, postponed, onCacheEntry }: InvokeOptions = {},
-): Promise<Produced> {
+  sink: ResponseSink,
+  { invocationId, resume, postponed, onCacheEntry }: InvokeOptions = {},
+): Promise<Outcome> {
   span?.setAttribute('matched.sourcePage', sourcePage)
   span?.setAttribute('matched.runtime', runtime)
   return await withActiveSpan(tracer, 'invoke route handler', async (invokeSpan) => {
     if (runtime === 'edge') {
+      sink.describe({ kind: 'final' })
       try {
         const response = await invokeEdgeRuntimeOutput({
           outputId: id,
@@ -97,15 +99,12 @@ export async function invokeHandler(
           // URL the sandbox invokes with, and as request meta it'd end up in `resolvedUrl` too
           requestMeta: { initURL: resolution.invocation?.requestMeta.initURL ?? request.url },
         })
-        return { kind: 'final' as const, response }
+        return await sink.send(response)
       } catch (error) {
         console.error('edge runtime output error', error)
         getLogger().withError(error).error('edge runtime output error')
         invokeSpan?.setAttribute('http.status_code', 500)
-        return {
-          kind: 'final' as const,
-          response: new Response('Internal Server Error', { status: 500 }),
-        }
+        return await sink.send(new Response('Internal Server Error', { status: 500 }))
       }
     }
 
@@ -124,120 +123,39 @@ export async function invokeHandler(
         handlerRequest.headers.set(key, value)
       }
 
-      // Convert Web Request to Node.js IncomingMessage/ServerResponse
-      const { req, res } = toReqRes(handlerRequest)
-      if (invokeStatus) {
-        res.statusCode = invokeStatus
-      }
-
+      sink.describe({ kind: 'next' })
       // Invoke the route handler using the Node.js handler signature
       // as defined by the Next.js adapter contract:
       // handler(req: IncomingMessage, res: ServerResponse, ctx)
-      const nextHandlerPromise = handler(req, res, {
-        waitUntil: requestContext.trackBackgroundWork,
-        requestMeta: {
-          ...(invocation?.requestMeta ?? { initURL: request.url }),
-          render404: nextCallbacks.render404,
-          revalidate: nextCallbacks.revalidate,
-          minimalMode: true,
-          ...((resume ?? postponed) && { postponed: resume?.postponed ?? postponed }),
-          ...(onCacheEntry && {
-            onCacheEntryV2: async (entry: Parameters<typeof onCacheEntry>[0]) => {
-              onCacheEntry(entry)
-              return false
+      const outcome = await sink.render(
+        handlerRequest,
+        (req, res) =>
+          handler(req, res, {
+            waitUntil: requestContext.trackBackgroundWork,
+            requestMeta: {
+              ...(invocation?.requestMeta ?? { initURL: request.url }),
+              render404: nextCallbacks.render404,
+              revalidate: nextCallbacks.revalidate,
+              minimalMode: true,
+              ...((resume ?? postponed) && { postponed: resume?.postponed ?? postponed }),
+              ...(onCacheEntry && {
+                onCacheEntryV2: async (entry: Parameters<typeof onCacheEntry>[0]) => {
+                  onCacheEntry(entry)
+                  return false
+                },
+              }),
             },
           }),
-        },
-      })
-
-      // Route modules rethrow render errors for the host to serve the error page (Next's router
-      // renders /500 then). Ending the response here also avoids leaving it open until timeout.
-      let failedBeforeHeaders = false
-      nextHandlerPromise.catch((error) => {
-        console.error('route handler error', error)
-        if (!res.headersSent) {
-          failedBeforeHeaders = true
-          res.statusCode = 500
-          res.end('Internal Server Error')
-        }
-      })
-
-      // below is for now copied from standalone handler (without some extras, that generally could also be removed from standalone)
-      // but will be nice to extract common handling to shared module and cleanup some things
-
-      // Contrary to the docs, this resolves when the headers are available, not when the stream closes.
-      // See https://github.com/fastly/http-compute-js/blob/main/src/http-compute-js/http-server.ts#L168-L173
-      const response = await toComputeResponse(res)
-
-      if (failedBeforeHeaders && !invokeStatus) {
-        invokeSpan?.setAttribute('http.status_code', 500)
-        return {
-          kind: 'failed' as const,
-          response: new Response('Internal Server Error', { status: 500 }),
-        }
-      }
-
-      invokeSpan?.setAttribute('http.status_code', response.status)
-
-      if (raw) {
-        // not the background work: a regeneration running as background work reads this body
-        const untilRendered = new TransformStream({
-          async flush() {
-            await nextHandlerPromise.catch(() => {
-              // reported where the handler promise is created
-            })
-            res.emit('close')
-          },
-        })
-        return {
-          kind: 'final' as const,
-          response: new Response(response.body?.pipeThrough(untilRendered), response),
-        }
-      }
-
-      // eslint-disable-next-line no-inner-declarations
-      async function waitForBackgroundWork() {
-        // it's important to keep the stream open until the next handler has finished
-        await nextHandlerPromise.catch(() => {
-          // already reported above
-        })
-
-        // Next.js relies on `close` event emitted by response to trigger running callback variant of `next/after`
-        // however @fastly/http-compute-js never actually emits that event - so we have to emit it ourselves,
-        // otherwise Next would never run the callback variant of `next/after`
-        res.emit('close')
-
-        // We have to keep response stream open until tracked background promises that are don't use `context.waitUntil`
-        // are resolved. If `context.waitUntil` is available, `requestContext.backgroundWorkPromise` will be empty
-        // resolved promised and so awaiting it is no-op
-        await requestContext.backgroundWorkPromise
-      }
-
-      const keepOpenUntilNextFullyRendered = new TransformStream({
-        async flush() {
-          await waitForBackgroundWork()
-        },
-      })
-
-      if (!response.body) {
-        await waitForBackgroundWork()
-      }
-
-      return {
-        kind: 'next' as const,
-        response: new Response(
-          response.body?.pipeThrough(keepOpenUntilNextFullyRendered),
-          response,
-        ),
-      }
+        { status: invokeStatus },
+      )
+      invokeSpan?.setAttribute('http.status_code', outcome === 'failed' ? 500 : (sink.status ?? 0))
+      return outcome
     } catch (error) {
       console.error('route handler error', error)
       getLogger().withError(error).error('route handler error')
       invokeSpan?.setAttribute('http.status_code', 500)
-      return {
-        kind: 'final' as const,
-        response: new Response('Internal Server Error', { status: 500 }),
-      }
+      sink.describe({ kind: 'final' })
+      return await sink.send(new Response('Internal Server Error', { status: 500 }))
     }
   })
 }

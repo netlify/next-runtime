@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { finalize, type ResponseHead } from './finalize.js'
+import { finalizeHead, type ResponseHead } from './finalize.js'
 import type { StoredCache } from './types.js'
 
 vi.mock('./manifest.js', () => ({
@@ -14,16 +14,16 @@ async function finalizeStored(
   nextHeaders?: Record<string, string>,
   routed?: (head: ResponseHead) => ResponseHead,
 ) {
-  const response = await finalize(
+  const { headers } = finalizeHead(
+    { status: 200, headers: new Headers(nextHeaders) },
     {
       kind: 'stored',
-      response: new Response('body', { headers: nextHeaders }),
       cache: { revalidate: false, tags: ['_N_T_/page'], lastModified, nextCache: 'HIT', ...cache },
     },
     new Request('https://example.netlify.app/page'),
     routed,
   )
-  return Object.fromEntries(response.headers)
+  return Object.fromEntries(headers)
 }
 
 describe('finalize a stored response', () => {

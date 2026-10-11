@@ -8,10 +8,10 @@ import {
 import type { PrerenderGroupBlob } from '../../../shared/blob-types.cjs'
 import { getLogger } from '../request-context.cjs'
 
-import { finalize } from './finalize.js'
 import { invokeHandler } from './invoke.js'
 import { computeOutputsById, manifest, type PrerenderOutput } from './manifest.js'
-import type { Produced, ProduceRequest, StoredCache } from './types.js'
+import { FetchSink, type Outcome, type ResponseSink } from './sink.js'
+import type { ProduceRequest, StoredCache } from './types.js'
 
 /**
  * PPR: the stored shell is only the start of the page, the rest comes from resuming its postponed
@@ -35,7 +35,8 @@ export async function resumePrerender(
     cache?: StoredCache
   },
   args: ProduceRequest,
-): Promise<Produced | undefined> {
+  sink: ResponseSink,
+): Promise<Outcome | undefined> {
   const { request } = args
   const { rsc } = manifest
   const isRSCRequest = Boolean(rsc) && request.headers.get(rsc.header) === '1'
@@ -46,7 +47,7 @@ export async function resumePrerender(
   }
   const resume = { postponed, headers: entry.resumeHeaders }
   if (isRSCRequest) {
-    return invokeHandler(output, args, { resume })
+    return invokeHandler(output, args, sink, { resume })
   }
   if (!stored) {
     return
@@ -60,7 +61,8 @@ export async function resumePrerender(
       { status: stored.status, headers: stored.headers },
     )
     response.headers.set(POSTPONED_LENGTH_HEADER, String(state.byteLength))
-    return cache ? { kind: 'stored', response, cache } : { kind: 'shell', response }
+    sink.describe(cache ? { kind: 'stored', cache } : { kind: 'shell' })
+    return sink.send(response)
   }
 
   // the shell goes out right away, the resumed part streams after it once Next produces it
@@ -72,8 +74,11 @@ export async function resumePrerender(
           async start(controller) {
             controller.enqueue(shell)
             try {
-              const resumed = await finalize(await invokeHandler(output, args, { resume }), request)
-              if (resumed.body) {
+              // only its body goes out, after the shell
+              const resumedSink = new FetchSink()
+              const outcome = await invokeHandler(output, args, resumedSink, { resume })
+              const resumed = outcome === 'sent' ? await resumedSink.response : undefined
+              if (resumed?.body) {
                 const reader = resumed.body.getReader()
                 for (;;) {
                   const { done, value } = await reader.read()
@@ -90,8 +95,6 @@ export async function resumePrerender(
             controller.close()
           },
         })
-  return {
-    kind: 'resume',
-    response: new Response(body, { status: stored.status, headers: stored.headers }),
-  }
+  sink.describe({ kind: 'resume' })
+  return sink.send(new Response(body, { status: stored.status, headers: stored.headers }))
 }

@@ -141,17 +141,3 @@ export function finalizeHead(
       return routed({ status, headers })
   }
 }
-
-function producedResponse(produced: Produced): Response {
-  return produced.kind === 'error' ? producedResponse(produced.produced) : produced.response
-}
-
-export async function finalize(
-  produced: Produced,
-  request: Request,
-  routed?: (head: ResponseHead) => ResponseHead,
-): Promise<Response> {
-  const response = producedResponse(produced)
-  const head = finalizeHead(response, produced, request, routed)
-  return new Response(response.body, head)
-}

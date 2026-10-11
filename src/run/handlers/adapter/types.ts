@@ -40,8 +40,6 @@ export type ProduceRequest = {
 export type InvokeOptions = {
   // shared by the invocations regenerating one prerender group, so Next renders it once
   invocationId?: string
-  // Next's response as is, without our CDN headers (to store it)
-  raw?: boolean
   // PPR: resume a postponed render with this state and the output's `pprChain` headers
   resume?: { postponed: string; headers?: Record<string, string> }
   // PPR: a server action's re-render uses the resume data cache of the page's postponed state
@@ -71,22 +69,19 @@ export type StoredCache = {
 }
 
 /**
- * A response and what `finalize` needs to know to turn it into the platform response. Producers
- * (prerender groups, invocation, static files, error pages) leave the CDN headers to `finalize`.
+ * What a producer says about the response it writes into its sink (`ResponseSink.describe`), for
+ * `finalizeHead` to turn it into the platform response.
  */
 export type Produced =
   // Next's rendered response: its cache-control is translated for the CDN
-  | { kind: 'next'; response: Response }
+  | { kind: 'next' }
   // a stored response, cached as the store says
-  | { kind: 'stored'; response: Response; cache: StoredCache }
+  | { kind: 'stored'; cache: StoredCache }
   // per request: a fallback shell is revalidated on every request, a PPR resume is never stored
-  | { kind: 'shell' | 'resume'; response: Response }
+  | { kind: 'shell' | 'resume' }
   // stored static HTML, a fully static page is cached for a year
-  | { kind: 'static-page'; response: Response; fullyStatic: boolean }
+  | { kind: 'static-page'; fullyStatic: boolean }
   // an error page: what rendered it, served with this status
   | { kind: 'error'; status: 404 | 500; produced: Produced }
   // complete as is
-  | { kind: 'final'; response: Response }
-  // a render that failed before its headers: dispatch answers with the 500 page, `response` is the
-  // plain 500 for whoever doesn't (a regeneration, which then doesn't store it)
-  | { kind: 'failed'; response: Response }
+  | { kind: 'final' }

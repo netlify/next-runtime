@@ -25,9 +25,10 @@ import {
   produceTarget,
   renderErrorPage,
 } from './adapter/dispatch.js'
-import { finalize, type ResponseHead } from './adapter/finalize.js'
+import { finalizeHead, type ResponseHead } from './adapter/finalize.js'
 import { basePath, manifest } from './adapter/manifest.js'
 import { servePrerenderGroup } from './adapter/prerender-store.js'
+import { FetchSink, type Outcome, type ResponseSink } from './adapter/sink.js'
 import type { AdapterRequestContext, NextCallbacks, ProduceRequest } from './adapter/types.js'
 import { NetlifyAdapterCacheHandler } from './cache-adapter.cjs'
 import { getLogger } from './request-context.cjs'
@@ -86,12 +87,10 @@ async function revalidateOnDemand(
   if (target.kind !== 'output' || !target.prerender?.onDemand) {
     return
   }
-  const { variant, group, onDemand } = target.prerender
   await servePrerenderGroup(
-    variant,
-    group,
+    target.prerender,
     { request, requestContext, resolution, tracer: getTracer(), nextCallbacks },
-    onDemand,
+    new FetchSink(),
   )
 }
 
@@ -107,11 +106,11 @@ function createNextCallbacks(
   const tracer = getTracer()
   const nextCallbacks: NextCallbacks = {
     render404: async (req, res, _parsedUrl, setHeaders) => {
-      // Next takes the page into its own response mid-render, so it is final here
-      const response = await finalize(
-        await renderErrorPage(404, { request, requestContext, tracer, nextCallbacks }),
-        request,
-      )
+      // Next swaps the 404 page's body into the response it is rendering, which keeps its own
+      // headers (caching) and is finalized as Next's: the page itself is taken as is
+      const page = new FetchSink()
+      await renderErrorPage(404, { request, requestContext, tracer, nextCallbacks }, page)
+      const response = await page.response
       if (!res.headersSent) {
         res.statusCode = 404
         for (const [name, value] of response.headers) {
@@ -149,12 +148,21 @@ function createNextCallbacks(
   return nextCallbacks
 }
 
+/**
+ * Writes the response to `request` into `sink`. What dispatch produces is finalized at commit; an
+ * answer routing or dispatch gives itself goes out as is.
+ */
 export default async function ServerHandler(
   request: Request,
   requestContext: AdapterRequestContext,
-) {
+  sink: ResponseSink,
+): Promise<Outcome> {
   const tracer = getTracer()
   const nextCallbacks = createNextCallbacks(request, requestContext)
+  const answer = (response: Response) => {
+    sink.describe({ kind: 'final' })
+    return sink.send(response)
+  }
 
   return await withActiveSpan(tracer, 'adapter route resolution', async (span) => {
     const url = new URL(request.url)
@@ -184,7 +192,7 @@ export default async function ServerHandler(
       } catch (error) {
         console.error('route resolution error', error)
         getLogger().withError(error).error('route resolution error')
-        return new Response('Internal Server Error', { status: 500 })
+        return answer(new Response('Internal Server Error', { status: 500 }))
       }
     }
 
@@ -202,6 +210,13 @@ export default async function ServerHandler(
       )
       return { status: routed.status, headers: routed.headers }
     }
+    // `request` is the one the producer answers
+    const finalizeProduced = (producedRequest: Request, status?: number) =>
+      sink.onCommit((head, produced) =>
+        finalizeHead(head, produced, producedRequest, (routed) =>
+          applyResolutionToProduced(routed, status),
+        ),
+      )
 
     const answered = await answerWithoutCompute(resolution, {
       request,
@@ -216,7 +231,7 @@ export default async function ServerHandler(
         }),
     })
     if (answered) {
-      return answered
+      return answer(answered)
     }
 
     // Handle matched route
@@ -234,20 +249,15 @@ export default async function ServerHandler(
       })
       if (target.kind === 'error') {
         span?.setAttribute('matched.noOutput', true)
-        return finalize(
-          await renderErrorPage(target.status, {
-            request,
-            requestContext,
-            tracer,
-            span,
-            nextCallbacks,
-          }),
-          request,
-          (response) => applyResolutionToProduced(response, target.status),
+        finalizeProduced(request, target.status)
+        return renderErrorPage(
+          target.status,
+          { request, requestContext, tracer, span, nextCallbacks },
+          sink,
         )
       }
       if (target.kind === 'answer') {
-        return applyResolutionToThisResponse(target.response, target.status)
+        return answer(applyResolutionToThisResponse(target.response, target.status))
       }
 
       // Next's route modules expect req.url to be the URL the client requested (that's req.url and
@@ -279,21 +289,19 @@ export default async function ServerHandler(
         nextCallbacks,
       }
 
-      const produced = await produceTarget(target, handlerArgs)
-
       const isNotFoundPage = isNotFoundPageRequest(request, resolution.resolvedPathname)
       const status = isNotFoundPage
         ? 404
         : isStatusPageRequest(request, resolution.resolvedPathname, 500)
           ? 500
           : resolution.status
+      finalizeProduced(handlerArgs.request, status)
       // Next's server responds 404 to a direct request for the 404 page, served like any error page
       // (CACHE_404_PAGE cache-control handling keys off the status)
-      return finalize(
-        isNotFoundPage ? { kind: 'error', status: 404, produced } : produced,
-        handlerArgs.request,
-        (routed) => applyResolutionToProduced(routed, status),
-      )
+      if (isNotFoundPage) {
+        sink.describeAsErrorPage(404)
+      }
+      return produceTarget(target, handlerArgs, sink)
     }
 
     // the edge function answers this itself; behind it `url` is the rewrite target
@@ -304,29 +312,28 @@ export default async function ServerHandler(
         middlewareMatchers: manifest.routingConfig.routes.middlewareMatchers,
       })
     ) {
-      return applyResolutionToThisResponse(Response.json({}))
+      return answer(applyResolutionToThisResponse(Response.json({})))
     }
 
     // No match found — 404
     if (isPlainNotFoundRequest(url)) {
-      return applyResolutionToThisResponse(
-        new Response('Not Found', {
-          status: 404,
-          headers: {
-            'content-type': 'text/plain; charset=utf-8',
-            'cache-control': 'private, no-cache, no-store, max-age=0, must-revalidate',
-          },
-        }),
-        404,
+      return answer(
+        applyResolutionToThisResponse(
+          new Response('Not Found', {
+            status: 404,
+            headers: {
+              'content-type': 'text/plain; charset=utf-8',
+              'cache-control': 'private, no-cache, no-store, max-age=0, must-revalidate',
+            },
+          }),
+          404,
+        ),
       )
     }
     // TODO(adapter): this can be cached forever because it will never match any routes
     // but we would need to collect routing rules that were involved and inspect them as rules might rely on headers or other request properties,
     // which would require setting correct netlify-vary header.
-    return finalize(
-      await renderErrorPage(404, { request, requestContext, tracer, span, nextCallbacks }),
-      request,
-      (response) => applyResolutionToProduced(response, 404),
-    )
+    finalizeProduced(request, 404)
+    return renderErrorPage(404, { request, requestContext, tracer, span, nextCallbacks }, sink)
   })
 }

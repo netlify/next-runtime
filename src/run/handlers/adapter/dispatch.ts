@@ -24,18 +24,20 @@ import {
   type OnDemandRevalidate,
   servePrerenderGroup,
 } from './prerender-store.js'
+import type { Outcome, ResponseSink } from './sink.js'
 import { serverStaticFile } from './static-file.js'
-import type { InvokeOptions, Produced, ProduceRequest } from './types.js'
+import type { InvokeOptions, ProduceRequest } from './types.js'
 import { getPrerenderVariant } from './variants.js'
 
 export function produceOutput(
   routed: RoutedOutput,
   args: ProduceRequest,
+  sink: ResponseSink,
   options?: InvokeOptions,
-): Promise<Produced> {
+): Promise<Outcome> {
   return routed.kind === 'compute'
-    ? invokeHandler(routed.output, args, options)
-    : serverStaticFile(routed.file, args)
+    ? invokeHandler(routed.output, args, sink, options)
+    : serverStaticFile(routed.file, args, sink)
 }
 
 function getCookie(request: Request, name: string): string | undefined {
@@ -170,7 +172,8 @@ export function dispatch(
 export async function produceTarget(
   { output, prerender, postponedFrom }: Extract<Target, { kind: 'output' }>,
   args: ProduceRequest,
-): Promise<Produced> {
+  sink: ResponseSink,
+): Promise<Outcome> {
   if (prerender) {
     const served = await withActiveSpan(args.tracer, 'serve prerender', async (span) => {
       span?.setAttributes({
@@ -178,36 +181,47 @@ export async function produceTarget(
         'prerender.variant': prerender.variant.pathname,
         'prerender.onDemand': Boolean(prerender.onDemand),
       })
-      const result = await servePrerenderGroup(
-        prerender.variant,
-        prerender.group,
-        args,
-        prerender.onDemand,
-      )
+      const outcome = await servePrerenderGroup(prerender, args, sink)
       // nothing served means the output renders the request
+      const { described } = sink
       span?.setAttributes({
-        'prerender.served': result?.kind ?? 'none',
-        'next.cache': result?.kind === 'stored' ? result.cache.nextCache : undefined,
+        'prerender.served': outcome ? described.kind : 'none',
+        'next.cache':
+          outcome && described.kind === 'stored' ? described.cache.nextCache : undefined,
       })
-      return result
+      return outcome
     })
     if (served) {
-      return answerFailure(served, args)
+      return answerFailure(served, args, sink)
     }
   }
   return answerFailure(
     await produceOutput(
       output,
       args,
+      sink,
       postponedFrom && { postponed: await getPrerenderGroupPostponed(postponedFrom, args) },
     ),
     args,
+    sink,
   )
 }
 
-// a render that failed before its headers gets the 500 page, like Next's router renders it
-function answerFailure(produced: Produced, args: ProduceRequest): Promise<Produced> | Produced {
-  return produced.kind === 'failed' ? renderErrorPage(500, args) : produced
+// A render that failed before its headers gets the 500 page, like Next's router renders it. An
+// error page that fails gets a plain 500.
+async function answerFailure(
+  outcome: Outcome,
+  args: ProduceRequest,
+  sink: ResponseSink,
+): Promise<Outcome> {
+  if (outcome !== 'failed') {
+    return outcome
+  }
+  if (args.invokeStatus) {
+    sink.describe({ kind: 'final' })
+    return sink.send(new Response('Internal Server Error', { status: 500 }))
+  }
+  return renderErrorPage(500, args, sink)
 }
 
 /**
@@ -222,7 +236,8 @@ function answerFailure(produced: Produced, args: ProduceRequest): Promise<Produc
 export async function renderErrorPage(
   status: 404 | 500,
   { request, requestContext, tracer, span, nextCallbacks }: Omit<ProduceRequest, 'resolution'>,
-): Promise<Produced> {
+  sink: ResponseSink,
+): Promise<Outcome> {
   const url = new URL(request.url)
   const candidates: string[] = []
   if (status === 404) {
@@ -239,10 +254,10 @@ export async function renderErrorPage(
   const pathname = candidates.find((candidate) => outputsByPathname.has(candidate))
   const routed = pathname ? outputsByPathname.get(pathname) : undefined
   if (!pathname || !routed) {
-    return {
-      kind: 'final',
-      response: new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status }),
-    }
+    sink.describe({ kind: 'final' })
+    return sink.send(
+      new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status }),
+    )
   }
 
   const errorArgs: ProduceRequest = {
@@ -258,7 +273,8 @@ export async function renderErrorPage(
   // the static shell of a PPR page, the rest comes from resuming the group's postponed state
   const variant = getPrerenderVariant(pathname, request.headers, false)
   const group = variant && prerenderGroups.get(variant.groupId)
-  const produced = await produceTarget(
+  sink.describeAsErrorPage(status)
+  return produceTarget(
     {
       kind: 'output',
       output: routed,
@@ -266,8 +282,8 @@ export async function renderErrorPage(
         group?.entry && { prerender: { variant, group: group as Required<PrerenderGroup> } }),
     },
     errorArgs,
+    sink,
   )
-  return { kind: 'error', status, produced }
 }
 
 // a literal request for the 404 page (or its locale variant) responds with 404, like Next's server

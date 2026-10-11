@@ -6,6 +6,7 @@ import {
   setupHoneycombTracing,
   withHoneycombTracing,
 } from '{{runtimeModulesDir}}/dist/adapter-runtime-shared/honeycomb-tracing.js'
+import { FetchSink } from '{{runtimeModulesDir}}/dist/run/handlers/adapter/sink.js'
 import {
   createRequestContext,
   runWithRequestContext,
@@ -37,6 +38,14 @@ export default (req, context) =>
 async function handler(req, context) {
   const requestContext = createRequestContext(req, context)
   const tracer = getTracer()
+  // without `context.waitUntil`, background work keeps the response open
+  const sink = new FetchSink({ keepOpenUntil: () => requestContext.backgroundWorkPromise })
+  sink.onCommit((head) => {
+    if (requestContext.serverTiming) {
+      head.headers.set('server-timing', requestContext.serverTiming)
+    }
+    return head
+  })
 
   const handlerResponse = await runWithRequestContext(requestContext, () => {
     return withActiveSpan(tracer, 'Next.js Server Handler', async (span) => {
@@ -50,17 +59,14 @@ async function handler(req, context) {
         isBackgroundRevalidation: requestContext.isBackgroundRevalidation,
         cwd: '{{cwd}}',
       })
-      const response = await serverHandler(req, requestContext)
+      await serverHandler(req, requestContext, sink)
+      const response = await sink.response
       span?.setAttributes({
         'http.status_code': response.status,
       })
       return response
     })
   })
-
-  if (requestContext.serverTiming) {
-    handlerResponse.headers.set('server-timing', requestContext.serverTiming)
-  }
 
   return handlerResponse
 }

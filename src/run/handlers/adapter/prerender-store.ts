@@ -14,7 +14,7 @@ import { getMemoizedKeyValueStoreBackedByRegionalBlobStore } from '../../storage
 import { getLogger, isBackgroundRevalidationRequest } from '../request-context.cjs'
 import { encodeCacheTag, isAnyTagStaleOrExpired, purgeEdgeCache } from '../tags-handler.cjs'
 
-import { finalize, getNextCacheTags } from './finalize.js'
+import { getNextCacheTags } from './finalize.js'
 import { invokeHandler } from './invoke.js'
 import {
   basePath,
@@ -24,7 +24,8 @@ import {
   type PrerenderOutput,
 } from './manifest.js'
 import { resumePrerender } from './ppr.js'
-import type { InvokeOptions, Produced, ProduceRequest, StoredCache } from './types.js'
+import { FetchSink, type Outcome, type ResponseSink } from './sink.js'
+import type { InvokeOptions, ProduceRequest, StoredCache } from './types.js'
 
 // like Next's isBot (shared/lib/router/utils/is-bot.ts): the app's `htmlLimitedBots`, which the
 // config carries as a regex source, and Googlebot, which renders JavaScript
@@ -134,18 +135,22 @@ async function regeneratePrerenderGroup(
     const memberRequest = new Request(url, {
       headers: onDemandToken ? { 'x-prerender-revalidate': onDemandToken } : {},
     })
-    const response = await finalize(
-      await invokeHandler(
-        output,
-        { ...args, request: memberRequest, resolution: {} },
-        {
-          invocationId,
-          raw: true,
-          ...(member === group.entry && { onCacheEntry: captureEntry }),
-        },
-      ),
-      memberRequest,
+    // Next's response as is, without our CDN headers
+    const sink = new FetchSink()
+    const outcome = await invokeHandler(
+      output,
+      { ...args, request: memberRequest, resolution: {} },
+      sink,
+      {
+        invocationId,
+        ...(member === group.entry && { onCacheEntry: captureEntry }),
+      },
     )
+    // a render that failed before its headers isn't stored (no s-maxage)
+    const response =
+      outcome === 'failed'
+        ? new Response('Internal Server Error', { status: 500 })
+        : await sink.response
     const body = Buffer.from(await response.arrayBuffer())
     variants[member.pathname] = {
       status: response.status,
@@ -225,11 +230,14 @@ export async function getPrerenderGroupPostponed(
 }
 
 export async function servePrerenderGroup(
-  variant: PrerenderOutput,
-  group: Required<PrerenderGroup>,
+  {
+    variant,
+    group,
+    onDemand,
+  }: { variant: PrerenderOutput; group: Required<PrerenderGroup>; onDemand?: OnDemandRevalidate },
   args: ProduceRequest,
-  onDemand?: OnDemandRevalidate,
-): Promise<Produced | undefined> {
+  sink: ResponseSink,
+): Promise<Outcome | undefined> {
   const { request, requestContext, resolution } = args
   const params = getPrerenderGroupQuery(
     group.entry,
@@ -249,10 +257,8 @@ export async function servePrerenderGroup(
 
   if (onDemand) {
     if (onDemand.onlyGenerated && !blob) {
-      return {
-        kind: 'final',
-        response: new Response('This page could not be found', { status: 404 }),
-      }
+      sink.describe({ kind: 'final' })
+      return sink.send(new Response('This page could not be found', { status: 404 }))
     }
     blob = await regeneratePrerenderGroup(groupKey, group, params, {
       ...args,
@@ -331,6 +337,7 @@ export async function servePrerenderGroup(
           cache: shellCache,
         },
         args,
+        sink,
       )
     }
     if (shellVariant) {
@@ -338,9 +345,8 @@ export async function servePrerenderGroup(
         request.method === 'HEAD' ? null : Buffer.from(shellVariant.body, 'base64'),
         { status: shellVariant.status, headers: shellVariant.headers },
       )
-      return shellCache
-        ? { kind: 'stored', response, cache: shellCache }
-        : { kind: 'shell', response }
+      sink.describe(shellCache ? { kind: 'stored', cache: shellCache } : { kind: 'shell' })
+      return sink.send(response)
     }
   }
 
@@ -366,6 +372,7 @@ export async function servePrerenderGroup(
     const resumed = await resumePrerender(
       { variant, entry: group.entry, postponed: blob.postponed },
       args,
+      sink,
     )
     if (resumed) {
       return resumed
@@ -391,6 +398,7 @@ export async function servePrerenderGroup(
         cache: getStoredCache(blob, stored, nextCache),
       },
       args,
+      sink,
     )
     if (resumed) {
       return resumed
@@ -401,9 +409,6 @@ export async function servePrerenderGroup(
     request.method === 'HEAD' ? null : Buffer.from(stored.body, 'base64'),
     { status: stored.status, headers: stored.headers },
   )
-  return {
-    kind: 'stored',
-    response,
-    cache: getStoredCache(blob, stored, nextCache),
-  }
+  sink.describe({ kind: 'stored', cache: getStoredCache(blob, stored, nextCache) })
+  return sink.send(response)
 }
