@@ -8,7 +8,7 @@ import { toComputeResponse, toReqRes } from '../../fetch-api-to-req-res.js'
 import type { ResponseHead } from './finalize.js'
 import type { Produced } from './types.js'
 
-// 'failed': a Next render threw before its headers, the sink is left as it was
+// 'failed': a render threw before committing, the sink is left as it was
 export type Outcome = 'sent' | 'failed'
 
 export type NodeRender = (req: IncomingMessage, res: ServerResponse) => Promise<void>
@@ -161,10 +161,9 @@ export class FetchSink extends ResponseSink {
 
     const rendering = render(req, res)
 
-    // Route modules rethrow render errors for the host to serve the error page (Next's router
-    // renders /500 then). Ending the response here also avoids leaving it open until timeout.
-    rendering.catch((error) => {
-      console.error('route handler error', error)
+    // a render that throws before committing leaves the sink as it was ('failed'); ending this res
+    // lets toComputeResponse resolve instead of waiting for a timeout
+    rendering.catch(() => {
       if (!res.headersSent) {
         failedBeforeHeaders = true
         res.statusCode = 500
@@ -183,7 +182,7 @@ export class FetchSink extends ResponseSink {
     const untilRendered = async () => {
       // it's important to keep the stream open until the next handler has finished
       await rendering.catch(() => {
-        // reported above
+        // the renderer reports it
       })
       // Next.js relies on `close` event emitted by response to trigger running callback variant of `next/after`
       // however @fastly/http-compute-js never actually emits that event - so we have to emit it ourselves,

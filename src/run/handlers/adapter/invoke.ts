@@ -130,6 +130,8 @@ export async function invokeHandler(
       const outcome = await sink.render(
         handlerRequest,
         (req, res) =>
+          // Route modules rethrow render errors for the host to serve the error page (Next's router
+          // renders /500 then, see `answerFailure`)
           handler(req, res, {
             waitUntil: requestContext.trackBackgroundWork,
             requestMeta: {
@@ -145,6 +147,9 @@ export async function invokeHandler(
                 },
               }),
             },
+          }).catch((error: unknown) => {
+            console.error('route handler error', error)
+            throw error
           }),
         { kind: 'next' },
         { status: invokeStatus },
