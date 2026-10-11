@@ -15,6 +15,25 @@ export type NodeRender = (req: IncomingMessage, res: ServerResponse) => Promise<
 
 type CommitHook = (head: ResponseHead, produced: Produced) => ResponseHead
 
+function clearHeaders(res: ServerResponse) {
+  for (const name of res.getHeaderNames()) {
+    res.removeHeader(name)
+  }
+}
+
+function setHeaders(res: ServerResponse, headers: Headers) {
+  clearHeaders(res)
+  for (const [name, value] of headers) {
+    if (name !== 'set-cookie') {
+      res.setHeader(name, value)
+    }
+  }
+  const cookies = headers.getSetCookie()
+  if (cookies.length !== 0) {
+    res.setHeader('set-cookie', cookies)
+  }
+}
+
 // Next commits its headers through `writeHead`, implicitly too (`_implicitHeader` on the first write)
 function commitOnWriteHead(res: ServerResponse, commit: (head: ResponseHead) => ResponseHead) {
   const writeHead = res.writeHead.bind(res)
@@ -39,18 +58,7 @@ function commitOnWriteHead(res: ServerResponse, commit: (head: ResponseHead) => 
       }
     }
     const committed = commit({ status: statusCode, headers })
-    for (const name of res.getHeaderNames()) {
-      res.removeHeader(name)
-    }
-    for (const [name, value] of committed.headers) {
-      if (name !== 'set-cookie') {
-        res.setHeader(name, value)
-      }
-    }
-    const cookies = committed.headers.getSetCookie()
-    if (cookies.length !== 0) {
-      res.setHeader('set-cookie', cookies)
-    }
+    setHeaders(res, committed.headers)
     return writeHead(committed.status)
   }) as ServerResponse['writeHead']
 }
