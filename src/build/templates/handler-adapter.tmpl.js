@@ -33,13 +33,22 @@ await setupHoneycombTracing('next-runtime-function', {
 })
 
 export default (req, context) =>
-  withHoneycombTracing(req, context.waitUntil?.bind(context), () => handler(req, context))
+  withHoneycombTracing(req, context.waitUntil?.bind(context), async () => {
+    const sink = await handler(
+      req,
+      context,
+      // without `context.waitUntil`, background work keeps the response open
+      (requestContext) =>
+        new FetchSink({ keepOpenUntil: () => requestContext.backgroundWorkPromise }),
+    )
+    return sink.response
+  })
 
-async function handler(req, context) {
+// `createSink`: what the response is written into, the only part that depends on how it's answered
+async function handler(req, context, createSink) {
   const requestContext = createRequestContext(req, context)
   const tracer = getTracer()
-  // without `context.waitUntil`, background work keeps the response open
-  const sink = new FetchSink({ keepOpenUntil: () => requestContext.backgroundWorkPromise })
+  const sink = createSink(requestContext)
   sink.onCommit((head) => {
     if (requestContext.serverTiming) {
       head.headers.set('server-timing', requestContext.serverTiming)
@@ -47,7 +56,7 @@ async function handler(req, context) {
     return head
   })
 
-  const handlerResponse = await runWithRequestContext(requestContext, () => {
+  await runWithRequestContext(requestContext, () => {
     return withActiveSpan(tracer, 'Next.js Server Handler', async (span) => {
       span?.setAttributes({
         'account.id': context.account.id,
@@ -60,15 +69,13 @@ async function handler(req, context) {
         cwd: '{{cwd}}',
       })
       await serverHandler(req, requestContext, sink)
-      const response = await sink.response
       span?.setAttributes({
-        'http.status_code': response.status,
+        'http.status_code': sink.status,
       })
-      return response
     })
   })
 
-  return handlerResponse
+  return sink
 }
 
 export const config = {
