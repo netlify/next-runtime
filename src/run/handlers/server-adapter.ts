@@ -160,8 +160,7 @@ export default async function ServerHandler(
   const tracer = getTracer()
   const nextCallbacks = createNextCallbacks(request, requestContext)
   const answer = (response: Response) => {
-    sink.describe({ kind: 'final' })
-    return sink.send(response)
+    return sink.send(response, { kind: 'final' })
   }
 
   return await withActiveSpan(tracer, 'adapter route resolution', async (span) => {

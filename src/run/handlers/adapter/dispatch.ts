@@ -218,8 +218,7 @@ async function answerFailure(
     return outcome
   }
   if (args.invokeStatus) {
-    sink.describe({ kind: 'final' })
-    return sink.send(new Response('Internal Server Error', { status: 500 }))
+    return sink.send(new Response('Internal Server Error', { status: 500 }), { kind: 'final' })
   }
   return renderErrorPage(500, args, sink)
 }
@@ -254,9 +253,9 @@ export async function renderErrorPage(
   const pathname = candidates.find((candidate) => outputsByPathname.has(candidate))
   const routed = pathname ? outputsByPathname.get(pathname) : undefined
   if (!pathname || !routed) {
-    sink.describe({ kind: 'final' })
     return sink.send(
       new Response(status === 404 ? 'Not Found' : 'Internal Server Error', { status }),
+      { kind: 'final' },
     )
   }
 

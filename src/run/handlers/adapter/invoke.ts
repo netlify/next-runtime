@@ -86,7 +86,6 @@ export async function invokeHandler(
   span?.setAttribute('matched.runtime', runtime)
   return await withActiveSpan(tracer, 'invoke route handler', async (invokeSpan) => {
     if (runtime === 'edge') {
-      sink.describe({ kind: 'final' })
       try {
         const response = await invokeEdgeRuntimeOutput({
           outputId: id,
@@ -99,12 +98,14 @@ export async function invokeHandler(
           // URL the sandbox invokes with, and as request meta it'd end up in `resolvedUrl` too
           requestMeta: { initURL: resolution.invocation?.requestMeta.initURL ?? request.url },
         })
-        return await sink.send(response)
+        return await sink.send(response, { kind: 'final' })
       } catch (error) {
         console.error('edge runtime output error', error)
         getLogger().withError(error).error('edge runtime output error')
         invokeSpan?.setAttribute('http.status_code', 500)
-        return await sink.send(new Response('Internal Server Error', { status: 500 }))
+        return await sink.send(new Response('Internal Server Error', { status: 500 }), {
+          kind: 'final',
+        })
       }
     }
 
@@ -123,7 +124,6 @@ export async function invokeHandler(
         handlerRequest.headers.set(key, value)
       }
 
-      sink.describe({ kind: 'next' })
       // Invoke the route handler using the Node.js handler signature
       // as defined by the Next.js adapter contract:
       // handler(req: IncomingMessage, res: ServerResponse, ctx)
@@ -146,6 +146,7 @@ export async function invokeHandler(
               }),
             },
           }),
+        { kind: 'next' },
         { status: invokeStatus },
       )
       invokeSpan?.setAttribute('http.status_code', outcome === 'failed' ? 500 : (sink.status ?? 0))
@@ -154,8 +155,9 @@ export async function invokeHandler(
       console.error('route handler error', error)
       getLogger().withError(error).error('route handler error')
       invokeSpan?.setAttribute('http.status_code', 500)
-      sink.describe({ kind: 'final' })
-      return await sink.send(new Response('Internal Server Error', { status: 500 }))
+      return await sink.send(new Response('Internal Server Error', { status: 500 }), {
+        kind: 'final',
+      })
     }
   })
 }

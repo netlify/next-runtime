@@ -69,7 +69,7 @@ export type StoredCache = {
 }
 
 /**
- * What a producer says about the response it writes into its sink (`ResponseSink.describe`), for
+ * What a producer says about the response it writes into its sink (with `send`/`render`), for
  * `finalizeHead` to turn it into the platform response.
  */
 export type Produced =

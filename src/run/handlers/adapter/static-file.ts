@@ -21,11 +21,11 @@ export async function serverStaticFile(
   // an error page compute renders mid-request: fetching it from the CDN would go through routing
   // (the routing edge function) again
   if (bundled) {
-    sink.describe({ kind: 'static-page', fullyStatic: true })
     return sink.send(
       new Response(await readFile(resolvePath(handlerRootDir, filePath)), {
         headers: { 'content-type': 'text/html; charset=utf-8' },
       }),
+      { kind: 'static-page', fullyStatic: true },
     )
   }
   // Every static output is on the CDN (copyStaticAssets), and the routing edge function forwards a
@@ -33,8 +33,7 @@ export async function serverStaticFile(
   // in front of it, like the integration tests' emulated CDN): fetch it from the CDN.
   if (new URL(request.url).pathname === pathname) {
     // the CDN doesn't have it either (see copyStaticAssets), don't loop through it
-    sink.describe({ kind: 'final' })
-    return sink.send(new Response('Not Found', { status: 404 }))
+    return sink.send(new Response('Not Found', { status: 404 }), { kind: 'final' })
   }
   // by its published file name, which the CDN serves as is: the route's pathname gets the CDN's own
   // URL normalization (pretty URLs, encoding), answered with a redirect instead of the file
@@ -44,6 +43,5 @@ export async function serverStaticFile(
     request,
   )
   // a static output can't change within a deploy, so the proxied copy is cached like the file
-  sink.describe({ kind: 'static-page', fullyStatic: true })
-  return sink.send(withFlightVary(request, response))
+  return sink.send(withFlightVary(request, response), { kind: 'static-page', fullyStatic: true })
 }

@@ -257,8 +257,9 @@ export async function servePrerenderGroup(
 
   if (onDemand) {
     if (onDemand.onlyGenerated && !blob) {
-      sink.describe({ kind: 'final' })
-      return sink.send(new Response('This page could not be found', { status: 404 }))
+      return sink.send(new Response('This page could not be found', { status: 404 }), {
+        kind: 'final',
+      })
     }
     blob = await regeneratePrerenderGroup(groupKey, group, params, {
       ...args,
@@ -345,8 +346,10 @@ export async function servePrerenderGroup(
         request.method === 'HEAD' ? null : Buffer.from(shellVariant.body, 'base64'),
         { status: shellVariant.status, headers: shellVariant.headers },
       )
-      sink.describe(shellCache ? { kind: 'stored', cache: shellCache } : { kind: 'shell' })
-      return sink.send(response)
+      return sink.send(
+        response,
+        shellCache ? { kind: 'stored', cache: shellCache } : { kind: 'shell' },
+      )
     }
   }
 
@@ -409,6 +412,5 @@ export async function servePrerenderGroup(
     request.method === 'HEAD' ? null : Buffer.from(stored.body, 'base64'),
     { status: stored.status, headers: stored.headers },
   )
-  sink.describe({ kind: 'stored', cache: getStoredCache(blob, stored, nextCache) })
-  return sink.send(response)
+  return sink.send(response, { kind: 'stored', cache: getStoredCache(blob, stored, nextCache) })
 }

@@ -65,7 +65,7 @@ function commitOnWriteHead(res: ServerResponse, commit: (head: ResponseHead) => 
 
 /**
  * Status and headers go out once (the commit). Right before, the hooks of whoever owns the sink
- * (finalization, server-timing) run with what the producer said it writes (`describe`). A sink
+ * (finalization, server-timing) run with what the producer said it writes. A sink
  * without hooks gets the response as produced.
  */
 export abstract class ResponseSink {
@@ -81,10 +81,6 @@ export abstract class ResponseSink {
 
   get committed(): boolean {
     return this.status !== undefined
-  }
-
-  describe(produced: Produced) {
-    this.produced = this.wrap(produced)
   }
 
   // what's produced from here on is the error page for `status`
@@ -103,13 +99,29 @@ export abstract class ResponseSink {
     return committed
   }
 
-  abstract send(response: Response): Promise<Outcome>
+  // a response a producer has, `produced` says what it is
+  send(response: Response, produced: Produced): Promise<Outcome> {
+    this.produced = this.wrap(produced)
+    return this.write(response)
+  }
 
   // runs Next's handler with a req/res writing into this sink
-  abstract render(
+  render(
     request: Request,
     render: NodeRender,
-    options?: { status?: number },
+    produced: Produced,
+    options: { status?: number } = {},
+  ): Promise<Outcome> {
+    this.produced = this.wrap(produced)
+    return this.renderInto(request, render, options)
+  }
+
+  protected abstract write(response: Response): Promise<Outcome>
+
+  protected abstract renderInto(
+    request: Request,
+    render: NodeRender,
+    options: { status?: number },
   ): Promise<Outcome>
 }
 
@@ -128,17 +140,17 @@ export class FetchSink extends ResponseSink {
     })
   }
 
-  async send(response: Response): Promise<Outcome> {
+  protected async write(response: Response): Promise<Outcome> {
     // a proxied response's headers are immutable
     const head = this.commit({ status: response.status, headers: new Headers(response.headers) })
     this.resolveResponse(new Response(response.body, head))
     return 'sent'
   }
 
-  async render(
+  protected async renderInto(
     request: Request,
     render: NodeRender,
-    { status }: { status?: number } = {},
+    { status }: { status?: number },
   ): Promise<Outcome> {
     const { req, res } = toReqRes(request)
     if (status) {

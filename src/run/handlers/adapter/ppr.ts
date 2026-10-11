@@ -61,8 +61,7 @@ export async function resumePrerender(
       { status: stored.status, headers: stored.headers },
     )
     response.headers.set(POSTPONED_LENGTH_HEADER, String(state.byteLength))
-    sink.describe(cache ? { kind: 'stored', cache } : { kind: 'shell' })
-    return sink.send(response)
+    return sink.send(response, cache ? { kind: 'stored', cache } : { kind: 'shell' })
   }
 
   // the shell goes out right away, the resumed part streams after it once Next produces it
@@ -95,6 +94,7 @@ export async function resumePrerender(
             controller.close()
           },
         })
-  sink.describe({ kind: 'resume' })
-  return sink.send(new Response(body, { status: stored.status, headers: stored.headers }))
+  return sink.send(new Response(body, { status: stored.status, headers: stored.headers }), {
+    kind: 'resume',
+  })
 }
