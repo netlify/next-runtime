@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { finalize } from './finalize.js'
+import { finalize, type ResponseHead } from './finalize.js'
 import type { StoredCache } from './types.js'
 
 vi.mock('./manifest.js', () => ({
@@ -12,7 +12,7 @@ const lastModified = Date.UTC(2026, 9, 10, 12, 0, 0)
 async function finalizeStored(
   cache: Partial<StoredCache>,
   nextHeaders?: Record<string, string>,
-  routed?: (response: Response) => Response,
+  routed?: (head: ResponseHead) => ResponseHead,
 ) {
   const response = await finalize(
     {
@@ -70,10 +70,10 @@ describe('finalize a stored response', () => {
     const headers = await finalizeStored(
       { revalidate: 60 },
       { 'cache-control': 's-maxage=60' },
-      (response) => {
-        const routedHeaders = new Headers(response.headers)
+      ({ status, headers: produced }) => {
+        const routedHeaders = new Headers(produced)
         routedHeaders.set('cache-control', 'public, max-age=10, s-maxage=20')
-        return new Response(response.body, { headers: routedHeaders })
+        return { status, headers: routedHeaders }
       },
     )
     expect(headers['cache-control']).toBe('public, max-age=10')

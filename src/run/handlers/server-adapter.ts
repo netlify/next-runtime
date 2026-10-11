@@ -25,7 +25,7 @@ import {
   produceTarget,
   renderErrorPage,
 } from './adapter/dispatch.js'
-import { finalize } from './adapter/finalize.js'
+import { finalize, type ResponseHead } from './adapter/finalize.js'
 import { basePath, manifest } from './adapter/manifest.js'
 import { servePrerenderGroup } from './adapter/prerender-store.js'
 import type { AdapterRequestContext, NextCallbacks, ProduceRequest } from './adapter/types.js'
@@ -194,12 +194,14 @@ export default async function ServerHandler(
       basePath,
     })
     // for what the function produced: routing's Cache-Control wins over Next's, as in `next start`
-    const applyResolutionToProduced = applyResolutionToResponse.bind(null, {
-      request,
-      resolution,
-      basePath,
-      routingCacheControlWins: true,
-    })
+    const applyResolutionToProduced = (head: ResponseHead, status?: number): ResponseHead => {
+      const routed = applyResolutionToResponse(
+        { request, resolution, basePath, routingCacheControlWins: true },
+        new Response(null, head),
+        status,
+      )
+      return { status: routed.status, headers: routed.headers }
+    }
 
     const answered = await answerWithoutCompute(resolution, {
       request,
