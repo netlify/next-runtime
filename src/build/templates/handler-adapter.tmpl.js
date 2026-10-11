@@ -6,7 +6,8 @@ import {
   setupHoneycombTracing,
   withHoneycombTracing,
 } from '{{runtimeModulesDir}}/dist/adapter-runtime-shared/honeycomb-tracing.js'
-import { FetchSink } from '{{runtimeModulesDir}}/dist/run/handlers/adapter/sink.js'
+import { toFetchRequest } from '{{runtimeModulesDir}}/dist/run/fetch-api-to-req-res.js'
+import { FetchSink, NodeSink } from '{{runtimeModulesDir}}/dist/run/handlers/adapter/sink.js'
 import {
   createRequestContext,
   runWithRequestContext,
@@ -43,6 +44,23 @@ export default (req, context) =>
     )
     return sink.response
   })
+
+// Netlify Server (`netlify/server/`): the context comes from the request store, Next renders
+// straight into `res`
+export const listener = (nodeReq, res) => {
+  const { context } = globalThis.Netlify
+  const req = toFetchRequest(nodeReq, context.url)
+  withHoneycombTracing(req, context.waitUntil.bind(context), () =>
+    handler(req, context, () => new NodeSink(nodeReq, res)),
+  ).catch((error) => {
+    console.error('Netlify Server handler error', error)
+    if (res.headersSent) {
+      res.destroy(error)
+    } else {
+      res.writeHead(500).end('Internal Server Error')
+    }
+  })
+}
 
 // `createSink`: what the response is written into, the only part that depends on how it's answered
 async function handler(req, context, createSink) {

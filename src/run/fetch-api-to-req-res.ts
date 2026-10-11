@@ -1,4 +1,5 @@
-import type { OutgoingHttpHeaders } from 'node:http'
+import type { IncomingMessage, OutgoingHttpHeaders } from 'node:http'
+import { Readable } from 'node:stream'
 
 import { ComputeJsOutgoingMessage, toReqRes as toInitialReqRes } from '@fastly/http-compute-js'
 
@@ -78,4 +79,39 @@ export const toReqRes = (request: Request) => {
   avoidDoubleLocationHeader(res as unknown as ComputeJsOutgoingMessage)
 
   return { req, res }
+}
+
+/**
+ * A Netlify Server request as a fetch `Request`, for routing. Its body is only read when something
+ * reads it: Next's render gets `req` itself.
+ */
+export const toFetchRequest = (req: IncomingMessage, url: URL) => {
+  const headers = new Headers()
+  for (const [name, value] of Object.entries(req.headers)) {
+    for (const item of [value ?? []].flat()) {
+      headers.append(name, item)
+    }
+  }
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined
+  const body =
+    req.method === 'GET' || req.method === 'HEAD'
+      ? null
+      : new ReadableStream<Uint8Array>(
+          {
+            async pull(controller) {
+              reader ??= (Readable.toWeb(req) as ReadableStream<Uint8Array>).getReader()
+              const { done, value } = await reader.read()
+              if (done) {
+                controller.close()
+              } else {
+                controller.enqueue(value)
+              }
+            },
+            cancel: (reason) => reader?.cancel(reason),
+          },
+          // otherwise the first pull happens right away
+          { highWaterMark: 0 },
+        )
+  // @ts-expect-error duplex is needed for streaming bodies
+  return new Request(url, { method: req.method, headers, body, duplex: 'half' })
 }

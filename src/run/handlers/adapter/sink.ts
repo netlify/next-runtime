@@ -2,6 +2,9 @@
 // Where a producer writes its response: the client's, or one a regeneration or PPR resume reads
 // back, see docs/request-layers.md.
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
+import type { ReadableStream as NodeReadableStream } from 'node:stream/web'
 
 import { toComputeResponse, toReqRes } from '../../fetch-api-to-req-res.js'
 
@@ -34,9 +37,14 @@ function setHeaders(res: ServerResponse, headers: Headers) {
   }
 }
 
-// Next commits its headers through `writeHead`, implicitly too (`_implicitHeader` on the first write)
-function commitOnWriteHead(res: ServerResponse, commit: (head: ResponseHead) => ResponseHead) {
-  const writeHead = res.writeHead.bind(res)
+// Next commits its headers through `writeHead`, implicitly too (`_implicitHeader` on the first write).
+// Returns what puts the original back.
+function commitOnWriteHead(
+  res: ServerResponse,
+  commit: (head: ResponseHead) => ResponseHead,
+): () => void {
+  const { writeHead: original } = res
+  const writeHead = original.bind(res)
   res.writeHead = ((statusCode: number, ...rest: unknown[]) => {
     const passed = typeof rest[0] === 'string' ? rest[1] : rest[0]
     if (Array.isArray(passed)) {
@@ -61,6 +69,9 @@ function commitOnWriteHead(res: ServerResponse, commit: (head: ResponseHead) => 
     setHeaders(res, committed.headers)
     return writeHead(committed.status)
   }) as ServerResponse['writeHead']
+  return () => {
+    res.writeHead = original
+  }
 }
 
 /**
@@ -200,6 +211,79 @@ export class FetchSink extends ResponseSink {
       ),
     )
     return 'sent'
+  }
+}
+
+/**
+ * The client's own response (Netlify Server): Next renders straight into it, anything else is
+ * written into it.
+ */
+export class NodeSink extends ResponseSink {
+  constructor(
+    private readonly req: IncomingMessage,
+    private readonly res: ServerResponse,
+  ) {
+    super()
+  }
+
+  protected async write(response: Response): Promise<Outcome> {
+    const { res } = this
+    const head = this.commit({ status: response.status, headers: new Headers(response.headers) })
+    setHeaders(res, head.headers)
+    res.writeHead(head.status)
+    if (response.body) {
+      await pipeline(Readable.fromWeb(response.body as NodeReadableStream), res)
+    } else {
+      res.end()
+    }
+    return 'sent'
+  }
+
+  protected async renderInto(
+    request: Request,
+    render: NodeRender,
+    { status }: { status?: number },
+  ): Promise<Outcome> {
+    const { req, res } = this
+    // as the matched output is invoked
+    const url = new URL(request.url)
+    req.url = `${url.pathname}${url.search}`
+    req.headers = Object.fromEntries(request.headers)
+    if (status) {
+      res.statusCode = status
+    }
+
+    let failedBeforeHeaders = false
+    let headersCommitted: (() => void) | undefined
+    const committed = new Promise<void>((resolve) => {
+      headersCommitted = resolve
+    })
+    const restore = commitOnWriteHead(res, (head) => {
+      headersCommitted?.()
+      return this.commit(head)
+    })
+
+    const rendering = render(req, res)
+    rendering.catch(() => {
+      if (!res.headersSent) {
+        // The client's response is left as it was ('failed'), without what this render set on it.
+        // What it can't take back stays: listeners it added to res (`after()`), a request body it
+        // read.
+        failedBeforeHeaders = true
+        restore()
+        clearHeaders(res)
+        res.statusCode = 200
+      }
+    })
+
+    // Next streams the body to the client itself
+    await Promise.race([
+      committed,
+      rendering.catch(() => {
+        // the renderer reports it
+      }),
+    ])
+    return failedBeforeHeaders ? 'failed' : 'sent'
   }
 }
 /* eslint-enable max-classes-per-file */
