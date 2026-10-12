@@ -33,6 +33,12 @@ on:
         description: "Run the adapter in adapter mode (NETLIFY_NEXT_EXPERIMENTAL_ADAPTER=true) instead of standalone"
         default: true
         type: boolean
+      # Needs adapterMode. Deploys to next-play-explorations, which has the Netlify Server flags
+      # and the us-east-1 functions region; the patched @netlify/build comes with netlify-cli.
+      netlifyServer:
+        description: "Serve the adapter as a Netlify Server (NETLIFY_NEXT_SERVER=1) instead of a function"
+        default: false
+        type: boolean
       honeycombTracing:
         description: "Export traces of the deployed fixtures to Honeycomb (HONEYCOMB_API_KEY secret)"
         default: false
@@ -41,7 +47,7 @@ on:
   #   - cron: '0 2 * * *'
 
 # The Actions list is otherwise identical for the two modes.
-run-name: test-e2e-deploy (${{ inputs.adapterMode && 'adapter-minimal-mode' || 'standalone' }}, ${{ inputs.nextjsRepo }}@${{ inputs.nextjsRef }})
+run-name: test-e2e-deploy (${{ inputs.adapterMode && (inputs.netlifyServer && 'adapter-minimal-mode-netlify-server' || 'adapter-minimal-mode') || 'standalone' }},${{ inputs.nextjsRepo }}@${{ inputs.nextjsRef }})
 
 jobs:
   build:
@@ -239,7 +245,7 @@ jobs:
             "nextjsVersion": "$NEXT_VERSION",
             "nextjsFromSource": $BUILD_NEXTJS,
             "nextjsJsFromSource": $PACK_NEXTJS,
-            "mode": "${{ inputs.adapterMode && 'adapter-minimal-mode' || 'standalone' }}"
+            "mode": "${{ inputs.adapterMode && (inputs.netlifyServer && 'adapter-minimal-mode-netlify-server' || 'adapter-minimal-mode') || 'standalone' }}"
           }
           JSON
           cat adapter/adapter-e2e-metadata.json
@@ -405,7 +411,9 @@ jobs:
           # The harness's "adapter test variant": tests and gates pick adapter expectations over the
           # legacy Vercel builder's. With a custom deploy script it has no other effect.
           NEXT_ENABLE_ADAPTER: ${{ inputs.adapterMode && '1' || '' }}
-          NETLIFY_SITE_ID: 1d5a5c76-d445-4ae5-b694-b0d3f2e2c395
+          # Read by the plugin only in adapter mode (src/build/plugin-context.ts)
+          NETLIFY_NEXT_SERVER: ${{ inputs.netlifyServer && '1' || '' }}
+          NETLIFY_SITE_ID: ${{ inputs.netlifyServer && '9a1da82d-48db-47b9-8f98-78ca0b17931e' || '1d5a5c76-d445-4ae5-b694-b0d3f2e2c395' }}
           NEXT_E2E_TEST_TIMEOUT: 240000
           NEXT_EXTERNAL_TESTS_FILTERS: test/deploy-tests-manifest.json
           # Emit a jest-junit report per test file. jest.config.js sets
