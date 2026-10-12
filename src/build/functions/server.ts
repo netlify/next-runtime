@@ -167,6 +167,9 @@ import { fileURLToPath } from 'node:url'
 // the handler's {{cwd}} is relative to its own directory, the function root in function mode
 process.chdir(fileURLToPath(new URL('${handlerDir}/', import.meta.url)))
 
+// Play doesn't pass SITE_ID to Netlify Servers yet, and purgeCache() needs it
+process.env.SITE_ID ??= ${JSON.stringify(ctx.constants.SITE_ID ?? '')}
+
 const { listener } = await import('${handlerDir}/${SERVER_HANDLER_NAME}.mjs')
 
 // never listens: Netlify Server adopts it and hands it each request
