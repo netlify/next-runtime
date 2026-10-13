@@ -21,6 +21,7 @@ import {
   type RequestMeta,
 } from '../../edge-runtime/lib/private-request-meta.ts'
 import {
+  injectActiveTrace,
   setActiveSpanAttributes,
   traceForward,
   withSpan,
@@ -342,6 +343,8 @@ async function runNextRoutingUntraced(
     } else {
       request.headers.set('accept-encoding', acceptEncoding)
     }
+    // the function's spans join this trace, as they do through traceForward()
+    injectActiveTrace(request.headers)
     return
   }
 

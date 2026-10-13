@@ -139,7 +139,13 @@ export async function withHoneycombTracing<T>(
   if (new URL(request.url).pathname.includes('/_next/static/')) {
     return otelContext.with(tracing.suppressTracing(otelContext.active()), fn)
   }
-  const parent = propagation.extract(otelContext.active(), Object.fromEntries(request.headers))
+  const carrier = Object.fromEntries(request.headers)
+  const handedOff = carrier[HANDED_OFF_TRACEPARENT]
+  if (handedOff) {
+    carrier.traceparent = handedOff
+    delete carrier.tracestate
+  }
+  const parent = propagation.extract(otelContext.active(), carrier)
   // consumed here: Next would otherwise start its own root span from it, beside ours
   request.headers.delete('traceparent')
   request.headers.delete('tracestate')
@@ -175,6 +181,24 @@ export async function traceForward(
     span.end()
     headers.delete('traceparent')
     headers.delete('tracestate')
+  }
+}
+
+// A request the platform sends to the origin itself (a bypass) gets the platform's own trace in
+// `traceparent`, replacing ours, so ours travels under another name
+const HANDED_OFF_TRACEPARENT = 'x-next-traceparent'
+
+/** Puts the active span's trace on request headers the platform forwards for us (a bypass). */
+export function injectActiveTrace(headers: Headers): void {
+  const { tracing } = state
+  if (!tracing) {
+    return
+  }
+  const { context: otelContext, propagation } = tracing.api
+  const carrier: Record<string, string> = {}
+  propagation.inject(otelContext.active(), carrier)
+  if (carrier.traceparent) {
+    headers.set(HANDED_OFF_TRACEPARENT, carrier.traceparent)
   }
 }
 
