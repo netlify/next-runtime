@@ -37,7 +37,7 @@ import {
   stripInternalRequestHeaders,
   withFlightVary,
 } from '../adapter-runtime-shared/next-routing.js'
-import type { RoutingConfig } from '../adapter-runtime-shared/next-routing.js'
+import type { ResolveRoutesResult, RoutingConfig } from '../adapter-runtime-shared/next-routing.js'
 // import { AdapterBuildCompleteContext } from '../adapter/adapter-output.js'
 
 const REWRITE_HEADERS = new Set(['x-nextjs-rewritten-path', 'x-nextjs-rewritten-query'])
@@ -99,6 +99,8 @@ async function runNextRoutingUntraced(
   // filters at; `resolveRoutes` sets `x-nextjs-data` back from the URL
   // only this function may set the private meta header, a client must not be able to pre-populate
   // it (nor middleware copy it into its request header overrides)
+  // (a bypass can't remove a header, so a request that came with one is forwarded with context.next())
+  const hadPprShellHeader = request.headers.has(PPR_SHELL_HEADER)
   request.headers.delete(REQUEST_META_HEADER)
   request.headers.delete(PPR_SHELL_HEADER)
 
@@ -320,6 +322,29 @@ async function runNextRoutingUntraced(
     return withMiddlewareResponseHeaders(applyResolutionToThisResponse(composed))
   }
 
+  // Not for a rewrite: returning the target as a URL runs the function chain again for it (this
+  // function's pattern matches every path), and the bypass that chain returns only carries the request
+  // headers changed in it, so the routing result would be lost.
+  if (
+    !hadPprShellHeader &&
+    invocationUrl.href === request.url &&
+    canHandOff(request, resolution, routingConfig, { middlewareResponseHeaders, forwardHeaders })
+  ) {
+    setActiveSpanAttributes({ 'next.routing.outcome': 'hand off' })
+    // the platform requests the origin itself (a bypass) with the headers changed on this request,
+    // so the response doesn't stream through the isolate
+    const acceptEncoding = request.headers.get('accept-encoding')
+    for (const [key, value] of forwardHeaders) {
+      request.headers.set(key, value)
+    }
+    if (acceptEncoding === null) {
+      request.headers.delete('accept-encoding')
+    } else {
+      request.headers.set('accept-encoding', acceptEncoding)
+    }
+    return
+  }
+
   setActiveSpanAttributes({ 'next.routing.outcome': 'forward' })
   const forwardRequest = new Request(invocationUrl, {
     method: request.method,
@@ -339,6 +364,59 @@ async function runNextRoutingUntraced(
   return withMiddlewareResponseHeaders(
     applyResolutionToThisResponse(withFlightVary(request, response)),
   )
+}
+
+/**
+ * Whether the response can go from the origin to the client without this function touching it:
+ * the server handler applies the resolution (routing headers, status) to what it renders, and a
+ * file the CDN serves (STATIC_FILE) qualifies when the resolution has nothing to add to it. A status
+ * routing overrides, the `Vary` of a flight request, middleware's response headers and a request
+ * body all need `context.next()`.
+ */
+function canHandOff(
+  request: Request,
+  resolution: ResolveRoutesResult,
+  routingConfig: RoutingConfig,
+  {
+    middlewareResponseHeaders,
+    forwardHeaders,
+  }: { middlewareResponseHeaders: Headers | undefined; forwardHeaders: Headers },
+): boolean {
+  if (!['GET', 'HEAD'].includes(request.method) || request.headers.has('rsc')) {
+    return false
+  }
+  if (resolution.status !== undefined || !resolution.resolvedPathname) {
+    return false
+  }
+  // a pathname can have several outputs (a page and its prerender)
+  const outputs = routingConfig.pathnames.filter(
+    (entry) => typeof entry !== 'string' && entry.pathname === resolution.resolvedPathname,
+  )
+  if (outputs.length === 0) {
+    return false
+  }
+  const servedByCDN = outputs.some(
+    (entry) => typeof entry === 'string' || entry.type === 'STATIC_FILE',
+  )
+  if (
+    servedByCDN &&
+    (resolution.invocation?.headers['x-nextjs-data'] ||
+      [...(resolution.resolvedHeaders?.keys() ?? [])].length !== 0)
+  ) {
+    return false
+  }
+  for (const key of middlewareResponseHeaders?.keys() ?? []) {
+    if (!key.toLowerCase().startsWith('x-middleware-')) {
+      return false
+    }
+  }
+  // a bypass can set request headers but not remove them (a removed one arrives empty)
+  for (const key of request.headers.keys()) {
+    if (!forwardHeaders.has(key)) {
+      return false
+    }
+  }
+  return true
 }
 
 /**
