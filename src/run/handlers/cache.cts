@@ -40,7 +40,7 @@ let memoizedPrerenderManifest: PrerenderManifest
 
 /**
  * Pages Router entries have no cache-tag header, so we synthesize the implicit path tag Next uses for
- * on-demand revalidation (`res.revalidate` / `revalidatePath`), which is derived from the request
+ * on-demand revalidation (`res.revalidate`), which is derived from the request
  * pathname. From Next 15.5.27 / 16.3.8 the cache key handed to us is route-scoped, so recover the
  * pathname first; `/index` maps back to `/` (both for the scoped root and the legacy `/index` key).
  */
