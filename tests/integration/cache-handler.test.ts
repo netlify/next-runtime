@@ -56,6 +56,7 @@ describe('page router', () => {
       '/fallback-true/[slug]',
       '/fallback-true/prerendered',
       '/products/prerendered',
+      '/products/事前レンダリング',
       '/products/事前レンダリング,test',
       '/static/revalidate-automatic',
       '/static/revalidate-manual',
