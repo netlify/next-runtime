@@ -60,6 +60,13 @@ test.describe('app router on-demand revalidation (pre Next 16 APIs)', () => {
       revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリングされていない,test`,
       expectedH1Content: 'Product 事前レンダリングされていない,test',
     },
+    {
+      label: 'revalidatePath (route pattern with dynamic segment)',
+      prerendered: false,
+      pagePath: '/static-fetch/5',
+      revalidateApiPath: '/api/on-demand-revalidate/path?path=/static-fetch/[id]&type=page',
+      expectedH1Content: 'Hello, Statically fetched show 5',
+    },
   ]) {
     test(label, async ({ page, pollUntilHeadersMatch, serverComponents }) => {
       // in case there is retry or some other test did hit that path before
