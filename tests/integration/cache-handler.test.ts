@@ -391,6 +391,7 @@ describe('plugin', () => {
         '/api/static/second',
         '/api/zero-length-response',
         '/index',
+        '/product/事前レンダリング',
         '/product/事前レンダリング,test',
         '/revalidate-fetch',
         '/static-fetch-1',

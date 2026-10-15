@@ -61,6 +61,22 @@ test.describe('app router on-demand revalidation (pre Next 16 APIs)', () => {
       expectedH1Content: 'Product 事前レンダリングされていない,test',
     },
     {
+      label:
+        'revalidatePath (prerendered page with dynamic path) - non-ASCII variant without comma',
+      prerendered: true,
+      pagePath: '/product/事前レンダリング',
+      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリング`,
+      expectedH1Content: 'Product 事前レンダリング',
+    },
+    {
+      label:
+        'revalidatePath (not prerendered page with dynamic path) - non-ASCII variant without comma',
+      prerendered: false,
+      pagePath: '/product/事前レンダリングされていない',
+      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリングされていない`,
+      expectedH1Content: 'Product 事前レンダリングされていない',
+    },
+    {
       label: 'revalidatePath (route pattern with dynamic segment)',
       prerendered: false,
       pagePath: '/static-fetch/5',
