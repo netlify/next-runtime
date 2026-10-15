@@ -1,7 +1,9 @@
 import { load } from 'cheerio'
 import { getLogger } from 'lambda-local'
+import { HttpResponse, http, passthrough } from 'msw'
+import { setupServer } from 'msw/node'
 import { v4 } from 'uuid'
-import { beforeEach, expect, test, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, expect, test, vi } from 'vitest'
 import { type FixtureTestContext } from '../utils/contexts.js'
 import {
   createFixture,
@@ -46,6 +48,24 @@ declare module 'vitest' {
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
 
+const purgeAPI = vi.fn()
+let server: ReturnType<typeof setupServer>
+
+beforeAll(() => {
+  server = setupServer(
+    http.post('https://api.netlify.com/api/v1/purge', async ({ request }) => {
+      purgeAPI(await request.json())
+      return HttpResponse.json({ ok: true })
+    }),
+    http.all(/.*/, () => passthrough()),
+  )
+  server.listen()
+})
+
+afterAll(() => {
+  server.close()
+})
+
 beforeEach<FixtureTestContext>(async (ctx) => {
   // set for each test a new deployID and siteID
   ctx.deployID = generateRandomObjectID()
@@ -55,6 +75,8 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   vi.stubEnv('NETLIFY_PURGE_API_TOKEN', 'fake-token')
   // hide debug logs in tests
   // vi.spyOn(console, 'debug').mockImplementation(() => {})
+
+  purgeAPI.mockClear()
 
   await startMockBlobStore(ctx)
 })
@@ -194,4 +216,23 @@ test<FixtureTestContext>('should read the tag revalidation marker only once per 
     markerGets() - markerGetsBeforeRequestsAfterRevalidation,
     'the marker is read once, after that the process knows it exists',
   ).toBe(1)
+})
+
+test<FixtureTestContext>('should purge the same CDN tag the page was served with when revalidating a route pattern', async (ctx) => {
+  await createFixture('server-components', ctx)
+  await runPlugin(ctx)
+
+  const page = await invokeFunction(ctx, { url: '/static-fetch/1' })
+  expect(page.statusCode).toBe(200)
+  const servedTags = (page.headers['netlify-cache-tag'] as string).split(',')
+  expect(servedTags).toContain('_N_T_/static-fetch/%5Bid%5D/page')
+
+  const revalidate = await invokeFunction(ctx, {
+    url: '/api/on-demand-revalidate/path?path=/static-fetch/[id]&type=page',
+  })
+  expect(revalidate.statusCode).toBe(200)
+  await new Promise<void>((resolve) => setTimeout(resolve, 100))
+
+  const purgedTags = purgeAPI.mock.calls.flatMap(([body]) => body.cache_tags)
+  expect(purgedTags).toContain('_N_T_/static-fetch/%5Bid%5D/page')
 })
