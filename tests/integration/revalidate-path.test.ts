@@ -236,3 +236,25 @@ test<FixtureTestContext>('should purge the same CDN tag the page was served with
   const purgedTags = purgeAPI.mock.calls.flatMap(([body]) => body.cache_tags)
   expect(purgedTags).toContain('_N_T_/static-fetch/%5Bid%5D/page')
 })
+
+test<FixtureTestContext>('should purge the same CDN tag the page was served with when revalidating a non-ASCII path', async (ctx) => {
+  await createFixture('server-components', ctx)
+  await runPlugin(ctx)
+
+  const pagePath = '/product/事前レンダリング'
+  const expectedTag = `_N_T_${encodeURI(pagePath)}`
+
+  const page = await invokeFunction(ctx, { url: pagePath })
+  expect(page.statusCode).toBe(200)
+  const servedTags = (page.headers['netlify-cache-tag'] as string).split(',')
+  expect(servedTags).toContain(expectedTag)
+
+  const revalidate = await invokeFunction(ctx, {
+    url: `/api/on-demand-revalidate/path?path=${pagePath}`,
+  })
+  expect(revalidate.statusCode).toBe(200)
+  await new Promise<void>((resolve) => setTimeout(resolve, 100))
+
+  const purgedTags = purgeAPI.mock.calls.flatMap(([body]) => body.cache_tags)
+  expect(purgedTags).toContain(expectedTag)
+})
