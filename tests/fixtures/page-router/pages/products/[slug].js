@@ -53,6 +53,12 @@ export const getStaticPaths = () => {
           slug: '事前レンダリング,test',
         },
       },
+      {
+        params: {
+          // Japanese prerendered (non-ascii) without comma
+          slug: '事前レンダリング',
+        },
+      },
     ],
     fallback: 'blocking', // false or "blocking"
   }

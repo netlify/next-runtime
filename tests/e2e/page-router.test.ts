@@ -109,6 +109,22 @@ test.describe('Simple Page Router (no basePath, no i18n)', () => {
       },
       {
         label:
+          'prerendered page with dynamic path with fallback: blocking and awaited res.revalidate() - non-ASCII variant without comma',
+        prerendered: true,
+        pagePath: '/products/事前レンダリング',
+        revalidateApiBasePath: '/api/revalidate',
+        expectedH1Content: 'Product 事前レンダリング',
+      },
+      {
+        label:
+          'not prerendered page with dynamic path with fallback: blocking and awaited res.revalidate() - non-ASCII variant without comma',
+        prerendered: false,
+        pagePath: '/products/事前レンダリングされていない',
+        revalidateApiBasePath: '/api/revalidate',
+        expectedH1Content: 'Product 事前レンダリングされていない',
+      },
+      {
+        label:
           'prerendered page with dynamic path with fallback: true and awaited res.revalidate()',
         prerendered: true,
         pagePath: '/fallback-true/prerendered',
