@@ -269,7 +269,8 @@ async function doRevalidateTagAndPurgeEdgeCache(
     }),
   ])
 
-  await purgeEdgeCache(tags)
+  // match the encodeURI'd tags written to Netlify-Cache-Tag by the cache handler
+  await purgeEdgeCache(tags.map(encodeURI))
 }
 
 export function markTagsAsStaleAndPurgeEdgeCache(
