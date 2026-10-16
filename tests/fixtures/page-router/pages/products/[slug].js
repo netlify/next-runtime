@@ -56,7 +56,7 @@ export const getStaticPaths = () => {
       {
         params: {
           // Japanese prerendered (non-ascii) without comma
-          slug: '事前レンダリング',
+          slug: 'プリレンダリング',
         },
       },
     ],

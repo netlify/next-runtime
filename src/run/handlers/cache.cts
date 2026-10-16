@@ -33,6 +33,7 @@ import {
   purgeEdgeCache,
   type RevalidateTagDurations,
   type TagStaleOrExpiredStatus,
+  toCdnCacheTag,
 } from './tags-handler.cjs'
 import { getTracer, recordWarning, withActiveSpan } from './tracer.cjs'
 
@@ -46,7 +47,7 @@ let memoizedPrerenderManifest: PrerenderManifest
  */
 const getPagesRouterImplicitTag = (key: string): string => {
   const pathname = routeCacheKeyToPathname(key)
-  return `_N_T_${pathname === '/index' ? '/' : encodeURI(pathname)}`
+  return toCdnCacheTag(`_N_T_${pathname === '/index' ? '/' : pathname}`)
 }
 
 export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
@@ -173,7 +174,7 @@ export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
       if (cacheValue.kind !== 'REDIRECT' && cacheValue.headers?.[NEXT_CACHE_TAGS_HEADER]) {
         const cacheTags = (cacheValue.headers[NEXT_CACHE_TAGS_HEADER] as string)
           .split(/,|%2c/gi)
-          .map(encodeURI)
+          .map(toCdnCacheTag)
         requestContext.responseCacheTags = cacheTags
       } else if (
         ((cacheValue.kind === 'PAGE' || cacheValue.kind === 'PAGES') &&

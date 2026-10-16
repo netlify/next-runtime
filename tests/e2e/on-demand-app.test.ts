@@ -64,17 +64,24 @@ test.describe('app router on-demand revalidation (pre Next 16 APIs)', () => {
       label:
         'revalidatePath (prerendered page with dynamic path) - non-ASCII variant without comma',
       prerendered: true,
-      pagePath: '/product/事前レンダリング',
-      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリング`,
-      expectedH1Content: 'Product 事前レンダリング',
+      pagePath: '/product/プリレンダリング',
+      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/プリレンダリング`,
+      expectedH1Content: 'Product プリレンダリング',
     },
     {
       label:
         'revalidatePath (not prerendered page with dynamic path) - non-ASCII variant without comma',
       prerendered: false,
-      pagePath: '/product/事前レンダリングされていない',
-      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/事前レンダリングされていない`,
-      expectedH1Content: 'Product 事前レンダリングされていない',
+      pagePath: '/product/プリレンダリングされていない',
+      revalidateApiPath: `/api/on-demand-revalidate/path?path=/product/プリレンダリングされていない`,
+      expectedH1Content: 'Product プリレンダリングされていない',
+    },
+    {
+      label: 'revalidateTag (prerendered page with static path) - tag with space',
+      prerendered: true,
+      pagePath: '/static-fetch-tag-with-space',
+      revalidateApiPath: '/api/on-demand-revalidate/tag?tag=tag with space',
+      expectedH1Content: 'Hello, Static Fetch with space in tag',
     },
     {
       label: 'revalidatePath (route pattern with dynamic segment)',

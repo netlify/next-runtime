@@ -226,8 +226,8 @@ for (const { label, pagePath, revalidateUrl } of [
   },
   {
     label: 'a non-ASCII path',
-    pagePath: '/product/事前レンダリング',
-    revalidateUrl: '/api/on-demand-revalidate/path?path=/product/事前レンダリング',
+    pagePath: '/product/プリレンダリング',
+    revalidateUrl: '/api/on-demand-revalidate/path?path=/product/プリレンダリング',
   },
 ]) {
   test<FixtureTestContext>(`should purge a CDN tag the page was served with when revalidating ${label}`, async (ctx) => {
