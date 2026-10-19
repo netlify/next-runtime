@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.3](https://github.com/opennextjs/opennextjs-netlify/compare/v5.16.2...v5.16.3) (2026-10-19)
+
+
+### Bug Fixes
+
+* encode app router's tags when purging cache ([#3591](https://github.com/opennextjs/opennextjs-netlify/issues/3591)) ([0628d0d](https://github.com/opennextjs/opennextjs-netlify/commit/0628d0d74ff8cd67756055c53b0f625898a20b46))
+
 ## [5.16.2](https://github.com/opennextjs/opennextjs-netlify/compare/v5.16.1...v5.16.2) (2026-10-05)
 
 
