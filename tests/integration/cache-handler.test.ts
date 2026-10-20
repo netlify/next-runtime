@@ -398,6 +398,7 @@ describe('plugin', () => {
         '/static-fetch-1',
         '/static-fetch-2',
         '/static-fetch-3',
+        '/static-fetch-long-revalidate',
         '/static-fetch-tag-with-space',
         '/static-fetch/1',
         '/static-fetch/2',
