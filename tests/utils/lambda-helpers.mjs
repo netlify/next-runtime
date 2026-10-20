@@ -9,6 +9,18 @@ import { execute as untypedExecute } from 'lambda-local'
 
 const SERVER_HANDLER_NAME = '___netlify-server-handler'
 
+// Captured before any test installs msw. msw tees response bodies, and @netlify/blobs awaits
+// `res.body.cancel()` on responses it doesn't read, which never settles on a tee branch.
+export const fetchBeforeMsw = globalThis.fetch
+
+// The server handler stores `globalThis.fetch` (msw's, once a test installs it) here on its lazy
+// first load and uses it for blobs. Pin it to the pre-msw fetch and ignore the handler's write.
+Object.defineProperty(globalThis, Symbol.for('nf-not-patched-fetch'), {
+  configurable: true,
+  get: () => fetchBeforeMsw,
+  set: () => {},
+})
+
 /**
  * @typedef {import('./contexts').FixtureTestContext} FixtureTestContext
  *
