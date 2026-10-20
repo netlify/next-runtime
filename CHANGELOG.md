@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.4](https://github.com/opennextjs/opennextjs-netlify/compare/v5.16.3...v5.16.4) (2026-10-20)
+
+
+### Bug Fixes
+
+* regenerate tag-stale pages during cdn background revalidation ([#3583](https://github.com/opennextjs/opennextjs-netlify/issues/3583)) ([a1506a8](https://github.com/opennextjs/opennextjs-netlify/commit/a1506a84342dea1561e6322fe6b9349fe165ffae))
+
 ## [5.16.3](https://github.com/opennextjs/opennextjs-netlify/compare/v5.16.2...v5.16.3) (2026-10-19)
 
 
