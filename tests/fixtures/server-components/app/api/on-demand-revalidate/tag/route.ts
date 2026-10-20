@@ -9,7 +9,13 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url)
   const tagToRevalidate = url.searchParams.get('tag') ?? 'collection'
 
-  revalidateTag(tagToRevalidate)
+  const profile = url.searchParams.get('profile')
+
+  if (profile) {
+    revalidateTag(tagToRevalidate, profile)
+  } else {
+    revalidateTag(tagToRevalidate)
+  }
   return NextResponse.json({ revalidated: true, now: new Date().toISOString() })
 }
 

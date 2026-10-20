@@ -212,3 +212,48 @@ test<FixtureTestContext>('should read the tag revalidation marker only once per 
     'the marker is read once, after that the process knows it exists',
   ).toBe(1)
 })
+
+// https://github.com/opennextjs/opennextjs-netlify/issues/3536
+test.skipIf(!nextVersionSatisfies('>=16.0.0-alpha.0'))<FixtureTestContext>(
+  'CDN SWR background revalidation regenerates tag-stale page with long revalidate',
+  async (ctx) => {
+    await createFixture('server-components', ctx)
+    await runPlugin(ctx)
+
+    const url = '/static-fetch-long-revalidate'
+
+    // prerendered entries with revalidate are seeded as stale, so first request regenerates the page
+    await invokeFunction(ctx, { url })
+    await new Promise<void>((resolve) => setTimeout(resolve, 100))
+
+    const post1 = await invokeFunction(ctx, { url })
+    const post1Date = load(post1.body)('[data-testid="date-now"]').text()
+    expect(post1.statusCode).toBe(200)
+    expect(post1.headers['cache-status']).toMatch(/"Next.js"; hit$/)
+
+    const revalidate = await invokeFunction(ctx, {
+      url: '/api/on-demand-revalidate/tag?tag=long-revalidate&profile=max',
+    })
+    expect(revalidate.statusCode).toBe(200)
+    await new Promise<void>((resolve) => setTimeout(resolve, 100))
+
+    const post2 = await invokeFunction(ctx, {
+      url,
+      headers: { 'netlify-invocation-source': 'background-revalidation' },
+    })
+    const post2Date = load(post2.body)('[data-testid="date-now"]').text()
+    expect(post2.statusCode).toBe(200)
+    expect(
+      post2.headers['cache-status'],
+      'background revalidation does not reuse stale-by-tags entry',
+    ).toBe('"Next.js"; fwd=miss')
+    expect(post2Date).not.toBe(post1Date)
+
+    await new Promise<void>((resolve) => setTimeout(resolve, 100))
+
+    const post3 = await invokeFunction(ctx, { url })
+    expect(post3.statusCode).toBe(200)
+    expect(post3.headers['cache-status']).toMatch(/"Next.js"; hit$/)
+    expect(load(post3.body)('[data-testid="date-now"]').text()).toBe(post2Date)
+  },
+)
