@@ -17,7 +17,7 @@ import {
 } from '../../src/shared/route-cache-key.cjs'
 import { BLOB_TOKEN } from './constants.mjs'
 import { type FixtureTestContext } from './contexts'
-import { createBlobContext } from './lambda-helpers.mjs'
+import { createBlobContext, fetchBeforeMsw } from './lambda-helpers.mjs'
 import { nextVersionSatisfies } from './next-version-helpers.mjs'
 
 /**
@@ -59,6 +59,7 @@ export const startMockBlobStore = async (ctx: FixtureTestContext) => {
     deployID: ctx.deployID,
     siteID: ctx.siteID,
     token: BLOB_TOKEN,
+    fetch: fetchBeforeMsw,
   })
 }
 
@@ -73,6 +74,7 @@ export const getBlobEntries = async (ctx: FixtureTestContext) => {
         deployID: ctx.deployID,
         siteID: ctx.siteID,
         token: BLOB_TOKEN,
+        fetch: fetchBeforeMsw,
       })
 
   const { blobs } = await ctx.blobStore.list()
@@ -118,6 +120,20 @@ export function countOfBlobServerGetsForKey(ctx: FixtureTestContext, key: string
     (acc, curr) => (stripRouteCacheScope(curr) === key ? acc + 1 : acc),
     0,
   )
+}
+
+/**
+ * Counts blob gets for a key from now until the end of the test, unaffected by
+ * `ctx.blobServerOnRequestSpy.mockClear()` calls in between
+ */
+export function trackBlobServerGetsForKey(ctx: FixtureTestContext, key: string) {
+  const requests = vi.fn()
+  ctx.blobServerOnRequestSpy.mockImplementation(requests)
+  return () =>
+    countOfBlobServerGetsForKey(
+      { blobServerOnRequestSpy: requests } as unknown as FixtureTestContext,
+      key,
+    )
 }
 
 /**

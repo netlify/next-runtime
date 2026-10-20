@@ -29,9 +29,11 @@ import { getLogger, getRequestContext } from './request-context.cjs'
 import {
   isAnyTagStaleOrExpired,
   markTagsAsStaleAndPurgeEdgeCache,
+  prefetchTagRevalidationMarker,
   purgeEdgeCache,
   type RevalidateTagDurations,
   type TagStaleOrExpiredStatus,
+  toCdnCacheTag,
 } from './tags-handler.cjs'
 import { getTracer, recordWarning, withActiveSpan } from './tracer.cjs'
 
@@ -39,13 +41,13 @@ let memoizedPrerenderManifest: PrerenderManifest
 
 /**
  * Pages Router entries have no cache-tag header, so we synthesize the implicit path tag Next uses for
- * on-demand revalidation (`res.revalidate` / `revalidatePath`), which is derived from the request
+ * on-demand revalidation (`res.revalidate`), which is derived from the request
  * pathname. From Next 15.5.27 / 16.3.8 the cache key handed to us is route-scoped, so recover the
  * pathname first; `/index` maps back to `/` (both for the scoped root and the legacy `/index` key).
  */
 const getPagesRouterImplicitTag = (key: string): string => {
   const pathname = routeCacheKeyToPathname(key)
-  return `_N_T_${pathname === '/index' ? '/' : encodeURI(pathname)}`
+  return toCdnCacheTag(`_N_T_${pathname === '/index' ? '/' : pathname}`)
 }
 
 export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
@@ -172,7 +174,7 @@ export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
       if (cacheValue.kind !== 'REDIRECT' && cacheValue.headers?.[NEXT_CACHE_TAGS_HEADER]) {
         const cacheTags = (cacheValue.headers[NEXT_CACHE_TAGS_HEADER] as string)
           .split(/,|%2c/gi)
-          .map(encodeURI)
+          .map(toCdnCacheTag)
         requestContext.responseCacheTags = cacheTags
       } else if (
         ((cacheValue.kind === 'PAGE' || cacheValue.kind === 'PAGES') &&
@@ -282,6 +284,12 @@ export class NetlifyCacheHandler implements CacheHandlerForMultipleVersions {
 
       span?.setAttributes({ key })
 
+      // pages router entries never check tags; skip only on a positive hint (`kind` in Next 15+,
+      // `kindHint` in 14.0.2+), older versions pass no hint so we can't know what we will get back
+      const { kind, kindHint } = context as { kind?: string; kindHint?: string }
+      if (kind !== 'PAGES' && kindHint !== 'pages') {
+        prefetchTagRevalidationMarker()
+      }
       const blob = await this.cacheStore.get<NetlifyCacheHandlerValue>(key, 'blobStore.get')
 
       // if blob is null then we don't have a cache entry

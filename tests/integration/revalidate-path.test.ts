@@ -1,16 +1,25 @@
 import { load } from 'cheerio'
 import { getLogger } from 'lambda-local'
+import { HttpResponse, http, passthrough } from 'msw'
+import { setupServer } from 'msw/node'
 import { v4 } from 'uuid'
-import { beforeEach, expect, test, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, expect, test, vi } from 'vitest'
 import { type FixtureTestContext } from '../utils/contexts.js'
-import { createFixture, invokeFunction, runPlugin } from '../utils/fixture.js'
+import {
+  createFixture,
+  invokeFunction,
+  invokeSandboxedFunction,
+  runPlugin,
+} from '../utils/fixture.js'
 import {
   encodeBlobKeyForRoute,
   encodeBlobKeyForTag,
   generateRandomObjectID,
   getBlobServerGets,
   startMockBlobStore,
+  trackBlobServerGetsForKey,
 } from '../utils/helpers.js'
+import { TAG_REVALIDATION_MARKER_KEY } from '../../src/run/handlers/tags-handler.cjs'
 import { nextVersionSatisfies } from '../utils/next-version-helpers.mjs'
 
 function isTagManifest(key: string) {
@@ -39,6 +48,24 @@ declare module 'vitest' {
 // Disable the verbose logging of the lambda-local runtime
 getLogger().level = 'alert'
 
+const purgeAPI = vi.fn()
+let server: ReturnType<typeof setupServer>
+
+beforeAll(() => {
+  server = setupServer(
+    http.post('https://api.netlify.com/api/v1/purge', async ({ request }) => {
+      purgeAPI(await request.json())
+      return HttpResponse.json({ ok: true })
+    }),
+    http.all(/.*/, () => passthrough()),
+  )
+  server.listen()
+})
+
+afterAll(() => {
+  server.close()
+})
+
 beforeEach<FixtureTestContext>(async (ctx) => {
   // set for each test a new deployID and siteID
   ctx.deployID = generateRandomObjectID()
@@ -48,6 +75,8 @@ beforeEach<FixtureTestContext>(async (ctx) => {
   vi.stubEnv('NETLIFY_PURGE_API_TOKEN', 'fake-token')
   // hide debug logs in tests
   // vi.spyOn(console, 'debug').mockImplementation(() => {})
+
+  purgeAPI.mockClear()
 
   await startMockBlobStore(ctx)
 })
@@ -157,3 +186,66 @@ test<FixtureTestContext>('should revalidate a route by path', async (ctx) => {
   ).toBeDistinct()
   ctx.blobServerOnRequestSpy.mockClear()
 })
+
+test<FixtureTestContext>('should read the tag revalidation marker only once per process after another process revalidated a route handler path', async (ctx) => {
+  await createFixture('server-components', ctx)
+  await runPlugin(ctx)
+
+  const markerGets = trackBlobServerGetsForKey(ctx, TAG_REVALIDATION_MARKER_KEY)
+
+  await invokeFunction(ctx, { url: '/api/revalidate-handler' })
+  expect(markerGets(), 'no revalidation happened yet, so the marker is read').toBe(1)
+
+  // revalidate in a separate process, so this process can only learn about the marker by reading it
+  const revalidate = await invokeSandboxedFunction(ctx, {
+    url: '/api/on-demand-revalidate/path?path=/api/revalidate-handler',
+  })
+  expect(revalidate.statusCode).toBe(200)
+  await new Promise<void>((resolve) => setTimeout(resolve, 100))
+  const markerGetsBeforeRequestsAfterRevalidation = markerGets()
+
+  const call2 = await invokeFunction(ctx, { url: '/api/revalidate-handler' })
+  expect(call2.headers['cache-status'], 'a cache miss on the on demand revalidated route').toBe(
+    '"Next.js"; fwd=miss',
+  )
+  await new Promise<void>((resolve) => setTimeout(resolve, 100))
+  await invokeFunction(ctx, { url: '/api/revalidate-handler' })
+  await invokeFunction(ctx, { url: '/api/revalidate-handler' })
+
+  expect(
+    markerGets() - markerGetsBeforeRequestsAfterRevalidation,
+    'the marker is read once, after that the process knows it exists',
+  ).toBe(1)
+})
+
+for (const { label, pagePath, revalidateUrl } of [
+  {
+    label: 'a route pattern',
+    pagePath: '/static-fetch/1',
+    revalidateUrl: '/api/on-demand-revalidate/path?path=/static-fetch/[id]&type=page',
+  },
+  {
+    label: 'a non-ASCII path',
+    pagePath: '/product/プリレンダリング',
+    revalidateUrl: '/api/on-demand-revalidate/path?path=/product/プリレンダリング',
+  },
+]) {
+  test<FixtureTestContext>(`should purge a CDN tag the page was served with when revalidating ${label}`, async (ctx) => {
+    await createFixture('server-components', ctx)
+    await runPlugin(ctx)
+
+    const page = await invokeFunction(ctx, { url: pagePath })
+    expect(page.statusCode).toBe(200)
+    const servedTags = (page.headers['netlify-cache-tag'] as string).split(',')
+
+    const revalidate = await invokeFunction(ctx, { url: revalidateUrl })
+    expect(revalidate.statusCode).toBe(200)
+    await new Promise<void>((resolve) => setTimeout(resolve, 100))
+
+    const purgedTags: string[] = purgeAPI.mock.calls.flatMap(([body]) => body.cache_tags)
+    expect(
+      purgedTags.some((tag) => servedTags.includes(tag)),
+      `none of purged tags [${purgedTags}] is in served tags [${servedTags}]`,
+    ).toBe(true)
+  })
+}
